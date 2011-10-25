@@ -10,6 +10,9 @@
 		    <packageset dir="${src.dir}" defaultexcludes="yes">
 		      <include name="**"/>
 		      <exclude name="de/scoopgmbh/copper/instrument/**"/>
+		      <exclude name="de/scoopgmbh/copper/util/**"/>
+		      <exclude name="de/scoopgmbh/copper/db/utility/oracle/**"/>
+		      <exclude name="de/scoopgmbh/copper/db/utility/oracle/c3p0/**"/>
 		    </packageset>
 
 		    <doctitle><![CDATA[<h1>COPPER core engine API</h1>]]></doctitle>
