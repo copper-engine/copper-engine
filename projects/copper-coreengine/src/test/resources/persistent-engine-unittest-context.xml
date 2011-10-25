@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:aop="http://www.springframework.org/schema/aop"
+         xmlns:tx="http://www.springframework.org/schema/tx"
+         xmlns:jee="http://www.springframework.org/schema/jee"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx 
+           http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+           http://www.springframework.org/schema/jee 
+           http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+           
+    <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton" init-method="start" destroy-method="shutdown">
+    	<property name="sourceDir" value="src/workflow/java"/>
+    	<property name="targetDir" value="target/compiled_workflow"/>
+    </bean>
+    
+	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+    	<property name="driverClass" value="oracle.jdbc.OracleDriver"/>
+    	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/>
+    	<property name="minPoolSize" value="1"/>
+    	<property name="maxPoolSize" value="8"/>
+    	<property name="connectionTesterClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester"/>
+    	<property name="connectionCustomizerClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionCustomizer"/>
+    	<property name="idleConnectionTestPeriod" value="15"/>
+	</bean>
+	
+	<bean id="statisticsCollector" class="de.scoopgmbh.copper.monitoring.LoggingStatisticCollector" init-method="start" destroy-method="shutdown"/>
+	
+	<bean id="batcher" class="de.scoopgmbh.copper.batcher.impl.BatcherImpl" scope="singleton" init-method="startup" destroy-method="shutdown">
+    	<constructor-arg type="int"><value>3</value></constructor-arg>
+    	<property name="statisticsCollector" ref="statisticsCollector"/>
+	</bean>
+	
+	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.OracleScottyDBStorage" scope="singleton">
+		<property name="batcher" ref="batcher"/>
+		<property name="dataSource" ref="datasource_default"/>
+		<property name="wfRepository" ref="wfRepository"/>
+		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
+	</bean>
+	           
+    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>
+    	<constructor-arg type="int"><value>4</value></constructor-arg>
+    </bean>
+           
+	<bean id="persistent.PPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">
+		<property name="processorPools">
+    		<list>
+    			<ref bean="persistent.ProcessorPool.default" />
+		    </list>
+  		</property>
+	</bean>
+	
+	<bean id="persistent.engine" class="de.scoopgmbh.copper.persistent.PersistentScottyEngine" scope="singleton" destroy-method="shutdown">
+		<property name="idFactory">
+			<bean class = "de.scoopgmbh.copper.common.JdkRandomUUIDFactory"></bean>
+<!-- 			<bean class = "de.scoopgmbh.copper.common.AtomicLongIdFactory"></bean> -->
+		</property>
+		<property name="processorPoolManager" ref="persistent.PPManager"/>
+		<property name="dependencyInjector">
+			<bean class="de.scoopgmbh.copper.spring.SpringDependencyInjector"></bean>
+		</property>
+		<property name="dbStorage" ref="persistent.dbStorage"/>
+		<property name="wfRepository" ref="wfRepository"/>
+	</bean>
+	
+	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton">
+		<property name="batcher" ref="batcher"/>
+		<property name="dataSource" ref="datasource_default"/>
+	</bean>
+	
+</beans>          
+
+        

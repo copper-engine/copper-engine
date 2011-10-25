@@ -1,0 +1,44 @@
+<project name="all" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<property name="ivy.jar.dir" value="${basedir}/common/ivy/jars" />
+	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+
+	<property name="build.dir" value="build" />
+	<property name="src.dir" value="src" />
+
+	<target name="load-ivy">
+		<!-- try to load ivy here from home ivy dir, in case the user has not already 
+			dropped it into ant's lib dir (note that the latter copy will always take 
+			precedence). We will not fail as long as ivy home lib dir exists (it may 
+			be empty) and ivy is in at least one of ant's lib dir or the ivy home lib 
+			dir. -->
+		<mkdir dir="${ivy.jar.dir}" />
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+	</target>
+
+	<target name="buildlist" depends="load-ivy">
+		<ivy:buildlist reference="build-path">
+			<fileset dir="projects" includes="*/build.xml" />
+		</ivy:buildlist>
+	</target>
+
+	<target name="publish-all" depends="buildlist" description="compile, jar and publish all projects in the right order">
+		<subant target="publish" buildpathref="build-path" />
+	</target>
+
+	<target name="clean-all" depends="buildlist" description="clean all projects">
+		<subant target="clean" buildpathref="build-path" />
+	</target>
+
+	<target name="clean" depends="clean-all, load-ivy" description="clean tutorial: delete repository, ivy cache, and all projects">
+		<delete dir="repository" />
+		<ivy:cleancache />
+	</target>
+
+	<target name="package-all" depends="buildlist" description="compile and jar all projects in the right order">
+		<subant target="jar" buildpathref="build-path" />
+	</target>
+
+</project>

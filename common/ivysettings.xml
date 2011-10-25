@@ -1,0 +1,6 @@
+<ivysettings>
+	<settings defaultResolver="ivyrep" />
+	<resolvers>
+		<ivyrep name="ivyrep" />
+	</resolvers>
+</ivysettings>

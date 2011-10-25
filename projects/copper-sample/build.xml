@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<project default="compile" name="copper-sample">
+	<property file="build.properties" />	
+	<import file="${common.dir}/common.xml"/>   
+</project>
+ 
+

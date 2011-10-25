@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:aop="http://www.springframework.org/schema/aop"
+         xmlns:tx="http://www.springframework.org/schema/tx"
+         xmlns:jee="http://www.springframework.org/schema/jee"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx 
+           http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+           http://www.springframework.org/schema/jee 
+           http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+           
+    <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton">
+    	<property name="sourceDir" value="src/workflow/java"/>
+    	<property name="targetDir" value="target/compiled_workflow"/>
+    </bean>
+    
+    <bean id="defaultTicketPool" class="de.scoopgmbh.copper.util.TicketPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>DEFAULT</value></constructor-arg>
+    	<constructor-arg type="int"><value>20000</value></constructor-arg>
+    </bean>
+           
+	<bean id="ticketPoolManager" class="de.scoopgmbh.copper.common.DefaultTicketPoolManager">
+		<property name="ticketPools">
+    		<list>
+    			<ref bean="defaultTicketPool" />
+		    </list>
+  		</property>
+	</bean>
+	
+    <bean id="T_ProcessorPool_DEFAULT" class="de.scoopgmbh.copper.tranzient.TransientPriorityProcessorPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>T#DEFAULT</value></constructor-arg>
+    	<constructor-arg type="int"><value>4</value></constructor-arg>
+    </bean>
+	
+    <bean id="T_ProcessorPool_PS47112" class="de.scoopgmbh.copper.tranzient.TransientPriorityProcessorPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>PS47112</value></constructor-arg>
+    	<constructor-arg type="int"><value>4</value></constructor-arg>
+    </bean>
+
+	<bean id="transientPPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">
+		<property name="processorPools">
+    		<list>
+    			<ref bean="T_ProcessorPool_DEFAULT" />
+    			<ref bean="T_ProcessorPool_PS47112" />
+		    </list>
+  		</property>
+	</bean>
+	
+	<bean id="transientEngine" class="de.scoopgmbh.copper.tranzient.TransientScottyEngine" scope="singleton" init-method="startup" destroy-method="shutdown">
+		<property name="ticketPoolManager" ref="ticketPoolManager"/>
+		<property name="poolManager" ref="transientPPManager"/>
+		<property name="timeoutManager">
+			<bean class = "de.scoopgmbh.copper.tranzient.DefaultTimeoutManager"></bean>
+		</property>
+		<property name="earlyResponseContainer">
+			<bean class = "de.scoopgmbh.copper.tranzient.EarlyResponseContainer"></bean>
+		</property>
+		<property name="dependencyInjector">
+			<bean class="de.scoopgmbh.copper.spring.SpringDependencyInjector"></bean>
+		</property>
+		<property name="wfRepository" ref="wfRepository"/>
+	</bean>
+	
+	
+</beans>          
