@@ -22,7 +22,7 @@ import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.WorkflowFactory;
-import de.scoopgmbh.copper.memory.Blocker;
+import de.scoopgmbh.copper.util.Blocker;
 
 
 public abstract class AbstractProcessingEngine implements ProcessingEngine {

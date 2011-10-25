@@ -19,6 +19,12 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Mock implementation of an audit trail.
+ * 
+ * @author austermann
+ *
+ */
 public class MockAuditTrail implements AuditTrail {
 
 	private static final Logger logger = Logger.getLogger(MockAuditTrail.class);

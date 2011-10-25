@@ -15,7 +15,21 @@
  */
 package de.scoopgmbh.copper.audit;
 
+/**
+ * Callback interface for asynchronous audit trail calls.
+ * 
+ * @author austermann
+ *
+ */
 public interface AuditTrailCallback {
+	
+	/**
+	 * called by the audit trail, when an asynchronous logging has been successfully finished  
+	 */
 	public void done();
+
+	/**
+	 * called by the audit trail, when an asynchronous logging has been failed
+	 */
 	public void error(Exception e);
 }

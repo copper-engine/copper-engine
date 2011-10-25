@@ -30,7 +30,7 @@ import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutorBase;
 
 
-public class BatcherQueue {
+class BatcherQueue {
 
 	enum State {
 		STARTED, STOPPING, STOPPED

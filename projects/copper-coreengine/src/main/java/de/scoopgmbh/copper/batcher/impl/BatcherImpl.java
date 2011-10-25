@@ -28,6 +28,12 @@ import de.scoopgmbh.copper.batcher.impl.BatcherQueue.State;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 
+/**
+ * Implementation of the Batcher interface
+ * 
+ * @author austermann
+ *
+ */
 public class BatcherImpl implements Batcher {
 	
 	Logger logger = Logger.getLogger(BatcherImpl.class);

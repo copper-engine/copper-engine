@@ -17,7 +17,7 @@ package de.scoopgmbh.copper.audit;
 
 import java.util.Date;
 
-public class AuditTrailEvent {
+class AuditTrailEvent {
 
 	int logLevel;
 	Date occurrence;

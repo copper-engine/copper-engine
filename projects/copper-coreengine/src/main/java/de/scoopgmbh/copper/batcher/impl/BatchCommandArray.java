@@ -22,7 +22,7 @@ import java.util.List;
 
 import de.scoopgmbh.copper.batcher.BatchCommand;
 
-public class BatchCommandArray extends AbstractList<BatchCommand<?,?>> implements List<BatchCommand<?,?>> {
+class BatchCommandArray extends AbstractList<BatchCommand<?,?>> implements List<BatchCommand<?,?>> {
 	
 	BatchCommand<?,?>[] a;
 	int                 size;

@@ -29,7 +29,7 @@ import de.scoopgmbh.copper.batcher.CommandCallback;
 import de.scoopgmbh.copper.batcher.NullCallback;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 
-public class BatchInsertIntoAutoTrail {
+class BatchInsertIntoAutoTrail {
 	
 	static final class Command extends AbstractBatchCommand<Executor, Command>{
 		

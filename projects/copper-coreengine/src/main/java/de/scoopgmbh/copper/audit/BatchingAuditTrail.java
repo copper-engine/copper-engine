@@ -25,6 +25,12 @@ import de.scoopgmbh.copper.audit.BatchInsertIntoAutoTrail.Command;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.CommandCallback;
 
+/**
+ * Fast db based audit trail implementation.
+ * 
+ * @author austermann
+ *
+ */
 public class BatchingAuditTrail implements AuditTrail {
 	
 	private static final Logger logger = Logger.getLogger(BatchingAuditTrail.class);
