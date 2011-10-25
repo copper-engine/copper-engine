@@ -17,34 +17,51 @@ package de.scoopgmbh.copper.audit;
 
 import java.util.Date;
 
+/**
+ * Interface for logging audit trail events to the underlying database.
+ * 
+ * @author austermann
+ *
+ */
 public interface AuditTrail {
 
 	boolean isEnabled(int level);
 
 	/**
-	 * returns after the log message is written to the underlying storage
-	 * @param logLevel
-	 * @param occurrence
-	 * @param conversationId
-	 * @param context
-	 * @param workflowInstanceId
-	 * @param correlationId
-	 * @param message
+	 * writes an event to the audit trail log and returns after the log message is written to the underlying storage.
+	 * @param logLevel the level on that the audit trail event is recorded (might be used for filtering)
+	 * @param occurrence timestamp of the audit trail event 
+	 * @param conversationId conversation id embraces all audit trail events for one business process (might be the same for a whole business transaction over a range of involved systems)
+	 * @param context the context of the audit trail event (e.g. a camel route, a workflow task, ...)
+	 * @param workflowInstanceId workflow id for a single workflow
+	 * @param correlationId correlates a request response pair (e.g. workflow calls another workflow, workflow calls a camel route, ...)
+	 * @param message a message describing the audit trail event
 	 */
 	public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String message);
 	
 	/**
 	 * returns immediately after queueing the log message
-	 * @param logLevel
-	 * @param occurrence
-	 * @param conversationId
-	 * @param context
-	 * @param workflowInstanceId
-	 * @param correlationId
-	 * @param message
+	 * @param logLevel the level on that the audit trail event is recorded (might be used for filtering)
+	 * @param occurrence timestamp of the audit trail event 
+	 * @param conversationId conversation id embraces all audit trail events for one business process (might be the same for a whole business transaction over a range of involved systems)
+	 * @param context the context of the audit trail event (e.g. a camel route, a workflow task, ...)
+	 * @param workflowInstanceId workflow id for a single workflow
+	 * @param correlationId correlates a request response pair (e.g. workflow calls another workflow, workflow calls a camel route, ...)
+	 * @param message a message describing the audit trail event
 	 */
 	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String message);
 	
+	/**
+	 * returns immediately after queueing the log message
+	 * @param logLevel the level on that the audit trail event is recorded (might be used for filtering)
+	 * @param occurrence timestamp of the audit trail event 
+	 * @param conversationId conversation id embraces all audit trail events for one business process (might be the same for a whole business transaction over a range of involved systems)
+	 * @param context the context of the audit trail event (e.g. a camel route, a workflow task, ...)
+	 * @param workflowInstanceId workflow id for a single workflow
+	 * @param correlationId correlates a request response pair (e.g. workflow calls another workflow, workflow calls a camel route, ...)
+	 * @param message a message describing the audit trail event
+	 * @param cb
+	 */
 	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String message, AuditTrailCallback cb);
 
 }
