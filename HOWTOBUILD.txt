@@ -1,0 +1,16 @@
+You need Apache Ant to build COPPER.
+
+To build all COPPER projects, just execute
+ant publish-all
+in the projects root directory.
+
+You need the eclipse ivy plugin (http://ant.apache.org/ivy/ivyde/) 
+to edit the COPPER subprojects in eclipse.
+
+Furthermore, to run or unit test COPPER, you need the Oracle 11gR2
+JDBC driver.
+Create a new eclipse CLASSPATH variable ORACLE_JDBC_HOME that 
+points to the directory that contains the corresponding jar files 
+(ORACLE_JDBC_HOME/ojdbc6.jar and ORACLE_JDBC_HOME\orai18n.jar).
+
+Have fun!
