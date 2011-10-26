@@ -1,24 +1,22 @@
 <?xml version="1.0"?>
 
 <project default="compile" name="copper-coreengine">
-	<property file="build.properties" />	
-	<import file="${common.dir}/common.xml"/>
-	
+	<property file="build.properties" />
+	<import file="${common.dir}/common.xml" />
+
 	<target name="javadoc">
-		  <javadoc destdir="${build.dir}/javadoc" author="true" version="true" use="true" windowtitle="COPPER core engine API">
-
-		    <packageset dir="${src.dir}" defaultexcludes="yes">
-		      <include name="**"/>
-		      <exclude name="de/scoopgmbh/copper/instrument/**"/>
-		      <exclude name="de/scoopgmbh/copper/util/**"/>
-		      <exclude name="de/scoopgmbh/copper/db/utility/oracle/**"/>
-		      <exclude name="de/scoopgmbh/copper/db/utility/oracle/c3p0/**"/>
-		    </packageset>
-
-		    <doctitle><![CDATA[<h1>COPPER core engine API</h1>]]></doctitle>
-		    <bottom><![CDATA[<i>Copyright &#169; 2011 SCOOP Software GmbH. All Rights Reserved.</i>]]></bottom>
-		  </javadoc>
+		<javadoc destdir="${build.dir}/javadoc" author="true" version="true" use="true" windowtitle="COPPER core engine API">
+			<packageset dir="${src.dir}" defaultexcludes="yes">
+				<include name="**" />
+				<exclude name="de/scoopgmbh/copper/instrument/**" />
+				<exclude name="de/scoopgmbh/copper/util/**" />
+				<exclude name="de/scoopgmbh/copper/db/utility/oracle/**" />
+				<exclude name="de/scoopgmbh/copper/db/utility/oracle/c3p0/**" />
+			</packageset>
+			<doctitle><![CDATA[<h1>COPPER core engine API</h1>]]></doctitle>
+			<bottom><![CDATA[<i>Copyright &#169; 2011 SCOOP Software GmbH. All Rights Reserved.</i>]]></bottom>
+		</javadoc>
 	</target>
 </project>
- 
+
 

@@ -29,7 +29,7 @@ import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 
 /**
- * Implementation of the Batcher interface
+ * COPPERs default implementation of the {@link Batcher} interface
  * 
  * @author austermann
  *
