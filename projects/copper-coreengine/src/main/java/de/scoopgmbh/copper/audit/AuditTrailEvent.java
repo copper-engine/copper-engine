@@ -26,8 +26,9 @@ class AuditTrailEvent {
 	String workflowInstanceId;
 	String correlationId;
 	String message;
+	String transactionId;
 	
-	public AuditTrailEvent(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String message) {
+	public AuditTrailEvent(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message) {
 		super();
 		this.logLevel = logLevel;
 		this.occurrence = occurrence;
@@ -36,6 +37,7 @@ class AuditTrailEvent {
 		this.workflowInstanceId = workflowInstanceId;
 		this.correlationId = correlationId;
 		this.message = message;
+		this.transactionId = transactionId;
 	}
 	
 }

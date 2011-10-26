@@ -41,22 +41,22 @@ public class MockAuditTrail implements AuditTrail {
 	}
 	
 	@Override
-	public void synchLog(int logLevel, Date occurrence, String conversationId,String context, String workflowInstanceId, String correlationId,String message) {
-		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, message));
+	public void synchLog(int logLevel, Date occurrence, String conversationId,String context, String workflowInstanceId, String correlationId, String transactionId, String message) {
+		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, transactionId, message));
 	}
 
 	@Override
-	public void asynchLog(int logLevel, Date occurrence, String conversationId,String context, String workflowInstanceId, String correlationId,String message) {
-		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, message));
+	public void asynchLog(int logLevel, Date occurrence, String conversationId,String context, String workflowInstanceId, String correlationId,String transactionId, String message) {
+		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, transactionId, message));
 	}
 
 	@Override
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String message, AuditTrailCallback cb) {
-		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, message));
+	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message, AuditTrailCallback cb) {
+		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, transactionId, message));
 		cb.done();
 	}
 
-	private String createMessage(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String message) {
+	private String createMessage(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message) {
 		return new StringBuilder()
 			.append(logLevel).append('|')
 			.append(occurrence).append('|')
@@ -64,6 +64,7 @@ public class MockAuditTrail implements AuditTrail {
 			.append(context).append('|')
 			.append(workflowInstanceId).append('|')
 			.append(correlationId).append('|')
+			.append(transactionId).append('|')
 			.append(message)
 			.toString();
 	}

@@ -35,9 +35,10 @@ public interface AuditTrail {
 	 * @param context the context of the audit trail event (e.g. a camel route, a workflow task, ...)
 	 * @param workflowInstanceId workflow id for a single workflow
 	 * @param correlationId correlates a request response pair (e.g. workflow calls another workflow, workflow calls a camel route, ...)
+	 * @param transactionId Same ID vor several conversations, that belongs to the same transaction. Example: ExecuteOrder (conversation 1), ChangeOrder (conversation 2) and CancelOrder (conversation 3) that all belongs to transaction 77. When transaction 77 can be deleted, all conversations for this transaction can be deleted.
 	 * @param message a message describing the audit trail event
 	 */
-	public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String message);
+	public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message);
 	
 	/**
 	 * returns immediately after queueing the log message
@@ -47,9 +48,10 @@ public interface AuditTrail {
 	 * @param context the context of the audit trail event (e.g. a camel route, a workflow task, ...)
 	 * @param workflowInstanceId workflow id for a single workflow
 	 * @param correlationId correlates a request response pair (e.g. workflow calls another workflow, workflow calls a camel route, ...)
+	 * @param transactionId Same ID vor several conversations, that belongs to the same transaction. Example: ExecuteOrder (conversation 1), ChangeOrder (conversation 2) and CancelOrder (conversation 3) that all belongs to transaction 77. When transaction 77 can be deleted, all conversations for this transaction can be deleted.
 	 * @param message a message describing the audit trail event
 	 */
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String message);
+	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message);
 	
 	/**
 	 * returns immediately after queueing the log message
@@ -59,9 +61,10 @@ public interface AuditTrail {
 	 * @param context the context of the audit trail event (e.g. a camel route, a workflow task, ...)
 	 * @param workflowInstanceId workflow id for a single workflow
 	 * @param correlationId correlates a request response pair (e.g. workflow calls another workflow, workflow calls a camel route, ...)
+	 * @param transactionId Same ID vor several conversations, that belongs to the same transaction. Example: ExecuteOrder (conversation 1), ChangeOrder (conversation 2) and CancelOrder (conversation 3) that all belongs to transaction 77. When transaction 77 can be deleted, all conversations for this transaction can be deleted.
 	 * @param message a message describing the audit trail event
 	 * @param cb
 	 */
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String message, AuditTrailCallback cb);
+	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message, AuditTrailCallback cb);
 
 }

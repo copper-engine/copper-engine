@@ -64,7 +64,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 				callFoo();
 				counter++;
 			}
-			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, "finished");
+			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished");
 			backChannelQueue.enqueue(new WorkflowResult(getData(), null));
 		}
 		catch(Exception e) {
@@ -86,7 +86,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		Assert.assertFalse(res.isTimeout());
 		Assert.assertEquals(getData(),res.getResponse());
 		Assert.assertNull(res.getException());
-		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, "foo successfully called");
+		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called");
 	}
 
 }

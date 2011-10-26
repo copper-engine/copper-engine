@@ -80,7 +80,7 @@ class BatchInsertIntoAutoTrail {
 				new RetryingTransaction(commands.iterator().next().dataSource) {
 					@Override
 					protected void execute() throws Exception {
-						final PreparedStatement stmt = getConnection().prepareStatement("INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,NULL)");
+						final PreparedStatement stmt = getConnection().prepareStatement("INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?)");
 						for (Command cmd : commands) {
 							AuditTrailEvent data = cmd.data;
 							stmt.setTimestamp(1, new Timestamp(data.occurrence.getTime()));
@@ -94,7 +94,9 @@ class BatchInsertIntoAutoTrail {
 								stmt.setString(8, data.message);
 							} else {
 								stmt.setString(7, data.message);
+								stmt.setString(8, null);
 							}
+							stmt.setString(9, data.transactionId);
 							stmt.addBatch();
 						}
 						stmt.executeBatch();
