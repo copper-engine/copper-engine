@@ -33,7 +33,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
 
 	private static final Logger logger = Logger.getLogger(PersistentSpock2GTestWF.class);
 	private static final long serialVersionUID = 1816644971610832088L;
-	private static final int DEFAULT_TIMEOUT = -1;
+	private static final int DEFAULT_TIMEOUT = 60000;
 
 	private Callback<String> cb;
 	private int idx;
@@ -58,7 +58,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
 		logger.debug("started");
 		
 		// store the workflow start in the database
-		auditTrail.synchLog(1,new Date(), "conv1234", "de.scoopgmbh.copper.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "AUSTER TEST 12345");
+		auditTrail.asynchLog(1,new Date(), "conv1234", "de.scoopgmbh.copper.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "AUSTER TEST 12345");
 		
 		// do a call to a adapter e.g. a partner system
 		{
@@ -69,7 +69,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
 			Response<?> r = super.getAndRemoveResponse(correlationId);
 			if (logger.isDebugEnabled()) logger.debug("Waking up again, response="+r);
 			assert r != null;
-			assert r.getResponse() != null;
+			assert r.getResponse() != null || r.isTimeout();
 			x++;
 		}
 		
@@ -99,7 +99,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
 			Response<?> response = cb.getResponse(this);
 			if (logger.isDebugEnabled()) logger.debug("Response = "+response);
 			assert response != null;
-			assert response.getResponse() != null;
+			assert response.getResponse() != null || response.isTimeout();
 			x++;
 		}
 		
@@ -111,7 +111,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
 		Counter.inc();
 		
 		// report the end of this workflow
-		auditTrail.synchLog(1,new Date(), "conv123", "de.scoopgmbh.copper.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "FINISHED!");
+		auditTrail.asynchLog(1,new Date(), "conv123", "de.scoopgmbh.copper.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "FINISHED!");
 		logger.debug("finished");		
 	}
 	

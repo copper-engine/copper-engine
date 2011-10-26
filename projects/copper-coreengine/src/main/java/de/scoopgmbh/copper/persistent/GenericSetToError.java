@@ -69,6 +69,7 @@ class GenericSetToError {
 				new RetryingTransaction(commands.iterator().next().dataSource) {
 					@Override
 					protected void execute() throws Exception {
+						final PreparedStatement stmtDelQueue = getConnection().prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
 						final PreparedStatement stmtUpdateState = getConnection().prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=? WHERE ID=?");
 						final PreparedStatement stmtInsertError = getConnection().prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, EXCEPTION, ERROR_TS) VALUES (?,?,SYSTIMESTAMP)");
 						for (Command cmd : commands) {
@@ -79,9 +80,15 @@ class GenericSetToError {
 							stmtInsertError.setString(1, cmd.wf.getId());
 							stmtInsertError.setString(2, convert2String(cmd.error));
 							stmtInsertError.addBatch();
+							
+							stmtDelQueue.setString(1, cmd.wf.rowid);
+							stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
+							stmtDelQueue.setInt(3, cmd.wf.oldPrio);
+							stmtDelQueue.addBatch();
 						}
 						stmtUpdateState.executeBatch();
 						stmtInsertError.executeBatch();
+						stmtDelQueue.executeBatch();
 					}
 				}.run();
 			} 

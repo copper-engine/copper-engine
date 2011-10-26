@@ -71,9 +71,14 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	private int lockWaitSeconds = 10;
 	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
 	private Serializer serializer = new StandardJavaSerializer();
+	private String engineId = null;
 
 	public OracleScottyDBStorage() {
 
+	}
+	
+	public void setEngineId(String engineId) {
+		this.engineId = engineId;
 	}
 	
 	public void setSerializer(Serializer serializer) {
@@ -133,37 +138,14 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 			protected void execute() throws Exception {
 				getConnection().setAutoCommit(true);
 
-				logger.info("Truncating queue...");
-				Statement truncate = getConnection().createStatement();
-				truncate.execute("TRUNCATE TABLE COP_QUEUE");
-				truncate.close();
+				logger.info("Reactivating queue entries...");
+				PreparedStatement stmt = getConnection().prepareStatement("UPDATE cop_queue SET engine_id = null WHERE engine_id=?");
+				stmt.setString(1, engineId);
+				stmt.execute();
+				stmt.close();
 				logger.info("done!");
-
-				logger.info("Adding all BPs in state 0 to queue...");
-				PreparedStatement stmt = getConnection().prepareStatement("insert /*+ PARALLEL */ into cop_queue (ppool_id, priority, last_mod_ts, WFI_ROWID) (select ppool_id, priority, last_mod_ts, rowid from COP_WORKFLOW_INSTANCE where state=0)");
-				int rowcount = stmt.executeUpdate();
-				stmt.close();
-				logger.info("done - processed "+rowcount+" BP(s).");
-
-				logger.info("Changing all WAITs to state 0...");
-				stmt = getConnection().prepareStatement("update /*+ PARALLEL */ cop_wait set state=0 where state=1");
-				rowcount = stmt.executeUpdate();
-				stmt.close();
-				logger.info("done - changed "+rowcount+" WAIT(s).");
-
 			}
 		}.run();
-
-		logger.info("Adding all BPs in working state with existing response(s)...");
-		int rowcount = 0;
-		for (;;) {
-			int x = updateQueueState(100000);
-			if (x==0) break;
-			rowcount+=x;
-		}
-
-		logger.info("done - processed "+rowcount+" BPs.");
-
 	}
 
 	/* (non-Javadoc)
@@ -352,10 +334,11 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 
 				responseLoader.setCon(getConnection());
 				responseLoader.setSerializer(serializer);
+				responseLoader.setEngineId(engineId);
 				responseLoader.beginTxn();
 				
 				final List<String> invalidBPs = new ArrayList<String>();
-				final PreparedStatement dequeueStmt = getConnection().prepareStatement("select id,priority,data,rowid,long_data from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from cop_queue where ppool_id=? order by ppool_id, priority, last_mod_ts) where rownum <= ?)"); 
+				final PreparedStatement dequeueStmt = getConnection().prepareStatement("select id,priority,data,rowid,long_data from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from cop_queue where ppool_id=? and engine_id is null order by ppool_id, priority, last_mod_ts) where rownum <= ?)"); 
 				dequeueStmt.setString(1, ppoolId);
 				dequeueStmt.setInt(2, max);
 				dequeueAllStmtStatistic.start();
@@ -376,6 +359,8 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 						wf.setProcessorPoolId(ppoolId);
 						wf.setPriority(prio);
 						wf.rowid = rowid;
+						wf.oldPrio = prio;
+						wf.oldProcessorPoolId = ppoolId;
 						map.put(wf.getId(), wf);
 						responseLoader.enqueue(wf);
 					}
@@ -425,7 +410,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 					getConnection().setAutoCommit(false);
 					lock(getConnection(), "updateQueueState");
 					enqueueUpdateStateStmtStatistic.start();
-					CallableStatement stmt = getConnection().prepareCall("begin COP_CORENGINE.enqueue(?,?); end;");
+					CallableStatement stmt = getConnection().prepareCall("begin COP_COREENGINE.enqueue(?,?); end;");
 					stmt.setInt(1, max);
 					stmt.registerOutParameter(2, Types.INTEGER);
 					stmt.execute();
@@ -493,6 +478,8 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	 */
 	public synchronized void startup() {
 		try {
+			if (engineId == null) throw new NullPointerException("EngineId is NULL! Change your OracleScottyDBStorage configuration.");
+			
 			initStmtStats();
 			responseLoader = new ResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueDeleteStmtStatistic);
 			
@@ -703,7 +690,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		new RetryingTransaction(dataSource) {
 			@Override
 			protected void execute() throws Exception {
-				CallableStatement stmt = getConnection().prepareCall("begin COP_CORENGINE.restart(?); end;");
+				CallableStatement stmt = getConnection().prepareCall("begin COP_COREENGINE.restart(?); end;");
 				stmt.setString(1, workflowInstanceId);
 				stmt.execute();
 			}

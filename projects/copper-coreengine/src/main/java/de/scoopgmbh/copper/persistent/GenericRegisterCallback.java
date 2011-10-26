@@ -70,6 +70,7 @@ class GenericRegisterCallback {
 					protected void execute() throws Exception {
 						final Timestamp now = new Timestamp(System.currentTimeMillis());
 						boolean doDeletes = false;
+						PreparedStatement stmtDelQueue = getConnection().prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
 						PreparedStatement deleteWait = getConnection().prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
 						PreparedStatement deleteResponse = getConnection().prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
 						PreparedStatement insertWaitStmt = getConnection().prepareStatement("INSERT INTO COP_WAIT (CORRELATION_ID,WORKFLOW_INSTANCE_ID,MIN_NUMB_OF_RESP,TIMEOUT_TS,STATE,PRIORITY,PPOOL_ID,WFI_ROWID) VALUES (?,?,?,?,?,?,?,?)");
@@ -101,6 +102,11 @@ class GenericRegisterCallback {
 							updateWfiStmt.setTimestamp(idx++, rc.timeoutTS);
 							updateWfiStmt.setString(idx++, rc.workflow.getId());
 							updateWfiStmt.addBatch();
+							
+							stmtDelQueue.setString(1, ((PersistentWorkflow<?>)rc.workflow).rowid);
+							stmtDelQueue.setString(2, ((PersistentWorkflow<?>)rc.workflow).oldProcessorPoolId);
+							stmtDelQueue.setInt(3, ((PersistentWorkflow<?>)rc.workflow).oldPrio);
+							stmtDelQueue.addBatch();
 
 							List<String> cidList = ((PersistentWorkflow<?>)rc.workflow).cidList;
 							if (cidList != null) {
@@ -117,6 +123,8 @@ class GenericRegisterCallback {
 						}
 						insertWaitStmt.executeBatch();
 						updateWfiStmt.executeBatch();
+						stmtDelQueue.executeBatch();
+						
 						if (doDeletes) deleteResponse.executeBatch();
 						if (doDeletes) deleteWait.executeBatch();
 					}

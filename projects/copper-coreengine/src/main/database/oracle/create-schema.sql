@@ -73,6 +73,7 @@ create table COP_QUEUE (
    PRIORITY             NUMBER(2)                       not null,
    LAST_MOD_TS          TIMESTAMP                       not null,
    WFI_ROWID			ROWID							not null,
+   ENGINE_ID			VARCHAR2(16)					null,
    constraint PK_COP_QUEUE primary key (PPOOL_ID,PRIORITY,WFI_ROWID)
 )
 organization index 
@@ -94,4 +95,13 @@ create table COP_AUDIT_TRAIL_EVENT (
 
 CREATE SEQUENCE COP_SEQ_AUDIT_TRAIL CACHE 1000;
 
+/*
+create table COP_ENGINE (
+	ENGINE_ID			VARCHAR2(16) NOT NULL,
+	LAST_HEARTBEAT_TS	TIMESTAMP NOT NULL,
+	NEXT_HEARTBEAT_TS	TIMESTAMP NOT NULL,
+	FAILURE_DETECTED_TS TIMESTAMP NULL, 
+   constraint PK_COP_ENGINE primary key (ENGINE_ID)
+);
+*/
 

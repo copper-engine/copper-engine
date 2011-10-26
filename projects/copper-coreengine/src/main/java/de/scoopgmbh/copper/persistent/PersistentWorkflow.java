@@ -38,5 +38,7 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 	transient RegisterCall registerCall;
 	transient List<String> cidList;
 	transient String rowid;
+	transient String oldProcessorPoolId;
+	transient int oldPrio;
 	
 }

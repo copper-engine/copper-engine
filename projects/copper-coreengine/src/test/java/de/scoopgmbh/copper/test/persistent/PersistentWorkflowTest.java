@@ -34,6 +34,7 @@ import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
+import de.scoopgmbh.copper.persistent.OracleScottyDBStorage;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
@@ -248,10 +249,14 @@ public class PersistentWorkflowTest extends TestCase {
 		final ConfigurableApplicationContext contextA = new ClassPathXmlApplicationContext(new String[] {"persistent-engine-unittest-context.xml", "unittest-context.xml"});
 		final ConfigurableApplicationContext contextB = new ClassPathXmlApplicationContext(new String[] {"persistent-engine-unittest-context.xml", "unittest-context.xml"});
 		cleanDB(contextA.getBean(DataSource.class));
+		final OracleScottyDBStorage storageA = contextA.getBean(OracleScottyDBStorage.class);
+		final OracleScottyDBStorage storageB = contextB.getBean(OracleScottyDBStorage.class);
 		final PersistentScottyEngine engineA = contextA.getBean(PersistentScottyEngine.class);
 		final PersistentScottyEngine engineB = contextB.getBean(PersistentScottyEngine.class);
 		final BackChannelQueue backChannelQueueA = contextA.getBean(BackChannelQueue.class);
 		final BackChannelQueue backChannelQueueB = contextB.getBean(BackChannelQueue.class);
+		storageA.setEngineId("red");
+		storageB.setEngineId("blue");
 		engineA.startup();
 		engineB.startup();
 		try {

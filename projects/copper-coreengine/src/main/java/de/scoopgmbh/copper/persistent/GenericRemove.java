@@ -63,6 +63,7 @@ class GenericRemove {
 				new RetryingTransaction(commands.iterator().next().dataSource) {
 					@Override
 					protected void execute() throws Exception {
+						final PreparedStatement stmtDelQueue = getConnection().prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
 						final PreparedStatement stmtDelResponse = getConnection().prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
 						final PreparedStatement stmtDelWait = getConnection().prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
 						final PreparedStatement stmtDelBP = getConnection().prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?");
@@ -83,6 +84,11 @@ class GenericRemove {
 
 							stmtDelErrors.setString(1, cmd.wf.getId());
 							stmtDelErrors.addBatch();
+							
+							stmtDelQueue.setString(1, cmd.wf.rowid);
+							stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
+							stmtDelQueue.setInt(3, cmd.wf.oldPrio);
+							stmtDelQueue.addBatch();
 						}
 						if (cidsFound) {
 							stmtDelResponse.executeBatch();
@@ -90,6 +96,7 @@ class GenericRemove {
 						}
 						stmtDelBP.executeBatch();
 						stmtDelErrors.executeBatch();
+						stmtDelQueue.executeBatch();
 					}
 				}.run();
 			} 

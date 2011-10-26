@@ -15,7 +15,6 @@
  */
 package de.scoopgmbh.copper.persistent;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.DataFormatException;
 
 import org.apache.log4j.Logger;
 
@@ -39,6 +37,7 @@ class ResponseLoader extends ConcurrentBatchedWorker {
 	private Serializer serializer;
 	private final StmtStatistic statResponse;
 	private final StmtStatistic statQueue;
+	private String engineId;
 	
 	public ResponseLoader(StmtStatistic statResponse, StmtStatistic statQueue) {
 		super();
@@ -53,6 +52,10 @@ class ResponseLoader extends ConcurrentBatchedWorker {
 	public void setSerializer(Serializer serializer) {
 		this.serializer = serializer;
 	}
+	
+	public void setEngineId(String engineId) {
+		this.engineId = engineId;
+	}
 
 	@Override
 	void process(final List<PersistentWorkflow<?>> list) {
@@ -63,7 +66,7 @@ class ResponseLoader extends ConcurrentBatchedWorker {
 
 		try {
 			loadResponses(list);
-			deleteQueueEntries(list);
+			markQueueEntries(list);
 		} 
 		catch (Exception e) {
 			logger.error("process failed",e);
@@ -71,21 +74,23 @@ class ResponseLoader extends ConcurrentBatchedWorker {
 
 	}
 	
-	private void deleteQueueEntries(final List<PersistentWorkflow<?>> list) throws SQLException {
-		final PreparedStatement deleteStmt = con.prepareStatement("delete from cop_queue where ppool_id=? and priority=? and WFI_ROWID=?");
+	private void markQueueEntries(final List<PersistentWorkflow<?>> list) throws SQLException {
+		//final PreparedStatement deleteStmt = con.prepareStatement("delete from cop_queue where ppool_id=? and priority=? and WFI_ROWID=?");
+		final PreparedStatement updateStmt = con.prepareStatement("update cop_queue set engine_id = ? where ppool_id=? and priority=? and WFI_ROWID=?");
 		try {
 			for (PersistentWorkflow<?> wf : list) {
-				deleteStmt.setString(1, wf.getProcessorPoolId());
-				deleteStmt.setInt(2,wf.getPriority());
-				deleteStmt.setString(3, wf.rowid);
-				deleteStmt.addBatch();
+				updateStmt.setString(1, engineId);
+				updateStmt.setString(2, wf.getProcessorPoolId());
+				updateStmt.setInt(3,wf.getPriority());
+				updateStmt.setString(4, wf.rowid);
+				updateStmt.addBatch();
 			}
 			statQueue.start();
-			deleteStmt.executeBatch();
+			updateStmt.executeBatch();
 			statQueue.stop(list.size());
 		}
 		finally {
-			deleteStmt.close();
+			updateStmt.close();
 		}
 	}
 
