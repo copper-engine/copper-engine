@@ -53,7 +53,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	private StmtStatistic dequeueAllStmtStatistic;
 	private StmtStatistic dequeueQueryBPsStmtStatistic;
 	private StmtStatistic dequeueQueryResponsesStmtStatistic;
-	private StmtStatistic dequeueDeleteStmtStatistic;
+	private StmtStatistic dequeueMarkStmtStatistic;
 	private StmtStatistic enqueueUpdateStateStmtStatistic;
 	private StmtStatistic insertStmtStatistic;
 	private StmtStatistic deleteStaleResponsesStmtStatistic;
@@ -121,7 +121,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		dequeueAllStmtStatistic = new StmtStatistic("DBStorage.dequeue.fullquery.all", runtimeStatisticsCollector);
 		dequeueQueryBPsStmtStatistic = new StmtStatistic("DBStorage.dequeue.fullquery.queryBPs", runtimeStatisticsCollector);
 		dequeueQueryResponsesStmtStatistic = new StmtStatistic("DBStorage.dequeue.fullquery.queryResponses", runtimeStatisticsCollector);
-		dequeueDeleteStmtStatistic = new StmtStatistic("DBStorage.dequeue.delete", runtimeStatisticsCollector);
+		dequeueMarkStmtStatistic = new StmtStatistic("DBStorage.dequeue.mark", runtimeStatisticsCollector);
 		enqueueUpdateStateStmtStatistic = new StmtStatistic("DBStorage.enqueue.updateState", runtimeStatisticsCollector);
 		insertStmtStatistic = new StmtStatistic("DBStorage.insert", runtimeStatisticsCollector);
 		deleteStaleResponsesStmtStatistic = new StmtStatistic("DBStorage.deleteStaleResponses", runtimeStatisticsCollector);
@@ -287,9 +287,9 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 					rsResponses.close();
 					dequeueQueryResponsesStmtStatistic.stop(n);					
 				}
-				dequeueDeleteStmtStatistic.start();
+				dequeueMarkStmtStatistic.start();
 				deleteStmt.executeBatch();
-				dequeueDeleteStmtStatistic.stop(map.size());
+				dequeueMarkStmtStatistic.stop(map.size());
 
 				rv.addAll(map.values());
 				
@@ -706,7 +706,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		synchronized (responseLoaders) {
 			responseLoader = responseLoaders.get(ppoolId);
 			if (responseLoader == null) {
-				responseLoader = new ResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueDeleteStmtStatistic);
+				responseLoader = new ResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueMarkStmtStatistic);
 				responseLoader.start();
 				responseLoaders.put(ppoolId, responseLoader);
 			}

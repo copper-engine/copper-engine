@@ -51,13 +51,49 @@
 	           
     <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>
-    	<constructor-arg type="int"><value>16</value></constructor-arg>
+    	<constructor-arg type="int"><value>4</value></constructor-arg>
     </bean>
            
+    <bean id="persistent.ProcessorPool.1" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>P#1</value></constructor-arg>
+    	<constructor-arg type="int"><value>4</value></constructor-arg>
+    </bean>
+           
+    <bean id="persistent.ProcessorPool.2" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>P#2</value></constructor-arg>
+    	<constructor-arg type="int"><value>4</value></constructor-arg>
+    </bean>
+           
+    <bean id="persistent.ProcessorPool.3" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>P#3</value></constructor-arg>
+    	<constructor-arg type="int"><value>4</value></constructor-arg>
+    </bean>
+           
+    <bean id="persistent.ProcessorPool.4" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>P#4</value></constructor-arg>
+    	<constructor-arg type="int"><value>4</value></constructor-arg>
+    </bean>
+           
+    <bean id="persistent.ProcessorPool.5" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>P#5</value></constructor-arg>
+    	<constructor-arg type="int"><value>4</value></constructor-arg>
+    </bean>
+
+    <bean id="persistent.ProcessorPool.6" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>P#6</value></constructor-arg>
+    	<constructor-arg type="int"><value>4</value></constructor-arg>
+    </bean>
+
 	<bean id="persistent.PPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">
 		<property name="processorPools">
     		<list>
     			<ref bean="persistent.ProcessorPool.default" />
+    			<ref bean="persistent.ProcessorPool.1" />
+    			<ref bean="persistent.ProcessorPool.2" />
+    			<ref bean="persistent.ProcessorPool.3" />
+    			<ref bean="persistent.ProcessorPool.4" />
+    			<ref bean="persistent.ProcessorPool.5" />
+    			<ref bean="persistent.ProcessorPool.6" />
 		    </list>
   		</property>
 	</bean>
