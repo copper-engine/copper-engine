@@ -104,4 +104,6 @@ public interface ProcessingEngine {
 	 */
 	public EngineState getEngineState();
 	
+	public String getEngineId();
+	
 }

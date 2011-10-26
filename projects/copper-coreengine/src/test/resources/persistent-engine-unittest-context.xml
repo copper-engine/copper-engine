@@ -14,6 +14,10 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
+    <bean id="engineId_RED" class="de.scoopgmbh.copper.EngineIdProviderBean">
+    	<property name="engineId" value="red"/>
+    </bean>
+           
     <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton" init-method="start" destroy-method="shutdown">
     	<property name="sourceDir" value="src/workflow/java"/>
     	<property name="targetDir" value="target/compiled_workflow"/>
@@ -41,7 +45,7 @@
 		<property name="dataSource" ref="datasource_default"/>
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
-		<property name="engineId" value="red"/>
+		<property name="engineIdProvider" ref="engineId_RED"/>
 	</bean>
 	           
     <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
@@ -68,6 +72,7 @@
 		</property>
 		<property name="dbStorage" ref="persistent.dbStorage"/>
 		<property name="wfRepository" ref="wfRepository"/>
+		<property name="engineIdProvider" ref="engineId_RED"/>
 	</bean>
 	
 	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton">

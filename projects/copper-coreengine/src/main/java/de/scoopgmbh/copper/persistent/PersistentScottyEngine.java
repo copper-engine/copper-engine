@@ -93,6 +93,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		if (engineState != EngineState.RAW) throw new IllegalStateException();
 		try {
 			logger.info("starting up...");
+				
 			processorPoolManager.setEngine(this);
 			dependencyInjector.setEngine(this);
 			

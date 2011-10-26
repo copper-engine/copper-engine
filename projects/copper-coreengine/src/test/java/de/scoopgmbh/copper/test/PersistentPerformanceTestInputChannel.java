@@ -67,7 +67,7 @@ public class PersistentPerformanceTestInputChannel implements Runnable {
 			Thread.sleep(5000);
 			
 			// load the engine with workflows
-			final int max=20;
+			final int max=200;
 			final int batchSize=500;
 			logger.info("Test starts now");
 			final long startTS = System.currentTimeMillis();

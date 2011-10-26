@@ -20,7 +20,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -37,6 +36,7 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 
+import de.scoopgmbh.copper.EngineIdProvider;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.Batcher;
@@ -71,14 +71,14 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	private int lockWaitSeconds = 10;
 	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
 	private Serializer serializer = new StandardJavaSerializer();
-	private String engineId = null;
+	private EngineIdProvider engineIdProvider = null;
 
 	public OracleScottyDBStorage() {
 
 	}
 	
-	public void setEngineId(String engineId) {
-		this.engineId = engineId;
+	public void setEngineIdProvider(EngineIdProvider engineIdProvider) {
+		this.engineIdProvider = engineIdProvider;
 	}
 	
 	public void setSerializer(Serializer serializer) {
@@ -140,7 +140,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 
 				logger.info("Reactivating queue entries...");
 				PreparedStatement stmt = getConnection().prepareStatement("UPDATE cop_queue SET engine_id = null WHERE engine_id=?");
-				stmt.setString(1, engineId);
+				stmt.setString(1, engineIdProvider.getEngineId());
 				stmt.execute();
 				stmt.close();
 				logger.info("done!");
@@ -334,7 +334,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 
 				responseLoader.setCon(getConnection());
 				responseLoader.setSerializer(serializer);
-				responseLoader.setEngineId(engineId);
+				responseLoader.setEngineId(engineIdProvider.getEngineId());
 				responseLoader.beginTxn();
 				
 				final List<String> invalidBPs = new ArrayList<String>();
@@ -478,7 +478,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	 */
 	public synchronized void startup() {
 		try {
-			if (engineId == null) throw new NullPointerException("EngineId is NULL! Change your OracleScottyDBStorage configuration.");
+			if (engineIdProvider == null || engineIdProvider.getEngineId() == null) throw new NullPointerException("EngineId is NULL! Change your OracleScottyDBStorage configuration.");
 			
 			initStmtStats();
 			responseLoader = new ResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueDeleteStmtStatistic);

@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.scoopgmbh.copper.CopperRuntimeException;
+import de.scoopgmbh.copper.EngineIdProvider;
+import de.scoopgmbh.copper.EngineIdProviderBean;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.WorkflowFactory;
@@ -32,9 +34,18 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 	protected EngineState engineState = EngineState.RAW;
 	protected Blocker startupBlocker = new Blocker(true);
 	private List<Runnable> shutdownObserver = new ArrayList<Runnable>();
+	private EngineIdProvider engineIdProvider = new EngineIdProviderBean("default"); 
 	
 	public EngineState getEngineState() {
 		return engineState;
+	}
+	
+	public void setEngineIdProvider(EngineIdProvider engineIdProvider) {
+		this.engineIdProvider = engineIdProvider;
+	}
+	
+	public String getEngineId() {
+		return engineIdProvider.getEngineId();
 	}
 	
 	public final void setIdFactory(IdFactory idFactory) {

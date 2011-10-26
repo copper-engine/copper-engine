@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import de.scoopgmbh.copper.EngineIdProviderBean;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
@@ -246,6 +247,8 @@ public class PersistentWorkflowTest extends TestCase {
 	public void testMultipleEngines() throws Exception {
 		logger.info("running testMultipleEngines");
 		final int NUMB = 50;
+		final EngineIdProviderBean red = new EngineIdProviderBean("red");
+		final EngineIdProviderBean blue = new EngineIdProviderBean("blue");
 		final ConfigurableApplicationContext contextA = new ClassPathXmlApplicationContext(new String[] {"persistent-engine-unittest-context.xml", "unittest-context.xml"});
 		final ConfigurableApplicationContext contextB = new ClassPathXmlApplicationContext(new String[] {"persistent-engine-unittest-context.xml", "unittest-context.xml"});
 		cleanDB(contextA.getBean(DataSource.class));
@@ -255,8 +258,11 @@ public class PersistentWorkflowTest extends TestCase {
 		final PersistentScottyEngine engineB = contextB.getBean(PersistentScottyEngine.class);
 		final BackChannelQueue backChannelQueueA = contextA.getBean(BackChannelQueue.class);
 		final BackChannelQueue backChannelQueueB = contextB.getBean(BackChannelQueue.class);
-		storageA.setEngineId("red");
-		storageB.setEngineId("blue");
+		storageA.setEngineIdProvider(red);
+		engineA.setEngineIdProvider(red);
+		storageB.setEngineIdProvider(blue);
+		engineB.setEngineIdProvider(blue);
+		
 		engineA.startup();
 		engineB.startup();
 		try {
