@@ -33,7 +33,17 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.common.TicketPoolManager;
+import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
+/**
+ * Transient implementation of a COPPER {@link ProcessingEngine}.
+ * 
+ * A transient engine may run instances of {@link Workflow} or {@link PersistentWorkflow}.
+ * Anyhow, alle workflow instances will only reside in the local JVM heap.  
+ * 
+ * @author austermann
+ *
+ */
 public class TransientScottyEngine extends AbstractProcessingEngine implements ProcessingEngine {
 
 	private static final Logger logger = Logger.getLogger(TransientScottyEngine.class);

@@ -27,6 +27,12 @@ import org.apache.log4j.Logger;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Response;
 
+/**
+ * Default implementation of the {@link TimeoutManager} interface.
+ * 
+ * @author austermann
+ *
+ */
 public final class DefaultTimeoutManager extends Thread implements TimeoutManager {
 
 	private final static Logger logger = Logger.getLogger(TimeoutManager.class);

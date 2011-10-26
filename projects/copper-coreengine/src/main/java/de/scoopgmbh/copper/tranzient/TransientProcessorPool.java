@@ -15,9 +15,16 @@
  */
 package de.scoopgmbh.copper.tranzient;
 
+import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.ProcessorPool;
 
+/**
+ * Base interface for a {@link ProcessorPool} used in a transient {@link ProcessingEngine}
+ * 
+ * @author austermann
+ *
+ */
 public interface TransientProcessorPool extends ProcessorPool {
 	public static final String DEFAULT_POOL_ID = "T#DEFAULT";
 	public void enqueue(Workflow<?> wf);

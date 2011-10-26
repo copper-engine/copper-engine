@@ -22,6 +22,13 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.common.Processor;
 
+/**
+ * Default implementation of a {@link TransientProcessorPool}, backed by a priority queue and a configurable
+ * amount of processor threads.
+ *  
+ * @author austermann
+ *
+ */
 public class TransientPriorityProcessorPool extends PriorityProcessorPool implements TransientProcessorPool {
 
 	public TransientPriorityProcessorPool() {

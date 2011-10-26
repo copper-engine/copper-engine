@@ -48,6 +48,12 @@ import de.scoopgmbh.copper.instrument.ScottyFindInterruptableMethodsVisitor;
 import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.util.FileUtil;
 
+/**
+ * A file system based workflow repository for COPPER.
+ * 
+ * @author austermann
+ *
+ */
 public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 
 	private static final class VolatileState {
@@ -71,14 +77,30 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	private List<Runnable> preprocessors = Collections.emptyList();
 	private boolean stopped = false;
 
+	/**
+	 * The repository will check the source directory every <code>checkIntervalMSec</code> milliseconds
+	 * for changed workflow files. If it finds a changed file, all contained workflows are recompiled.
+	 * 
+	 * @param checkIntervalMSec
+	 */
 	public synchronized void setCheckIntervalMSec(int checkIntervalMSec) {
 		this.checkIntervalMSec = checkIntervalMSec;
 	}
 
+	/**
+	 * mandatory parameter - must point to a local directory that contains the COPPER workflows as <code>.java<code> files.
+	 * @param sourceDir
+	 */
 	public synchronized void setSourceDir(String sourceDir) {
 		this.sourceDir = sourceDir;
 	}
 
+	/**
+	 * mandatory parameter - must point to a local directory with read/write privileges. COPPER will store the 
+	 * compiled workflow class files there.
+	 * 
+	 * @param targetDir
+	 */
 	public synchronized void setTargetDir(String targetDir) {
 		this.targetDir = targetDir;
 	}
