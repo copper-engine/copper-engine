@@ -42,9 +42,6 @@ public class DefaultProcessorPoolManager<T extends ProcessorPool> implements Pro
 	public void addProcessorPool(T pool) {
 		logger.info("addProcessorPool("+pool.getId()+")");
 		
-		if (pool == null) 
-			throw new NullPointerException();
-		
 		if (stopped)
 			throw new IllegalStateException();
 		

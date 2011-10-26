@@ -76,6 +76,15 @@ public class PersistentPerformanceTestInputChannel implements Runnable {
 				for (int i=0; i<batchSize; i++) {
 					Workflow<String> wf = wfFactory.newInstance();
 					wf.setData(data);
+					int p = k%4;
+					if (p==0) 
+						wf.setProcessorPoolId("P#A");
+					if (p==1) 
+						wf.setProcessorPoolId("P#B");
+					if (p==2) 
+						wf.setProcessorPoolId("P#C");
+					if (p==3) 
+						wf.setProcessorPoolId("P#D");
 					list.add(wf);
 				}
 				engine.run(list);

@@ -64,7 +64,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	private ScheduledExecutorService scheduledExecutorService;
 	private long deleteStaleResponsesIntervalMsec = 60L*60L*1000L;
 	private boolean shutdown = false;
-	private ResponseLoader responseLoader;
+	//private ResponseLoader responseLoader;
 	private DataSource dataSource;
 	private Batcher batcher;
 	private boolean multiEngineMode = true;
@@ -72,6 +72,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
 	private Serializer serializer = new StandardJavaSerializer();
 	private EngineIdProvider engineIdProvider = null;
+	private Map<String, ResponseLoader> responseLoaders = new HashMap<String, ResponseLoader>();
 
 	public OracleScottyDBStorage() {
 
@@ -332,6 +333,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 				
 				lock(getConnection(),"dequeue#"+ppoolId);
 
+				ResponseLoader responseLoader = getResponseLoader(ppoolId);
 				responseLoader.setCon(getConnection());
 				responseLoader.setSerializer(serializer);
 				responseLoader.setEngineId(engineIdProvider.getEngineId());
@@ -481,12 +483,9 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 			if (engineIdProvider == null || engineIdProvider.getEngineId() == null) throw new NullPointerException("EngineId is NULL! Change your OracleScottyDBStorage configuration.");
 			
 			initStmtStats();
-			responseLoader = new ResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueDeleteStmtStatistic);
 			
 			deleteStaleResponse();
 			resumeBrokenBusinessProcesses();
-			
-			responseLoader.start();
 			
 			enqueueThread = new Thread("ENQUEUE") {
 				@Override
@@ -525,7 +524,11 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		shutdown = true;
 		enqueueThread.interrupt();
 		scheduledExecutorService.shutdown();
-		responseLoader.shutdown();
+		synchronized (responseLoaders) {
+			for (ResponseLoader responseLoader : responseLoaders.values()) {
+				responseLoader.shutdown();
+			}
+		}
 	}
 
 	/* (non-Javadoc)
@@ -696,6 +699,19 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 			}
 		}.run();
 		logger.info(workflowInstanceId+" successfully queued for restart.");
+	}
+
+	private ResponseLoader getResponseLoader(final String ppoolId) {
+		ResponseLoader responseLoader = null;
+		synchronized (responseLoaders) {
+			responseLoader = responseLoaders.get(ppoolId);
+			if (responseLoader == null) {
+				responseLoader = new ResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueDeleteStmtStatistic);
+				responseLoader.start();
+				responseLoaders.put(ppoolId, responseLoader);
+			}
+		}
+		return responseLoader;
 	}
 	
 
