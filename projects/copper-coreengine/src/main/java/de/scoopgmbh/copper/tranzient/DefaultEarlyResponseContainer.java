@@ -24,7 +24,15 @@ import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.Response;
 
-public class DefaultEarlyResponseContainer {
+/**
+ * Default implementation of the {@link EarlyResponseContainer} interface.
+ * 
+ * Early response are stored for a configurable time interval. Later on they may be removed.
+ * 
+ * @author austermann
+ *
+ */
+public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 
 	private static final Logger logger = Logger.getLogger(DefaultEarlyResponseContainer.class);
 	
@@ -53,6 +61,10 @@ public class DefaultEarlyResponseContainer {
 	public DefaultEarlyResponseContainer() {
 	}
 	
+	/* (non-Javadoc)
+	 * @see de.scoopgmbh.copper.tranzient.EarlyResponseContainer#put(de.scoopgmbh.copper.Response)
+	 */
+	@Override
 	public void put(final Response<?> response) {
 		if (response == null) 
 			throw new NullPointerException();
@@ -78,6 +90,10 @@ public class DefaultEarlyResponseContainer {
 		
 	}
 	
+	/* (non-Javadoc)
+	 * @see de.scoopgmbh.copper.tranzient.EarlyResponseContainer#get(java.lang.String)
+	 */
+	@Override
 	public Response<?> get(final String correlationId) {
 		if (correlationId == null)
 			throw new NullPointerException();
@@ -93,6 +109,10 @@ public class DefaultEarlyResponseContainer {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see de.scoopgmbh.copper.tranzient.EarlyResponseContainer#putStaleCorrelationId(java.lang.String)
+	 */
+	@Override
 	public void putStaleCorrelationId(final String correlationId) {
 		if (correlationId == null)
 			throw new NullPointerException();
@@ -111,6 +131,10 @@ public class DefaultEarlyResponseContainer {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see de.scoopgmbh.copper.tranzient.EarlyResponseContainer#startup()
+	 */
+	@Override
 	public synchronized void startup() {
 		if (thread != null) 
 			throw new IllegalStateException();
@@ -145,6 +169,10 @@ public class DefaultEarlyResponseContainer {
 		thread.start();
 	}
 	
+	/* (non-Javadoc)
+	 * @see de.scoopgmbh.copper.tranzient.EarlyResponseContainer#shutdown()
+	 */
+	@Override
 	public synchronized void shutdown() {
 		shutdown = true;
 		thread.interrupt();
@@ -211,6 +239,10 @@ public class DefaultEarlyResponseContainer {
 		return checkInterval;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.scoopgmbh.copper.tranzient.EarlyResponseContainer#putStaleCorrelationId(java.util.List)
+	 */
+	@Override
 	public void putStaleCorrelationId(List<String> correlationIds) {
 		if (correlationIds == null)
 			throw new NullPointerException();
