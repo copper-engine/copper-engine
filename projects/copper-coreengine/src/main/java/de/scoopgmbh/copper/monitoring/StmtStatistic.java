@@ -17,7 +17,13 @@ package de.scoopgmbh.copper.monitoring;
 
 import java.util.concurrent.TimeUnit;
 
-
+/**
+ * Helper class for collecting SQL statement related runtime statistics.
+ * Offers a start and stop method, that encapsulate the measurement of the elapsed time. 
+ * 
+ * @author austermann
+ *
+ */
 public class StmtStatistic {
 	
 	private ThreadLocal<long[]> startTS = new ThreadLocal<long[]>() {

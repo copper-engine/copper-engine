@@ -30,6 +30,14 @@ import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 
+/**
+ * Implementation of the {@link Serializer} interface using java's standard object serialization.
+ * If compression is enabled, the serialized objects are compressed if the size of the corresponding 
+ * byte array is larger than a configured threshold.
+ * 
+ * @author austermann
+ *
+ */
 public class StandardJavaSerializer implements Serializer {
 	
 	private static final Logger logger = Logger.getLogger(StandardJavaSerializer.class);

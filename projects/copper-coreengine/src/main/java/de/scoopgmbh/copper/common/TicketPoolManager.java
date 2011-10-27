@@ -5,6 +5,12 @@ import java.util.Map;
 
 import de.scoopgmbh.copper.Workflow;
 
+/**
+ * Container for a set of named (by their <code>id</code>) {@link TicketPool}s.
+ *  
+ * @author austermann
+ *
+ */
 public interface TicketPoolManager {
 	
 	/**

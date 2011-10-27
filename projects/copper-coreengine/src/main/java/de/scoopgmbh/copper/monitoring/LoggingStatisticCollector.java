@@ -25,6 +25,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Collects runtime statistics and logs average processing times to the logging system in a 
+ * configurable time interval. 
+ * 
+ * @author austermann
+ *
+ */
 public class LoggingStatisticCollector implements RuntimeStatisticsCollector {
 	
 	private static final class StatSet {

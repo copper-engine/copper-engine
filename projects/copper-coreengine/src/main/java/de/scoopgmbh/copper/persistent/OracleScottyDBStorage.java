@@ -46,6 +46,13 @@ import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
 
+/**
+ * Oracle implementation of the {@link ScottyDBStorageInterface}.
+ * It supports multiple engines (cluster) connected to one database. 
+ * 
+ * @author austermann
+ *
+ */
 public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 
 	private static final Logger logger = Logger.getLogger(OracleScottyDBStorage.class);

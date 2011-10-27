@@ -24,6 +24,14 @@ import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.Workflow;
 
+/**
+ * Default implementation of the {@link TicketPoolManager} interface, using a java maps.
+ * 
+ * This implementation is thread safe.
+ * 
+ * @author austermann
+ *
+ */
 public class DefaultTicketPoolManager implements TicketPoolManager {
 	
 	private static final Logger logger = Logger.getLogger(DefaultTicketPoolManager.class);

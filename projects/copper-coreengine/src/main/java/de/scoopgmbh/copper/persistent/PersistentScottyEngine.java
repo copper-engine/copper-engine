@@ -34,6 +34,12 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 
+/**
+ * COPPER processing engine that offers persistent workflow processing. 
+ *  
+ * @author austermann
+ *
+ */
 public class PersistentScottyEngine extends AbstractProcessingEngine implements PersistentProcessingEngine {
 
 	private static final Logger logger = Logger.getLogger(PersistentScottyEngine.class);

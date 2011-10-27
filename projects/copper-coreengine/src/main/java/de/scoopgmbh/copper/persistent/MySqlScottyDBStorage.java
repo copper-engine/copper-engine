@@ -45,6 +45,12 @@ import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
 
+/**
+ * MySQL implementation of the {@link ScottyDBStorageInterface}.
+ * 
+ * @author austermann
+ *
+ */
 public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 
 	private static final Logger logger = Logger.getLogger(MySqlScottyDBStorage.class);

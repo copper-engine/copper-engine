@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 
 /**
  * 
- * Helper class to support a system overload mechanism. <br>
+ * Helper class that implements a <i>semaphore</i> to support a system overload mechanism.<br>
  * Before a request is to be accepted, a <i>ticket</i> must be obtained. If the
  * maximum amount of tickets in the pool is reached, the request is delayed
  * until another process has released its ticket. After obtaining a ticket, the

@@ -19,12 +19,23 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
+/**
+ * Utility class for compressing and uncompressing byte arrays.
+ * 
+ * @author austermann
+ *
+ */
 public class Compressor {
 	
 	private final Deflater deflater;
 	private final Inflater inflater;
 	private final byte[] buffer;
 	
+	/**
+	 * creates a new instance 
+	 * @param level compression level, see {@link Deflater}
+	 * @param maxSize maximum compressed size of the byte array
+	 */
 	public Compressor(int level, int maxSize) {
 		deflater = new Deflater(level);
 		inflater = new Inflater();

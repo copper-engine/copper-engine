@@ -17,8 +17,16 @@ package de.scoopgmbh.copper.monitoring;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Mock implementation of the {@link RuntimeStatisticsCollector} interface. All <code>submit</code> invocations are ignored.
+ * @author austermann
+ *
+ */
 public class NullRuntimeStatisticsCollector implements RuntimeStatisticsCollector {
 
+	/**
+	 * implemented empty - call is ignored 
+	 */
 	@Override
 	public void submit(String measurePointId, int elementCount, long elapsedTime, TimeUnit timeUnit) {
 

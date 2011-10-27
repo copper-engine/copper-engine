@@ -21,7 +21,13 @@ import java.util.Arrays;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 
-class RegisterCall {
+/**
+ * Simple class that bundles the input parameters of a call to {@link ScottyDBStorageInterface#registerCallback} 
+ * 
+ * @author austermann
+ *
+ */
+public class RegisterCall {
 	
 	public Workflow<?> workflow;
 	public WaitMode waitMode;
