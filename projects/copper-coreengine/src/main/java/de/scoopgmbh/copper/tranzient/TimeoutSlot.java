@@ -18,6 +18,12 @@ package de.scoopgmbh.copper.tranzient;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Internally used class.
+ * 
+ * @author austermann
+ *
+ */
 final class TimeoutSlot {
 	
 	private final long timeoutTS;

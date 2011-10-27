@@ -18,6 +18,14 @@ package de.scoopgmbh.copper.common;
 import de.scoopgmbh.copper.WorkflowFactory;
 
 
+/**
+ * A WorkflowRepository is a container for COPPER workflows.
+ * It encapsulates the handling and storage of workflows and makes the workflow classes accessible to one or more COPPER
+ * {@link de.scoopgmbh.copper.ProcessingEngine}s.
+ *  
+ * @author austermann
+ *
+ */
 public interface WorkflowRepository {
 
 	public <E> WorkflowFactory<E> createWorkflowFactory(final String classname) throws ClassNotFoundException;

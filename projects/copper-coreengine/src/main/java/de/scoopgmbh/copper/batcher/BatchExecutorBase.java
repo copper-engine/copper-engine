@@ -17,12 +17,37 @@ package de.scoopgmbh.copper.batcher;
 
 import java.util.Collection;
 
+/**
+ * Base interface of a BatchExecutor. A batch executor is responsible to process a batch of {@link BatchCommand}s.
+ * A batcher is responsible to collect a batch of commands and call their executor to execute the batch.
+ * 
+ * @author austermann
+ *
+ * @param <T>
+ */
 public interface BatchExecutorBase<T> {
 	
+	/**
+	 * Executes a batch of commands
+	 */
 	void execute(Collection<?> commands);
+	
+	/**
+	 * Preferred batch size of this executor
+	 */
 	int  preferredBatchSize();
+	
+	/**
+	 * The maximum batch size of this executor
+	 * @return
+	 */
 	int  maximumBatchSize();
+	
 	boolean prioritize();
+	
+	/**
+	 * Unique ID of this batcher.
+	 */
 	String id();
 
 }

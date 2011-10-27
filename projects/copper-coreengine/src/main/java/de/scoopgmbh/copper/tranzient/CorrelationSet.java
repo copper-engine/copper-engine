@@ -21,6 +21,12 @@ import java.util.List;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 
+/**
+ * Internally used class.
+ * 
+ * @author austermann
+ *
+ */
 class CorrelationSet {
 	
 	private String workflowId;

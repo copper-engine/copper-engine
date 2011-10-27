@@ -15,6 +15,16 @@
  */
 package de.scoopgmbh.copper.batcher;
 
+/**
+ * A batcher is a service that collects homogeneous tasks over a period of time and executes them as a batch.
+ * This may increase dramatically the throughput for a kind of tasks.
+ * A typical usage for the Batcher is database batching. It collects simple insert, update oder delete statemants
+ * and executes them as a batch. This increases throughput mostly by a factor of 10 or more.
+ * Of course, batching may lead to longer latency times.
+ *  
+ * @author austermann
+ *
+ */
 public interface Batcher {
 	
 	public <E extends BatchExecutor<E,T>, T extends BatchCommand<E,T>> void submitBatchCommand(BatchCommand<E,T> cmd);

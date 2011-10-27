@@ -48,8 +48,18 @@ import de.scoopgmbh.copper.instrument.ScottyFindInterruptableMethodsVisitor;
 import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.util.FileUtil;
 
+/**
+ * A file system based workflow repository for COPPER with some Tomcat specific features.
+ * 
+ * @author bergmann
+ *
+ */
 public class TomcatWorkflowRepository extends AbstractWorkflowRepository {
 
+	/**
+	 * For COPPER internal use only
+	 *	 
+	 */
 	protected static final class VolatileState {
 		public Map<String,Class<?>> wfMap;
 		public ClassLoader classLoader;

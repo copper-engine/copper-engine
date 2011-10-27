@@ -17,6 +17,13 @@ package de.scoopgmbh.copper.common;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 
+/**
+ * A processor pool is a set of {@link Processor} threads executing workflow instances.
+ * It is  
+ * 
+ * @author austermann
+ *
+ */
 public interface ProcessorPool {
 	public void setEngine(ProcessingEngine engine);
 	public String getId();

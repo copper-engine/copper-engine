@@ -24,6 +24,12 @@ import org.apache.log4j.Logger;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 
+/**
+ * A {@link ProcessorPool} implementation using a priority queue.
+ * 
+ * @author austermann
+ *
+ */
 public abstract class PriorityProcessorPool implements ProcessorPool {
 
 	private static final Logger logger = Logger.getLogger(PriorityProcessorPool.class);
@@ -48,6 +54,9 @@ public abstract class PriorityProcessorPool implements ProcessorPool {
 		this.numberOfThreads = numberOfThreads;
 	}
 	
+	/**
+	 * Creates a new instance of {@link WfPriorityQueue}
+	 */
 	protected Queue<Workflow<?>> createQueue() {
 		return new WfPriorityQueue();
 	}

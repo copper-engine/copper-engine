@@ -26,7 +26,12 @@ import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.util.Blocker;
 
-
+/**
+ * Abstract base implementation of the COPPER {@link ProcessingEngine} interface.
+ * 
+ * @author austermann
+ *
+ */
 public abstract class AbstractProcessingEngine implements ProcessingEngine {
 
 	private IdFactory idFactory = new AtomicLongIdFactory();

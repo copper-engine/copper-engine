@@ -17,6 +17,14 @@ package de.scoopgmbh.copper.batcher;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Mock implementation of the {@link CommandCallback} interface.
+ * Successful command executions are ignored, exceptions are logged.
+ * 
+ * @author austermann
+ *
+ * @param <T>
+ */
 public class NullCallback<T extends BatchCommand<?,T>> implements CommandCallback<T> {
 	
 	static final Logger logger = Logger.getLogger(NullCallback.class);

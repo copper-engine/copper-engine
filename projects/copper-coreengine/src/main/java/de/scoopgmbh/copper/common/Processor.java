@@ -25,6 +25,12 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.util.MDCConstants;
 
+/**
+ * A COPPER Processor is a thread executing {@link Workflow} instances.
+ * 
+ * @author austermann
+ *
+ */
 public abstract class Processor extends Thread {
 	
 	protected static final Logger logger = Logger.getLogger(Processor.class);

@@ -17,6 +17,12 @@ package de.scoopgmbh.copper.common;
 
 import java.util.UUID;
 
+/**
+ * Implementation of the {@link IdFactory} interface, using <code>UUID.randomUUID().toString()</code> for creating UUIDs.
+ * 
+ * @author austermann
+ *
+ */
 public class JdkRandomUUIDFactory implements IdFactory {
 
 	@Override

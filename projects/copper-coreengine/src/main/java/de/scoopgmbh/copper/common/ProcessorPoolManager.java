@@ -19,6 +19,12 @@ import java.util.List;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 
+/**
+ * Interface for managing {@link ProcessorPool}s in one COPPER {@link ProcessingEngine}. 
+ * @author austermann
+ *
+ * @param <T>
+ */
 public interface ProcessorPoolManager<T extends ProcessorPool> {
 	public void setEngine(ProcessingEngine engine);
 	public T getProcessorPool(String poolId); 

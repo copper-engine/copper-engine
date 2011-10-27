@@ -24,6 +24,13 @@ import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 
+/**
+ * Default implementation of the {@link ProcessorPoolManager} interface.
+ * 
+ * @author austermann
+ *
+ * @param <T>
+ */
 public class DefaultProcessorPoolManager<T extends ProcessorPool> implements ProcessorPoolManager<T> {
 	
 	private static final Logger logger = Logger.getLogger(DefaultProcessorPoolManager.class);

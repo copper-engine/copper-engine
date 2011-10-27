@@ -22,6 +22,12 @@ import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.Processor;
 
+/**
+ * Internally used class.
+ * 
+ * @author austermann
+ *
+ */
 class TransientProcessor extends Processor {
 
 	private TransientScottyEngine engine;

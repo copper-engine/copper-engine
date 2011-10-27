@@ -23,6 +23,14 @@ import java.util.Queue;
 
 import de.scoopgmbh.copper.Workflow;
 
+/**
+ * Priority queue for {@link Workflow} instances.
+ * 
+ * Entries in the queue are ordered using their priority and enqueue timestamp
+ * 
+ * @author austermann
+ *
+ */
 public class WfPriorityQueue implements Queue<Workflow<?>> {
 
 	private static class QueueEntry {

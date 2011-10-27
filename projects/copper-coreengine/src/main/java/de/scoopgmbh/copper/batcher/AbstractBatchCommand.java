@@ -15,6 +15,14 @@
  */
 package de.scoopgmbh.copper.batcher;
 
+/**
+ * Abstract base implementation of {@link BatchCommand}
+ * 
+ * @author austermann
+ *
+ * @param <E>
+ * @param <T>
+ */
 public abstract class AbstractBatchCommand<E extends BatchExecutor<E,T>, T extends AbstractBatchCommand<E,T>> implements BatchCommand<E, T> {
 	
 	final CommandCallback<T> callback;
