@@ -23,7 +23,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.util.TicketPool;
 
 public class DefaultTicketPoolManager implements TicketPoolManager {
 	

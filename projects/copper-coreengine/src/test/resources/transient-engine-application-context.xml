@@ -19,7 +19,7 @@
     	<property name="targetDir" value="target/compiled_workflow"/>
     </bean>
     
-    <bean id="defaultTicketPool" class="de.scoopgmbh.copper.util.TicketPool" scope="singleton">
+    <bean id="defaultTicketPool" class="de.scoopgmbh.copper.common.TicketPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>DEFAULT</value></constructor-arg>
     	<constructor-arg type="int"><value>20000</value></constructor-arg>
     </bean>

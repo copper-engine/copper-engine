@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.util.TicketPool;
 
 public interface TicketPoolManager {
 	
