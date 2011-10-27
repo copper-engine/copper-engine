@@ -16,6 +16,8 @@
 			<doctitle><![CDATA[<h1>COPPER core engine API</h1>]]></doctitle>
 			<bottom><![CDATA[<i>Copyright &#169; 2011 SCOOP Software GmbH. All Rights Reserved.</i>]]></bottom>
 		</javadoc>
+		<zip destfile="${build.dir}/coreengine-javadoc.zip" basedir="${build.dir}/javadoc">
+		</zip>
 	</target>
 </project>
 
