@@ -24,9 +24,9 @@ import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.Response;
 
-public class EarlyResponseContainer {
+public class DefaultEarlyResponseContainer {
 
-	private static final Logger logger = Logger.getLogger(EarlyResponseContainer.class);
+	private static final Logger logger = Logger.getLogger(DefaultEarlyResponseContainer.class);
 	
 	private static final class EarlyResponse {
 		final long ts;
@@ -50,7 +50,7 @@ public class EarlyResponseContainer {
 	private boolean shutdown = false;
 	private int checkInterval = 250;
 	
-	public EarlyResponseContainer() {
+	public DefaultEarlyResponseContainer() {
 	}
 	
 	public void put(final Response<?> response) {

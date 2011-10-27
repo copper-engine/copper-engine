@@ -77,7 +77,7 @@
 			<bean class="de.scoopgmbh.copper.tranzient.DefaultTimeoutManager"></bean>
 		</property>
 		<property name="earlyResponseContainer">
-			<bean class="de.scoopgmbh.copper.tranzient.EarlyResponseContainer"></bean>
+			<bean class="de.scoopgmbh.copper.tranzient.DefaultEarlyResponseContainer"></bean>
 		</property>
 		<property name="dependencyInjector">
 			<bean class="de.scoopgmbh.copper.spring.SpringDependencyInjector"></bean>

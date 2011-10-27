@@ -52,7 +52,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>(50000);
 	private ProcessorPoolManager<TransientProcessorPool> poolManager;
 	private TimeoutManager timeoutManager;
-	private EarlyResponseContainer earlyResponseContainer;
+	private DefaultEarlyResponseContainer earlyResponseContainer;
 	private TicketPoolManager ticketPoolManager;
 	private DependencyInjector dependencyInjector;
 	
@@ -71,7 +71,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		this.poolManager = poolManager;
 	}
 
-	public void setEarlyResponseContainer(EarlyResponseContainer earlyResponseContainer) {
+	public void setEarlyResponseContainer(DefaultEarlyResponseContainer earlyResponseContainer) {
 		if (earlyResponseContainer == null) throw new NullPointerException();
 		this.earlyResponseContainer = earlyResponseContainer;
 	}
