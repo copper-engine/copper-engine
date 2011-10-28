@@ -144,8 +144,6 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		new RetryingTransaction(dataSource) {
 			@Override
 			protected void execute() throws Exception {
-				getConnection().setAutoCommit(true);
-
 				logger.info("Reactivating queue entries...");
 				PreparedStatement stmt = getConnection().prepareStatement("UPDATE cop_queue SET engine_id = null WHERE engine_id=?");
 				stmt.setString(1, engineIdProvider.getEngineId());
@@ -217,7 +215,6 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		new RetryingTransaction(dataSource) {
 			@Override
 			protected void execute() throws Exception {
-				getConnection().setAutoCommit(true);
 				final List<String> invalidBPs = new ArrayList<String>();
 				final PreparedStatement dequeueStmt = getConnection().prepareStatement("select /*+ PARALLEL */ id,priority,data,rowid,long_data from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from cop_queue where ppool_id=? order by ppool_id, priority, WFI_ROWID) where rownum <= ?)"); // TODO last_mod_ts
 				final PreparedStatement deleteStmt = getConnection().prepareStatement("delete from cop_queue where ppool_id=? and priority=? and WFI_ROWID=?");
@@ -641,7 +638,6 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	}
 	
 	private void doInsert(final List<Workflow<?>> wfs, final Connection con) throws Exception {
-		con.setAutoCommit(true);
 		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA) VALUES (?,?,?,SYSTIMESTAMP,?,?,?)");
 		try {
 			int n = 0;
@@ -670,7 +666,6 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	}
 	
 	private void doInsert(final Workflow<?> wf, final Connection con) throws Exception {
-		con.setAutoCommit(true);
 		final String data = serializer.serializeWorkflow(wf);
 		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA) VALUES (?,?,?,SYSTIMESTAMP,?,?,?)");
 		try {

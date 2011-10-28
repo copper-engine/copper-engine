@@ -192,6 +192,7 @@ public abstract class RetryingTransaction implements Transaction  {
         for (;;) {
             try {
                 Connection c = ds.getConnection();
+                c.setAutoCommit(false);
                 if (validateNewConnection) {
                 	c.rollback();
                 }

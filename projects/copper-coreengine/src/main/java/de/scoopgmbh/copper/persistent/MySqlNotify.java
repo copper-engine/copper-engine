@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.audit;
+package de.scoopgmbh.copper.persistent;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
@@ -23,30 +23,26 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 
+import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.CommandCallback;
 import de.scoopgmbh.copper.batcher.NullCallback;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 
-class BatchInsertIntoAutoTrail {
+class MySqlNotify {
 	
 	static final class Command extends AbstractBatchCommand<Executor, Command>{
 		
-		final AuditTrailEvent data;
+		final Response<?> response;
 		final DataSource dataSource;
+		final Serializer serializer;
 
 		@SuppressWarnings("unchecked")
-		public Command(AuditTrailEvent data, DataSource dataSource) {
+		public Command(Response<?> response, DataSource dataSource, Serializer serializer) {
 			super(NullCallback.instance,250);
-			this.data = data;
+			this.response = response;
 			this.dataSource = dataSource;
-		}
-
-		public Command(AuditTrailEvent data, DataSource dataSource, CommandCallback<Command> callback) {
-			super(callback,250);
-			this.data = data;
-			this.dataSource = dataSource;
+			this.serializer = serializer;
 		}
 
 		@Override
@@ -80,36 +76,18 @@ class BatchInsertIntoAutoTrail {
 				new RetryingTransaction(commands.iterator().next().dataSource) {
 					@Override
 					protected void execute() throws Exception {
-						logger.info("database product name="+getConnection().getMetaData().getDatabaseProductName());
-						String _stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?)";
-						if (getConnection().getMetaData().getDatabaseProductName().equalsIgnoreCase("MYSQL")) {
-							_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (?,?,?,?,?,?,?,?,?)";
-						}
-						final PreparedStatement stmt = getConnection().prepareStatement(_stmt);
+						final Timestamp now = new Timestamp(System.currentTimeMillis());
+						final PreparedStatement stmt = getConnection().prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE) VALUES (?,?,?)");
 						for (Command cmd : commands) {
-							AuditTrailEvent data = cmd.data;
-							stmt.setTimestamp(1, new Timestamp(data.occurrence.getTime()));
-							stmt.setString(2, data.conversationId);
-							stmt.setInt(3, data.logLevel);
-							stmt.setString(4, data.context);
-							stmt.setString(5, data.workflowInstanceId);
-							stmt.setString(6, data.correlationId);
-							if ( data.message != null && data.message.length()>4000 ) { 
-								stmt.setString(7, data.message.substring(0,3999));
-								stmt.setString(8, data.message);
-							} else {
-								stmt.setString(7, data.message);
-								stmt.setString(8, null);
-							}
-							stmt.setString(9, data.transactionId);
+							stmt.setString(1, cmd.response.getCorrelationId());
+							stmt.setTimestamp(2, now);
+							String payload = cmd.serializer.serializeResponse(cmd.response);
+							stmt.setString(3, payload);
 							stmt.addBatch();
 						}
 						stmt.executeBatch();
 					}
 				}.run();
-				for (Command cmd : commands) {
-					cmd.callback().commandCompleted(cmd);
-				}
 			} 
 			catch (Exception e) {
 				logger.error("",e);

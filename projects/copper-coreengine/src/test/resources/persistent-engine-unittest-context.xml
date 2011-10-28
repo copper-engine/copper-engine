@@ -23,15 +23,15 @@
     	<property name="targetDir" value="target/compiled_workflow"/>
     </bean>
     
-	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-    	<property name="driverClass" value="oracle.jdbc.OracleDriver"/>
-    	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/>
-    	<property name="minPoolSize" value="1"/>
-    	<property name="maxPoolSize" value="8"/>
-    	<property name="connectionTesterClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester"/>
-    	<property name="connectionCustomizerClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionCustomizer"/>
-    	<property name="idleConnectionTestPeriod" value="15"/>
-	</bean>
+<!-- 	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close"> -->
+<!--     	<property name="driverClass" value="oracle.jdbc.OracleDriver"/> -->
+<!--     	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/> -->
+<!--     	<property name="minPoolSize" value="1"/> -->
+<!--     	<property name="maxPoolSize" value="8"/> -->
+<!--     	<property name="connectionTesterClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester"/> -->
+<!--     	<property name="connectionCustomizerClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionCustomizer"/> -->
+<!--     	<property name="idleConnectionTestPeriod" value="15"/> -->
+<!-- 	</bean> -->
 	
 	<bean id="statisticsCollector" class="de.scoopgmbh.copper.monitoring.LoggingStatisticCollector" init-method="start" destroy-method="shutdown"/>
 	
@@ -40,13 +40,13 @@
     	<property name="statisticsCollector" ref="statisticsCollector"/>
 	</bean>
 	
-	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.OracleScottyDBStorage" scope="singleton">
-		<property name="batcher" ref="batcher"/>
-		<property name="dataSource" ref="datasource_default"/>
-		<property name="wfRepository" ref="wfRepository"/>
-		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
-		<property name="engineIdProvider" ref="engineId_RED"/>
-	</bean>
+<!-- 	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.OracleScottyDBStorage" scope="singleton"> -->
+<!-- 		<property name="batcher" ref="batcher"/> -->
+<!-- 		<property name="dataSource" ref="datasource_default"/> -->
+<!-- 		<property name="wfRepository" ref="wfRepository"/> -->
+<!-- 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/> -->
+<!-- 		<property name="engineIdProvider" ref="engineId_RED"/> -->
+<!-- 	</bean> -->
 	           
     <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>

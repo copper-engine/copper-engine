@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.persistent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -140,8 +141,6 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 		new RetryingTransaction(dataSource) {
 			@Override
 			protected void execute() throws Exception {
-				getConnection().setAutoCommit(false);
-
 				logger.info("Truncating queue...");
 				Statement truncate = getConnection().createStatement();
 				truncate.execute("TRUNCATE TABLE COP_QUEUE");
@@ -183,24 +182,56 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 		new RetryingTransaction(dataSource) {
 			@Override
 			protected void execute() throws Exception {
-				getConnection().setAutoCommit(false);
-				final String data = serializer.serializeWorkflow(wf);
-				PreparedStatement stmtBP = getConnection().prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,STACK) VALUES (?,?,?,NOW(),?,?,?)");
-				PreparedStatement stmtQueue = getConnection().prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,now(),?)");
-				stmtBP.setString(1, wf.getId());
-				stmtBP.setInt(2, DBProcessingState.ENQUEUED.ordinal());
-				stmtBP.setInt(3, wf.getPriority());
-				stmtBP.setString(4, wf.getProcessorPoolId());
-				stmtBP.setString(5, data);
-				stmtBP.setString(6, "");
-				stmtBP.execute();
-
-				stmtQueue.setString(1, wf.getProcessorPoolId());
-				stmtQueue.setInt(2, wf.getPriority());
-				stmtQueue.setString(3, wf.getId());
-				stmtQueue.execute();
+				doInsert(wf, getConnection());
 			}
 		}.run();
+	}
+	
+	private void doInsert(final Workflow<?> wf, Connection con) throws Exception {
+		final String data = serializer.serializeWorkflow(wf);
+		PreparedStatement stmtBP = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA) VALUES (?,?,?,NOW(),?,?)");
+		PreparedStatement stmtQueue = con.prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,now(),?)");
+		stmtBP.setString(1, wf.getId());
+		stmtBP.setInt(2, DBProcessingState.ENQUEUED.ordinal());
+		stmtBP.setInt(3, wf.getPriority());
+		stmtBP.setString(4, wf.getProcessorPoolId());
+		stmtBP.setString(5, data);
+		stmtBP.execute();
+
+		stmtQueue.setString(1, wf.getProcessorPoolId());
+		stmtQueue.setInt(2, wf.getPriority());
+		stmtQueue.setString(3, wf.getId());
+		stmtQueue.execute();
+	}
+	
+	private void doInsert(final List<Workflow<?>> wfs, Connection con) throws Exception {
+		PreparedStatement stmtBP = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA) VALUES (?,?,?,NOW(),?,?)");
+		PreparedStatement stmtQueue = con.prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,now(),?)");
+		int n = 0;
+		for (int i=0; i<wfs.size(); i++) {
+			Workflow<?> wf = wfs.get(i);
+			final String data = serializer.serializeWorkflow(wf);
+			stmtBP.setString(1, wf.getId());
+			stmtBP.setInt(2, DBProcessingState.ENQUEUED.ordinal());
+			stmtBP.setInt(3, wf.getPriority());
+			stmtBP.setString(4, wf.getProcessorPoolId());
+			stmtBP.setString(5, data);
+			stmtBP.addBatch();
+
+			stmtQueue.setString(1, wf.getProcessorPoolId());
+			stmtQueue.setInt(2, wf.getPriority());
+			stmtQueue.setString(3, wf.getId());
+			stmtQueue.addBatch();
+
+			n++;
+			if (i % 100 == 0 || (i+1) == wfs.size()) {
+				insertStmtStatistic.start();
+				stmtBP.executeBatch();
+				stmtQueue.executeBatch();
+				insertStmtStatistic.stop(n);
+				n = 0;
+			}
+		}
 	}
 
 	/* (non-Javadoc)
@@ -211,34 +242,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 		new RetryingTransaction(dataSource) {
 			@Override
 			protected void execute() throws Exception {
-				getConnection().setAutoCommit(false);
-				PreparedStatement stmtBP = getConnection().prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA) VALUES (?,?,?,NOW(),?,?,?)");
-				PreparedStatement stmtQueue = getConnection().prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,now(),?)");
-				int n = 0;
-				for (int i=0; i<wfs.size(); i++) {
-					Workflow<?> wf = wfs.get(i);
-					final String data = serializer.serializeWorkflow(wf);
-					stmtBP.setString(1, wf.getId());
-					stmtBP.setInt(2, DBProcessingState.ENQUEUED.ordinal());
-					stmtBP.setInt(3, wf.getPriority());
-					stmtBP.setString(4, wf.getProcessorPoolId());
-					stmtBP.setString(5, data);
-					stmtBP.addBatch();
-
-					stmtQueue.setString(1, wf.getProcessorPoolId());
-					stmtQueue.setInt(2, wf.getPriority());
-					stmtQueue.setString(3, wf.getId());
-					stmtQueue.addBatch();
-
-					n++;
-					if (i % 100 == 0 || (i+1) == wfs.size()) {
-						insertStmtStatistic.start();
-						stmtBP.executeBatch();
-						stmtQueue.executeBatch();
-						insertStmtStatistic.stop(n);
-						n = 0;
-					}
-				}
+				doInsert(wfs, getConnection());
 			}
 		}.run();
 	}
@@ -249,7 +253,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 	public void finish(final Workflow<?> w) {
 		if (logger.isTraceEnabled()) logger.trace("finish("+w.getId()+")");
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		batcher.submitBatchCommand(new GenericRemove.Command(pwf,dataSource));
+		batcher.submitBatchCommand(new MySqlRemove.Command(pwf,dataSource));
 	}
 
 	/* (non-Javadoc)
@@ -299,7 +303,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 					return;
 				}
 
-				PreparedStatement stmt = getConnection().prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id from cop_wait where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w, cop_response r where w.correlation_id = r.correlation_id");
+				PreparedStatement stmt = getConnection().prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id from cop_wait where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w LEFT OUTER JOIN cop_response r ON w.correlation_id = r.correlation_id");
 				List<List<String>> ids = splitt(map.keySet(),25); 
 				for (List<String> id : ids) {
 					stmt.clearParameters();
@@ -358,7 +362,6 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 			new RetryingTransaction(dataSource) {
 				@Override
 				protected void execute() throws Exception {
-					getConnection().setAutoCommit(false);
 					enqueueUpdateStateStmtStatistic.start();
 					
 					PreparedStatement queryStmt = getConnection().prepareStatement(query+max);
@@ -421,7 +424,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 		if (logger.isTraceEnabled()) logger.trace("notify("+response+")");
 		if (response == null)
 			throw new NullPointerException();
-		batcher.submitBatchCommand(new GenericNotify.Command(response, dataSource, serializer));
+		batcher.submitBatchCommand(new MySqlNotify.Command(response, dataSource, serializer));
 	}
 
 	/* (non-Javadoc)
@@ -439,7 +442,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 		if (logger.isTraceEnabled()) logger.trace("registerCallback("+rc+")");
 		if (rc == null) 
 			throw new NullPointerException();
-		batcher.submitBatchCommand(new GenericRegisterCallback.Command(rc, dataSource, serializer));
+		batcher.submitBatchCommand(new MySqlRegisterCallback.Command(rc, dataSource, serializer));
 	}
 
 
@@ -505,8 +508,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 			new RetryingTransaction(dataSource) {
 				@Override
 				protected void execute() throws Exception {
-					getConnection().setAutoCommit(false);
-					PreparedStatement stmt = getConnection().prepareStatement("delete from cop_response where response_ts < now() and not exists (select * from cop_wait w where w.correlation_id = response.correlation_id)");
+					PreparedStatement stmt = getConnection().prepareStatement("delete from cop_response where response_ts < now() and not exists (select * from cop_wait w where w.correlation_id = cop_response.correlation_id)");
 					deleteStaleResponsesStmtStatistic.start();
 					n[0] = stmt.executeUpdate();
 					deleteStaleResponsesStmtStatistic.stop(n[0]);
@@ -550,23 +552,46 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 
 	@Override
 	public void insert(Workflow<?> wf, Connection con) throws Exception {
-		throw new UnsupportedOperationException(); // TODO
+		if (con == null) {
+			insert(wf);
+		}
+		else {
+			doInsert(wf, con);
+		}
 	}
 
 	@Override
 	public void insert(List<Workflow<?>> wfs, Connection con) throws Exception {
-		throw new UnsupportedOperationException(); // TODO
+		if (con == null) {
+			insert(wfs);
+		}
+		else {
+			doInsert(wfs, con);
+		}
 	}
 
 	@Override
 	public void error(Workflow<?> w, Throwable t) {
-		// TODO implement same as in OracleScottyDBStorage  
-		finish(w);
+		if (logger.isTraceEnabled()) logger.trace("error("+w.getId()+","+t.toString()+")");
+		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
+		batcher.submitBatchCommand(new MySqlSetToError.Command(pwf,dataSource,t));
 	}
 
 	@Override
-	public void restart(String workflowInstanceId) throws Exception {
-		throw new UnsupportedOperationException(); // TODO
+	public void restart(final String workflowInstanceId) throws Exception {
+		logger.trace("restart("+workflowInstanceId+")");
+		new RetryingTransaction(dataSource) {
+			@Override
+			protected void execute() throws Exception {
+				PreparedStatement stmtQueue = getConnection().prepareStatement("INSERT INTO COP_QUEUE (PPOOL_ID, PRIORITY, LAST_MOD_TS, WORKFLOW_INSTANCE_ID) (SELECT PPOOL_ID, PRIORITY, NOW(), ID FROM COP_WORKFLOW_INSTANCE WHERE ID=? AND STATE=5)");
+				PreparedStatement stmtInstance = getConnection().prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=0 /* ENQUEUED */ WHERE ID=? AND STATE=5 /* ERROR */");
+				stmtQueue.setString(1, workflowInstanceId);
+				stmtInstance.setString(1, workflowInstanceId);
+				stmtQueue.execute();
+				stmtInstance.execute();
+			}
+		}.run();
+		logger.info(workflowInstanceId+" successfully queued for restart.");
 	}
 
 }
