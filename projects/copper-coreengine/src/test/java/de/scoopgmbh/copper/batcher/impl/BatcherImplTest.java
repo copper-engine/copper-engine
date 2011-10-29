@@ -15,7 +15,10 @@
  */
 package de.scoopgmbh.copper.batcher.impl;
 
+import java.sql.Connection;
 import java.util.Collection;
+
+import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -48,6 +51,11 @@ public class BatcherImplTest extends TestCase {
 		public long targetTime() {
 			return targetTime;
 		}
+
+		@Override
+		public DataSource dataSource() {
+			return null;
+		}
 		
 	};
 	
@@ -56,12 +64,11 @@ public class BatcherImplTest extends TestCase {
 		public static TestBatchExecutor INSTANCE = new TestBatchExecutor();
 
 		@Override
-		protected void executeCommands(Collection<TestBatchCommand> commands) {
+		protected void doExec(final Collection<BatchCommand<TestBatchExecutor, TestBatchCommand>> commands, final Connection con) throws Exception {
 			System.out.println("new batch:");
-			for (TestBatchCommand cmd : commands) {
-				System.out.println(cmd.data);
+			for (BatchCommand<TestBatchExecutor, TestBatchCommand> cmd : commands) {
+				System.out.println(((TestBatchCommand)cmd).data);
 			}
-			
 		}
 
 		@Override

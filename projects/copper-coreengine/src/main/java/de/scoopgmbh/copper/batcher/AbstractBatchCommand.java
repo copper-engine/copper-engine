@@ -15,6 +15,8 @@
  */
 package de.scoopgmbh.copper.batcher;
 
+import javax.sql.DataSource;
+
 /**
  * Abstract base implementation of {@link BatchCommand}
  * 
@@ -27,14 +29,16 @@ public abstract class AbstractBatchCommand<E extends BatchExecutor<E,T>, T exten
 	
 	final CommandCallback<T> callback;
 	long targetTime;
+	final DataSource dataSource;
 	
-	public AbstractBatchCommand(CommandCallback<T> callback) {
-		this(callback, System.currentTimeMillis()+1000);
+	public AbstractBatchCommand(CommandCallback<T> callback, DataSource dataSource) {
+		this(callback, dataSource, System.currentTimeMillis()+1000);
 	}
 
-	public AbstractBatchCommand(CommandCallback<T> callback, long targetTime) {
+	public AbstractBatchCommand(CommandCallback<T> callback, DataSource dataSource, long targetTime) {
 		this.callback = callback;
 		this.targetTime = targetTime;
+		this.dataSource = dataSource;
 	}
 
 	public CommandCallback<T> callback() {
@@ -43,6 +47,11 @@ public abstract class AbstractBatchCommand<E extends BatchExecutor<E,T>, T exten
 	
 	public long targetTime() {
 		return targetTime;
+	}
+	
+	@Override
+	public DataSource dataSource() {
+		return dataSource;
 	}
 
 

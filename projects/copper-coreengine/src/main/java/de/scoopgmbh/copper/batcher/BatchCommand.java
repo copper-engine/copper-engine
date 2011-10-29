@@ -15,6 +15,8 @@
  */
 package de.scoopgmbh.copper.batcher;
 
+import javax.sql.DataSource;
+
 /**
  * A BatchCommand is one task executed in a Batch.
  * BatchCommands with the same executor are batched by the {@link Batcher}
@@ -24,7 +26,7 @@ package de.scoopgmbh.copper.batcher;
  * @param <E>
  * @param <T>
  */
-public interface BatchCommand<E extends BatchExecutorBase<T>, T extends BatchCommand<E,T>>  {
+public interface BatchCommand<E extends BatchExecutorBase<E,T>, T extends BatchCommand<E,T>>  {
 	
 	/**
 	 * returns the executor for this BatchCommand.
@@ -42,5 +44,10 @@ public interface BatchCommand<E extends BatchExecutorBase<T>, T extends BatchCom
 	 * This value influences how long the used batcher is collecting BatchCommands with the same executor. 
 	 */
 	long targetTime();
+	
+	/**
+	 * returns a datasource or null if not applicable for this batch command.
+	 */
+	DataSource dataSource();
 
 }

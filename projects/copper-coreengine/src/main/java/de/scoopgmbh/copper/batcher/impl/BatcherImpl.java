@@ -56,7 +56,7 @@ public class BatcherImpl implements Batcher {
 					if (commands == null) {
 						return;
 					}
-					final BatchExecutorBase<?> e = commands.get(0).executor();
+					final BatchExecutorBase e = commands.get(0).executor();
 					final long startTS = System.currentTimeMillis();
 					e.execute(commands);
 					statisticsCollector.submit(e.id(), commands.size(), System.currentTimeMillis()-startTS, TimeUnit.MILLISECONDS);

@@ -25,12 +25,12 @@ import java.util.Collection;
  *
  * @param <T>
  */
-public interface BatchExecutorBase<T> {
+public interface BatchExecutorBase<E extends BatchExecutorBase<E,T>, T extends BatchCommand<E,T>> {
 	
 	/**
 	 * Executes a batch of commands
 	 */
-	void execute(Collection<?> commands);
+	void execute(Collection<BatchCommand<E,T>> commands);
 	
 	/**
 	 * Preferred batch size of this executor

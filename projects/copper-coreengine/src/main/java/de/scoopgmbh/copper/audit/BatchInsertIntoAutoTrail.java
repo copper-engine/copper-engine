@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.audit;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -24,27 +25,27 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
+import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.CommandCallback;
 import de.scoopgmbh.copper.batcher.NullCallback;
-import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 
 class BatchInsertIntoAutoTrail {
-	
+
 	static final class Command extends AbstractBatchCommand<Executor, Command>{
-		
+
 		final AuditTrailEvent data;
 		final DataSource dataSource;
 
 		@SuppressWarnings("unchecked")
 		public Command(AuditTrailEvent data, DataSource dataSource) {
-			super(NullCallback.instance,250);
+			super(NullCallback.instance,dataSource,250);
 			this.data = data;
 			this.dataSource = dataSource;
 		}
 
 		public Command(AuditTrailEvent data, DataSource dataSource, CommandCallback<Command> callback) {
-			super(callback,250);
+			super(callback,dataSource,250);
 			this.data = data;
 			this.dataSource = dataSource;
 		}
@@ -55,7 +56,7 @@ class BatchInsertIntoAutoTrail {
 		}
 
 	}
-	
+
 	static final class Executor extends BatchExecutor<Executor, Command>{
 
 		private static final Executor INSTANCE = new Executor();
@@ -72,51 +73,33 @@ class BatchInsertIntoAutoTrail {
 		}
 
 		@Override
-		protected void executeCommands(final Collection<Command> commands) {
-			if (commands.isEmpty())
-				return;
-			
-			try {
-				new RetryingTransaction(commands.iterator().next().dataSource) {
-					@Override
-					protected void execute() throws Exception {
-						logger.info("database product name="+getConnection().getMetaData().getDatabaseProductName());
-						String _stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?)";
-						if (getConnection().getMetaData().getDatabaseProductName().equalsIgnoreCase("MYSQL")) {
-							_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (?,?,?,?,?,?,?,?,?)";
-						}
-						final PreparedStatement stmt = getConnection().prepareStatement(_stmt);
-						for (Command cmd : commands) {
-							AuditTrailEvent data = cmd.data;
-							stmt.setTimestamp(1, new Timestamp(data.occurrence.getTime()));
-							stmt.setString(2, data.conversationId);
-							stmt.setInt(3, data.logLevel);
-							stmt.setString(4, data.context);
-							stmt.setString(5, data.workflowInstanceId);
-							stmt.setString(6, data.correlationId);
-							if ( data.message != null && data.message.length()>4000 ) { 
-								stmt.setString(7, data.message.substring(0,3999));
-								stmt.setString(8, data.message);
-							} else {
-								stmt.setString(7, data.message);
-								stmt.setString(8, null);
-							}
-							stmt.setString(9, data.transactionId);
-							stmt.addBatch();
-						}
-						stmt.executeBatch();
-					}
-				}.run();
-				for (Command cmd : commands) {
-					cmd.callback().commandCompleted(cmd);
-				}
-			} 
-			catch (Exception e) {
-				logger.error("",e);
-				throw new RuntimeException(e);
-				// todo Einzelverarbeitung...
+		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
+			logger.info("database product name="+con.getMetaData().getDatabaseProductName());
+			String _stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?)";
+			if (con.getMetaData().getDatabaseProductName().equalsIgnoreCase("MYSQL")) {
+				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (?,?,?,?,?,?,?,?,?)";
 			}
-			
+			final PreparedStatement stmt = con.prepareStatement(_stmt);
+			for (BatchCommand<Executor, Command> _cmd : commands) {
+				Command cmd = (Command)_cmd;
+				AuditTrailEvent data = cmd.data;
+				stmt.setTimestamp(1, new Timestamp(data.occurrence.getTime()));
+				stmt.setString(2, data.conversationId);
+				stmt.setInt(3, data.logLevel);
+				stmt.setString(4, data.context);
+				stmt.setString(5, data.workflowInstanceId);
+				stmt.setString(6, data.correlationId);
+				if ( data.message != null && data.message.length()>4000 ) { 
+					stmt.setString(7, data.message.substring(0,3999));
+					stmt.setString(8, data.message);
+				} else {
+					stmt.setString(7, data.message);
+					stmt.setString(8, null);
+				}
+				stmt.setString(9, data.transactionId);
+				stmt.addBatch();
+			}
+			stmt.executeBatch();
 		}
 
 	}

@@ -55,7 +55,7 @@ class BatcherQueue {
 		BatchCommandArray batch;
 		Condition signaller;
 
-		BatchInfo(BatchExecutorBase<?> executor) {
+		BatchInfo(BatchExecutorBase<?,?> executor) {
 			this.preferredSize = executor.preferredBatchSize();
 			this.maximumSize = executor.maximumBatchSize();
 			if (maximumSize < preferredSize)
@@ -108,7 +108,7 @@ class BatcherQueue {
 
 	}
 
-	Map<BatchExecutorBase<?>, BatchInfo> batchMap;
+	Map<BatchExecutorBase<?,?>, BatchInfo> batchMap;
 	LinkedList<Condition> freeConditions;
 	LinkedList<Condition> unusedConditions;
 	ArrayList<BatchInfo> batches;
@@ -120,14 +120,13 @@ class BatcherQueue {
 		this.numThreads = 0;
 		lock = new ReentrantLock(false);
 		batches = new ArrayList<BatchInfo>();
-		batchMap = new HashMap<BatchExecutorBase<?>, BatchInfo>();
+		batchMap = new HashMap<BatchExecutorBase<?,?>, BatchInfo>();
 		freeConditions = new LinkedList<Condition>();
 		unusedConditions = new LinkedList<Condition>();
 		state = State.STARTED;
 	}
 
-	public <E extends BatchExecutorBase<T>, T extends BatchCommand<E, T>> void submitBatchCommand(
-			BatchCommand<E, T> cmd) {
+	public void submitBatchCommand(BatchCommand<?, ?> cmd) {
 		lock.lock();
 		try {
 			BatchInfo batchInfo = batchMap.get(cmd.executor());

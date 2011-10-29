@@ -81,10 +81,9 @@ public class Queue {
 			assert false : "illegal method call";
 		}
 
-		public void addLastElement(final Object o) throws OverflowException, IllegalStateException {
+		public void addLastElement(final Object o) throws OverflowException, IllegalStateException, ClosedException {
 			synchronized (lock) {
-                // TODO_MA: Ugly: Should fire a ClosedException, but due to downward compatibility a RuntimeException is thrown.
-				if (isClosed()) throw new IllegalStateException("Queue is closed.");  
+				if (isClosed()) throw new ClosedException();  
 				if (capacity > -1 && size() >= capacity) {
 					throw new OverflowException();
 				}
@@ -252,7 +251,7 @@ public class Queue {
 	 * @param o object to add to the queue
 	 * @throws OverflowException if maximum capacity of queue is reached
 	 */
-	public void enqueue(final Object o) throws OverflowException {
+	public void enqueue(final Object o) throws OverflowException, ClosedException {
 		list.addLastElement(o);
 	}
 

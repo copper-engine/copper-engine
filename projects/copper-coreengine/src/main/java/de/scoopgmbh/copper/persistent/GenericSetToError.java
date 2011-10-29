@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.persistent;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Collection;
 
@@ -25,9 +26,9 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
+import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.NullCallback;
-import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 
 class GenericSetToError {
 
@@ -35,14 +36,12 @@ class GenericSetToError {
 
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 
-		private final DataSource dataSource;
 		private final PersistentWorkflow<?> wf;
 		private final Throwable error;
 
 		@SuppressWarnings("unchecked")
 		public Command(PersistentWorkflow<?> wf, DataSource dataSource, Throwable error) {
-			super(NullCallback.instance,250);
-			this.dataSource = dataSource;
+			super(NullCallback.instance,dataSource,250);
 			this.wf = wf;
 			this.error = error;
 		}
@@ -59,44 +58,28 @@ class GenericSetToError {
 		private static final Executor INSTANCE = new Executor();
 
 		@Override
-		protected void executeCommands(final Collection<Command> commands) {
-			if (commands.isEmpty())
-				return;
-			
-			
-			
-			try {
-				new RetryingTransaction(commands.iterator().next().dataSource) {
-					@Override
-					protected void execute() throws Exception {
-						final PreparedStatement stmtDelQueue = getConnection().prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
-						final PreparedStatement stmtUpdateState = getConnection().prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=? WHERE ID=?");
-						final PreparedStatement stmtInsertError = getConnection().prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, EXCEPTION, ERROR_TS) VALUES (?,?,SYSTIMESTAMP)");
-						for (Command cmd : commands) {
-							stmtUpdateState.setInt(1, DBProcessingState.ERROR.ordinal());
-							stmtUpdateState.setString(2, cmd.wf.getId());
-							stmtUpdateState.addBatch();
+		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection c) throws Exception {
+			final PreparedStatement stmtDelQueue = c.prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
+			final PreparedStatement stmtUpdateState = c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=? WHERE ID=?");
+			final PreparedStatement stmtInsertError = c.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, EXCEPTION, ERROR_TS) VALUES (?,?,SYSTIMESTAMP)");
+			for (BatchCommand<Executor, Command> _cmd : commands) {
+				Command cmd = (Command)_cmd;
+				stmtUpdateState.setInt(1, DBProcessingState.ERROR.ordinal());
+				stmtUpdateState.setString(2, cmd.wf.getId());
+				stmtUpdateState.addBatch();
 
-							stmtInsertError.setString(1, cmd.wf.getId());
-							stmtInsertError.setString(2, convert2String(cmd.error));
-							stmtInsertError.addBatch();
-							
-							stmtDelQueue.setString(1, cmd.wf.rowid);
-							stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
-							stmtDelQueue.setInt(3, cmd.wf.oldPrio);
-							stmtDelQueue.addBatch();
-						}
-						stmtUpdateState.executeBatch();
-						stmtInsertError.executeBatch();
-						stmtDelQueue.executeBatch();
-					}
-				}.run();
-			} 
-			catch (Exception e) {
-				logger.error("",e);
-				throw new RuntimeException(e);
-				// todo Einzelverarbeitung...
+				stmtInsertError.setString(1, cmd.wf.getId());
+				stmtInsertError.setString(2, convert2String(cmd.error));
+				stmtInsertError.addBatch();
+
+				stmtDelQueue.setString(1, cmd.wf.rowid);
+				stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
+				stmtDelQueue.setInt(3, cmd.wf.oldPrio);
+				stmtDelQueue.addBatch();
 			}
+			stmtUpdateState.executeBatch();
+			stmtInsertError.executeBatch();
+			stmtDelQueue.executeBatch();
 		}
 
 		@Override
@@ -110,7 +93,7 @@ class GenericSetToError {
 		}
 
 	}
-	
+
 	private static final String convert2String(Throwable t)  {
 		StringWriter sw = new StringWriter(2048);
 		t.printStackTrace(new PrintWriter(sw));

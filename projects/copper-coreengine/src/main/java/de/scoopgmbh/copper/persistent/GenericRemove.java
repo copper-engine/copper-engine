@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.persistent;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Collection;
 
@@ -23,9 +24,9 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
+import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.NullCallback;
-import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 
 class GenericRemove {
 
@@ -33,13 +34,11 @@ class GenericRemove {
 
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 
-		private final DataSource dataSource;
 		private final PersistentWorkflow<?> wf;
 
 		@SuppressWarnings("unchecked")
 		public Command(PersistentWorkflow<?> wf, DataSource dataSource) {
-			super(NullCallback.instance,250);
-			this.dataSource = dataSource;
+			super(NullCallback.instance,dataSource,250);
 			this.wf = wf;
 		}
 
@@ -55,59 +54,6 @@ class GenericRemove {
 		private static final Executor INSTANCE = new Executor();
 
 		@Override
-		protected void executeCommands(final Collection<Command> commands) {
-			if (commands.isEmpty())
-				return;
-
-			try {
-				new RetryingTransaction(commands.iterator().next().dataSource) {
-					@Override
-					protected void execute() throws Exception {
-						final PreparedStatement stmtDelQueue = getConnection().prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
-						final PreparedStatement stmtDelResponse = getConnection().prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
-						final PreparedStatement stmtDelWait = getConnection().prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
-						final PreparedStatement stmtDelBP = getConnection().prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?");
-						final PreparedStatement stmtDelErrors = getConnection().prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
-						boolean cidsFound = false;
-						for (Command cmd : commands) {
-							if (cmd.wf.cidList != null) {
-								for (String cid : cmd.wf.cidList) {
-									stmtDelResponse.setString(1, cid);
-									stmtDelResponse.addBatch();
-									stmtDelWait.setString(1, cid);
-									stmtDelWait.addBatch();
-									if (!cidsFound) cidsFound = true;
-								}
-							}
-							stmtDelBP.setString(1, cmd.wf.getId());
-							stmtDelBP.addBatch();
-
-							stmtDelErrors.setString(1, cmd.wf.getId());
-							stmtDelErrors.addBatch();
-							
-							stmtDelQueue.setString(1, cmd.wf.rowid);
-							stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
-							stmtDelQueue.setInt(3, cmd.wf.oldPrio);
-							stmtDelQueue.addBatch();
-						}
-						if (cidsFound) {
-							stmtDelResponse.executeBatch();
-							stmtDelWait.executeBatch();
-						}
-						stmtDelBP.executeBatch();
-						stmtDelErrors.executeBatch();
-						stmtDelQueue.executeBatch();
-					}
-				}.run();
-			} 
-			catch (Exception e) {
-				logger.error("",e);
-				throw new RuntimeException(e);
-				// todo Einzelverarbeitung...
-			}
-		}
-
-		@Override
 		public int maximumBatchSize() {
 			return 100;
 		}
@@ -115,6 +61,44 @@ class GenericRemove {
 		@Override
 		public int preferredBatchSize() {
 			return 50;
+		}
+
+		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection c) throws Exception {
+			final PreparedStatement stmtDelQueue = c.prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
+			final PreparedStatement stmtDelResponse = c.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
+			final PreparedStatement stmtDelWait = c.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
+			final PreparedStatement stmtDelBP = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?");
+			final PreparedStatement stmtDelErrors = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
+			boolean cidsFound = false;
+			for (BatchCommand<Executor, Command> _cmd : commands) {
+				Command cmd = (Command) _cmd;
+				if (cmd.wf.cidList != null) {
+					for (String cid : cmd.wf.cidList) {
+						stmtDelResponse.setString(1, cid);
+						stmtDelResponse.addBatch();
+						stmtDelWait.setString(1, cid);
+						stmtDelWait.addBatch();
+						if (!cidsFound) cidsFound = true;
+					}
+				}
+				stmtDelBP.setString(1, cmd.wf.getId());
+				stmtDelBP.addBatch();
+
+				stmtDelErrors.setString(1, cmd.wf.getId());
+				stmtDelErrors.addBatch();
+				
+				stmtDelQueue.setString(1, cmd.wf.rowid);
+				stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
+				stmtDelQueue.setInt(3, cmd.wf.oldPrio);
+				stmtDelQueue.addBatch();
+			}
+			if (cidsFound) {
+				stmtDelResponse.executeBatch();
+				stmtDelWait.executeBatch();
+			}
+			stmtDelBP.executeBatch();
+			stmtDelErrors.executeBatch();
+			stmtDelQueue.executeBatch();
 		}
 
 	}
