@@ -41,7 +41,6 @@ public class OracleConnectionTester implements ConnectionTester {
     }
 
     public int statusOnException(Connection con, Throwable t) {
-        // TODO ggf auf bestimmte bekannte Oracle Codes pr�fen
         return activeCheckConnection(con);
     }
 
