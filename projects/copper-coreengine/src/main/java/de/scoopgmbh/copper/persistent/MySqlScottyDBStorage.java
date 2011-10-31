@@ -266,7 +266,6 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 
 		final List<Workflow<?>> rv = new ArrayList<Workflow<?>>(max);
 		new RetryingTransaction(dataSource) {
-			@SuppressWarnings("unchecked")
 			@Override
 			protected void execute() throws Exception {
 				final List<String> invalidBPs = new ArrayList<String>();
@@ -322,7 +321,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 						}
 						else {
 							// timeout
-							r = new Response(cid);
+							r = new Response<Object>(cid);
 						}
 						wf.putResponse(r);
 						if (wf.cidList == null) wf.cidList = new ArrayList<String>();
@@ -500,23 +499,21 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 	private void deleteStaleResponse() throws Exception {
 		if (logger.isTraceEnabled()) logger.trace("deleteStaleResponse()");
 
-		// TODO MAX_ROWS berücksichtigen...
-		
 		final int[] n = { 0 };
-//		final int MAX_ROWS = 20000;
-//		do {
+		final int MAX_ROWS = 20000;
+		do {
 			new RetryingTransaction(dataSource) {
 				@Override
 				protected void execute() throws Exception {
-					PreparedStatement stmt = getConnection().prepareStatement("delete from cop_response where response_ts < now() and not exists (select * from cop_wait w where w.correlation_id = cop_response.correlation_id)");
+					PreparedStatement stmt = getConnection().prepareStatement("delete from cop_response where response_ts < now() and not exists (select * from cop_wait w where w.correlation_id = cop_response.correlation_id LIMIT "+MAX_ROWS+")");
 					deleteStaleResponsesStmtStatistic.start();
 					n[0] = stmt.executeUpdate();
 					deleteStaleResponsesStmtStatistic.stop(n[0]);
 					if (logger.isTraceEnabled()) logger.trace("deleted "+n+" stale response(s).");
 				}
 			}.run();
-//		}
-//		while(n[0] == MAX_ROWS);
+		}
+		while(n[0] == MAX_ROWS);
 	}
 
 	private void updateQueueState() {
