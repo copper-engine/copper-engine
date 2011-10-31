@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.common;
 
+import java.util.Collection;
 import java.util.List;
 
 import de.scoopgmbh.copper.ProcessingEngine;
@@ -34,4 +35,5 @@ public interface ProcessorPoolManager<T extends ProcessorPool> {
 	public void removeProcessorPool(String poolId);
 	public void startup();
 	public void shutdown();
+	public Collection<T> processorPools();
 }

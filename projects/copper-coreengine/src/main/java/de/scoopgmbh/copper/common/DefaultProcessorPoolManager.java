@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -116,6 +117,11 @@ public class DefaultProcessorPoolManager<T extends ProcessorPool> implements Pro
 	@Override
 	public void setEngine(ProcessingEngine engine) {
 		this.engine = engine;
+	}
+
+	@Override
+	public Collection<T> processorPools() {
+		return pools.values();
 	}
 
 }

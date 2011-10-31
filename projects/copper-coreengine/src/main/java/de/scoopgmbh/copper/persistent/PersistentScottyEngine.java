@@ -47,6 +47,18 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	private ScottyDBStorageInterface dbStorage;
 	private ProcessorPoolManager<PersistentProcessorPool> processorPoolManager;
 	private DependencyInjector dependencyInjector;
+	private boolean notifyProcessorPoolsOnResponse = false;
+	
+	/**
+	 * If true, the engine notifies all processor pools about a new reponse available.
+	 * This may lead to shorter latency times, but may also increase CPU load or database I/O,
+	 * so use with care
+	 * 
+	 * @param notifyProcessorPoolsOnResponse
+	 */
+	public void setNotifyProcessorPoolsOnResponse(boolean notifyProcessorPoolsOnResponse) {
+		this.notifyProcessorPoolsOnResponse = notifyProcessorPoolsOnResponse;
+	}
 	
 	public void setDbStorage(ScottyDBStorageInterface dbStorage) {
 		this.dbStorage = dbStorage;
@@ -74,7 +86,11 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		try {
 			startupBlocker.pass();
 			dbStorage.notify(response,null);
-			// TODO notifyProcessorPool(s)
+			if (notifyProcessorPoolsOnResponse) {
+				for (PersistentProcessorPool ppp : processorPoolManager.processorPools()) {
+					ppp.doNotify();
+				}
+			}
 		} 
 		catch (Exception e) {
 			throw new CopperRuntimeException("notify failed",e);
