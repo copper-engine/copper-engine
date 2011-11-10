@@ -27,6 +27,7 @@ import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.NullCallback;
+import de.scoopgmbh.copper.persistent.GenericRemove.Command;
 
 class MySqlRemove {
 
@@ -35,11 +36,13 @@ class MySqlRemove {
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 
 		private final PersistentWorkflow<?> wf;
+		private final boolean remove;
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, DataSource dataSource) {
+		public Command(PersistentWorkflow<?> wf, DataSource dataSource, boolean remove) {
 			super(NullCallback.instance,dataSource,250);
 			this.wf = wf;
+			this.remove = remove;
 		}
 
 		@Override
@@ -58,7 +61,7 @@ class MySqlRemove {
 			final PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
 			final PreparedStatement stmtDelResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
 			final PreparedStatement stmtDelWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
-			final PreparedStatement stmtDelBP = con.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?");
+			final PreparedStatement stmtDelBP = ((Command)commands.iterator().next()).remove ? con.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?") : con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE="+DBProcessingState.FINISHED.ordinal()+" WHERE ID=?");
 			final PreparedStatement stmtDelErrors = con.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
 			boolean cidsFound = false;
 			for (BatchCommand<Executor, Command> _cmd : commands) {

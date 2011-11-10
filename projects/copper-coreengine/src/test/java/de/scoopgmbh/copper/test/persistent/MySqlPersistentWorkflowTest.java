@@ -53,4 +53,8 @@ public class MySqlPersistentWorkflowTest extends PersistentWorkflowTest {
 		super.testParentChildWorkflow(DS_CONTEXT);
 	}	
 
+	public void testErrorKeepWorkflowInstanceInDB() throws Exception {
+		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
+	}
+	
 }

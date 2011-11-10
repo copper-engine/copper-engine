@@ -37,6 +37,7 @@ import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.persistent.OracleScottyDBStorage;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
+import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 import de.scoopgmbh.copper.test.persistent.subworkflow.TestParentWorkflow;
@@ -334,7 +335,7 @@ public class PersistentWorkflowTest extends TestCase {
 			WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow.class.getName());
 			final Workflow<?> wf = wfFactory.newInstance();
 			engine.run(wf);
-			Thread.sleep(2000);
+			Thread.sleep(5000);
 			//check
 			new RetryingTransaction(context.getBean(DataSource.class)) {
 				@Override
@@ -347,7 +348,7 @@ public class PersistentWorkflowTest extends TestCase {
 				}
 			}.run();
 			engine.restart(wf.getId());
-			Thread.sleep(2000);
+			Thread.sleep(5000);
 			new RetryingTransaction(context.getBean(DataSource.class)) {
 				@Override
 				protected void execute() throws Exception {
@@ -396,5 +397,53 @@ public class PersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
-	}	
+	}
+	
+	
+	public void testErrorKeepWorkflowInstanceInDB(String dsContext) throws Exception {
+		logger.info("running testAsnychResponse");
+		final int NUMB = 20;
+		final String DATA = createTestData(50);
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		cleanDB(context.getBean(DataSource.class));
+		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+		final ScottyDBStorageInterface dbStorageInterface = context.getBean(ScottyDBStorageInterface.class);
+		dbStorageInterface.setRemoveWhenFinished(false);
+		engine.startup();
+		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+		try {
+			assertEquals(EngineState.STARTED,engine.getEngineState());
+			
+			for (int i=0; i<NUMB; i++) {
+				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow.class.getName());
+				Workflow<String> wf = wfFactory.newInstance();
+				wf.setData(DATA);
+				engine.run(wf);
+			}
+
+			for (int i=0; i<NUMB; i++) {
+				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
+				Assert.assertNotNull(x);
+				Assert.assertNotNull(x.getResult());
+				Assert.assertNotNull(x.getResult().toString().length() == DATA.length());
+				Assert.assertNull(x.getException());
+			}
+
+			new RetryingTransaction(context.getBean(DataSource.class)) {
+				@Override
+				protected void execute() throws Exception {
+					ResultSet rs = getConnection().createStatement().executeQuery("select count(*) from cop_workflow_instance");
+					assertTrue(rs.next());
+					int x = rs.getInt(1);
+					assertEquals(NUMB, x);
+				}
+			}.run();
+			
+		}
+		finally {
+			context.close();
+		}
+		assertEquals(EngineState.STOPPED,engine.getEngineState());
+	}
+	
 }

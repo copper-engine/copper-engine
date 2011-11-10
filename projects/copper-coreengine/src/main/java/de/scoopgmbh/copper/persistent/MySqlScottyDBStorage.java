@@ -70,6 +70,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 	private String query = getResourceAsString("/mysql-query-ready-bpids.sql");
 	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
 	private Serializer serializer = new StandardJavaSerializer();
+	private boolean removeWhenFinished = true;
 
 	private StmtStatistic dequeueStmtStatistic;
 	private StmtStatistic queueDeleteStmtStatistic;
@@ -253,7 +254,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 	public void finish(final Workflow<?> w) {
 		if (logger.isTraceEnabled()) logger.trace("finish("+w.getId()+")");
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		batcher.submitBatchCommand(new MySqlRemove.Command(pwf,dataSource));
+		batcher.submitBatchCommand(new MySqlRemove.Command(pwf,dataSource,removeWhenFinished));
 	}
 
 	/* (non-Javadoc)
@@ -589,6 +590,11 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 			}
 		}.run();
 		logger.info(workflowInstanceId+" successfully queued for restart.");
+	}
+
+	@Override
+	public void setRemoveWhenFinished(boolean removeWhenFinished) {
+		this.removeWhenFinished = removeWhenFinished;
 	}
 
 }

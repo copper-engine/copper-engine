@@ -35,11 +35,13 @@ class GenericRemove {
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 
 		private final PersistentWorkflow<?> wf;
+		private final boolean remove;
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, DataSource dataSource) {
+		public Command(PersistentWorkflow<?> wf, DataSource dataSource, boolean remove) {
 			super(NullCallback.instance,dataSource,250);
 			this.wf = wf;
+			this.remove = remove;
 		}
 
 		@Override
@@ -67,8 +69,8 @@ class GenericRemove {
 			final PreparedStatement stmtDelQueue = c.prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
 			final PreparedStatement stmtDelResponse = c.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
 			final PreparedStatement stmtDelWait = c.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
-			final PreparedStatement stmtDelBP = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?");
 			final PreparedStatement stmtDelErrors = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
+			final PreparedStatement stmtDelBP = ((Command)commands.iterator().next()).remove ? c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?") : c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE="+DBProcessingState.FINISHED.ordinal()+" WHERE ID=?");
 			boolean cidsFound = false;
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				Command cmd = (Command) _cmd;

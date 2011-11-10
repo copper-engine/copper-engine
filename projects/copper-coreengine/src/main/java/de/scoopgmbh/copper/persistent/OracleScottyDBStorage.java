@@ -80,9 +80,14 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	private Serializer serializer = new StandardJavaSerializer();
 	private EngineIdProvider engineIdProvider = null;
 	private Map<String, ResponseLoader> responseLoaders = new HashMap<String, ResponseLoader>();
+	private boolean removeWhenFinished = true;
 
 	public OracleScottyDBStorage() {
 
+	}
+	
+	public void setRemoveWhenFinished(boolean removeWhenFinished) {
+		this.removeWhenFinished = removeWhenFinished;
 	}
 	
 	public void setEngineIdProvider(EngineIdProvider engineIdProvider) {
@@ -186,7 +191,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	public void finish(final Workflow<?> w) {
 		if (logger.isTraceEnabled()) logger.trace("finish("+w.getId()+")");
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		batcher.submitBatchCommand(new GenericRemove.Command(pwf,dataSource));
+		batcher.submitBatchCommand(new GenericRemove.Command(pwf,dataSource,removeWhenFinished));
 	}
 
 	
