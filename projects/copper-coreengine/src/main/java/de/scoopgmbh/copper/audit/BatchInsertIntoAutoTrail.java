@@ -74,7 +74,6 @@ class BatchInsertIntoAutoTrail {
 
 		@Override
 		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
-			logger.info("database product name="+con.getMetaData().getDatabaseProductName());
 			String _stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?)";
 			if (con.getMetaData().getDatabaseProductName().equalsIgnoreCase("MYSQL")) {
 				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (?,?,?,?,?,?,?,?,?)";
