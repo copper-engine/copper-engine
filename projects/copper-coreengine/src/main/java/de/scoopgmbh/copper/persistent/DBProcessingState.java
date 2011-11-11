@@ -17,7 +17,7 @@ package de.scoopgmbh.copper.persistent;
 
 enum DBProcessingState {
 	ENQUEUED, 
-	_PROCESSING, 
+	PROCESSING /* so far unused */, 
 	WAITING, 
 	FINISHED, 
 	INVALID, 
