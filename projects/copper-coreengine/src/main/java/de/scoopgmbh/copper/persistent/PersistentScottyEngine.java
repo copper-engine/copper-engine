@@ -16,10 +16,13 @@
 package de.scoopgmbh.copper.persistent;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
@@ -33,6 +36,8 @@ import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
+import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
+import de.scoopgmbh.copper.management.WorkflowInfo;
 
 /**
  * COPPER processing engine that offers persistent workflow processing. 
@@ -40,7 +45,7 @@ import de.scoopgmbh.copper.common.ProcessorPoolManager;
  * @author austermann
  *
  */
-public class PersistentScottyEngine extends AbstractProcessingEngine implements PersistentProcessingEngine {
+public class PersistentScottyEngine extends AbstractProcessingEngine implements PersistentProcessingEngine, PersistentProcessingEngineMXBean {
 
 	private static final Logger logger = Logger.getLogger(PersistentScottyEngine.class);
 	
@@ -48,6 +53,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	private ProcessorPoolManager<PersistentProcessorPool> processorPoolManager;
 	private DependencyInjector dependencyInjector;
 	private boolean notifyProcessorPoolsOnResponse = false;
+	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
 	
 	/**
 	 * If true, the engine notifies all processor pools about a new reponse available.
@@ -125,6 +131,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 			processorPoolManager.startup();
 			startupBlocker.unblock();
 			engineState = EngineState.STARTED;
+			
 			logger.info("Engine is running");
 		} 
 		catch(RuntimeException e) {
@@ -247,5 +254,42 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	public void restart(String workflowInstanceId) throws Exception {
 		dbStorage.restart(workflowInstanceId);
 	}
+
+	@Override
+	public String getState() {
+		return getEngineState().name();
+	}
+
+	@Override
+	public List<WorkflowInfo> queryWorkflowInstances() {
+		List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>(); 
+		for (Workflow<?> wf : workflowMap.values()) {
+			WorkflowInfo wfi = convert2Wfi(wf);
+			rv.add(wfi);
+		}
+		logger.info("queryWorkflowInstances returned "+rv.size()+" instance(s)");
+		return rv;
+	}
+
+	@Override
+	public WorkflowInfo queryWorkflowInstance(String id) {
+		return convert2Wfi(workflowMap.get(id));
+	}
+
 	
+	void register(Workflow<?> wf) {
+		if (logger.isTraceEnabled()) logger.trace("register("+wf.getId()+")");
+		Workflow<?> existingWF = workflowMap.put(wf.getId(),wf);
+		assert existingWF == null;
+	}
+	
+	void unregister(Workflow<?> wf) { 
+		Workflow<?> existingWF = workflowMap.remove(wf.getId());
+		assert existingWF != null;
+	}
+	
+	public int getNumberOfWorkflowInstances() {
+		return workflowMap.size();
+	}
+
 }

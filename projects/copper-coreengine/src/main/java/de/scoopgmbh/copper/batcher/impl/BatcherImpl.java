@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.batcher.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +26,7 @@ import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.BatchExecutorBase;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.impl.BatcherQueue.State;
+import de.scoopgmbh.copper.management.BatcherMXBean;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 
@@ -34,16 +36,17 @@ import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
  * @author austermann
  *
  */
-public class BatcherImpl implements Batcher {
+public class BatcherImpl implements Batcher, BatcherMXBean {
 	
-	Logger logger = Logger.getLogger(BatcherImpl.class);
+	private Logger logger = Logger.getLogger(BatcherImpl.class);
 	
 	class WorkerThread extends Thread {
 		
 		boolean started = false;
+		boolean stop = false;
 		
 		public void run() {
-			while (true) {
+			while (!stop) {
 				if (!started) {
 					synchronized (this) {
 						started = true;
@@ -74,26 +77,58 @@ public class BatcherImpl implements Batcher {
 	}
 	
 	BatcherQueue queue = new BatcherQueue();
-	WorkerThread[] threads;
 	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
+	private List<WorkerThread> threads = new ArrayList<WorkerThread>();
+	private int numThreads;
 	
 	public BatcherImpl(int numThreads) {
-		threads = new WorkerThread [numThreads];
+		this.numThreads = numThreads;
+	}
+	
+	public int getNumThreads() {
+		return numThreads;
+	}
+	
+	public synchronized void setNumThreads(int numThreads) {
+		if (numThreads <= 0 || numThreads > 200) throw new IllegalArgumentException();
+		this.numThreads = numThreads;
+		try {
+			adjustNumberOfThreads();
+		} 
+		catch (InterruptedException e) {
+			logger.error("setNumThreads failed",e);
+		}
 	}
 
 	public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
 		this.statisticsCollector = statisticsCollector;
 	}
 	
-	private void start() throws InterruptedException {
-		for (int i = 0; i < threads.length; ++i) {
-			threads[i] = new WorkerThread();
-			threads[i].start();
-			threads[i].waitForStartup();
+	private synchronized void adjustNumberOfThreads() throws InterruptedException {
+		while (threads.size() < numThreads) {
+			logger.info("Starting new batcher thread...");
+			WorkerThread thread = new WorkerThread();
+			thread.setName("Batcher.Worker#"+(threads.size()+1));
+			thread.start();
+			thread.waitForStartup();
+			threads.add(thread);
+			logger.info("Done, starting new batcher thread.");
+		}
+		while (threads.size() > numThreads) {
+			logger.info("Stopping batcher thread...");
+			WorkerThread thread = threads.remove(threads.size()-1);
+			thread.stop = true;
+			thread.interrupt();
+			thread.join();
+			logger.info("Done, stopping batcher thread.");
 		}
 	}
 	
-	private void stop() throws InterruptedException {
+	private synchronized void start() throws InterruptedException {
+		adjustNumberOfThreads();
+	}
+	
+	private synchronized void stop() throws InterruptedException {
 		queue.stop();
 		for (Thread t : threads) {
 			t.join();
@@ -109,7 +144,8 @@ public class BatcherImpl implements Batcher {
 	public void startup() {
 		try {
 			start();
-		} catch (InterruptedException e) {
+		} 
+		catch (InterruptedException e) {
 			throw new Error("unexpected interruption", e);
 		}
 	}
@@ -118,7 +154,8 @@ public class BatcherImpl implements Batcher {
 		logger.info("shutting down...");
 		try {
 			stop();
-		} catch (InterruptedException e) {
+		} 
+		catch (InterruptedException e) {
 			throw new Error("unexpected interruption", e);
 		}
 	}

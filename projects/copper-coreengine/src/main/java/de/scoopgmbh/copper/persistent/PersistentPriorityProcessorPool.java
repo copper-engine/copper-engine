@@ -21,10 +21,12 @@ import java.util.Queue;
 import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.ProcessingEngine;
+import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.common.Processor;
 import de.scoopgmbh.copper.common.WfPriorityQueue;
+import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
 
 /**
  * Implementation of the {@link PriorityProcessorPool} interface for use in the {@link PersistentScottyEngine}.
@@ -41,6 +43,9 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	private final Object mutex = new Object();
 	private int lowerThreshold = 3000;
 	private int upperThreshold = 6000;
+	private int upperThresholdReachedWaitMSec = 50;
+	private int emptyQueueWaitMSec = 500;
+	private int dequeueBulkSize = 2000;
 	
 	public PersistentPriorityProcessorPool() {
 		super();
@@ -110,17 +115,21 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 						break;
 					}
 					if (logger.isTraceEnabled()) logger.trace("Queue size "+queueSize+" >= upper threshold "+upperThreshold+". Waiting...");
-					doWait(50);
+					doWait(upperThresholdReachedWaitMSec);
 				}
 				logger.trace("Dequeueing elements from DB...");
-				List<Workflow<?>> rv = dbStorage.dequeue(getId(), 2000);
+				List<Workflow<?>> rv = dbStorage.dequeue(getId(), dequeueBulkSize);
 				if (shutdown) break;
 				if (rv.isEmpty()) {
 					if (logger.isTraceEnabled()) logger.trace("Dequeue returned nothing. Waiting...");
-					doWait(500);
+					doWait(emptyQueueWaitMSec);
 				}
 				else {
 					if (logger.isTraceEnabled()) logger.trace("Dequeue returned "+rv.size()+" elements.");
+					for (Workflow<?> wf : rv) {
+						ProcessingStateAccessor.setProcessingState(wf, ProcessingState.DEQUEUED);
+						engine.register(wf);
+					}
 					synchronized (queue) {
 						queue.addAll(rv);
 						queue.notifyAll();
@@ -151,5 +160,52 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 			mutex.wait(t);
 		}
 	}
+	
+	public synchronized void setLowerThreshold(int lowerThreshold) {
+		if (lowerThreshold < 0 || lowerThreshold > upperThreshold) throw new IllegalArgumentException();
+		this.lowerThreshold = lowerThreshold;
+	}
+	
+	public int getLowerThreshold() {
+		return lowerThreshold;
+	}
+	
+	public synchronized void setUpperThreshold(int upperThreshold) {
+		if (upperThreshold < 1 || upperThreshold < lowerThreshold) throw new IllegalArgumentException();
+		this.upperThreshold = upperThreshold;
+	}
+	
+	public int getUpperThreshold() {
+		return upperThreshold;
+	}
+
+	public int getUpperThresholdReachedWaitMSec() {
+		return upperThresholdReachedWaitMSec;
+	}
+
+	public void setUpperThresholdReachedWaitMSec(int upperThresholdReachedWaitMSec) {
+		if (upperThresholdReachedWaitMSec <= 0) throw new IllegalArgumentException();
+		this.upperThresholdReachedWaitMSec = upperThresholdReachedWaitMSec;
+	}
+
+	public int getEmptyQueueWaitMSec() {
+		return emptyQueueWaitMSec;
+	}
+
+	public void setEmptyQueueWaitMSec(int emptyQueueWaitMSec) {
+		if (emptyQueueWaitMSec <= 0) throw new IllegalArgumentException();
+		this.emptyQueueWaitMSec = emptyQueueWaitMSec;
+	}
+
+	public int getDequeueBulkSize() {
+		return dequeueBulkSize;
+	}
+
+	public void setDequeueBulkSize(int dequeueBulkSize) {
+		if (dequeueBulkSize <= 0) throw new IllegalArgumentException();
+		this.dequeueBulkSize = dequeueBulkSize;
+	}
+	
+
 
 }

@@ -12,6 +12,7 @@
 				<exclude name="de/scoopgmbh/copper/util/**" />
 				<exclude name="de/scoopgmbh/copper/db/utility/oracle/**" />
 				<exclude name="de/scoopgmbh/copper/db/utility/oracle/c3p0/**" />
+				<exclude name="de/scoopgmbh/copper/internal/**" />
 			</packageset>
 			<doctitle><![CDATA[<h1>COPPER core engine API</h1>]]></doctitle>
 			<bottom><![CDATA[<i>Copyright &#169; 2011 SCOOP Software GmbH. All Rights Reserved.</i>]]></bottom>

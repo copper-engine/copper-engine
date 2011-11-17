@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
 
 /**
  * A {@link ProcessorPool} implementation using a priority queue.
@@ -30,7 +31,7 @@ import de.scoopgmbh.copper.Workflow;
  * @author austermann
  *
  */
-public abstract class PriorityProcessorPool implements ProcessorPool {
+public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorPoolMXBean {
 
 	private static final Logger logger = Logger.getLogger(PriorityProcessorPool.class);
 
@@ -165,5 +166,11 @@ public abstract class PriorityProcessorPool implements ProcessorPool {
 	protected ProcessingEngine getEngine() {
 		return engine;
 	}
+	
+	@Override
+	public int getMemoryQueueSize() {
+		return queue.size();
+	}
+	
 
 }

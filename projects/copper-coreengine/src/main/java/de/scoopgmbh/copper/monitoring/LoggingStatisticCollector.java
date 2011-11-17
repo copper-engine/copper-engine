@@ -25,6 +25,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
+import de.scoopgmbh.copper.management.MeasurePointData;
+import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
+
 /**
  * Collects runtime statistics and logs average processing times to the logging system in a 
  * configurable time interval. 
@@ -32,7 +35,7 @@ import org.apache.log4j.Logger;
  * @author austermann
  *
  */
-public class LoggingStatisticCollector implements RuntimeStatisticsCollector {
+public class LoggingStatisticCollector implements RuntimeStatisticsCollector, StatisticsCollectorMXBean {
 	
 	private static final class StatSet {
 		final String mpId;
@@ -41,6 +44,11 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector {
 		long count = 0L;
 		public StatSet(String mpId) {
 			this.mpId = mpId;
+		}
+		void reset() {
+			elementCount = 0L;
+			elapsedTimeMicros = 0L;
+			count = 0L;
 		}
 	}
 
@@ -114,9 +122,8 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector {
 			ss.count++;
 		}
 	}
-	
+
 	public String print() {
-		final String DOTS = ".................................................1";
 		final Map<String, StatSet> localMap = map;
 		final StringBuilder sb = new StringBuilder(1024);
 		final List<StatSet> list = new ArrayList<LoggingStatisticCollector.StatSet>(localMap.values());
@@ -127,18 +134,7 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector {
 			}
 		});
 		for (StatSet ss : list) {
-			long elementCount = 0L;
-			long count = 0L;
-			long elapsedTimeMicros = 0L;
-			synchronized (ss) {
-				elementCount = ss.elementCount;
-				count = ss.count;
-				elapsedTimeMicros = ss.elapsedTimeMicros;
-			}
-			final long avgElementCount = elementCount/ss.count;
-			final double avgTimePerElement = elementCount > 0 ? (double)elapsedTimeMicros/(double)elementCount/1000.0 : 0.0;
-			final double avgTimePerExecution = count > 0 ? (double)elapsedTimeMicros/(double)count/1000.0 : 0.0;
-			sb.append(String.format("%1$55.55s #elements=%2$6d; avgCount=%3$6d; avgTime/Element=%4$12.5f msec; avgTime/Exec=%5$12.5f msec", ss.mpId+DOTS, elementCount, avgElementCount, avgTimePerElement, avgTimePerExecution));
+			sb.append(toString(ss));
 			sb.append("\n");
 		}
 		if (sb.length()>0) {
@@ -147,9 +143,67 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector {
 		return sb.toString();
 	}
 	
+	public String print(String mpId) {
+		final Map<String, StatSet> localMap = map;
+		StatSet ss = localMap.get(mpId);
+		if (ss == null) {
+			return "-";
+		}
+		else {
+			return toString(ss);
+		}
+	}
+	
 	private void log() {
 		logger.info("Current statistics\n"+print());
 	}
+	
+	private String toString(StatSet ss) {
+		final String DOTS = ".................................................1";
+		long elementCount = 0L;
+		long count = 0L;
+		long elapsedTimeMicros = 0L;
+		synchronized (ss) {
+			elementCount = ss.elementCount;
+			count = ss.count > 0 ? ss.count : 1;
+			elapsedTimeMicros = ss.elapsedTimeMicros;
+		}
+		final long avgElementCount = elementCount/count;
+		final double avgTimePerElement = elementCount > 0 ? (double)elapsedTimeMicros/(double)elementCount/1000.0 : 0.0;
+		final double avgTimePerExecution = count > 0 ? (double)elapsedTimeMicros/(double)count/1000.0 : 0.0;
+		return String.format("%1$55.55s #elements=%2$6d; avgCount=%3$6d; avgTime/Element=%4$12.5f msec; avgTime/Exec=%5$12.5f msec", ss.mpId+DOTS, elementCount, avgElementCount, avgTimePerElement, avgTimePerExecution);
+	}
+	
+	public void reset() {
+		logger.info("Attention! Resetting current statistics");
+		final Map<String, StatSet> localMap = map;
+		for (StatSet ss : localMap.values()) {
+			synchronized (ss) {
+				ss.reset();
+			}
+		}
+	}
 
+	@Override
+	public List<MeasurePointData> queryAll() {
+		final Map<String, StatSet> localMap = map;
+		List<MeasurePointData> rv = new ArrayList<MeasurePointData>(localMap.size());
+		for (StatSet ss : localMap.values()) {
+			synchronized (ss) {
+				MeasurePointData e = new MeasurePointData(ss.mpId, ss.elementCount, ss.elapsedTimeMicros, ss.count);
+				rv.add(e);
+			}
+		}
+		return rv;
+	}
+
+	@Override
+	public MeasurePointData query(String measurePointId) {
+		StatSet ss = map.get(measurePointId);
+		if (ss == null)
+			return null;
+		return new MeasurePointData(ss.mpId, ss.elementCount, ss.elapsedTimeMicros, ss.count);
+	}
+	
 }
 

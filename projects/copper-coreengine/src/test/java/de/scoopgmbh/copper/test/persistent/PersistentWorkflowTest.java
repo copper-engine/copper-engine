@@ -104,6 +104,7 @@ public class PersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
 		
 	}
 
@@ -138,7 +139,8 @@ public class PersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
+
 	}
 
 	public void testWithConnection(String dsContext) throws Exception {
@@ -175,6 +177,7 @@ public class PersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
 		
 	}
 	
@@ -215,6 +218,7 @@ public class PersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
 		
 	}
 	
@@ -246,6 +250,7 @@ public class PersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
 		
 	}
 	
@@ -323,14 +328,15 @@ public class PersistentWorkflowTest extends TestCase {
 		}
 		assertEquals(EngineState.STOPPED,engineA.getEngineState());
 		assertEquals(EngineState.STOPPED,engineB.getEngineState());
-		
+		assertEquals(0,engineA.getNumberOfWorkflowInstances());
+		assertEquals(0,engineB.getNumberOfWorkflowInstances());
 	}
 	
 	public void testErrorHandlingInCoreEngine(String dsContext) throws Exception {
 		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		cleanDB(context.getBean(DataSource.class));
+		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		try {
-			cleanDB(context.getBean(DataSource.class));
-			final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 			engine.startup();
 			WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow.class.getName());
 			final Workflow<?> wf = wfFactory.newInstance();
@@ -366,6 +372,8 @@ public class PersistentWorkflowTest extends TestCase {
 		finally {
 			context.close();
 		}
+		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
 	
 	
@@ -397,6 +405,7 @@ public class PersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
 	
 	
@@ -444,6 +453,8 @@ public class PersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
+	
 	
 }

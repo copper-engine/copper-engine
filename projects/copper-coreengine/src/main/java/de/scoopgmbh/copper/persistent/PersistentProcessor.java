@@ -19,8 +19,10 @@ import java.util.Queue;
 
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.ProcessingEngine;
+import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.Processor;
+import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
 
 class PersistentProcessor extends Processor {
 	
@@ -37,6 +39,7 @@ class PersistentProcessor extends Processor {
 		PersistentWorkflow<?> pw = (PersistentWorkflow<?>)wf;
 		synchronized (pw) {
 			try {
+				ProcessingStateAccessor.setProcessingState(wf, ProcessingState.RUNNING);
 				engine.getDependencyInjector().inject(pw);
 				wf.__beforeProcess();
 				pw.main();
@@ -51,6 +54,9 @@ class PersistentProcessor extends Processor {
 				logger.error("Execution of wf "+wf.getId()+" failed, error information will be stored in underlying db",e);
 				engine.getDbStorage().error(pw,e);
 				error = true;
+			}
+			finally {
+				engine.unregister(pw);
 			}
 
 			if (pw.registerCall != null && !error) {

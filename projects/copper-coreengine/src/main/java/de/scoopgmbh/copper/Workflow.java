@@ -48,6 +48,7 @@ public abstract class Workflow<D> implements Serializable {
 	protected transient int __stackPosition = 0; 
 	private transient String processorPoolId = null;
 	private transient int priority = 5;
+	private transient ProcessingState processingState = ProcessingState.RAW;
 	private D Data;
 	
 	protected Workflow() {
@@ -61,6 +62,14 @@ public abstract class Workflow<D> implements Serializable {
 		stream.defaultReadObject();
 		responseMap = new HashMap<String, Response<?>>();
 	}	
+	
+	public ProcessingState getProcessingState() {
+		return processingState;
+	}
+	
+	void setProcessingState(ProcessingState processingState) {
+		this.processingState = processingState;
+	}
 	
 	public int getPriority() {
 		return priority;

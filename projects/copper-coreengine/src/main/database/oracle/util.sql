@@ -10,7 +10,7 @@ truncate table copper2.COP_WORKFLOW_INSTANCE_ERROR;
 
 
 --
--- Most COPPER tables are volatile, i.e. the may be empty now and contain a million rows one hour later.
+-- Most COPPER tables are volatile, i.e. they may be empty now and contain a million rows a moment later.
 -- For that reason, the CBO statistics are mostly bad. To prevent the CBO from creating bad execution plans
 -- the statistics for most COPPER tables are deleted and locked.
 -- The CBO will use some default values. 

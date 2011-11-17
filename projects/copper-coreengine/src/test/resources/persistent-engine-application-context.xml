@@ -117,6 +117,26 @@
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>
 	
+	<bean id="mbeanExporter" class="org.springframework.jmx.export.MBeanExporter" >
+  		<property name="beans">
+      		<map>
+        		<entry key="copper.engine:name=red" value-ref="persistent.engine"/>
+        		<entry key="copper.processorpool:name=default" value-ref="persistent.ProcessorPool.default"/>
+        		<entry key="copper.processorpool:name=P1" value-ref="persistent.ProcessorPool.1"/>
+        		<entry key="copper.processorpool:name=P2" value-ref="persistent.ProcessorPool.2"/>
+        		<entry key="copper.processorpool:name=P3" value-ref="persistent.ProcessorPool.3"/>
+        		<entry key="copper.processorpool:name=P4" value-ref="persistent.ProcessorPool.4"/>
+        		<entry key="copper.processorpool:name=P5" value-ref="persistent.ProcessorPool.5"/>
+        		<entry key="copper.processorpool:name=P6" value-ref="persistent.ProcessorPool.6"/>
+        		<entry key="copper.monitoring.statistics:name=statisticsCollector" value-ref="statisticsCollector"/>
+        		<entry key="copper.db:name=batcher" value-ref="batcher"/>
+      		</map>
+    	</property>  		
+	</bean>
+
+
+		
+	
 </beans>          
 
         

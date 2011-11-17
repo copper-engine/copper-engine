@@ -66,5 +66,14 @@
 		<property name="wfRepository" ref="wfRepository"/>
 	</bean>
 	
+	<bean id="mbeanExporter" class="org.springframework.jmx.export.MBeanExporter" >
+  		<property name="beans">
+      		<map>
+        		<entry key="copper.engine:name=default" value-ref="transientEngine"/>
+        		<entry key="copper.processorpool:name=T_ProcessorPool_DEFAULT" value-ref="T_ProcessorPool_DEFAULT"/>
+        		<entry key="copper.processorpool:name=T_ProcessorPool_PS47112" value-ref="T_ProcessorPool_PS47112"/>
+      		</map>
+    	</property>  		
+	</bean>	
 	
 </beans>          

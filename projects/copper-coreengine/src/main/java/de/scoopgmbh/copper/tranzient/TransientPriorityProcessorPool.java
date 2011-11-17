@@ -18,9 +18,11 @@ package de.scoopgmbh.copper.tranzient;
 import java.util.Queue;
 
 import de.scoopgmbh.copper.ProcessingEngine;
+import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.common.Processor;
+import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
 
 /**
  * Default implementation of a {@link TransientProcessorPool}, backed by a priority queue and a configurable
@@ -42,6 +44,7 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
 	public void enqueue(Workflow<?> wf) {
 		if (wf == null)
 			throw new NullPointerException();
+		ProcessingStateAccessor.setProcessingState(wf, ProcessingState.ENQUEUED);
 		synchronized (queue) {
 			queue.add(wf);
 			queue.notify();

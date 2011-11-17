@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.tranzient;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -27,24 +28,28 @@ import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.DependencyInjector;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
+import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.common.TicketPoolManager;
+import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
+import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
+import de.scoopgmbh.copper.management.WorkflowInfo;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 /**
  * Transient implementation of a COPPER {@link ProcessingEngine}.
  * 
  * A transient engine may run instances of {@link Workflow} or {@link PersistentWorkflow}.
- * Anyhow, alle workflow instances will only reside in the local JVM heap.  
+ * Anyhow, all workflow instances will only reside in the local JVM heap.  
  * 
  * @author austermann
  *
  */
-public class TransientScottyEngine extends AbstractProcessingEngine implements ProcessingEngine {
+public class TransientScottyEngine extends AbstractProcessingEngine implements ProcessingEngine, ProcessingEngineMXBean {
 
 	private static final Logger logger = Logger.getLogger(TransientScottyEngine.class);
 
@@ -242,11 +247,15 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		if (doEnqueue) {
 			enqueue(w);
 		}
+		else {
+			ProcessingStateAccessor.setProcessingState(w, ProcessingState.WAITING);
+		}
 	}
 
 	public void removeWorkflow(String id) {
 		final Workflow<?> wf = workflowMap.remove(id);
 		if (wf != null) {
+			ProcessingStateAccessor.setProcessingState(wf, ProcessingState.FINISHED);
 			ticketPoolManager.release(wf);
 		}
 	}
@@ -258,6 +267,29 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		}
 	}
 
+	@Override
+	public String getState() {
+		return getEngineState().name();
+	}
 
+	@Override
+	public List<WorkflowInfo> queryWorkflowInstances() {
+		List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>(); 
+		for (Workflow<?> wf : workflowMap.values()) {
+			WorkflowInfo wfi = convert2Wfi(wf);
+			rv.add(wfi);
+		}
+		return rv;
+	}
+
+	@Override
+	public WorkflowInfo queryWorkflowInstance(String id) {
+		return convert2Wfi(workflowMap.get(id));
+	}
+	
+	public int getNumberOfWorkflowInstances() {
+		return workflowMap.size();
+	}
+	
 
 }

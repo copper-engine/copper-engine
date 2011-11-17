@@ -28,20 +28,20 @@ public class TransientPerformanceTestInputChannel implements Runnable {
 
 	public static final int NUMB = 500000;
 	public static final AtomicInteger counter = new AtomicInteger(0);
-	
+
 	public static long min=Long.MAX_VALUE;
 	public static long max=Long.MIN_VALUE;
 	public static long sum=0;
 	public static long statCounter=0;
 	public static final Object mutex=new Object();	
-	
+
 	public static void report() {
 		System.out.println("counter="+counter);
 		System.out.println("min="+min);
 		System.out.println("max="+max);
 		System.out.println("avg="+(sum/statCounter));
 	}	
-	
+
 	public static void addMP(long et) {
 		synchronized (mutex) {
 			sum += et;
@@ -69,13 +69,13 @@ public class TransientPerformanceTestInputChannel implements Runnable {
 			}
 		}
 	}
-	
+
 	private ProcessingEngine engine;
-	
+
 	public void setEngine(ProcessingEngine engine) {
 		this.engine = engine;
 	}
-	
+
 
 	@Override
 	public void run() {
@@ -83,23 +83,27 @@ public class TransientPerformanceTestInputChannel implements Runnable {
 			Logger.getRootLogger().setLevel(Level.INFO);
 
 			WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.PerformanceTestWF");
+			for (int x=0; x<100; x++) {
 
-			long startTS = System.currentTimeMillis();
-			counter.set(0);
-			for (int i=0; i<NUMB; i++) {
-				Workflow<?> wf = wfFactory.newInstance();
-				engine.run(wf);
+				long startTS = System.currentTimeMillis();
+				counter.set(0);
+				for (int i=0; i<NUMB; i++) {
+					Workflow<?> wf = wfFactory.newInstance();
+					engine.run(wf);
+				}
+				wait4finish();
+
+				long diff = System.currentTimeMillis() - startTS;
+				System.out.println("Elapsed time is "+diff+" msec.");
+
+				long reqPerSec = NUMB*1000L / diff;
+				System.out.println("throughput = "+reqPerSec);
+				
+				Thread.sleep(5000);
 			}
-			wait4finish();
-			
-			long diff = System.currentTimeMillis() - startTS;
-			System.out.println("Elapsed time is "+diff+" msec.");
 
-			long reqPerSec = NUMB*1000L / diff;
-			System.out.println("throughput = "+reqPerSec);
-			
 			engine.shutdown();
-			
+
 			report();
 		}
 		catch(Exception e) {
@@ -113,6 +117,6 @@ public class TransientPerformanceTestInputChannel implements Runnable {
 	}
 
 	public void shutdown() {
-		
+
 	}
 }

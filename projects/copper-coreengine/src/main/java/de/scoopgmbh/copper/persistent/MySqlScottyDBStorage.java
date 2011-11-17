@@ -37,11 +37,13 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 
+import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
+import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;

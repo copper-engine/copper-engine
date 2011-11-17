@@ -23,7 +23,9 @@ import de.scoopgmbh.copper.EngineIdProvider;
 import de.scoopgmbh.copper.EngineIdProviderBean;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
+import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
+import de.scoopgmbh.copper.management.WorkflowInfo;
 import de.scoopgmbh.copper.util.Blocker;
 
 /**
@@ -94,5 +96,16 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 		}
 	}
 	
+	protected WorkflowInfo convert2Wfi(Workflow<?> wf) {
+		if (wf == null) 
+			return null;
+		WorkflowInfo wfi = new WorkflowInfo();
+		wfi.setId(wf.getId());
+		wfi.setPriority(wf.getPriority());
+		wfi.setProcessorPoolId(wf.getProcessorPoolId());
+		wfi.setState(wf.getProcessingState().name());
+		wfi.setTimeout(null); // TODO
+		return wfi;
+	}	
 
 }
