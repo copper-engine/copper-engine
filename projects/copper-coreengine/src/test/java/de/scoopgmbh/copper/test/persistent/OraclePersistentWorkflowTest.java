@@ -56,4 +56,8 @@ public class OraclePersistentWorkflowTest extends PersistentWorkflowTest {
 		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
 	}
 	
+	public void testErrorHandlingInCoreEngine_restartAll() throws Exception {
+		super.testErrorHandlingInCoreEngine_restartAll(DS_CONTEXT);
+	}
+	
 }

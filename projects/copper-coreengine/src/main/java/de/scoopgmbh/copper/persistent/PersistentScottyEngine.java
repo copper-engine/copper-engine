@@ -292,4 +292,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		return workflowMap.size();
 	}
 
+	@Override
+	public void restartAll() throws Exception {
+		dbStorage.restartAll();
+	}
+
 }

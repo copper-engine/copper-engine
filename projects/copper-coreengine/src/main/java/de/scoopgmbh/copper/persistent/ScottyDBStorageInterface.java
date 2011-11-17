@@ -107,6 +107,12 @@ public interface ScottyDBStorageInterface {
 	 * If true (default), finished workflow instances are removed from the database.
 	 */
 	public void setRemoveWhenFinished(boolean removeWhenFinished);
+
+	/**
+	 * Triggers the restart of all failed workflow instances.
+	 * @throws Exception 
+	 */
+	public void restartAll() throws Exception;
 	
 
 }

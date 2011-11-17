@@ -276,7 +276,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 				dequeueAllStmtStatistic.stop(map.size());
 
 				if (!invalidBPs.isEmpty()) {
-					PreparedStatement updateBpStmt = getConnection().prepareStatement("update COP_WORKFLOW_INSTANCE set state=? where id=?");
+					PreparedStatement updateBpStmt = getConnection().prepareStatement("update COP_WORKFLOW_INSTANCE set state=?, LAST_MOD_TS=SYSTIMESTAMP where id=?");
 					for (String id : invalidBPs) {
 						updateBpStmt.setInt(1, DBProcessingState.INVALID.ordinal());
 						updateBpStmt.setString(2,id);
@@ -599,6 +599,19 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 			}
 		}
 		return responseLoader;
+	}
+
+	@Override
+	public void restartAll() throws Exception {
+		logger.trace("restartAll()");
+		new RetryingTransaction(dataSource) {
+			@Override
+			protected void execute() throws Exception {
+				CallableStatement stmt = getConnection().prepareCall("begin COP_COREENGINE.restart_all; end;");
+				stmt.execute();
+			}
+		}.run();
+		logger.info("All error/invalid workflow instances successfully queued for restart.");
 	}
 	
 

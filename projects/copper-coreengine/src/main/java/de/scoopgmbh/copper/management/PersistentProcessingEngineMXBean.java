@@ -17,5 +17,19 @@ package de.scoopgmbh.copper.management;
 
 
 public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean {
-	public void restart(String id) throws Exception;
+	
+	/**
+	 * Trigger restart a workflow instance that is in the error state.
+	 * 
+	 * @param workflowInstanceId
+	 * @throws Exception
+	 */
+	public void restart(String idworkflowInstanceId) throws Exception;
+
+	/**
+	 * Trigger restart all workflow instances that are in error state.
+	 * 
+	 * @throws Exception
+	 */
+	public void restartAll() throws Exception;
 }

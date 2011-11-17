@@ -376,6 +376,50 @@ public class PersistentWorkflowTest extends TestCase {
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
 	
+	public void testErrorHandlingInCoreEngine_restartAll(String dsContext) throws Exception {
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		cleanDB(context.getBean(DataSource.class));
+		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+		try {
+			engine.startup();
+			WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow.class.getName());
+			final Workflow<?> wf = wfFactory.newInstance();
+			engine.run(wf);
+			Thread.sleep(5000);
+			//check
+			new RetryingTransaction(context.getBean(DataSource.class)) {
+				@Override
+				protected void execute() throws Exception {
+					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
+					assertTrue(rs.next());
+					assertEquals(wf.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+					assertNotNull(rs.getString("EXCEPTION"));
+					assertFalse(rs.next());
+				}
+			}.run();
+			engine.restartAll();
+			Thread.sleep(5000);
+			new RetryingTransaction(context.getBean(DataSource.class)) {
+				@Override
+				protected void execute() throws Exception {
+					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
+					assertTrue(rs.next());
+					assertEquals(wf.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+					assertNotNull(rs.getString("EXCEPTION"));
+					assertTrue(rs.next());
+					assertEquals(wf.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+					assertNotNull(rs.getString("EXCEPTION"));
+					assertFalse(rs.next());
+				}
+			}.run();
+		}
+		finally {
+			context.close();
+		}
+		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
+	}
+	
 	
 	public void testParentChildWorkflow(String dsContext) throws Exception {
 		logger.info("running testParentChildWorkflow");

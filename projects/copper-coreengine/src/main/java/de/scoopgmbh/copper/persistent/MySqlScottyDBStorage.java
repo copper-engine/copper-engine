@@ -602,4 +602,9 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 		this.removeWhenFinished = removeWhenFinished;
 	}
 
+	@Override
+	public void restartAll() {
+		throw new UnsupportedOperationException();
+	}
+
 }

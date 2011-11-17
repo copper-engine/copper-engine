@@ -50,4 +50,10 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
 	 */
 	public void restart(final String workflowInstanceId) throws Exception;
 	
+	/**
+	 * Trigger restart of all workflow instances that are in error state.
+	 * 
+	 * @throws Exception
+	 */
+	public void restartAll() throws Exception;	
 }

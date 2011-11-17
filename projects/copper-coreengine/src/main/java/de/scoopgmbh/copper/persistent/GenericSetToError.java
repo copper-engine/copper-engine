@@ -60,7 +60,7 @@ class GenericSetToError {
 		@Override
 		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection c) throws Exception {
 			final PreparedStatement stmtDelQueue = c.prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
-			final PreparedStatement stmtUpdateState = c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=? WHERE ID=?");
+			final PreparedStatement stmtUpdateState = c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=SYSTIMESTAMP WHERE ID=?");
 			final PreparedStatement stmtInsertError = c.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, EXCEPTION, ERROR_TS) VALUES (?,?,SYSTIMESTAMP)");
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				Command cmd = (Command)_cmd;
