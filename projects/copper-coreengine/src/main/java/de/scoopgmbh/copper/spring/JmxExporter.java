@@ -80,6 +80,7 @@ public class JmxExporter implements ApplicationContextAware {
 	public void shutdown() throws MBeanRegistrationException, InstanceNotFoundException {
 		for (ObjectName name : objectNames) {
 			mBeanServer.unregisterMBean(name);
+			logger.info("unregistered "+name);
 		}
 	}
 
