@@ -69,4 +69,9 @@ public class MockAuditTrail implements AuditTrail {
 			.toString();
 	}
 
+	@Override
+	public int getLevel() {
+		return level;
+	}
+
 }

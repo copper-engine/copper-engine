@@ -25,7 +25,11 @@ import java.util.Date;
  */
 public interface AuditTrail {
 
-	boolean isEnabled(int level);
+	public boolean isEnabled(int level);
+	
+	public void setLevel(int level);
+	
+	public int getLevel();
 
 	/**
 	 * writes an event to the audit trail log and returns after the log message is written to the underlying storage.

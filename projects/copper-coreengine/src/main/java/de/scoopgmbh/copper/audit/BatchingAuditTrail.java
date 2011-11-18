@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import de.scoopgmbh.copper.audit.BatchInsertIntoAutoTrail.Command;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.CommandCallback;
+import de.scoopgmbh.copper.management.AuditTrailMXBean;
 
 /**
  * Fast db based audit trail implementation.
@@ -31,13 +32,18 @@ import de.scoopgmbh.copper.batcher.CommandCallback;
  * @author austermann
  *
  */
-public class BatchingAuditTrail implements AuditTrail {
+public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 	
 	private static final Logger logger = Logger.getLogger(BatchingAuditTrail.class);
 	
 	private Batcher batcher;
 	private DataSource dataSource;
 	private int level = 5;
+	private MessagePostProcessor messagePostProcessor = new DummyPostProcessor();
+	
+	public void setMessagePostProcessor(MessagePostProcessor messagePostProcessor) {
+		this.messagePostProcessor = messagePostProcessor;
+	}
 	
 	public void setBatcher(Batcher batcher) {
 		this.batcher = batcher;
@@ -52,14 +58,19 @@ public class BatchingAuditTrail implements AuditTrail {
 	}
 
 	@Override
+	public int getLevel() {
+		return level;
+	}
+	
+	@Override
 	public boolean isEnabled (int level) {
 		return this.level >= level;
 	}
 
-
 	@Override
-	public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message) {
+	public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String _message) {
 		if ( isEnabled(logLevel) ) {
+			final String message = messagePostProcessor.serialize(_message);
 			final Object mutex = new Object();
 			final Exception[] exc = new Exception[1];
 			final boolean[] done = { false };
@@ -95,15 +106,17 @@ public class BatchingAuditTrail implements AuditTrail {
 	}
 
 	@Override
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message) {
+	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String _message) {
 		if ( isEnabled(logLevel) ) {
+			final String message = messagePostProcessor.serialize(_message);
 			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(new AuditTrailEvent(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, transactionId, message),dataSource));
 		}
 	}
 
 	@Override
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message, final AuditTrailCallback cb) {
+	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String _message, final AuditTrailCallback cb) {
 		if ( isEnabled(logLevel) ) {
+			final String message = messagePostProcessor.serialize(_message);
 			CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
 				@Override
 				public void commandCompleted(Command cmd) {

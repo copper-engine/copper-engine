@@ -125,9 +125,15 @@ public class StandardJavaSerializer implements Serializer {
 
 	@Override
 	public Response<?> deserializeResponse(String _data) throws Exception {
-//		logger.info("deserializeResponse("+_data);
-//		logger.info(deserialize(_data, null));
 		return (Response<?>) deserialize(_data, null);
+	}
+
+	public String serializeObject(Object o) throws Exception {
+		return serialize(o);
+	}
+
+	public Object deserializeObject(String _data) throws Exception {
+		return deserialize(_data, null);
 	}
 
 }

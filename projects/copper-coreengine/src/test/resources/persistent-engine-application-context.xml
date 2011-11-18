@@ -25,10 +25,12 @@
     
 	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     	<property name="driverClass" value="oracle.jdbc.OracleDriver"/>
-<!--     	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/> -->
-    	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@proliant.scoop-gmbh.de:1521:AUSTER"/>
-    	<property name="minPoolSize" value="12"/>
-    	<property name="maxPoolSize" value="24"/>
+    	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/>
+    	<property name="minPoolSize" value="2"/>
+    	<property name="maxPoolSize" value="4"/>
+<!--     	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@proliant.scoop-gmbh.de:1521:AUSTER"/> -->
+<!--     	<property name="minPoolSize" value="12"/> -->
+<!--     	<property name="maxPoolSize" value="24"/> -->
     	<property name="connectionTesterClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester"/>
     	<property name="connectionCustomizerClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionCustomizer"/>
     	<property name="idleConnectionTestPeriod" value="15"/>
@@ -115,6 +117,9 @@
 	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton">
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
+		<property name="messagePostProcessor">
+			<bean class="de.scoopgmbh.copper.audit.CompressedBase64PostProcessor"/>
+		</property>
 	</bean>
 	
 	<bean id="mbeanExporter" class="org.springframework.jmx.export.MBeanExporter" >
@@ -130,6 +135,7 @@
         		<entry key="copper.processorpool:name=P6" value-ref="persistent.ProcessorPool.6"/>
         		<entry key="copper.monitoring.statistics:name=statisticsCollector" value-ref="statisticsCollector"/>
         		<entry key="copper.db:name=batcher" value-ref="batcher"/>
+        		<entry key="copper.db:name=auditTrail" value-ref="auditTrail"/>
       		</map>
     	</property>  		
 	</bean>

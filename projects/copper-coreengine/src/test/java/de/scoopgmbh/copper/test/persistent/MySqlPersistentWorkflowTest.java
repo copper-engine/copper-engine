@@ -57,4 +57,8 @@ public class MySqlPersistentWorkflowTest extends PersistentWorkflowTest {
 		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
 	}
 	
+//	public void testCompressedAuditTrail() throws Exception {
+//		super.testCompressedAuditTrail(DS_CONTEXT);
+//	}
+	
 }
