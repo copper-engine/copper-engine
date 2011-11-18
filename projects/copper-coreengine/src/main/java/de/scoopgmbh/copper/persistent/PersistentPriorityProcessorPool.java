@@ -27,6 +27,7 @@ import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.common.Processor;
 import de.scoopgmbh.copper.common.WfPriorityQueue;
 import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
+import de.scoopgmbh.copper.management.PersistentPriorityProcessorPoolMXBean;
 
 /**
  * Implementation of the {@link PriorityProcessorPool} interface for use in the {@link PersistentScottyEngine}.
@@ -34,7 +35,7 @@ import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
  * @author austermann
  *
  */
-public class PersistentPriorityProcessorPool extends PriorityProcessorPool implements PersistentProcessorPool {
+public class PersistentPriorityProcessorPool extends PriorityProcessorPool implements PersistentProcessorPool, PersistentPriorityProcessorPoolMXBean {
 
 	private static final Logger logger = Logger.getLogger(PersistentPriorityProcessorPool.class);
 	
