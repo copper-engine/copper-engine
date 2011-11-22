@@ -293,6 +293,10 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(compileTargetDir.getAbsolutePath());
+		options.add("-target");
+		options.add("1.6");
+		options.add("-source");
+		options.add("1.6");
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) throw new NullPointerException("No java compiler available! Did you start from a JDK? JRE will not work.");
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
