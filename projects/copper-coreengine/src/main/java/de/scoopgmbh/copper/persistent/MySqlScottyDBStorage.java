@@ -584,7 +584,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 			@Override
 			protected void execute() throws Exception {
 				PreparedStatement stmtQueue = getConnection().prepareStatement("INSERT INTO COP_QUEUE (PPOOL_ID, PRIORITY, LAST_MOD_TS, WORKFLOW_INSTANCE_ID) (SELECT PPOOL_ID, PRIORITY, NOW(), ID FROM COP_WORKFLOW_INSTANCE WHERE ID=? AND STATE=5)");
-				PreparedStatement stmtInstance = getConnection().prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=? WHERE ID=? AND (STATE=? OR STATE=?)");
+				PreparedStatement stmtInstance = getConnection().prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=NOW() WHERE ID=? AND (STATE=? OR STATE=?)");
 				stmtQueue.setString(1, workflowInstanceId);
 				stmtInstance.setInt(1, DBProcessingState.ENQUEUED.ordinal());
 				stmtInstance.setString(2, workflowInstanceId);

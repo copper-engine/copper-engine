@@ -60,7 +60,7 @@ class MySqlSetToError {
 		@Override
 		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			final PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
-			final PreparedStatement stmtUpdateState = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=? WHERE ID=?");
+			final PreparedStatement stmtUpdateState = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=NOW() WHERE ID=?");
 			final PreparedStatement stmtInsertError = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, EXCEPTION, ERROR_TS) VALUES (?,?,NOW())");
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				Command cmd = (Command)_cmd;
