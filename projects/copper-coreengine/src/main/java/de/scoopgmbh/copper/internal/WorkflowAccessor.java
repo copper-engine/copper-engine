@@ -16,24 +16,32 @@
 package de.scoopgmbh.copper.internal;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 
 import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 
-public class ProcessingStateAccessor {
-	private static final Method m;
+public class WorkflowAccessor {
+	
+	private static final Method methodSetProcessingState;
+	private static final Method methodSetCreationTS;
+	
 	static {
 		try {
-			m = Workflow.class.getDeclaredMethod("setProcessingState", ProcessingState.class);
-			m.setAccessible(true);
+			methodSetProcessingState = Workflow.class.getDeclaredMethod("setProcessingState", ProcessingState.class);
+			methodSetProcessingState.setAccessible(true);
+			
+			methodSetCreationTS = Workflow.class.getDeclaredMethod("setCreationTS", Date.class);
+			methodSetCreationTS.setAccessible(true);
 		}
 		catch(Exception e) {
 			throw new Error(e);
 		}
 	}
+	
 	public static void setProcessingState(Workflow<?> w, ProcessingState s) {
 		try {
-			m.invoke(w, s);
+			methodSetProcessingState.invoke(w, s);
 		} 
 		catch(RuntimeException e) {
 			throw e;
@@ -41,5 +49,17 @@ public class ProcessingStateAccessor {
 		catch(Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public static void setCreationTS(Workflow<?> w, Date creationTS) {
+		try {
+			methodSetCreationTS.invoke(w, creationTS);
+		} 
+		catch(RuntimeException e) {
+			throw e;
+		}
+		catch(Exception e) {
+			throw new RuntimeException(e);
+		}		
 	}
 }

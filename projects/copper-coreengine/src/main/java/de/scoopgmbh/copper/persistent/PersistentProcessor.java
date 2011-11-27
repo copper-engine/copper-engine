@@ -22,7 +22,7 @@ import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.Processor;
-import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
+import de.scoopgmbh.copper.internal.WorkflowAccessor;
 
 class PersistentProcessor extends Processor {
 	
@@ -39,11 +39,12 @@ class PersistentProcessor extends Processor {
 		PersistentWorkflow<?> pw = (PersistentWorkflow<?>)wf;
 		synchronized (pw) {
 			try {
-				ProcessingStateAccessor.setProcessingState(wf, ProcessingState.RUNNING);
+				WorkflowAccessor.setProcessingState(wf, ProcessingState.RUNNING);
 				engine.getDependencyInjector().inject(pw);
 				wf.__beforeProcess();
 				pw.main();
 				if (pw.get__stack().isEmpty()) {
+					WorkflowAccessor.setProcessingState(wf, ProcessingState.FINISHED);
 					engine.getDbStorage().finish(pw);
 				}
 			}

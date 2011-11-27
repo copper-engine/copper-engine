@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -35,9 +36,11 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.common.TicketPoolManager;
-import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
+import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.WorkflowInfo;
+import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
+import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 /**
@@ -60,6 +63,11 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	private EarlyResponseContainer earlyResponseContainer;
 	private TicketPoolManager ticketPoolManager;
 	private DependencyInjector dependencyInjector;
+	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
+	
+	public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
+		this.statisticsCollector = statisticsCollector;
+	}
 	
 	public void setTicketPoolManager(TicketPoolManager ticketPoolManager) {
 		if (ticketPoolManager == null) throw new NullPointerException();
@@ -248,16 +256,17 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 			enqueue(w);
 		}
 		else {
-			ProcessingStateAccessor.setProcessingState(w, ProcessingState.WAITING);
+			WorkflowAccessor.setProcessingState(w, ProcessingState.WAITING);
 		}
 	}
 
 	public void removeWorkflow(String id) {
 		final Workflow<?> wf = workflowMap.remove(id);
 		if (wf != null) {
-			ProcessingStateAccessor.setProcessingState(wf, ProcessingState.FINISHED);
+			WorkflowAccessor.setProcessingState(wf, ProcessingState.FINISHED);
 			ticketPoolManager.release(wf);
 		}
+		statisticsCollector.submit(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
 	}
 
 	@Override

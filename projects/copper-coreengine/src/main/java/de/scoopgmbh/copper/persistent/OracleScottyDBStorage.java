@@ -43,7 +43,7 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
-import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
+import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
@@ -523,7 +523,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	}
 	
 	private void doInsert(final List<Workflow<?>> wfs, final Connection con) throws Exception {
-		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA) VALUES (?,?,?,SYSTIMESTAMP,?,?,?)");
+		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,CREATION_TS) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?)");
 		try {
 			int n = 0;
 			for (int i=0; i<wfs.size(); i++) {
@@ -535,6 +535,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 				stmt.setString(4, wf.getProcessorPoolId());
 				stmt.setString(5, data.length() > 4000 ? null : data);
 				stmt.setString(6, data.length() > 4000 ? data : null);
+				stmt.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
 				stmt.addBatch();
 				n++;
 				if (i % 100 == 0 || (i+1) == wfs.size()) {
@@ -552,7 +553,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	
 	private void doInsert(final Workflow<?> wf, final Connection con) throws Exception {
 		final String data = serializer.serializeWorkflow(wf);
-		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA) VALUES (?,?,?,SYSTIMESTAMP,?,?,?)");
+		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,CREATION_TS) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?)");
 		try {
 			stmt.setString(1, wf.getId());
 			stmt.setInt(2, DBProcessingState.ENQUEUED.ordinal());
@@ -560,6 +561,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 			stmt.setString(4, wf.getProcessorPoolId());
 			stmt.setString(5, data.length() > 4000 ? null : data);
 			stmt.setString(6, data.length() > 4000 ? data : null);
+			stmt.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
 			stmt.execute();
 		}
 		finally {

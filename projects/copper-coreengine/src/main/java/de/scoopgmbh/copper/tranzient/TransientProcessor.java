@@ -22,7 +22,7 @@ import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.Processor;
-import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
+import de.scoopgmbh.copper.internal.WorkflowAccessor;
 
 /**
  * Internally used class.
@@ -43,7 +43,7 @@ class TransientProcessor extends Processor {
 	protected void process(Workflow<?> wf) {
 		synchronized (wf) {
 			try {
-				ProcessingStateAccessor.setProcessingState(wf, ProcessingState.RUNNING);
+				WorkflowAccessor.setProcessingState(wf, ProcessingState.RUNNING);
 				wf.__beforeProcess();
 				wf.main();
 				//logger.debug("stack="+wf.get__stack());

@@ -1,0 +1,4 @@
+mysql -u root -p
+use COPPER2
+source create-schema.sql
+quit

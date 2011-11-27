@@ -26,7 +26,7 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.common.Processor;
 import de.scoopgmbh.copper.common.WfPriorityQueue;
-import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
+import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.management.PersistentPriorityProcessorPoolMXBean;
 
 /**
@@ -128,7 +128,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 				else {
 					if (logger.isTraceEnabled()) logger.trace("Dequeue returned "+rv.size()+" elements.");
 					for (Workflow<?> wf : rv) {
-						ProcessingStateAccessor.setProcessingState(wf, ProcessingState.DEQUEUED);
+						WorkflowAccessor.setProcessingState(wf, ProcessingState.DEQUEUED);
 						engine.register(wf);
 					}
 					synchronized (queue) {

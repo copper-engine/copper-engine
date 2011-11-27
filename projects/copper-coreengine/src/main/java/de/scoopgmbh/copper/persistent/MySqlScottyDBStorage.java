@@ -18,11 +18,11 @@ package de.scoopgmbh.copper.persistent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,13 +37,11 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 
-import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
-import de.scoopgmbh.copper.internal.ProcessingStateAccessor;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
@@ -192,13 +190,14 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 	
 	private void doInsert(final Workflow<?> wf, Connection con) throws Exception {
 		final String data = serializer.serializeWorkflow(wf);
-		PreparedStatement stmtBP = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA) VALUES (?,?,?,NOW(),?,?)");
+		PreparedStatement stmtBP = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,CREATION_TS) VALUES (?,?,?,NOW(),?,?,?)");
 		PreparedStatement stmtQueue = con.prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,now(),?)");
 		stmtBP.setString(1, wf.getId());
 		stmtBP.setInt(2, DBProcessingState.ENQUEUED.ordinal());
 		stmtBP.setInt(3, wf.getPriority());
 		stmtBP.setString(4, wf.getProcessorPoolId());
 		stmtBP.setString(5, data);
+		stmtBP.setTimestamp(6, new Timestamp(wf.getCreationTS().getTime()));
 		stmtBP.execute();
 
 		stmtQueue.setString(1, wf.getProcessorPoolId());
@@ -208,7 +207,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 	}
 	
 	private void doInsert(final List<Workflow<?>> wfs, Connection con) throws Exception {
-		PreparedStatement stmtBP = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA) VALUES (?,?,?,NOW(),?,?)");
+		PreparedStatement stmtBP = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,CREATION_TS) VALUES (?,?,?,NOW(),?,?,?)");
 		PreparedStatement stmtQueue = con.prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,now(),?)");
 		int n = 0;
 		for (int i=0; i<wfs.size(); i++) {
@@ -219,6 +218,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 			stmtBP.setInt(3, wf.getPriority());
 			stmtBP.setString(4, wf.getProcessorPoolId());
 			stmtBP.setString(5, data);
+			stmtBP.setTimestamp(6, new Timestamp(wf.getCreationTS().getTime()));
 			stmtBP.addBatch();
 
 			stmtQueue.setString(1, wf.getProcessorPoolId());

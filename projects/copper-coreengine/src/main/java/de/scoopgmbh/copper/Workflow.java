@@ -17,6 +17,7 @@ package de.scoopgmbh.copper;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ public abstract class Workflow<D> implements Serializable {
 	private transient int priority = 5;
 	private transient ProcessingState processingState = ProcessingState.RAW;
 	private D Data;
+	private transient Date creationTS = new Date();
 	
 	protected Workflow() {
 		if (logger.isDebugEnabled()) logger.debug("Creating new "+getClass().getName());
@@ -171,5 +173,12 @@ public abstract class Workflow<D> implements Serializable {
 		__stackPosition = 0;
 	}
 	
+	public Date getCreationTS() {
+		return creationTS;
+	}
+	
+	void setCreationTS(Date creationTS) {
+		this.creationTS = creationTS;
+	}
 	
 }

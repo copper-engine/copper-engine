@@ -218,10 +218,6 @@ public class TomcatWorkflowRepository extends AbstractWorkflowRepository {
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(compileTargetDir.getAbsolutePath());
-		options.add("-target");
-		options.add("1.6");
-		options.add("-source");
-		options.add("1.6");
 		options.add("-classpath");
 		StringBuilder buf = new StringBuilder();
 		URLClassLoader loader = (URLClassLoader) Thread.currentThread().getContextClassLoader();

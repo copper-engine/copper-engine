@@ -30,6 +30,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
+import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
+
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.instrument.ScottyClassAdapter;
 import de.scoopgmbh.copper.instrument.TryCatchBlockHandler;
@@ -65,8 +67,14 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 				ClassWriter cw = new ClassWriter(0);
 
 				ClassVisitor cv = new ScottyClassAdapter(cw,clazz.aggregatedInterruptableMethods);
-				cr.accept(cv, 0);
+				cr.accept(cv,0);
 				bytes = cw.toByteArray();
+				
+				ClassReader cr3 = new ClassReader(bytes);
+				ClassWriter cw3 = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+				cr3.accept(cw3, ClassReader.SKIP_FRAMES);
+				bytes = cw3.toByteArray();
+				
 			}
 			finally {
 				fis.close();

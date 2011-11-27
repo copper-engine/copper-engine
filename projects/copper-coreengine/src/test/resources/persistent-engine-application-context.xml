@@ -25,12 +25,12 @@
     
 	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     	<property name="driverClass" value="oracle.jdbc.OracleDriver"/>
-    	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/>
-    	<property name="minPoolSize" value="2"/>
-    	<property name="maxPoolSize" value="4"/>
-<!--     	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@proliant.scoop-gmbh.de:1521:AUSTER"/> -->
-<!--     	<property name="minPoolSize" value="12"/> -->
-<!--     	<property name="maxPoolSize" value="24"/> -->
+<!--     	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/> -->
+<!--     	<property name="minPoolSize" value="2"/> -->
+<!--     	<property name="maxPoolSize" value="4"/> -->
+    	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@proliant.scoop-gmbh.de:1521:AUSTER"/>
+    	<property name="minPoolSize" value="12"/>
+    	<property name="maxPoolSize" value="24"/>
     	<property name="connectionTesterClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester"/>
     	<property name="connectionCustomizerClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionCustomizer"/>
     	<property name="idleConnectionTestPeriod" value="15"/>
@@ -112,6 +112,7 @@
 		<property name="dbStorage" ref="persistent.dbStorage"/>
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="engineIdProvider" ref="engineId_RED"/>
+    	<property name="statisticsCollector" ref="statisticsCollector"/>
 	</bean>
 	
 	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton">

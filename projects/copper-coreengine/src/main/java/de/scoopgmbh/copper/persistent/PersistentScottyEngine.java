@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -31,13 +32,17 @@ import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.DependencyInjector;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.PersistentProcessingEngine;
+import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
+import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
 import de.scoopgmbh.copper.management.WorkflowInfo;
+import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
+import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 
 /**
  * COPPER processing engine that offers persistent workflow processing. 
@@ -54,6 +59,11 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	private DependencyInjector dependencyInjector;
 	private boolean notifyProcessorPoolsOnResponse = false;
 	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
+	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
+	
+	public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
+		this.statisticsCollector = statisticsCollector;
+	}
 	
 	/**
 	 * If true, the engine notifies all processor pools about a new reponse available.
@@ -286,6 +296,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	void unregister(Workflow<?> wf) { 
 		Workflow<?> existingWF = workflowMap.remove(wf.getId());
 		assert existingWF != null;
+		if (existingWF != null && existingWF.getProcessingState() == ProcessingState.FINISHED) {
+			statisticsCollector.submit(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
+		}
 	}
 	
 	public int getNumberOfWorkflowInstances() {
