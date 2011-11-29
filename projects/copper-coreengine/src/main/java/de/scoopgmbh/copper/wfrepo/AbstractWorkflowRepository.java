@@ -30,8 +30,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
-
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.instrument.ScottyClassAdapter;
 import de.scoopgmbh.copper.instrument.TryCatchBlockHandler;
