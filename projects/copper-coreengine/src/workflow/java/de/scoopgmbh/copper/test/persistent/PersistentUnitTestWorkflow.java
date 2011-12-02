@@ -63,6 +63,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 			for (int i=0; i<10; i++) {
 				callFoo();
 				counter++;
+				Assert.assertNotNull(this.getCreationTS());
 			}
 			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished");
 			backChannelQueue.enqueue(new WorkflowResult(getData(), null));

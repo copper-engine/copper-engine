@@ -25,6 +25,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -229,7 +230,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 				responseLoader.beginTxn();
 				
 				final List<String> invalidBPs = new ArrayList<String>();
-				final PreparedStatement dequeueStmt = getConnection().prepareStatement("select id,priority,data,rowid,long_data from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from cop_queue where ppool_id=? and engine_id is null order by ppool_id, priority, last_mod_ts) where rownum <= ?)"); 
+				final PreparedStatement dequeueStmt = getConnection().prepareStatement("select id,priority,data,rowid,long_data,creation_ts from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from cop_queue where ppool_id=? and engine_id is null order by ppool_id, priority, last_mod_ts) where rownum <= ?)"); 
 				dequeueStmt.setString(1, ppoolId);
 				dequeueStmt.setInt(2, max);
 				dequeueAllStmtStatistic.start();
@@ -241,6 +242,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 					final String id = rs.getString(1);
 					final int prio = rs.getInt(2);
 					final String rowid = rs.getString(4);
+					final Timestamp creationTS = rs.getTimestamp(6);
 					try {
 						String data = rs.getString(3);
 						if (data == null) 
@@ -252,6 +254,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 						wf.rowid = rowid;
 						wf.oldPrio = prio;
 						wf.oldProcessorPoolId = ppoolId;
+						WorkflowAccessor.setCreationTS(wf, new Date(creationTS.getTime()));
 						map.put(wf.getId(), wf);
 						responseLoader.enqueue(wf);
 					}

@@ -26,6 +26,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
+import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
@@ -272,7 +274,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 			@Override
 			protected void execute() throws Exception {
 				final List<String> invalidBPs = new ArrayList<String>();
-				final PreparedStatement dequeueStmt = getConnection().prepareStatement("select id,priority,data from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from cop_queue where ppool_id = ? order by priority, last_mod_ts) LIMIT 0,"+max);
+				final PreparedStatement dequeueStmt = getConnection().prepareStatement("select id,priority,data,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from cop_queue where ppool_id = ? order by priority, last_mod_ts) LIMIT 0,"+max);
 				final PreparedStatement deleteStmt = getConnection().prepareStatement("delete from cop_queue where WORKFLOW_INSTANCE_ID=?");
 				dequeueStmt.setString(1, ppoolId);
 				dequeueStmtStatistic.start();
@@ -290,6 +292,7 @@ public class MySqlScottyDBStorage implements ScottyDBStorageInterface {
 						wf.setId(id);
 						wf.setProcessorPoolId(ppoolId);
 						wf.setPriority(prio);
+						WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(4).getTime()));
 						map.put(wf.getId(), wf);
 					}
 					catch(Exception e) {
