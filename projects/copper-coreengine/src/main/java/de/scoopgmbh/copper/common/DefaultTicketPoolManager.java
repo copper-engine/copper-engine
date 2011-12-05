@@ -103,6 +103,16 @@ public class DefaultTicketPoolManager implements TicketPoolManager {
 	public void obtain(Workflow<?> wf) {
 		findPool(wf).obtain();
 	}
+	
+	/**
+	 * For testing..
+	 * @param wf
+	 */
+	public String obtainAndReturnTicketPoolId(Workflow<?> wf) {
+		TicketPool tp = findPool(wf);
+		tp.obtain();
+		return tp.getId();
+	}	
 
 	@Override
 	public void release(Workflow<?> wf) {
@@ -156,7 +166,7 @@ public class DefaultTicketPoolManager implements TicketPoolManager {
 					HashMap<Class<?>, TicketPool> newConcreteMapping = new HashMap<Class<?>, TicketPool>(concreteMapping);
 					for (Map.Entry<Class<?>, String> entry : mappingDesc.entrySet()) {
 						Class<?> c = entry.getKey();
-						if (wf.getClass().isAssignableFrom(c)) {
+						if (wf.getClass().getName().equals(c.getName())) {
 							tp = map.get(entry.getValue());
 						}
 					}

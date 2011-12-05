@@ -24,10 +24,16 @@
     	<constructor-arg type="int"><value>20000</value></constructor-arg>
     </bean>
            
+    <bean id="smallTicketPool" class="de.scoopgmbh.copper.common.TicketPool" scope="singleton">
+    	<constructor-arg type="java.lang.String"><value>SMALL</value></constructor-arg>
+    	<constructor-arg type="int"><value>50</value></constructor-arg>
+    </bean>
+           
 	<bean id="ticketPoolManager" class="de.scoopgmbh.copper.common.DefaultTicketPoolManager">
 		<property name="ticketPools">
     		<list>
     			<ref bean="defaultTicketPool" />
+    			<ref bean="smallTicketPool" />
 		    </list>
   		</property>
 	</bean>
