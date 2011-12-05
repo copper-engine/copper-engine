@@ -39,13 +39,24 @@ import de.scoopgmbh.copper.instrument.Transformed;
 public abstract class Workflow<D> implements Serializable {
 	
 	private static final long serialVersionUID = -6351894157077862055L;
-
 	private static final Logger logger = Logger.getLogger(Workflow.class);
+	
+	/**
+	 * Constant value for {@link Workflow#wait(WaitMode, int, Callback...)} and {@link Workflow#wait(WaitMode, int, String...)} indicating 
+	 * that there is no timeout 
+	 */
+	public static final int NO_TIMEOUT = -1;
 	
 	private transient ProcessingEngine engine;
 	private transient String id = null;
 	private transient Map<String, Response<?>> responseMap = new HashMap<String, Response<?>>();
+	/**
+	 * for internal use only
+	 */
 	protected Stack<StackEntry> __stack = new Stack<StackEntry>();
+	/**
+	 * for internal use only
+	 */
 	protected transient int __stackPosition = 0; 
 	private transient String processorPoolId = null;
 	private transient int priority = 5;
@@ -53,6 +64,9 @@ public abstract class Workflow<D> implements Serializable {
 	private D Data;
 	private transient Date creationTS = new Date();
 	
+	/**
+	 * Creates a new instance
+	 */
 	protected Workflow() {
 		if (logger.isDebugEnabled()) logger.debug("Creating new "+getClass().getName());
 		if (this.getClass().getAnnotation(Transformed.class) == null) {
@@ -65,6 +79,9 @@ public abstract class Workflow<D> implements Serializable {
 		responseMap = new HashMap<String, Response<?>>();
 	}	
 	
+	/**
+	 * returns the processing state
+	 */
 	public ProcessingState getProcessingState() {
 		return processingState;
 	}
@@ -73,14 +90,24 @@ public abstract class Workflow<D> implements Serializable {
 		this.processingState = processingState;
 	}
 	
+	/**
+	 * Returns the workflow instance priority 
+	 */
 	public int getPriority() {
 		return priority;
 	}
-	
+
+	/**
+	 * Sets the priority for this workflow instance. A smaller value is a higher priority, e.g. a priority of 1 is higher than 2. 
+	 */
 	public void setPriority(int priority) {
 		this.priority = priority;
 	}
 	
+	/**
+	 * For internal use only
+	 * @param engine
+	 */
 	public void setEngine(ProcessingEngine engine) {
 		this.engine = engine;
 	}
@@ -90,26 +117,50 @@ public abstract class Workflow<D> implements Serializable {
 		this.id = id;
 	}
 	
+	/**
+	 * Returns the processing engine currently executing this workflow instance 
+	 */
 	public ProcessingEngine getEngine() {
 		return engine;
 	}
 	
+	/**
+	 * returns the id of this workflow instance. The id of a workflow instance is at least unique within one processing engine.
+	 */
 	public String getId() {
 		return id;
 	}
 	
+	/**
+	 * Creates a {@link Callback} object used for the asynchronous wait for some reponse.
+	 */
 	protected <E> Callback<E> createCallback() {
 		return new DefaultCallback<E>(engine);
 	}
 	
+	/**
+	 * waits/sleeps until a response for every correlation id occurs  
+	 * @param correlationIds one or more correlation ids
+	 */
 	protected final void waitForAll(String... correlationIds) throws InterruptException {
 		this.wait(WaitMode.ALL,0,correlationIds);
 	}
 	
+	/**
+	 * waits/sleeps until a response for every callback occurs  
+	 * @param correlationIds one or more callback objects
+	 */
 	protected final void waitForAll(Callback<?>... callbacks) throws InterruptException {
 		this.wait(WaitMode.ALL,0,callbacks);
 	}
-	
+
+	/**
+	 * Generic wait/sleep. In case of WaitMode FIRST, it waits until at least one response for the specified correlation ids occurs.
+	 * In case of WaitMode ALL, it waits until a response for every specified correlation id occurs.
+	 * @param mode WaitMode
+	 * @param timeoutMsec timeout in milliseconds or {@link Workflow#NO_TIMEOUT} 
+	 * @param correlationIds one ore more correlation ids
+	 */
 	protected final void wait(WaitMode mode, int timeoutMsec, String... correlationIds) throws InterruptException {
 		engine.registerCallbacks(this, mode, timeoutMsec, correlationIds);
 	}
@@ -122,12 +173,21 @@ public abstract class Workflow<D> implements Serializable {
 		engine.registerCallbacks(this, mode, timeoutMsec, correlationIds);
 	}
 
+	/**
+	 * Internal use only - called by the processing engine
+	 * @param r
+	 */
 	public void putResponse(Response<?> r) {
 		synchronized (responseMap) {
 			responseMap.put(r.getCorrelationId(), r);
 		}
 	}
 	
+	/**
+	 * Gets and removes a reponse for the spcified correlation id
+	 * @param correlationId
+	 * @return the response or null, if no response for the specified correlation id is found
+	 */
 	@SuppressWarnings("unchecked")
 	protected <T> Response<T> getAndRemoveResponse(String correlationId) {
 		synchronized (responseMap) {
@@ -135,31 +195,57 @@ public abstract class Workflow<D> implements Serializable {
 		}
 	}
 	
+	/**
+	 * Entry point for this workflow 
+	 */
 	public abstract void main() throws InterruptException;
 	
+	/**
+	 * Causes the engine to stop processing of this workflow instance and to enqueue it again.
+	 * May be used in case of processor pool change 
+	 * @throws InterruptException
+	 */
 	protected final void resubmit() throws InterruptException {
 		final String cid = engine.createUUID();
 		engine.registerCallbacks(this, WaitMode.ALL, 0, cid);
 		engine.notify(new Response<Object>(cid,null,null));
 	}
 	
+	/**
+	 * Sets the processor pool id for this workflow instance. Changes get active at the next enqueue of this workflow instance.
+	 * You may initiate an enqueue using {@link Workflow#resubmit()}
+	 * @param processorPoolId id of the proccesor pool as specified in the configuration
+	 */
 	public void setProcessorPoolId(String processorPoolId) {
 		if (logger.isTraceEnabled()) logger.trace("Setting processorPoolId to "+processorPoolId);
 		this.processorPoolId = processorPoolId;
 	}
 	
+	/**
+	 * Returns the processor pool id
+	 */
 	public String getProcessorPoolId() {
 		return processorPoolId;
 	}
 	
+	/**
+	 * For internal usage only
+	 */
 	public List<StackEntry> get__stack() {
 		return __stack;
 	}
-	
+
+	/**
+	 * Returns the data attached to this workflow instance 
+	 */
 	public D getData() {
 		return this.Data;
 	}
 	
+	/**
+	 * Sets the data for this workflow instance. Typically invoked at construction time of a workflow instance
+	 * @param data
+	 */
 	public void setData(D data) {
 		this.Data = data;
 	}
@@ -173,6 +259,9 @@ public abstract class Workflow<D> implements Serializable {
 		__stackPosition = 0;
 	}
 	
+	/**
+	 * Returns the creation timestamp for this workflow instance. 
+	 */
 	public Date getCreationTS() {
 		return creationTS;
 	}

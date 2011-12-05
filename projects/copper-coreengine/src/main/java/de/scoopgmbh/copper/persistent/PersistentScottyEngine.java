@@ -161,7 +161,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 			logger.fatal("Unkown processor pool '"+pw.getProcessorPoolId()+"' - using default pool instead");
 			pw.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
 		}
-		pw.registerCall = new RegisterCall(w, mode, timeoutMsec >= 0 ? timeoutMsec : null, correlationIds);
+		pw.registerCall = new RegisterCall(w, mode, timeoutMsec > 0 ? timeoutMsec : null, correlationIds);
 	}
 
 	@Override
