@@ -17,6 +17,7 @@ package de.scoopgmbh.copper;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * For internal use only.
@@ -71,5 +72,15 @@ public class StackEntry implements Serializable {
 				stream.writeObject(stack[i]);
 		}
 	}
+
+	@Override
+	public String toString() {
+//		return "StackEntry [jumpNo=" + jumpNo + ", locals="
+//		+ Arrays.toString(locals) + ", stack=" + Arrays.toString(stack)
+//		+ "]";
+		return "StackEntry [jumpNo=" + jumpNo + "]";
+	}
+	
+	
 	
 }

@@ -41,6 +41,10 @@ class TransientProcessor extends Processor {
 
 	@Override
 	protected void process(Workflow<?> wf) {
+		if (logger.isTraceEnabled()) {
+			logger.trace("stack.size()="+wf.get__stack().size());
+			logger.trace("stack="+wf.get__stack());
+		}
 		synchronized (wf) {
 			try {
 				WorkflowAccessor.setProcessingState(wf, ProcessingState.RUNNING);

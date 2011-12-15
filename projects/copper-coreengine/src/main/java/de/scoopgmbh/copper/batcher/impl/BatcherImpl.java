@@ -40,7 +40,7 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 	
 	private Logger logger = Logger.getLogger(BatcherImpl.class);
 	
-	class WorkerThread extends Thread {
+	private class WorkerThread extends Thread {
 		
 		boolean started = false;
 		boolean stop = false;

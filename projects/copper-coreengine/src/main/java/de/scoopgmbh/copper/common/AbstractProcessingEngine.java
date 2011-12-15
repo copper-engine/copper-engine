@@ -38,7 +38,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 
 	private IdFactory idFactory = new AtomicLongIdFactory();
 	protected WorkflowRepository wfRepository;
-	protected EngineState engineState = EngineState.RAW;
+	protected volatile EngineState engineState = EngineState.RAW;
 	protected Blocker startupBlocker = new Blocker(true);
 	private List<Runnable> shutdownObserver = new ArrayList<Runnable>();
 	private EngineIdProvider engineIdProvider = new EngineIdProviderBean("default"); 

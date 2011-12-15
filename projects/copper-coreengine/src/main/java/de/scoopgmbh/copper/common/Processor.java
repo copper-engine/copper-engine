@@ -35,7 +35,7 @@ public abstract class Processor extends Thread {
 	
 	protected static final Logger logger = Logger.getLogger(Processor.class);
 	protected final Queue<Workflow<?>> queue;
-	protected boolean shutdown = false;
+	protected volatile boolean shutdown = false;
 	protected final ProcessingEngine engine;
 	
 	public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
@@ -45,7 +45,7 @@ public abstract class Processor extends Thread {
 		this.engine = engine;
 	}
 	
-	public void shutdown() {
+	public synchronized void shutdown() {
 		if (shutdown)
 			return;
 		logger.info("Stopping processor '"+getName()+"'...");
