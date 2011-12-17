@@ -23,21 +23,45 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.test.MockAdapter;
 import de.scoopgmbh.copper.util.AsyncResponseReceiver;
 
-public class VerySimpleTransientWorkflow extends Workflow<AsyncResponseReceiver<Integer>> {
-	private int i;
+public class WaitInMethodTestTransientWorkflow extends Workflow<AsyncResponseReceiver<Integer>> {
+	
+	private static final long serialVersionUID = -9191480374225984819L;
+
 	private MockAdapter mockAdapter;
+	private int response = 1;
+	
 	@AutoWire
 	public void setMockAdapter(MockAdapter mockAdapter) {
 		this.mockAdapter = mockAdapter;
 	}
+	
 	@Override
 	public void main() throws InterruptException {
-		System.out.println("started");
-		for (i=0; i<3; i++) {
-			final String cid = mockAdapter.foo("foo");
-			wait(WaitMode.ALL, 0, cid);
+		try {
+			execute();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			response = 0;
 		}
 		System.out.println("finished");
-		getData().setResponse(Integer.valueOf(1));
+		getData().setResponse(Integer.valueOf(response));
+		
+		Response<?> response = new Response<>("4711");
+		getEngine().notify(response );
+		
 	}
+	
+	private void execute() throws InterruptException {
+		System.out.println("start of execute()");
+		final String cid = getEngine().createUUID();
+		mockAdapter.foo("foo", cid);
+		wait(WaitMode.ALL, 1000, cid);
+		Response<String> response = getAndRemoveResponse(cid);
+		if (response == null) throw new AssertionError();
+		if (!response.getCorrelationId().equals(cid)) throw new AssertionError();
+		if (getAndRemoveResponse(cid) != null) throw new AssertionError();
+		if (!response.getResponse().equals("foo")) throw new AssertionError();
+		System.out.println("end of execute()");
+	}	
 }

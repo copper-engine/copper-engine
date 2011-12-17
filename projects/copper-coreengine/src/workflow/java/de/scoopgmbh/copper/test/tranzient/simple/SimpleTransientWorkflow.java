@@ -53,6 +53,14 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 	@Override
 	public void main() throws InterruptException {
 		try {
+			execute();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		try {
 			for (int i=0; i<5; i++) {
 
 				try {
@@ -95,6 +103,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 			if (getAndRemoveResponse(cid2) != null) throw new AssertionError();
 			if (!x1.getResponse().equals("foo")) throw new AssertionError();
 			if (!x2.getResponse().equals("foo")) throw new AssertionError();
+			
 
 			reply();
 		}
@@ -120,5 +129,18 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 		}
 	}
 
+	
+	private void execute() throws InterruptException {
+		System.out.println("start of execute()");
+		final String cid = getEngine().createUUID();
+		mockAdapter.foo("foo", cid);
+		wait(WaitMode.ALL, 1000, cid);
+		Response<String> response = getAndRemoveResponse(cid);
+		if (response == null) throw new AssertionError();
+		if (!response.getCorrelationId().equals(cid)) throw new AssertionError();
+		if (getAndRemoveResponse(cid) != null) throw new AssertionError();
+		if (!response.getResponse().equals("foo")) throw new AssertionError();
+		System.out.println("end of execute()");
+	}
 
 }
