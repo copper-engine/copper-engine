@@ -15,35 +15,34 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
-import java.io.Serializable;
-
 import org.apache.log4j.Logger;
 
 import de.scoopgmbh.copper.InterruptException;
+import de.scoopgmbh.copper.Response;
+import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
-public class IssueClassCastExceptionWorkflow extends AbstractIssueClassCastExceptionWorkflow {
-	
-	private static final Logger logger = Logger.getLogger(IssueClassCastExceptionWorkflow.class);
-	
-	@Override
-	protected void callAbstractExceptionSimulation0(String partnerLink) {
-		throw new RuntimeException("Simulate exception.");
-	}
+public class SimpleTestChildWorkflow extends PersistentWorkflow<String> {
 
-	@Override
-	protected void callAbstractExceptionSimulation1() throws InterruptException {
-		throw new RuntimeException("Simulate exception.");
-	}
-
-	@Override
-	protected void callAbstractExceptionSimulation2(String partnerLink) {
-		throw new RuntimeException("Simulate exception.");
-	}
+	private static final long serialVersionUID = 1L;
+	private static final Logger logger = Logger.getLogger(SimpleTestChildWorkflow.class);
 
 	@Override
 	public void main() throws InterruptException {
-		this.callPartner(100);
-		getData().error = false;
-		getData().done = true;
+		logger.info("starting...");
+		
+		// process the response
+		String data = getData();
+		StringBuilder responseSB = new StringBuilder(data.length());
+		for (int i=data.length()-1; i>=0; i--) {
+			responseSB.append(data.charAt(i));
+		}
+
+		logger.info("sending response to caller...");
+		// send back response to caller
+		Response<String> response = new Response<String>(this.getId(), responseSB.toString(), null); 
+		getEngine().notify(response);
+
+		logger.info("finished");
 	}
+
 }

@@ -28,6 +28,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import de.scoopgmbh.copper.common.WorkflowRepository;
@@ -72,6 +73,16 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 				ClassWriter cw3 = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 				cr3.accept(cw3, ClassReader.SKIP_FRAMES);
 				bytes = cw3.toByteArray();
+				
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), false, pw);
+				if (sw.toString().length() != 0) {
+					logger.fatal("CheckClassAdapter.verify failed for class "+cn.name+":\n"+sw.toString());
+				}
+				else {
+					logger.info("CheckClassAdapter.verify succeeded for class "+cn.name);
+				}
 				
 			}
 			finally {

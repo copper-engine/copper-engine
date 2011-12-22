@@ -84,5 +84,7 @@
 <!--       		</map> -->
 <!--     	</property>  		 -->
 <!-- 	</bean>	 -->
+
+	<bean name="backChannelQueue" class="de.scoopgmbh.copper.test.backchannel.BackChannelQueue"/>
 	
 </beans>          

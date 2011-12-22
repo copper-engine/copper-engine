@@ -22,6 +22,7 @@
 		<dependency org="asm" name="asm-commons" rev="3.3.1"/>
 		<dependency org="asm" name="asm-tree" rev="3.3.1"/>
 		<dependency org="asm" name="asm-util" rev="3.3.1"/>
+		<dependency org="asm" name="asm-analysis" rev="3.3.1"/>
 
 		<!-- commons -->
 		<dependency org="commons-codec" name="commons-codec" rev="1.4"/>

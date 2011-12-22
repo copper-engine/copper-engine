@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.test.persistent.subworkflow;
+package de.scoopgmbh.copper.test.tranzient.simple;
 
 import junit.framework.Assert;
 import de.scoopgmbh.copper.AutoWire;
@@ -26,7 +26,7 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 
-public class TestParentWorkflow extends PersistentWorkflow<String> {
+public class SimpleTestParentWorkflow extends PersistentWorkflow<String> {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -41,7 +41,7 @@ public class TestParentWorkflow extends PersistentWorkflow<String> {
 	public void main() throws InterruptException {
 		try {
 			// create and launch the children
-			WorkflowFactory<String> wfFactory = getEngine().createWorkflowFactory(TestChildWorkflow.class.getName());
+			WorkflowFactory<String> wfFactory = getEngine().createWorkflowFactory(SimpleTestChildWorkflow.class.getName());
 			String id = getEngine().createUUID();
 			Workflow<String> wf = wfFactory.newInstance();
 			wf.setId(id);
@@ -50,17 +50,17 @@ public class TestParentWorkflow extends PersistentWorkflow<String> {
 
 			wfFactory = null; // set to null, otherwise copper will try to serialize it...
 			
-			// wait for the children to finish
+			// wait for the child to finish
 			wait(WaitMode.ALL, 10000, id); 
 			
-			// collect the responses
+			// collect the response
 			Response<String> r = getAndRemoveResponse(id);
 			Assert.assertNotNull(r);
 			Assert.assertNotNull(r.getResponse());
 			Assert.assertNull(r.getException());
 			Assert.assertFalse(r.isTimeout());
 			Assert.assertEquals("54321", r.getResponse());
-
+			
 			backChannelQueue.enqueue(new WorkflowResult(null, null));
 		}
 		catch(Exception e) {
