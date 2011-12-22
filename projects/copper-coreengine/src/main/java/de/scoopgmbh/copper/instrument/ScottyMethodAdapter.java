@@ -91,6 +91,8 @@ class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 				} else if (t == Type.DOUBLE_TYPE) {
 					super.visitVarInsn(DLOAD, i);
 					super.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+				} else if (t == StackInfo.AconstNullType) {
+					super.visitInsn(ACONST_NULL);
 				} else {
 					super.visitVarInsn(ALOAD, i);
 				}
@@ -112,9 +114,13 @@ class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 		for (int i = 0; i < info.localsSize(); ++i) {
 			Type t = info.getLocal(i);
 			if (t != null) {
-				super.visitInsn(DUP);
-				super.visitIntInsn(SIPUSH, i);
-				super.visitInsn(AALOAD);
+				if (t != StackInfo.AconstNullType) {
+					super.visitInsn(DUP);
+					super.visitIntInsn(SIPUSH, i);
+					super.visitInsn(AALOAD);
+				} else {
+					super.visitInsn(ACONST_NULL);
+				}
 				if (t == Type.BOOLEAN_TYPE || t == Type.BYTE_TYPE || t == Type.SHORT_TYPE || t == Type.INT_TYPE || t == Type.CHAR_TYPE) {
 					super.visitTypeInsn(CHECKCAST, Type.getInternalName(Integer.class));
 					super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
@@ -132,7 +138,7 @@ class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 					super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D");
 					super.visitVarInsn(DSTORE, i);
 				} else {
-					if (!t.getInternalName().equals(Type.getInternalName(Object.class)))
+					if (!t.getInternalName().equals(Type.getInternalName(Object.class)) && t != StackInfo.AconstNullType)
 						super.visitTypeInsn(CHECKCAST, t.getInternalName());
 					super.visitVarInsn(ASTORE, i);
 				}
@@ -213,9 +219,13 @@ class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 		for (int i = 0; i < info.stackSize(); ++i) {
 			Type t = info.getStack(i);
 			if (t != null) {
-				super.visitInsn(DUP);
-				super.visitIntInsn(SIPUSH, i);
-				super.visitInsn(AALOAD);
+				if (t != StackInfo.AconstNullType) {
+					super.visitInsn(DUP);
+					super.visitIntInsn(SIPUSH, i);
+					super.visitInsn(AALOAD);
+				} else {
+					super.visitInsn(ACONST_NULL);					
+				}
 				if (t == Type.BOOLEAN_TYPE || t == Type.BYTE_TYPE || t == Type.SHORT_TYPE || t == Type.INT_TYPE || t == Type.CHAR_TYPE) {
 					super.visitTypeInsn(CHECKCAST, Type.getInternalName(Integer.class));
 					super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
@@ -235,7 +245,7 @@ class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 					super.visitInsn(DUP2_X1);
 					super.visitInsn(POP2);					
 				} else {
-					if (!t.getInternalName().equals(Type.getInternalName(Object.class)))
+					if (!t.getInternalName().equals(Type.getInternalName(Object.class)) && t != StackInfo.AconstNullType)
 						super.visitTypeInsn(CHECKCAST, t.getInternalName());
 					super.visitInsn(SWAP);
 				}

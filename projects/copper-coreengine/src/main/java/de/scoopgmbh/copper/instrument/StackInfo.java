@@ -27,6 +27,9 @@ import org.objectweb.asm.Type;
 
 class StackInfo {
 	
+	class DummyClass {}
+	public static final Type AconstNullType = Type.getType(DummyClass.class);
+
 	enum ComputationalCategory {
 		CAT_1, CAT_2;
 	}

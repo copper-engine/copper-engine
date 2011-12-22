@@ -182,7 +182,8 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 		case LCONST_1:
 			currentFrame.pushStack(Type.LONG_TYPE); break;
 		case ACONST_NULL:
-			currentFrame.pushStack(Type.getType(Object.class)); break;
+			currentFrame.pushStack(StackInfo.AconstNullType); break;
+//			currentFrame.pushStack(Type.getType(Object.class)); break;
 		case DUP:
 			currentFrame.dupStack(); break;
 		case DUP_X1:
@@ -756,6 +757,6 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 	public StackInfo getCurrentStackInfo() {
 		return new StackInfo(currentFrame);
 	}
-
+	
 
 }
