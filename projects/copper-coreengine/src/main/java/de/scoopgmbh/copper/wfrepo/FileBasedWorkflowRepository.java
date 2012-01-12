@@ -22,9 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +42,6 @@ import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.instrument.ScottyFindInterruptableMethodsVisitor;
-import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.util.FileUtil;
 
 /**
@@ -76,6 +72,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	private int checkIntervalMSec = 15000;
 	private List<Runnable> preprocessors = Collections.emptyList();
 	private boolean stopped = false;
+	private boolean loadNonWorkflowClasses = false;
 
 	/**
 	 * The repository will check the source directory every <code>checkIntervalMSec</code> milliseconds
@@ -95,6 +92,15 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		this.sourceDir = sourceDir;
 	}
 
+	/** 
+	 * If true, this workflow repository's class loader will also load non-workflow classes, e.g.
+	 * inner classes or helper classes.
+	 * As this is maybe not always useful, use this property to enable or disable this feature.
+	 */
+	public void setLoadNonWorkflowClasses(boolean loadNonWorkflowClasses) {
+		this.loadNonWorkflowClasses = loadNonWorkflowClasses;
+	}
+	
 	/**
 	 * mandatory parameter - must point to a local directory with read/write privileges. COPPER will store the 
 	 * compiled workflow class files there.
@@ -202,45 +208,11 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		compile(compileTargetDir);
 		final Map<String, Clazz> clazzMap = findInterruptableMethods(compileTargetDir);
 		instrumentWorkflows(adaptedTargetDir, clazzMap);
-		final ClassLoader cl = createClasses(map, adaptedTargetDir, clazzMap);
+		final ClassLoader cl = createClassLoader(map, adaptedTargetDir, loadNonWorkflowClasses ? compileTargetDir : adaptedTargetDir, clazzMap);
 
 		return new VolatileState(map, cl, checksum);
 	}
 
-	private ClassLoader createClasses(Map<String, Class<?>> map,
-			File adaptedTargetDir, Map<String, Clazz> clazzMap)
-	throws MalformedURLException, ClassNotFoundException {
-
-		logger.info("Creating classes");
-		URLClassLoader classLoader = new URLClassLoader(new URL[] { adaptedTargetDir.toURI().toURL() /*, compileTargetDir.toURI().toURL()*/ }, Thread.currentThread().getContextClassLoader()) {
-			@Override
-			protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-				Class<?> c = findLoadedClass(name);
-				if (c == null) {
-					try {
-						c = super.findClass(name);
-						if (c.getAnnotation(Transformed.class) == null) throw new ClassFormatError("Copper workflow "+name+" is not transformed!");
-						logger.info(c.getName()+" created");
-					}
-					catch (Exception e) {
-						c = super.loadClass(name,false);
-					}
-				}
-				if (resolve) {
-					resolveClass(c);
-				}
-				return c;
-			}
-		};
-
-		for (Clazz clazz : clazzMap.values()) {
-			String name = clazz.classname.replace('/', '.');
-			Class<?> c = classLoader.loadClass(name);
-			map.put(name, c);
-		}
-
-		return classLoader;
-	}
 
 	private Map<String, Clazz> findInterruptableMethods(File compileTargetDir) throws FileNotFoundException, IOException {
 		logger.info("Analysing classfiles");

@@ -21,6 +21,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -31,15 +35,17 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
+import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.instrument.ScottyClassAdapter;
+import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.instrument.TryCatchBlockHandler;
 
 abstract class AbstractWorkflowRepository implements WorkflowRepository {
 	
 	private static final Logger logger = Logger.getLogger(AbstractWorkflowRepository.class);
 	
-	protected void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap) throws IOException {
+	void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap) throws IOException {
 		logger.info("Instrumenting classfiles");
 		for (Clazz clazz : clazzMap.values()) {
 			byte[] bytes;
@@ -100,5 +106,42 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 			}
 		}
 	}
+	
+	ClassLoader createClassLoader(Map<String, Class<?>> map, File adaptedTargetDir, File compileTargetDir, Map<String, Clazz> clazzMap) throws MalformedURLException, ClassNotFoundException {
+		logger.info("Creating classes");
+		final Map<String, Clazz> clazzMapCopy = new HashMap<>(clazzMap);
+		URLClassLoader classLoader = new URLClassLoader(new URL[] { adaptedTargetDir.toURI().toURL(), compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader()) {
+			@Override
+			protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+				Class<?> c = findLoadedClass(name);
+				if (c == null) {
+					try {
+						c = super.findClass(name);
+						if (clazzMapCopy.containsKey(name)) {
+							// Check that the workflow class is transformed
+							if (c.getAnnotation(Transformed.class) == null) throw new ClassFormatError("Copper workflow "+name+" is not transformed!");
+						}
+						logger.info(c.getName()+" created");
+					}
+					catch (Exception e) {
+						c = super.loadClass(name,false);
+					}
+				}
+				if (resolve) {
+					resolveClass(c);
+				}
+				return c;
+			}
+		};
+
+		for (Clazz clazz : clazzMap.values()) {
+			String name = clazz.classname.replace('/', '.');
+			Class<?> c = classLoader.loadClass(name);
+			map.put(name, c);
+		}
+
+		return classLoader;
+	}
+	
 
 }

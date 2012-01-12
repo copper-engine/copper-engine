@@ -205,7 +205,7 @@ public class TomcatWorkflowRepository extends AbstractWorkflowRepository {
 		final Map<String, Clazz> clazzMap = findInterruptableMethods(compileTargetDir);
 		instrumentWorkflows(adaptedTargetDir, clazzMap);
 
-		final ClassLoader cl = createClassLoader(adaptedTargetDir);
+		final ClassLoader cl = createClassLoader(adaptedTargetDir, compileTargetDir);
 		final Map<String,Class<?>> map = loadClasses(cl,clazzMap);
 		return new VolatileState(map, cl, checksum);
 	}
@@ -291,17 +291,17 @@ public class TomcatWorkflowRepository extends AbstractWorkflowRepository {
 		return clazzMap;
 	}
 
-	private ClassLoader createClassLoader (File adaptedTargetDir) throws MalformedURLException, ClassNotFoundException 
+	private ClassLoader createClassLoader (File adaptedTargetDir, File compileTargetDir) throws MalformedURLException, ClassNotFoundException 
 	{
 		logger.debug("creating workflow loader");
-		URLClassLoader classLoader = new URLClassLoader(new URL[] { adaptedTargetDir.toURI().toURL() /*, compileTargetDir.toURI().toURL()*/ }, Thread.currentThread().getContextClassLoader()) {
+		URLClassLoader classLoader = new URLClassLoader(new URL[] { adaptedTargetDir.toURI().toURL(), compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader()) {
 			@Override
 			protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
 				Class<?> c = findLoadedClass(name);
 				if (c == null) {
 					try {
 						c = super.findClass(name);
-						if (c.getAnnotation(Transformed.class) == null) throw new ClassFormatError("Copper workflow "+name+" is not transformed!");
+						//if (c.getAnnotation(Transformed.class) == null) throw new ClassFormatError("Copper workflow "+name+" is not transformed!");
 						logger.info(c.getName()+" created");
 					}
 					catch (Exception e) {

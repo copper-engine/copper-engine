@@ -27,7 +27,7 @@ import de.scoopgmbh.copper.test.TestResponseReceiver;
 public class SimpleTransientWorkflow extends Workflow<String> {
 
 	private static final long serialVersionUID = 7325419989364229211L;
-
+	
 	private int counter = 0;
 
 	private MockAdapter mockAdapter;
@@ -46,6 +46,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 	private void reply() {
 		if (rr != null) rr.setResponse(this, counter);
 	}
+	
 
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.Workflow#main()
