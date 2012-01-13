@@ -1,0 +1,20 @@
+COPPER 1.1
+==========
+- JMX Management & Monitoring
+- support for Java 7
+- Enable restart of INVALID workflow instances via COPPER API
+- Compression/Base64-Encoding for AuditTrail
+- Enable to keep finished workflow instances in the DB
+- many bugfixes (see svn history http://code.google.com/p/copper/source/list for details)
+
+
+COPPER 1.0
+==========
+Unreleased first COPPER version with all basic features, e.g.
+- lightweighted and high performant workflow engine
+- workflows described in java
+- asynchronous waits without thread blocking
+- persistent or transient workflows
+- configurable amount and size of processor pools
+- persistence support for Oracle and MySQL 
+- any many more...
