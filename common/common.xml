@@ -126,6 +126,7 @@
 	<target name="jar" depends="version, compile, copy-resources" description="--> make a jar file for this project">
 		<jar destfile="${jar.file}">
 			<fileset dir="${classes.dir}" />
+			<fileset file="${complete-license.file}" />
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Build-Version" value="${version}" />
