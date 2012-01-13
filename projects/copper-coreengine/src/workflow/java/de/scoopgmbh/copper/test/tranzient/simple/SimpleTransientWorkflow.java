@@ -47,12 +47,17 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 		if (rr != null) rr.setResponse(this, counter);
 	}
 	
+	public class Innerclass {
+		
+	}
 
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.Workflow#main()
 	 */
 	@Override
 	public void main() throws InterruptException {
+		new Innerclass();
+		
 		try {
 			execute();
 		}

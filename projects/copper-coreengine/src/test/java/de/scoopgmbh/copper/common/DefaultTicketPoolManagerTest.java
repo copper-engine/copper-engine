@@ -21,13 +21,15 @@ import junit.framework.TestCase;
 
 public class DefaultTicketPoolManagerTest extends TestCase {
 
+	private static final String WF_CLASSNAME = "de.scoopgmbh.copper.test.tranzient.simple.SimpleTransientWorkflow";
+
 	public void testObtain() throws Exception {
 		
 		final String T_POOL_ID = "testTicketPoolId";
 		DefaultTicketPoolManager ticketPoolManager = new DefaultTicketPoolManager();
 		ticketPoolManager.add(new TicketPool(DefaultTicketPoolManager.DEFAULT_POOL_ID, 50));
 		ticketPoolManager.add(new TicketPool(T_POOL_ID, 50));
-		ticketPoolManager.addMapping(de.scoopgmbh.copper.test.tranzient.simple.SimpleTransientWorkflow.class, T_POOL_ID);
+		ticketPoolManager.addMapping(WF_CLASSNAME, T_POOL_ID);
 
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		repo.setSourceDir("src/workflow/java");
@@ -36,7 +38,7 @@ public class DefaultTicketPoolManagerTest extends TestCase {
 		repo.start();
 		ticketPoolManager.startup();
 		try {
-			Workflow<?> wf = repo.createWorkflowFactory("de.scoopgmbh.copper.test.tranzient.simple.SimpleTransientWorkflow").newInstance();
+			Workflow<?> wf = repo.createWorkflowFactory(WF_CLASSNAME).newInstance();
 			String tpId = ticketPoolManager.obtainAndReturnTicketPoolId(wf);
 			assertEquals(T_POOL_ID, tpId);
 		}

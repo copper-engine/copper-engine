@@ -38,8 +38,11 @@ public interface TicketPoolManager {
 	 void obtain(Workflow<?> wf);
 	 void release(Workflow<?> wf);
 	 
-	 void addMapping(Class<?> workflowClass, String ticketPoolId);
-	 void removeMapping(Class<?> workflowClass);
-	 void setMapping(Map<Class<?>, String> mapping);
+	 void obtain(String workflowClass);
+	 void release(String workflowClass);
+	 
+	 void addMapping(String workflowClass, String ticketPoolId);
+	 void removeMapping(String workflowClass);
+	 void setMapping(Map<String, String> mapping);
 
 }

@@ -39,8 +39,8 @@ public class DefaultTicketPoolManager implements TicketPoolManager {
 	private volatile Map<String, TicketPool> map = new HashMap<String, TicketPool>();
 	
 	private final Object mutex = new Object();
-	private final Map<Class<?>, String> mappingDesc = new HashMap<Class<?>, String>();
-	private volatile Map<Class<?>, TicketPool> concreteMapping = Collections.emptyMap();
+	private final Map<String, String> mappingDesc = new HashMap<String, String>();
+	private volatile Map<String, TicketPool> concreteMapping = Collections.emptyMap();
 	
 	public DefaultTicketPoolManager() {
 		map.put(DEFAULT_POOL_ID, new TicketPool(DefaultTicketPoolManager.DEFAULT_POOL_ID, 2000));
@@ -101,7 +101,7 @@ public class DefaultTicketPoolManager implements TicketPoolManager {
 
 	@Override
 	public void obtain(Workflow<?> wf) {
-		findPool(wf).obtain();
+		findPool(wf.getClass().getName()).obtain();
 	}
 	
 	/**
@@ -109,18 +109,18 @@ public class DefaultTicketPoolManager implements TicketPoolManager {
 	 * @param wf
 	 */
 	public String obtainAndReturnTicketPoolId(Workflow<?> wf) {
-		TicketPool tp = findPool(wf);
+		TicketPool tp = findPool(wf.getClass().getName());
 		tp.obtain();
 		return tp.getId();
 	}	
 
 	@Override
 	public void release(Workflow<?> wf) {
-		findPool(wf).release();
+		findPool(wf.getClass().getName()).release();
 	}
 
 	@Override
-	public void addMapping(Class<?> workflowClass, String ticketPoolId) {
+	public void addMapping(String workflowClass, String ticketPoolId) {
 		if (workflowClass == null) throw new NullPointerException();
 		if (ticketPoolId == null) throw new NullPointerException();
 		if (!map.containsKey(ticketPoolId)) {
@@ -133,7 +133,7 @@ public class DefaultTicketPoolManager implements TicketPoolManager {
 	}
 
 	@Override
-	public void removeMapping(Class<?> workflowClass) {
+	public void removeMapping(String workflowClass) {
 		if (workflowClass == null) throw new NullPointerException();
 		synchronized (mutex) {
 			mappingDesc.remove(workflowClass);
@@ -142,10 +142,10 @@ public class DefaultTicketPoolManager implements TicketPoolManager {
 	}
 
 	@Override
-	public void setMapping(Map<Class<?>, String> mapping) {
+	public void setMapping(Map<String, String> mapping) {
 		if (mapping == null) throw new NullPointerException();
 		synchronized (mutex) {
-			for (Map.Entry<Class<?>, String> entry : mapping.entrySet()) {
+			for (Map.Entry<String, String> entry : mapping.entrySet()) {
 				if (entry.getKey() == null) throw new NullPointerException();
 				if (entry.getValue() == null) throw new NullPointerException();
 				if (!map.containsKey(entry.getValue())) {
@@ -157,30 +157,41 @@ public class DefaultTicketPoolManager implements TicketPoolManager {
 		}
 	}
 	
-	private TicketPool findPool(Workflow<?> wf) {
-		TicketPool tp = concreteMapping.get(wf.getClass());
+	private TicketPool findPool(String wfClass) {
+		TicketPool tp = concreteMapping.get(wfClass);
 		if (tp == null) {
 			synchronized (mutex) {
-				tp = concreteMapping.get(wf.getClass());
+				tp = concreteMapping.get(wfClass);
 				if (tp == null) {
-					HashMap<Class<?>, TicketPool> newConcreteMapping = new HashMap<Class<?>, TicketPool>(concreteMapping);
-					for (Map.Entry<Class<?>, String> entry : mappingDesc.entrySet()) {
-						Class<?> c = entry.getKey();
-						if (wf.getClass().getName().equals(c.getName())) {
+					HashMap<String, TicketPool> newConcreteMapping = new HashMap<String, TicketPool>(concreteMapping);
+					for (Map.Entry<String, String> entry : mappingDesc.entrySet()) {
+						String c = entry.getKey();
+						if (wfClass.equals(c)) {
 							tp = map.get(entry.getValue());
 						}
 					}
 					if (tp == null) {
 						tp = map.get(DEFAULT_POOL_ID);
 					}
-					logger.info("Mapping workflow class '"+wf.getClass().getName()+"' to ticket pool "+tp.getId());
-					newConcreteMapping.put(wf.getClass(), tp);
+					logger.info("Mapping workflow class '"+wfClass+"' to ticket pool "+tp.getId());
+					newConcreteMapping.put(wfClass, tp);
 					concreteMapping = newConcreteMapping;
 				}
 			}
 		}
 		assert tp != null;
 		return tp;
+	}
+
+	@Override
+	public void obtain(String workflowClass) {
+		findPool(workflowClass).obtain();
+		
+	}
+
+	@Override
+	public void release(String workflowClass) {
+		findPool(workflowClass).release();
 	}
 
 }
