@@ -109,7 +109,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 	
 	ClassLoader createClassLoader(Map<String, Class<?>> map, File adaptedTargetDir, File compileTargetDir, Map<String, Clazz> clazzMap) throws MalformedURLException, ClassNotFoundException {
 		logger.info("Creating classes");
-		final Map<String, Clazz> clazzMapCopy = new HashMap<>(clazzMap);
+		final Map<String, Clazz> clazzMapCopy = new HashMap<String, Clazz>(clazzMap);
 		URLClassLoader classLoader = new URLClassLoader(new URL[] { adaptedTargetDir.toURI().toURL(), compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader()) {
 			@Override
 			protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
