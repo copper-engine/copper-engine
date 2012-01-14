@@ -118,6 +118,9 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 
 	@Override
 	public <E> WorkflowFactory<E> createWorkflowFactory(final String classname) throws ClassNotFoundException {
+		if (!volatileState.wfMap.containsKey(classname)) {
+			throw new ClassNotFoundException("Workflow class "+classname+" not found");
+		}
 		return new WorkflowFactory<E>() {
 			@SuppressWarnings("unchecked")
 			@Override
