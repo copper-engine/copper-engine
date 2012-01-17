@@ -25,7 +25,7 @@ public class OraclePersistentWorkflowTest extends PersistentWorkflowTest {
 	}
 
 	public void testAsnychResponseLargeData() throws Exception {
-		super.testAsnychResponseLargeData(DS_CONTEXT);
+		super.testAsnychResponseLargeData(DS_CONTEXT,65536);
 	}
 
 	public void testWithConnection() throws Exception {

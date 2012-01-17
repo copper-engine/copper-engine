@@ -110,10 +110,10 @@ public class PersistentWorkflowTest extends TestCase {
 		
 	}
 
-	public void testAsnychResponseLargeData(String dsContext) throws Exception {
+	public void testAsnychResponseLargeData(String dsContext, int dataSize) throws Exception {
 		logger.info("running testAsnychResponse");
 		final int NUMB = 20;
-		final String DATA = createTestData(65536);
+		final String DATA = createTestData(dataSize);
 		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);

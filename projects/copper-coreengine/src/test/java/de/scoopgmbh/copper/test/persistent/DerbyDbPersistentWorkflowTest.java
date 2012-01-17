@@ -15,17 +15,33 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
+import javax.sql.DataSource;
 
-public class MySqlPersistentWorkflowTest extends PersistentWorkflowTest {
+import de.scoopgmbh.copper.persistent.DerbyDbScottyDbStorage;
+
+
+public class DerbyDbPersistentWorkflowTest extends PersistentWorkflowTest {
 	
-	private static final String DS_CONTEXT = "mysql-unittest-context.xml";
+	private static final String DS_CONTEXT = "derbydb-unittest-context.xml";
+	
+	@Override
+	void cleanDB(DataSource ds) throws Exception {
+		DerbyDbScottyDbStorage.checkAndCreateSchema(ds);
+		super.cleanDB(ds);
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		DerbyDbScottyDbStorage.shutdownDerby();
+		super.tearDown();
+	}
 	
 	public void testAsnychResponse() throws Exception {
 		super.testAsnychResponse(DS_CONTEXT);
 	}
 
 	public void testAsnychResponseLargeData() throws Exception {
-		super.testAsnychResponseLargeData(DS_CONTEXT,65536);
+		super.testAsnychResponseLargeData(DS_CONTEXT, 10000);
 	}
 
 	public void testWithConnection() throws Exception {

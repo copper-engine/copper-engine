@@ -30,7 +30,7 @@ import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.NullCallback;
 
-class MySqlNotify {
+class SqlNotify {
 
 	static final class Command extends AbstractBatchCommand<Executor, Command>{
 

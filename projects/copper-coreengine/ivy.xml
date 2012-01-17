@@ -45,6 +45,8 @@
 		<dependency org="c3p0" name="c3p0" rev="0.9.1.2"/>
 		<dependency org="c3p0" name="c3p0-oracle-thin-extras" rev="0.9.0.2"/>
 		<dependency org="mysql" name="mysql-connector-java" rev="5.1.6"/>
+		<dependency org="org.apache.derby" name="derby" rev="10.8.2.2"/>
+		
 <!-- 		<dependency org="oracle" name="ojdbc6" rev="11.2.0.1.0" /> -->
 <!-- 		<dependency org="oracle" name="orai18n" rev="11.2.0.1.0" /> -->
 		

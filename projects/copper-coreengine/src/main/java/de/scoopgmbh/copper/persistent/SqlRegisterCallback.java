@@ -31,9 +31,9 @@ import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.NullCallback;
 
-class MySqlRegisterCallback {
+class SqlRegisterCallback {
 
-	private static final Logger logger = Logger.getLogger(MySqlRegisterCallback.class);
+	private static final Logger logger = Logger.getLogger(SqlRegisterCallback.class);
 
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 

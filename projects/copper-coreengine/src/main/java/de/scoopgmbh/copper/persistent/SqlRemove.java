@@ -15,8 +15,6 @@
  */
 package de.scoopgmbh.copper.persistent;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
@@ -24,23 +22,27 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
+
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.NullCallback;
 
-class MySqlSetToError {
+class SqlRemove {
+
+	private static final Logger logger = Logger.getLogger(SqlRemove.class);
 
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 
 		private final PersistentWorkflow<?> wf;
-		private final Throwable error;
+		private final boolean remove;
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, DataSource dataSource, Throwable error) {
+		public Command(PersistentWorkflow<?> wf, DataSource dataSource, boolean remove) {
 			super(NullCallback.instance,dataSource,250);
 			this.wf = wf;
-			this.error = error;
+			this.remove = remove;
 		}
 
 		@Override
@@ -56,29 +58,46 @@ class MySqlSetToError {
 
 		@Override
 		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
+			final Timestamp NOW = new Timestamp(System.currentTimeMillis());
+			final boolean remove = ((Command)commands.iterator().next()).remove;
 			final PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
-			final PreparedStatement stmtUpdateState = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE ID=?");
-			final PreparedStatement stmtInsertError = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, EXCEPTION, ERROR_TS) VALUES (?,?,?)");
+			final PreparedStatement stmtDelResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
+			final PreparedStatement stmtDelWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
+			final PreparedStatement stmtDelBP = remove ? con.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?") : con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE="+DBProcessingState.FINISHED.ordinal()+", LAST_MOD_TS=? WHERE ID=?");
+			final PreparedStatement stmtDelErrors = con.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
+			boolean cidsFound = false;
 			for (BatchCommand<Executor, Command> _cmd : commands) {
-				final Timestamp NOW = new Timestamp(System.currentTimeMillis());
 				Command cmd = (Command)_cmd;
-				stmtUpdateState.setInt(1, DBProcessingState.ERROR.ordinal());
-				stmtUpdateState.setTimestamp(2, NOW);
-				stmtUpdateState.setString(3, cmd.wf.getId());
-				stmtUpdateState.addBatch();
+				if (cmd.wf.cidList != null) {
+					for (String cid : cmd.wf.cidList) {
+						stmtDelResponse.setString(1, cid);
+						stmtDelResponse.addBatch();
+						stmtDelWait.setString(1, cid);
+						stmtDelWait.addBatch();
+						if (!cidsFound) cidsFound = true;
+					}
+				}
+				int idx=1;
+				if (!remove) {
+					stmtDelBP.setTimestamp(idx++, NOW);
+				}
+				stmtDelBP.setString(idx++, cmd.wf.getId());
+				stmtDelBP.addBatch();
 
-				stmtInsertError.setString(1, cmd.wf.getId());
-				stmtInsertError.setString(2, convert2String(cmd.error));
-				stmtInsertError.setTimestamp(3, NOW);
-				stmtInsertError.addBatch();
+				stmtDelErrors.setString(1, cmd.wf.getId());
+				stmtDelErrors.addBatch();
 
 				stmtDelQueue.setString(1, cmd.wf.getId());
 				stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
 				stmtDelQueue.setInt(3, cmd.wf.oldPrio);
 				stmtDelQueue.addBatch();
 			}
-			stmtUpdateState.executeBatch();
-			stmtInsertError.executeBatch();
+			if (cidsFound) {
+				stmtDelResponse.executeBatch();
+				stmtDelWait.executeBatch();
+			}
+			stmtDelBP.executeBatch();
+			stmtDelErrors.executeBatch();
 			stmtDelQueue.executeBatch();
 		}
 
@@ -92,11 +111,5 @@ class MySqlSetToError {
 			return 50;
 		}
 
-	}
-
-	private static final String convert2String(Throwable t)  {
-		StringWriter sw = new StringWriter(2048);
-		t.printStackTrace(new PrintWriter(sw));
-		return sw.toString();
 	}
 }
