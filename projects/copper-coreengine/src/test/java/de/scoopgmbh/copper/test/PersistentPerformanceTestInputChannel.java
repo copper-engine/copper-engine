@@ -30,9 +30,19 @@ public class PersistentPerformanceTestInputChannel implements Runnable {
 	private static final Logger logger = Logger.getLogger(PersistentPerformanceTestInputChannel.class);
 	
 	private PersistentScottyEngine engine;
+	private int max = 200;
+	private int batchSize = 500;
 	
 	public void setEngine(PersistentScottyEngine engine) {
 		this.engine = engine;
+	}
+	
+	public void setMax(int max) {
+		this.max = max;
+	}
+	
+	public void setBatchSize(int batchSize) {
+		this.batchSize = batchSize;
 	}
 
 	@Override
@@ -67,8 +77,6 @@ public class PersistentPerformanceTestInputChannel implements Runnable {
 			Thread.sleep(5000);
 			
 			// load the engine with workflows
-			final int max=200;
-			final int batchSize=500;
 			logger.info("Test starts now");
 			final long startTS = System.currentTimeMillis();
 			for (int k=0; k<max; k++) {
@@ -92,7 +100,7 @@ public class PersistentPerformanceTestInputChannel implements Runnable {
 			//logger.info(engine.getDbStorage().getStatistics());
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			logger.error("run failed",e);
 		}
 	}
 

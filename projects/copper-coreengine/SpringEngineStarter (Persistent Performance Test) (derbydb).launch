@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/copper-coreengine/src/main/java/de/scoopgmbh/copper/spring/SpringEngineStarter.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="de.scoopgmbh.copper.spring.SpringEngineStarter"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="./src/test/resources/derbydb-persistent-engine-application-context.xml ./src/test/resources/noimport-persistent-perf-test-application-context.xml"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="copper-coreengine"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms256M&#13;&#10;-Xmx1024M"/>
+</launchConfiguration>

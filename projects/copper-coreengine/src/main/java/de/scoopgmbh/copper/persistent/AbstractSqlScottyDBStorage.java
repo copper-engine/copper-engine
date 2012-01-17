@@ -371,7 +371,7 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 		}.run();
 		if (logger.isTraceEnabled()) logger.trace("dequeue for pool "+ppoolId+" returns "+rv.size()+" element(s)");
 
-		if (logger.isInfoEnabled()) logger.info(rv.size()+" in "+(System.currentTimeMillis()-startTS));
+		if (logger.isDebugEnabled()) logger.debug(rv.size()+" in "+(System.currentTimeMillis()-startTS));
 		return rv;
 	}
 
