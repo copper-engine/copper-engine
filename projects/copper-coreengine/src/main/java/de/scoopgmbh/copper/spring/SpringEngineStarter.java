@@ -33,7 +33,7 @@ public class SpringEngineStarter {
 	 */
 	public static void main(String[] args) {
 		if (args.length == 0) {
-			System.out.println("Usage: ...");
+			System.out.println("Usage: "+SpringEngineStarter.class.getName()+" <configLocations>");
 			System.exit(-2);
 		}
 		try {

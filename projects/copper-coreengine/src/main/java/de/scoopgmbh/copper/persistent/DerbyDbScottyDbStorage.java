@@ -32,7 +32,7 @@ public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
 			checkAndCreateSchema(getDataSource());
 		} 
 		catch (Exception e) {
-			logger.error("",e); // TODO
+			throw new Error("startup failed",e);
 		}
 		super.startup();
 	}

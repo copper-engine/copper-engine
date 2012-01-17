@@ -46,7 +46,7 @@ public class PersistentPerformanceTestInputChannel implements Runnable {
 			dataSB.append("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!§$%&/()=?".substring(pos,pos+1));
 		}
 		final String data = dataSB.toString(); 
-		System.out.println(data);
+		logger.info("data="+data);
 		
 		try {
 			// reduce logging data

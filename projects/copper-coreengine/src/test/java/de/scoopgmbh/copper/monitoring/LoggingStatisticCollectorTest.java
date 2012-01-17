@@ -17,9 +17,13 @@ package de.scoopgmbh.copper.monitoring;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+
 import junit.framework.TestCase;
 
 public class LoggingStatisticCollectorTest extends TestCase {
+	
+	private static final Logger logger = Logger.getLogger(LoggingStatisticCollector.class);
 
 	public final void testPrint() {
 		LoggingStatisticCollector collector = new LoggingStatisticCollector();
@@ -29,7 +33,7 @@ public class LoggingStatisticCollectorTest extends TestCase {
 		collector.submit("insertIntoB45", 102, 0, TimeUnit.MILLISECONDS);
 		
 		String x = collector.print();
-		System.out.println(x);
+		logger.debug(x);
 	}
 
 }

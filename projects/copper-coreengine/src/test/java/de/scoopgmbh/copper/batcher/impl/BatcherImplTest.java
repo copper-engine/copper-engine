@@ -20,6 +20,8 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
+
 import junit.framework.TestCase;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
@@ -27,6 +29,8 @@ import de.scoopgmbh.copper.batcher.CommandCallback;
 import de.scoopgmbh.copper.batcher.NullCallback;
 
 public class BatcherImplTest extends TestCase {
+	
+	private static final Logger logger = Logger.getLogger(BatcherImplTest.class);
 	
 	static final class TestBatchCommand implements BatchCommand<TestBatchExecutor, TestBatchCommand> {
 
@@ -65,9 +69,9 @@ public class BatcherImplTest extends TestCase {
 
 		@Override
 		protected void doExec(final Collection<BatchCommand<TestBatchExecutor, TestBatchCommand>> commands, final Connection con) throws Exception {
-			System.out.println("new batch:");
+			logger.debug("new batch:");
 			for (BatchCommand<TestBatchExecutor, TestBatchCommand> cmd : commands) {
-				System.out.println(((TestBatchCommand)cmd).data);
+				logger.debug(((TestBatchCommand)cmd).data);
 			}
 		}
 
