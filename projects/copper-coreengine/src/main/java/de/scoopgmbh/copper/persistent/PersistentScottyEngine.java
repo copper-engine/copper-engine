@@ -25,7 +25,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.CopperRuntimeException;
@@ -39,7 +40,6 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
-import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
 import de.scoopgmbh.copper.management.WorkflowInfo;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
@@ -52,7 +52,7 @@ import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
  */
 public class PersistentScottyEngine extends AbstractProcessingEngine implements PersistentProcessingEngine, PersistentProcessingEngineMXBean {
 
-	private static final Logger logger = Logger.getLogger(PersistentScottyEngine.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersistentScottyEngine.class);
 	
 	private ScottyDBStorageInterface dbStorage;
 	private ProcessorPoolManager<PersistentProcessorPool> processorPoolManager;
@@ -158,7 +158,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		if (correlationIds.length == 0) throw new IllegalArgumentException("No correlationids given");
 		PersistentWorkflow<?> pw = (PersistentWorkflow<?>)w;
 		if (processorPoolManager.getProcessorPool(pw.getProcessorPoolId()) == null) {
-			logger.fatal("Unkown processor pool '"+pw.getProcessorPoolId()+"' - using default pool instead");
+			logger.error("Unkown processor pool '"+pw.getProcessorPoolId()+"' - using default pool instead");
 			pw.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
 		}
 		pw.registerCall = new RegisterCall(w, mode, timeoutMsec > 0 ? timeoutMsec : null, correlationIds);
@@ -211,7 +211,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 				}
 
 				if (processorPoolManager.getProcessorPool(wf.getProcessorPoolId()) == null) {
-					logger.fatal("Unkown processor pool '"+wf.getProcessorPoolId()+"' - using default pool instead");
+					logger.error("Unkown processor pool '"+wf.getProcessorPoolId()+"' - using default pool instead");
 					wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
 				}
 				
@@ -248,7 +248,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 				wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
 			}
 			if (processorPoolManager.getProcessorPool(wf.getProcessorPoolId()) == null) {
-				logger.fatal("Unkown processor pool '"+wf.getProcessorPoolId()+"' - using default pool instead");
+				logger.error("Unkown processor pool '"+wf.getProcessorPoolId()+"' - using default pool instead");
 				wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
 			}
 			dbStorage.insert(wf, con);

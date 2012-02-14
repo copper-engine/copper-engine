@@ -21,11 +21,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class ConcurrentBatchedWorker {
 
-	private static final Logger logger = Logger.getLogger(ConcurrentBatchedWorker.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConcurrentBatchedWorker.class);
 
 	private Thread worker;
 	private Queue<List<PersistentWorkflow<?>>> queue = new LinkedList<List<PersistentWorkflow<?>>>();

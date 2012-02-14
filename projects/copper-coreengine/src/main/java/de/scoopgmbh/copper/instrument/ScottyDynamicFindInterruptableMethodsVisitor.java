@@ -18,15 +18,16 @@ package de.scoopgmbh.copper.instrument;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.commons.EmptyVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Deprecated
 class ScottyDynamicFindInterruptableMethodsVisitor extends EmptyVisitor {
 
-	private static final Logger logger = Logger.getLogger(ScottyDynamicFindInterruptableMethodsVisitor.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScottyDynamicFindInterruptableMethodsVisitor.class);
 
 	private final ClassLoader classLoader;
 	private final Set<String> interruptableMethods = new HashSet<String>();

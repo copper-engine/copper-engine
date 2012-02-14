@@ -38,14 +38,14 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.instrument.ScottyFindInterruptableMethodsVisitor;
-import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.util.FileUtil;
 
 /**
@@ -71,7 +71,7 @@ public class TomcatWorkflowRepository extends AbstractWorkflowRepository {
 		}
 	}
 
-	private static final Logger logger = Logger.getLogger(TomcatWorkflowRepository.class);
+	private static final Logger logger = LoggerFactory.getLogger(TomcatWorkflowRepository.class);
 
 
 	private String sourceDir;

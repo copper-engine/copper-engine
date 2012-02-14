@@ -27,15 +27,15 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.instrument.ScottyClassAdapter;
 import de.scoopgmbh.copper.instrument.Transformed;
@@ -43,7 +43,7 @@ import de.scoopgmbh.copper.instrument.TryCatchBlockHandler;
 
 abstract class AbstractWorkflowRepository implements WorkflowRepository {
 	
-	private static final Logger logger = Logger.getLogger(AbstractWorkflowRepository.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractWorkflowRepository.class);
 	
 	void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap) throws IOException {
 		logger.info("Instrumenting classfiles");
@@ -84,7 +84,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 				PrintWriter pw = new PrintWriter(sw);
 				CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), false, pw);
 				if (sw.toString().length() != 0) {
-					logger.fatal("CheckClassAdapter.verify failed for class "+cn.name+":\n"+sw.toString());
+					logger.error("CheckClassAdapter.verify failed for class "+cn.name+":\n"+sw.toString());
 				}
 				else {
 					logger.info("CheckClassAdapter.verify succeeded for class "+cn.name);

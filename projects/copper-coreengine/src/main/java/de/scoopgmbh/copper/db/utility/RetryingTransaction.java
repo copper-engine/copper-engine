@@ -20,7 +20,8 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple transaction implementation for COPPER applications. Retrying means that the user's implementation of
@@ -31,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class RetryingTransaction implements Transaction  {
 
-    private static final Logger logger = Logger.getLogger(RetryingTransaction.class);
+    private static final Logger logger = LoggerFactory.getLogger(RetryingTransaction.class);
     private static final ThreadLocal<RetryingTransaction> currentTransaction = new ThreadLocal<RetryingTransaction>();
     private static SQLExceptionProcessor defaultSQLExceptionProcessor = new MockSQLExceptionProcessor();
     
@@ -147,7 +148,7 @@ public abstract class RetryingTransaction implements Transaction  {
                             connection = aquireConnection(true);
                         }
                         else {
-                            logger.fatal("Unexpected RetryAction "+ra);
+                            logger.error("Unexpected RetryAction "+ra);
                             assert false : "Unexpected RetryAction "+ra;
                         }
                     }

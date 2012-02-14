@@ -18,7 +18,8 @@ package de.scoopgmbh.copper.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.Callback;
@@ -29,7 +30,7 @@ import de.scoopgmbh.copper.tranzient.TransientProcessorPool;
 
 public abstract class Spock2GTestWF extends Workflow<String> {
 
-	private static final Logger logger = Logger.getLogger(Spock2GTestWF.class);
+	private static final Logger logger = LoggerFactory.getLogger(Spock2GTestWF.class);
 	private static final long serialVersionUID = 1816644971610832088L;
 
 	private Callback<String> cb;

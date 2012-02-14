@@ -20,9 +20,11 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
-
 import junit.framework.TestCase;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.CommandCallback;
@@ -30,7 +32,7 @@ import de.scoopgmbh.copper.batcher.NullCallback;
 
 public class BatcherImplTest extends TestCase {
 	
-	private static final Logger logger = Logger.getLogger(BatcherImplTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(BatcherImplTest.class);
 	
 	static final class TestBatchCommand implements BatchCommand<TestBatchExecutor, TestBatchCommand> {
 

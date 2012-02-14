@@ -24,14 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
 
 class ResponseLoader extends ConcurrentBatchedWorker {
 
-	private static final Logger logger = Logger.getLogger(ResponseLoader.class);
+	private static final Logger logger = LoggerFactory.getLogger(ResponseLoader.class);
 
 	private Connection con;
 	private Serializer serializer;

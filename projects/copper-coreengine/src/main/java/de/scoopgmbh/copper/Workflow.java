@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.instrument.Transformed;
 
@@ -39,7 +40,7 @@ import de.scoopgmbh.copper.instrument.Transformed;
 public abstract class Workflow<D> implements Serializable {
 	
 	private static final long serialVersionUID = -6351894157077862055L;
-	private static final Logger logger = Logger.getLogger(Workflow.class);
+	private static final Logger logger = LoggerFactory.getLogger(Workflow.class);
 	
 	/**
 	 * Constant value for {@link Workflow#wait(WaitMode, int, Callback...)} and {@link Workflow#wait(WaitMode, int, String...)} indicating 

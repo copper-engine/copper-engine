@@ -15,7 +15,8 @@
  */
 package de.scoopgmbh.copper.test;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
@@ -23,7 +24,7 @@ import de.scoopgmbh.copper.WorkflowFactory;
 
 public class PersistentTimeoutTestInputChannel implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(PersistentTestInputChannel.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersistentTestInputChannel.class);
 	private ProcessingEngine engine;
 
 	public void setEngine(ProcessingEngine engine) {

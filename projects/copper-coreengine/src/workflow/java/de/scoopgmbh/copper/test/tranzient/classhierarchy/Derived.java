@@ -15,13 +15,14 @@
  */
 package de.scoopgmbh.copper.test.tranzient.classhierarchy;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.InterruptException;
 
 public abstract class Derived extends Base {
 	
-	private static final Logger logger = Logger.getLogger(Derived.class);
+	private static final Logger logger = LoggerFactory.getLogger(Derived.class);
 
 	protected abstract void callMock() throws InterruptException;
 	

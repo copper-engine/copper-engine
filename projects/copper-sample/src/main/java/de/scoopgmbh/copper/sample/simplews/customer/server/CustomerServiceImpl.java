@@ -16,7 +16,6 @@
 package de.scoopgmbh.copper.sample.simplews.customer.server;
 
 import java.util.concurrent.Future;
-import java.util.logging.Logger;
 
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Endpoint;
@@ -37,8 +36,6 @@ import de.scoopgmbh.customerservice.ResetMailboxResponse;
                       endpointInterface = "de.scoopgmbh.customerservice.CustomerService")
                       
 public class CustomerServiceImpl implements CustomerService {
-
-    private static final Logger LOG = Logger.getLogger(CustomerServiceImpl.class.getName());
 
     /* (non-Javadoc)
      * @see de.scoopgmbh.customerservice.CustomerService#resetMailbox(int  customerId )*

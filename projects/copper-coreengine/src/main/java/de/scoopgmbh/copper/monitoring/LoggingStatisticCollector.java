@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.management.MeasurePointData;
 import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
@@ -52,7 +53,7 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 		}
 	}
 
-	private static final Logger logger = Logger.getLogger(LoggingStatisticCollector.class);
+	private static final Logger logger = LoggerFactory.getLogger(LoggingStatisticCollector.class);
 
 	private int loggingIntervalSec = 15;
 	private Thread thread;

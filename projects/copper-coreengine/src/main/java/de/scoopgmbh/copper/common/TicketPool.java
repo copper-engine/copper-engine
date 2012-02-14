@@ -20,7 +20,8 @@ import java.util.Arrays;
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,7 +38,7 @@ import org.apache.log4j.Logger;
 public class TicketPool {
 	private static final long TIMESLICE_WIDTH = 10000;
 
-	private static Logger logger = Logger.getLogger(TicketPool.class);
+	private static Logger logger = LoggerFactory.getLogger(TicketPool.class);
 
 	private final String id;
 	private int maxTickets;

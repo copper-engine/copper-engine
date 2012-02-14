@@ -15,12 +15,13 @@
  */
 package de.scoopgmbh.copper.test;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class Counter {
 	
-	private static final Logger logger = Logger.getLogger(Counter.class);
+	private static final Logger logger = LoggerFactory.getLogger(Counter.class);
 	private static int counter=0;
 	private static int n;
 	

@@ -17,7 +17,8 @@ package de.scoopgmbh.copper.util;
 
 import java.util.LinkedList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements a queue datastructure backed by a customized implementation of a LinkedList. <br>
@@ -30,7 +31,7 @@ import org.apache.log4j.Logger;
  */
 public class Queue {
 
-	private static final Logger logger = Logger.getLogger(Queue.class);
+	private static final Logger logger = LoggerFactory.getLogger(Queue.class);
 	private static final boolean OSF1 = System.getProperty("os.name").equalsIgnoreCase("OSF1");
 	private static final TimeoutException timeoutException = new TimeoutException();
 	protected String name = null;
@@ -77,7 +78,7 @@ public class Queue {
 
 		public void addLast(final Object o) {
 			// bl�d, aber im Moment f�llt mir nichts besseres ein:
-			if (verbose) logger.fatal("illegal method call", new IllegalStateException());
+			if (verbose) logger.error("illegal method call", new IllegalStateException());
 			assert false : "illegal method call";
 		}
 

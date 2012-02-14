@@ -20,7 +20,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Callback;
 import de.scoopgmbh.copper.ProcessingEngine;
@@ -28,7 +29,7 @@ import de.scoopgmbh.copper.Response;
 
 public class MockAdapter {
 
-	private static final Logger logger = Logger.getLogger(MockAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(MockAdapter.class);
 
 	private ScheduledExecutorService pool;
 	private int delay=500;

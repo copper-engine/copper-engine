@@ -22,7 +22,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 
@@ -36,7 +37,7 @@ import de.scoopgmbh.copper.db.utility.RetryingTransaction;
  */
 public abstract class BatchExecutor<E extends BatchExecutor<E,T>, T extends BatchCommand<E,T>> implements BatchExecutorBase<E,T> {
 
-	private static final Logger logger = Logger.getLogger(BatchExecutor.class);
+	private static final Logger logger = LoggerFactory.getLogger(BatchExecutor.class);
 
 	private final String id = this.getClass().getName();
 

@@ -15,7 +15,8 @@
  */
 package de.scoopgmbh.copper.test;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mchange.util.AssertException;
 
@@ -28,7 +29,7 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 public class MultiPPoolPersistentTestWF extends PersistentWorkflow<String> {
 
-	private static final Logger logger = Logger.getLogger(PersistentSpock2GTestWF.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersistentSpock2GTestWF.class);
 	private static final long serialVersionUID = 1816644971610832088L;
 	private static final int DEFAULT_TIMEOUT = -1;
 

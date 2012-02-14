@@ -15,9 +15,9 @@
  */
 package de.scoopgmbh.copper.common;
 
+import junit.framework.TestCase;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
-import junit.framework.TestCase;
 
 public class DefaultTicketPoolManagerTest extends TestCase {
 

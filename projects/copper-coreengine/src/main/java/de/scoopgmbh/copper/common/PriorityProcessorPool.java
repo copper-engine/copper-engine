@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
@@ -33,7 +34,7 @@ import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
  */
 public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorPoolMXBean {
 
-	private static final Logger logger = Logger.getLogger(PriorityProcessorPool.class);
+	private static final Logger logger = LoggerFactory.getLogger(PriorityProcessorPool.class);
 
 	protected final Queue<Workflow<?>> queue = createQueue();
 	private final List<Processor> workerThreads = new ArrayList<Processor>();

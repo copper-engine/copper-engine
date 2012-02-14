@@ -23,18 +23,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.StackEntry;
 
 class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 	
-	static final Logger logger = Logger.getLogger(ScottyMethodAdapter.class);
+	static final Logger logger = LoggerFactory.getLogger(ScottyMethodAdapter.class);
 	public static final Set<String> waitMethods;
 	
 	static {

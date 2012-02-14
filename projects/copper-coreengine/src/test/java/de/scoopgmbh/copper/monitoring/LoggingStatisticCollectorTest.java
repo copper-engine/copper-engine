@@ -17,13 +17,14 @@ package de.scoopgmbh.copper.monitoring;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
-
 import junit.framework.TestCase;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggingStatisticCollectorTest extends TestCase {
 	
-	private static final Logger logger = Logger.getLogger(LoggingStatisticCollector.class);
+	private static final Logger logger = LoggerFactory.getLogger(LoggingStatisticCollector.class);
 
 	public final void testPrint() {
 		LoggingStatisticCollector collector = new LoggingStatisticCollector();

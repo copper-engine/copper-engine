@@ -20,7 +20,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Workflow;
 
@@ -32,7 +33,7 @@ import de.scoopgmbh.copper.Workflow;
  */
 public class MySqlScottyDBStorage extends AbstractSqlScottyDBStorage implements ScottyDBStorageInterface {
 	
-	private static final Logger logger = Logger.getLogger(MySqlScottyDBStorage.class);
+	private static final Logger logger = LoggerFactory.getLogger(MySqlScottyDBStorage.class);
 
 	protected PreparedStatement createUpdateStateStmt(final Connection c, final int max) throws SQLException {
 		final Timestamp NOW = new Timestamp(System.currentTimeMillis());

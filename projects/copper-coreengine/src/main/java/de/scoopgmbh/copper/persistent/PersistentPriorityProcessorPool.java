@@ -18,7 +18,8 @@ package de.scoopgmbh.copper.persistent;
 import java.util.List;
 import java.util.Queue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
@@ -37,7 +38,7 @@ import de.scoopgmbh.copper.management.PersistentPriorityProcessorPoolMXBean;
  */
 public class PersistentPriorityProcessorPool extends PriorityProcessorPool implements PersistentProcessorPool, PersistentPriorityProcessorPoolMXBean {
 
-	private static final Logger logger = Logger.getLogger(PersistentPriorityProcessorPool.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersistentPriorityProcessorPool.class);
 	
 	private Thread thread;
 	private boolean shutdown = false;

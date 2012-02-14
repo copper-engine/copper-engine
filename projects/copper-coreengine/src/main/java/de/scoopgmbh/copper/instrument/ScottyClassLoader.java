@@ -20,16 +20,17 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Deprecated
 public class ScottyClassLoader extends ClassLoader {
 
 	@SuppressWarnings("unused")
-	private static final Logger logger = Logger.getLogger(ScottyClassLoader.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScottyClassLoader.class);
 	
 	private final ScottyDynamicFindInterruptableMethodsVisitor scottyInterruptableMethodsVisitor = new ScottyDynamicFindInterruptableMethodsVisitor(this);
 	private final Map<String,Class<?>> classes = new HashMap<String, Class<?>>();

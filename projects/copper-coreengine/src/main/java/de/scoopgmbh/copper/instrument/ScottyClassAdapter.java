@@ -2,16 +2,17 @@
 
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScottyClassAdapter extends ClassAdapter implements Opcodes {
 
-	private static final Logger logger = Logger.getLogger(ScottyClassAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScottyClassAdapter.class);
 	
 	private String currentClassName;
 	private final Set<String> interruptableMethods;

@@ -15,7 +15,8 @@
  */
 package de.scoopgmbh.copper.batcher;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Mock implementation of the {@link CommandCallback} interface.
@@ -27,7 +28,7 @@ import org.apache.log4j.Logger;
  */
 public class NullCallback<T extends BatchCommand<?,T>> implements CommandCallback<T> {
 	
-	static final Logger logger = Logger.getLogger(NullCallback.class);
+	static final Logger logger = LoggerFactory.getLogger(NullCallback.class);
 	
 	@SuppressWarnings({ "unchecked" })
 	public static final NullCallback instance = new NullCallback();

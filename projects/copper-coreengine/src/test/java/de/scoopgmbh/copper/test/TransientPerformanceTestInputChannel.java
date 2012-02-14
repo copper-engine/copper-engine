@@ -17,9 +17,6 @@ package de.scoopgmbh.copper.test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
@@ -80,8 +77,6 @@ public class TransientPerformanceTestInputChannel implements Runnable {
 	@Override
 	public void run() {
 		try {
-			Logger.getRootLogger().setLevel(Level.INFO);
-
 			WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.PerformanceTestWF");
 			for (int x=0; x<100; x++) {
 

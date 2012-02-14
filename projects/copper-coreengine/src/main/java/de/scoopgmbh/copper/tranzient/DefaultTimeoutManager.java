@@ -22,7 +22,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Response;
@@ -35,7 +36,7 @@ import de.scoopgmbh.copper.Response;
  */
 public final class DefaultTimeoutManager extends Thread implements TimeoutManager {
 
-	private final static Logger logger = Logger.getLogger(TimeoutManager.class);
+	private final static Logger logger = LoggerFactory.getLogger(TimeoutManager.class);
 	private final static long SLOT_INTERVAL = 25;
 
 	private final Map<Long,TimeoutSlot> slots = new TreeMap<Long,TimeoutSlot>();
@@ -116,7 +117,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 				}
 			}
 			catch(Exception e) {
-				logger.fatal("Unexpected exception:",e);
+				logger.error("Unexpected exception:",e);
 			}
 		}
 		logger.info("stopped");

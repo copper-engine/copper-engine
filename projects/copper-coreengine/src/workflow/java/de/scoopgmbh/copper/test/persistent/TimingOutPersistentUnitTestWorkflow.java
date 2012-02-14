@@ -19,7 +19,8 @@ import java.io.Serializable;
 
 import junit.framework.Assert;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
@@ -33,7 +34,7 @@ public class TimingOutPersistentUnitTestWorkflow extends PersistentWorkflow<Seri
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger logger = Logger.getLogger(PersistentUnitTestWorkflow.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersistentUnitTestWorkflow.class);
 
 	private transient BackChannelQueue backChannelQueue;
 
@@ -50,7 +51,7 @@ public class TimingOutPersistentUnitTestWorkflow extends PersistentWorkflow<Seri
 			wait(WaitMode.ALL, 500, cid);
 			try {
 				Response<?> res = getAndRemoveResponse(cid);
-				logger.info(res);
+				logger.info(res.toString());
 				Assert.assertNotNull(res);
 				Assert.assertTrue(res.isTimeout());
 				Assert.assertNull(res.getResponse());

@@ -15,7 +15,8 @@
  */
 package de.scoopgmbh.copper.test.persistent.subworkflow;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
@@ -24,7 +25,7 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 public class TestChildWorkflow extends PersistentWorkflow<String> {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = Logger.getLogger(TestChildWorkflow.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestChildWorkflow.class);
 
 	@Override
 	public void main() throws InterruptException {

@@ -15,7 +15,8 @@
  */
 package de.scoopgmbh.copper.spring;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
@@ -26,7 +27,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  */
 public class SpringEngineStarter {
 
-	private static final Logger logger = Logger.getLogger(SpringEngineStarter.class);
+	private static final Logger logger = LoggerFactory.getLogger(SpringEngineStarter.class);
 	
 	/**
 	 * @param args

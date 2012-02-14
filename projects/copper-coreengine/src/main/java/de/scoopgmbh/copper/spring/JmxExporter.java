@@ -28,7 +28,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -48,7 +49,7 @@ import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
  */
 public class JmxExporter implements ApplicationContextAware {
 	
-	private static final Logger logger = Logger.getLogger(JmxExporter.class);
+	private static final Logger logger = LoggerFactory.getLogger(JmxExporter.class);
 
 	private ApplicationContext applicationContext;
 	private Set<ObjectName> objectNames = new HashSet<ObjectName>();

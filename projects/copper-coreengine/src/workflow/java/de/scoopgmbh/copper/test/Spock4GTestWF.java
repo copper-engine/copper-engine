@@ -15,7 +15,8 @@
  */
 package de.scoopgmbh.copper.test;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.WaitMode;
@@ -23,7 +24,7 @@ import de.scoopgmbh.copper.Workflow;
 
 public abstract class Spock4GTestWF extends Workflow<String> {
 
-	private static final Logger logger = Logger.getLogger(Spock4GTestWF.class);
+	private static final Logger logger = LoggerFactory.getLogger(Spock4GTestWF.class);
 	private static final long serialVersionUID = 1816644971610832089L;
 
 	protected abstract void abstractPartnersystemCall() throws InterruptException;

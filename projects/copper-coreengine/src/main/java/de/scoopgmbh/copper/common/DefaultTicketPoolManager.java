@@ -20,7 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Workflow;
 
@@ -34,7 +35,7 @@ import de.scoopgmbh.copper.Workflow;
  */
 public class DefaultTicketPoolManager implements TicketPoolManager {
 	
-	private static final Logger logger = Logger.getLogger(DefaultTicketPoolManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefaultTicketPoolManager.class);
 	public static final String DEFAULT_POOL_ID = "DEFAULT";
 	private volatile Map<String, TicketPool> map = new HashMap<String, TicketPool>();
 	

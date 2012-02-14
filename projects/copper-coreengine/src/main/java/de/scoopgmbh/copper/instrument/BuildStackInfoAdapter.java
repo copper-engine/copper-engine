@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassAdapter;
@@ -37,6 +36,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.org.apache.bcel.internal.classfile.ClassFormatException;
 
@@ -44,7 +45,7 @@ import de.scoopgmbh.copper.instrument.StackInfo.ComputationalCategory;
 
 public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeStackInfo {
 	
-	static final Logger logger = Logger.getLogger(BuildStackInfoAdapter.class);
+	static final Logger logger = LoggerFactory.getLogger(BuildStackInfoAdapter.class);
 	
 	static final Type retAddressType = Type.getObjectType("ReturnAddress");
 

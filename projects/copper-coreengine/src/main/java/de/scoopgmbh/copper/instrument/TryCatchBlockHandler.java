@@ -18,7 +18,6 @@ package de.scoopgmbh.copper.instrument;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -33,6 +32,8 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.InterruptException;
 
@@ -45,7 +46,7 @@ import de.scoopgmbh.copper.InterruptException;
  */
 public class TryCatchBlockHandler {
 	
-	private static final Logger logger = Logger.getLogger(TryCatchBlockHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(TryCatchBlockHandler.class);
 	
 	private static final String INTERRUPT_EXCEPTION_NAME = InterruptException.class.getName().replace('.', '/');
 	

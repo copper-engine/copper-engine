@@ -27,7 +27,8 @@ import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Workflow;
 
@@ -39,7 +40,7 @@ import de.scoopgmbh.copper.Workflow;
  */
 public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
 
-	private static final Logger logger = Logger.getLogger(DerbyDbScottyDbStorage.class);
+	private static final Logger logger = LoggerFactory.getLogger(DerbyDbScottyDbStorage.class);
 	
 	@Override
 	public synchronized void startup() {

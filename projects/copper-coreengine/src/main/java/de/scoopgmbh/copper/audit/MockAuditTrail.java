@@ -17,7 +17,8 @@ package de.scoopgmbh.copper.audit;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Mock implementation of an audit trail.
@@ -27,7 +28,7 @@ import org.apache.log4j.Logger;
  */
 public class MockAuditTrail implements AuditTrail {
 
-	private static final Logger logger = Logger.getLogger(MockAuditTrail.class);
+	private static final Logger logger = LoggerFactory.getLogger(MockAuditTrail.class);
 
 	private int level = 5;
 	

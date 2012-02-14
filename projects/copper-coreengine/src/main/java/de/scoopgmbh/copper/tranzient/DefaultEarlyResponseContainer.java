@@ -20,7 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Response;
 
@@ -34,7 +35,7 @@ import de.scoopgmbh.copper.Response;
  */
 public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 
-	private static final Logger logger = Logger.getLogger(DefaultEarlyResponseContainer.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefaultEarlyResponseContainer.class);
 	
 	private static final class EarlyResponse {
 		final long ts;

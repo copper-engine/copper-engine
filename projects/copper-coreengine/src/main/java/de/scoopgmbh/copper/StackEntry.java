@@ -17,7 +17,6 @@ package de.scoopgmbh.copper;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
 
 /**
  * For internal use only.

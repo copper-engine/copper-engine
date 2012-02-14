@@ -37,7 +37,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
@@ -57,7 +58,7 @@ import de.scoopgmbh.copper.monitoring.StmtStatistic;
  */
 public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInterface {
 
-	private static final Logger logger = Logger.getLogger(AbstractSqlScottyDBStorage.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractSqlScottyDBStorage.class);
 
 	public AbstractSqlScottyDBStorage() {
 

@@ -17,7 +17,6 @@ package de.scoopgmbh.copper.test.tranzient.simple;
 
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
-import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.test.MockAdapter;

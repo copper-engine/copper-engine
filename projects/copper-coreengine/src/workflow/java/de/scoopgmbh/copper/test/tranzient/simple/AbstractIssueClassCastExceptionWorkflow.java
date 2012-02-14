@@ -15,7 +15,8 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
@@ -24,7 +25,7 @@ import de.scoopgmbh.copper.Workflow;
 
 public abstract class AbstractIssueClassCastExceptionWorkflow extends Workflow<CompletionIndicator> {
 	
-	private static final Logger logger = Logger.getLogger(AbstractIssueClassCastExceptionWorkflow.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractIssueClassCastExceptionWorkflow.class);
 	private int retriesLeft = 5;
 
 	protected abstract void callAbstractExceptionSimulation0(String partnerLink);

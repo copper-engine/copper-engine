@@ -15,12 +15,13 @@
  */
 package de.scoopgmbh.copper.test;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.InterruptException;
 
 public class ExtendedSpock4GTestWF extends Spock4GTestWF {
-	private static final Logger logger = Logger.getLogger(ExtendedSpock4GTestWF.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExtendedSpock4GTestWF.class);
 
 	private static final long serialVersionUID = 1L;
 

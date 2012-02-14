@@ -35,8 +35,9 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.Workflow;
@@ -63,7 +64,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		}
 	}
 
-	private static final Logger logger = Logger.getLogger(FileBasedWorkflowRepository.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileBasedWorkflowRepository.class);
 
 	private String sourceDir;
 	private String targetDir;

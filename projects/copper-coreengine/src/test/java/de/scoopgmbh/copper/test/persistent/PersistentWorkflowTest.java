@@ -25,7 +25,8 @@ import javax.sql.DataSource;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -46,7 +47,7 @@ import de.scoopgmbh.copper.test.persistent.subworkflow.TestParentWorkflow;
 
 public class PersistentWorkflowTest extends TestCase {
 	
-	private static final Logger logger = Logger.getLogger(PersistentWorkflowTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersistentWorkflowTest.class);
 	
 	public final void testDummy() {
 		// for junit only

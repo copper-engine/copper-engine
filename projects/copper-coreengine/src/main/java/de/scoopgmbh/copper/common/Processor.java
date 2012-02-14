@@ -17,8 +17,9 @@ package de.scoopgmbh.copper.common;
 
 import java.util.Queue;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
@@ -33,7 +34,7 @@ import de.scoopgmbh.copper.util.MDCConstants;
  */
 public abstract class Processor extends Thread {
 	
-	protected static final Logger logger = Logger.getLogger(Processor.class);
+	protected static final Logger logger = LoggerFactory.getLogger(Processor.class);
 	protected final Queue<Workflow<?>> queue;
 	protected volatile boolean shutdown = false;
 	protected final ProcessingEngine engine;

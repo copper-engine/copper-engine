@@ -22,7 +22,8 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -31,7 +32,7 @@ import de.scoopgmbh.copper.batcher.NullCallback;
 
 class SqlRemove {
 
-	private static final Logger logger = Logger.getLogger(SqlRemove.class);
+	private static final Logger logger = LoggerFactory.getLogger(SqlRemove.class);
 
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 

@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 
@@ -34,7 +35,7 @@ import de.scoopgmbh.copper.ProcessingEngine;
  */
 public class DefaultProcessorPoolManager<T extends ProcessorPool> implements ProcessorPoolManager<T> {
 	
-	private static final Logger logger = Logger.getLogger(DefaultProcessorPoolManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefaultProcessorPoolManager.class);
 	
 	private final Map<String, T> pools = new ConcurrentHashMap<String, T>();
 	private boolean started = false;

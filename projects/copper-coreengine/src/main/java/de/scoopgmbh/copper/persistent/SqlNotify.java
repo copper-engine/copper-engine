@@ -22,7 +22,8 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
@@ -54,7 +55,7 @@ class SqlNotify {
 	static final class Executor extends BatchExecutor<Executor, Command>{
 
 		private static final Executor INSTANCE = new Executor();
-		private static final Logger logger = Logger.getLogger(Executor.class);
+		private static final Logger logger = LoggerFactory.getLogger(Executor.class);
 
 		@Override
 		public int maximumBatchSize() {

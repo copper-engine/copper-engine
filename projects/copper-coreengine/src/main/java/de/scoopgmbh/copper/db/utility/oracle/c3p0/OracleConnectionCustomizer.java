@@ -17,13 +17,14 @@ package de.scoopgmbh.copper.db.utility.oracle.c3p0;
 
 import java.sql.Connection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mchange.v2.c3p0.AbstractConnectionCustomizer;
 
 public class OracleConnectionCustomizer extends AbstractConnectionCustomizer {
 
-	private static final Logger logger = Logger.getLogger(OracleConnectionCustomizer.class);
+	private static final Logger logger = LoggerFactory.getLogger(OracleConnectionCustomizer.class);
 
 	@Override
 	public void onAcquire(Connection c, String parentDataSourceIdentityToken) throws Exception {

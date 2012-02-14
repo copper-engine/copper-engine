@@ -23,7 +23,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
@@ -33,7 +34,7 @@ import de.scoopgmbh.copper.batcher.NullCallback;
 
 class SqlRegisterCallback {
 
-	private static final Logger logger = Logger.getLogger(SqlRegisterCallback.class);
+	private static final Logger logger = LoggerFactory.getLogger(SqlRegisterCallback.class);
 
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 

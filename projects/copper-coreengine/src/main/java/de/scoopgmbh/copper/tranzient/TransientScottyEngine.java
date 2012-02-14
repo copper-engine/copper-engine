@@ -23,7 +23,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.DependencyInjector;
@@ -54,7 +55,7 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
  */
 public class TransientScottyEngine extends AbstractProcessingEngine implements ProcessingEngine, ProcessingEngineMXBean {
 
-	private static final Logger logger = Logger.getLogger(TransientScottyEngine.class);
+	private static final Logger logger = LoggerFactory.getLogger(TransientScottyEngine.class);
 
 	private final Map<String, CorrelationSet> correlationMap = new HashMap<String, CorrelationSet>(50000);
 	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>(50000);
@@ -182,7 +183,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	private void enqueue(Workflow<?> w) {
 		TransientProcessorPool pool = poolManager.getProcessorPool(w.getProcessorPoolId());
 		if (pool == null) {
-			logger.fatal("Unable to find processor pool "+w.getProcessorPoolId()+" - using default processor pool");
+			logger.error("Unable to find processor pool "+w.getProcessorPoolId()+" - using default processor pool");
 			pool = poolManager.getProcessorPool(TransientProcessorPool.DEFAULT_POOL_ID);
 		}
 		pool.enqueue(w);

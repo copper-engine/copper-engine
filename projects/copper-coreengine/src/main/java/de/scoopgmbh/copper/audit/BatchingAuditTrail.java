@@ -19,7 +19,8 @@ import java.util.Date;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.audit.BatchInsertIntoAutoTrail.Command;
 import de.scoopgmbh.copper.batcher.Batcher;
@@ -34,7 +35,7 @@ import de.scoopgmbh.copper.management.AuditTrailMXBean;
  */
 public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 	
-	private static final Logger logger = Logger.getLogger(BatchingAuditTrail.class);
+	private static final Logger logger = LoggerFactory.getLogger(BatchingAuditTrail.class);
 	
 	private Batcher batcher;
 	private DataSource dataSource;

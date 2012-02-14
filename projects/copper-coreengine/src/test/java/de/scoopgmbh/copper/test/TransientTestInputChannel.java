@@ -15,7 +15,8 @@
  */
 package de.scoopgmbh.copper.test;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
@@ -23,7 +24,7 @@ import de.scoopgmbh.copper.WorkflowFactory;
 
 public class TransientTestInputChannel implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(TransientTestInputChannel.class);
+	private static final Logger logger = LoggerFactory.getLogger(TransientTestInputChannel.class);
 	private ProcessingEngine engine;
 
 	public void setEngine(ProcessingEngine engine) {

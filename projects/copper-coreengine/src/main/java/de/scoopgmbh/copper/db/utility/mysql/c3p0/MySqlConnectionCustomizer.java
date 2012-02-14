@@ -17,13 +17,14 @@ package de.scoopgmbh.copper.db.utility.mysql.c3p0;
 
 import java.sql.Connection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mchange.v2.c3p0.AbstractConnectionCustomizer;
 
 public class MySqlConnectionCustomizer extends AbstractConnectionCustomizer {
 
-	private static final Logger logger = Logger.getLogger(MySqlConnectionCustomizer.class);
+	private static final Logger logger = LoggerFactory.getLogger(MySqlConnectionCustomizer.class);
 
 	@Override
 	public void onAcquire(Connection c, String parentDataSourceIdentityToken) throws Exception {

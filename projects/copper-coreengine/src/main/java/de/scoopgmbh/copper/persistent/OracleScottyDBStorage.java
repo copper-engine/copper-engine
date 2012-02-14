@@ -35,10 +35,10 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.EngineIdProvider;
-import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.Batcher;
@@ -58,7 +58,7 @@ import de.scoopgmbh.copper.monitoring.StmtStatistic;
  */
 public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 
-	private static final Logger logger = Logger.getLogger(OracleScottyDBStorage.class);
+	private static final Logger logger = LoggerFactory.getLogger(OracleScottyDBStorage.class);
 
 	private StmtStatistic dequeueAllStmtStatistic;
 	private StmtStatistic dequeueQueryBPsStmtStatistic;

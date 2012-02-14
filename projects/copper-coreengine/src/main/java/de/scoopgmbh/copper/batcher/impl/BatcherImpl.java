@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
@@ -38,7 +39,7 @@ import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
  */
 public class BatcherImpl implements Batcher, BatcherMXBean {
 	
-	private Logger logger = Logger.getLogger(BatcherImpl.class);
+	private Logger logger = LoggerFactory.getLogger(BatcherImpl.class);
 	
 	private class WorkerThread extends Thread {
 		

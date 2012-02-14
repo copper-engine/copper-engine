@@ -18,8 +18,8 @@ package de.scoopgmbh.copper.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
@@ -27,7 +27,7 @@ import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 
 public class PersistentPerformanceTestInputChannel implements Runnable {
 	
-	private static final Logger logger = Logger.getLogger(PersistentPerformanceTestInputChannel.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersistentPerformanceTestInputChannel.class);
 	
 	private PersistentScottyEngine engine;
 	private int max = 200;
@@ -59,9 +59,6 @@ public class PersistentPerformanceTestInputChannel implements Runnable {
 		logger.info("data="+data);
 		
 		try {
-			// reduce logging data
-			Logger.getRootLogger().setLevel(Level.INFO);
-
 			// create the workflow 'PersistentSpock2GTestWF'
 			WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.PersistentSpock2GTestWF");
 			
