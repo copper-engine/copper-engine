@@ -51,7 +51,7 @@ class DefaultCallback<E> implements Callback<E>, Serializable {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response<E> getResponse(final Workflow wf) {
+	public Response<E> getResponse(final Workflow<?> wf) {
 		if (response == null) {
 			response = (Response<E>) wf.getAndRemoveResponse(correlationId);
 		}

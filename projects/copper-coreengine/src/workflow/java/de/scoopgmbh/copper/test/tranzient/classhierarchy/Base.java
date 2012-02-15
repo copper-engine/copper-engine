@@ -25,6 +25,8 @@ import de.scoopgmbh.copper.util.BlockingResponseReceiver;
 
 public abstract class Base extends Workflow<BlockingResponseReceiver<Integer>> {
 
+	private static final long serialVersionUID = 1L;
+	
 	protected int counter = 0;
 	protected int i;
 	private String cid; 

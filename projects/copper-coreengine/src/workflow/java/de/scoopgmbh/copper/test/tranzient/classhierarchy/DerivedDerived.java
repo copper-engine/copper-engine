@@ -19,6 +19,8 @@ import de.scoopgmbh.copper.InterruptException;
 
 public class DerivedDerived extends Derived {
 
+	private static final long serialVersionUID = 1L;
+	
 	private String cid;
 	
 	@Override

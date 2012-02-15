@@ -20,8 +20,7 @@ import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.WaitMode;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowFactory;
+import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
@@ -41,15 +40,9 @@ public class TestParentWorkflow extends PersistentWorkflow<String> {
 	public void main() throws InterruptException {
 		try {
 			// create and launch the children
-			WorkflowFactory<String> wfFactory = getEngine().createWorkflowFactory(TestChildWorkflow.class.getName());
-			String id = getEngine().createUUID();
-			Workflow<String> wf = wfFactory.newInstance();
-			wf.setId(id);
-			wf.setData("12345");
-			getEngine().run(wf);
+			final String id = getEngine().createUUID();
+			getEngine().run(new WorkflowInstanceDescr<String>(TestChildWorkflow.class.getName(), "12345", id, null, null));
 
-			wfFactory = null; // set to null, otherwise copper will try to serialize it...
-			
 			// wait for the children to finish
 			wait(WaitMode.ALL, 10000, id); 
 			

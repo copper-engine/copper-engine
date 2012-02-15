@@ -19,8 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowFactory;
 
 public class PersistentTimeoutTestInputChannel implements Runnable {
 
@@ -33,9 +31,7 @@ public class PersistentTimeoutTestInputChannel implements Runnable {
 
 	public void run() {
 		try {
-			WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.PersistentTimeoutTestWF");
-			Workflow<String> wf = wfFactory.newInstance();
-			engine.run(wf);
+			engine.run("de.scoopgmbh.copper.test.PersistentTimeoutTestWF",null);
 		}
 		catch(Exception e) {
 			logger.error("run failed",e);

@@ -37,11 +37,9 @@ public class WaitInMethodTestTransientWorkflow extends Workflow<AsyncResponseRec
 	
 	@Override
 	public void main() throws InterruptException {
-		AsyncResponseReceiver<Integer> xxxData = getData();
+		getData();
 
 		Exception exception = null;
-		Object rufnummernProzessierenResponse = null;
-
 		try {
 			execute();
 		}
@@ -53,7 +51,7 @@ public class WaitInMethodTestTransientWorkflow extends Workflow<AsyncResponseRec
 		System.out.println("finished");
 		getData().setResponse(Integer.valueOf(response));
 		
-		Response<?> response = new Response("4711",null,exception);
+		Response<Object> response = new Response<Object>("4711",null,exception);
 		getEngine().notify(response );
 		
 	}

@@ -19,8 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowFactory;
 
 public class TransientTestInputChannel implements Runnable {
 
@@ -34,9 +32,7 @@ public class TransientTestInputChannel implements Runnable {
 	public void run() {
 		try {
 			for (;;) {
-				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.ExtendedSpock2GTestWF");
-				Workflow<String> wf = wfFactory.newInstance();
-				engine.run(wf);
+				engine.run("de.scoopgmbh.copper.test.ExtendedSpock2GTestWF",null);
 				Thread.sleep(15000);
 				engine.shutdown();
 				return;

@@ -46,6 +46,7 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 		boolean started = false;
 		boolean stop = false;
 		
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public void run() {
 			while (!stop) {
 				if (!started) {

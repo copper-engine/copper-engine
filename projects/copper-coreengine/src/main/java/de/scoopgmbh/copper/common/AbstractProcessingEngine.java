@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.EngineIdProvider;
 import de.scoopgmbh.copper.EngineIdProviderBean;
@@ -25,6 +26,7 @@ import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
+import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.management.WorkflowInfo;
 import de.scoopgmbh.copper.util.Blocker;
 
@@ -108,4 +110,70 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 		return wfi;
 	}	
 
+	public abstract void run(Workflow<?> w) throws CopperException;
+
+	public abstract void run(List<Workflow<?>> w) throws CopperException;
+	
+	@Override
+	public void run(String wfclassname, Object data) throws CopperException {
+		try {
+			Workflow<Object> wf = createWorkflowFactory(wfclassname).newInstance();
+			wf.setData(data);
+			run(wf);
+		}
+		catch(CopperException e) {
+			throw e;
+		}
+		catch(RuntimeException e) {
+			throw e;
+		}
+		catch(Exception e) {
+			throw new CopperException("run failed",e);
+		}
+	}
+	
+	@Override
+	public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
+		try {
+			run(createWorkflowInstance(wfInstanceDescr));
+		}
+		catch(CopperException e) {
+			throw e;
+		}
+		catch(RuntimeException e) {
+			throw e;
+		}
+		catch(Exception e) {
+			throw new CopperException("run failed",e);
+		}
+	}
+
+	protected Workflow<Object> createWorkflowInstance(WorkflowInstanceDescr<?> wfInstanceDescr) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		Workflow<Object> wf = createWorkflowFactory(wfInstanceDescr.getWfClassname()).newInstance();
+		if (wfInstanceDescr.getData() != null) wf.setData(wfInstanceDescr.getData());
+		if (wfInstanceDescr.getId() != null) wf.setId(wfInstanceDescr.getId());
+		if (wfInstanceDescr.getPriority() != null) wf.setPriority(wfInstanceDescr.getPriority());
+		if (wfInstanceDescr.getProcessorPoolId() != null) wf.setProcessorPoolId(wfInstanceDescr.getProcessorPoolId());
+		return wf;
+	}
+	
+	@Override
+	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr) throws CopperException {
+		try {
+			List<Workflow<?>> wfList = new ArrayList<Workflow<?>>(wfInstanceDescr.size());
+			for (WorkflowInstanceDescr<?> wfInsDescr : wfInstanceDescr) {
+				wfList.add(createWorkflowInstance(wfInsDescr));
+			}
+			run(wfList);
+		}
+		catch(CopperException e) {
+			throw e;
+		}
+		catch(RuntimeException e) {
+			throw e;
+		}
+		catch(Exception e) {
+			throw new CopperException("run failed",e);
+		}
+	}
 }

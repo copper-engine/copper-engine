@@ -22,6 +22,8 @@ import de.scoopgmbh.copper.InterruptException;
 
 public abstract class Derived extends Base {
 	
+	private static final long serialVersionUID = 1L;
+	
 	private static final Logger logger = LoggerFactory.getLogger(Derived.class);
 
 	protected abstract void callMock() throws InterruptException;

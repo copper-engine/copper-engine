@@ -21,17 +21,12 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.NullCallback;
 
 class GenericRemove {
-
-	private static final Logger logger = LoggerFactory.getLogger(GenericRemove.class);
 
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 

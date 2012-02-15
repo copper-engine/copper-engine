@@ -19,8 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowFactory;
 
 public class PersistentTestInputChannel implements Runnable {
 
@@ -41,12 +39,8 @@ public class PersistentTestInputChannel implements Runnable {
 			}
 			final String data = dataSB.toString(); 
 			
-			WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.PersistentSpock2GTestWF");
-
 			for (int i=0; i<200; i++) {
-				Workflow<String> wf = wfFactory.newInstance();
-				wf.setData(data);
-				engine.run(wf);
+				engine.run("de.scoopgmbh.copper.test.PersistentSpock2GTestWF", data);
 			}
 //			Thread.sleep(15000);
 //			engine.shutdown();

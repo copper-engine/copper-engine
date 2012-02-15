@@ -30,7 +30,7 @@ public class NullCallback<T extends BatchCommand<?,T>> implements CommandCallbac
 	
 	static final Logger logger = LoggerFactory.getLogger(NullCallback.class);
 	
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings("rawtypes")
 	public static final NullCallback instance = new NullCallback();
 
 	@Override

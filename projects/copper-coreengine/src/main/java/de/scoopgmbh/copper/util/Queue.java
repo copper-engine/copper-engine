@@ -36,7 +36,7 @@ public class Queue {
 	private static final TimeoutException timeoutException = new TimeoutException();
 	protected String name = null;
 
-	protected static class List extends LinkedList {
+	protected static class List extends LinkedList<Object> {
 		private static final long serialVersionUID = 1L;
 
 		protected Object lock = new Object();

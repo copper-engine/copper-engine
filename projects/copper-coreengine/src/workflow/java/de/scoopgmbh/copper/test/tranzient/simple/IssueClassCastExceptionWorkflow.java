@@ -15,14 +15,11 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.scoopgmbh.copper.InterruptException;
 
 public class IssueClassCastExceptionWorkflow extends AbstractIssueClassCastExceptionWorkflow {
 	
-	private static final Logger logger = LoggerFactory.getLogger(IssueClassCastExceptionWorkflow.class);
+	private static final long serialVersionUID = 1L;
 	
 	@Override
 	protected void callAbstractExceptionSimulation0(String partnerLink) {

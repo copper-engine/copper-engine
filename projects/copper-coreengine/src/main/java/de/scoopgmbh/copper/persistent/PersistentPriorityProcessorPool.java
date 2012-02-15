@@ -65,7 +65,6 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	@Override
 	protected Queue<Workflow<?>> createQueue() {
 		return new WfPriorityQueue() {
-			private static final long serialVersionUID = 1L;
 			private boolean notifiedLowerThreshold = false;
 			@Override
 			public Workflow<?> poll() {

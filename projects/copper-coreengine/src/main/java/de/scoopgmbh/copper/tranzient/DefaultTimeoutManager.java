@@ -67,7 +67,6 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public void run() {
 		logger.info("started");
 		while (!shutdown) {

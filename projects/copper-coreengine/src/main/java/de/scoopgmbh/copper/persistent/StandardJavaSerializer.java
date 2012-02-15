@@ -24,8 +24,6 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
@@ -40,8 +38,6 @@ import de.scoopgmbh.copper.common.WorkflowRepository;
  *
  */
 public class StandardJavaSerializer implements Serializer {
-	
-	private static final Logger logger = LoggerFactory.getLogger(StandardJavaSerializer.class);
 	
 	private boolean compress = true;
 	private int compressThresholdSize = 250;

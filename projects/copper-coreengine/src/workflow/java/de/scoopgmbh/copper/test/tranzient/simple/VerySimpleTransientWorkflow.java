@@ -23,12 +23,17 @@ import de.scoopgmbh.copper.test.MockAdapter;
 import de.scoopgmbh.copper.util.AsyncResponseReceiver;
 
 public class VerySimpleTransientWorkflow extends Workflow<AsyncResponseReceiver<Integer>> {
+
+	private static final long serialVersionUID = 1L;
+
 	private int i;
 	private MockAdapter mockAdapter;
+	
 	@AutoWire
 	public void setMockAdapter(MockAdapter mockAdapter) {
 		this.mockAdapter = mockAdapter;
 	}
+	
 	@Override
 	public void main() throws InterruptException {
 		System.out.println("started");

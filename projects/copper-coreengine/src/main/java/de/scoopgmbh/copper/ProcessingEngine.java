@@ -81,6 +81,7 @@ public interface ProcessingEngine {
 	 * @param classname classname of the workflows class
 	 * @return a factory object for the creation of the specified workflow instances
 	 * @throws ClassNotFoundException if the specified classname is unknown in the underlying workflow repository
+	 * @deprecated
 	 */
 	public <E> WorkflowFactory<E> createWorkflowFactory(String classname) throws ClassNotFoundException;
 	
@@ -88,6 +89,7 @@ public interface ProcessingEngine {
 	 * Enqueues the specified workflow instance into the engine for execution.  
 	 * @param w the workflow instance to run
 	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+	 * @deprecated
 	 */
 	public void run(Workflow<?> w) throws CopperException;
 	
@@ -95,8 +97,30 @@ public interface ProcessingEngine {
 	 * Enqueues the specified list of workflow instances into the engine for execution.  
 	 * @param w the list of workflow instances to run
 	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+	 * @deprecated
 	 */
 	public void run(List<Workflow<?>> w) throws CopperException;
+
+	
+	/**
+	 * Enqueues the specified workflow instance into the engine for execution.  
+	 * @param wfclassname classname of the workflows class
+	 * @param w the workflow instance to run
+	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+	 */
+	public void run(String wfclassname, Object data) throws CopperException;
+	
+	/**
+	 * Enqueues the specified workflow instance description into the engine for execution.  
+	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+	 */
+	public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException;
+	
+	/**
+	 * Enqueues the specified batch of workflow instance description into the engine for execution.  
+	 * @throws CopperException if the engine can not run the workflows, e.g. in case of a unkown processor pool id
+	 */
+	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr) throws CopperException;
 	
 	/**
 	 * returns the engines current state

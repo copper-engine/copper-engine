@@ -37,6 +37,7 @@ import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
@@ -53,18 +54,18 @@ import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 public class PersistentScottyEngine extends AbstractProcessingEngine implements PersistentProcessingEngine, PersistentProcessingEngineMXBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(PersistentScottyEngine.class);
-	
+
 	private ScottyDBStorageInterface dbStorage;
 	private ProcessorPoolManager<PersistentProcessorPool> processorPoolManager;
 	private DependencyInjector dependencyInjector;
 	private boolean notifyProcessorPoolsOnResponse = false;
 	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
 	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
-	
+
 	public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
 		this.statisticsCollector = statisticsCollector;
 	}
-	
+
 	/**
 	 * If true, the engine notifies all processor pools about a new reponse available.
 	 * This may lead to shorter latency times, but may also increase CPU load or database I/O,
@@ -75,27 +76,27 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	public void setNotifyProcessorPoolsOnResponse(boolean notifyProcessorPoolsOnResponse) {
 		this.notifyProcessorPoolsOnResponse = notifyProcessorPoolsOnResponse;
 	}
-	
+
 	public void setDbStorage(ScottyDBStorageInterface dbStorage) {
 		this.dbStorage = dbStorage;
 	}
-	
+
 	public void setDependencyInjector(DependencyInjector dependencyInjector) {
 		this.dependencyInjector = dependencyInjector;
 	}
-	
+
 	public DependencyInjector getDependencyInjector() {
 		return dependencyInjector;
 	}
-	
+
 	public ScottyDBStorageInterface getDbStorage() {
 		return dbStorage;
 	}
-	
+
 	public void setProcessorPoolManager(ProcessorPoolManager<PersistentProcessorPool> processorPoolManager) {
 		this.processorPoolManager = processorPoolManager;
 	}
-	
+
 	@Override
 	public void notify(Response<?> response) {
 		if (logger.isTraceEnabled()) logger.trace("notify("+response+")");
@@ -131,17 +132,17 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		if (engineState != EngineState.RAW) throw new IllegalStateException();
 		try {
 			logger.info("starting up...");
-				
+
 			processorPoolManager.setEngine(this);
 			dependencyInjector.setEngine(this);
-			
+
 			wfRepository.start();
 			dbStorage.startup();
-			
+
 			processorPoolManager.startup();
 			startupBlocker.unblock();
 			engineState = EngineState.STARTED;
-			
+
 			logger.info("Engine is running");
 		} 
 		catch(RuntimeException e) {
@@ -178,7 +179,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 			pp.doNotify();
 		}
 	}
-	
+
 	@Override
 	public void run(List<Workflow<?>> list) throws CopperException {
 		run(list,null);
@@ -214,7 +215,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 					logger.error("Unkown processor pool '"+wf.getProcessorPoolId()+"' - using default pool instead");
 					wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
 				}
-				
+
 				ppoolIds.add(wf.getProcessorPoolId());
 			}
 			dbStorage.insert(list, con);
@@ -257,7 +258,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		catch(Exception e) {
 			throw new CopperException("run failed",e);
 		}
-		
+
 	}
 
 	@Override
@@ -286,13 +287,13 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		return convert2Wfi(workflowMap.get(id));
 	}
 
-	
+
 	void register(Workflow<?> wf) {
 		if (logger.isTraceEnabled()) logger.trace("register("+wf.getId()+")");
 		Workflow<?> existingWF = workflowMap.put(wf.getId(),wf);
 		assert existingWF == null;
 	}
-	
+
 	void unregister(Workflow<?> wf) { 
 		Workflow<?> existingWF = workflowMap.remove(wf.getId());
 		assert existingWF != null;
@@ -300,7 +301,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 			statisticsCollector.submit(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
 		}
 	}
-	
+
 	public int getNumberOfWorkflowInstances() {
 		return workflowMap.size();
 	}
@@ -310,4 +311,39 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		dbStorage.restartAll();
 	}
 
+	@Override
+	public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws CopperException {
+		try {
+			this.run(createWorkflowInstance(wfInstanceDescr), con);
+		}
+		catch(CopperException e) {
+			throw e;
+		}
+		catch(RuntimeException e) {
+			throw e;
+		}
+		catch(Exception e) {
+			throw new CopperException("run failed",e);
+		}
+	}
+
+	@Override
+	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr, Connection con) throws CopperException {
+		try {
+			List<Workflow<?>> wfList = new ArrayList<Workflow<?>>(wfInstanceDescr.size());
+			for (WorkflowInstanceDescr<?> wfInsDescr : wfInstanceDescr) {
+				wfList.add(createWorkflowInstance(wfInsDescr));
+			}
+			run(wfList, con);
+		}
+		catch(CopperException e) {
+			throw e;
+		}
+		catch(RuntimeException e) {
+			throw e;
+		}
+		catch(Exception e) {
+			throw new CopperException("run failed",e);
+		}
+	}
 }

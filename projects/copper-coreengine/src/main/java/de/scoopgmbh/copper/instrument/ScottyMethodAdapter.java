@@ -54,14 +54,12 @@ class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 	private final Label begin = new Label();
 	private final Set<String> interruptableMethods;
 	private final ByteCodeStackInfo stackInfo;
-	private final String methodName;
 
 	public ScottyMethodAdapter(MethodVisitor mv, String currentClassName, Set<String> interruptableMethods, ByteCodeStackInfo stackInfo, String name) {
 		super(mv);
 		this.currentClassName = currentClassName;
 		this.interruptableMethods = interruptableMethods;
 		this.stackInfo = stackInfo;
-		this.methodName = name;
 	}
 
 

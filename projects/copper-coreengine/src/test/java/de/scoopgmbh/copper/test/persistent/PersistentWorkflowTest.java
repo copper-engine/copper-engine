@@ -284,9 +284,7 @@ public class PersistentWorkflowTest extends TestCase {
 			
 			for (int i=0; i<NUMB; i++) {
 				ProcessingEngine engine = i % 2 == 0 ? engineA : engineB;
-				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow.class.getName());
-				Workflow<?> wf = wfFactory.newInstance();
-				engine.run(wf);
+				engine.run(PersistentUnitTestWorkflow.class.getName(),null);
 			}
 
 			int x=0;

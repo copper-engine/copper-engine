@@ -19,6 +19,8 @@ import java.io.Serializable;
 
 public class JKWorkflowData implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	public enum Status {
 		OK,WARN,ERROR
 	}

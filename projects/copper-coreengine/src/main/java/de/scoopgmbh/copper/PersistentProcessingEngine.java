@@ -31,6 +31,7 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
 	 * @param w the workflow instance to run
 	 * @param con connection used for the inserting the workflow to the database 
 	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+	 * @deprecated
 	 */
 	public void run(Workflow<?> w, Connection con) throws CopperException;
 	
@@ -39,8 +40,27 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
 	 * @param w the list of workflow instances to run
 	 * @param con connection used for the inserting the workflow to the database 
 	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+	 * @deprecated
 	 */
 	public void run(List<Workflow<?>> w, Connection con) throws CopperException;
+	
+	
+	/**
+	 * Enqueues the specified list of workflow instances into the engine for execution.  
+	 * @param wfInstanceDescr workflow instance descriptions to run
+	 * @param con connection used for the inserting the workflow to the database 
+	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+	 */
+	public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws CopperException;
+	
+	/**
+	 * Enqueues the specified list of workflow instances into the engine for execution.  
+	 * @param wfInstanceDescr the list of workflow instance descriptions to run
+	 * @param con connection used for the inserting the workflow to the database 
+	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+	 */
+	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr, Connection con) throws CopperException;
+	
 	
 	/**
 	 * Trigger restart a workflow instance that is in the error state.

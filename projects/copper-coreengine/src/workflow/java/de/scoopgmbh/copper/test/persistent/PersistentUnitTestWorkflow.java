@@ -41,7 +41,6 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 	private transient BackChannelQueue backChannelQueue;
 	private transient MockAdapter mockAdapter;
 	private transient AuditTrail auditTrail;
-	private int counter=0;
 
 	@AutoWire
 	public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
@@ -63,7 +62,6 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		try {
 			for (int i=0; i<10; i++) {
 				callFoo();
-				counter++;
 				Assert.assertNotNull(this.getCreationTS());
 			}
 			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished");

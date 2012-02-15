@@ -24,6 +24,8 @@ import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 
 public abstract class AbstractIssueClassCastExceptionWorkflow extends Workflow<CompletionIndicator> {
+
+	private static final long serialVersionUID = 1L;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractIssueClassCastExceptionWorkflow.class);
 	private int retriesLeft = 5;

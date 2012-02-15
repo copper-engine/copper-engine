@@ -18,8 +18,6 @@ package de.scoopgmbh.copper.test;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowFactory;
 
 public class TransientPerformanceTestInputChannel implements Runnable {
 
@@ -77,14 +75,12 @@ public class TransientPerformanceTestInputChannel implements Runnable {
 	@Override
 	public void run() {
 		try {
-			WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.PerformanceTestWF");
 			for (int x=0; x<100; x++) {
 
 				long startTS = System.currentTimeMillis();
 				counter.set(0);
 				for (int i=0; i<NUMB; i++) {
-					Workflow<?> wf = wfFactory.newInstance();
-					engine.run(wf);
+					engine.run("de.scoopgmbh.copper.test.PerformanceTestWF",null);
 				}
 				wait4finish();
 
