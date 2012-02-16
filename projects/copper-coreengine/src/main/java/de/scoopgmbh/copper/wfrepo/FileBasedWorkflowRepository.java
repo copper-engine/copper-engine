@@ -74,6 +74,23 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	private List<Runnable> preprocessors = Collections.emptyList();
 	private boolean stopped = false;
 	private boolean loadNonWorkflowClasses = false;
+	private List<CompilerOptionsProvider> compilerOptionsProviders = new ArrayList<CompilerOptionsProvider>();
+	
+	/**
+	 * Sets the list of CompilerOptionsProviders. They are called before compiling the workflow files to append compiler options.
+	 */
+	public void setCompilerOptionsProviders(List<CompilerOptionsProvider> compilerOptionsProviders) {
+		if (compilerOptionsProviders == null) throw new NullPointerException();
+		this.compilerOptionsProviders = compilerOptionsProviders;
+	}
+	
+	/**
+	 * Add a CompilerOptionsProvider. They are called before compiling the workflow files to append compiler options.
+	 */
+	public void addCompilerOptionsProvider(CompilerOptionsProvider cop) {
+		this.compilerOptionsProviders.add(cop);
+	}
+	
 
 	/**
 	 * The repository will check the source directory every <code>checkIntervalMSec</code> milliseconds
@@ -269,6 +286,10 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(compileTargetDir.getAbsolutePath());
+		for (CompilerOptionsProvider cop : compilerOptionsProviders) {
+			options.addAll(cop.getOptions());
+		}
+		logger.info("Compiler options: "+options.toString());
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) throw new NullPointerException("No java compiler available! Did you start from a JDK? JRE will not work.");
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);

@@ -17,6 +17,17 @@
     <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton">
     	<property name="sourceDir" value="src/workflow/java"/>
     	<property name="targetDir" value="target/compiled_workflow"/>
+    	<property name="compilerOptionsProviders">
+    		<list>
+    			<bean class="de.scoopgmbh.copper.wfrepo.ConfigurableStringOptionsProvider" >
+    				<property name="options">
+    					<list>
+    						<value>-g</value>
+    					</list>
+    				</property>
+    			</bean>
+    		</list>
+    	</property>
     </bean>
     
     <bean id="defaultTicketPool" class="de.scoopgmbh.copper.common.TicketPool" scope="singleton">
