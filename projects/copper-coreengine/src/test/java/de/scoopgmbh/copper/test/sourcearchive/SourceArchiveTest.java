@@ -13,40 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.wfrepo;
+package de.scoopgmbh.copper.test.sourcearchive;
 
-import junit.framework.TestCase;
+import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.WorkflowFactory;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
 
-public class FileBasedWorkflowRepositoryTest extends TestCase {
+public class SourceArchiveTest extends TestCase {
 	
-	private static final Logger logger = LoggerFactory.getLogger(FileBasedWorkflowRepositoryTest.class);
-
-	public void testCreateWorkflowFactory() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+	private Logger logger = LoggerFactory.getLogger(SourceArchiveTest.class);
+	
+	public void testSourceArchive() throws Exception {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
-		repo.addSourceDir("src/workflow/java");
+		String url = new File("src/workflow_archive/workflow_archive.jar").toURI().toURL().toString();
+		logger.info("URL="+url);
+		repo.addSourceArchiveUrl(url);
+		repo.addSourceArchiveUrl(url);
+		repo.addSourceArchiveUrl(url);
 		repo.setTargetDir("target/compiled_workflow");
 		repo.start();
-		try {
-			WorkflowFactory<Object> factory = repo.createWorkflowFactory("foo");
-			factory.newInstance();
-			fail("expected ClassNotFoundException");
-		}
-		catch(ClassNotFoundException e) {
-			// OK
-		}
-		catch(Throwable e) {
-			logger.error("",e);
-			fail("expected ClassNotFoundException");
-		}
-		finally {
-			repo.shutdown();
-		}
-		
+		Assert.assertNotNull(repo.createWorkflowFactory("de.scoopgmbh.copper.archivetest.ArchiveTestWorkflow"));
+		repo.shutdown();
 	}
-
 }

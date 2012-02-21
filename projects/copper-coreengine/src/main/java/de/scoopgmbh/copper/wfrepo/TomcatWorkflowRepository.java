@@ -53,6 +53,7 @@ import de.scoopgmbh.copper.util.FileUtil;
  * 
  * @author bergmann
  *
+ * @deprecated
  */
 public class TomcatWorkflowRepository extends AbstractWorkflowRepository {
 

@@ -19,7 +19,9 @@
     </bean>
            
     <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton" init-method="start" destroy-method="shutdown">
-    	<property name="sourceDir" value="src/workflow/java"/>
+    	<property name="sourceDirs"><list>
+    		<value>src/workflow/java</value>
+    	</list></property>
     	<property name="targetDir" value="target/compiled_workflow"/>
     </bean>
     

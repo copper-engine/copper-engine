@@ -34,7 +34,7 @@ public class StandardJavaSerializerTest extends TestCase {
 		final String data = dataSB.toString(); 
 		
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
-		repo.setSourceDir("src/workflow/java");
+		repo.addSourceDir("src/workflow/java");
 		repo.setTargetDir("target/compiled_workflow");
 		repo.start();
 		WorkflowFactory<String> wfFactory = repo.createWorkflowFactory("de.scoopgmbh.copper.test.PersistentSpock2GTestWF");

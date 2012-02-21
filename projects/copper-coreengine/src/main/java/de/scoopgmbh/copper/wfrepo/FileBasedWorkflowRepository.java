@@ -15,19 +15,25 @@
  */
 package de.scoopgmbh.copper.wfrepo;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
@@ -66,7 +72,6 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileBasedWorkflowRepository.class);
 
-	private String sourceDir;
 	private String targetDir;
 	private volatile VolatileState volatileState;
 	private Thread observerThread;
@@ -75,13 +80,39 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	private boolean stopped = false;
 	private boolean loadNonWorkflowClasses = false;
 	private List<CompilerOptionsProvider> compilerOptionsProviders = new ArrayList<CompilerOptionsProvider>();
+	private List<String> sourceDirs = new ArrayList<String>();
+	private List<String> sourceArchiveUrls = new ArrayList<String>();
+	
+	/**
+	 * Sets the list of source archive URLs. The source archives must be ZIP compressed archives, containing COPPER workflows as .java files. 
+	 * @param sourceArchiveUrls
+	 */
+	public void setSourceArchiveUrls(List<String> sourceArchiveUrls) {
+		if (sourceArchiveUrls == null) throw new IllegalArgumentException();
+		this.sourceArchiveUrls = new ArrayList<String>(sourceArchiveUrls);
+	}
+
+	/**
+	 * Adds a source archive URL.
+	 */
+	public void addSourceArchiveUrl(String url) {
+		if (url == null) throw new IllegalArgumentException();
+		sourceArchiveUrls.add(url);
+	}
+	
+	/**
+	 * Returns the configured source archive URL(s).
+	 */
+	public List<String> getSourceArchiveUrls() {
+		return Collections.unmodifiableList(sourceArchiveUrls);
+	}
 	
 	/**
 	 * Sets the list of CompilerOptionsProviders. They are called before compiling the workflow files to append compiler options.
 	 */
 	public void setCompilerOptionsProviders(List<CompilerOptionsProvider> compilerOptionsProviders) {
 		if (compilerOptionsProviders == null) throw new NullPointerException();
-		this.compilerOptionsProviders = compilerOptionsProviders;
+		this.compilerOptionsProviders = new ArrayList<CompilerOptionsProvider>(compilerOptionsProviders);
 	}
 	
 	/**
@@ -91,6 +122,12 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		this.compilerOptionsProviders.add(cop);
 	}
 	
+	/**
+	 * Returns the currently configured compiler options providers. 
+	 */
+	public List<CompilerOptionsProvider> getCompilerOptionsProviders() {
+		return Collections.unmodifiableList(compilerOptionsProviders);
+	}
 
 	/**
 	 * The repository will check the source directory every <code>checkIntervalMSec</code> milliseconds
@@ -103,11 +140,26 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	}
 
 	/**
-	 * mandatory parameter - must point to a local directory that contains the COPPER workflows as <code>.java<code> files.
-	 * @param sourceDir
+	 * @deprecated use setSourceDirs instead
 	 */
 	public synchronized void setSourceDir(String sourceDir) {
-		this.sourceDir = sourceDir;
+		sourceDirs = new ArrayList<String>();
+		sourceDirs.add(sourceDir);
+	}
+	
+	/**
+	 * Configures the local directory/directories that contain the COPPER workflows as <code>.java<code> files.
+	 */
+	public void setSourceDirs(List<String> sourceDirs) {
+		if (sourceDirs == null) throw new IllegalArgumentException();
+		this.sourceDirs = new ArrayList<String>(sourceDirs);
+	}
+	
+	/**
+	 * Returns the configures local directory/directories
+	 */
+	public List<String> getSourceDirs() {
+		return Collections.unmodifiableList(sourceDirs);
 	}
 
 	/** 
@@ -128,10 +180,14 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	public synchronized void setTargetDir(String targetDir) {
 		this.targetDir = targetDir;
 	}
+	
+	public String getTargetDir() {
+		return targetDir;
+	}
 
 	public synchronized void setPreprocessors(List<Runnable> preprocessors) {
 		if (preprocessors == null) throw new NullPointerException();
-		this.preprocessors = preprocessors;
+		this.preprocessors = new ArrayList<Runnable>(preprocessors);
 	}
 
 	@Override
@@ -178,7 +234,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 								for (Runnable preprocessor : preprocessors) {
 									preprocessor.run();
 								}
-								final long checksum = processChecksum(new File(sourceDir));
+								final long checksum = processChecksum(sourceDirs);
 								if (checksum != volatileState.checksum) {
 									logger.info("Change detected - recreating workflow map");
 									volatileState = createWfClassMap();
@@ -213,20 +269,37 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	}
 
 	private synchronized VolatileState createWfClassMap() throws IOException, ClassNotFoundException {
-		final File sourceDirectory = new File(sourceDir);
-		if (!sourceDirectory.exists()) {
-			throw new IllegalArgumentException("source directory "+sourceDir+" does not exist!");
+		for (String dir : sourceDirs) {
+			final File sourceDirectory = new File(dir);
+			if (!sourceDirectory.exists()) {
+				throw new IllegalArgumentException("source directory "+dir+" does not exist!");
+			}
+		}
+		// Check that the URLs are ok
+		if (!sourceArchiveUrls.isEmpty()) {
+			for (String _url : sourceArchiveUrls) {
+				try {
+					URL url = new URL(_url);
+					url.openStream().close();
+				}
+				catch(Exception e) {
+					throw new IOException("Unable to open URL '"+_url+"'", e);
+				}
+			}
 		}
 
 		final Map<String,Class<?>> map = new HashMap<String, Class<?>>();
-		final long checksum = processChecksum(sourceDirectory);
+		final long checksum = processChecksum(sourceDirs);
 		final File baseTargetDir = new File(targetDir,Long.toHexString(System.currentTimeMillis()));
+		final File additionalSourcesDir = new File(baseTargetDir,"additionalSources");
 		final File compileTargetDir = new File(baseTargetDir,"classes");
 		final File adaptedTargetDir = new File(baseTargetDir,"adapted");
 		if (!compileTargetDir.exists()) compileTargetDir.mkdirs();
 		if (!adaptedTargetDir.exists()) adaptedTargetDir.mkdirs();
+		if (!additionalSourcesDir.exists()) additionalSourcesDir.mkdirs();
+		extractAdditionalSources(additionalSourcesDir, this.sourceArchiveUrls);
 
-		compile(compileTargetDir);
+		compile(compileTargetDir,additionalSourcesDir);
 		final Map<String, Clazz> clazzMap = findInterruptableMethods(compileTargetDir);
 		instrumentWorkflows(adaptedTargetDir, clazzMap);
 		final ClassLoader cl = createClassLoader(map, adaptedTargetDir, loadNonWorkflowClasses ? compileTargetDir : adaptedTargetDir, clazzMap);
@@ -234,12 +307,41 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		return new VolatileState(map, cl, checksum);
 	}
 
+	private static void extractAdditionalSources(File additionalSourcesDir, List<String> sourceArchives) throws IOException {
+		for (String _url : sourceArchives) {
+			URL url = new URL(_url);
+			ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(url.openStream()));
+			try {
+				ZipEntry entry;
+				int size;
+				byte[] buffer = new byte[2048];
+				while((entry = zipInputStream.getNextEntry()) != null) {
+					logger.info("Unzipping "+entry.getName());
+					if (entry.isDirectory()) {
+						File f = new File(additionalSourcesDir, entry.getName());
+						f.mkdirs();
+					}
+					else {
+						File f = new File(additionalSourcesDir, entry.getName());
+						BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(f));
+						while ((size = zipInputStream.read(buffer, 0, buffer.length)) != -1) {
+							os.write(buffer, 0, size);
+						}
+						os.close();
+					}
+				}
+			}
+			finally {
+				zipInputStream.close();
+			}
+		}
+	}
 
 	private Map<String, Clazz> findInterruptableMethods(File compileTargetDir) throws FileNotFoundException, IOException {
 		logger.info("Analysing classfiles");
 		// Find and visit all classes
 		Map<String,Clazz> clazzMap = new HashMap<String, Clazz>();
-		File[] classfiles = findFiles(compileTargetDir, ".class");
+		List<File> classfiles = findFiles(compileTargetDir, ".class");
 		for (File f : classfiles) {
 			ScottyFindInterruptableMethodsVisitor visitor = new ScottyFindInterruptableMethodsVisitor();
 			InputStream is = new FileInputStream(f);
@@ -281,7 +383,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		return clazzMap;
 	}
 
-	private void compile(File compileTargetDir) throws IOException {
+	private void compile(File compileTargetDir, File additionalSourcesDir) throws IOException {
 		logger.info("Compiling workflows");
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
@@ -296,9 +398,13 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		try {
 			final StringWriter sw = new StringWriter();
 			sw.append("Compilation failed!\n");
-			final File[] files = findFiles(new File(sourceDir), ".java");
-			if (files.length > 0) {
-				final Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(files));
+			final List<File> files = new ArrayList<File>();
+			for (String dir : sourceDirs) {
+				files.addAll(findFiles(new File(dir), ".java"));
+			}
+			files.addAll(findFiles(additionalSourcesDir,".java"));
+			if (files.size() > 0) {
+				final Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(files);
 				final CompilationTask task = compiler.getTask(sw, fileManager, null, options, null, compilationUnits1);
 				if (!task.call()) {
 					logger.error(sw.toString());
@@ -311,10 +417,10 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		}
 	}
 
-	private File[] findFiles(File rootDir, String fileExtension) {
+	private List<File> findFiles(File rootDir, String fileExtension) {
 		List<File> files = new ArrayList<File>();
 		findFiles(rootDir, fileExtension, files);
-		return files.toArray(new File[files.size()]);
+		return files;
 	}
 
 	private void findFiles(final File rootDir, final String fileExtension, final List<File> files) {
@@ -335,8 +441,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		}
 	}
 
-	private static long processChecksum(File directory) {
-		return FileUtil.processChecksum(directory,".java");
+	private static long processChecksum(List<String> sourceDirs) {
+		return FileUtil.processChecksum(sourceDirs,".java");
 	}
 
 	private static boolean deleteDirectory(File path) {
@@ -354,10 +460,13 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		return( path.delete() );
 	}
 
+	public void addSourceDir(String dir) {
+		sourceDirs.add(dir);
+	}
 
 	public static void main(String[] args) {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
-		repo.setSourceDir("src/workflow/java");
+		repo.addSourceDir("src/workflow/java");
 		repo.setTargetDir("target/compiled_workflow");
 		repo.start();
 	}

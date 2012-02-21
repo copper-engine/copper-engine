@@ -27,6 +27,15 @@ public class FileUtil {
 	public static long processChecksum(File directory) {
 		return processChecksum(directory, null);
 	}
+
+	public static long processChecksum(List<String> directories, String fileSuffix) {
+		final CRC32 crc32 = new CRC32();
+		for (String dir : directories) {
+			processChecksum(new File(dir), crc32, fileSuffix);
+		}
+		return crc32.getValue();
+	}
+
 	
 	public static long processChecksum(File directory, String fileSuffix) {
 		final CRC32 crc32 = new CRC32();
