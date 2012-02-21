@@ -89,10 +89,7 @@ public class PersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 			
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow.class.getName());
-				Workflow<String> wf = wfFactory.newInstance();
-				wf.setData(DATA);
-				engine.run(wf);
+				engine.run(PersistentUnitTestWorkflow.class.getName(), DATA);
 			}
 
 			for (int i=0; i<NUMB; i++) {
@@ -162,9 +159,7 @@ public class PersistentWorkflowTest extends TestCase {
 				@Override
 				protected void execute() throws Exception {
 					for (int i=0; i<NUMB; i++) {
-						WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow.class.getName());
-						Workflow<?> wf = wfFactory.newInstance();
-						engine.run(wf,getConnection());
+						engine.run(DBMockAdapterUsingPersistentUnitTestWorkflow.class.getName(), null);
 					}
 				}
 			}.run();

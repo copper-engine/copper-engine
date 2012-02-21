@@ -619,5 +619,41 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		logger.info("All error/invalid workflow instances successfully queued for restart.");
 	}
 	
+	@Override
+	public void notify(List<Response<?>> responses, Connection c) throws Exception {
+		if (responses.isEmpty()) 
+			return;
+		
+		final PreparedStatement stmt = c.prepareCall("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE) VALUES (?,?,?,?)");
+		try {
+			final Timestamp now = new Timestamp(System.currentTimeMillis());
+			int counter=0;
+			for(Response<?> r : responses) {
+				stmt.setString(1, r.getCorrelationId());
+				stmt.setTimestamp(2, now);
+				String payload = serializer.serializeResponse(r);
+				stmt.setString(3, payload.length() > 4000 ? null : payload);
+				stmt.setString(4, payload.length() > 4000 ? payload : null);
+				stmt.addBatch();
+				counter++;
+				if (counter == 50) {
+					stmt.executeBatch();
+					stmt.clearBatch();
+					counter = 0;
+				}
+			}
+			if (counter != 0) {
+				stmt.executeBatch();
+			}
+		}
+		finally {
+			try {
+				stmt.close();
+			}
+			catch(Exception e) {
+				logger.error("stmt.close() failed",e);
+			}
+		}
+	}	
 
 }

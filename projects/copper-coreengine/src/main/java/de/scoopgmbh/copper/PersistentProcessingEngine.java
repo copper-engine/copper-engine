@@ -76,4 +76,24 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
 	 * @throws Exception
 	 */
 	public void restartAll() throws Exception;	
+	
+	/**
+	 * Adds a response to the engine, using the provided jdbc connection. The engine will subsequently try to find the 
+	 * corresponding workflow instance that is waiting for the response. Depending on the workflow instances waitmode and 
+	 * the number of open responses, the workflow may or may not be resumed.
+	 * 
+	 * @param response the reponse
+	 * @throws CopperRuntimeException
+	 */
+	public void notify(Response<?> response, Connection c) throws CopperRuntimeException;
+	
+	/**
+	 * Adds a list of responses to the engine, using the provided jdbc connection. The engine will subsequently try to find the 
+	 * corresponding workflow instance that is waiting for the response. Depending on the workflow instances waitmode and 
+	 * the number of open responses, the workflow may or may not be resumed.
+	 * 
+	 * @param responses the list of reponses
+	 * @throws CopperRuntimeException
+	 */
+	public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException;
 }

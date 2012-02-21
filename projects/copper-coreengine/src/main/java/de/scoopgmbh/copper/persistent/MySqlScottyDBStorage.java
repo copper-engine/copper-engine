@@ -19,10 +19,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 
 /**
@@ -61,4 +63,40 @@ public class MySqlScottyDBStorage extends AbstractSqlScottyDBStorage implements 
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
 		getBatcher().submitBatchCommand(new MySqlSetToError.Command(pwf,getDataSource(),t));
 	}
+	
+	@Override
+	public void notify(List<Response<?>> responses, Connection c) throws Exception {
+		if (responses.isEmpty()) 
+			return;
+		
+		final PreparedStatement stmt = c.prepareCall("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE) VALUES (?,?,?)");
+		try {
+			final Timestamp now = new Timestamp(System.currentTimeMillis());
+			int counter=0;
+			for(Response<?> r : responses) {
+				stmt.setString(1, r.getCorrelationId());
+				stmt.setTimestamp(2, now);
+				String payload = serializer.serializeResponse(r);
+				stmt.setString(3, payload);
+				stmt.addBatch();
+				counter++;
+				if (counter == 50) {
+					stmt.executeBatch();
+					stmt.clearBatch();
+					counter = 0;
+				}
+			}
+			if (counter != 0) {
+				stmt.executeBatch();
+			}
+		}
+		finally {
+			try {
+				stmt.close();
+			}
+			catch(Exception e) {
+				logger.error("stmt.close() failed",e);
+			}
+		}
+	}	
 }

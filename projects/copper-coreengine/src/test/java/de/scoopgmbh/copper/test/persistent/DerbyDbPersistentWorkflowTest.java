@@ -45,7 +45,7 @@ public class DerbyDbPersistentWorkflowTest extends PersistentWorkflowTest {
 	}
 
 	public void testWithConnection() throws Exception {
-		super.testAsnychResponse(DS_CONTEXT);
+		super.testWithConnection(DS_CONTEXT);
 	}
 	
 	public void testWithConnectionBulkInsert() throws Exception {

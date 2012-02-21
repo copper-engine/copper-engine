@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.persistent;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import de.scoopgmbh.copper.Response;
@@ -77,6 +78,13 @@ public interface ScottyDBStorageInterface {
 	public void notify(final List<Response<?>> response) throws Exception;
 
 	/**
+	 * Synchronous service to add a list of {@link Response}s to the database using a provided database connection.
+	 */
+	public void notify(List<Response<?>> responses, Connection c) throws Exception;
+	
+	
+
+	/**
 	 * Writes a workflow instance that is waiting for one or more asynchronous response back to
 	 * database.  
 	 */
@@ -113,6 +121,6 @@ public interface ScottyDBStorageInterface {
 	 * @throws Exception 
 	 */
 	public void restartAll() throws Exception;
-	
+
 
 }

@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.persistent;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -344,6 +345,26 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		}
 		catch(Exception e) {
 			throw new CopperException("run failed",e);
+		}
+	}
+
+	@Override
+	public void notify(Response<?> response, Connection c) throws CopperRuntimeException {
+		List<Response<?>> list = new ArrayList<Response<?>>(1);
+		list.add(response);
+		this.notify(list, c);
+	}
+
+	@Override
+	public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException {
+		try  {
+			dbStorage.notify(responses,c);
+		}
+		catch(RuntimeException e) {
+			throw e;
+		}
+		catch(Exception e) {
+			throw new CopperRuntimeException(e);
 		}
 	}
 }

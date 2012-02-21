@@ -52,7 +52,7 @@ public class OraclePersistentWorkflowTest extends PersistentWorkflowTest {
 	}
 
 	public void testWithConnection() throws Exception {
-		if (dbmsAvailable) super.testAsnychResponse(DS_CONTEXT);
+		if (dbmsAvailable) super.testWithConnection(DS_CONTEXT);
 	}
 	
 	public void testWithConnectionBulkInsert() throws Exception {

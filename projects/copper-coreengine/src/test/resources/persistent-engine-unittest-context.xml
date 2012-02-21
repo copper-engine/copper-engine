@@ -81,6 +81,10 @@
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>
 	
+	<bean id="dbMockAdapter" class="de.scoopgmbh.copper.test.DBMockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
+		<property name="engine" ref="persistent.engine"/>
+		<property name="dataSource" ref="datasource_default"/>
+	</bean>
 	
 </beans>          
 

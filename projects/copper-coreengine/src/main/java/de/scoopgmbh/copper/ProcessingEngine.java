@@ -62,7 +62,7 @@ public interface ProcessingEngine {
 	/**
 	 * Adds a response to the engine. The engine will subsequently try to find the corresponding workflow instance that is
 	 * waiting for the response. Depending on the workflow instances waitmode and the number of open responses, the workflow 
-	 * may or may not resumed.
+	 * may or may not be resumed.
 	 * 
 	 * @param response the reponse
 	 * @throws CopperRuntimeException

@@ -73,7 +73,7 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 	private boolean shutdown = false;
 	protected String queryUpdateQueueState = getResourceAsString("/sql-query-ready-bpids.sql");
 	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
-	private Serializer serializer = new StandardJavaSerializer();
+	protected Serializer serializer = new StandardJavaSerializer();
 	private boolean removeWhenFinished = true;
 
 	private StmtStatistic dequeueStmtStatistic;
