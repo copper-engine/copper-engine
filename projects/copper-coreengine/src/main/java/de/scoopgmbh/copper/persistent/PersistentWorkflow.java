@@ -24,7 +24,7 @@ import de.scoopgmbh.copper.Workflow;
 /**
  * Abstract base class for persistent workflows.
  * 
- * It is safe to run a PersistentWorkflow in a transient engine. So if your want to keep it open to decide later wether your
+ * It is safe to run a PersistentWorkflow in a transient engine. So if your want to keep it open to decide later whether your
  * workflow needs persistence or not, it is OK to inherit from PersistentWorkflow.
  * 
  * @author austermann
