@@ -204,7 +204,7 @@ public class TomcatWorkflowRepository extends AbstractWorkflowRepository {
 
 		compile(compileTargetDir);
 		final Map<String, Clazz> clazzMap = findInterruptableMethods(compileTargetDir);
-		instrumentWorkflows(adaptedTargetDir, clazzMap);
+		instrumentWorkflows(adaptedTargetDir, clazzMap, compileTargetDir);
 
 		final ClassLoader cl = createClassLoader(adaptedTargetDir, compileTargetDir);
 		final Map<String,Class<?>> map = loadClasses(cl,clazzMap);

@@ -19,6 +19,7 @@
     		<value>src/workflow/java</value>
     	</list></property>
     	<property name="targetDir" value="target/compiled_workflow"/>
+    	<property name="loadNonWorkflowClasses" value="true"/>
     	<property name="compilerOptionsProviders">
     		<list>
     			<bean class="de.scoopgmbh.copper.wfrepo.ConfigurableStringOptionsProvider" >

@@ -40,7 +40,7 @@ public class SubWorkflowTransientEngineTest extends TestCase {
 		assertEquals(EngineState.STARTED,engine.getEngineState());
 		
 		try {
-			WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(SimpleTestParentWorkflow.class.getName());
+			WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.tranzient.simple.SimpleTestParentWorkflow");
 			Workflow<String> wf = wfFactory.newInstance();
 			wf.setData("testData");
 			engine.run(wf);

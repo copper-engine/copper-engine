@@ -43,11 +43,12 @@ import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
-import de.scoopgmbh.copper.test.persistent.subworkflow.TestParentWorkflow;
 
 public class PersistentWorkflowTest extends TestCase {
 	
 	private static final Logger logger = LoggerFactory.getLogger(PersistentWorkflowTest.class);
+	
+	private static final String PersistentUnitTestWorkflow_CLASS = "de.scoopgmbh.copper.test.persistent.PersistentUnitTestWorkflow";
 	
 	public final void testDummy() {
 		// for junit only
@@ -89,7 +90,7 @@ public class PersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 			
 			for (int i=0; i<NUMB; i++) {
-				engine.run(PersistentUnitTestWorkflow.class.getName(), DATA);
+				engine.run(PersistentUnitTestWorkflow_CLASS, DATA);
 			}
 
 			for (int i=0; i<NUMB; i++) {
@@ -121,7 +122,7 @@ public class PersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 			
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow.class.getName());
+				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_CLASS);
 				Workflow<String> wf = wfFactory.newInstance();
 				wf.setData(DATA);
 				engine.run(wf);
@@ -159,7 +160,7 @@ public class PersistentWorkflowTest extends TestCase {
 				@Override
 				protected void execute() throws Exception {
 					for (int i=0; i<NUMB; i++) {
-						engine.run(DBMockAdapterUsingPersistentUnitTestWorkflow.class.getName(), null);
+						engine.run("de.scoopgmbh.copper.test.persistent.DBMockAdapterUsingPersistentUnitTestWorkflow", null);
 					}
 				}
 			}.run();
@@ -193,7 +194,7 @@ public class PersistentWorkflowTest extends TestCase {
 
 			final List<Workflow<?>> list = new ArrayList<Workflow<?>>();
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow.class.getName());
+				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_CLASS);
 				Workflow<?> wf = wfFactory.newInstance();
 				list.add(wf);
 			}
@@ -232,7 +233,7 @@ public class PersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 			
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(TimingOutPersistentUnitTestWorkflow.class.getName());
+				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.TimingOutPersistentUnitTestWorkflow");
 				Workflow<?> wf = wfFactory.newInstance();
 				engine.run(wf);
 			}
@@ -279,7 +280,7 @@ public class PersistentWorkflowTest extends TestCase {
 			
 			for (int i=0; i<NUMB; i++) {
 				ProcessingEngine engine = i % 2 == 0 ? engineA : engineB;
-				engine.run(PersistentUnitTestWorkflow.class.getName(),null);
+				engine.run(PersistentUnitTestWorkflow_CLASS,null);
 			}
 
 			int x=0;
@@ -334,7 +335,7 @@ public class PersistentWorkflowTest extends TestCase {
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		try {
 			engine.startup();
-			WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow.class.getName());
+			WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
 			final Workflow<?> wf = wfFactory.newInstance();
 			engine.run(wf);
 			Thread.sleep(5000);
@@ -378,7 +379,7 @@ public class PersistentWorkflowTest extends TestCase {
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		try {
 			engine.startup();
-			WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow.class.getName());
+			WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
 			final Workflow<?> wf = wfFactory.newInstance();
 			engine.run(wf);
 			Thread.sleep(5000);
@@ -429,7 +430,7 @@ public class PersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 			
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(TestParentWorkflow.class.getName());
+				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.subworkflow.TestParentWorkflow");
 				Workflow<?> wf = wfFactory.newInstance();
 				engine.run(wf);
 			}
@@ -464,7 +465,7 @@ public class PersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 			
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow.class.getName());
+				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_CLASS);
 				Workflow<String> wf = wfFactory.newInstance();
 				wf.setData(DATA);
 				engine.run(wf);
@@ -510,7 +511,7 @@ public class PersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 			
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow.class.getName());
+				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.PersistentUnitTestWorkflow");
 				Workflow<String> wf = wfFactory.newInstance();
 				wf.setData(DATA);
 				engine.run(wf);

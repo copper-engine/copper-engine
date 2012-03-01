@@ -48,7 +48,7 @@ public class WaitInMethodTransientEngineTest extends TestCase {
 		assertEquals(EngineState.STARTED,engine.getEngineState());
 		
 		try {
-			WorkflowFactory<AsyncResponseReceiver<Integer>> wfFactory = engine.createWorkflowFactory(WaitInMethodTestTransientWorkflow.class.getName());
+			WorkflowFactory<AsyncResponseReceiver<Integer>> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.tranzient.simple.WaitInMethodTestTransientWorkflow");
 			Workflow<AsyncResponseReceiver<Integer>> wf = wfFactory.newInstance();
 			BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
 			wf.setData(brr);

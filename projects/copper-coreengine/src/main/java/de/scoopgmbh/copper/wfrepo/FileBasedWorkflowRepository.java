@@ -301,7 +301,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 
 		compile(compileTargetDir,additionalSourcesDir);
 		final Map<String, Clazz> clazzMap = findInterruptableMethods(compileTargetDir);
-		instrumentWorkflows(adaptedTargetDir, clazzMap);
+		instrumentWorkflows(adaptedTargetDir, clazzMap, compileTargetDir);
 		final ClassLoader cl = createClassLoader(map, adaptedTargetDir, loadNonWorkflowClasses ? compileTargetDir : adaptedTargetDir, clazzMap);
 
 		return new VolatileState(map, cl, checksum);

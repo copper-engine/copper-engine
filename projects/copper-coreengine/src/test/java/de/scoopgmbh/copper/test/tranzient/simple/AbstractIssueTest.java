@@ -46,7 +46,7 @@ public class AbstractIssueTest extends TestCase {
 		assertEquals(EngineState.STARTED,engine.getEngineState());
 		
 		try {
-			WorkflowFactory<CompletionIndicator> wfFactory = engine.createWorkflowFactory(IssueClassCastExceptionWorkflow.class.getName());
+			WorkflowFactory<CompletionIndicator> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.tranzient.simple.IssueClassCastExceptionWorkflow");
 			Workflow<CompletionIndicator> wf = wfFactory.newInstance();
 			wf.setData(new CompletionIndicator());
 			engine.run(wf);

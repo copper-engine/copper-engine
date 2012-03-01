@@ -45,8 +45,9 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractWorkflowRepository.class);
 	
-	void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap) throws IOException {
+	void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, File compileTargetDir) throws IOException {
 		logger.info("Instrumenting classfiles");
+		URLClassLoader tmpClassLoader = new URLClassLoader(new URL[] { compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
 		for (Clazz clazz : clazzMap.values()) {
 			byte[] bytes;
 			FileInputStream fis = new FileInputStream(clazz.classfile);
@@ -82,7 +83,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 				
 				StringWriter sw = new StringWriter();
 				PrintWriter pw = new PrintWriter(sw);
-				CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), false, pw);
+				CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), tmpClassLoader, false, pw);
 				if (sw.toString().length() != 0) {
 					logger.error("CheckClassAdapter.verify failed for class "+cn.name+":\n"+sw.toString());
 				}
