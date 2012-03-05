@@ -17,6 +17,8 @@ package de.scoopgmbh.copper.test.persistent;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -24,6 +26,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class MySqlPersistentWorkflowTest extends PersistentWorkflowTest {
 	
 	private static final String DS_CONTEXT = "mysql-unittest-context.xml";
+	private static final Logger logger = LoggerFactory.getLogger(MySqlPersistentWorkflowTest.class);
 	
 	private static boolean dbmsAvailable = false;
 	
@@ -36,6 +39,7 @@ public class MySqlPersistentWorkflowTest extends PersistentWorkflowTest {
 			dbmsAvailable = true;
 		}
 		catch(Exception e) {
+			logger.error("MySQL not available! Skipping MySQL unit tests.",e);
 			e.printStackTrace();
 		}
 		finally {
@@ -62,12 +66,7 @@ public class MySqlPersistentWorkflowTest extends PersistentWorkflowTest {
 	public void testTimeouts() throws Exception {
 		if (dbmsAvailable) super.testTimeouts(DS_CONTEXT);
 	}
-	
-//	Currently no support for multiple persistent engines connected to one database
-//	public void testMultipleEngines() throws Exception {
-//		if (mySqlAvailable) super.testMultipleEngines(DS_CONTEXT);
-//	}
-	
+
 	public void testErrorHandlingInCoreEngine() throws Exception {
 		if (dbmsAvailable) super.testErrorHandlingInCoreEngine(DS_CONTEXT);
 	}

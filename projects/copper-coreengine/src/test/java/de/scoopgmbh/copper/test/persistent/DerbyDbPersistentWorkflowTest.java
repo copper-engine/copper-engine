@@ -56,11 +56,6 @@ public class DerbyDbPersistentWorkflowTest extends PersistentWorkflowTest {
 		super.testTimeouts(DS_CONTEXT);
 	}
 	
-//	Currently no support for multiple persistent engines connected to one database
-//	public void testMultipleEngines() throws Exception {
-//		super.testMultipleEngines(DS_CONTEXT);
-//	}
-	
 	public void testErrorHandlingInCoreEngine() throws Exception {
 		super.testErrorHandlingInCoreEngine(DS_CONTEXT);
 	}

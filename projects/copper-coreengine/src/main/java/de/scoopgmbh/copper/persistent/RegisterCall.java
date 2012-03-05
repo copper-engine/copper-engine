@@ -17,7 +17,9 @@ package de.scoopgmbh.copper.persistent;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.List;
 
+import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 
@@ -34,21 +36,23 @@ public class RegisterCall {
 	public Long timeout;
 	public String[] correlationIds;
 	public Timestamp timeoutTS;
+	public List<WaitHook> waitHooks;
 	
-	public RegisterCall(Workflow<?> workflow, WaitMode waitMode, Long timeout, String[] correlationIds) {
+	public RegisterCall(Workflow<?> workflow, WaitMode waitMode, Long timeout, String[] correlationIds, List<WaitHook> waitHooks) {
 		super();
 		this.waitMode = waitMode;
 		this.timeout = timeout;
 		this.correlationIds = correlationIds;
 		this.workflow = workflow;
 		this.timeoutTS = timeout != null ? new Timestamp(System.currentTimeMillis()+timeout) : null;
+		this.waitHooks = waitHooks;
 	}
 
 	@Override
 	public String toString() {
 		return "RegisterCall [correlationIds="
 				+ Arrays.toString(correlationIds) + ", timeout=" + timeout
-				+ ", timeoutTS=" + timeoutTS + ", waitMode=" + waitMode
+				+ ", timeoutTS=" + timeoutTS + ", waitMode=" + waitMode + ", waitHooks.size="+waitHooks.size()
 				+ ", workflow=" + workflow + "]";
 	}
 

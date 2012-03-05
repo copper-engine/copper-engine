@@ -30,15 +30,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import de.scoopgmbh.copper.EngineIdProviderBean;
 import de.scoopgmbh.copper.EngineState;
-import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.CompressedBase64PostProcessor;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
-import de.scoopgmbh.copper.persistent.OracleScottyDBStorage;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
@@ -48,7 +45,7 @@ public class PersistentWorkflowTest extends TestCase {
 	
 	private static final Logger logger = LoggerFactory.getLogger(PersistentWorkflowTest.class);
 	
-	private static final String PersistentUnitTestWorkflow_CLASS = "de.scoopgmbh.copper.test.persistent.PersistentUnitTestWorkflow";
+	static final String PersistentUnitTestWorkflow_CLASS = "de.scoopgmbh.copper.test.persistent.PersistentUnitTestWorkflow";
 	
 	public final void testDummy() {
 		// for junit only
@@ -251,82 +248,6 @@ public class PersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 		
-	}
-	
-	public void testMultipleEngines(String dsContext) throws Exception {
-		logger.info("running testMultipleEngines");
-		final int NUMB = 50;
-		final EngineIdProviderBean red = new EngineIdProviderBean("red");
-		final EngineIdProviderBean blue = new EngineIdProviderBean("blue");
-		final ConfigurableApplicationContext contextA = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
-		final ConfigurableApplicationContext contextB = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
-		cleanDB(contextA.getBean(DataSource.class));
-		final OracleScottyDBStorage storageA = contextA.getBean(OracleScottyDBStorage.class);
-		final OracleScottyDBStorage storageB = contextB.getBean(OracleScottyDBStorage.class);
-		final PersistentScottyEngine engineA = contextA.getBean(PersistentScottyEngine.class);
-		final PersistentScottyEngine engineB = contextB.getBean(PersistentScottyEngine.class);
-		final BackChannelQueue backChannelQueueA = contextA.getBean(BackChannelQueue.class);
-		final BackChannelQueue backChannelQueueB = contextB.getBean(BackChannelQueue.class);
-		storageA.setEngineIdProvider(red);
-		engineA.setEngineIdProvider(red);
-		storageB.setEngineIdProvider(blue);
-		engineB.setEngineIdProvider(blue);
-		
-		engineA.startup();
-		engineB.startup();
-		try {
-			assertEquals(EngineState.STARTED,engineA.getEngineState());
-			assertEquals(EngineState.STARTED,engineB.getEngineState());
-			
-			for (int i=0; i<NUMB; i++) {
-				ProcessingEngine engine = i % 2 == 0 ? engineA : engineB;
-				engine.run(PersistentUnitTestWorkflow_CLASS,null);
-			}
-
-			int x=0;
-			long startTS = System.currentTimeMillis();
-			while (x < NUMB && startTS+60000 > System.currentTimeMillis()) {
-				WorkflowResult wfr = backChannelQueueA.poll();
-				if (wfr == null) {
-					wfr = backChannelQueueB.poll();
-				}
-				if (wfr != null) {
-					Assert.assertNull(wfr.getResult());
-					Assert.assertNull(wfr.getException());
-					x++;
-				}
-				else {
-					Thread.sleep(50);
-				}
-			}
-			if (x != NUMB) {
-				fail("Test failed - Timeout - "+x+" responses so far");
-			}
-			Thread.sleep(1000);
-			
-			// check for late queue entries
-			assertNull(backChannelQueueA.poll());
-			assertNull(backChannelQueueB.poll());
-			
-			// check AuditTrail Log
-			new RetryingTransaction(contextA.getBean(DataSource.class)) {
-				@Override
-				protected void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("SELECT count(*) FROM COP_AUDIT_TRAIL_EVENT");
-					rs.next();
-					int count = rs.getInt(1);
-					assertEquals(NUMB*11, count);
-				}
-			}.run();
-		}
-		finally {
-			contextA.close();
-			contextB.close();
-		}
-		assertEquals(EngineState.STOPPED,engineA.getEngineState());
-		assertEquals(EngineState.STOPPED,engineB.getEngineState());
-		assertEquals(0,engineA.getNumberOfWorkflowInstances());
-		assertEquals(0,engineB.getNumberOfWorkflowInstances());
 	}
 	
 	public void testErrorHandlingInCoreEngine(String dsContext) throws Exception {

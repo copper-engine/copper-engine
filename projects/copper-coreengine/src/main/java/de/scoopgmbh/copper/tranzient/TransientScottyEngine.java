@@ -32,6 +32,7 @@ import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Response;
+import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
@@ -299,6 +300,11 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	
 	public int getNumberOfWorkflowInstances() {
 		return workflowMap.size();
+	}
+
+	@Override
+	public void addWaitHook(String wfInstanceId, WaitHook waitHook) {
+		throw new UnsupportedOperationException();
 	}
 	
 

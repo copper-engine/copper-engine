@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -116,6 +117,15 @@ class GenericRegisterCallback {
 
 			if (doDeletes) deleteResponse.executeBatch();
 			if (doDeletes) deleteWait.executeBatch();
+			
+			for (BatchCommand<Executor, Command> _cmd : commands) {
+				Command cmd = (Command)_cmd;
+				RegisterCall rc = cmd.registerCall;
+				for (WaitHook wh : rc.waitHooks) {
+					wh.onWait(rc.workflow, con);
+				}
+			}			
+			
 		}
 
 		@Override

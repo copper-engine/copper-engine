@@ -20,6 +20,8 @@
 		<property name="engine" ref="persistent.engine"/>
 	</bean>
 		
+	<bean id="dataHolder" class="de.scoopgmbh.copper.test.DataHolder" scope="singleton">
+	</bean>
 </beans>          
 
         

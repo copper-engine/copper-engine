@@ -77,7 +77,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	private Thread observerThread;
 	private int checkIntervalMSec = 15000;
 	private List<Runnable> preprocessors = Collections.emptyList();
-	private boolean stopped = false;
+	private volatile boolean stopped = false;
 	private boolean loadNonWorkflowClasses = false;
 	private List<CompilerOptionsProvider> compilerOptionsProviders = new ArrayList<CompilerOptionsProvider>();
 	private List<String> sourceDirs = new ArrayList<String>();
@@ -192,6 +192,9 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 
 	@Override
 	public <E> WorkflowFactory<E> createWorkflowFactory(final String classname) throws ClassNotFoundException {
+		if (stopped)
+			throw new IllegalStateException("Repo is stopped");
+		
 		if (!volatileState.wfMap.containsKey(classname)) {
 			throw new ClassNotFoundException("Workflow class "+classname+" not found");
 		}

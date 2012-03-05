@@ -15,15 +15,29 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
+import java.sql.ResultSet;
+
 import javax.sql.DataSource;
 
+import junit.framework.Assert;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import de.scoopgmbh.copper.EngineState;
+import de.scoopgmbh.copper.ProcessingEngine;
+import de.scoopgmbh.copper.db.utility.RetryingTransaction;
+import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
+import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
+import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 
 
 public class OraclePersistentWorkflowTest extends PersistentWorkflowTest {
 	
 	private static final String DS_CONTEXT = "oracle-unittest-context.xml";
+	private static final Logger logger = LoggerFactory.getLogger(DerbyDbPersistentWorkflowTest.class);
 	
 	private static boolean dbmsAvailable = false;
 	
@@ -36,6 +50,7 @@ public class OraclePersistentWorkflowTest extends PersistentWorkflowTest {
 			dbmsAvailable = true;
 		}
 		catch(Exception e) {
+			logger.error("Oracle DBMS not available! Skipping Oracle unit tests.",e);
 			e.printStackTrace();
 		}
 		finally {
@@ -64,7 +79,67 @@ public class OraclePersistentWorkflowTest extends PersistentWorkflowTest {
 	}
 	
 	public void testMultipleEngines() throws Exception {
-		if (dbmsAvailable) super.testMultipleEngines(DS_CONTEXT);
+		if (!dbmsAvailable) 
+			return;
+
+		logger.info("running testMultipleEngines");
+		final int NUMB = 50;
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"multiengine-oracle-unittest-context.xml"});
+		cleanDB(context.getBean(DataSource.class));
+		final PersistentScottyEngine engineRed = context.getBean("persistent.engine.red",PersistentScottyEngine.class);
+		final PersistentScottyEngine engineBlue = context.getBean("persistent.engine.blue",PersistentScottyEngine.class);
+		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+		engineRed.startup();
+		engineBlue.startup();
+		try {
+			assertEquals(EngineState.STARTED,engineRed.getEngineState());
+			assertEquals(EngineState.STARTED,engineBlue.getEngineState());
+
+			for (int i=0; i<NUMB; i++) {
+				ProcessingEngine engine = i % 2 == 0 ? engineRed : engineBlue;
+				engine.run(PersistentUnitTestWorkflow_CLASS,null);
+			}
+
+			int x=0;
+			long startTS = System.currentTimeMillis();
+			while (x < NUMB && startTS+60000 > System.currentTimeMillis()) {
+				WorkflowResult wfr = backChannelQueue.poll();
+				if (wfr != null) {
+					Assert.assertNull(wfr.getResult());
+					Assert.assertNull(wfr.getException());
+					x++;
+				}
+				else {
+					Thread.sleep(50);
+				}
+			}
+			if (x != NUMB) {
+				fail("Test failed - Timeout - "+x+" responses so far");
+			}
+			Thread.sleep(1000);
+
+			// check for late queue entries
+			assertNull(backChannelQueue.poll());
+
+			// check AuditTrail Log
+			new RetryingTransaction(context.getBean(DataSource.class)) {
+				@Override
+				protected void execute() throws Exception {
+					ResultSet rs = getConnection().createStatement().executeQuery("SELECT count(*) FROM COP_AUDIT_TRAIL_EVENT");
+					rs.next();
+					int count = rs.getInt(1);
+					assertEquals(NUMB*11, count);
+				}
+			}.run();
+		}
+		finally {
+			context.close();
+		}
+		assertEquals(EngineState.STOPPED,engineRed.getEngineState());
+		assertEquals(EngineState.STOPPED,engineBlue.getEngineState());
+		assertEquals(0,engineRed.getNumberOfWorkflowInstances());
+		assertEquals(0,engineBlue.getNumberOfWorkflowInstances());
+
 	}
 	
 	public void testErrorHandlingInCoreEngine() throws Exception {

@@ -128,6 +128,19 @@ public interface ProcessingEngine {
 	 */
 	public EngineState getEngineState();
 	
+	/**
+	 * returns the engines id
+	 * @return the engine id
+	 */
 	public String getEngineId();
+	
+	/**
+	 * Adds the specified WaitHook for the workflow instance with the specified id.
+	 * The WaitHook is called once at the next wait invocation of the specified workflow instance.
+	 *  
+	 * @param wfInstanceId
+	 * @param waitHook
+	 */
+	public void addWaitHook(String wfInstanceId, WaitHook waitHook);
 	
 }

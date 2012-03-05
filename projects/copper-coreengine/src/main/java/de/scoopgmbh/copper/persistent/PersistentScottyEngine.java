@@ -18,6 +18,8 @@ package de.scoopgmbh.copper.persistent;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,7 @@ import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.PersistentProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Response;
+import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowInstanceDescr;
@@ -61,6 +64,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	private boolean notifyProcessorPoolsOnResponse = false;
 	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
 	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
+	private final Map<String, List<WaitHook>> waitHookMap = new HashMap<String, List<WaitHook>>();
 
 	public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
 		this.statisticsCollector = statisticsCollector;
@@ -162,7 +166,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 			logger.error("Unkown processor pool '"+pw.getProcessorPoolId()+"' - using default pool instead");
 			pw.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
 		}
-		pw.registerCall = new RegisterCall(w, mode, timeoutMsec > 0 ? timeoutMsec : null, correlationIds);
+		pw.registerCall = new RegisterCall(w, mode, timeoutMsec > 0 ? timeoutMsec : null, correlationIds, getAndRemoveWaitHooks(pw));
 	}
 
 	@Override
@@ -300,6 +304,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		if (existingWF != null && existingWF.getProcessingState() == ProcessingState.FINISHED) {
 			statisticsCollector.submit(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
 		}
+		getAndRemoveWaitHooks(wf); // Clean up...
 	}
 
 	public int getNumberOfWorkflowInstances() {
@@ -364,6 +369,31 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		}
 		catch(Exception e) {
 			throw new CopperRuntimeException(e);
+		}
+	}
+
+	@Override
+	public void addWaitHook(String wfInstanceId, WaitHook waitHook) {
+		if (wfInstanceId == null) throw new NullPointerException();
+		if (waitHook == null) throw new NullPointerException();
+		
+		synchronized (waitHookMap) {
+			if (!workflowMap.containsKey(wfInstanceId)) {
+				throw new CopperRuntimeException("Unkown workflow instance with id '"+wfInstanceId+"'");
+			}
+			List<WaitHook> l = waitHookMap.get(wfInstanceId);
+			if (l == null) {
+				l = new ArrayList<WaitHook>();
+				waitHookMap.put(wfInstanceId, l);
+			}
+			l.add(waitHook);
+		}
+	}
+	
+	private List<WaitHook> getAndRemoveWaitHooks(Workflow<?> wf) {
+		synchronized (waitHookMap) {
+			List<WaitHook> l = waitHookMap.remove(wf.getId());
+			return l == null ? Collections.<WaitHook>emptyList() : l;
 		}
 	}
 }

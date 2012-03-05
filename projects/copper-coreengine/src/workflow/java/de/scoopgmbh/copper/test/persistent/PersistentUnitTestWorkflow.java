@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
+import java.sql.Connection;
 import java.util.Date;
 
 import junit.framework.Assert;
@@ -25,9 +26,12 @@ import org.slf4j.LoggerFactory;
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
+import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
+import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.audit.AuditTrail;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
+import de.scoopgmbh.copper.test.DataHolder;
 import de.scoopgmbh.copper.test.MockAdapter;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
@@ -41,7 +45,13 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 	private transient BackChannelQueue backChannelQueue;
 	private transient MockAdapter mockAdapter;
 	private transient AuditTrail auditTrail;
+	private transient DataHolder dataHolder;
 
+	@AutoWire
+	public void setDataHolder(DataHolder dataHolder) {
+		this.dataHolder = dataHolder;
+	}
+	
 	@AutoWire
 	public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
 		this.backChannelQueue = backChannelQueue;
@@ -64,6 +74,9 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 				callFoo();
 				Assert.assertNotNull(this.getCreationTS());
 			}
+			
+			callFooWithWaitHook();
+
 			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished");
 			backChannelQueue.enqueue(new WorkflowResult(getData(), null));
 		}
@@ -71,9 +84,6 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 			logger.error("execution failed",e);
 			backChannelQueue.enqueue(new WorkflowResult(null, e));
 		}
-//		finally {
-//			System.out.println("xxx");
-//		}
 	}
 
 	private void callFoo() throws InterruptException {
@@ -88,5 +98,30 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		Assert.assertNull(res.getException());
 		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called");
 	}
+	
+	private void callFooWithWaitHook() throws InterruptException {
+		final String cid = getEngine().createUUID();
+		mockAdapter.foo(getData(), cid);
+		
+		dataHolder.clear(cid);
+		getEngine().addWaitHook(this.getId(), new WaitHook() {
+			@Override
+			public void onWait(Workflow<?> wf, Connection con) throws Exception {
+				Assert.assertNotNull(wf);
+				Assert.assertNotNull(con);
+				dataHolder.put(cid,wf.getId());
+			}
+		});
+		wait(WaitMode.ALL, 10000, cid);
+		Assert.assertEquals(getId(), dataHolder.get(cid));
+		dataHolder.clear(cid);
 
+		Response<?> res = getAndRemoveResponse(cid);
+		logger.info(res.toString());
+		Assert.assertNotNull(res);
+		Assert.assertFalse(res.isTimeout());
+		Assert.assertEquals(getData(),res.getResponse());
+		Assert.assertNull(res.getException());
+	}
+	
 }

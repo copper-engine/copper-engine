@@ -23,6 +23,7 @@
     		<value>src/workflow/java</value>
     	</list></property>
     	<property name="targetDir" value="target/compiled_workflow"/>
+    	<property name="loadNonWorkflowClasses" value="true"/>
     </bean>
     
 <!-- 	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close"> -->
