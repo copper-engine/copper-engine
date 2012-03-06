@@ -481,10 +481,22 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		logger.info("finished");
 	}
 	
+	/**
+	 * returns an int value between 0 and 1073741823 (exclusive)
+	 */
+	static int computeLockId(String s) {
+		// This method handles the following fact: Math.abs(Integer.MIN_VALUE) == Integer.MIN_VALUE
+		int hashCode = s.hashCode();
+		if (hashCode == Integer.MIN_VALUE) {
+			hashCode = 13;
+		}
+		return Math.abs(hashCode) % 1073741823;
+	}
+	
 	private void lock(Connection c, String context) throws SQLException {
 		if (!multiEngineMode)
 			return;
-		final int lockId = Math.abs(context.hashCode()) % 1073741823;
+		final int lockId = computeLockId(context);
 		int result=0;
 		for (int i=0; i<3; i++) {
 			if (logger.isDebugEnabled()) logger.debug("Trying to acquire db lock for '"+context+"' ==> lockId="+lockId);

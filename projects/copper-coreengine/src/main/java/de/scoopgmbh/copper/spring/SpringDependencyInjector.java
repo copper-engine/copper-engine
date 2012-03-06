@@ -71,6 +71,7 @@ public class SpringDependencyInjector implements DependencyInjector, Application
 		List<InjectionDescription> list = null;
 		list = map.get(c);
 		// the following double checked locking shall prevent to create the InjectionDescription list more than once by two or more concurrent threads
+		// Ignore FindBugs warning
 		if (list == null) {
 			synchronized (map) {
 				list = map.get(c);
