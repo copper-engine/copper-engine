@@ -72,15 +72,15 @@ public class TicketPool {
 		this(null, availableTickets);
 	}
 
-	public long availableTickets() {
+	public synchronized long availableTickets() {
 		return maxTickets - used;
 	}
 
-	public int getUsedTickets() {
+	public synchronized int getUsedTickets() {
 		return used;
 	}
 
-	public int getMaxTickets() {
+	public synchronized int getMaxTickets() {
 		return maxTickets;
 	}
 
@@ -202,11 +202,11 @@ public class TicketPool {
 		return id;
 	}
 
-	public int getCapacity() {
+	public synchronized int getCapacity() {
 		return getMaxTickets();
 	}
 
-	public boolean isTraceEnabled() {
+	public synchronized boolean isTraceEnabled() {
 		return traceEnabled;
 	}
 
@@ -218,7 +218,7 @@ public class TicketPool {
 	 * @param traceEnabled
 	 * @see #setNotificationBroadcasterSupport(NotificationBroadcasterSupport)
 	 */
-	public void setTraceEnabled(boolean traceEnabled) {
+	public synchronized void setTraceEnabled(boolean traceEnabled) {
 		this.traceEnabled = traceEnabled;
 	}
 

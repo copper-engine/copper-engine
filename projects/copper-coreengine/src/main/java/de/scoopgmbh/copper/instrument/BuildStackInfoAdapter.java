@@ -118,7 +118,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 			break;
 		default: logger.debug("Unhandled: ");			
 		}
-		logger.debug("fieldInsn "+getOpCode(arg0)+" '"+arg1+"' '"+arg2+"' '"+arg3+"'");
+		if (logger.isDebugEnabled()) logger.debug("fieldInsn "+getOpCode(arg0)+" '"+arg1+"' '"+arg2+"' '"+arg3+"'");
 		delegate.visitFieldInsn(arg0, arg1, arg2, arg3);
 	}
 
@@ -127,8 +127,8 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 	public void visitFrame(int arg0, int arg1, Object[] arg2, int arg3,
 			Object[] arg4) {
 		savePreviousFrame();
-		logger.debug("stackBefore: "+currentFrame.stack);
-		logger.debug("localBefore: "+currentFrame.localsToString());
+		if (logger.isDebugEnabled()) logger.debug("stackBefore: "+currentFrame.stack);
+		if (logger.isDebugEnabled()) logger.debug("localBefore: "+currentFrame.localsToString());
 		currentFrame = new StackInfo(lastDeclaredFrame);
 		switch (arg0) {
 		case F_SAME: // representing frame with exactly the same locals as the previous frame and with the empty stack.
@@ -148,9 +148,9 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 
 		}
 		lastDeclaredFrame = new StackInfo(currentFrame);
-		logger.debug("stack: "+currentFrame.stack);
-		logger.debug("local: "+currentFrame.localsToString());
-		logger.debug("frame "+getFrameType(arg0)+" '"+arg1+"' '"+Arrays.asList(arg2)+"' '"+arg3+"' '"+Arrays.asList(arg4)+"'");
+		if (logger.isDebugEnabled()) logger.debug("stack: "+currentFrame.stack);
+		if (logger.isDebugEnabled()) logger.debug("local: "+currentFrame.localsToString());
+		if (logger.isDebugEnabled()) logger.debug("frame "+getFrameType(arg0)+" '"+arg1+"' '"+Arrays.asList(arg2)+"' '"+arg3+"' '"+Arrays.asList(arg4)+"'");
 		delegate.visitFrame(arg0, arg1, arg2, arg3, arg4);
 	}
 
@@ -363,7 +363,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 		case NOP: break;
 		default: logger.debug("Unhandled: ");
 		}
-		logger.debug("insn "+getOpCode(arg0));
+		if (logger.isDebugEnabled()) logger.debug("insn "+getOpCode(arg0));
 		delegate.visitInsn(arg0);		
 	}
 	
@@ -380,7 +380,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 		default:
 			logger.debug("Unhandled: ");
 		}
-		logger.debug("intInsn "+getOpCode(arg0)+" "+arg1);
+		if (logger.isDebugEnabled()) logger.debug("intInsn "+getOpCode(arg0)+" "+arg1);
 		delegate.visitIntInsn(arg0, arg1);
 	}
 
@@ -414,14 +414,14 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 		default:
 			logger.debug("Unhandled: ");
 		}
-		logger.debug("jumpInsn "+getOpCode(arg0)+" "+arg1);
+		if (logger.isDebugEnabled()) logger.debug("jumpInsn "+getOpCode(arg0)+" "+arg1);
 		delegate.visitJumpInsn(arg0, arg1);
 	}
 
 	@Override
 	public void visitLabel(Label arg0) {
 		savePreviousFrame();
-		logger.debug("label "+arg0);
+		if (logger.isDebugEnabled()) logger.debug("label "+arg0);
 		StackInfo f = forwardFrames.get(arg0);
 		if (f != null)
 			currentFrame = new StackInfo(f);
@@ -445,7 +445,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 			currentFrame.pushStack(Type.LONG_TYPE);
 		else
 			logger.debug("Unhandled: ");
-		logger.debug("ldcInsn "+arg0);
+		if (logger.isDebugEnabled()) logger.debug("ldcInsn "+arg0);
 		delegate.visitLdcInsn(arg0);
 	}
 
@@ -463,7 +463,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 	@Override
 	public void visitLookupSwitchInsn(Label arg0, int[] arg1, Label[] arg2) {
 		savePreviousFrame();
-		logger.debug("lookupSwitchInsn "+arg0+" "+Arrays.asList(arg1)+" "+Arrays.asList(arg2));
+		if (logger.isDebugEnabled()) logger.debug("lookupSwitchInsn "+arg0+" "+Arrays.toString(arg1)+" "+Arrays.toString(arg2));
 		delegate.visitLookupSwitchInsn(arg0, arg1, arg2);
 	}
 
@@ -493,7 +493,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 		default:
 			logger.debug("Unhandled: ");
 		}
-		logger.debug("methodInsn "+getOpCode(arg0)+" "+arg1+" "+arg2+" "+arg3);
+		if (logger.isDebugEnabled()) logger.debug("methodInsn "+getOpCode(arg0)+" "+arg1+" "+arg2+" "+arg3);
 		delegate.visitMethodInsn(arg0, arg1, arg2, arg3);
 	}
 
@@ -503,7 +503,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 		for (int i = 0; i < arg1; ++i)
 			currentFrame.popStackChecked(Type.INT_TYPE);
 		currentFrame.pushStack(Type.getObjectType(arg0));
-		logger.debug("visitMultiANewArrayInsn "+arg0+" "+arg1);
+		if (logger.isDebugEnabled()) logger.debug("visitMultiANewArrayInsn "+arg0+" "+arg1);
 		delegate.visitMultiANewArrayInsn(arg0, arg1);
 	}
 
@@ -517,14 +517,14 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 	public void visitTableSwitchInsn(int arg0, int arg1, Label arg2,
 			Label[] arg3) {
 		savePreviousFrame();
-		logger.debug("tableSwitchInsn "+arg0+" "+arg1+" "+arg2+" "+Arrays.asList(arg3));
+		if (logger.isDebugEnabled()) logger.debug("tableSwitchInsn "+arg0+" "+arg1+" "+arg2+" "+Arrays.asList(arg3));
 		delegate.visitTableSwitchInsn(arg0, arg1, arg2, arg3);
 	}
 
 	@Override
 	public void visitTryCatchBlock(Label arg0, Label arg1, Label arg2,
 			String arg3) {
-		logger.debug("tryCatchBlock "+arg0+" "+arg1+" "+arg2+" "+arg3);
+		if (logger.isDebugEnabled()) logger.debug("tryCatchBlock "+arg0+" "+arg1+" "+arg2+" "+arg3);
 		delegate.visitTryCatchBlock(arg0, arg1, arg2, arg3);
 	}
 
@@ -544,7 +544,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 		default:
 			logger.debug("Unhandled:");
 		}
-		logger.debug("typeInsn: "+getOpCode(arg0)+" "+arg1);
+		if (logger.isDebugEnabled()) logger.debug("typeInsn: "+getOpCode(arg0)+" "+arg1);
 		delegate.visitTypeInsn(arg0, arg1);
 	}
 
@@ -589,7 +589,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 		default:
 			logger.debug("Unhandled:");
 		}
-		logger.debug("varInsn: "+getOpCode(arg0)+" "+arg1);
+		if (logger.isDebugEnabled()) logger.debug("varInsn: "+getOpCode(arg0)+" "+arg1);
 		delegate.visitVarInsn(arg0, arg1);
 	}
 
@@ -634,14 +634,14 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 			 @Override
 			public MethodVisitor visitMethod(int arg0, String arg1,
 					String arg2, String arg3, String[] arg4) {
-				 logger.debug("=======>"+arg0+" "+arg1+" "+arg2+" "+arg3);
+				 if (logger.isDebugEnabled()) logger.debug("=======>"+arg0+" "+arg1+" "+arg2+" "+arg3);
 				  return new BuildStackInfoAdapter(desc, (arg0&Opcodes.ACC_STATIC) > 0, arg1, arg2, arg3);
 			}
 			 
 			 @Override
 			public void visitInnerClass(String arg0, String arg1, String arg2,
 					int arg3) {
-				 logger.debug("== VISIT INNER =======>"+arg0+" "+arg1+" "+arg2+" "+arg3);
+				 if (logger.isDebugEnabled()) logger.debug("== VISIT INNER =======>"+arg0+" "+arg1+" "+arg2+" "+arg3);
 				super.visitInnerClass(arg0, arg1, arg2, arg3);
 			}
 				

@@ -41,13 +41,14 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	private static final Logger logger = LoggerFactory.getLogger(PersistentPriorityProcessorPool.class);
 	
 	private Thread thread;
-	private boolean shutdown = false;
+	private volatile boolean shutdown = false;
 	private final Object mutex = new Object();
-	private int lowerThreshold = 3000;
-	private int upperThreshold = 6000;
-	private int upperThresholdReachedWaitMSec = 50;
-	private int emptyQueueWaitMSec = 500;
-	private int dequeueBulkSize = 2000;
+
+	private volatile int lowerThreshold = 3000;
+	private volatile int upperThreshold = 6000;
+	private volatile int upperThresholdReachedWaitMSec = 50;
+	private volatile int emptyQueueWaitMSec = 500;
+	private volatile int dequeueBulkSize = 2000;
 	
 	/**
 	 * Creates a new {@link PersistentPriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
@@ -173,7 +174,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 		}
 	}
 	
-	public synchronized void setLowerThreshold(int lowerThreshold) {
+	public void setLowerThreshold(int lowerThreshold) {
 		if (lowerThreshold < 0 || lowerThreshold > upperThreshold) throw new IllegalArgumentException();
 		this.lowerThreshold = lowerThreshold;
 	}
@@ -182,7 +183,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 		return lowerThreshold;
 	}
 	
-	public synchronized void setUpperThreshold(int upperThreshold) {
+	public void setUpperThreshold(int upperThreshold) {
 		if (upperThreshold < 1 || upperThreshold < lowerThreshold) throw new IllegalArgumentException();
 		this.upperThreshold = upperThreshold;
 	}

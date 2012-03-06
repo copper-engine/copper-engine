@@ -87,7 +87,7 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 		this.numThreads = numThreads;
 	}
 	
-	public int getNumThreads() {
+	public synchronized int getNumThreads() {
 		return numThreads;
 	}
 	

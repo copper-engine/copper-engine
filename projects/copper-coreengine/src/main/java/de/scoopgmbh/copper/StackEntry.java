@@ -57,11 +57,10 @@ public class StackEntry implements Serializable {
 			stack[i] = stream.readObject();
 	}
 
-	private void writeObject(java.io.ObjectOutputStream stream)
-			throws IOException {
+	private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
 		stream.writeInt(jumpNo);
-		stream.writeInt(locals.length);
-		stream.writeInt(stack.length);
+		stream.writeInt(locals == null ? 0 : locals.length);
+		stream.writeInt(stack == null ? 0 : stack.length);
 		if (locals != null) {
 			for (int i = 0; i < locals.length; ++i)
 				stream.writeObject(locals[i]);

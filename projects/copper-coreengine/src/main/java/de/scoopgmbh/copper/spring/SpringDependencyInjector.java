@@ -52,7 +52,7 @@ public class SpringDependencyInjector implements DependencyInjector, Application
 	}
 	
 	private final Map<Class<?>, List<InjectionDescription>> map = new ConcurrentHashMap<Class<?>, List<InjectionDescription>>();
-	private List<InjectionDescription> create(Class<?> c) {
+	private static List<InjectionDescription> create(Class<?> c) {
 		List<InjectionDescription> list = new ArrayList<InjectionDescription>();
 		for (Method m : c.getMethods()) {
 			AutoWire annotation = m.getAnnotation(AutoWire.class);
@@ -70,6 +70,7 @@ public class SpringDependencyInjector implements DependencyInjector, Application
 		final Class<?> c = workflow.getClass();
 		List<InjectionDescription> list = null;
 		list = map.get(c);
+		// the following double checked locking shall prevent to create the InjectionDescription list more than once by two or more concurrent threads
 		if (list == null) {
 			synchronized (map) {
 				list = map.get(c);

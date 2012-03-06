@@ -533,7 +533,7 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 					deleteStaleResponsesStmtStatistic.start();
 					n[0] = stmt.executeUpdate();
 					deleteStaleResponsesStmtStatistic.stop(n[0]);
-					if (logger.isTraceEnabled()) logger.trace("deleted "+n+" stale response(s).");
+					if (logger.isTraceEnabled()) logger.trace("deleted "+n[0]+" stale response(s).");
 				}
 			}.run();
 		}

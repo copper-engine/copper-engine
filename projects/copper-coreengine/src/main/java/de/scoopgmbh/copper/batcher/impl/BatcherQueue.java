@@ -205,8 +205,8 @@ class BatcherQueue {
 	void stop() throws InterruptedException {
 		while (true) {
 			lock.lock();
-			state = State.STOPPING;
 			try {
+				state = State.STOPPING;
 				boolean stopped = true;
 				for (BatchInfo batch : batches) {
 					if (batch.batch.size() > 0)

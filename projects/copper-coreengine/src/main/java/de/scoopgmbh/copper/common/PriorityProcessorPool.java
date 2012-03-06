@@ -123,7 +123,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 	
 	protected abstract Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine);
 
-	public int getNumberOfThreads() {
+	public synchronized int getNumberOfThreads() {
 		return numberOfThreads;
 	}
 	
@@ -137,7 +137,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 		}
 	}
 	
-	public int getThreadPriority() {
+	public synchronized int getThreadPriority() {
 		return threadPriority;
 	}
 

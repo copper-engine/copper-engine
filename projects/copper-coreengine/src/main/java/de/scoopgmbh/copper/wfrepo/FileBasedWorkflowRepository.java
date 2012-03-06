@@ -135,14 +135,14 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	 * 
 	 * @param checkIntervalMSec
 	 */
-	public synchronized void setCheckIntervalMSec(int checkIntervalMSec) {
+	public void setCheckIntervalMSec(int checkIntervalMSec) {
 		this.checkIntervalMSec = checkIntervalMSec;
 	}
 
 	/**
 	 * @deprecated use setSourceDirs instead
 	 */
-	public synchronized void setSourceDir(String sourceDir) {
+	public void setSourceDir(String sourceDir) {
 		sourceDirs = new ArrayList<String>();
 		sourceDirs.add(sourceDir);
 	}
@@ -177,7 +177,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	 * 
 	 * @param targetDir
 	 */
-	public synchronized void setTargetDir(String targetDir) {
+	public void setTargetDir(String targetDir) {
 		this.targetDir = targetDir;
 	}
 	
@@ -185,7 +185,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		return targetDir;
 	}
 
-	public synchronized void setPreprocessors(List<Runnable> preprocessors) {
+	public void setPreprocessors(List<Runnable> preprocessors) {
 		if (preprocessors == null) throw new NullPointerException();
 		this.preprocessors = new ArrayList<Runnable>(preprocessors);
 	}

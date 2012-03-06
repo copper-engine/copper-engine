@@ -267,8 +267,8 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		if (wf != null) {
 			WorkflowAccessor.setProcessingState(wf, ProcessingState.FINISHED);
 			ticketPoolManager.release(wf);
+			statisticsCollector.submit(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
 		}
-		statisticsCollector.submit(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
 	}
 
 	@Override
