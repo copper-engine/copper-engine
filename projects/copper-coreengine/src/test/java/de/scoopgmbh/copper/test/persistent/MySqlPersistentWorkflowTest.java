@@ -48,35 +48,43 @@ public class MySqlPersistentWorkflowTest extends PersistentWorkflowTest {
 	}
 	
 	public void testAsnychResponse() throws Exception {
-		if (dbmsAvailable) super.testAsnychResponse(DS_CONTEXT);
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testAsnychResponse(DS_CONTEXT);
 	}
 
 	public void testAsnychResponseLargeData() throws Exception {
-		if (dbmsAvailable) super.testAsnychResponseLargeData(DS_CONTEXT,65536);
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testAsnychResponseLargeData(DS_CONTEXT,65536);
 	}
 
 	public void testWithConnection() throws Exception {
-		if (dbmsAvailable) super.testWithConnection(DS_CONTEXT);
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testWithConnection(DS_CONTEXT);
 	}
 	
 	public void testWithConnectionBulkInsert() throws Exception {
-		if (dbmsAvailable) super.testWithConnectionBulkInsert(DS_CONTEXT);
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testWithConnectionBulkInsert(DS_CONTEXT);
 	}
 	
 	public void testTimeouts() throws Exception {
-		if (dbmsAvailable) super.testTimeouts(DS_CONTEXT);
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testTimeouts(DS_CONTEXT);
 	}
 
 	public void testErrorHandlingInCoreEngine() throws Exception {
-		if (dbmsAvailable) super.testErrorHandlingInCoreEngine(DS_CONTEXT);
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testErrorHandlingInCoreEngine(DS_CONTEXT);
 	}
 	
 	public void testParentChildWorkflow() throws Exception {
-		if (dbmsAvailable) super.testParentChildWorkflow(DS_CONTEXT);
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testParentChildWorkflow(DS_CONTEXT);
 	}	
 
 	public void testErrorKeepWorkflowInstanceInDB() throws Exception {
-		if (dbmsAvailable) super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
 	}
 	
 //	public void testCompressedAuditTrail() throws Exception {
