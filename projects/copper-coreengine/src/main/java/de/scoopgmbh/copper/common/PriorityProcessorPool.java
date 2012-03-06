@@ -41,13 +41,25 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 
 	private ProcessingEngine engine = null;
 	private String id = null;
-	private int numberOfThreads = 2;
+	private int numberOfThreads = Runtime.getRuntime().availableProcessors();
 	private int threadPriority = Thread.NORM_PRIORITY;
 	
 	private boolean started = false;
 	private boolean shutdown = false;
 	
+	/**
+	 * Creates a new {@link PriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
+	 * <code>id</code> needs to be initialized later using the setter.
+	 */
 	public PriorityProcessorPool() {
+	}
+	
+	/**
+	 * Creates a new {@link PriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
+	 */
+	public PriorityProcessorPool(String id) {
+		super();
+		this.id = id;
 	}
 	
 	public PriorityProcessorPool(String id, int numberOfThreads) {

@@ -49,10 +49,21 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	private int emptyQueueWaitMSec = 500;
 	private int dequeueBulkSize = 2000;
 	
+	/**
+	 * Creates a new {@link PersistentPriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
+	 * <code>id</code> needs to be initialized later using the setter.
+	 */
 	public PersistentPriorityProcessorPool() {
 		super();
 	}
 
+	/**
+	 * Creates a new {@link PersistentPriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
+	 */
+	public PersistentPriorityProcessorPool(String id) {
+		super(id);
+	}
+	
 	public PersistentPriorityProcessorPool(String id, int numberOfThreads) {
 		super(id, numberOfThreads);
 	}

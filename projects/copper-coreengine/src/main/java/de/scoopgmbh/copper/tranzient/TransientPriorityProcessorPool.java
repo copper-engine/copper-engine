@@ -33,7 +33,18 @@ import de.scoopgmbh.copper.internal.WorkflowAccessor;
  */
 public class TransientPriorityProcessorPool extends PriorityProcessorPool implements TransientProcessorPool {
 
+	/**
+	 * Creates a new {@link TransientPriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
+	 * <code>id</code> needs to be initialized later using the setter.
+	 */
 	public TransientPriorityProcessorPool() {
+	}
+	
+	/**
+	 * Creates a new {@link TransientPriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
+	 */
+	public TransientPriorityProcessorPool(String id) {
+		super(id);
 	}
 	
 	public TransientPriorityProcessorPool(String id, int numberOfThreads) {
