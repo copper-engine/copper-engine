@@ -1,0 +1,3 @@
+"\Program Files\PostgreSQL\9.1\bin\psql.exe" -U copper postgres
+\i create-schema.sql
+\q

@@ -1,0 +1,1 @@
+CREATE USER copper WITH PASSWORD 'copper4711';

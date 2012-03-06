@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:aop="http://www.springframework.org/schema/aop"
+         xmlns:tx="http://www.springframework.org/schema/tx"
+         xmlns:jee="http://www.springframework.org/schema/jee"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx 
+           http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+           http://www.springframework.org/schema/jee 
+           http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+           
+	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+    	<property name="driverClass" value="org.postgresql.Driver"/>
+    	<property name="jdbcUrl" value="jdbc:postgresql://localhost:5432/postgres"/>
+    	<property name="user" value="copper"/>
+    	<property name="password" value="copper4711"/>
+    	<property name="maxPoolSize" value="4"/>
+    	<property name="minPoolSize" value="2"/>
+	</bean>
+	
+	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.PostgreSQLScottyDBStorage" scope="singleton">
+		<property name="batcher" ref="batcher"/>
+		<property name="dataSource" ref="datasource_default"/>
+		<property name="wfRepository" ref="wfRepository"/>
+	</bean>
+	
+</beans>          
+
+        
