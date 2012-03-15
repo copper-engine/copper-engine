@@ -65,42 +65,45 @@ class BatchInsertIntoAutoTrail {
 
 		@Override
 		public int maximumBatchSize() {
-			return 100;
+			return 50;
 		}
 
 		@Override
 		public int preferredBatchSize() {
-			return 50;
+			return 20;
 		}
 
 		@Override
 		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			if (logger.isDebugEnabled()) logger.debug("DatabaseProductName="+con.getMetaData().getDatabaseProductName());
 			String _stmt;
-			if (con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle")) {
-				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?)";
+			final boolean isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
+			if (isOracle) {
+				// Oracle
+				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,LONG_MESSAGE,TRANSACTION_ID, MESSAGE_TYPE, MESSAGE) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?,?)";
 			}
 			else {
-				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,WORKFLOW_INSTANCE_ID,CORRELATION_ID,MESSAGE,LONG_MESSAGE,TRANSACTION_ID) VALUES (?,?,?,?,?,?,?,?,?)";
+				// ANSI SQL
+				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,LONG_MESSAGE,TRANSACTION_ID,MESSAGE_TYPE) VALUES (?,?,?,?,?,?,?,?,?)";
+				
 			}
 			final PreparedStatement stmt = con.prepareStatement(_stmt);
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				Command cmd = (Command)_cmd;
+				int idx=1;
 				AuditTrailEvent data = cmd.data;
-				stmt.setTimestamp(1, new Timestamp(data.occurrence.getTime()));
-				stmt.setString(2, data.conversationId);
-				stmt.setInt(3, data.logLevel);
-				stmt.setString(4, data.context);
-				stmt.setString(5, data.workflowInstanceId);
-				stmt.setString(6, data.correlationId);
-				if ( data.message != null && data.message.length()>4000 ) { 
-					stmt.setString(7, data.message.substring(0,3999));
-					stmt.setString(8, data.message);
-				} else {
-					stmt.setString(7, data.message);
-					stmt.setString(8, null);
+				stmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
+				stmt.setString(idx++, data.conversationId);
+				stmt.setInt(idx++, data.logLevel);
+				stmt.setString(idx++, data.context);
+				stmt.setString(idx++, data.instanceId);
+				stmt.setString(idx++, data.correlationId);
+				stmt.setString(idx++, data.message);
+				stmt.setString(idx++, data.transactionId);
+				stmt.setString(idx++, data.messageType);
+				if (isOracle) {
+					stmt.setString(idx++, data.message.length() >= 4000 ? data.message.substring(0,3999) : data.message);
 				}
-				stmt.setString(9, data.transactionId);
 				stmt.addBatch();
 			}
 			stmt.executeBatch();

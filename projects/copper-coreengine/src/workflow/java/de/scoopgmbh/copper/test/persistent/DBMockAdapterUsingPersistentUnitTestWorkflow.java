@@ -64,7 +64,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
 				callFoo();
 				Assert.assertNotNull(this.getCreationTS());
 			}
-			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished");
+			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", null);
 			backChannelQueue.enqueue(new WorkflowResult(getData(), null));
 		}
 		catch(Exception e) {
@@ -86,7 +86,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
 		Assert.assertFalse(res.isTimeout());
 		Assert.assertEquals(getData(),res.getResponse());
 		Assert.assertNull(res.getException());
-		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called");
+		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
 	}
 
 }

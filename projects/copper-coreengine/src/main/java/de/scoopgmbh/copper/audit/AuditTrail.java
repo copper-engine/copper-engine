@@ -37,12 +37,13 @@ public interface AuditTrail {
 	 * @param occurrence timestamp of the audit trail event 
 	 * @param conversationId conversation id embraces all audit trail events for one business process (might be the same for a whole business transaction over a range of involved systems)
 	 * @param context the context of the audit trail event (e.g. a camel route, a workflow task, ...)
-	 * @param workflowInstanceId workflow id for a single workflow
+	 * @param instanceId workflow id for a single workflow
 	 * @param correlationId correlates a request response pair (e.g. workflow calls another workflow, workflow calls a camel route, ...)
 	 * @param transactionId Same ID vor several conversations, that belongs to the same transaction. Example: ExecuteOrder (conversation 1), ChangeOrder (conversation 2) and CancelOrder (conversation 3) that all belongs to transaction 77. When transaction 77 can be deleted, all conversations for this transaction can be deleted.
 	 * @param message a message describing the audit trail event
+	 * @param messageType type of the message, e.g. XML, used for message rendering in the COPPER monitor  
 	 */
-	public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message);
+	public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType);
 	
 	/**
 	 * returns immediately after queueing the log message
@@ -50,12 +51,13 @@ public interface AuditTrail {
 	 * @param occurrence timestamp of the audit trail event 
 	 * @param conversationId conversation id embraces all audit trail events for one business process (might be the same for a whole business transaction over a range of involved systems)
 	 * @param context the context of the audit trail event (e.g. a camel route, a workflow task, ...)
-	 * @param workflowInstanceId workflow id for a single workflow
+	 * @param instanceId workflow id for a single workflow
 	 * @param correlationId correlates a request response pair (e.g. workflow calls another workflow, workflow calls a camel route, ...)
 	 * @param transactionId Same ID vor several conversations, that belongs to the same transaction. Example: ExecuteOrder (conversation 1), ChangeOrder (conversation 2) and CancelOrder (conversation 3) that all belongs to transaction 77. When transaction 77 can be deleted, all conversations for this transaction can be deleted.
 	 * @param message a message describing the audit trail event
+	 * @param messageType type of the message, e.g. XML, used for message rendering in the COPPER monitor  
 	 */
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message);
+	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType);
 	
 	/**
 	 * returns immediately after queueing the log message
@@ -63,12 +65,29 @@ public interface AuditTrail {
 	 * @param occurrence timestamp of the audit trail event 
 	 * @param conversationId conversation id embraces all audit trail events for one business process (might be the same for a whole business transaction over a range of involved systems)
 	 * @param context the context of the audit trail event (e.g. a camel route, a workflow task, ...)
-	 * @param workflowInstanceId workflow id for a single workflow
+	 * @param instanceId workflow id for a single workflow
 	 * @param correlationId correlates a request response pair (e.g. workflow calls another workflow, workflow calls a camel route, ...)
 	 * @param transactionId Same ID vor several conversations, that belongs to the same transaction. Example: ExecuteOrder (conversation 1), ChangeOrder (conversation 2) and CancelOrder (conversation 3) that all belongs to transaction 77. When transaction 77 can be deleted, all conversations for this transaction can be deleted.
 	 * @param message a message describing the audit trail event
+	 * @param messageType type of the message, e.g. XML, used for message rendering in the COPPER monitor  
 	 * @param cb
 	 */
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message, AuditTrailCallback cb);
+	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType, AuditTrailCallback cb);
 
+	/**
+	 * returns immediately after queueing the log message
+	 */
+	public void asynchLog(AuditTrailEvent e);
+	
+	/**
+	 * returns immediately after queueing the log message
+	 */
+	public void asynchLog(AuditTrailEvent e, AuditTrailCallback cb);
+	
+	/**
+	 * writes an event to the audit trail log and returns after the log message is written to the underlying storage.
+	 */
+	public void synchLog(AuditTrailEvent e);
+	
+	
 }

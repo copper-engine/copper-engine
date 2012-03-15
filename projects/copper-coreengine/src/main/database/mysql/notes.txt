@@ -1,4 +1,5 @@
 mysql -u root -p
+geheim
 use COPPER2
 source create-schema.sql
 quit

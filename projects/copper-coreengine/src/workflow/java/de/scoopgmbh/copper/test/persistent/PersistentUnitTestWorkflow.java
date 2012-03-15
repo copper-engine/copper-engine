@@ -77,7 +77,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 			
 			callFooWithWaitHook();
 
-			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished");
+			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", "TEXT");
 			backChannelQueue.enqueue(new WorkflowResult(getData(), null));
 		}
 		catch(Exception e) {
@@ -96,7 +96,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		Assert.assertFalse(res.isTimeout());
 		Assert.assertEquals(getData(),res.getResponse());
 		Assert.assertNull(res.getException());
-		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called");
+		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
 	}
 	
 	private void callFooWithWaitHook() throws InterruptException {

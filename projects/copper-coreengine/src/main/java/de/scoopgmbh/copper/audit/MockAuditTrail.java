@@ -42,37 +42,53 @@ public class MockAuditTrail implements AuditTrail {
 	}
 	
 	@Override
-	public void synchLog(int logLevel, Date occurrence, String conversationId,String context, String workflowInstanceId, String correlationId, String transactionId, String message) {
-		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, transactionId, message));
+	public void synchLog(int logLevel, Date occurrence, String conversationId,String context, String instanceId, String correlationId, String transactionId, String message, String messageType) {
+		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType));
 	}
 
 	@Override
-	public void asynchLog(int logLevel, Date occurrence, String conversationId,String context, String workflowInstanceId, String correlationId,String transactionId, String message) {
-		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, transactionId, message));
+	public void asynchLog(int logLevel, Date occurrence, String conversationId,String context, String instanceId, String correlationId,String transactionId, String message, String messageType) {
+		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType));
 	}
 
 	@Override
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message, AuditTrailCallback cb) {
-		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, transactionId, message));
+	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType, AuditTrailCallback cb) {
+		if ( isEnabled(logLevel) ) logger.info(createMessage(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType));
 		cb.done();
 	}
 
-	private String createMessage(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String message) {
+	private String createMessage(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType) {
 		return new StringBuilder()
 			.append(logLevel).append('|')
 			.append(occurrence).append('|')
 			.append(conversationId).append('|')
 			.append(context).append('|')
-			.append(workflowInstanceId).append('|')
+			.append(instanceId).append('|')
 			.append(correlationId).append('|')
 			.append(transactionId).append('|')
-			.append(message)
+			.append(message).append("|")
+			.append(messageType)
 			.toString();
 	}
 
 	@Override
 	public int getLevel() {
 		return level;
+	}
+
+	@Override
+	public void asynchLog(AuditTrailEvent e) {
+		this.asynchLog(e.logLevel, e.occurrence, e.conversationId, e.context, e.instanceId, e.correlationId, e.transactionId, e.message, e.messageType);
+	}
+
+	@Override
+	public void asynchLog(AuditTrailEvent e, AuditTrailCallback cb) {
+		this.asynchLog(e.logLevel, e.occurrence, e.conversationId, e.context, e.instanceId, e.correlationId, e.transactionId, e.message, e.messageType, cb);
+	}
+
+	@Override
+	public void synchLog(AuditTrailEvent e) {
+		this.synchLog(e.logLevel, e.occurrence, e.conversationId, e.context, e.instanceId, e.correlationId, e.transactionId, e.message, e.messageType);
 	}
 
 }

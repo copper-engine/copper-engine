@@ -29,7 +29,7 @@ public class TestBatchingAuditTrail {
 		final ApplicationContext ctx = new FileSystemXmlApplicationContext("src/test/resources/persistent-engine-application-context.xml");
 		AuditTrail auditTrail = ctx.getBean(AuditTrail.class);
 		for (int i=0; i<100; i++) {
-			auditTrail.asynchLog(2, new Date(), "conv12345678901234567890123456789012", "ctx", "proc12345678901234567890123456789012", "corr12345678901234567890123456789012", null, "testMessage");
+			auditTrail.asynchLog(2, new Date(), "conv12345678901234567890123456789012", "ctx", "proc12345678901234567890123456789012", "corr12345678901234567890123456789012", null, "TEXT", "testMessage");
 		}
 		Thread.sleep(2000);
 		
@@ -67,7 +67,7 @@ public class TestBatchingAuditTrail {
 		};
 		long startTS=System.currentTimeMillis();
 		for (int i=0; i<max; i++) {
-			auditTrail.asynchLog(2, new Date(), "conv12345678901234567890123456789012", "ctx", "proc12345678901234567890123456789012", "corr12345678901234567890123456789012", null, msg, cb);
+			auditTrail.asynchLog(2, new Date(), "conv12345678901234567890123456789012", "ctx", "proc12345678901234567890123456789012", "corr12345678901234567890123456789012", null, msg, "TEXT", cb);
 		}
 		while (x.get() != max) {
 			Thread.sleep(5);

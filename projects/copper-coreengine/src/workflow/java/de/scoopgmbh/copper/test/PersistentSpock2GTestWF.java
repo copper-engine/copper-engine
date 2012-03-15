@@ -59,7 +59,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
 		logger.debug("started");
 		
 		// store the workflow start in the database
-		auditTrail.asynchLog(1,new Date(), "conv1234", "de.scoopgmbh.copper.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "AUSTER TEST 12345");
+		auditTrail.asynchLog(1,new Date(), "conv1234", "de.scoopgmbh.copper.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "AUSTER TEST 12345", "TEXT");
 		
 		// do a call to a adapter e.g. a partner system
 		{
@@ -112,7 +112,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
 		Counter.inc();
 		
 		// report the end of this workflow
-		auditTrail.asynchLog(1,new Date(), "conv123", "de.scoopgmbh.copper.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "FINISHED!");
+		auditTrail.asynchLog(1,new Date(), "conv123", "de.scoopgmbh.copper.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "FINISHED!", "TEXT");
 		logger.debug("finished");		
 	}
 	

@@ -64,7 +64,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 	}
 
 	@Override
-	public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String _message) {
+	public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String _message, String messageType) {
 		if ( isEnabled(logLevel) ) {
 			final String message = messagePostProcessor.serialize(_message);
 			final Object mutex = new Object();
@@ -87,7 +87,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 					}
 				}
 			};
-			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(new AuditTrailEvent(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, transactionId, message),dataSource, callback));
+			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(new AuditTrailEvent(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType),dataSource, callback));
 			synchronized (mutex) {
 				while (!done[0]) {
 					try {
@@ -102,15 +102,15 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 	}
 
 	@Override
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String _message) {
+	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String _message, String messageType) {
 		if ( isEnabled(logLevel) ) {
 			final String message = messagePostProcessor.serialize(_message);
-			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(new AuditTrailEvent(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, transactionId, message),dataSource));
+			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(new AuditTrailEvent(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType),dataSource));
 		}
 	}
 
 	@Override
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String workflowInstanceId, String correlationId, String transactionId, String _message, final AuditTrailCallback cb) {
+	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String _message, String messageType, final AuditTrailCallback cb) {
 		if ( isEnabled(logLevel) ) {
 			final String message = messagePostProcessor.serialize(_message);
 			CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
@@ -123,8 +123,23 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 					cb.error(e);
 				}
 			};
-			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(new AuditTrailEvent(logLevel, occurrence, conversationId, context, workflowInstanceId, correlationId, transactionId, message),dataSource,callback));
+			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(new AuditTrailEvent(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType),dataSource,callback));
 		}
+	}
+
+	@Override
+	public void asynchLog(AuditTrailEvent e) {
+		this.asynchLog(e.logLevel, e.occurrence, e.conversationId, e.context, e.instanceId, e.correlationId, e.transactionId, e.message, e.messageType);
+	}
+
+	@Override
+	public void asynchLog(AuditTrailEvent e, AuditTrailCallback cb) {
+		this.asynchLog(e.logLevel, e.occurrence, e.conversationId, e.context, e.instanceId, e.correlationId, e.transactionId, e.message, e.messageType, cb);
+	}
+
+	@Override
+	public void synchLog(AuditTrailEvent e) {
+		this.synchLog(e.logLevel, e.occurrence, e.conversationId, e.context, e.instanceId, e.correlationId, e.transactionId, e.message, e.messageType);
 	}
 
 }
