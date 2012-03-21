@@ -43,6 +43,8 @@
 		<dependency org="org.springframework" name="spring-jdbc" rev="3.0.5.RELEASE" />
 		<dependency org="org.springframework" name="spring-tx" rev="3.0.5.RELEASE"/>
 		
+		<dependency org="org.springframework.batch" name="spring-batch-infrastructure" rev="2.1.8.RELEASE"/>
+		
 		<!-- Database -->
 		<dependency org="c3p0" name="c3p0" rev="0.9.1.2"/>
 		<dependency org="c3p0" name="c3p0-oracle-thin-extras" rev="0.9.0.2"/>
