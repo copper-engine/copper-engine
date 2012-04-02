@@ -171,4 +171,9 @@ public class OraclePersistentWorkflowTest extends PersistentWorkflowTest {
 		super.testCompressedAuditTrail(DS_CONTEXT);
 	}
 	
+	public void testAutoCommit() throws Exception {
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testAutoCommit(DS_CONTEXT);
+	}
+	
 }

@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -465,6 +466,23 @@ public class PersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 		
+	}	
+	
+	public void testAutoCommit(String dsContext) throws Exception {
+		logger.info("running testAutoCommit");
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		try {
+			DataSource ds = context.getBean(DataSource.class);
+			new RetryingTransaction(ds) {
+				@Override
+				protected void execute() throws Exception {
+					assertFalse(getConnection().getAutoCommit());
+				}
+			};
+		}
+		finally {
+			context.close();
+		}
 	}	
 	
 }

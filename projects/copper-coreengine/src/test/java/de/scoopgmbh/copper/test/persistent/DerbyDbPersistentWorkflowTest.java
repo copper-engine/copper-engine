@@ -72,4 +72,8 @@ public class DerbyDbPersistentWorkflowTest extends PersistentWorkflowTest {
 //		super.testCompressedAuditTrail(DS_CONTEXT);
 //	}
 	
+	public void testAutoCommit() throws Exception {
+		super.testAutoCommit(DS_CONTEXT);
+	}	
+	
 }
