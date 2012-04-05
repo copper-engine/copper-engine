@@ -8,6 +8,12 @@ truncate table copper2.COP_WORKFLOW_INSTANCE;
 truncate table copper2.COP_QUEUE;
 truncate table copper2.COP_WORKFLOW_INSTANCE_ERROR;
 
+alter table copper2.COP_WAIT move;
+alter table copper2.COP_RESPONSE move;
+alter table copper2.COP_WORKFLOW_INSTANCE move;
+alter table copper2.COP_QUEUE move;
+alter table copper2.COP_WORKFLOW_INSTANCE_ERROR move;
+
 
 --
 -- Most COPPER tables are volatile, i.e. they may be empty now and contain a million rows a moment later.
