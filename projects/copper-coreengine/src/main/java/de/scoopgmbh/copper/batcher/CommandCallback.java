@@ -26,9 +26,8 @@ public interface CommandCallback<T extends BatchCommand<?,T>> {
 	
 	/**
 	 * Called when a batch command is successfully executed
-	 * @param cmd the corresponding batch command
 	 */
-	void commandCompleted(T cmd);
+	void commandCompleted();
 
 	/**
 	 * Called when a batch command failed

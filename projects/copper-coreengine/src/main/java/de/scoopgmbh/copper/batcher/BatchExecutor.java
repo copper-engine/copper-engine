@@ -60,7 +60,7 @@ public abstract class BatchExecutor<E extends BatchExecutor<E,T>, T extends Batc
 				}.run();
 			}
 			for (BatchCommand<?,?> cmd : commands) {
-				cmd.callback().commandCompleted(null);
+				cmd.callback().commandCompleted();
 			}
 		} 
 		catch (Exception e) {

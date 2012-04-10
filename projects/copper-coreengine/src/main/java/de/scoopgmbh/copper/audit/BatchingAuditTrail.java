@@ -72,7 +72,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 			final boolean[] done = { false };
 			CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
 				@Override
-				public void commandCompleted(Command cmd) {
+				public void commandCompleted() {
 					synchronized (mutex) {
 						done[0] = true;
 						mutex.notify();
@@ -115,7 +115,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 			final String message = messagePostProcessor.serialize(_message);
 			CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
 				@Override
-				public void commandCompleted(Command cmd) {
+				public void commandCompleted() {
 					cb.done();
 				}
 				@Override

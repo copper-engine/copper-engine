@@ -34,7 +34,7 @@ public class NullCallback<T extends BatchCommand<?,T>> implements CommandCallbac
 	public static final NullCallback instance = new NullCallback();
 
 	@Override
-	public void commandCompleted(T cmd) {
+	public void commandCompleted() {
 	}
 
 	@SuppressWarnings("unchecked")
