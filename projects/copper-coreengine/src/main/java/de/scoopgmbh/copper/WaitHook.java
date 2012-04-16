@@ -28,7 +28,7 @@ public interface WaitHook {
 	/**
 	 * Called for one single wait invocation of the corresponding workflow instance.
 	 * This method may be called multiple times, e.g. in case of a rollback with subsequent retry.
-	 * Attention! You may not commit or rollback the transaction currently hold be the specified
+	 * Attention! You may not commit or rollback the transaction currently hold by the specified
 	 * connection (if not null). This will be done by COPPER. You may just use this to hook custom code into 
 	 * the transaction context.  
 	 *  
