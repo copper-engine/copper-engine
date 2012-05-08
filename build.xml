@@ -28,6 +28,10 @@
 		<subant target="publish" buildpathref="build-path" />
 	</target>
 
+	<target name="dist-all" depends="buildlist" description="compile, jar and dist all projects in the right order">
+		<subant target="dist" buildpathref="build-path" />
+	</target>
+
 	<target name="clean-all" depends="buildlist" description="clean all projects">
 		<subant target="clean" buildpathref="build-path" />
 	</target>

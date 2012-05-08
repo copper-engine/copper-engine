@@ -3,6 +3,8 @@
 <project default="compile" name="copper-sample">
 	<property file="build.properties" />	
 	<import file="${common.dir}/common.xml"/>   
+	<target name="dist" depends="publish">
+	</target>	
 </project>
  
 
