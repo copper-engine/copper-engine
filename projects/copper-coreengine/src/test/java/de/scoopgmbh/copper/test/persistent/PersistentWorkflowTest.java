@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.test.persistent;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -34,8 +35,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
+import de.scoopgmbh.copper.audit.AuditTrail;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.CompressedBase64PostProcessor;
+import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
@@ -483,6 +486,30 @@ public class PersistentWorkflowTest extends TestCase {
 		finally {
 			context.close();
 		}
+	}
+	
+	private static String createTestMessage(int size) {
+		final StringBuilder sb = new StringBuilder(4000);
+		for (int i=0; i<(size/10); i++) {
+			sb.append("0123456789");
+		}
+		final String msg = sb.toString();
+		return msg;
 	}	
+	
+	public void testAuditTrailUncompressed(String dsContext) throws Exception {
+		logger.info("running testAuditTrailSmallData");
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		try {
+			de.scoopgmbh.copper.audit.BatchingAuditTrail auditTrail = context.getBean(de.scoopgmbh.copper.audit.BatchingAuditTrail.class);
+			auditTrail.setMessagePostProcessor(new DummyPostProcessor());
+			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(500), "TEXT");
+			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(5000), "TEXT");
+			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT");
+		}
+		finally {
+			context.close();
+		}
+	}
 	
 }

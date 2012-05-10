@@ -98,6 +98,9 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 					}
 				}
 			}
+			if (exc[0] != null) {
+				throw new RuntimeException("synchLog failed",exc[0]);
+			}
 		}
 	}
 

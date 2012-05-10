@@ -38,6 +38,8 @@ public class TestBatchingAuditTrail {
 		test(createTestMessage(500), auditTrail, 10000);
 		test(createTestMessage(1000), auditTrail, 5000);
 		test(createTestMessage(4000), auditTrail, 5000);
+		test(createTestMessage(8000), auditTrail, 2000);
+		test(createTestMessage(16000), auditTrail, 1000);
 
 		System.exit(0);
 	}

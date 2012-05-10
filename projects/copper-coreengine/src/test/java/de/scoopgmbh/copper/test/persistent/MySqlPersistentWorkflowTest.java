@@ -91,4 +91,11 @@ public class MySqlPersistentWorkflowTest extends PersistentWorkflowTest {
 //		if (mySqlAvailable) super.testCompressedAuditTrail(DS_CONTEXT);
 //	}
 	
+	public void testAuditTrailUncompressed() throws Exception {
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testAuditTrailUncompressed(DS_CONTEXT);
+	}
+
+	
+	
 }

@@ -80,7 +80,7 @@ class BatchInsertIntoAutoTrail {
 			final boolean isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
 			if (isOracle) {
 				// Oracle
-				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,LONG_MESSAGE,TRANSACTION_ID, MESSAGE_TYPE, MESSAGE) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?,?)";
+				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID, MESSAGE_TYPE, MESSAGE,LONG_MESSAGE) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?,?)";
 			}
 			else {
 				// ANSI SQL
@@ -92,17 +92,28 @@ class BatchInsertIntoAutoTrail {
 				Command cmd = (Command)_cmd;
 				int idx=1;
 				AuditTrailEvent data = cmd.data;
-				stmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
-				stmt.setString(idx++, data.conversationId);
-				stmt.setInt(idx++, data.logLevel);
-				stmt.setString(idx++, data.context);
-				stmt.setString(idx++, data.instanceId);
-				stmt.setString(idx++, data.correlationId);
-				stmt.setString(idx++, data.message);
-				stmt.setString(idx++, data.transactionId);
-				stmt.setString(idx++, data.messageType);
 				if (isOracle) {
+					stmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
+					stmt.setString(idx++, data.conversationId);
+					stmt.setInt(idx++, data.logLevel);
+					stmt.setString(idx++, data.context);
+					stmt.setString(idx++, data.instanceId);
+					stmt.setString(idx++, data.correlationId);
+					stmt.setString(idx++, data.transactionId);
+					stmt.setString(idx++, data.messageType);
 					stmt.setString(idx++, data.message.length() >= 4000 ? data.message.substring(0,3999) : data.message);
+					stmt.setString(idx++, data.message);
+				}
+				else {
+					stmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
+					stmt.setString(idx++, data.conversationId);
+					stmt.setInt(idx++, data.logLevel);
+					stmt.setString(idx++, data.context);
+					stmt.setString(idx++, data.instanceId);
+					stmt.setString(idx++, data.correlationId);
+					stmt.setString(idx++, data.message);
+					stmt.setString(idx++, data.transactionId);
+					stmt.setString(idx++, data.messageType);
 				}
 				stmt.addBatch();
 			}
