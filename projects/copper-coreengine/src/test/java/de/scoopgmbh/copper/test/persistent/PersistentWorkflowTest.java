@@ -503,6 +503,7 @@ public class PersistentWorkflowTest extends TestCase {
 		try {
 			de.scoopgmbh.copper.audit.BatchingAuditTrail auditTrail = context.getBean(de.scoopgmbh.copper.audit.BatchingAuditTrail.class);
 			auditTrail.setMessagePostProcessor(new DummyPostProcessor());
+			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", null, "TEXT");
 			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(500), "TEXT");
 			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(5000), "TEXT");
 			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT");
