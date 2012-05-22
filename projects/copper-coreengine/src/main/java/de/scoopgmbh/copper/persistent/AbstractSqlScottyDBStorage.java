@@ -417,7 +417,7 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 		catch (Exception e) {
 			logger.error("",e);
 		}
-		logger.info("Queue update in "+(System.currentTimeMillis()-startTS)+" msec");
+		logger.debug("Queue update in {} msec", (System.currentTimeMillis()-startTS));
 		return rowcount[0];
 	}
 
