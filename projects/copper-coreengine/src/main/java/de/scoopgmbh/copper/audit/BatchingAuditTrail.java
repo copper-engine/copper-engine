@@ -19,7 +19,6 @@ import java.util.Date;
 
 import javax.sql.DataSource;
 
-import de.scoopgmbh.copper.audit.BatchInsertIntoAutoTrail.Command;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.CommandCallback;
 import de.scoopgmbh.copper.management.AuditTrailMXBean;

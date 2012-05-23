@@ -452,7 +452,7 @@ public class PersistentWorkflowTest extends TestCase {
 			new RetryingTransaction(context.getBean(DataSource.class)) {
 				@Override
 				protected void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("select unique message from cop_audit_trail_event order by message");
+					ResultSet rs = getConnection().createStatement().executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from cop_audit_trail_event) order by 1");
 					assertTrue(rs.next());
 					//logger.info("\""+new CompressedBase64PostProcessor().deserialize(rs.getString(1))+"\"");
 					assertEquals("finished", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));

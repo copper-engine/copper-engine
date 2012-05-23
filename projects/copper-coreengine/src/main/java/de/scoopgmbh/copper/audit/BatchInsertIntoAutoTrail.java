@@ -80,7 +80,7 @@ class BatchInsertIntoAutoTrail {
 			final boolean isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
 			if (isOracle) {
 				// Oracle
-				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID, MESSAGE_TYPE, MESSAGE,LONG_MESSAGE) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?,?)";
+				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID, MESSAGE_TYPE, LONG_MESSAGE) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?)";
 			}
 			else {
 				// ANSI SQL
@@ -101,7 +101,6 @@ class BatchInsertIntoAutoTrail {
 					stmt.setString(idx++, data.correlationId);
 					stmt.setString(idx++, data.transactionId);
 					stmt.setString(idx++, data.messageType);
-					stmt.setString(idx++, data.message.length() >= 4000 ? data.message.substring(0,3999) : data.message);
 					stmt.setString(idx++, data.message);
 				}
 				else {

@@ -34,6 +34,16 @@ public class AuditTrailEvent implements Serializable {
 	
 	public AuditTrailEvent(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType) {
 		super();
+		if (occurrence == null) throw new IllegalArgumentException("occurence is null");
+		if (conversationId == null) throw new IllegalArgumentException("conversationId is null");
+		if (context == null) throw new IllegalArgumentException("context is null");
+		if (conversationId.length() > 64) throw new IllegalArgumentException("conversationId is too long (>64)");
+		if (context.length() > 128) throw new IllegalArgumentException("context is too long (>128)");
+		if (instanceId != null && instanceId.length() > 128) throw new IllegalArgumentException("instanceId is too long (>128)");
+		if (correlationId != null && correlationId.length() > 128) throw new IllegalArgumentException("correlationId is too long (>128)");
+		if (transactionId != null && transactionId.length() > 128) throw new IllegalArgumentException("transactionId is too long (>128)");
+		if (messageType != null && messageType.length() > 256) throw new IllegalArgumentException("messageType is too long (>256)");
+		if (logLevel < 0 || logLevel > 99) throw new IllegalArgumentException("logLevel must be between 0 and 99");
 		this.logLevel = logLevel;
 		this.occurrence = occurrence;
 		this.conversationId = conversationId;
