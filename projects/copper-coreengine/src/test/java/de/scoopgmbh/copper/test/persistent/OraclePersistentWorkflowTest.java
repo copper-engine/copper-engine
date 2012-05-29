@@ -181,4 +181,9 @@ public class OraclePersistentWorkflowTest extends PersistentWorkflowTest {
 		super.testAuditTrailUncompressed(DS_CONTEXT);
 	}
 	
+	public void testErrorHandlingWithWaitHook() throws Exception {
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
+	}
+	
 }

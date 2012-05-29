@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.persistent;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
@@ -23,23 +24,38 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.NullCallback;
+import de.scoopgmbh.copper.batcher.Batcher;
+import de.scoopgmbh.copper.batcher.CommandCallback;
 
 class GenericRegisterCallback {
+	
+	private static final Logger logger = LoggerFactory.getLogger(GenericRegisterCallback.class);
 
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 
 		private final RegisterCall registerCall;
 		private final Serializer serializer;
 
-		@SuppressWarnings("unchecked")
-		public Command(RegisterCall registerCall, DataSource dataSource, Serializer serializer) {
-			super(NullCallback.instance,dataSource,250);
+		public Command(final RegisterCall registerCall, final DataSource dataSource, final Serializer serializer, final Batcher batcher) {
+			super(new CommandCallback<Command>() {
+				@Override
+				public void commandCompleted() {
+				}
+				@SuppressWarnings("unchecked")
+				@Override
+				public void unhandledException(Exception e) {
+					logger.error("Execution of batch entry in a single txn failed.",e);
+					batcher.submitBatchCommand(new GenericSetToError.Command((PersistentWorkflow<Serializable>)registerCall.workflow, dataSource, e));
+				}
+			},dataSource,250);
 			this.registerCall = registerCall;
 			this.serializer = serializer;
 		}
@@ -124,8 +140,7 @@ class GenericRegisterCallback {
 				for (WaitHook wh : rc.waitHooks) {
 					wh.onWait(rc.workflow, con);
 				}
-			}			
-			
+			}
 		}
 
 		@Override

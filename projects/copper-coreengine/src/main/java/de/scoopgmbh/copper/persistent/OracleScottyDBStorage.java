@@ -364,7 +364,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		if (logger.isTraceEnabled()) logger.trace("registerCallback("+rc+")");
 		if (rc == null) 
 			throw new NullPointerException();
-		batcher.submitBatchCommand(new GenericRegisterCallback.Command(rc, dataSource, serializer));
+		batcher.submitBatchCommand(new GenericRegisterCallback.Command(rc, dataSource, serializer, batcher));
 	}
 
 	/* (non-Javadoc)

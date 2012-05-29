@@ -23,23 +23,36 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.NullCallback;
+import de.scoopgmbh.copper.batcher.CommandCallback;
 
 class SqlRegisterCallback {
+	
+	private static final Logger logger = LoggerFactory.getLogger(SqlRegisterCallback.class);
 
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 
 		private final RegisterCall registerCall;
 		private final Serializer serializer;
 
-		@SuppressWarnings("unchecked")
-		public Command(RegisterCall registerCall, DataSource dataSource, Serializer serializer) {
-			super(NullCallback.instance,dataSource,250);
+		public Command(final RegisterCall registerCall, final DataSource dataSource, final Serializer serializer, final ScottyDBStorageInterface dbStorage) {
+			super(new CommandCallback<Command>() {
+				@Override
+				public void commandCompleted() {
+				}
+				@Override
+				public void unhandledException(Exception e) {
+					logger.error("Execution of batch entry in a single txn failed.",e);
+					dbStorage.error(registerCall.workflow, e);
+				}
+			},dataSource,250);
 			this.registerCall = registerCall;
 			this.serializer = serializer;
 		}

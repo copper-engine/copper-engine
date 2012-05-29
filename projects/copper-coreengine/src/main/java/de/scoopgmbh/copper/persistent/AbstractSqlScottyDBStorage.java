@@ -465,7 +465,7 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 		if (logger.isTraceEnabled()) logger.trace("registerCallback("+rc+")");
 		if (rc == null) 
 			throw new NullPointerException();
-		batcher.submitBatchCommand(new SqlRegisterCallback.Command(rc, dataSource, serializer));
+		batcher.submitBatchCommand(new SqlRegisterCallback.Command(rc, dataSource, serializer, this));
 	}
 
 

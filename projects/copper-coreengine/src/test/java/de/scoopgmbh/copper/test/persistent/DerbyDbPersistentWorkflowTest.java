@@ -79,4 +79,9 @@ public class DerbyDbPersistentWorkflowTest extends PersistentWorkflowTest {
 	public void testAuditTrailUncompressed() throws Exception {
 		super.testAuditTrailUncompressed(DS_CONTEXT);
 	}
+	
+	public void testErrorHandlingWithWaitHook() throws Exception {
+		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
+	}
+	
 }
