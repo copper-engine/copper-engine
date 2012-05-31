@@ -111,6 +111,9 @@ class BatchInsertIntoAutoTrail {
 					stmt.setString(idx++, data.message);
 				}
 				else {
+					if (data.getSequenceId() != null) {
+						throw new UnsupportedOperationException("Custom SequenceId currently not supported for this DBMS");
+					}
 					stmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
 					stmt.setString(idx++, data.conversationId);
 					stmt.setInt(idx++, data.logLevel);
