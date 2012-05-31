@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.audit;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Collection;
 
 import javax.sql.DataSource;
@@ -80,7 +81,7 @@ class BatchInsertIntoAutoTrail {
 			final boolean isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
 			if (isOracle) {
 				// Oracle
-				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID, MESSAGE_TYPE, LONG_MESSAGE) VALUES (COP_SEQ_AUDIT_TRAIL.NEXTVAL,?,?,?,?,?,?,?,?,?)";
+				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID, MESSAGE_TYPE, LONG_MESSAGE) VALUES (NVL(?,COP_SEQ_AUDIT_TRAIL.NEXTVAL),?,?,?,?,?,?,?,?,?)";
 			}
 			else {
 				// ANSI SQL
@@ -93,6 +94,12 @@ class BatchInsertIntoAutoTrail {
 				int idx=1;
 				AuditTrailEvent data = cmd.data;
 				if (isOracle) {
+					if (data.getSequenceId() == null) {
+						stmt.setNull(idx++, Types.NUMERIC);
+					}
+					else {
+						stmt.setLong(idx++, data.getSequenceId().longValue());
+					}
 					stmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
 					stmt.setString(idx++, data.conversationId);
 					stmt.setInt(idx++, data.logLevel);

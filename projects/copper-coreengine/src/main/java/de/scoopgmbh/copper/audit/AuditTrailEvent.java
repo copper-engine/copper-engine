@@ -31,8 +31,13 @@ public class AuditTrailEvent implements Serializable {
 	String message;
 	String transactionId;
 	String messageType;
-	
+	Long sequenceId;
+
 	public AuditTrailEvent(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType) {
+		this(logLevel, occurrence, conversationId, context, instanceId, conversationId, transactionId, message, messageType, null);
+	}
+	
+	public AuditTrailEvent(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType, Long sequenceId) {
 		super();
 		if (occurrence == null) throw new IllegalArgumentException("occurence is null");
 		if (conversationId == null) throw new IllegalArgumentException("conversationId is null");
@@ -44,6 +49,7 @@ public class AuditTrailEvent implements Serializable {
 		if (transactionId != null && transactionId.length() > 128) throw new IllegalArgumentException("transactionId is too long (>128)");
 		if (messageType != null && messageType.length() > 256) throw new IllegalArgumentException("messageType is too long (>256)");
 		if (logLevel < 0 || logLevel > 99) throw new IllegalArgumentException("logLevel must be between 0 and 99");
+		this.sequenceId = sequenceId;
 		this.logLevel = logLevel;
 		this.occurrence = occurrence;
 		this.conversationId = conversationId;
@@ -127,6 +133,13 @@ public class AuditTrailEvent implements Serializable {
 		this.messageType = messageType;
 	}
 	
+	public Long getSequenceId() {
+		return sequenceId;
+	}
+	
+	public void setSequenceId(Long sequenceId) {
+		this.sequenceId = sequenceId;
+	}
 	
 	
 }

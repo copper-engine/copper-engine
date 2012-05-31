@@ -36,6 +36,7 @@ import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.audit.AuditTrail;
+import de.scoopgmbh.copper.audit.AuditTrailEvent;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.CompressedBase64PostProcessor;
 import de.scoopgmbh.copper.audit.DummyPostProcessor;
@@ -541,5 +542,39 @@ public class PersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
+	
+	public void testAuditTrailCustomSeqNr(String dsContext) throws Exception {
+		logger.info("running testAuditTrailCustomSeqNr");
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		try {
+			cleanDB(context.getBean(DataSource.class));
+			de.scoopgmbh.copper.audit.BatchingAuditTrail auditTrail = context.getBean(de.scoopgmbh.copper.audit.BatchingAuditTrail.class);
+			auditTrail.setMessagePostProcessor(new DummyPostProcessor());
+			long seqNr = 1;
+			auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", null, "TEXT", seqNr++));
+			auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(500), "TEXT", seqNr++));
+			auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(5000), "TEXT", seqNr++));
+			auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT", seqNr++));
+			//check
+			new RetryingTransaction(context.getBean(DataSource.class)) {
+				@Override
+				protected void execute() throws Exception {
+					ResultSet rs = getConnection().createStatement().executeQuery("select seq_id from cop_audit_trail_event order by seq_id");
+					assertTrue(rs.next());
+					assertEquals(1, rs.getLong(1));
+					assertTrue(rs.next());
+					assertEquals(2, rs.getLong(1));
+					assertTrue(rs.next());
+					assertEquals(3, rs.getLong(1));
+					assertTrue(rs.next());
+					assertEquals(4, rs.getLong(1));
+					assertFalse(rs.next());
+				}
+			}.run();
+		}
+		finally {
+			context.close();
+		}
+	}	
 	
 }
