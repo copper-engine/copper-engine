@@ -25,7 +25,9 @@ import org.slf4j.LoggerFactory;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.BatchExecutorBase;
+import de.scoopgmbh.copper.batcher.BatchRunner;
 import de.scoopgmbh.copper.batcher.Batcher;
+import de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner;
 import de.scoopgmbh.copper.batcher.impl.BatcherQueue.State;
 import de.scoopgmbh.copper.management.BatcherMXBean;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
@@ -63,7 +65,7 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 					}
 					final BatchExecutorBase e = commands.get(0).executor();
 					final long startTS = System.currentTimeMillis();
-					e.execute(commands);
+					batchRunner.run(commands, e);
 					statisticsCollector.submit(e.id(), commands.size(), System.currentTimeMillis()-startTS, TimeUnit.MILLISECONDS);
 					
 				} catch (InterruptedException e) {
@@ -82,9 +84,14 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
 	private List<WorkerThread> threads = new ArrayList<WorkerThread>();
 	private int numThreads;
+	private BatchRunner batchRunner = new RetryingTxnBatchRunner();
 	
 	public BatcherImpl(int numThreads) {
 		this.numThreads = numThreads;
+	}
+	
+	public void setBatchRunner(BatchRunner batchRunner) {
+		this.batchRunner = batchRunner;
 	}
 	
 	public synchronized int getNumThreads() {

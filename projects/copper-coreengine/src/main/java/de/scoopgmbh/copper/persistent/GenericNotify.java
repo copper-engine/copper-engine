@@ -64,7 +64,7 @@ class GenericNotify {
 		}
 
 		@Override
-		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
+		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
 			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE) VALUES (?,?,?,?)");
 			for (BatchCommand<Executor, Command> _cmd : commands) {

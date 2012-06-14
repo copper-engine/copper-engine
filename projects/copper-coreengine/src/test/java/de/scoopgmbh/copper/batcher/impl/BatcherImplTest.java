@@ -70,7 +70,7 @@ public class BatcherImplTest extends TestCase {
 		public static TestBatchExecutor INSTANCE = new TestBatchExecutor();
 
 		@Override
-		protected void doExec(final Collection<BatchCommand<TestBatchExecutor, TestBatchCommand>> commands, final Connection con) throws Exception {
+		public void doExec(final Collection<BatchCommand<TestBatchExecutor, TestBatchCommand>> commands, final Connection con) throws Exception {
 			logger.debug("new batch:");
 			for (BatchCommand<TestBatchExecutor, TestBatchCommand> cmd : commands) {
 				logger.debug(((TestBatchCommand)cmd).data);

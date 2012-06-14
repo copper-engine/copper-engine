@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.batcher;
 
+import java.sql.Connection;
 import java.util.Collection;
 
 /**
@@ -30,8 +31,8 @@ public interface BatchExecutorBase<E extends BatchExecutorBase<E,T>, T extends B
 	/**
 	 * Executes a batch of commands
 	 */
-	void execute(Collection<BatchCommand<E,T>> commands);
-	
+	void doExec(Collection<BatchCommand<E,T>> commands, Connection connection) throws Exception;
+
 	/**
 	 * Preferred batch size of this executor
 	 */

@@ -72,7 +72,7 @@ class GenericRegisterCallback {
 		private static final Executor INSTANCE = new Executor();
 
 		@Override
-		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
+		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
 			boolean doDeletes = false;
 			PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");

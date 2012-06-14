@@ -75,7 +75,7 @@ class BatchInsertIntoAutoTrail {
 		}
 
 		@Override
-		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
+		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			if (logger.isDebugEnabled()) logger.debug("DatabaseProductName="+con.getMetaData().getDatabaseProductName());
 			String _stmt;
 			final boolean isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");

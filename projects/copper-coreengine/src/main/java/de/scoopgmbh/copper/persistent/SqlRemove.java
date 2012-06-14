@@ -53,7 +53,7 @@ class SqlRemove {
 		private static final Executor INSTANCE = new Executor();
 
 		@Override
-		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
+		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			final Timestamp NOW = new Timestamp(System.currentTimeMillis());
 			final boolean remove = ((Command)commands.iterator().next()).remove;
 			final PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");

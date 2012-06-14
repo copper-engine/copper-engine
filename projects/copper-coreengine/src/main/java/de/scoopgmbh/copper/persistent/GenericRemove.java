@@ -61,7 +61,7 @@ class GenericRemove {
 			return 50;
 		}
 
-		protected void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection c) throws Exception {
+		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection c) throws Exception {
 			final PreparedStatement stmtDelQueue = c.prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
 			final PreparedStatement stmtDelResponse = c.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
 			final PreparedStatement stmtDelWait = c.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
