@@ -15,7 +15,6 @@
  */
 package de.scoopgmbh.copper.management;
 
-import java.util.Date;
 
 public class AuditTrailInfo {
 

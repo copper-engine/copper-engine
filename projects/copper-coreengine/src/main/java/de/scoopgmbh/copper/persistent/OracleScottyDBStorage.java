@@ -194,7 +194,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	public void finish(final Workflow<?> w) {
 		if (logger.isTraceEnabled()) logger.trace("finish("+w.getId()+")");
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		batcher.submitBatchCommand(new GenericRemove.Command(pwf,dataSource,removeWhenFinished));
+		batcher.submitBatchCommand(new GenericRemove.Command(pwf,removeWhenFinished));
 	}
 
 	
@@ -346,7 +346,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		if (logger.isTraceEnabled()) logger.trace("notify("+response+")");
 		if (response == null)
 			throw new NullPointerException();
-		batcher.submitBatchCommand(new GenericNotify.Command(response, dataSource, serializer));
+		batcher.submitBatchCommand(new GenericNotify.Command(response, serializer));
 	}
 
 	/* (non-Javadoc)
@@ -589,7 +589,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	public void error(Workflow<?> w, Throwable t) {
 		if (logger.isTraceEnabled()) logger.trace("error("+w.getId()+","+t.toString()+")");
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		batcher.submitBatchCommand(new GenericSetToError.Command(pwf,dataSource,t));
+		batcher.submitBatchCommand(new GenericSetToError.Command(pwf,t));
 	}
 	
 	public void restart(final String workflowInstanceId) throws Exception {

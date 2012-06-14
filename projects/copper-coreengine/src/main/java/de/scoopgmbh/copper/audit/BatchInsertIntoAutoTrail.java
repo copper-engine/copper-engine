@@ -21,8 +21,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Collection;
 
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,19 +35,16 @@ class BatchInsertIntoAutoTrail {
 	static final class Command extends AbstractBatchCommand<Executor, Command>{
 
 		final AuditTrailEvent data;
-		final DataSource dataSource;
 
 		@SuppressWarnings("unchecked")
-		public Command(AuditTrailEvent data, DataSource dataSource) {
-			super(NullCallback.instance,dataSource,250);
+		public Command(AuditTrailEvent data) {
+			super(NullCallback.instance,250);
 			this.data = data;
-			this.dataSource = dataSource;
 		}
 
-		public Command(AuditTrailEvent data, DataSource dataSource, CommandCallback<Command> callback) {
-			super(callback,dataSource,250);
+		public Command(AuditTrailEvent data, CommandCallback<Command> callback) {
+			super(callback,250);
 			this.data = data;
-			this.dataSource = dataSource;
 		}
 
 		@Override

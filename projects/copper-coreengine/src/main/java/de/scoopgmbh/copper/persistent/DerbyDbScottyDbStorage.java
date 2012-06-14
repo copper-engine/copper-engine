@@ -148,7 +148,7 @@ public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
 	public void error(Workflow<?> w, Throwable t) {
 		if (logger.isTraceEnabled()) logger.trace("error("+w.getId()+","+t.toString()+")");
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		getBatcher().submitBatchCommand(new DerbyDbSetToError.Command(pwf,getDataSource(),t));
+		getBatcher().submitBatchCommand(new DerbyDbSetToError.Command(pwf,t));
 	}
 	
 	public static void shutdownDerby() {

@@ -15,7 +15,6 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,7 +34,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
-import de.scoopgmbh.copper.audit.AuditTrail;
 import de.scoopgmbh.copper.audit.AuditTrailEvent;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.CompressedBase64PostProcessor;

@@ -53,9 +53,9 @@ class GenericRegisterCallback {
 				@Override
 				public void unhandledException(Exception e) {
 					logger.error("Execution of batch entry in a single txn failed.",e);
-					batcher.submitBatchCommand(new GenericSetToError.Command((PersistentWorkflow<Serializable>)registerCall.workflow, dataSource, e));
+					batcher.submitBatchCommand(new GenericSetToError.Command((PersistentWorkflow<Serializable>)registerCall.workflow, e));
 				}
-			},dataSource,250);
+			},250);
 			this.registerCall = registerCall;
 			this.serializer = serializer;
 		}

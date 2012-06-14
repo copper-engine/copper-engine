@@ -17,11 +17,12 @@ package de.scoopgmbh.copper.test.sourcearchive;
 
 import java.io.File;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
 
 public class SourceArchiveTest extends TestCase {

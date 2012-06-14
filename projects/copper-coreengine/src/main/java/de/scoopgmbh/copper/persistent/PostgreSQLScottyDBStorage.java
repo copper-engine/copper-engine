@@ -61,7 +61,7 @@ public class PostgreSQLScottyDBStorage extends AbstractSqlScottyDBStorage implem
 	public void error(Workflow<?> w, Throwable t) {
 		if (logger.isTraceEnabled()) logger.trace("error("+w.getId()+","+t.toString()+")");
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		getBatcher().submitBatchCommand(new MySqlSetToError.Command(pwf,getDataSource(),t));
+		getBatcher().submitBatchCommand(new MySqlSetToError.Command(pwf,t));
 	}
 	
 	@Override

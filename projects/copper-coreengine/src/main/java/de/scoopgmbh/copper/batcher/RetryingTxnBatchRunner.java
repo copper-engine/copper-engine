@@ -12,11 +12,11 @@ import org.slf4j.LoggerFactory;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 
 public class RetryingTxnBatchRunner<E extends BatchExecutorBase<E,T>, T extends BatchCommand<E,T>> implements BatchRunner<E, T> {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(RetryingTxnBatchRunner.class);
-	
+
 	private DataSource dataSource;
-	
+
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
@@ -26,14 +26,11 @@ public class RetryingTxnBatchRunner<E extends BatchExecutorBase<E,T>, T extends 
 			return;
 
 		try {
-			DataSource ds = commands.iterator().next().dataSource();
-			if (ds == null) ds = dataSource;
-			
-			if (ds == null) {
+			if (dataSource == null) {
 				base.doExec(commands, null);
 			}
 			else {
-				new RetryingTransaction(ds) {
+				new RetryingTransaction(dataSource) {
 					@Override
 					protected void execute() throws Exception {
 						base.doExec(commands, getConnection());

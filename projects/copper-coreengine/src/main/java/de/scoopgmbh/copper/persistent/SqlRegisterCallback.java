@@ -21,8 +21,6 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +40,7 @@ class SqlRegisterCallback {
 		private final RegisterCall registerCall;
 		private final Serializer serializer;
 
-		public Command(final RegisterCall registerCall, final DataSource dataSource, final Serializer serializer, final ScottyDBStorageInterface dbStorage) {
+		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorage) {
 			super(new CommandCallback<Command>() {
 				@Override
 				public void commandCompleted() {
@@ -52,7 +50,7 @@ class SqlRegisterCallback {
 					logger.error("Execution of batch entry in a single txn failed.",e);
 					dbStorage.error(registerCall.workflow, e);
 				}
-			},dataSource,250);
+			},250);
 			this.registerCall = registerCall;
 			this.serializer = serializer;
 		}

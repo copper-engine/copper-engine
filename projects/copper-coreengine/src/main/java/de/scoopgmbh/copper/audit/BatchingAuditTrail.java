@@ -90,7 +90,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 				public void unhandledException(Exception e) {
 				}
 			};
-			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(e,dataSource,callback));
+			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(e,callback));
 		}		
 	}
 
@@ -108,7 +108,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 					cb.error(e);
 				}
 			};
-			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(e,dataSource,callback));
+			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(e,callback));
 		}		
 	}
 
@@ -136,7 +136,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 					}
 				}
 			};
-			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(e,dataSource, callback));
+			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(e, callback));
 			synchronized (mutex) {
 				while (!done[0]) {
 					try {

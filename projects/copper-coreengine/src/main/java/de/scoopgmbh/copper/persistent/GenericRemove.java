@@ -19,8 +19,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Collection;
 
-import javax.sql.DataSource;
-
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
@@ -34,8 +32,8 @@ class GenericRemove {
 		private final boolean remove;
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, DataSource dataSource, boolean remove) {
-			super(NullCallback.instance,dataSource,250);
+		public Command(PersistentWorkflow<?> wf, boolean remove) {
+			super(NullCallback.instance,250);
 			this.wf = wf;
 			this.remove = remove;
 		}

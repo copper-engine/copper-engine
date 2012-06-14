@@ -32,6 +32,11 @@
 	
 	<bean id="batcher" class="de.scoopgmbh.copper.batcher.impl.BatcherImpl" scope="singleton" init-method="startup">
     	<constructor-arg type="int"><value>3</value></constructor-arg>
+    	<property name="batchRunner">
+    		<bean class="de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner">
+		    	<property name="dataSource" ref="datasource_default"/>
+    		</bean>
+    	</property>
 	</bean>
 	
 	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.MySqlScottyDBStorage" scope="singleton">

@@ -20,8 +20,6 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Collection;
 
-import javax.sql.DataSource;
-
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -36,8 +34,8 @@ class GenericNotify {
 		final Serializer serializer;
 
 		@SuppressWarnings("unchecked")
-		public Command(Response<?> response, DataSource dataSource, Serializer serializer) {
-			super(NullCallback.instance,dataSource,250);
+		public Command(Response<?> response, Serializer serializer) {
+			super(NullCallback.instance,250);
 			this.response = response;
 			this.serializer = serializer;
 		}

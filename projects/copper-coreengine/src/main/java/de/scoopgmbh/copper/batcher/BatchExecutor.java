@@ -16,16 +16,10 @@
 package de.scoopgmbh.copper.batcher;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-
-import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 
 /**
  * Abstract base implementation of the {@link BatchExecutorBase} interface.

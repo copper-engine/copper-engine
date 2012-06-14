@@ -274,7 +274,7 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 	public void finish(final Workflow<?> w) {
 		if (logger.isTraceEnabled()) logger.trace("finish("+w.getId()+")");
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		batcher.submitBatchCommand(new SqlRemove.Command(pwf,dataSource,removeWhenFinished));
+		batcher.submitBatchCommand(new SqlRemove.Command(pwf,removeWhenFinished));
 	}
 
 	/* (non-Javadoc)
@@ -447,7 +447,7 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 		if (logger.isTraceEnabled()) logger.trace("notify("+response+")");
 		if (response == null)
 			throw new NullPointerException();
-		batcher.submitBatchCommand(new SqlNotify.Command(response, dataSource, serializer));
+		batcher.submitBatchCommand(new SqlNotify.Command(response, serializer));
 	}
 
 	/* (non-Javadoc)
@@ -465,7 +465,7 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 		if (logger.isTraceEnabled()) logger.trace("registerCallback("+rc+")");
 		if (rc == null) 
 			throw new NullPointerException();
-		batcher.submitBatchCommand(new SqlRegisterCallback.Command(rc, dataSource, serializer, this));
+		batcher.submitBatchCommand(new SqlRegisterCallback.Command(rc, serializer, this));
 	}
 
 

@@ -27,7 +27,6 @@ import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.BatchExecutorBase;
 import de.scoopgmbh.copper.batcher.BatchRunner;
 import de.scoopgmbh.copper.batcher.Batcher;
-import de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner;
 import de.scoopgmbh.copper.batcher.impl.BatcherQueue.State;
 import de.scoopgmbh.copper.management.BatcherMXBean;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
@@ -84,7 +83,7 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
 	private List<WorkerThread> threads = new ArrayList<WorkerThread>();
 	private int numThreads;
-	private BatchRunner batchRunner = new RetryingTxnBatchRunner();
+	private BatchRunner batchRunner;
 	
 	public BatcherImpl(int numThreads) {
 		this.numThreads = numThreads;

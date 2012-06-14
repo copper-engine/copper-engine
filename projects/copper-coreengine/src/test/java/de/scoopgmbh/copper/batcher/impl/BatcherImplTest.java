@@ -18,8 +18,6 @@ package de.scoopgmbh.copper.batcher.impl;
 import java.sql.Connection;
 import java.util.Collection;
 
-import javax.sql.DataSource;
-
 import junit.framework.TestCase;
 
 import org.slf4j.Logger;
@@ -29,6 +27,7 @@ import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.CommandCallback;
 import de.scoopgmbh.copper.batcher.NullCallback;
+import de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner;
 
 public class BatcherImplTest extends TestCase {
 	
@@ -57,12 +56,6 @@ public class BatcherImplTest extends TestCase {
 		public long targetTime() {
 			return targetTime;
 		}
-
-		@Override
-		public DataSource dataSource() {
-			return null;
-		}
-		
 	};
 	
 	static final class TestBatchExecutor extends BatchExecutor<TestBatchExecutor, TestBatchCommand> {
@@ -93,6 +86,7 @@ public class BatcherImplTest extends TestCase {
 
 	public final void testSubmitBatchCommand() throws InterruptedException {
 		BatcherImpl batcher = new BatcherImpl(2);
+		batcher.setBatchRunner(new RetryingTxnBatchRunner());
 		batcher.startup();
 		try {
 			for (int i=0; i<100; i++) {
