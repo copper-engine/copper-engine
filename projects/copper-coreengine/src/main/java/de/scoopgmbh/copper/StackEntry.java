@@ -76,7 +76,7 @@ public class StackEntry implements Serializable {
 //		return "StackEntry [jumpNo=" + jumpNo + ", locals="
 //		+ Arrays.toString(locals) + ", stack=" + Arrays.toString(stack)
 //		+ "]";
-		return "StackEntry [jumpNo=" + jumpNo + "]";
+		return "StackEntry@"+hashCode()+" [jumpNo=" + jumpNo + "]";
 	}
 	
 	

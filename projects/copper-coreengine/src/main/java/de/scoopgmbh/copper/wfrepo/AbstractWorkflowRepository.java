@@ -76,6 +76,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 				cr.accept(cv,0);
 				bytes = cw.toByteArray();
 				
+				// Recompute frames, etc.
 				ClassReader cr3 = new ClassReader(bytes);
 				ClassWriter cw3 = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 				cr3.accept(cw3, ClassReader.SKIP_FRAMES);

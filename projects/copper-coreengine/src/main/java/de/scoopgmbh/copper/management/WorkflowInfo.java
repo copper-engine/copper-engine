@@ -78,6 +78,13 @@ public class WorkflowInfo {
 	public void setTimeout(Date timeout) {
 		this.timeout = timeout;
 	}
+
+	@Override
+	public String toString() {
+		return "WorkflowInfo [id=" + id + ", state=" + state + ", priority="
+				+ priority + ", processorPoolId=" + processorPoolId
+				+ ", timeout=" + timeout + "]";
+	}
 	
 	
 }

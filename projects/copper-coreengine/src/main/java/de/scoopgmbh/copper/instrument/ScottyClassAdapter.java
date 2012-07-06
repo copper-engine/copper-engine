@@ -40,7 +40,7 @@ public class ScottyClassAdapter extends ClassAdapter implements Opcodes {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		if (interruptableMethods.contains(name+desc) && ((access & ACC_ABSTRACT) == 0)) {
-			logger.debug("Transforming "+currentClassName+"."+name+desc);
+			logger.debug("Transforming {}.{}{}",new Object[] {currentClassName,name,desc});
 			MethodVisitor mv = cv.visitMethod(access,
 					name,
 					desc,

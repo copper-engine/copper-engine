@@ -41,22 +41,19 @@ class TransientProcessor extends Processor {
 
 	@Override
 	protected void process(Workflow<?> wf) {
-		if (logger.isTraceEnabled()) {
-			logger.trace("stack.size()="+wf.get__stack().size());
-			logger.trace("stack="+wf.get__stack());
-		}
+		logger.trace("before - stack.size()={}",wf.get__stack().size());
+		logger.trace("before - stack={}",wf.get__stack());
 		synchronized (wf) {
 			try {
 				WorkflowAccessor.setProcessingState(wf, ProcessingState.RUNNING);
 				wf.__beforeProcess();
 				wf.main();
-				//logger.debug("stack="+wf.get__stack());
-				if (wf.get__stack().isEmpty()) {
-					engine.removeWorkflow(wf.getId());
-				}
+				logger.trace("after 'main' - stack={}",wf.get__stack());
+				engine.removeWorkflow(wf.getId());
+				assert wf.get__stack().isEmpty() : "Stack must be empty";
 			}
 			catch(InterruptException e) {
-				//logger.debug("stack="+wf.get__stack());
+				logger.trace("interrupt - stack={}",wf.get__stack());
 				assert wf.get__stack().size() > 0;
 			}
 			catch(Exception e) {

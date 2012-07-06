@@ -43,10 +43,9 @@ class PersistentProcessor extends Processor {
 				engine.getDependencyInjector().inject(pw);
 				wf.__beforeProcess();
 				pw.main();
-				if (pw.get__stack().isEmpty()) {
-					WorkflowAccessor.setProcessingState(wf, ProcessingState.FINISHED);
-					engine.getDbStorage().finish(pw);
-				}
+				WorkflowAccessor.setProcessingState(wf, ProcessingState.FINISHED);
+				engine.getDbStorage().finish(pw);
+				assert wf.get__stack().isEmpty() : "Stack must be empty";
 			}
 			catch(InterruptException e) {
 				assert pw.get__stack().size() > 0;
