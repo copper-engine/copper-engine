@@ -86,6 +86,7 @@ public abstract class Processor extends Thread {
 			}
 			catch(Throwable t) {
 				logger.error("",t);
+				t.printStackTrace();
 			}
 		}
 		logger.info("stopped");

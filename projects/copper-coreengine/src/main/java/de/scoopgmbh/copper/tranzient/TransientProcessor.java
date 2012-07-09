@@ -50,7 +50,7 @@ class TransientProcessor extends Processor {
 				wf.main();
 				logger.trace("after 'main' - stack={}",wf.get__stack());
 				engine.removeWorkflow(wf.getId());
-				assert wf.get__stack().isEmpty() : "Stack must be empty";
+				assert wf.get__stack().isEmpty() : "Stack must be empty \n"+wf.get__stack();
 			}
 			catch(InterruptException e) {
 				logger.trace("interrupt - stack={}",wf.get__stack());
@@ -59,6 +59,7 @@ class TransientProcessor extends Processor {
 			catch(Exception e) {
 				engine.removeWorkflow(wf.getId());
 				logger.error("Execution of wf "+wf.getId()+" failed",e);
+				assert wf.get__stack().isEmpty() : "Stack must be empty \n"+wf.get__stack();
 			}
 		}					
 	}

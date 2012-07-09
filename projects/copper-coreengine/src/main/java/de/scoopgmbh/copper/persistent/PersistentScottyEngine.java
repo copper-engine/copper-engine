@@ -121,7 +121,10 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
 	@Override
 	public synchronized void shutdown() {
-		if (engineState != EngineState.STARTED) throw new IllegalStateException();
+		if (engineState != EngineState.STARTED) {
+			logger.debug("engine is not running - shutdown aborted");
+			return;
+		}
 		logger.info("Engine is shutting down...");
 		engineState = EngineState.SHUTTING_DOWN;
 		processorPoolManager.shutdown();

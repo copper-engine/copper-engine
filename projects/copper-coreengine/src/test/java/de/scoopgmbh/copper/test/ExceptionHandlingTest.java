@@ -45,7 +45,6 @@ public class ExceptionHandlingTest extends TestCase {
 			Thread.sleep(2000L);
 			
 			WorkflowInfo info = engine.queryWorkflowInstance(descr.getId());
-			System.out.println(info);
 			
 			assertNull(info);
 		}

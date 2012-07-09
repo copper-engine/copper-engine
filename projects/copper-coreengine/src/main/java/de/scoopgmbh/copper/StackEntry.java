@@ -42,8 +42,7 @@ public class StackEntry implements Serializable {
 		this.jumpNo = jumpNo;
 	}
 
-	private void readObject(java.io.ObjectInputStream stream)
-			throws IOException, ClassNotFoundException {
+	private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		jumpNo = stream.readInt();
 		int numLocals = stream.readInt();
 		int numStack = stream.readInt();
