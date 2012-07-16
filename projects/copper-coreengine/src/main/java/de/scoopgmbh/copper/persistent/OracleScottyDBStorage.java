@@ -84,9 +84,14 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	private EngineIdProvider engineIdProvider = null;
 	private Map<String, ResponseLoader> responseLoaders = new HashMap<String, ResponseLoader>();
 	private boolean removeWhenFinished = true;
+	private int staleResponseRemovalTimeout = 60*60*1000;
 
 	public OracleScottyDBStorage() {
 
+	}
+	
+	public void setStaleResponseRemovalTimeout(int staleResponseRemovalTimeout) {
+		this.staleResponseRemovalTimeout = staleResponseRemovalTimeout;
 	}
 	
 	public void setRemoveWhenFinished(boolean removeWhenFinished) {
@@ -439,7 +444,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 					lock(getConnection(),"deleteStaleResponse");
 					
 					PreparedStatement stmt = getConnection().prepareStatement("delete from cop_response r where response_ts < ? and not exists (select * from cop_wait w where w.correlation_id = r.correlation_id) and rownum <= "+MAX_ROWS);
-					stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()-60L*60L*1000L));
+					stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()-staleResponseRemovalTimeout));
 					deleteStaleResponsesStmtStatistic.start();
 					n[0] = stmt.executeUpdate();
 					deleteStaleResponsesStmtStatistic.stop(n[0]);
