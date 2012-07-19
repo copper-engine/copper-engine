@@ -45,6 +45,7 @@ import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
@@ -306,8 +307,16 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		final Map<String, Clazz> clazzMap = findInterruptableMethods(compileTargetDir);
 		instrumentWorkflows(adaptedTargetDir, clazzMap, compileTargetDir);
 		final ClassLoader cl = createClassLoader(map, adaptedTargetDir, loadNonWorkflowClasses ? compileTargetDir : adaptedTargetDir, clazzMap);
-
+		checkConstraints(map);
 		return new VolatileState(map, cl, checksum);
+	}
+	
+	private void checkConstraints(Map<String, Class<?>> workflowClasses) throws CopperRuntimeException {
+		for (Class<?> c : workflowClasses.values()) {
+			if (c.getName().length() > 512) {
+				throw new CopperRuntimeException("Workflow class names are limited to 256 characters");
+			}
+		}
 	}
 
 	private static void extractAdditionalSources(File additionalSourcesDir, List<String> sourceArchives) throws IOException {

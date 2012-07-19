@@ -31,7 +31,22 @@ public class Response<E> implements Serializable {
 	private final E response;
 	private final Exception exception;
 	private final boolean timeout;
+	private final String metaData;
+	private final Integer internalProcessingTimeout;
 	
+	public Response(String correlationId, E response, Exception exception, boolean isTimeout, String metaData, Integer internalProcessingTimeout) {
+		super();
+		if (internalProcessingTimeout != null && internalProcessingTimeout <= 0) {
+			throw new IllegalArgumentException("internalProcessingTimeout must be null or > 0");
+		}
+		this.correlationId = correlationId;
+		this.response = response;
+		this.exception = exception;
+		this.timeout = isTimeout;
+		this.metaData = metaData;
+		this.internalProcessingTimeout = internalProcessingTimeout;
+	}
+
 	/**
 	 * Creates a new instance
 	 * @param correlationId
@@ -39,11 +54,7 @@ public class Response<E> implements Serializable {
 	 * @param exception
 	 */
 	public Response(String correlationId, E response, Exception exception) {
-		super();
-		this.correlationId = correlationId;
-		this.response = response;
-		this.exception = exception;
-		this.timeout = false;
+		this(correlationId, response, exception, false, null, null);
 	}
 
 	/**
@@ -51,11 +62,7 @@ public class Response<E> implements Serializable {
 	 * @param correlationId
 	 */
 	public Response(String correlationId) {
-		super();
-		this.correlationId = correlationId;
-		this.response = null;
-		this.exception = null;
-		this.timeout = true;
+		this(correlationId, null, null, true, null, null);
 	}
 	
 	/**
@@ -87,14 +94,26 @@ public class Response<E> implements Serializable {
 	public boolean isTimeout() {
 		return timeout;
 	}
+	
+	public Integer getInternalProcessingTimeout() {
+		return internalProcessingTimeout;
+	}
+	
+	/**
+	 * returns the meta data of this response. Not used by the copper core itself. Applications may use this data
+	 * for monitoring or some custom response handling. 
+	 */
+	public String getMetaData() {
+		return metaData;
+	}
 
 	@Override
 	public String toString() {
-		return "Response [correlationId=" + correlationId + ", exception="
-				+ exception + ", response=" + response + ", timeout=" + timeout
+		return "Response [correlationId=" + correlationId + ", response="
+				+ response + ", exception=" + exception + ", timeout="
+				+ timeout + ", metaData=" + metaData
+				+ ", internalProcessingTimeout=" + internalProcessingTimeout
 				+ "]";
 	}
 
-	
-	
 }

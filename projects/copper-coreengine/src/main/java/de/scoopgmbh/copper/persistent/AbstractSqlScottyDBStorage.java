@@ -75,12 +75,22 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
 	protected Serializer serializer = new StandardJavaSerializer();
 	private boolean removeWhenFinished = true;
+	protected int defaultStaleResponseRemovalTimeout = 60*60*1000;
 
 	private StmtStatistic dequeueStmtStatistic;
 	private StmtStatistic queueDeleteStmtStatistic;
 	private StmtStatistic enqueueUpdateStateStmtStatistic;
 	private StmtStatistic insertStmtStatistic;
 	private StmtStatistic deleteStaleResponsesStmtStatistic;
+	
+	/**
+	 * Sets the default removal timeout for stale responses in the underlying database. A response is stale/timed out when
+	 * there is no workflow instance waiting for it within the specified amount of time. 
+	 * @param defaultStaleResponseRemovalTimeout
+	 */
+	public void setDefaultStaleResponseRemovalTimeout(int defaultStaleResponseRemovalTimeout) {
+		this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
+	}
 
 	public void setSerializer(Serializer serializer) {
 		this.serializer = serializer;
@@ -203,16 +213,17 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 	private void doInsert(final Workflow<?> wf, Connection con) throws Exception {
 		final Timestamp NOW = new Timestamp(System.currentTimeMillis());
 		final String data = serializer.serializeWorkflow(wf);
-		PreparedStatement stmtBP = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,CREATION_TS) VALUES (?,?,?,?,?,?,?)");
+		PreparedStatement stmtWF = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,CREATION_TS,CLASSNAME) VALUES (?,?,?,?,?,?,?,?)");
 		PreparedStatement stmtQueue = con.prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,?,?)");
-		stmtBP.setString(1, wf.getId());
-		stmtBP.setInt(2, DBProcessingState.ENQUEUED.ordinal());
-		stmtBP.setInt(3, wf.getPriority());
-		stmtBP.setTimestamp(4,NOW);
-		stmtBP.setString(5, wf.getProcessorPoolId());
-		stmtBP.setString(6, data);
-		stmtBP.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
-		stmtBP.execute();
+		stmtWF.setString(1, wf.getId());
+		stmtWF.setInt(2, DBProcessingState.ENQUEUED.ordinal());
+		stmtWF.setInt(3, wf.getPriority());
+		stmtWF.setTimestamp(4,NOW);
+		stmtWF.setString(5, wf.getProcessorPoolId());
+		stmtWF.setString(6, data);
+		stmtWF.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
+		stmtWF.setString(8, wf.getClass().getName());
+		stmtWF.execute();
 
 		stmtQueue.setString(1, wf.getProcessorPoolId());
 		stmtQueue.setInt(2, wf.getPriority());
@@ -223,20 +234,21 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 	
 	private void doInsert(final List<Workflow<?>> wfs, Connection con) throws Exception {
 		final Timestamp NOW = new Timestamp(System.currentTimeMillis());
-		PreparedStatement stmtBP = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,CREATION_TS) VALUES (?,?,?,?,?,?,?)");
+		PreparedStatement stmtWF = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,CREATION_TS,CLASSNAME) VALUES (?,?,?,?,?,?,?,?)");
 		PreparedStatement stmtQueue = con.prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,?,?)");
 		int n = 0;
 		for (int i=0; i<wfs.size(); i++) {
 			Workflow<?> wf = wfs.get(i);
 			final String data = serializer.serializeWorkflow(wf);
-			stmtBP.setString(1, wf.getId());
-			stmtBP.setInt(2, DBProcessingState.ENQUEUED.ordinal());
-			stmtBP.setInt(3, wf.getPriority());
-			stmtBP.setTimestamp(4,NOW);
-			stmtBP.setString(5, wf.getProcessorPoolId());
-			stmtBP.setString(6, data);
-			stmtBP.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
-			stmtBP.addBatch();
+			stmtWF.setString(1, wf.getId());
+			stmtWF.setInt(2, DBProcessingState.ENQUEUED.ordinal());
+			stmtWF.setInt(3, wf.getPriority());
+			stmtWF.setTimestamp(4,NOW);
+			stmtWF.setString(5, wf.getProcessorPoolId());
+			stmtWF.setString(6, data);
+			stmtWF.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
+			stmtWF.setString(8, wf.getClass().getName());
+			stmtWF.addBatch();
 
 			stmtQueue.setString(1, wf.getProcessorPoolId());
 			stmtQueue.setInt(2, wf.getPriority());
@@ -247,7 +259,7 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 			n++;
 			if (i % 100 == 0 || (i+1) == wfs.size()) {
 				insertStmtStatistic.start();
-				stmtBP.executeBatch();
+				stmtWF.executeBatch();
 				stmtQueue.executeBatch();
 				insertStmtStatistic.stop(n);
 				n = 0;

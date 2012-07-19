@@ -78,7 +78,7 @@ public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
 
 	@Override
 	protected PreparedStatement createDeleteStaleResponsesStmt(final Connection c, final int maxRows) throws SQLException {
-		PreparedStatement stmt = c.prepareStatement("delete from cop_response where response_ts < ? and not exists (select * from cop_wait w where w.correlation_id = cop_response.correlation_id FETCH FIRST "+maxRows+" ROWS ONLY)");
+		PreparedStatement stmt = c.prepareStatement("delete from cop_response where response_timeout < ? and not exists (select * from cop_wait w where w.correlation_id = cop_response.correlation_id FETCH FIRST "+maxRows+" ROWS ONLY)");
 		stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 		return stmt;
 	}
@@ -174,7 +174,7 @@ public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
 		if (responses.isEmpty()) 
 			return;
 		
-		final PreparedStatement stmt = c.prepareCall("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE) VALUES (?,?,?)");
+		final PreparedStatement stmt = c.prepareCall("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?)");
 		try {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
 			int counter=0;
@@ -183,6 +183,8 @@ public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
 				stmt.setTimestamp(2, now);
 				String payload = serializer.serializeResponse(r);
 				stmt.setString(3, payload);
+				stmt.setString(4, r.getMetaData());
+				stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis() + (r.getInternalProcessingTimeout() == null ? defaultStaleResponseRemovalTimeout : r.getInternalProcessingTimeout())));
 				stmt.addBatch();
 				counter++;
 				if (counter == 50) {

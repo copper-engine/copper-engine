@@ -32,12 +32,14 @@ class GenericNotify {
 
 		final Response<?> response;
 		final Serializer serializer;
+		final int defaultStaleResponseRemovalTimeout;
 
 		@SuppressWarnings("unchecked")
-		public Command(Response<?> response, Serializer serializer) {
+		public Command(Response<?> response, Serializer serializer, int defaultStaleResponseRemovalTimeout) {
 			super(NullCallback.instance,250);
 			this.response = response;
 			this.serializer = serializer;
+			this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
 		}
 
 		@Override
@@ -64,7 +66,7 @@ class GenericNotify {
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE) VALUES (?,?,?,?)");
+			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?,?)");
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				Command cmd = (Command)_cmd;
 				stmt.setString(1, cmd.response.getCorrelationId());
@@ -72,6 +74,8 @@ class GenericNotify {
 				String payload = cmd.serializer.serializeResponse(cmd.response);
 				stmt.setString(3, payload.length() > 4000 ? null : payload);
 				stmt.setString(4, payload.length() > 4000 ? payload : null);
+				stmt.setString(5, cmd.response.getMetaData());
+				stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
 				stmt.addBatch();
 			}
 			stmt.executeBatch();

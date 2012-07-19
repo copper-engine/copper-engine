@@ -78,7 +78,7 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 		}
 		
 		synchronized (responseMap) {
-			responseMap.put(response.getCorrelationId(), new EarlyResponse(response,minHoldBackTime));
+			responseMap.put(response.getCorrelationId(), new EarlyResponse(response,response.getInternalProcessingTimeout() == null ? minHoldBackTime : response.getInternalProcessingTimeout()));
 			
 			if (responseMap.size() > upperBorderResponseMapSize) {
 				Iterator<String> iterator = responseMap.keySet().iterator();

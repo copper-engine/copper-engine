@@ -84,14 +84,19 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	private EngineIdProvider engineIdProvider = null;
 	private Map<String, ResponseLoader> responseLoaders = new HashMap<String, ResponseLoader>();
 	private boolean removeWhenFinished = true;
-	private int staleResponseRemovalTimeout = 60*60*1000;
+	private int defaultStaleResponseRemovalTimeout = 60*60*1000;
 
 	public OracleScottyDBStorage() {
 
 	}
 	
-	public void setStaleResponseRemovalTimeout(int staleResponseRemovalTimeout) {
-		this.staleResponseRemovalTimeout = staleResponseRemovalTimeout;
+	/**
+	 * Sets the default removal timeout for stale responses in the underlying database. A response is stale/timed out when
+	 * there is no workflow instance waiting for it within the specified amount of time. 
+	 * @param defaultStaleResponseRemovalTimeout
+	 */
+	public void setDefaultStaleResponseRemovalTimeout(int defaultStaleResponseRemovalTimeout) {
+		this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
 	}
 	
 	public void setRemoveWhenFinished(boolean removeWhenFinished) {
@@ -351,7 +356,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		if (logger.isTraceEnabled()) logger.trace("notify("+response+")");
 		if (response == null)
 			throw new NullPointerException();
-		batcher.submitBatchCommand(new GenericNotify.Command(response, serializer));
+		batcher.submitBatchCommand(new GenericNotify.Command(response, serializer, defaultStaleResponseRemovalTimeout));
 	}
 
 	/* (non-Javadoc)
@@ -443,8 +448,8 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 					getConnection().setAutoCommit(false);
 					lock(getConnection(),"deleteStaleResponse");
 					
-					PreparedStatement stmt = getConnection().prepareStatement("delete from cop_response r where response_ts < ? and not exists (select * from cop_wait w where w.correlation_id = r.correlation_id) and rownum <= "+MAX_ROWS);
-					stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()-staleResponseRemovalTimeout));
+					PreparedStatement stmt = getConnection().prepareStatement("delete from cop_response r where response_timeout < ? and not exists (select * from cop_wait w where w.correlation_id = r.correlation_id) and rownum <= "+MAX_ROWS);
+					stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 					deleteStaleResponsesStmtStatistic.start();
 					n[0] = stmt.executeUpdate();
 					deleteStaleResponsesStmtStatistic.stop(n[0]);
@@ -543,7 +548,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	}
 	
 	private void doInsert(final List<Workflow<?>> wfs, final Connection con) throws Exception {
-		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,CREATION_TS) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?)");
+		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,CREATION_TS,CLASSNAME) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?,?)");
 		try {
 			int n = 0;
 			for (int i=0; i<wfs.size(); i++) {
@@ -556,6 +561,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 				stmt.setString(5, data.length() > 4000 ? null : data);
 				stmt.setString(6, data.length() > 4000 ? data : null);
 				stmt.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
+				stmt.setString(8, wf.getClass().getName());
 				stmt.addBatch();
 				n++;
 				if (i % 100 == 0 || (i+1) == wfs.size()) {
@@ -573,7 +579,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	
 	private void doInsert(final Workflow<?> wf, final Connection con) throws Exception {
 		final String data = serializer.serializeWorkflow(wf);
-		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,CREATION_TS) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?)");
+		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,CREATION_TS,CLASSNAME) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?,?)");
 		try {
 			stmt.setString(1, wf.getId());
 			stmt.setInt(2, DBProcessingState.ENQUEUED.ordinal());
@@ -582,6 +588,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 			stmt.setString(5, data.length() > 4000 ? null : data);
 			stmt.setString(6, data.length() > 4000 ? data : null);
 			stmt.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
+			stmt.setString(8, wf.getClass().getName());
 			stmt.execute();
 		}
 		finally {
@@ -641,7 +648,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		if (responses.isEmpty()) 
 			return;
 		
-		final PreparedStatement stmt = c.prepareCall("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE) VALUES (?,?,?,?)");
+		final PreparedStatement stmt = c.prepareCall("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?,?)");
 		try {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
 			int counter=0;
@@ -651,6 +658,8 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 				String payload = serializer.serializeResponse(r);
 				stmt.setString(3, payload.length() > 4000 ? null : payload);
 				stmt.setString(4, payload.length() > 4000 ? payload : null);
+				stmt.setString(5, r.getMetaData());
+				stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis() + (r.getInternalProcessingTimeout() == null ? defaultStaleResponseRemovalTimeout : r.getInternalProcessingTimeout())));
 				stmt.addBatch();
 				counter++;
 				if (counter == 50) {
