@@ -27,7 +27,7 @@ import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 
 public class ExceptionHandlingTest extends TestCase {
 	
-	public void testWorkflow() throws Exception {
+	public void testExceptionHandlingTestWF() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
 		assertEquals(EngineState.STARTED,engine.getEngineState());
@@ -42,7 +42,34 @@ public class ExceptionHandlingTest extends TestCase {
 			
 			engine.run(descr);
 			
-			Thread.sleep(2000L);
+			Thread.sleep(1000L);
+			
+			WorkflowInfo info = engine.queryWorkflowInstance(descr.getId());
+			
+			assertNull(info);
+		}
+		finally {
+			context.close();
+		}
+		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		
+	}	
+	public void testIssueClassCastExceptionWorkflow3() throws Exception {
+		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
+		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
+		assertEquals(EngineState.STARTED,engine.getEngineState());
+		
+		try {
+			String data = "data";
+
+			
+			final WorkflowInstanceDescr<String> descr = new WorkflowInstanceDescr<String>("de.scoopgmbh.copper.test.IssueClassCastExceptionWorkflow3");
+			descr.setId("1234456");
+			descr.setData(data);
+			
+			engine.run(descr);
+			
+			Thread.sleep(1000L);
 			
 			WorkflowInfo info = engine.queryWorkflowInstance(descr.getId());
 			
