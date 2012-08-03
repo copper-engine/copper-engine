@@ -21,6 +21,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Collection;
 
+import org.springframework.jdbc.support.JdbcUtils;
+
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
@@ -56,24 +58,31 @@ class GenericSetToError {
 			final PreparedStatement stmtDelQueue = c.prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
 			final PreparedStatement stmtUpdateState = c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=SYSTIMESTAMP WHERE ID=?");
 			final PreparedStatement stmtInsertError = c.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, EXCEPTION, ERROR_TS) VALUES (?,?,SYSTIMESTAMP)");
-			for (BatchCommand<Executor, Command> _cmd : commands) {
-				Command cmd = (Command)_cmd;
-				stmtUpdateState.setInt(1, DBProcessingState.ERROR.ordinal());
-				stmtUpdateState.setString(2, cmd.wf.getId());
-				stmtUpdateState.addBatch();
+			try {
+				for (BatchCommand<Executor, Command> _cmd : commands) {
+					Command cmd = (Command)_cmd;
+					stmtUpdateState.setInt(1, DBProcessingState.ERROR.ordinal());
+					stmtUpdateState.setString(2, cmd.wf.getId());
+					stmtUpdateState.addBatch();
 
-				stmtInsertError.setString(1, cmd.wf.getId());
-				stmtInsertError.setString(2, convert2String(cmd.error));
-				stmtInsertError.addBatch();
+					stmtInsertError.setString(1, cmd.wf.getId());
+					stmtInsertError.setString(2, convert2String(cmd.error));
+					stmtInsertError.addBatch();
 
-				stmtDelQueue.setString(1, cmd.wf.rowid);
-				stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
-				stmtDelQueue.setInt(3, cmd.wf.oldPrio);
-				stmtDelQueue.addBatch();
+					stmtDelQueue.setString(1, cmd.wf.rowid);
+					stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
+					stmtDelQueue.setInt(3, cmd.wf.oldPrio);
+					stmtDelQueue.addBatch();
+				}
+				stmtUpdateState.executeBatch();
+				stmtInsertError.executeBatch();
+				stmtDelQueue.executeBatch();
 			}
-			stmtUpdateState.executeBatch();
-			stmtInsertError.executeBatch();
-			stmtDelQueue.executeBatch();
+			finally {
+				JdbcUtils.closeStatement(stmtDelQueue);
+				JdbcUtils.closeStatement(stmtUpdateState);
+				JdbcUtils.closeStatement(stmtInsertError);
+			}
 		}
 
 		@Override

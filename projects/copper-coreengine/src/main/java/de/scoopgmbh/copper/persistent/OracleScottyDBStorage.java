@@ -681,5 +681,21 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 			}
 		}
 	}	
+	
+	protected DataSource getDataSource() {
+		return dataSource;
+	}
+	
+	protected RuntimeStatisticsCollector getRuntimeStatisticsCollector() {
+		return runtimeStatisticsCollector;
+	}
+	
+	protected boolean isRemoveWhenFinished() {
+		return removeWhenFinished;
+	}
+	
+	protected Serializer getSerializer() {
+		return serializer;
+	}
 
 }

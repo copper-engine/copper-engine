@@ -19,6 +19,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Collection;
 
+import org.springframework.jdbc.support.JdbcUtils;
+
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
@@ -65,36 +67,45 @@ class GenericRemove {
 			final PreparedStatement stmtDelWait = c.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
 			final PreparedStatement stmtDelErrors = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
 			final PreparedStatement stmtDelBP = ((Command)commands.iterator().next()).remove ? c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?") : c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE="+DBProcessingState.FINISHED.ordinal()+", LAST_MOD_TS=SYSTIMESTAMP WHERE ID=?");
-			boolean cidsFound = false;
-			for (BatchCommand<Executor, Command> _cmd : commands) {
-				Command cmd = (Command) _cmd;
-				if (cmd.wf.cidList != null) {
-					for (String cid : cmd.wf.cidList) {
-						stmtDelResponse.setString(1, cid);
-						stmtDelResponse.addBatch();
-						stmtDelWait.setString(1, cid);
-						stmtDelWait.addBatch();
-						if (!cidsFound) cidsFound = true;
+			try {
+				boolean cidsFound = false;
+				for (BatchCommand<Executor, Command> _cmd : commands) {
+					Command cmd = (Command) _cmd;
+					if (cmd.wf.cidList != null) {
+						for (String cid : cmd.wf.cidList) {
+							stmtDelResponse.setString(1, cid);
+							stmtDelResponse.addBatch();
+							stmtDelWait.setString(1, cid);
+							stmtDelWait.addBatch();
+							if (!cidsFound) cidsFound = true;
+						}
 					}
-				}
-				stmtDelBP.setString(1, cmd.wf.getId());
-				stmtDelBP.addBatch();
+					stmtDelBP.setString(1, cmd.wf.getId());
+					stmtDelBP.addBatch();
 
-				stmtDelErrors.setString(1, cmd.wf.getId());
-				stmtDelErrors.addBatch();
-				
-				stmtDelQueue.setString(1, cmd.wf.rowid);
-				stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
-				stmtDelQueue.setInt(3, cmd.wf.oldPrio);
-				stmtDelQueue.addBatch();
+					stmtDelErrors.setString(1, cmd.wf.getId());
+					stmtDelErrors.addBatch();
+
+					stmtDelQueue.setString(1, cmd.wf.rowid);
+					stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
+					stmtDelQueue.setInt(3, cmd.wf.oldPrio);
+					stmtDelQueue.addBatch();
+				}
+				if (cidsFound) {
+					stmtDelResponse.executeBatch();
+					stmtDelWait.executeBatch();
+				}
+				stmtDelBP.executeBatch();
+				stmtDelErrors.executeBatch();
+				stmtDelQueue.executeBatch();
 			}
-			if (cidsFound) {
-				stmtDelResponse.executeBatch();
-				stmtDelWait.executeBatch();
+			finally {
+				JdbcUtils.closeStatement(stmtDelQueue);
+				JdbcUtils.closeStatement(stmtDelResponse);
+				JdbcUtils.closeStatement(stmtDelWait);
+				JdbcUtils.closeStatement(stmtDelErrors);
+				JdbcUtils.closeStatement(stmtDelBP);
 			}
-			stmtDelBP.executeBatch();
-			stmtDelErrors.executeBatch();
-			stmtDelQueue.executeBatch();
 		}
 
 	}

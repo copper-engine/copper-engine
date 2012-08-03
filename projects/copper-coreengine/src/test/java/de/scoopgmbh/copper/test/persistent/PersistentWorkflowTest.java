@@ -81,7 +81,7 @@ public class PersistentWorkflowTest extends TestCase {
 		logger.info("running testAsnychResponse");
 		final int NUMB = 20;
 		final String DATA = createTestData(50);
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		engine.startup();
@@ -113,7 +113,7 @@ public class PersistentWorkflowTest extends TestCase {
 		logger.info("running testAsnychResponse");
 		final int NUMB = 20;
 		final String DATA = createTestData(dataSize);
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		engine.startup();
@@ -144,10 +144,15 @@ public class PersistentWorkflowTest extends TestCase {
 
 	}
 
+	protected ConfigurableApplicationContext createContext(String dsContext) {
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		return context;
+	}
+
 	public void testWithConnection(String dsContext) throws Exception {
 		logger.info("running testWithConnection");
 		final int NUMB = 20;
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		final DataSource ds = context.getBean(DataSource.class);
 		cleanDB(ds);
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
@@ -183,7 +188,7 @@ public class PersistentWorkflowTest extends TestCase {
 	public void testWithConnectionBulkInsert(String dsContext) throws Exception {
 		logger.info("running testWithConnectionBulkInsert");
 		final int NUMB = 50;
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		final DataSource ds = context.getBean(DataSource.class);
 		cleanDB(ds);
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
@@ -224,7 +229,7 @@ public class PersistentWorkflowTest extends TestCase {
 	public void testTimeouts(String dsContext) throws Exception {
 		logger.info("running testTimeouts");
 		final int NUMB = 10;
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		engine.startup();
@@ -254,7 +259,7 @@ public class PersistentWorkflowTest extends TestCase {
 	}
 	
 	public void testErrorHandlingInCoreEngine(String dsContext) throws Exception {
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		try {
@@ -298,7 +303,7 @@ public class PersistentWorkflowTest extends TestCase {
 	}
 	
 	public void testErrorHandlingInCoreEngine_restartAll(String dsContext) throws Exception {
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		try {
@@ -345,7 +350,7 @@ public class PersistentWorkflowTest extends TestCase {
 	public void testParentChildWorkflow(String dsContext) throws Exception {
 		logger.info("running testParentChildWorkflow");
 		final int NUMB = 20;
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		engine.startup();
@@ -378,7 +383,7 @@ public class PersistentWorkflowTest extends TestCase {
 		logger.info("running testErrorKeepWorkflowInstanceInDB");
 		final int NUMB = 20;
 		final String DATA = createTestData(50);
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		final ScottyDBStorageInterface dbStorageInterface = context.getBean(ScottyDBStorageInterface.class);
@@ -425,7 +430,7 @@ public class PersistentWorkflowTest extends TestCase {
 		logger.info("running testCompressedAuditTrail");
 		final int NUMB = 20;
 		final String DATA = createTestData(50);
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		context.getBean(BatchingAuditTrail.class).setMessagePostProcessor(new CompressedBase64PostProcessor());
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
@@ -472,7 +477,7 @@ public class PersistentWorkflowTest extends TestCase {
 	
 	public void testAutoCommit(String dsContext) throws Exception {
 		logger.info("running testAutoCommit");
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		try {
 			DataSource ds = context.getBean(DataSource.class);
 			new RetryingTransaction(ds) {
@@ -498,7 +503,7 @@ public class PersistentWorkflowTest extends TestCase {
 	
 	public void testAuditTrailUncompressed(String dsContext) throws Exception {
 		logger.info("running testAuditTrailSmallData");
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		try {
 			de.scoopgmbh.copper.audit.BatchingAuditTrail auditTrail = context.getBean(de.scoopgmbh.copper.audit.BatchingAuditTrail.class);
 			auditTrail.setMessagePostProcessor(new DummyPostProcessor());
@@ -513,7 +518,7 @@ public class PersistentWorkflowTest extends TestCase {
 	}
 	
 	public void testErrorHandlingWithWaitHook(String dsContext) throws Exception {
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		try {
@@ -543,7 +548,7 @@ public class PersistentWorkflowTest extends TestCase {
 	
 	public void testAuditTrailCustomSeqNr(String dsContext) throws Exception {
 		logger.info("running testAuditTrailCustomSeqNr");
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = createContext(dsContext);
 		try {
 			cleanDB(context.getBean(DataSource.class));
 			de.scoopgmbh.copper.audit.BatchingAuditTrail auditTrail = context.getBean(de.scoopgmbh.copper.audit.BatchingAuditTrail.class);

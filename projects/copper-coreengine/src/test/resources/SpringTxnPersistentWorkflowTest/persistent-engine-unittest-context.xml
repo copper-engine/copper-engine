@@ -38,9 +38,10 @@
     	</property>
 	</bean>
 	
-    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.SpringTxnPersistentPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>
     	<constructor-arg type="int"><value>4</value></constructor-arg>
+    	<constructor-arg type="org.springframework.transaction.PlatformTransactionManager" ref="txManager"></constructor-arg>
     </bean>
            
 	<bean id="persistent.PPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">
@@ -74,6 +75,14 @@
 		<property name="engine" ref="persistent.engine"/>
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>
+	
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	  	<property name="dataSource" ref="datasource_default"/>
+	</bean>	
+	
+	<bean id="jdbcTemplate4wf" class="org.springframework.jdbc.core.JdbcTemplate">
+	  	<property name="dataSource" ref="datasource_default"/>
+	</bean>	
 	
 </beans>          
 
