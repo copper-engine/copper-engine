@@ -37,6 +37,7 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.support.JdbcUtils;
 
 import de.scoopgmbh.copper.EngineIdProvider;
 import de.scoopgmbh.copper.Response;
@@ -189,7 +190,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	 * @see de.scoopgmbh.copper.persistent.ScottyDBStorageInterface#insert(java.util.List)
 	 */
 	public void insert(final List<Workflow<?>> wfs) throws Exception {
-		if (logger.isTraceEnabled()) logger.trace("insert("+wfs.size()+")");
+		if (logger.isTraceEnabled()) logger.trace("insert(wfs.size="+wfs.size()+")");
 		new RetryingTransaction(dataSource) {
 			@Override
 			protected void execute() throws Exception {
@@ -547,7 +548,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 		}
 	}
 	
-	private void doInsert(final List<Workflow<?>> wfs, final Connection con) throws Exception {
+	protected void doInsert(final List<Workflow<?>> wfs, final Connection con) throws Exception {
 		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,CREATION_TS,CLASSNAME) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?,?)");
 		try {
 			int n = 0;
@@ -573,11 +574,11 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 			}
 		}
 		finally {
-			stmt.close();
+			JdbcUtils.closeStatement(stmt);
 		}
 	}
 	
-	private void doInsert(final Workflow<?> wf, final Connection con) throws Exception {
+	protected void doInsert(final Workflow<?> wf, final Connection con) throws Exception {
 		final String data = serializer.serializeWorkflow(wf);
 		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,CREATION_TS,CLASSNAME) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?,?)");
 		try {
@@ -592,7 +593,7 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 			stmt.execute();
 		}
 		finally {
-			stmt.close();
+			JdbcUtils.closeStatement(stmt);
 		}
 
 	}
@@ -696,6 +697,10 @@ public class OracleScottyDBStorage implements ScottyDBStorageInterface {
 	
 	protected Serializer getSerializer() {
 		return serializer;
+	}
+	
+	public int getDefaultStaleResponseRemovalTimeout() {
+		return defaultStaleResponseRemovalTimeout;
 	}
 
 }
