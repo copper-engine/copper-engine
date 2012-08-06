@@ -15,12 +15,16 @@
  */
 package de.scoopgmbh.copper.audit;
 
+import java.sql.Connection;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 import javax.sql.DataSource;
 
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.CommandCallback;
+import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.management.AuditTrailMXBean;
 
 /**
@@ -30,24 +34,24 @@ import de.scoopgmbh.copper.management.AuditTrailMXBean;
  *
  */
 public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
-	
+
 	private Batcher batcher;
 	private DataSource dataSource;
 	private int level = 5;
 	private MessagePostProcessor messagePostProcessor = new DummyPostProcessor();
-	
+
 	public void setMessagePostProcessor(MessagePostProcessor messagePostProcessor) {
 		this.messagePostProcessor = messagePostProcessor;
 	}
-	
+
 	public void setBatcher(Batcher batcher) {
 		this.batcher = batcher;
 	}
-	
+
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
-	
+
 	public void setLevel (int level) {
 		this.level = level;
 	}
@@ -56,7 +60,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 	public int getLevel() {
 		return level;
 	}
-	
+
 	@Override
 	public boolean isEnabled (int level) {
 		return this.level >= level;
@@ -112,45 +116,35 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 		}		
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected void doSyncLog(AuditTrailEvent e, Connection con) throws Exception {
+		e.setMessage(messagePostProcessor.serialize(e.message));
+		BatchInsertIntoAutoTrail.Command cmd = new BatchInsertIntoAutoTrail.Command(e);
+		cmd.executor().doExec((Collection)Collections.singletonList(cmd), con);
+	}
+
 	@Override
-	public void synchLog(AuditTrailEvent e) {
-		if ( isEnabled(e.logLevel) ) {
-			e.setMessage(messagePostProcessor.serialize(e.message));
-			final Object mutex = new Object();
-			final Exception[] exc = new Exception[1];
-			final boolean[] done = { false };
-			CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
-				@Override
-				public void commandCompleted() {
-					synchronized (mutex) {
-						done[0] = true;
-						mutex.notify();
+	public void synchLog(final AuditTrailEvent event) {
+		if (isEnabled(event.logLevel) ) {
+			try {
+				new RetryingTransaction(dataSource) {
+					@Override
+					protected void execute() throws Exception {
+						doSyncLog(event, getConnection());
 					}
-				}
-				@Override
-				public void unhandledException(Exception e) {
-					synchronized (mutex) {
-						done[0] = true;
-						exc[0] = e;
-						mutex.notify();
-					}
-				}
-			};
-			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(e, callback));
-			synchronized (mutex) {
-				while (!done[0]) {
-					try {
-						mutex.wait(1000L);
-					} 
-					catch (InterruptedException ex) {
-						throw new RuntimeException("wait interrupted",ex);
-					}
-				}
+				}.run();
 			}
-			if (exc[0] != null) {
-				throw new RuntimeException("synchLog failed",exc[0]);
+			catch(RuntimeException e) {
+				throw e;
+			}
+			catch(Exception e) {
+				throw new RuntimeException("synchLog failed",e);
 			}
 		}
+	}
+	
+	protected DataSource getDataSource() {
+		return dataSource;
 	}
 
 }

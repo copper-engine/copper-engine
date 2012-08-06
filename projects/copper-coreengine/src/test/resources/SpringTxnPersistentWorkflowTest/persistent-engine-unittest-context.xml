@@ -66,9 +66,10 @@
 		<property name="notifyProcessorPoolsOnResponse" value="false"/>
 	</bean>
 	
-	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton">
+	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.SpringTxnAuditTrail" scope="singleton">
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
+		<property name="transactionManager" ref="txManager"/>
 	</bean>
 	
 	<bean id="dbMockAdapter" class="de.scoopgmbh.copper.test.DBMockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">

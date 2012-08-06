@@ -91,6 +91,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 					}
 				}
 				for (String cid : expiredCorrelationIds) {
+					@SuppressWarnings("rawtypes")
 					Response<?> r = new Response(cid);
 					engine.notify(r);
 				}

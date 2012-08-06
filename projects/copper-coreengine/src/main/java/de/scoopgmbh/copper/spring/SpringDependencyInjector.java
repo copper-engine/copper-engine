@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -38,6 +40,8 @@ import de.scoopgmbh.copper.Workflow;
  *
  */
 public class SpringDependencyInjector implements DependencyInjector, ApplicationContextAware {
+	
+	private static final Logger logger = LoggerFactory.getLogger(SpringDependencyInjector.class);
 
 	private ProcessingEngine engine;
 	private ApplicationContext context;
@@ -84,6 +88,7 @@ public class SpringDependencyInjector implements DependencyInjector, Application
 		for (InjectionDescription injectionDescription : list) {
 			try {
 				final Object bean = context.getBean(injectionDescription.beanId);
+				logger.trace("injecting bean with beanId {} to method {}", injectionDescription.beanId, injectionDescription.method);
 				injectionDescription.method.invoke(workflow, bean);
 			}
 			catch(RuntimeException e) {

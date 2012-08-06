@@ -45,7 +45,6 @@ import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;

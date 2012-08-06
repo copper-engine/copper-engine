@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.support.JdbcUtils;
 
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -73,55 +74,61 @@ class BatchInsertIntoAutoTrail {
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			if (logger.isDebugEnabled()) logger.debug("DatabaseProductName="+con.getMetaData().getDatabaseProductName());
 			String _stmt;
-			final boolean isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
-			if (isOracle) {
-				// Oracle
-				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID, MESSAGE_TYPE, LONG_MESSAGE) VALUES (NVL(?,COP_SEQ_AUDIT_TRAIL.NEXTVAL),?,?,?,?,?,?,?,?,?)";
-			}
-			else {
-				// ANSI SQL
-				_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,LONG_MESSAGE,TRANSACTION_ID,MESSAGE_TYPE) VALUES (?,?,?,?,?,?,?,?,?)";
-				
-			}
-			final PreparedStatement stmt = con.prepareStatement(_stmt);
-			for (BatchCommand<Executor, Command> _cmd : commands) {
-				Command cmd = (Command)_cmd;
-				int idx=1;
-				AuditTrailEvent data = cmd.data;
+			PreparedStatement preparedStmt = null;
+			try {
+				final boolean isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
 				if (isOracle) {
-					if (data.getSequenceId() == null) {
-						stmt.setNull(idx++, Types.NUMERIC);
-					}
-					else {
-						stmt.setLong(idx++, data.getSequenceId().longValue());
-					}
-					stmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
-					stmt.setString(idx++, data.conversationId);
-					stmt.setInt(idx++, data.logLevel);
-					stmt.setString(idx++, data.context);
-					stmt.setString(idx++, data.instanceId);
-					stmt.setString(idx++, data.correlationId);
-					stmt.setString(idx++, data.transactionId);
-					stmt.setString(idx++, data.messageType);
-					stmt.setString(idx++, data.message);
+					// Oracle
+					_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID, MESSAGE_TYPE, LONG_MESSAGE) VALUES (NVL(?,COP_SEQ_AUDIT_TRAIL.NEXTVAL),?,?,?,?,?,?,?,?,?)";
 				}
 				else {
-					if (data.getSequenceId() != null) {
-						throw new UnsupportedOperationException("Custom SequenceId currently not supported for this DBMS");
-					}
-					stmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
-					stmt.setString(idx++, data.conversationId);
-					stmt.setInt(idx++, data.logLevel);
-					stmt.setString(idx++, data.context);
-					stmt.setString(idx++, data.instanceId);
-					stmt.setString(idx++, data.correlationId);
-					stmt.setString(idx++, data.message);
-					stmt.setString(idx++, data.transactionId);
-					stmt.setString(idx++, data.messageType);
+					// ANSI SQL
+					_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,LONG_MESSAGE,TRANSACTION_ID,MESSAGE_TYPE) VALUES (?,?,?,?,?,?,?,?,?)";
+
 				}
-				stmt.addBatch();
+				preparedStmt = con.prepareStatement(_stmt);
+				for (BatchCommand<Executor, Command> _cmd : commands) {
+					Command cmd = (Command)_cmd;
+					int idx=1;
+					AuditTrailEvent data = cmd.data;
+					if (isOracle) {
+						if (data.getSequenceId() == null) {
+							preparedStmt.setNull(idx++, Types.NUMERIC);
+						}
+						else {
+							preparedStmt.setLong(idx++, data.getSequenceId().longValue());
+						}
+						preparedStmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
+						preparedStmt.setString(idx++, data.conversationId);
+						preparedStmt.setInt(idx++, data.logLevel);
+						preparedStmt.setString(idx++, data.context);
+						preparedStmt.setString(idx++, data.instanceId);
+						preparedStmt.setString(idx++, data.correlationId);
+						preparedStmt.setString(idx++, data.transactionId);
+						preparedStmt.setString(idx++, data.messageType);
+						preparedStmt.setString(idx++, data.message);
+					}
+					else {
+						if (data.getSequenceId() != null) {
+							throw new UnsupportedOperationException("Custom SequenceId currently not supported for this DBMS");
+						}
+						preparedStmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
+						preparedStmt.setString(idx++, data.conversationId);
+						preparedStmt.setInt(idx++, data.logLevel);
+						preparedStmt.setString(idx++, data.context);
+						preparedStmt.setString(idx++, data.instanceId);
+						preparedStmt.setString(idx++, data.correlationId);
+						preparedStmt.setString(idx++, data.message);
+						preparedStmt.setString(idx++, data.transactionId);
+						preparedStmt.setString(idx++, data.messageType);
+					}
+					preparedStmt.addBatch();
+				}
+				preparedStmt.executeBatch();
 			}
-			stmt.executeBatch();
+			finally {
+				JdbcUtils.closeStatement(preparedStmt);
+			}
 		}
 
 	}

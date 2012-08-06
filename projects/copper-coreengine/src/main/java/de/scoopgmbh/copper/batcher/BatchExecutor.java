@@ -18,9 +18,6 @@ package de.scoopgmbh.copper.batcher;
 import java.sql.Connection;
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Abstract base implementation of the {@link BatchExecutorBase} interface.
  * 
@@ -30,8 +27,6 @@ import org.slf4j.LoggerFactory;
  * @param <T>
  */
 public abstract class BatchExecutor<E extends BatchExecutor<E,T>, T extends BatchCommand<E,T>> implements BatchExecutorBase<E,T> {
-
-	private static final Logger logger = LoggerFactory.getLogger(BatchExecutor.class);
 
 	private final String id = this.getClass().getName();
 

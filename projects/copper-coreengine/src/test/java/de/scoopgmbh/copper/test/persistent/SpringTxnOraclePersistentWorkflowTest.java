@@ -29,8 +29,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
@@ -218,7 +216,7 @@ public class SpringTxnOraclePersistentWorkflowTest extends PersistentWorkflowTes
 					ResultSet rs = getConnection().createStatement().executeQuery("select count(*) from cop_audit_trail_event");
 					assertTrue(rs.next());
 					int c = rs.getInt(1);
-					assertEquals(5, c);
+					assertEquals(7, c);
 				}
 			}.run();
 		}

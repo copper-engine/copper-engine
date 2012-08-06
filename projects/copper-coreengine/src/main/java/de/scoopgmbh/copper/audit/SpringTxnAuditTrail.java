@@ -13,28 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.persistent;
+package de.scoopgmbh.copper.audit;
 
-import java.util.Queue;
+import java.sql.Connection;
 
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.common.Processor;
+import de.scoopgmbh.copper.spring.SpringTransaction;
 
-public class SpringTxnPersistentPriorityProcessorPool extends PersistentPriorityProcessorPool {
+
+public class SpringTxnAuditTrail extends BatchingAuditTrail {
 	
 	private PlatformTransactionManager transactionManager;
-
-	public SpringTxnPersistentPriorityProcessorPool(String id, int numberOfThreads, PlatformTransactionManager transactionManager) {
-		super(id, numberOfThreads);
+	
+	public void setTransactionManager(PlatformTransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 	}
-	
+
 	@Override
-	protected Processor newProcessor(String name, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine) { 
-		return new SpringTxnPersistentProcessor(name, queue, threadPrioriry, engine, transactionManager);
+	public void synchLog(final AuditTrailEvent e) {
+		new SpringTransaction() {
+			@Override
+			protected void execute(Connection con) throws Exception {
+				doSyncLog(e, con);
+			}
+		}.run(transactionManager, getDataSource(), createTransactionDefinition());
 	}
+
+	protected TransactionDefinition createTransactionDefinition() {
+		return new DefaultTransactionDefinition();
+	}
+	
 
 }

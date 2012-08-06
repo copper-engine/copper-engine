@@ -29,6 +29,7 @@ import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.audit.AuditTrail;
+import de.scoopgmbh.copper.audit.AuditTrailEvent;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.test.MockAdapter;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
@@ -87,11 +88,15 @@ public class SpringTxnUnitTestWorkflow extends PersistentWorkflow<String> {
 
 	private void callFoo() throws InterruptException {
 		String cid = getEngine().createUUID();
+		// This is running within the current DB transaction
 		jdbcTemplate.update(SQL_STMT, idFactory.incrementAndGet(), cid, "beforeFoo");
 		
 		mockAdapter.foo(getData(), cid);
+		
+		// current Txn end here
 		wait(WaitMode.ALL, 10000, cid);
-
+		// new Txn starts here
+		
 		Response<?> res = getAndRemoveResponse(cid);
 		logger.info(res.toString());
 
@@ -101,6 +106,9 @@ public class SpringTxnUnitTestWorkflow extends PersistentWorkflow<String> {
 		Assert.assertFalse(res.isTimeout());
 		Assert.assertEquals(getData(),res.getResponse());
 		Assert.assertNull(res.getException());
+		
+		// This is also running within the current DB transaction
+		auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "Assertions checked", getId(), cid, cid, "Assertions checked", "String", null));
 	}
 	
 }

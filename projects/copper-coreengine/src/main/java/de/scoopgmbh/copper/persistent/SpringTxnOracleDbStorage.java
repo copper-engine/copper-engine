@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2012 SCOOP Software GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.scoopgmbh.copper.persistent;
 
 import java.sql.Connection;
@@ -6,45 +21,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
-
-abstract class Transaction {
-	abstract void execute(Connection con) throws Exception;
-	void run(PlatformTransactionManager transactionManager, DataSource dataSource, TransactionDefinition def) {
-		TransactionStatus txnStatus = transactionManager.getTransaction(def);
-		try {
-			Connection con = DataSourceUtils.getConnection(dataSource);
-			try {
-				execute(con);
-			}
-			finally {
-				DataSourceUtils.releaseConnection(con, dataSource);
-			}
-		}
-		catch(RuntimeException e) {
-			transactionManager.rollback(txnStatus);
-			throw e;
-		}
-		catch(Exception e) {
-			transactionManager.rollback(txnStatus);
-			throw new CopperRuntimeException("jdbc operation failed",e);
-		}
-		transactionManager.commit(txnStatus);
-	}
-}
+import de.scoopgmbh.copper.spring.SpringTransaction;
 
 public class SpringTxnOracleDbStorage extends OracleScottyDBStorage {
 	
@@ -56,34 +41,15 @@ public class SpringTxnOracleDbStorage extends OracleScottyDBStorage {
 		this.transactionManager = transactionManager;
 	}
 	
-	private void runTransactional(BatchCommand<?, ?> cmd) {
-		DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-		TransactionStatus txnStatus = transactionManager.getTransaction(def);
-		try {
-			doTransactional(getDataSource(), cmd);
-		}
-		catch(RuntimeException e) {
-			transactionManager.rollback(txnStatus);
-			throw e;
-		}
-		catch(Exception e) {
-			transactionManager.rollback(txnStatus);
-			throw new CopperRuntimeException("jdbc operation failed",e);
-		}
-		transactionManager.commit(txnStatus);
+	private void runTransactional(final BatchCommand<?, ?> cmd) {
+		new SpringTransaction() {
+			@Override
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			protected void execute(Connection con) throws Exception {
+				cmd.executor().doExec((Collection)Collections.singletonList(cmd), con);
+			}
+		}.run(transactionManager, getDataSource(), new DefaultTransactionDefinition());
 	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void doTransactional(DataSource ds, BatchCommand<?, ?> cmd) throws Exception {
-		Connection con = DataSourceUtils.getConnection(ds);
-		try {
-			cmd.executor().doExec((Collection)Collections.singletonList(cmd), con);
-		}
-		finally {
-			DataSourceUtils.releaseConnection(con, ds);
-		}
-	}
-	
 	
 	@Override
 	public void finish(Workflow<?> w) {
@@ -109,9 +75,9 @@ public class SpringTxnOracleDbStorage extends OracleScottyDBStorage {
 	@Override
 	public void insert(final List<Workflow<?>> wfs) throws Exception {
 		logger.trace("insert(wfs.size=?)", wfs.size());
-		new Transaction() {
+		new SpringTransaction() {
 			@Override
-			void execute(Connection con) throws Exception {
+			protected void execute(Connection con) throws Exception {
 				doInsert(wfs, con);
 			}
 		}.run(transactionManager, getDataSource(), new DefaultTransactionDefinition());
@@ -120,9 +86,9 @@ public class SpringTxnOracleDbStorage extends OracleScottyDBStorage {
 	@Override
 	public void insert(final Workflow<?> wf) throws Exception {
 		logger.trace("insert(?)", wf);
-		new Transaction() {
+		new SpringTransaction() {
 			@Override
-			void execute(Connection con) throws Exception {
+			protected void execute(Connection con) throws Exception {
 				doInsert(wf, con);
 			}
 		}.run(transactionManager, getDataSource(), new DefaultTransactionDefinition());
@@ -148,9 +114,10 @@ public class SpringTxnOracleDbStorage extends OracleScottyDBStorage {
 			cmds.add(cmd);
 		}
 		
-		new Transaction() {
+		new SpringTransaction() {
+			@SuppressWarnings({ "rawtypes", "unchecked" })
 			@Override
-			void execute(Connection con) throws Exception {
+			protected void execute(Connection con) throws Exception {
 				cmds.get(0).executor().doExec((Collection)cmds, con);
 			}
 		}.run(transactionManager, getDataSource(), new DefaultTransactionDefinition());
