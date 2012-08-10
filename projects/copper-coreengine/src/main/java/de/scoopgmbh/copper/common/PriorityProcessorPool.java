@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.internal.SuspendableQueue;
 import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
 
 /**
@@ -36,7 +37,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 
 	private static final Logger logger = LoggerFactory.getLogger(PriorityProcessorPool.class);
 
-	protected final Queue<Workflow<?>> queue = createQueue();
+	protected final SuspendableQueue<Workflow<?>> queue = new SuspendableQueue<Workflow<?>>(createQueue());
 	private final List<Processor> workerThreads = new ArrayList<Processor>();
 
 	private ProcessingEngine engine = null;
@@ -185,5 +186,19 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 		return queue.size();
 	}
 	
+	@Override
+	public void resume() {
+		synchronized (queue) {
+			queue.setSuspended(false);
+			queue.notifyAll();
+		}
+	}
+	
+	@Override
+	public void suspend() {
+		synchronized (queue) {
+			queue.setSuspended(true);
+		}
+	}
 
 }

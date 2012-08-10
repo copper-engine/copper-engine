@@ -16,7 +16,7 @@
 package de.scoopgmbh.copper.util;
 
 public class BlockingResponseReceiver<E> implements AsyncResponseReceiver<E> {
-	
+
 	private E response;
 	private Exception exception;
 	private boolean responseReceived = false;
@@ -42,7 +42,7 @@ public class BlockingResponseReceiver<E> implements AsyncResponseReceiver<E> {
 			this.notifyAll();
 		}
 	}
-	
+
 	public void wait4response(long timeoutMSec) throws InterruptedException {
 		synchronized (this) {
 			if(!responseReceived) {
@@ -52,17 +52,23 @@ public class BlockingResponseReceiver<E> implements AsyncResponseReceiver<E> {
 	}
 
 	public boolean isResponseReceived() {
-		return responseReceived;
+		synchronized (this) {
+			return responseReceived;
+		}
 	}
 
 
 	public Exception getException() {
-		return exception;
+		synchronized (this) {
+			return exception;
+		}
 	}
-	
+
 	public E getResponse() {
-		return response;
+		synchronized (this) {
+			return response;
+		}
 	}
-	
+
 
 }

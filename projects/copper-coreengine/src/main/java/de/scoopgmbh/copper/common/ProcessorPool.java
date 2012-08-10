@@ -25,8 +25,34 @@ import de.scoopgmbh.copper.ProcessingEngine;
  *
  */
 public interface ProcessorPool {
+	
+	/**
+	 * Called internally by COPPER during initialization 
+	 */
 	public void setEngine(ProcessingEngine engine);
+
+	/**
+	 * returns the processor pools identifier 
+	 */
 	public String getId();
+	
+	/**
+	 * Starts up the processor pool
+	 */
 	public void startup();
+	
+	/**
+	 * Shuts down the processor pool
+	 */
 	public void shutdown();
+	
+	/**
+	 * Suspend processing of workflows.
+	 */
+	public void suspend();
+	
+	/**
+	 * Resume processing of workflows
+	 */
+	public void resume();
 }

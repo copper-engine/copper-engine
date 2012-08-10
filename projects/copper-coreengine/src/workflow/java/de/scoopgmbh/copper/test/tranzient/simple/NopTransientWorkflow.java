@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.management;
+package de.scoopgmbh.copper.test.tranzient.simple;
 
-public interface ProcessorPoolMXBean {
-	public String getId();
-	public void setNumberOfThreads(int numberOfThreads);
-	public int getNumberOfThreads();
-	public void setThreadPriority(int threadPriority);
-	public int getThreadPriority();	
-	public int getMemoryQueueSize();
-	
-	/**
-	 * Suspend processing of workflows.
-	 */
-	public void suspend();
-	
-	/**
-	 * Resume processing of workflows
-	 */
-	public void resume();	
+import de.scoopgmbh.copper.InterruptException;
+import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.util.AsyncResponseReceiver;
+
+public class NopTransientWorkflow extends Workflow<AsyncResponseReceiver<Integer>> {
+
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	public void main() throws InterruptException {
+		getData().setResponse(Integer.valueOf(1));
+	}
 }

@@ -58,7 +58,9 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
 		WorkflowAccessor.setProcessingState(wf, ProcessingState.ENQUEUED);
 		synchronized (queue) {
 			queue.add(wf);
-			queue.notify();
+			if (!queue.isSuspended()) {
+				queue.notify();
+			}
 		}
 	}
 
