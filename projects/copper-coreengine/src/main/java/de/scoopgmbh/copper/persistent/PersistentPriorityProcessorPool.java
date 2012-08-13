@@ -49,6 +49,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	private volatile int upperThresholdReachedWaitMSec = 50;
 	private volatile int emptyQueueWaitMSec = 500;
 	private volatile int dequeueBulkSize = 2000;
+	// private boolean onShutdownWait4Completion = false; TODO
 	
 	/**
 	 * Creates a new {@link PersistentPriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
