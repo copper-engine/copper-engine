@@ -46,7 +46,7 @@ public abstract class Workflow<D> implements Serializable {
 	 * Constant value for {@link Workflow#wait(WaitMode, int, Callback...)} and {@link Workflow#wait(WaitMode, int, String...)} indicating 
 	 * that there is no timeout 
 	 */
-	public static final int NO_TIMEOUT = -1;
+	public static final int NO_TIMEOUT =-1;
 	
 	private transient ProcessingEngine engine;
 	private transient String id = null;
@@ -159,7 +159,7 @@ public abstract class Workflow<D> implements Serializable {
 	 * Generic wait/sleep. In case of WaitMode FIRST, it waits until at least one response for the specified correlation ids occurs.
 	 * In case of WaitMode ALL, it waits until a response for every specified correlation id occurs.
 	 * @param mode WaitMode
-	 * @param timeoutMsec timeout in milliseconds or {@link Workflow#NO_TIMEOUT} 
+	 * @param timeoutMsec timeout in milliseconds or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
 	 * @param correlationIds one ore more correlation ids
 	 */
 	protected final void wait(WaitMode mode, int timeoutMsec, String... correlationIds) throws InterruptException {
