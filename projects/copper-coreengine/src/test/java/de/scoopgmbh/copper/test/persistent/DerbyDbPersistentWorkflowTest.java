@@ -17,22 +17,22 @@ package de.scoopgmbh.copper.test.persistent;
 
 import javax.sql.DataSource;
 
-import de.scoopgmbh.copper.persistent.DerbyDbScottyDbStorage;
+import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 
 
-public class DerbyDbPersistentWorkflowTest extends PersistentWorkflowTest {
+public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
 	
-	private static final String DS_CONTEXT = "derbydb-unittest-context.xml";
-	
+	private static final String DS_CONTEXT = "/datasources/datasource-derbydb.xml";
+
 	@Override
 	void cleanDB(DataSource ds) throws Exception {
-		DerbyDbScottyDbStorage.checkAndCreateSchema(ds);
+		DerbyDbDialect.checkAndCreateSchema(ds);
 		super.cleanDB(ds);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		DerbyDbScottyDbStorage.shutdownDerby();
+		DerbyDbDialect.shutdownDerby();
 		super.tearDown();
 	}
 	

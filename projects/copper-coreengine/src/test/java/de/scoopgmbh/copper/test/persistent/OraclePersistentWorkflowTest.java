@@ -34,15 +34,15 @@ import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 
 
-public class OraclePersistentWorkflowTest extends PersistentWorkflowTest {
+public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 	
-	private static final String DS_CONTEXT = "oracle-unittest-context.xml";
-	private static final Logger logger = LoggerFactory.getLogger(DerbyDbPersistentWorkflowTest.class);
+	private static final String DS_CONTEXT = "/datasources/datasource-oracle.xml";
+	private static final Logger logger = LoggerFactory.getLogger(OraclePersistentWorkflowTest.class);
 	
 	private static boolean dbmsAvailable = false;
 	
 	static {
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {DS_CONTEXT, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = new OraclePersistentWorkflowTest().createContext(DS_CONTEXT);
 		try {
 			DataSource ds = context.getBean(DataSource.class);
 			ds.setLoginTimeout(10);
@@ -88,7 +88,7 @@ public class OraclePersistentWorkflowTest extends PersistentWorkflowTest {
 
 		logger.info("running testMultipleEngines");
 		final int NUMB = 50;
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"multiengine-oracle-unittest-context.xml"});
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"/CopperTxnPersistentWorkflowTest/multiengine-oracle-unittest-context.xml"});
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engineRed = context.getBean("persistent.engine.red",PersistentScottyEngine.class);
 		final PersistentScottyEngine engineBlue = context.getBean("persistent.engine.blue",PersistentScottyEngine.class);

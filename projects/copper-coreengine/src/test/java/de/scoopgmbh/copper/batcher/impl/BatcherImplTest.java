@@ -84,6 +84,7 @@ public class BatcherImplTest extends TestCase {
 	
 	
 
+	@SuppressWarnings("rawtypes")
 	public final void testSubmitBatchCommand() throws InterruptedException {
 		BatcherImpl batcher = new BatcherImpl(2);
 		batcher.setBatchRunner(new RetryingTxnBatchRunner());

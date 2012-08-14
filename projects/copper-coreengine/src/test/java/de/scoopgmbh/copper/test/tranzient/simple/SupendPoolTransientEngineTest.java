@@ -22,11 +22,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import de.scoopgmbh.copper.EngineState;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.tranzient.TransientProcessorPool;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
-import de.scoopgmbh.copper.util.AsyncResponseReceiver;
 import de.scoopgmbh.copper.util.BlockingResponseReceiver;
 
 public class SupendPoolTransientEngineTest extends TestCase {

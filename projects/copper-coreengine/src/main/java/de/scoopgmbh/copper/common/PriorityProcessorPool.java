@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import org.apache.derby.iapi.error.ShutdownException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,17 +45,18 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 	private String id = null;
 	private int numberOfThreads = Runtime.getRuntime().availableProcessors();
 	private int threadPriority = Thread.NORM_PRIORITY;
-	
+	private boolean joinOnShutdown = true;
+
 	private boolean started = false;
 	private boolean shutdown = false;
-	
+
 	/**
 	 * Creates a new {@link PriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
 	 * <code>id</code> needs to be initialized later using the setter.
 	 */
 	public PriorityProcessorPool() {
 	}
-	
+
 	/**
 	 * Creates a new {@link PriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
 	 */
@@ -62,18 +64,30 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 		super();
 		this.id = id;
 	}
-	
+
 	public PriorityProcessorPool(String id, int numberOfThreads) {
 		super();
 		this.id = id;
 		this.numberOfThreads = numberOfThreads;
 	}
-	
+
 	/**
 	 * Creates a new instance of {@link WfPriorityQueue}
 	 */
 	protected Queue<Workflow<?>> createQueue() {
 		return new WfPriorityQueue();
+	}
+
+	/**
+	 * If true, this processor pool waits until all processors are terminated when shutting down
+	 * @param joinOnShutdown
+	 */
+	public void setJoinOnShutdown(boolean joinOnShutdown) {
+		this.joinOnShutdown = joinOnShutdown;
+	}
+	
+	public boolean isJoinOnShutdown() {
+		return joinOnShutdown;
 	}
 
 	@Override
@@ -83,14 +97,14 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 		}
 		this.engine = engine;
 	}
-	
+
 	public void setId(String id) {
 		if (id != null) {
 			throw new IllegalArgumentException("id is already set to "+this.id);
 		}
 		this.id = id;
 	}
-	
+
 	public synchronized void setNumberOfThreads(int numberOfThreads) {
 		if (numberOfThreads <= 0 || numberOfThreads >= 2048) throw new IllegalArgumentException();
 		if (this.numberOfThreads != numberOfThreads) {
@@ -101,7 +115,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 			}
 		}
 	}
-	
+
 	private void updateThreads() {
 		if (numberOfThreads == workerThreads.size())
 			return;
@@ -121,13 +135,13 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 			workerThreads.add(p);
 		}
 	}
-	
+
 	protected abstract Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine);
 
 	public synchronized int getNumberOfThreads() {
 		return numberOfThreads;
 	}
-	
+
 	public synchronized void setThreadPriority(int threadPriority) {
 		if (threadPriority != this.threadPriority) {
 			logger.info("ProcessorPool "+id+": Setting new thread priority to "+threadPriority);
@@ -137,7 +151,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 			}
 		}
 	}
-	
+
 	public synchronized int getThreadPriority() {
 		return threadPriority;
 	}
@@ -151,41 +165,52 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 	public synchronized void shutdown() {
 		if (shutdown)
 			return;
-		
+
 		logger.info("ProcessorPool "+id+": Shutting down");
 
 		shutdown = true;
 		synchronized (queue) {
 			queue.notifyAll();
 		}
-		
+
 		for (Processor p : workerThreads) {
 			p.shutdown();
 		}
+
+		if (joinOnShutdown) {
+			for (Processor p : workerThreads) {
+				try {
+					p.join();
+				} 
+				catch (InterruptedException e) {
+					logger.warn("Unexpected InterruptedException while waiting for 'join' to return",e);
+				}
+			}
+		}
 	}
-	
+
 	public synchronized void startup() {
 		if (id == null) throw new NullPointerException();
 		if (engine == null) throw new NullPointerException();
-		
+
 		if (started)
 			return;
-		
+
 		logger.info("ProcessorPool "+id+": Starting up");
-		
+
 		started = true;
 		updateThreads();
 	}
-	
+
 	protected ProcessingEngine getEngine() {
 		return engine;
 	}
-	
+
 	@Override
 	public int getMemoryQueueSize() {
 		return queue.size();
 	}
-	
+
 	@Override
 	public void resume() {
 		synchronized (queue) {
@@ -193,7 +218,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 			queue.notifyAll();
 		}
 	}
-	
+
 	@Override
 	public void suspend() {
 		synchronized (queue) {

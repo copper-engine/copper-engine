@@ -31,21 +31,33 @@
     <bean id="engineId_BLUE" class="de.scoopgmbh.copper.EngineIdProviderBean">
     	<property name="engineId" value="blue"/>
     </bean>
-           
-	<bean id="persistent.dbStorage.red" class="de.scoopgmbh.copper.persistent.OracleScottyDBStorage" scope="singleton">
-		<property name="batcher" ref="batcher"/>
-		<property name="dataSource" ref="datasource_default"/>
+    
+	<bean id="dbDialect.red" class="de.scoopgmbh.copper.persistent.OracleDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
 		<property name="engineIdProvider" ref="engineId_RED"/>
-	</bean>
-
-	<bean id="persistent.dbStorage.blue" class="de.scoopgmbh.copper.persistent.OracleScottyDBStorage" scope="singleton">
-		<property name="batcher" ref="batcher"/>
-		<property name="dataSource" ref="datasource_default"/>
+	</bean>    
+           
+	<bean id="dbDialect.blue" class="de.scoopgmbh.copper.persistent.OracleDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
 		<property name="engineIdProvider" ref="engineId_BLUE"/>
+	</bean>    
+           
+	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.CopperTransactionController" scope="singleton">
+		<property name="dataSource" ref="datasource_default"/>
+	</bean>
+	
+	<bean id="persistent.dbStorage.red" class="de.scoopgmbh.copper.persistent.ScottyDBStorage" scope="singleton">
+		<property name="transactionController" ref="txnController"/>
+		<property name="dialect" ref="dbDialect.red"/>
+		<property name="batcher" ref="batcher"/>
+	</bean>
+	
+	<bean id="persistent.dbStorage.blue" class="de.scoopgmbh.copper.persistent.ScottyDBStorage" scope="singleton">
+		<property name="transactionController" ref="txnController"/>
+		<property name="dialect" ref="dbDialect.blue"/>
+		<property name="batcher" ref="batcher"/>
 	</bean>
 	
     <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton" init-method="start" destroy-method="shutdown">

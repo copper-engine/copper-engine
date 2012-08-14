@@ -14,25 +14,19 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
-	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-    	<property name="driverClass" value="oracle.jdbc.OracleDriver"/>
-    	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/>
-    	<property name="minPoolSize" value="1"/>
-    	<property name="maxPoolSize" value="8"/>
-    	<property name="connectionTesterClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester"/>
-    	<property name="connectionCustomizerClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionCustomizer"/>
-    	<property name="idleConnectionTestPeriod" value="15"/>
+	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+    	<property name="driverClass" value="org.postgresql.Driver"/>
+    	<property name="jdbcUrl" value="jdbc:postgresql://localhost:5432/postgres"/>
+    	<property name="user" value="copper"/>
+    	<property name="password" value="copper4711"/>
+    	<property name="maxPoolSize" value="4"/>
+    	<property name="minPoolSize" value="2"/>
 	</bean>
 	
-	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.SpringTxnOracleDbStorage" scope="singleton">
-		<property name="batcher" ref="batcher"/>
-		<property name="dataSource" ref="datasource_default"/>
+	<bean id="dbDialect" class="de.scoopgmbh.copper.persistent.PostgreSQLDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
-		<property name="engineIdProvider" ref="engineId_RED"/>
-		<property name="transactionManager" ref="txManager"/>
 	</bean>
-	
 	
 </beans>          
 

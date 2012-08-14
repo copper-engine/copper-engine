@@ -22,8 +22,6 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -33,19 +31,18 @@ import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.CommandCallback;
 
-class GenericRegisterCallback {
+class OracleRegisterCallback {
 
-	private static final Logger logger = LoggerFactory.getLogger(GenericRegisterCallback.class);
+	private static final Logger logger = LoggerFactory.getLogger(OracleRegisterCallback.class);
 
 	static final class Command extends AbstractBatchCommand<Executor, Command> {
 
 		private final RegisterCall registerCall;
 		private final Serializer serializer;
 
-		public Command(final RegisterCall registerCall, final DataSource dataSource, final Serializer serializer, final Batcher batcher) {
+		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorageInterface) {
 			super(new CommandCallback<Command>() {
 				@Override
 				public void commandCompleted() {
@@ -54,7 +51,7 @@ class GenericRegisterCallback {
 				@Override
 				public void unhandledException(Exception e) {
 					logger.error("Execution of batch entry in a single txn failed.",e);
-					batcher.submitBatchCommand(new GenericSetToError.Command((PersistentWorkflow<Serializable>)registerCall.workflow, e));
+					dbStorageInterface.error((PersistentWorkflow<Serializable>)registerCall.workflow, e);
 				}
 			},250);
 			this.registerCall = registerCall;

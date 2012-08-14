@@ -38,10 +38,9 @@
     	</property>
 	</bean>
 	
-    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.SpringTxnPersistentPriorityProcessorPool" scope="singleton">
+    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>
     	<constructor-arg type="int"><value>4</value></constructor-arg>
-    	<constructor-arg type="org.springframework.transaction.PlatformTransactionManager" ref="txManager"></constructor-arg>
     </bean>
            
 	<bean id="persistent.PPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">
@@ -66,10 +65,9 @@
 		<property name="notifyProcessorPoolsOnResponse" value="false"/>
 	</bean>
 	
-	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.SpringTxnAuditTrail" scope="singleton">
+	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton">
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
-		<property name="transactionManager" ref="txManager"/>
 	</bean>
 	
 	<bean id="dbMockAdapter" class="de.scoopgmbh.copper.test.DBMockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
@@ -77,22 +75,23 @@
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>
 	
-	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-	  	<property name="dataSource" ref="datasource_default"/>
-	</bean>	
-	
-<!-- 	<bean id="jdbcTemplate4wf" class="org.springframework.jdbc.core.JdbcTemplate"> -->
-<!-- 	  	<property name="dataSource" ref="datasource_default"/> -->
-<!-- 	</bean>	 -->
-	
 	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.ScottyDBStorage" scope="singleton">
 		<property name="transactionController" ref="txnController"/>
 		<property name="dialect" ref="dbDialect"/>
+		<property name="batcher" ref="batcher"></property>
 	</bean>
 	
-	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.SpringTransactionController" scope="singleton">
+	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.CopperTransactionController" scope="singleton">
 		<property name="dataSource" ref="datasource_default"/>
-		<property name="transactionManager" ref="txManager"/>
+	</bean>		
+	
+    <bean id="backChannelQueue" class="de.scoopgmbh.copper.test.backchannel.BackChannelQueue" scope="singleton"/>
+    
+	<bean id="mockAdapter" class="de.scoopgmbh.copper.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
+		<property name="engine" ref="persistent.engine"/>
+	</bean>
+		
+	<bean id="dataHolder" class="de.scoopgmbh.copper.test.DataHolder" scope="singleton">
 	</bean>	
 </beans>          
 

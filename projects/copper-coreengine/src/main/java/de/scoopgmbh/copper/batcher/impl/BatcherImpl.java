@@ -83,12 +83,14 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
 	private List<WorkerThread> threads = new ArrayList<WorkerThread>();
 	private int numThreads;
+	@SuppressWarnings("rawtypes")
 	private BatchRunner batchRunner;
 	
 	public BatcherImpl(int numThreads) {
 		this.numThreads = numThreads;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public void setBatchRunner(BatchRunner batchRunner) {
 		this.batchRunner = batchRunner;
 	}

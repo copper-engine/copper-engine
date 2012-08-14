@@ -24,40 +24,41 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.batcher.BatchCommand;
 
 /**
- * Apache Derby implementation of the {@link ScottyDBStorageInterface}.
+ * Apache Derby implementation of the {@link DatabaseDialect} interface.
  * 
  * @author austermann
  *
  */
-public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
+public class DerbyDbDialect extends AbstractSqlDialect {
 
-	private static final Logger logger = LoggerFactory.getLogger(DerbyDbScottyDbStorage.class);
+	private static final Logger logger = LoggerFactory.getLogger(DerbyDbDialect.class);
+	
+	private DataSource dataSource;
+	
+	public void setDataSource(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
 	
 	@Override
 	public synchronized void startup() {
 		try {
-			checkAndCreateSchema(getDataSource());
+			if (dataSource == null) throw new NullPointerException("dataSource in "+getClass().getSimpleName()+" is null");
+			checkAndCreateSchema(dataSource);
 		} 
 		catch (Exception e) {
 			throw new Error("startup failed",e);
 		}
 		super.startup();
-	}
-
-	@Override
-	public synchronized void shutdown() {
-		super.shutdown();
 	}
 
 	@Override
@@ -82,6 +83,13 @@ public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
 		stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 		return stmt;
 	}
+	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t) {
+		return new DerbyDbSetToError.Command((PersistentWorkflow<?>) w,t);
+	}
+		
 
 	public static void checkAndCreateSchema(DataSource ds) throws SQLException, IOException {
 		Connection c = ds.getConnection();
@@ -91,7 +99,7 @@ public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
 				return;
 			}
 			logger.info("Creating COPPER schema...");
-			BufferedReader reader = new BufferedReader(new InputStreamReader(DerbyDbScottyDbStorage.class.getResourceAsStream("/derbydb/create-schema.sql")));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(DerbyDbDialect.class.getResourceAsStream("/derbydb/create-schema.sql")));
 			try {
 				String s;
 				StringBuilder sb = new StringBuilder(256);
@@ -144,13 +152,6 @@ public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
 		}
 	}
 
-	@Override
-	public void error(Workflow<?> w, Throwable t) {
-		if (logger.isTraceEnabled()) logger.trace("error("+w.getId()+","+t.toString()+")");
-		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		getBatcher().submitBatchCommand(new DerbyDbSetToError.Command(pwf,t));
-	}
-	
 	public static void shutdownDerby() {
 		boolean gotSQLExc = false;
 		try {
@@ -168,44 +169,9 @@ public class DerbyDbScottyDbStorage extends AbstractSqlScottyDBStorage {
 			logger.info("Database shut down normally");
 		}
 	}
-	
-	@Override
-	public void notify(List<Response<?>> responses, Connection c) throws Exception {
-		if (responses.isEmpty()) 
-			return;
-		
-		final PreparedStatement stmt = c.prepareCall("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?)");
-		try {
-			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			int counter=0;
-			for(Response<?> r : responses) {
-				stmt.setString(1, r.getCorrelationId());
-				stmt.setTimestamp(2, now);
-				String payload = serializer.serializeResponse(r);
-				stmt.setString(3, payload);
-				stmt.setString(4, r.getMetaData());
-				stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis() + (r.getInternalProcessingTimeout() == null ? defaultStaleResponseRemovalTimeout : r.getInternalProcessingTimeout())));
-				stmt.addBatch();
-				counter++;
-				if (counter == 50) {
-					stmt.executeBatch();
-					stmt.clearBatch();
-					counter = 0;
-				}
-			}
-			if (counter != 0) {
-				stmt.executeBatch();
-			}
-		}
-		finally {
-			try {
-				stmt.close();
-			}
-			catch(Exception e) {
-				logger.error("stmt.close() failed",e);
-			}
-		}
-	}
+
+
+
 }
 	
 

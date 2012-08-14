@@ -19,13 +19,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.batcher.BatchCommand;
 
 /**
  * PostgreSQL implementation of the {@link ScottyDBStorageInterface}.
@@ -33,10 +29,8 @@ import de.scoopgmbh.copper.Workflow;
  * @author austermann
  *
  */
-public class PostgreSQLScottyDBStorage extends AbstractSqlScottyDBStorage implements ScottyDBStorageInterface {
+public class PostgreSQLDialect extends AbstractSqlDialect {
 	
-	private static final Logger logger = LoggerFactory.getLogger(PostgreSQLScottyDBStorage.class);
-
 	protected PreparedStatement createUpdateStateStmt(final Connection c, final int max) throws SQLException {
 		final Timestamp NOW = new Timestamp(System.currentTimeMillis());
 		PreparedStatement pstmt = c.prepareStatement(queryUpdateQueueState+" LIMIT "+max);
@@ -56,49 +50,14 @@ public class PostgreSQLScottyDBStorage extends AbstractSqlScottyDBStorage implem
 		stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 		return stmt;
 	}
-	
+
+	@SuppressWarnings("rawtypes")
 	@Override
-	public void error(Workflow<?> w, Throwable t) {
-		if (logger.isTraceEnabled()) logger.trace("error("+w.getId()+","+t.toString()+")");
-		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		getBatcher().submitBatchCommand(new MySqlSetToError.Command(pwf,t));
+	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t) {
+		return new SqlSetToError.Command((PersistentWorkflow<?>) w,t);
 	}
 	
-	@Override
-	public void notify(List<Response<?>> responses, Connection c) throws Exception {
-		if (responses.isEmpty()) 
-			return;
-		
-		final PreparedStatement stmt = c.prepareCall("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?)");
-		try {
-			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			int counter=0;
-			for(Response<?> r : responses) {
-				stmt.setString(1, r.getCorrelationId());
-				stmt.setTimestamp(2, now);
-				String payload = serializer.serializeResponse(r);
-				stmt.setString(3, payload);
-				stmt.setString(4, r.getMetaData());
-				stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis() + (r.getInternalProcessingTimeout() == null ? defaultStaleResponseRemovalTimeout : r.getInternalProcessingTimeout())));
-				stmt.addBatch();
-				counter++;
-				if (counter == 50) {
-					stmt.executeBatch();
-					stmt.clearBatch();
-					counter = 0;
-				}
-			}
-			if (counter != 0) {
-				stmt.executeBatch();
-			}
-		}
-		finally {
-			try {
-				stmt.close();
-			}
-			catch(Exception e) {
-				logger.error("stmt.close() failed",e);
-			}
-		}
-	}	
+
+	
+
 }

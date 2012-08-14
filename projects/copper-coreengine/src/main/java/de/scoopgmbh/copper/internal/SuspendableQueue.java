@@ -55,7 +55,7 @@ public class SuspendableQueue<T> implements Queue<T> {
 	}
 
 	@Override
-	public <T> T[] toArray(T[] a) {
+	public <X> X[] toArray(X[] a) {
 		return queue.toArray(a);
 	}
 

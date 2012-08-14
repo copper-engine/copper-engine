@@ -30,14 +30,14 @@ public class ErrorWaitHookUnitTestWorkflow extends PersistentWorkflow<Serializab
 	
 	@Override
 	public void main() throws InterruptException {
-		wait(WaitMode.ALL,500,getEngine().createUUID());
+		wait(WaitMode.ALL,50,getEngine().createUUID());
 		getEngine().addWaitHook(this.getId(), new WaitHook() {
 			@Override
 			public void onWait(Workflow<?> wf, Connection con) throws Exception {
 				throw new RuntimeException("TEST Exception");
 			}
 		});
-		wait(WaitMode.ALL,500,getEngine().createUUID());
+		wait(WaitMode.ALL,50,getEngine().createUUID());
 	}
 
 }

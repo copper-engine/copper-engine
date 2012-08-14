@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
 
-public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
+public class MySqlSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersistentWorkflowTest {
 	
 	private static final String DS_CONTEXT = "/datasources/datasource-mysql.xml";
 	private static final Logger logger = LoggerFactory.getLogger(MySqlPersistentWorkflowTest.class);
@@ -30,7 +30,7 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 	private static boolean dbmsAvailable = false;
 	
 	static {
-		final ConfigurableApplicationContext context = new MySqlPersistentWorkflowTest().createContext(DS_CONTEXT);
+		final ConfigurableApplicationContext context = new MySqlSpringTxnPersistentWorkflowTest().createContext(DS_CONTEXT);
 		try {
 			DataSource ds = context.getBean(DataSource.class);
 			ds.setLoginTimeout(10);
@@ -38,13 +38,13 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 			dbmsAvailable = true;
 		}
 		catch(Exception e) {
-			logger.error("MySQL not available! Skipping MySQL unit tests.",e);
+			logger.error("Oracle DBMS not available! Skipping Oracle unit tests.",e);
 			e.printStackTrace();
 		}
 		finally {
 			context.close();
 		}
-	}
+	}	
 	
 	public void testAsnychResponse() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
@@ -70,7 +70,7 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testTimeouts(DS_CONTEXT);
 	}
-
+	
 	public void testErrorHandlingInCoreEngine() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingInCoreEngine(DS_CONTEXT);
@@ -86,20 +86,21 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
 	}
 	
-//	public void testCompressedAuditTrail() throws Exception {
-//		if (mySqlAvailable) super.testCompressedAuditTrail(DS_CONTEXT);
-//	}
-	
 	public void testAuditTrailUncompressed() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAuditTrailUncompressed(DS_CONTEXT);
 	}
-
+	
 	public void testErrorHandlingWithWaitHook() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
 	}
-		
+	
+	public void testSpringTxnUnitTestWorkflow() throws Exception {
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testSpringTxnUnitTestWorkflow(DS_CONTEXT);
+	}	
+	
 	public void testAutoCommit() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAutoCommit(DS_CONTEXT);

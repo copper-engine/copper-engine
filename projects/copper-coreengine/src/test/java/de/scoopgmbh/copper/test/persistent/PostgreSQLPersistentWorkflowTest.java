@@ -20,18 +20,17 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
-public class PostgreSQLPersistentWorkflowTest extends PersistentWorkflowTest {
+public class PostgreSQLPersistentWorkflowTest extends BasePersistentWorkflowTest {
 	
-	private static final String DS_CONTEXT = "postgresql-unittest-context.xml";
+	private static final String DS_CONTEXT = "/datasources/datasource-postgresql.xml";
 	private static final Logger logger = LoggerFactory.getLogger(PostgreSQLPersistentWorkflowTest.class);
 	
 	private static boolean dbmsAvailable = false;
 	
 	static {
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {DS_CONTEXT, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = new PostgreSQLPersistentWorkflowTest().createContext(DS_CONTEXT);
 		try {
 			DataSource ds = context.getBean(DataSource.class);
 			ds.setLoginTimeout(10);

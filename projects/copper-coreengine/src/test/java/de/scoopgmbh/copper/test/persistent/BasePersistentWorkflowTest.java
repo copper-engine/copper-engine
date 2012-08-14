@@ -44,9 +44,9 @@ import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 
-public class PersistentWorkflowTest extends TestCase {
+public class BasePersistentWorkflowTest extends TestCase {
 	
-	private static final Logger logger = LoggerFactory.getLogger(PersistentWorkflowTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(BasePersistentWorkflowTest.class);
 	
 	static final String PersistentUnitTestWorkflow_CLASS = "de.scoopgmbh.copper.test.persistent.PersistentUnitTestWorkflow";
 	
@@ -145,7 +145,7 @@ public class PersistentWorkflowTest extends TestCase {
 	}
 
 	protected ConfigurableApplicationContext createContext(String dsContext) {
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "persistent-engine-unittest-context.xml", "unittest-context.xml"});
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "/CopperTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml"});
 		return context;
 	}
 

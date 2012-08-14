@@ -32,7 +32,7 @@ public class MockAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(MockAdapter.class);
 
 	private ScheduledExecutorService pool;
-	private int delay=500;
+	private int delay=100;
 	private ProcessingEngine engine;
 	private AtomicInteger invokationCounter = new AtomicInteger(0);
 
