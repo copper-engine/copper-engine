@@ -247,6 +247,7 @@ public class OracleDialect implements DatabaseDialect {
 			PreparedStatement updateBpStmt = con.prepareStatement("update COP_WORKFLOW_INSTANCE set state=?, LAST_MOD_TS=SYSTIMESTAMP where id=?");
 			try {
 				for (String id : invalidBPs) {
+					logger.warn("Setting workflow instance {} to state {}", id, DBProcessingState.INVALID.name());
 					updateBpStmt.setInt(1, DBProcessingState.INVALID.ordinal());
 					updateBpStmt.setString(2,id);
 					updateBpStmt.addBatch();
@@ -536,5 +537,52 @@ public class OracleDialect implements DatabaseDialect {
 	private void runSingleBatchCommand(Connection con, BatchCommand cmd) throws Exception {
 		List<BatchCommand> commands = Collections.singletonList(cmd);
 		cmd.executor().doExec(commands, con);
+	}
+	
+	public List<String> checkDbConsistency(Connection con) throws Exception {
+		final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,creation_ts,data,long_data,object_state,long_object_state,PPOOL_ID from COP_WORKFLOW_INSTANCE where state not in (?,?)");
+		try {
+			final List<String> idsOfBadWorkflows = new ArrayList<String>();
+			dequeueStmt.setInt(1, DBProcessingState.INVALID.ordinal());
+			dequeueStmt.setInt(2, DBProcessingState.FINISHED.ordinal());
+			ResultSet rs = dequeueStmt.executeQuery();
+			while(rs.next()) {
+				final String id = rs.getString(1);
+				try {
+					final int prio = rs.getInt(2);
+					String data = rs.getString(4);
+					if (data == null) 
+						data = rs.getString(5);
+					String objectState = rs.getString(6);
+					if (objectState == null) 
+						objectState = rs.getString(7);
+					final String ppoolId = rs.getString(8);
+					final SerializedWorkflow sw = new SerializedWorkflow();
+					sw.setData(data);
+					sw.setObjectState(objectState);
+					final PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
+					wf.setId(id);
+					wf.setProcessorPoolId(ppoolId);
+					wf.setPriority(prio);
+					logger.debug("Successful test deserialization of workflow {}",id);
+				}
+				catch(Exception e) {
+					logger.warn("Test deserialization of workflow "+id+" failed",e);
+					idsOfBadWorkflows.add(id);
+				}
+			}
+			return idsOfBadWorkflows;
+		}
+		finally {
+			JdbcUtils.closeStatement(dequeueStmt);
+		}
+	}
+	
+	public void shutdown() {
+		synchronized (responseLoaders) {
+			for (ResponseLoader responseLoader : responseLoaders.values()) {
+				responseLoader.shutdown();
+			}
+		}
 	}
 }

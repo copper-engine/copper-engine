@@ -75,7 +75,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 
 
 	public void startup() {
-		
 	}
 	
 	/**
@@ -506,4 +505,13 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 
 	protected abstract PreparedStatement createDeleteStaleResponsesStmt(final Connection c, final int MAX_ROWS) throws SQLException;
 
+	@Override
+	public List<String> checkDbConsistency(Connection con) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void shutdown() {
+	}
+	
 }

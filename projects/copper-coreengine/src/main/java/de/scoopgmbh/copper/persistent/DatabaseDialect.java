@@ -44,5 +44,17 @@ public interface DatabaseDialect {
 	 * If true (default), finished workflow instances are removed from the database.
 	 */
 	public void setRemoveWhenFinished(boolean removeWhenFinished);	
+	
+	/**
+	 * Checks the DB consistency, e.g. at system startup, by deserialising all workflow instances in the underlying database.
+	 * @param con
+	 * @return
+	 * @throws Exception
+	 */
+	public List<String> checkDbConsistency(Connection con) throws Exception;
+	
+	public void startup();
+	
+	public void shutdown();
 
 }

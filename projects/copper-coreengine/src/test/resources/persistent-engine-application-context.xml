@@ -14,6 +14,8 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
+    <import resource="./datasources/datasource-oracle.xml"/>
+           
     <bean id="engineId_RED" class="de.scoopgmbh.copper.EngineIdProviderBean">
     	<property name="engineId" value="red"/>
     </bean>
@@ -25,19 +27,6 @@
     	<property name="targetDir" value="target/compiled_workflow"/>
     </bean>
     
-	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-    	<property name="driverClass" value="oracle.jdbc.OracleDriver"/>
-    	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/>
-    	<property name="minPoolSize" value="8"/>
-    	<property name="maxPoolSize" value="16"/>
-<!--     	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@proliant.scoop-gmbh.de:1521:AUSTER"/> -->
-<!--     	<property name="minPoolSize" value="12"/> -->
-<!--     	<property name="maxPoolSize" value="24"/> -->
-    	<property name="connectionTesterClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester"/>
-    	<property name="connectionCustomizerClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionCustomizer"/>
-    	<property name="idleConnectionTestPeriod" value="15"/>
-	</bean>
-	
 	<bean id="statisticsCollector" class="de.scoopgmbh.copper.monitoring.LoggingStatisticCollector" init-method="start" destroy-method="shutdown"/>
 	
 	<bean id="batcher" class="de.scoopgmbh.copper.batcher.impl.BatcherImpl" scope="singleton" init-method="startup" destroy-method="shutdown">
@@ -50,13 +39,16 @@
     	</property>
 	</bean>
 	
-	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.OracleScottyDBStorage" scope="singleton">
+	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.ScottyDBStorage" scope="singleton">
+		<property name="transactionController" ref="txnController"/>
+		<property name="dialect" ref="dbDialect"/>
 		<property name="batcher" ref="batcher"/>
-		<property name="dataSource" ref="datasource_default"/>
-		<property name="wfRepository" ref="wfRepository"/>
-		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
-		<property name="engineIdProvider" ref="engineId_RED"/>
+		<property name="checkDbConsistencyAtStartup" value="true"/>
 	</bean>
+	
+	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.CopperTransactionController" scope="singleton">
+		<property name="dataSource" ref="datasource_default"/>
+	</bean>	
 	           
     <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>

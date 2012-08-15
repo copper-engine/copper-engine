@@ -19,9 +19,8 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,8 +32,8 @@ import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.Batcher;
-import de.scoopgmbh.copper.persistent.txn.TransactionController;
 import de.scoopgmbh.copper.persistent.txn.DatabaseTransaction;
+import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
 /**
  * Oracle implementation of the {@link ScottyDBStorageInterface}.
@@ -57,24 +56,30 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	private Thread enqueueThread;
 	private ScheduledExecutorService scheduledExecutorService;
 	private boolean shutdown = false;
-	private final Map<String, ResponseLoader> responseLoaders = new HashMap<String, ResponseLoader>();
+	private boolean checkDbConsistencyAtStartup = false;
+	
+	private CountDownLatch enqueueThreadTerminated = new CountDownLatch(1);
 
 	public ScottyDBStorage() {
 
 	}
-	
+
+	public void setCheckDbConsistencyAtStartup(boolean checkDbConsistencyAtStartup) {
+		this.checkDbConsistencyAtStartup = checkDbConsistencyAtStartup;
+	}
+
 	public void setTransactionController(TransactionController transactionController) {
 		this.transactionController = transactionController;
 	}
-	
+
 	public void setDialect(DatabaseDialect dialect) {
 		this.dialect = dialect;
 	}
-	
+
 	protected  <T> T run(final DatabaseTransaction<T> txn) throws Exception {
 		return transactionController.run(txn);
 	}
-	
+
 	/**
 	 * Sets the default removal timeout for stale responses in the underlying database. A response is stale/timed out when
 	 * there is no workflow instance waiting for it within the specified amount of time. 
@@ -83,11 +88,11 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	public void setDefaultStaleResponseRemovalTimeout(int defaultStaleResponseRemovalTimeout) {
 		this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
 	}
-	
+
 	public void setBatcher(Batcher batcher) {
 		this.batcher = batcher;
 	}
-	
+
 	public void setDeleteStaleResponsesIntervalMsec(long deleteStaleResponsesIntervalMsec) {
 		this.deleteStaleResponsesIntervalMsec = deleteStaleResponsesIntervalMsec;
 	}
@@ -177,9 +182,12 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	 */
 	public synchronized void startup() {
 		try {
+			checkDbConsistencyAtStartup();
 			deleteStaleResponse();
 			resumeBrokenBusinessProcesses();
 			
+			dialect.startup();
+
 			enqueueThread = new Thread("ENQUEUE") {
 				@Override
 				public void run() {
@@ -189,7 +197,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			enqueueThread.start();
 
 			scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-			
+
 			scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
 				@Override
 				public void run() {
@@ -204,6 +212,27 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 		}
 		catch(Exception e) {
 			throw new Error("Unable to startup",e);
+		}
+	}
+
+	private void checkDbConsistencyAtStartup() {
+		if (!checkDbConsistencyAtStartup) {
+			return;
+		}
+		
+		logger.info("doing checkDbConsistencyAtStartup...");
+		try {
+			run(new DatabaseTransaction<Void>() {
+				@Override
+				public Void run(Connection con) throws Exception {
+					dialect.checkDbConsistency(con);
+					return null;
+				}
+			});
+			logger.info("finished checkDbConsistencyAtStartup");
+		}
+		catch(Exception e) {
+			logger.error("checkDbConsistencyAtStartup failed",e);
 		}
 	}
 
@@ -229,14 +258,23 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	public synchronized void shutdown() {
 		if (shutdown)
 			return;
-		
+
 		shutdown = true;
-		enqueueThread.interrupt();
+		
 		scheduledExecutorService.shutdown();
-		synchronized (responseLoaders) {
-			for (ResponseLoader responseLoader : responseLoaders.values()) {
-				responseLoader.shutdown();
-			}
+
+		shutdownEnqueueThread();
+		
+		dialect.shutdown();
+	}
+
+	private void shutdownEnqueueThread() {
+		enqueueThread.interrupt();
+		try {
+			enqueueThreadTerminated.await(30, TimeUnit.SECONDS);
+		} 
+		catch (InterruptedException e) {
+			logger.warn("await interrupted",e);
 		}
 	}
 
@@ -274,8 +312,9 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			}
 		}
 		logger.info("finished");
+		enqueueThreadTerminated.countDown();
 	}
-	
+
 	@Override
 	public void insert(Workflow<?> wf, Connection con) throws Exception {
 		if (con == null)
@@ -291,7 +330,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 		else
 			dialect.insert(wfs, con);
 	}
-	
+
 	public void restart(final String workflowInstanceId) throws Exception {
 		run(new DatabaseTransaction<Void>() {
 			@Override
@@ -312,7 +351,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			}
 		});		
 	}
-	
+
 	public int getDefaultStaleResponseRemovalTimeout() {
 		return defaultStaleResponseRemovalTimeout;
 	}
@@ -321,7 +360,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	public void setRemoveWhenFinished(boolean removeWhenFinished) {
 		dialect.setRemoveWhenFinished(removeWhenFinished);
 	}
-	
+
 	@SuppressWarnings({"rawtypes", "unchecked"}) 
 	private void runSingleBatchCommand(final BatchCommand cmd) throws Exception {
 		run(new DatabaseTransaction<Void>() {
@@ -332,7 +371,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			}
 		});
 	}
-	
+
 	@Override
 	public void notify(List<Response<?>> responses, Connection c) throws Exception {
 		dialect.notify(responses, c);
@@ -358,7 +397,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			runSingleBatchCommand(cmd);
 		}
 	}	
-	
+
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.ScottyDBStorageInterface#registerCallback(de.scoopgmbh.copper.persistent.RegisterCall)
 	 */
@@ -368,7 +407,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			throw new NullPointerException();
 		executeBatchCommand(dialect.createBatchCommand4registerCallback(rc, this));
 	}	
-	
+
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.ScottyDBStorageInterface#notify(de.scoopgmbh.copper.Response, java.lang.Object)
 	 */
@@ -378,7 +417,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			throw new NullPointerException();
 		executeBatchCommand(dialect.createBatchCommand4Notify(response));
 	}	
-	
+
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.ScottyDBStorageInterface#finish(de.scoopgmbh.copper.Workflow)
 	 */
