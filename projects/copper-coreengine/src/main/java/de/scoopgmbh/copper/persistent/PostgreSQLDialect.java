@@ -40,7 +40,7 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
 	}
 
 	protected PreparedStatement createDequeueStmt(final Connection c, final String ppoolId, final int max) throws SQLException {
-		PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from cop_queue where ppool_id = ? order by priority, last_mod_ts) LIMIT "+max);
+		PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from cop_queue where ppool_id = ? order by priority, last_mod_ts) LIMIT "+max);
 		dequeueStmt.setString(1, ppoolId);
 		return dequeueStmt;
 	}

@@ -72,7 +72,7 @@ public class DerbyDbDialect extends AbstractSqlDialect {
 
 	@Override
 	protected PreparedStatement createDequeueStmt(final Connection c, final String ppoolId, final int maxRows) throws SQLException {
-		PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from cop_queue where ppool_id = ? order by priority, last_mod_ts) FETCH FIRST "+maxRows+" ROWS ONLY");
+		PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from cop_queue where ppool_id = ? order by priority, last_mod_ts) FETCH FIRST "+maxRows+" ROWS ONLY");
 		dequeueStmt.setString(1, ppoolId);
 		return dequeueStmt;
 	}

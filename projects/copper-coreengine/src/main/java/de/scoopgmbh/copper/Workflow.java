@@ -62,7 +62,7 @@ public abstract class Workflow<D> implements Serializable {
 	private transient String processorPoolId = null;
 	private transient int priority = 5;
 	private transient ProcessingState processingState = ProcessingState.RAW;
-	private D Data;
+	private transient D Data;
 	private transient Date creationTS = new Date();
 	
 	/**

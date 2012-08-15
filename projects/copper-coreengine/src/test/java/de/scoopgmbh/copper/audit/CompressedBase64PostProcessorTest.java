@@ -28,17 +28,13 @@ public class CompressedBase64PostProcessorTest extends TestCase {
 
 	public void testNull() {
 		CompressedBase64PostProcessor compressor = new CompressedBase64PostProcessor();
-		NullPointerException npe = null;
-		try {
-			compressor.deserialize(null);
-		} catch (RuntimeException e) {
-			npe = (NullPointerException) e.getCause();
-		}
-		assertNotNull("Deserialization of null causes a NullPointerException", npe);
+
+		compressor.deserialize(null);
+
 		String nullSerialization = compressor.serialize(null);
-		assertNotNull("Serialized null must not be null.", nullSerialization);
+		assertNull("Serialized null must be null.", nullSerialization);
 		String nullDeserialization = compressor.deserialize(nullSerialization);
-		assertSame("Deserialized repsesentation of null must be null again.", null, nullDeserialization);
+		assertNull("Deserialized repsesentation of null must be null again.", nullDeserialization);
 	}
 
 	private void simpleTest(String msg) {

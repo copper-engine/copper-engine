@@ -75,7 +75,7 @@ class SqlRegisterCallback {
 			PreparedStatement deleteWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
 			PreparedStatement deleteResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
 			PreparedStatement insertWaitStmt = con.prepareStatement("INSERT INTO COP_WAIT (CORRELATION_ID,WORKFLOW_INSTANCE_ID,MIN_NUMB_OF_RESP,TIMEOUT_TS,STATE,PRIORITY,PPOOL_ID) VALUES (?,?,?,?,?,?,?)");
-			PreparedStatement updateWfiStmt = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, PRIORITY=?, LAST_MOD_TS=?, PPOOL_ID=?, DATA=?, CS_WAITMODE=?, MIN_NUMB_OF_RESP=?, NUMB_OF_WAITS=?, TIMEOUT=? WHERE ID=?");
+			PreparedStatement updateWfiStmt = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, PRIORITY=?, LAST_MOD_TS=?, PPOOL_ID=?, DATA=?, OBJECT_STATE=?, CS_WAITMODE=?, MIN_NUMB_OF_RESP=?, NUMB_OF_WAITS=?, TIMEOUT=? WHERE ID=?");
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				Command cmd = (Command)_cmd;
 				RegisterCall rc = cmd.registerCall;
@@ -90,12 +90,13 @@ class SqlRegisterCallback {
 					insertWaitStmt.addBatch();
 				}
 				int idx=1;
-				String data = cmd.serializer.serializeWorkflow(rc.workflow);
+				SerializedWorkflow sw = cmd.serializer.serializeWorkflow(rc.workflow);
 				updateWfiStmt.setInt(idx++, DBProcessingState.WAITING.ordinal());
 				updateWfiStmt.setInt(idx++, rc.workflow.getPriority());
 				updateWfiStmt.setTimestamp(idx++, now);
 				updateWfiStmt.setString(idx++, rc.workflow.getProcessorPoolId());
-				updateWfiStmt.setString(idx++, data);
+				updateWfiStmt.setString(idx++, sw.getData());
+				updateWfiStmt.setString(idx++, sw.getObjectState());
 				updateWfiStmt.setInt(idx++, rc.waitMode.ordinal());
 				updateWfiStmt.setInt(idx++, rc.waitMode == WaitMode.FIRST ? 1 : rc.correlationIds.length);
 				updateWfiStmt.setInt(idx++, rc.correlationIds.length);

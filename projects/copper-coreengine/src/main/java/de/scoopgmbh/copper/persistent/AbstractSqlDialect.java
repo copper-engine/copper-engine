@@ -209,11 +209,14 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 				deleteStmt.addBatch();
 
 				try {
-					PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(rs.getString(3), wfRepository);
+					SerializedWorkflow sw = new SerializedWorkflow();
+					sw.setData(rs.getString(3));
+					sw.setObjectState(rs.getString(4));
+					PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
 					wf.setId(id);
 					wf.setProcessorPoolId(ppoolId);
 					wf.setPriority(prio);
-					WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(4).getTime()));
+					WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(5).getTime()));
 					map.put(wf.getId(), wf);
 				}
 				catch(Exception e) {
@@ -427,20 +430,21 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 		PreparedStatement stmtQueue = null;
 		try {
 			final Timestamp NOW = new Timestamp(System.currentTimeMillis());
-			stmtWF = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,CREATION_TS,CLASSNAME) VALUES (?,?,?,?,?,?,?,?)");
+			stmtWF = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,OBJECT_STATE,CREATION_TS,CLASSNAME) VALUES (?,?,?,?,?,?,?,?,?)");
 			stmtQueue = con.prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,?,?)");
 			int n = 0;
 			for (int i=0; i<wfs.size(); i++) {
 				Workflow<?> wf = wfs.get(i);
-				final String data = serializer.serializeWorkflow(wf);
+				final SerializedWorkflow sw = serializer.serializeWorkflow(wf);
 				stmtWF.setString(1, wf.getId());
 				stmtWF.setInt(2, DBProcessingState.ENQUEUED.ordinal());
 				stmtWF.setInt(3, wf.getPriority());
 				stmtWF.setTimestamp(4,NOW);
 				stmtWF.setString(5, wf.getProcessorPoolId());
-				stmtWF.setString(6, data);
-				stmtWF.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
-				stmtWF.setString(8, wf.getClass().getName());
+				stmtWF.setString(6, sw.getData());
+				stmtWF.setString(7, sw.getObjectState());
+				stmtWF.setTimestamp(8, new Timestamp(wf.getCreationTS().getTime()));
+				stmtWF.setString(9, wf.getClass().getName());
 				stmtWF.addBatch();
 
 				stmtQueue.setString(1, wf.getProcessorPoolId());

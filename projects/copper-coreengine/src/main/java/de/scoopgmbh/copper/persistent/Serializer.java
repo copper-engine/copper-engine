@@ -28,8 +28,8 @@ import de.scoopgmbh.copper.common.WorkflowRepository;
  */
 public interface Serializer {
 	
-	public String serializeWorkflow(final Workflow<?> o) throws Exception;
-	public Workflow<?> deserializeWorkflow(String _data, final WorkflowRepository wfRepo) throws Exception;
+	public SerializedWorkflow serializeWorkflow(final Workflow<?> o) throws Exception;
+	public Workflow<?> deserializeWorkflow(SerializedWorkflow serializedWorkflow, final WorkflowRepository wfRepo) throws Exception;
 	
 	public String serializeResponse(final Response<?> r) throws Exception;
 	public Response<?> deserializeResponse(String _data) throws Exception;

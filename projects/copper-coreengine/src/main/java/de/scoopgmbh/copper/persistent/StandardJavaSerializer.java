@@ -69,6 +69,8 @@ public class StandardJavaSerializer implements Serializer {
 	}
 	
 	private String serialize(final Object o) throws IOException {
+		if (o == null) 
+			return null;
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
 		final ObjectOutputStream oos = new ObjectOutputStream(baos);
 		oos.writeObject(o);
@@ -87,6 +89,8 @@ public class StandardJavaSerializer implements Serializer {
 	}
 	
 	private Object deserialize(String _data, final WorkflowRepository wfRepo) throws IOException, ClassNotFoundException, DataFormatException {
+		if (_data == null) 
+			return null;
 		boolean isCompressed = _data.charAt(0) == 'C';
 		byte[] data = Base64.decodeBase64(_data.substring(1));
 		if (isCompressed) {
@@ -106,13 +110,18 @@ public class StandardJavaSerializer implements Serializer {
 	
 
 	@Override
-	public String serializeWorkflow(Workflow<?> o) throws Exception {
-		return serialize(o);
+	public SerializedWorkflow serializeWorkflow(Workflow<?> o) throws Exception {
+		SerializedWorkflow sw = new SerializedWorkflow();
+		sw.setData(serialize(o.getData()));
+		sw.setObjectState(serialize(o));
+		return sw;
 	}
 
 	@Override
-	public Workflow<?> deserializeWorkflow(String _data, WorkflowRepository wfRepo) throws Exception {
-		return (Workflow<?>) deserialize(_data, wfRepo);
+	public Workflow<?> deserializeWorkflow(SerializedWorkflow sw, WorkflowRepository wfRepo) throws Exception {
+		PersistentWorkflow<?> wf = (PersistentWorkflow<?>) deserialize(sw.getObjectState(), wfRepo);
+		wf.setDataAsObject(deserializeObject(sw.getData()));
+		return wf;
 	}
 
 	@Override

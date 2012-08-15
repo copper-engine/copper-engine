@@ -46,8 +46,8 @@ public class StandardJavaSerializerTest extends TestCase {
 		wf.setProcessorPoolId("P#DEFAULT");
 		
 		Serializer serializer = new StandardJavaSerializer();
-		String _data = serializer.serializeWorkflow(wf);
-		Workflow<String> wf2 = (Workflow<String>) serializer.deserializeWorkflow(_data, repo);
+		SerializedWorkflow sw = serializer.serializeWorkflow(wf);
+		Workflow<String> wf2 = (Workflow<String>) serializer.deserializeWorkflow(sw, repo);
 		assertNull(wf2.getId());
 		assertEquals(wf.getData(), wf2.getData());
 	}

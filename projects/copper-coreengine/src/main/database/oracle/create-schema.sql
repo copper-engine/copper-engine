@@ -7,6 +7,8 @@ create table COP_WORKFLOW_INSTANCE  (
    PRIORITY             NUMBER(2)                       not null,
    LAST_MOD_TS          TIMESTAMP                       not null,
    PPOOL_ID      		VARCHAR2(32CHAR)				not null,
+   OBJECT_STATE			VARCHAR2(4000CHAR)				null,
+   LONG_OBJECT_STATE	CLOB							null,
    DATA					VARCHAR2(4000CHAR)				null,
    LONG_DATA			CLOB							null,
    CS_WAITMODE			NUMBER(1),
@@ -18,6 +20,7 @@ create table COP_WORKFLOW_INSTANCE  (
    constraint PK_COP_WORKFLOW_INSTANCE primary key (ID)
 )
 LOB(LONG_DATA) STORE AS SECUREFILE
+LOB(LONG_OBJECT_STATE) STORE AS SECUREFILE
 INITRANS 5;
 
 --

@@ -53,4 +53,12 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 		responseCidList.add(cid);
 	}
 	
+	/**
+	 * Used internally
+	 */
+	@SuppressWarnings("unchecked")
+	public void setDataAsObject(Object data) {
+		setData((E) data);
+	}
+	
 }

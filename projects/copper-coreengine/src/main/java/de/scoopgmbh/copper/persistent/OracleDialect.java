@@ -67,7 +67,7 @@ public class OracleDialect implements DatabaseDialect {
 	// mandatory Properties
 	private WorkflowRepository wfRepository = null;
 	private EngineIdProvider engineIdProvider = null;
-	
+
 	// optional Properties
 	private boolean multiEngineMode = true;
 	private int lockWaitSeconds = 10;
@@ -76,15 +76,15 @@ public class OracleDialect implements DatabaseDialect {
 	private boolean removeWhenFinished = true;
 	private int defaultStaleResponseRemovalTimeout = 60*60*1000;
 
-	
+
 	public OracleDialect() {
 		initStmtStats();
 	}
-	
+
 	public void startup() {
 		if (engineIdProvider == null || engineIdProvider.getEngineId() == null) throw new NullPointerException("EngineId is NULL! Change your "+getClass().getSimpleName()+" configuration.");
 	}
-	
+
 	private void initStmtStats() {
 		dequeueAllStmtStatistic = new StmtStatistic("DBStorage.dequeue.fullquery.all", runtimeStatisticsCollector);
 		dequeueQueryBPsStmtStatistic = new StmtStatistic("DBStorage.dequeue.fullquery.queryBPs", runtimeStatisticsCollector);
@@ -94,9 +94,9 @@ public class OracleDialect implements DatabaseDialect {
 		insertStmtStatistic = new StmtStatistic("DBStorage.insert", runtimeStatisticsCollector);
 		deleteStaleResponsesStmtStatistic = new StmtStatistic("DBStorage.deleteStaleResponses", runtimeStatisticsCollector);
 		dequeueWait4RespLdrStmtStatistic = new StmtStatistic("DBStorage.wait4resLoaderStmtStatistic", runtimeStatisticsCollector);
-		
+
 	}
-	
+
 	/**
 	 * Sets the default removal timeout for stale responses in the underlying database. A response is stale/timed out when
 	 * there is no workflow instance waiting for it within the specified amount of time. 
@@ -105,47 +105,47 @@ public class OracleDialect implements DatabaseDialect {
 	public void setDefaultStaleResponseRemovalTimeout(int defaultStaleResponseRemovalTimeout) {
 		this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
 	}
-	
+
 	public void setRemoveWhenFinished(boolean removeWhenFinished) {
 		this.removeWhenFinished = removeWhenFinished;
 	}
-	
+
 	public void setEngineIdProvider(EngineIdProvider engineIdProvider) {
 		this.engineIdProvider = engineIdProvider;
 	}
-	
+
 	public void setSerializer(Serializer serializer) {
 		this.serializer = serializer;
 	}
-	
+
 	public void setLockWaitSeconds(int lockWaitSeconds) {
 		this.lockWaitSeconds = lockWaitSeconds;
 	}
-	
+
 	public void setMultiEngineMode(boolean multiEngineMode) {
 		this.multiEngineMode = multiEngineMode;
 	}
-	
+
 	public void setRuntimeStatisticsCollector(RuntimeStatisticsCollector runtimeStatisticsCollector) {
 		this.runtimeStatisticsCollector = runtimeStatisticsCollector;
 	}
-	
+
 	public void setWfRepository(WorkflowRepository wfRepository) {
 		this.wfRepository = wfRepository;
 	}
-	
+
 	public RuntimeStatisticsCollector getRuntimeStatisticsCollector() {
 		return runtimeStatisticsCollector;
 	}
-	
+
 	public boolean isRemoveWhenFinished() {
 		return removeWhenFinished;
 	}
-	
+
 	public Serializer getSerializer() {
 		return serializer;
 	}
-	
+
 	public int getDefaultStaleResponseRemovalTimeout() {
 		return defaultStaleResponseRemovalTimeout;
 	}	
@@ -186,7 +186,7 @@ public class OracleDialect implements DatabaseDialect {
 		responseLoader.beginTxn();
 
 		final List<String> invalidBPs = new ArrayList<String>();
-		final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from cop_queue where ppool_id=? and engine_id is null order by ppool_id, priority, last_mod_ts) where rownum <= ?)");
+		final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from cop_queue where ppool_id=? and engine_id is null order by ppool_id, priority, last_mod_ts) where rownum <= ?)");
 		final Map<String,Workflow<?>> map = new HashMap<String, Workflow<?>>(max*3);
 		try {
 			dequeueStmt.setString(1, ppoolId);
@@ -201,10 +201,16 @@ public class OracleDialect implements DatabaseDialect {
 				final String rowid = rs.getString(4);
 				final Timestamp creationTS = rs.getTimestamp(6);
 				try {
+					String objectState = rs.getString(7);
+					if (objectState == null) 
+						objectState = rs.getString(8);
 					String data = rs.getString(3);
 					if (data == null) 
 						data = rs.getString(5);
-					PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(data, wfRepository);
+					SerializedWorkflow sw = new SerializedWorkflow();
+					sw.setData(data);
+					sw.setObjectState(objectState);
+					PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
 					wf.setId(id);
 					wf.setProcessorPoolId(ppoolId);
 					wf.setPriority(prio);
@@ -314,7 +320,7 @@ public class OracleDialect implements DatabaseDialect {
 		}
 		return Math.abs(hashCode) % 1073741823;
 	}
-	
+
 	private void lock(Connection c, String context) throws SQLException {
 		if (!multiEngineMode)
 			return;
@@ -344,20 +350,34 @@ public class OracleDialect implements DatabaseDialect {
 	 */
 	@Override
 	public void insert(final List<Workflow<?>> wfs, final Connection con) throws Exception {
-		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,CREATION_TS,CLASSNAME) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?,?)");
+		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,OBJECT_STATE,LONG_OBJECT_STATE,CREATION_TS,CLASSNAME) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?,?,?,?)");
 		try {
 			int n = 0;
 			for (int i=0; i<wfs.size(); i++) {
 				Workflow<?> wf = wfs.get(i);
-				final String data = serializer.serializeWorkflow(wf);
+				final SerializedWorkflow sw = serializer.serializeWorkflow(wf);
 				stmt.setString(1, wf.getId());
 				stmt.setInt(2, DBProcessingState.ENQUEUED.ordinal());
 				stmt.setInt(3, wf.getPriority());
 				stmt.setString(4, wf.getProcessorPoolId());
-				stmt.setString(5, data.length() > 4000 ? null : data);
-				stmt.setString(6, data.length() > 4000 ? data : null);
-				stmt.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
-				stmt.setString(8, wf.getClass().getName());
+				if (sw.getData() != null) {
+					stmt.setString(5, sw.getData().length() > 4000 ? null : sw.getData());
+					stmt.setString(6, sw.getData().length() > 4000 ? sw.getData() : null);
+				}
+				else {
+					stmt.setString(5, null);
+					stmt.setString(6, null);
+				}
+				if (sw.getObjectState() != null) {
+					stmt.setString(7, sw.getObjectState().length() > 4000 ? null : sw.getObjectState());
+					stmt.setString(8, sw.getObjectState().length() > 4000 ? sw.getObjectState() : null);
+				}
+				else {
+					stmt.setString(7, null);
+					stmt.setString(8, null);
+				}
+				stmt.setTimestamp(9, new Timestamp(wf.getCreationTS().getTime()));
+				stmt.setString(10, wf.getClass().getName());
 				stmt.addBatch();
 				n++;
 				if (i % 100 == 0 || (i+1) == wfs.size()) {
@@ -372,29 +392,15 @@ public class OracleDialect implements DatabaseDialect {
 			JdbcUtils.closeStatement(stmt);
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.DatabaseDialect#insert(de.scoopgmbh.copper.Workflow, java.sql.Connection)
 	 */
 	@Override
 	public void insert(final Workflow<?> wf, final Connection con) throws Exception {
-		final String data = serializer.serializeWorkflow(wf);
-		final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,CREATION_TS,CLASSNAME) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?,?)");
-		try {
-			stmt.setString(1, wf.getId());
-			stmt.setInt(2, DBProcessingState.ENQUEUED.ordinal());
-			stmt.setInt(3, wf.getPriority());
-			stmt.setString(4, wf.getProcessorPoolId());
-			stmt.setString(5, data.length() > 4000 ? null : data);
-			stmt.setString(6, data.length() > 4000 ? data : null);
-			stmt.setTimestamp(7, new Timestamp(wf.getCreationTS().getTime()));
-			stmt.setString(8, wf.getClass().getName());
-			stmt.execute();
-		}
-		finally {
-			JdbcUtils.closeStatement(stmt);
-		}
-
+		final List<Workflow<?>> wfs = new ArrayList<Workflow<?>>(1);
+		wfs.add(wf);
+		insert(wfs, con);
 	}
 
 	/* (non-Javadoc)
@@ -442,7 +448,7 @@ public class OracleDialect implements DatabaseDialect {
 		}
 		logger.info("All error/invalid workflow instances successfully queued for restart.");
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.DatabaseDialect#notify(java.util.List, java.sql.Connection)
 	 */
@@ -450,7 +456,7 @@ public class OracleDialect implements DatabaseDialect {
 	public void notify(List<Response<?>> responses, Connection c) throws Exception {
 		if (responses.isEmpty()) 
 			return;
-		
+
 		final PreparedStatement stmt = c.prepareCall("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?,?)");
 		try {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -479,7 +485,7 @@ public class OracleDialect implements DatabaseDialect {
 			JdbcUtils.closeStatement(stmt);
 		}
 	}	
-	
+
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.DatabaseDialect#createBatchCommand4Finish(de.scoopgmbh.copper.Workflow)
 	 */
@@ -489,7 +495,7 @@ public class OracleDialect implements DatabaseDialect {
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
 		return new OracleRemove.Command(pwf,removeWhenFinished);
 	}	
-	
+
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.DatabaseDialect#createBatchCommand4Notify(de.scoopgmbh.copper.Response)
 	 */
@@ -511,7 +517,7 @@ public class OracleDialect implements DatabaseDialect {
 			throw new NullPointerException();
 		return new OracleRegisterCallback.Command(rc, serializer, dbStorageInterface);
 	}	
-	
+
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.DatabaseDialect#createBatchCommand4error(de.scoopgmbh.copper.Workflow, java.lang.Throwable)
 	 */
@@ -521,7 +527,7 @@ public class OracleDialect implements DatabaseDialect {
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
 		return new OracleSetToError.Command(pwf,t);
 	}
-	
+
 	public void error(Workflow<?> w, Throwable t, Connection con) throws Exception {
 		runSingleBatchCommand(con, createBatchCommand4error(w, t));
 	}

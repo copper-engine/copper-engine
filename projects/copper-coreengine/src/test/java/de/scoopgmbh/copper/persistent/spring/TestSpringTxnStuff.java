@@ -51,26 +51,6 @@ public class TestSpringTxnStuff {
 			DataSourceUtils.releaseConnection(con, ds);
 		}
 	}
-	
-	private static void doTransactional2(DataSource ds, String sql) {
-		Connection con = DataSourceUtils.getConnection(ds);
-		try {
-			Statement stmt = null;
-			try {
-				stmt = con.createStatement();
-				stmt.execute(sql);
-			}
-			catch(SQLException e) {
-				throw new RuntimeException(e);
-			}
-			finally {
-				JdbcUtils.closeStatement(stmt);
-			}
-		}
-		finally {
-			DataSourceUtils.releaseConnection(con, ds);
-		}
-	}
 
 	/**
 	 * @param args
