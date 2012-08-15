@@ -20,6 +20,7 @@ import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
@@ -29,6 +30,7 @@ import de.scoopgmbh.copper.common.Processor;
 import de.scoopgmbh.copper.common.WfPriorityQueue;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.management.PersistentPriorityProcessorPoolMXBean;
+import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
 /**
  * Implementation of the {@link PriorityProcessorPool} interface for use in the {@link PersistentScottyEngine}.
@@ -40,6 +42,8 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 
 	private static final Logger logger = LoggerFactory.getLogger(PersistentPriorityProcessorPool.class);
 	
+	private TransactionController transactionController;
+	
 	private Thread thread;
 	private volatile boolean shutdown = false;
 	private final Object mutex = new Object();
@@ -49,11 +53,10 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	private volatile int upperThresholdReachedWaitMSec = 50;
 	private volatile int emptyQueueWaitMSec = 500;
 	private volatile int dequeueBulkSize = 2000;
-	// private boolean onShutdownWait4Completion = false; TODO
 	
 	/**
 	 * Creates a new {@link PersistentPriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
-	 * <code>id</code> needs to be initialized later using the setter.
+	 * <code>id</code> and <code>transactionControler</code> need to be initialized later using the setter.
 	 */
 	public PersistentPriorityProcessorPool() {
 		super();
@@ -62,17 +65,23 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	/**
 	 * Creates a new {@link PersistentPriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
 	 */
-	public PersistentPriorityProcessorPool(String id) {
+	public PersistentPriorityProcessorPool(String id, TransactionController transactionController) {
 		super(id);
+		this.transactionController = transactionController;
 	}
 	
-	public PersistentPriorityProcessorPool(String id, int numberOfThreads) {
+	public PersistentPriorityProcessorPool(String id, TransactionController transactionController, int numberOfThreads) {
 		super(id, numberOfThreads);
+		this.transactionController = transactionController;
 	}
 
+	public void setTransactionController(TransactionController transactionController) {
+		this.transactionController = transactionController;
+	}
+	
 	@Override
 	protected Processor newProcessor(String name, Queue<Workflow<?>> queue, int threadPriority, ProcessingEngine engine) {
-		return new PersistentProcessor(name, queue, threadPriority, engine);
+		return new PersistentProcessor(name, queue, threadPriority, engine, transactionController);
 	}
 	
 	@Override
@@ -98,6 +107,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	@Override
 	public synchronized void startup() {
 		super.startup();
+		if (transactionController == null) throw new NullPointerException("property transactionController is null");
 		thread = new Thread(new Runnable() {
 			@Override
 			public void run() {

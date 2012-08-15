@@ -23,50 +23,66 @@ import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.Processor;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
+import de.scoopgmbh.copper.persistent.txn.Transaction;
+import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
 class PersistentProcessor extends Processor {
-	
-	private final PersistentScottyEngine engine;
 
-	public PersistentProcessor(String name, Queue<Workflow<?>> queue, int prio,	ProcessingEngine engine) {
+	private final PersistentScottyEngine engine;
+	private final TransactionController transactionController;
+
+	public PersistentProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine, TransactionController transactionController) {
 		super(name, queue, prio, engine);
+		if (engine == null) throw new NullPointerException();
+		if (transactionController == null) throw new NullPointerException();
 		this.engine = (PersistentScottyEngine)engine;
+		this.transactionController = transactionController;
 	}
 
 	@Override
-	protected void process(Workflow<?> wf) {
-		boolean error = false;
-		PersistentWorkflow<?> pw = (PersistentWorkflow<?>)wf;
-		synchronized (pw) {
-			try {
-				WorkflowAccessor.setProcessingState(wf, ProcessingState.RUNNING);
-				engine.getDependencyInjector().inject(pw);
-				wf.__beforeProcess();
-				pw.main();
-				WorkflowAccessor.setProcessingState(wf, ProcessingState.FINISHED);
-				engine.getDbStorage().finish(pw);
-				assert wf.get__stack().isEmpty() : "Stack must be empty";
-			}
-			catch(InterruptException e) {
-				assert pw.get__stack().size() > 0;
-			}
-			catch(Exception e) {
-				logger.error("Execution of wf "+wf.getId()+" failed, error information will be stored in underlying db",e);
-				engine.getDbStorage().error(pw,e);
-				error = true;
-			}
-			finally {
-				engine.unregister(pw);
-			}
-
-			if (pw.registerCall != null && !error) {
-				try {
-					engine.getDbStorage().registerCallback(pw.registerCall);
-				} 
-				catch (Exception e) {
-					logger.error("",e);
+	protected void process(final Workflow<?> wf) {
+		final PersistentWorkflow<?> pw = (PersistentWorkflow<?>)wf;
+		try {
+			transactionController.run(new Transaction<Void>() {
+				@Override
+				public Void run() throws Exception {
+					synchronized (pw) {
+						try {
+							WorkflowAccessor.setProcessingState(pw, ProcessingState.RUNNING);
+							engine.getDependencyInjector().inject(pw);
+							pw.__beforeProcess();
+							pw.main();
+							WorkflowAccessor.setProcessingState(pw, ProcessingState.FINISHED);
+							engine.getDbStorage().finish(pw);
+							assert pw.get__stack().isEmpty() : "Stack must be empty";
+						}
+						catch(InterruptException e) {
+							assert pw.get__stack().size() > 0;
+						}
+						finally {
+							engine.unregister(pw);
+						}
+						if (pw.registerCall != null) {
+							engine.getDbStorage().registerCallback(pw.registerCall);
+						}
+					}
+					return null;
 				}
-			}
+			});
+		}
+		catch(Exception e) {
+			logger.error("execution of workflow instance failed",e);
+			handleError(pw, e);
+		}
+	}
+
+	protected void handleError(PersistentWorkflow<?> wf, Exception exception) {
+		logger.error("Storing error information for workflow instance...");
+		try {
+			engine.getDbStorage().error(wf, exception);
+		}
+		catch(Exception e) {
+			logger.error("FATAL ERROR: Unable to store error information",e);
 		}
 	}
 

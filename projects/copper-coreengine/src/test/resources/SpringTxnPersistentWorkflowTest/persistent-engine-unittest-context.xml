@@ -38,10 +38,9 @@
     	</property>
 	</bean>
 	
-    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.SpringTxnPersistentPriorityProcessorPool" scope="singleton">
+    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>
-    	<constructor-arg type="int"><value>4</value></constructor-arg>
-    	<constructor-arg type="org.springframework.transaction.PlatformTransactionManager" ref="txManager"></constructor-arg>
+    	<constructor-arg type="de.scoopgmbh.copper.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
     </bean>
            
 	<bean id="persistent.PPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">

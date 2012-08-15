@@ -34,7 +34,7 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
-import de.scoopgmbh.copper.persistent.txn.Transactional;
+import de.scoopgmbh.copper.persistent.txn.DatabaseTransaction;
 
 /**
  * Oracle implementation of the {@link ScottyDBStorageInterface}.
@@ -71,7 +71,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 		this.dialect = dialect;
 	}
 	
-	protected  <T> T run(final Transactional<T> txn) throws Exception {
+	protected  <T> T run(final DatabaseTransaction<T> txn) throws Exception {
 		return transactionController.run(txn);
 	}
 	
@@ -97,7 +97,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	 */
 	private void resumeBrokenBusinessProcesses() throws Exception {
 		logger.info("resumeBrokenBusinessProcesses");
-		run(new Transactional<Void>() {
+		run(new DatabaseTransaction<Void>() {
 			@Override
 			public Void run(Connection con) throws Exception {
 				dialect.resumeBrokenBusinessProcesses(con);
@@ -111,7 +111,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	 */
 	public void insert(final Workflow<?> wf) throws Exception {
 		logger.trace("insert({})",wf);
-		run(new Transactional<Void>() {
+		run(new DatabaseTransaction<Void>() {
 			@Override
 			public Void run(Connection con) throws Exception {
 				dialect.insert(wf, con);
@@ -125,7 +125,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	 */
 	public void insert(final List<Workflow<?>> wfs) throws Exception {
 		logger.trace("insert(wfs.size={})",wfs.size());
-		run(new Transactional<Void>() {
+		run(new DatabaseTransaction<Void>() {
 			@Override
 			public Void run(Connection con) throws Exception {
 				dialect.insert(wfs, con);
@@ -136,7 +136,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 
 	@Override
 	public List<Workflow<?>> dequeue(final String ppoolId, final int max) throws Exception {
-		return run(new Transactional<List<Workflow<?>>>() {
+		return run(new DatabaseTransaction<List<Workflow<?>>>() {
 			@Override
 			public List<Workflow<?>> run(Connection con) throws Exception {
 				return dialect.dequeue(ppoolId, max, con);
@@ -213,7 +213,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 		int n = 0;
 		final int MAX_ROWS = 20000;
 		do {
-			run(new Transactional<Integer>() {
+			run(new DatabaseTransaction<Integer>() {
 				@Override
 				public Integer run(Connection con) throws Exception {
 					return dialect.deleteStaleResponse(con, MAX_ROWS);
@@ -246,7 +246,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 		while(!shutdown) {
 			int x=0;
 			try {
-				x = run(new Transactional<Integer>() {
+				x = run(new DatabaseTransaction<Integer>() {
 					@Override
 					public Integer run(Connection con) throws Exception {
 						return dialect.updateQueueState(max,con);
@@ -293,7 +293,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	}
 	
 	public void restart(final String workflowInstanceId) throws Exception {
-		run(new Transactional<Void>() {
+		run(new DatabaseTransaction<Void>() {
 			@Override
 			public Void run(Connection con) throws Exception {
 				dialect.restart(workflowInstanceId, con);
@@ -304,7 +304,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 
 	@Override
 	public void restartAll() throws Exception {
-		run(new Transactional<Void>() {
+		run(new DatabaseTransaction<Void>() {
 			@Override
 			public Void run(Connection con) throws Exception {
 				dialect.restartAll(con);
@@ -324,7 +324,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	
 	@SuppressWarnings({"rawtypes", "unchecked"}) 
 	private void runSingleBatchCommand(final BatchCommand cmd) throws Exception {
-		run(new Transactional<Void>() {
+		run(new DatabaseTransaction<Void>() {
 			@Override
 			public Void run(Connection con) throws Exception {
 				cmd.executor().doExec(Collections.singletonList(cmd), con);
