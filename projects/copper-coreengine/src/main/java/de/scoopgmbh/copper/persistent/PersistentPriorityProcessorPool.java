@@ -230,6 +230,9 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 		this.dequeueBulkSize = dequeueBulkSize;
 	}
 	
+	protected TransactionController getTransactionController() {
+		return transactionController;
+	}
 
 
 }
