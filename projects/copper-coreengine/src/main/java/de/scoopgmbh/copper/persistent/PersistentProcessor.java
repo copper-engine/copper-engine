@@ -26,7 +26,7 @@ import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.persistent.txn.Transaction;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
-class PersistentProcessor extends Processor {
+public class PersistentProcessor extends Processor {
 
 	private final PersistentScottyEngine engine;
 	private final TransactionController transactionController;
