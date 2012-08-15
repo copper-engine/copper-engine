@@ -132,7 +132,7 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 					ResultSet rs = getConnection().createStatement().executeQuery("SELECT count(*) FROM COP_AUDIT_TRAIL_EVENT");
 					rs.next();
 					int count = rs.getInt(1);
-					assertEquals(NUMB*11, count);
+					assertEquals(NUMB*6, count);
 				}
 			}.run();
 		}

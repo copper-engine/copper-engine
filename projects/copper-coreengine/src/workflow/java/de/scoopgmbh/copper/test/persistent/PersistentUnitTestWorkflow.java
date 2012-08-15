@@ -70,7 +70,9 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 	@Override
 	public void main() throws InterruptException {
 		try {
-			for (int i=0; i<10; i++) {
+			testWaitFirst();
+			
+			for (int i=0; i<5; i++) {
 				callFoo();
 				Assert.assertNotNull(this.getCreationTS());
 			}
@@ -124,4 +126,33 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		Assert.assertNull(res.getException());
 	}
 	
+	private void testWaitFirst() throws InterruptException {
+		final String cidEarly = getEngine().createUUID();
+		final String cidLate = getEngine().createUUID();
+		mockAdapter.foo(getData(), cidEarly, 50);
+		
+		wait(WaitMode.FIRST, 5000, cidEarly, cidLate);
+
+		Response<?> resEarly = getAndRemoveResponse(cidEarly);
+		logger.info(resEarly.toString());
+		Assert.assertNotNull(resEarly);
+		Assert.assertFalse(resEarly.isTimeout());
+		Assert.assertEquals(getData(),resEarly.getResponse());
+		Assert.assertNull(resEarly.getException());
+		
+		Response<?> resLate = getAndRemoveResponse(cidLate);
+		Assert.assertNotNull(resLate);
+		Assert.assertTrue(resLate.isTimeout());
+
+		mockAdapter.foo(getData(), cidLate,  50);
+		
+		wait(WaitMode.ALL, 5000, cidLate);
+
+		resEarly = getAndRemoveResponse(cidEarly);
+		Assert.assertNull(resEarly);
+		
+		resLate = getAndRemoveResponse(cidLate);
+		Assert.assertNotNull(resLate);
+		Assert.assertFalse(resLate.isTimeout());
+	}	
 }

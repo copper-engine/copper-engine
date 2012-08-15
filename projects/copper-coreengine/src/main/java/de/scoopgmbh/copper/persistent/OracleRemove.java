@@ -71,8 +71,8 @@ class OracleRemove {
 				boolean cidsFound = false;
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command) _cmd;
-					if (cmd.wf.cidList != null) {
-						for (String cid : cmd.wf.cidList) {
+					if (cmd.wf.waitCidList != null) {
+						for (String cid : cmd.wf.waitCidList) {
 							stmtDelResponse.setString(1, cid);
 							stmtDelResponse.addBatch();
 							stmtDelWait.setString(1, cid);

@@ -62,8 +62,13 @@ public class MockAdapter {
 
 	// do some work; delayed response to engine object
 	public void foo(final String param, final String cid) {
+		foo(param, cid, delay);
+	}
+
+	// do some work; delayed response to engine object
+	public void foo(final String param, final String cid, int overrideDelay) {
 		invokationCounter.incrementAndGet();
-		if (delay <= 0) {
+		if (overrideDelay <= 0) {
 			engine.notify(new Response<String>(cid, param, null));
 		}
 		else {
@@ -72,10 +77,9 @@ public class MockAdapter {
 				public void run() {
 					engine.notify(new Response<String>(cid, param, null));
 				}
-			}, delay, TimeUnit.MILLISECONDS);
+			}, overrideDelay, TimeUnit.MILLISECONDS);
 		}
-	}
-
+	}	
 	// do some work; delayed resonse to engine object
 	public void incrementAsync(final int c, final String cid) {
 		invokationCounter.incrementAndGet();

@@ -72,7 +72,8 @@ class OracleRegisterCallback {
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			boolean doDeletes = false;
+			boolean doWaitDeletes = false;
+			boolean doResponseDeletes = false;
 			PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
 			PreparedStatement deleteWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
 			PreparedStatement deleteResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
@@ -113,25 +114,30 @@ class OracleRegisterCallback {
 					stmtDelQueue.setInt(3, ((PersistentWorkflow<?>)rc.workflow).oldPrio);
 					stmtDelQueue.addBatch();
 
-					List<String> cidList = ((PersistentWorkflow<?>)rc.workflow).cidList;
+					List<String> cidList = ((PersistentWorkflow<?>)rc.workflow).waitCidList;
 					if (cidList != null) {
 						for (String cid : cidList) {
-							deleteResponse.setString(1, cid);
-							deleteResponse.addBatch();
-
 							deleteWait.setString(1, cid);
 							deleteWait.addBatch();
-
-							doDeletes = true;
+							doWaitDeletes = true;
+						}
+					}
+					List<String> responseCidList = ((PersistentWorkflow<?>)rc.workflow).responseCidList;
+					if (responseCidList != null) {
+						for (String cid : responseCidList) {
+							deleteResponse.setString(1, cid);
+							deleteResponse.addBatch();
+							doResponseDeletes = true;
 						}
 					}
 				}
+				if (doResponseDeletes) deleteResponse.executeBatch();
+				if (doWaitDeletes) deleteWait.executeBatch();
+
 				insertWaitStmt.executeBatch();
 				updateWfiStmt.executeBatch();
 				stmtDelQueue.executeBatch();
 
-				if (doDeletes) deleteResponse.executeBatch();
-				if (doDeletes) deleteWait.executeBatch();
 
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command)_cmd;

@@ -244,14 +244,14 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 					Response<?> r;
 					if (response != null) {
 						r = (Response<?>) serializer.deserializeResponse(response);
+						wf.addResponseCorrelationId(cid);
 					}
 					else {
 						// timeout
 						r = new Response<Object>(cid);
 					}
 					wf.putResponse(r);
-					if (wf.cidList == null) wf.cidList = new ArrayList<String>();
-					wf.cidList.add(cid);
+					wf.addWaitCorrelationId(cid);
 				}
 				rsResponses.close();
 			}

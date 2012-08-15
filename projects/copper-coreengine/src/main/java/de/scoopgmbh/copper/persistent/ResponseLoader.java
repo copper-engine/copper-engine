@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,14 +116,14 @@ class ResponseLoader extends ConcurrentBatchedWorker {
 				Response<?> r;
 				if (response != null) {
 					r = (Response<?>) serializer.deserializeResponse(response);
+					wf.addResponseCorrelationId(cid);
 				}
 				else {
 					// timeout
 					r = new Response<Object>(cid);
 				}
 				wf.putResponse(r);
-				if (wf.cidList == null) wf.cidList = new ArrayList<String>();
-				wf.cidList.add(cid);
+				wf.addWaitCorrelationId(cid);
 				++n;
 			}
 			statResponse.stop(n);

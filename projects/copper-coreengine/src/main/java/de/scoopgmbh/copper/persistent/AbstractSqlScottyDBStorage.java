@@ -358,8 +358,8 @@ public abstract class AbstractSqlScottyDBStorage implements ScottyDBStorageInter
 							r = new Response<Object>(cid);
 						}
 						wf.putResponse(r);
-						if (wf.cidList == null) wf.cidList = new ArrayList<String>();
-						wf.cidList.add(cid);
+						if (wf.waitCidList == null) wf.waitCidList = new ArrayList<String>();
+						wf.waitCidList.add(cid);
 					}
 					rsResponses.close();
 				}
