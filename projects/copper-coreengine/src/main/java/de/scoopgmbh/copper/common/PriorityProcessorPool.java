@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-import org.apache.derby.iapi.error.ShutdownException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 	private String id = null;
 	private int numberOfThreads = Runtime.getRuntime().availableProcessors();
 	private int threadPriority = Thread.NORM_PRIORITY;
-	private boolean joinOnShutdown = true;
+	private int shutdownWaitIntervalMSec = 30000;
 
 	private boolean started = false;
 	private boolean shutdown = false;
@@ -79,15 +78,12 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 	}
 
 	/**
-	 * If true, this processor pool waits until all processors are terminated when shutting down
-	 * @param joinOnShutdown
+	 * This processor pool wait up to the specified number of milliseconds until all of its Processors are terminated. 
+	 * A value <= 0 means, that the processor pool will not wait at all.
+	 * @param shutdownWaitIntervalMSec wait interval in milliseconds
 	 */
-	public void setJoinOnShutdown(boolean joinOnShutdown) {
-		this.joinOnShutdown = joinOnShutdown;
-	}
-	
-	public boolean isJoinOnShutdown() {
-		return joinOnShutdown;
+	public void setShutdownWaitIntervalMSec(int shutdownWaitIntervalMSec) {
+		this.shutdownWaitIntervalMSec = shutdownWaitIntervalMSec;
 	}
 
 	@Override
@@ -177,14 +173,17 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 			p.shutdown();
 		}
 
-		if (joinOnShutdown) {
-			for (Processor p : workerThreads) {
-				try {
-					p.join();
-				} 
-				catch (InterruptedException e) {
-					logger.warn("Unexpected InterruptedException while waiting for 'join' to return",e);
-				}
+		final long endTS = System.currentTimeMillis() + shutdownWaitIntervalMSec;
+		for (Processor p : workerThreads) {
+			final long maxWait = endTS - System.currentTimeMillis();
+			if (maxWait <= 0) {
+				break;
+			}
+			try {
+				p.join(maxWait);
+			} 
+			catch (InterruptedException e) {
+				logger.warn("Unexpected InterruptedException while waiting for 'join' to return",e);
 			}
 		}
 	}
