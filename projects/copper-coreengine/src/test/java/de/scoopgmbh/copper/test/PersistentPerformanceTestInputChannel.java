@@ -30,7 +30,7 @@ public class PersistentPerformanceTestInputChannel implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(PersistentPerformanceTestInputChannel.class);
 	
 	private PersistentScottyEngine engine;
-	private int max = 200;
+	private int max = 0;
 	private int batchSize = 500;
 	
 	public void setEngine(PersistentScottyEngine engine) {

@@ -21,6 +21,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
@@ -34,12 +36,22 @@ class OracleSetToError {
 
 		private final PersistentWorkflow<?> wf;
 		private final Throwable error;
+		private final DBProcessingState dbProcessingState;
 
 		@SuppressWarnings("unchecked")
 		public Command(PersistentWorkflow<?> wf, Throwable error) {
 			super(NullCallback.instance,250);
 			this.wf = wf;
 			this.error = error;
+			this.dbProcessingState = DBProcessingState.ERROR;
+		}
+
+		@SuppressWarnings("unchecked")
+		public Command(PersistentWorkflow<?> wf, Throwable error, DBProcessingState dbProcessingState) {
+			super(NullCallback.instance,250);
+			this.wf = wf;
+			this.error = error;
+			this.dbProcessingState = dbProcessingState;
 		}
 
 		@Override
@@ -52,6 +64,7 @@ class OracleSetToError {
 	static final class Executor extends BatchExecutor<Executor, Command> {
 
 		private static final Executor INSTANCE = new Executor();
+		private static final Logger logger = LoggerFactory.getLogger(Executor.class);
 
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection c) throws Exception {
@@ -61,7 +74,8 @@ class OracleSetToError {
 			try {
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command)_cmd;
-					stmtUpdateState.setInt(1, DBProcessingState.ERROR.ordinal());
+					logger.error("Setting workflow instance '{}' to state {}", cmd.wf.getId(), cmd.dbProcessingState.name());
+					stmtUpdateState.setInt(1, cmd.dbProcessingState.ordinal());
 					stmtUpdateState.setString(2, cmd.wf.getId());
 					stmtUpdateState.addBatch();
 

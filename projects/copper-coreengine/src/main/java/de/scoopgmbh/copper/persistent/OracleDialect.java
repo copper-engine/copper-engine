@@ -185,7 +185,7 @@ public class OracleDialect implements DatabaseDialect {
 		responseLoader.setEngineId(engineIdProvider.getEngineId());
 		responseLoader.beginTxn();
 
-		final List<String> invalidBPs = new ArrayList<String>();
+		final List<OracleSetToError.Command> invalidWorkflowInstances = new ArrayList<OracleSetToError.Command>();
 		final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from cop_queue where ppool_id=? and engine_id is null order by ppool_id, priority, last_mod_ts) where rownum <= ?)");
 		final Map<String,Workflow<?>> map = new HashMap<String, Workflow<?>>(max*3);
 		try {
@@ -223,16 +223,12 @@ public class OracleDialect implements DatabaseDialect {
 				}
 				catch(Exception e) {
 					logger.error("decoding of '"+id+"' failed: "+e.toString(),e);
-					invalidBPs.add(id);
+					invalidWorkflowInstances.add(new OracleSetToError.Command(new DummyPersistentWorkflow(id, ppoolId, rowid, prio),e,DBProcessingState.INVALID));
 				}
 			}
 		}
 		finally {
 			JdbcUtils.closeStatement(dequeueStmt);
-		}
-
-		if (map.isEmpty()) {
-			return Collections.emptyList();
 		}
 
 		dequeueWait4RespLdrStmtStatistic.start();
@@ -243,24 +239,19 @@ public class OracleDialect implements DatabaseDialect {
 
 		dequeueAllStmtStatistic.stop(map.size());
 
-		if (!invalidBPs.isEmpty()) {
-			PreparedStatement updateBpStmt = con.prepareStatement("update COP_WORKFLOW_INSTANCE set state=?, LAST_MOD_TS=SYSTIMESTAMP where id=?");
-			try {
-				for (String id : invalidBPs) {
-					logger.warn("Setting workflow instance {} to state {}", id, DBProcessingState.INVALID.name());
-					updateBpStmt.setInt(1, DBProcessingState.INVALID.ordinal());
-					updateBpStmt.setString(2,id);
-					updateBpStmt.addBatch();
-				}
-				updateBpStmt.executeBatch();
-			}
-			finally {
-				JdbcUtils.closeStatement(updateBpStmt);
-			}
-			// ggf. auch die Waits und Responses löschen?
-		}
+		handleInvalidWorkflowInstances(con, invalidWorkflowInstances);
+		
 		if (logger.isDebugEnabled()) logger.debug("dequeue for pool "+ppoolId+" returns "+rv.size()+" element(s) in "+(System.currentTimeMillis()-startTS)+" msec.");
 		return rv;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void handleInvalidWorkflowInstances(Connection con, final List invalidWorkflowInstances) throws Exception {
+		logger.debug("invalidWorkflowInstances.size()={}",invalidWorkflowInstances.size());
+		if (invalidWorkflowInstances.isEmpty()) {
+			return;
+		}
+		((BatchCommand)invalidWorkflowInstances.get(0)).executor().doExec(invalidWorkflowInstances, con);
 	}
 
 	/* (non-Javadoc)

@@ -19,6 +19,9 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Utility class for compressing and uncompressing byte arrays.
  * 
@@ -27,10 +30,12 @@ import java.util.zip.Inflater;
  */
 public class Compressor {
 	
+	private static final Logger logger = LoggerFactory.getLogger(Compressor.class);
+
 	private final Deflater deflater;
 	private final Inflater inflater;
 	private final byte[] buffer;
-	
+
 	/**
 	 * creates a new instance 
 	 * @param level compression level, see {@link Deflater}
@@ -41,28 +46,46 @@ public class Compressor {
 		inflater = new Inflater();
 		buffer = new byte[maxSize];
 	}
-	
+
 	public byte[] compress(final byte[] bytes) {
-		deflater.setInput(bytes);
-		deflater.finish();
-		int len = deflater.deflate(buffer);
-		byte[] compressedBytes = new byte[len];
-		System.arraycopy(buffer, 0, compressedBytes, 0, len);
-		deflater.reset();
-		return compressedBytes;
+		try {
+			deflater.setInput(bytes);
+			deflater.finish();
+			int len = deflater.deflate(buffer);
+			byte[] compressedBytes = new byte[len];
+			System.arraycopy(buffer, 0, compressedBytes, 0, len);
+			return compressedBytes;
+		}
+		finally {
+			try {
+				deflater.reset();
+			}
+			catch(Exception e) {
+				logger.warn("deflater.reset failed",e);
+			}
+		}
 	}
-	
+
 	public byte[] uncompress(byte[] bytes) throws DataFormatException {
-		inflater.setInput(bytes);
-		int len = inflater.inflate(buffer);
-		byte[] uncompressedBytes = new byte[len];
-		System.arraycopy(buffer, 0, uncompressedBytes, 0, len);
-		inflater.reset();
-		return uncompressedBytes;
+		try {
+			inflater.setInput(bytes);
+			int len = inflater.inflate(buffer);
+			byte[] uncompressedBytes = new byte[len];
+			System.arraycopy(buffer, 0, uncompressedBytes, 0, len);
+			return uncompressedBytes;
+		}
+		finally {
+			try {
+				inflater.reset();
+			}
+			catch(Exception e) {
+				logger.warn("inflater.reset failed",e);
+			}
+		}
 	}
-	
-	
-	
+
+
+
 }
 
 
