@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
+import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.EngineIdProvider;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
@@ -69,7 +70,7 @@ public class OracleDialect implements DatabaseDialect {
 	private EngineIdProvider engineIdProvider = null;
 
 	// optional Properties
-	private boolean multiEngineMode = true;
+	private boolean multiEngineMode = false;
 	private int lockWaitSeconds = 10;
 	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
 	private Serializer serializer = new StandardJavaSerializer();
@@ -531,6 +532,9 @@ public class OracleDialect implements DatabaseDialect {
 	}
 	
 	public List<String> checkDbConsistency(Connection con) throws Exception {
+		if (multiEngineMode) 
+			throw new CopperRuntimeException("Cannot check DB consistency when multiEngineMode is turned on!");
+		
 		final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,creation_ts,data,long_data,object_state,long_object_state,PPOOL_ID from COP_WORKFLOW_INSTANCE where state not in (?,?)");
 		try {
 			final List<String> idsOfBadWorkflows = new ArrayList<String>();
@@ -558,7 +562,7 @@ public class OracleDialect implements DatabaseDialect {
 					logger.debug("Successful test deserialization of workflow {}",id);
 				}
 				catch(Exception e) {
-					logger.warn("Test deserialization of workflow "+id+" failed",e);
+					logger.warn("Test deserialization of workflow "+id+" failed: "+e.toString());
 					idsOfBadWorkflows.add(id);
 				}
 			}

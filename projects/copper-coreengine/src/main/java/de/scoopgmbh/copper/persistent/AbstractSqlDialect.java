@@ -511,7 +511,38 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 
 	@Override
 	public List<String> checkDbConsistency(Connection con) throws Exception {
-		throw new UnsupportedOperationException();
+		final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,object_state,PPOOL_ID from COP_WORKFLOW_INSTANCE where state not in (?,?)");
+		try {
+			final List<String> idsOfBadWorkflows = new ArrayList<String>();
+			dequeueStmt.setInt(1, DBProcessingState.INVALID.ordinal());
+			dequeueStmt.setInt(2, DBProcessingState.FINISHED.ordinal());
+			ResultSet rs = dequeueStmt.executeQuery();
+			while(rs.next()) {
+				final String id = rs.getString(1);
+				try {
+					final int prio = rs.getInt(2);
+					final String data = rs.getString(3);
+					final String objectState = rs.getString(4);
+					final String ppoolId = rs.getString(5);
+					final SerializedWorkflow sw = new SerializedWorkflow();
+					sw.setData(data);
+					sw.setObjectState(objectState);
+					final PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
+					wf.setId(id);
+					wf.setProcessorPoolId(ppoolId);
+					wf.setPriority(prio);
+					logger.debug("Successful test deserialization of workflow {}",id);
+				}
+				catch(Exception e) {
+					logger.warn("Test deserialization of workflow "+id+" failed: "+e.toString());
+					idsOfBadWorkflows.add(id);
+				}
+			}
+			return idsOfBadWorkflows;
+		}
+		finally {
+			JdbcUtils.closeStatement(dequeueStmt);
+		}
 	}
 
 	@Override

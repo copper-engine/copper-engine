@@ -87,6 +87,7 @@
 	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.ScottyDBStorage" scope="singleton">
 		<property name="transactionController" ref="txnController"/>
 		<property name="dialect" ref="dbDialect"/>
+		<property name="checkDbConsistencyAtStartup" value="true"/>
 	</bean>
 	
 	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.SpringTransactionController" scope="singleton">

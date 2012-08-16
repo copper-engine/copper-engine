@@ -36,12 +36,14 @@
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
 		<property name="engineIdProvider" ref="engineId_RED"/>
+		<property name="multiEngineMode" value="true"/>	
 	</bean>    
            
 	<bean id="dbDialect.blue" class="de.scoopgmbh.copper.persistent.OracleDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
 		<property name="engineIdProvider" ref="engineId_BLUE"/>
+		<property name="multiEngineMode" value="true"/>	
 	</bean>    
            
 	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.CopperTransactionController" scope="singleton">
