@@ -38,7 +38,7 @@ public interface DatabaseDialect {
 	public abstract BatchCommand createBatchCommand4registerCallback(final RegisterCall rc, final ScottyDBStorageInterface dbStorageInterface) throws Exception;
 
 	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t);
+	public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState);
 	
 	/**
 	 * If true (default), finished workflow instances are removed from the database.

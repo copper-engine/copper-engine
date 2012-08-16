@@ -33,12 +33,14 @@ class SqlSetToError {
 
 		private final PersistentWorkflow<?> wf;
 		private final Throwable error;
+		private final DBProcessingState dbProcessingState;
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, Throwable error) {
+		public Command(PersistentWorkflow<?> wf, Throwable error, DBProcessingState dbProcessingState) {
 			super(NullCallback.instance,250);
 			this.wf = wf;
 			this.error = error;
+			this.dbProcessingState = dbProcessingState;
 		}
 
 		@Override
@@ -60,7 +62,7 @@ class SqlSetToError {
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				final Timestamp NOW = new Timestamp(System.currentTimeMillis());
 				Command cmd = (Command)_cmd;
-				stmtUpdateState.setInt(1, DBProcessingState.ERROR.ordinal());
+				stmtUpdateState.setInt(1, cmd.dbProcessingState.ordinal());
 				stmtUpdateState.setTimestamp(2, NOW);
 				stmtUpdateState.setString(3, cmd.wf.getId());
 				stmtUpdateState.addBatch();

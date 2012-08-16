@@ -381,7 +381,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	public void error(Workflow<?> w, Throwable t) {
 		if (logger.isTraceEnabled()) logger.trace("error("+w.getId()+","+t.toString()+")");
 		try {
-			executeBatchCommand(dialect.createBatchCommand4error(w, t));
+			executeBatchCommand(dialect.createBatchCommand4error(w, t, DBProcessingState.ERROR));
 		} 
 		catch (Exception e) {
 			logger.error("error failed",e);

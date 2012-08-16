@@ -53,7 +53,7 @@ public class MySqlDialect extends AbstractSqlDialect {
 	
 	@SuppressWarnings("rawtypes")
 	@Override
-	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t) {
-		return new SqlSetToError.Command((PersistentWorkflow<?>) w, t);
+	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t,DBProcessingState dbProcessingState) {
+		return new SqlSetToError.Command((PersistentWorkflow<?>) w, t, dbProcessingState);
 	}	
 }

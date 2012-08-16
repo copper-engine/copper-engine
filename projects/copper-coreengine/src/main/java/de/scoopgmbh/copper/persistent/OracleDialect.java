@@ -515,13 +515,13 @@ public class OracleDialect implements DatabaseDialect {
 	 */
 	@Override
 	@SuppressWarnings({"rawtypes"})
-	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t) {
+	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState) {
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
 		return new OracleSetToError.Command(pwf,t);
 	}
 
 	public void error(Workflow<?> w, Throwable t, Connection con) throws Exception {
-		runSingleBatchCommand(con, createBatchCommand4error(w, t));
+		runSingleBatchCommand(con, createBatchCommand4error(w, t, DBProcessingState.ERROR));
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})

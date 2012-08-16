@@ -86,8 +86,8 @@ public class DerbyDbDialect extends AbstractSqlDialect {
 	
 	@SuppressWarnings("rawtypes")
 	@Override
-	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t) {
-		return new DerbyDbSetToError.Command((PersistentWorkflow<?>) w,t);
+	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState) {
+		return new DerbyDbSetToError.Command((PersistentWorkflow<?>) w,t,dbProcessingState);
 	}
 		
 

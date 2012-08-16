@@ -76,7 +76,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 
 	public void startup() {
 	}
-	
+
 	/**
 	 * Sets the default removal timeout for stale responses in the underlying database. A response is stale/timed out when
 	 * there is no workflow instance waiting for it within the specified amount of time. 
@@ -180,6 +180,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 		logger.info("done - processed "+rowcount+" BPs.");
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List<Workflow<?>> dequeue(String ppoolId, int max, Connection con) throws Exception {
 		logger.trace("dequeue({},{})", ppoolId, max);
@@ -192,7 +193,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 			final long startTS = System.currentTimeMillis();
 
 			final List<Workflow<?>> rv = new ArrayList<Workflow<?>>(max);
-			final List<String> invalidBPs = new ArrayList<String>();
+			final List<BatchCommand> invalidWorkflowInstances = new ArrayList<BatchCommand>();
 
 			dequeueStmt = createDequeueStmt(con, ppoolId, max);
 			deleteStmt = con.prepareStatement("delete from cop_queue where WORKFLOW_INSTANCE_ID=?");
@@ -220,60 +221,50 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 				}
 				catch(Exception e) {
 					logger.error("decoding of '"+id+"' failed: "+e.toString(),e);
-					invalidBPs.add(id);
+					invalidWorkflowInstances.add(createBatchCommand4error(new DummyPersistentWorkflow(id, ppoolId, null, prio),e,DBProcessingState.INVALID));
 				}
 			}
 			dequeueStmt.close();
 			dequeueStmtStatistic.stop(map.size());
 
-			if (map.isEmpty()) {
-				return Collections.emptyList();
-			}
-
-			selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id from cop_wait where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w LEFT OUTER JOIN cop_response r ON w.correlation_id = r.correlation_id");
-			List<List<String>> ids = splitt(map.keySet(),25); 
-			for (List<String> id : ids) {
-				selectResponsesStmt.clearParameters();
-				for (int i=0; i<25; i++) {
-					selectResponsesStmt.setString(i+1, id.size() >= i+1 ? id.get(i) : null);
-				}
-				ResultSet rsResponses = selectResponsesStmt.executeQuery();
-				while (rsResponses.next()) {
-					String bpId = rsResponses.getString(1);
-					String cid = rsResponses.getString(2);
-					String response = rsResponses.getString(3);
-					PersistentWorkflow<?> wf = (PersistentWorkflow<?>) map.get(bpId);
-					Response<?> r;
-					if (response != null) {
-						r = (Response<?>) serializer.deserializeResponse(response);
-						wf.addResponseCorrelationId(cid);
+			if (!map.isEmpty()) {
+				selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id from cop_wait where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w LEFT OUTER JOIN cop_response r ON w.correlation_id = r.correlation_id");
+				List<List<String>> ids = splitt(map.keySet(),25); 
+				for (List<String> id : ids) {
+					selectResponsesStmt.clearParameters();
+					for (int i=0; i<25; i++) {
+						selectResponsesStmt.setString(i+1, id.size() >= i+1 ? id.get(i) : null);
 					}
-					else {
-						// timeout
-						r = new Response<Object>(cid);
+					ResultSet rsResponses = selectResponsesStmt.executeQuery();
+					while (rsResponses.next()) {
+						String bpId = rsResponses.getString(1);
+						String cid = rsResponses.getString(2);
+						String response = rsResponses.getString(3);
+						PersistentWorkflow<?> wf = (PersistentWorkflow<?>) map.get(bpId);
+						Response<?> r;
+						if (response != null) {
+							r = (Response<?>) serializer.deserializeResponse(response);
+							wf.addResponseCorrelationId(cid);
+						}
+						else {
+							// timeout
+							r = new Response<Object>(cid);
+						}
+						wf.putResponse(r);
+						wf.addWaitCorrelationId(cid);
 					}
-					wf.putResponse(r);
-					wf.addWaitCorrelationId(cid);
+					rsResponses.close();
 				}
-				rsResponses.close();
+
+				queueDeleteStmtStatistic.start();
+				deleteStmt.executeBatch();
+				queueDeleteStmtStatistic.stop(map.size());
+
+				rv.addAll(map.values());
 			}
 
-			queueDeleteStmtStatistic.start();
-			deleteStmt.executeBatch();
-			queueDeleteStmtStatistic.stop(map.size());
+			handleInvalidWorkflowInstances(con, invalidWorkflowInstances);
 
-			rv.addAll(map.values());
-
-			if (!invalidBPs.isEmpty()) {
-				updateBpStmt = con.prepareStatement("update COP_WORKFLOW_INSTANCE set state=? where id=?");
-				for (String id : invalidBPs) {
-					updateBpStmt.setInt(1, DBProcessingState.INVALID.ordinal());
-					updateBpStmt.setString(2,id);
-					updateBpStmt.addBatch();
-				}
-				updateBpStmt.executeBatch();
-				// ggf. auch die Waits und Responses löschen
-			}
 			logger.trace("dequeue for pool {} returns {} element(s)", ppoolId, rv.size());
 			logger.debug("{} in {} msec", rv.size(),(System.currentTimeMillis()-startTS));
 			return rv;
@@ -284,6 +275,15 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 			JdbcUtils.closeStatement(deleteStmt);
 			JdbcUtils.closeStatement(selectResponsesStmt);
 		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void handleInvalidWorkflowInstances(Connection con, final List<BatchCommand> invalidWorkflowInstances) throws Exception {
+		logger.debug("invalidWorkflowInstances.size()={}",invalidWorkflowInstances.size());
+		if (invalidWorkflowInstances.isEmpty()) {
+			return;
+		}
+		invalidWorkflowInstances.get(0).executor().doExec(invalidWorkflowInstances, con);
 	}
 
 	@Override
@@ -354,17 +354,21 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 		PreparedStatement stmtInstance = null;
 		try {
 			final Timestamp NOW = new Timestamp(System.currentTimeMillis());
-			stmtQueue = c.prepareStatement("INSERT INTO COP_QUEUE (PPOOL_ID, PRIORITY, LAST_MOD_TS, WORKFLOW_INSTANCE_ID) (SELECT PPOOL_ID, PRIORITY, ?, ID FROM COP_WORKFLOW_INSTANCE WHERE ID=? AND STATE=5)");
-			stmtInstance = c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE ID=? AND (STATE=? OR STATE=?)");
+			stmtQueue = c.prepareStatement("INSERT INTO COP_QUEUE (PPOOL_ID, PRIORITY, LAST_MOD_TS, WORKFLOW_INSTANCE_ID) (SELECT PPOOL_ID, PRIORITY, ?, ID FROM COP_WORKFLOW_INSTANCE WHERE ID=? AND (STATE=? OR STATE=?))");
 			stmtQueue.setTimestamp(1, NOW);
 			stmtQueue.setString(2, workflowInstanceId);
-			stmtInstance.setInt(1, DBProcessingState.ENQUEUED.ordinal());
-			stmtInstance.setTimestamp(2, NOW);
-			stmtInstance.setString(3, workflowInstanceId);
-			stmtInstance.setInt(4, DBProcessingState.ERROR.ordinal());
-			stmtInstance.setInt(5, DBProcessingState.INVALID.ordinal());
-			stmtQueue.execute();
-			stmtInstance.execute();
+			stmtQueue.setInt(3, DBProcessingState.ERROR.ordinal());
+			stmtQueue.setInt(4, DBProcessingState.INVALID.ordinal());
+			final int rowCount = stmtQueue.executeUpdate();
+			if (rowCount > 0) {
+				stmtInstance = c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE ID=? AND (STATE=? OR STATE=?)");
+				stmtInstance.setInt(1, DBProcessingState.ENQUEUED.ordinal());
+				stmtInstance.setTimestamp(2, NOW);
+				stmtInstance.setString(3, workflowInstanceId);
+				stmtInstance.setInt(4, DBProcessingState.ERROR.ordinal());
+				stmtInstance.setInt(5, DBProcessingState.INVALID.ordinal());
+				stmtInstance.execute();
+			}
 		}
 		finally {
 			JdbcUtils.closeStatement(stmtInstance);
@@ -497,7 +501,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 
 	@Override
 	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t);
+	public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState);
 
 	protected abstract PreparedStatement createUpdateStateStmt(final Connection c, final int max) throws SQLException;
 
@@ -509,9 +513,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	public List<String> checkDbConsistency(Connection con) throws Exception {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public void shutdown() {
 	}
-	
+
 }
