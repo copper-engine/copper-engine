@@ -28,7 +28,6 @@ class DummyPersistentWorkflow extends PersistentWorkflow<Serializable> {
 	public DummyPersistentWorkflow(String id, String ppoolId, String rowid, int prio) {
 		if (id == null) throw new NullPointerException();
 		if (ppoolId == null) throw new NullPointerException();
-		if (rowid == null) throw new NullPointerException();
 		setId(id);
 		setProcessorPoolId(ppoolId);
 		setPriority(prio);
