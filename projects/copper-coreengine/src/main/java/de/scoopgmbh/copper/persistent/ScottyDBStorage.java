@@ -242,7 +242,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 		int n = 0;
 		final int MAX_ROWS = 20000;
 		do {
-			run(new DatabaseTransaction<Integer>() {
+			n = run(new DatabaseTransaction<Integer>() {
 				@Override
 				public Integer run(Connection con) throws Exception {
 					return dialect.deleteStaleResponse(con, MAX_ROWS);
