@@ -1,3 +1,33 @@
+COPPER 2.0
+==========
+- New feature: Check consistency of all workflow instances during startup (optional) - IDs of inconsistent workflows are logged
+- Bugfix: Incorrect handling of INVALID workflow instances 
+- New feature: workflow object state and data are serialized in different DB columns
+- Bugfix: wait(First) followed by wait(?) containing same correlation id caused unique constraint violation exception
+- New feature: PersistentProcessor now public to allow subclassing
+- New feature: Processor Pools wait up to 30 seconds (configurable) for termination of their processors.
+- New feature: Configurable transaction management - COPPER comes with internal or Spring transaction management
+- Refactoring: of DB layer: one single db storage class and various configurable DBMS specific SQL dialects; Configurable Transaction Mgmt
+- New feature: suspend/resume ProcessorPools
+- Bugfix: for MySQL, Postgres & DerbyDB 
+- New feature: custom stale response timeout
+- New feature: Workflow classname in DB - for debugging/monitoring
+- New feature: New property for DBStorage: staleResponseRemovalTimeout
+- Bugfix: in instrumentation: Bad exception handling may cause non deterministic behavior
+- New feature: Implement a custom batch runner. Used e.g. for custom transaction handling 
+- New feature: Allow custom seqnr for audit trail events
+- New feature: Store exceptions during "registerCallback/wait" in database error table
+- Bugfix: for AuditTrail on Oracle DB when payload.length >= 4000
+- New feature: JMX interface to query AuditTrails
+- New feature: PostgreSQL support
+- New feature: Hook custom code into the transaction context of COPPER "wait" checkpoints.
+- Bugfix: Internal VerifyError when using inner classes.
+- New feature: for FileBasedWorkflowRepository: Multiple source directories and multiple source archives
+- New feature: Provide db connection used for engine.notify
+- New feature: Provide custom javac compiler options for workflow compilation
+- Refactoring: Now using slf4j (simple logging fascade for java) instead of log4j
+- Bugfix: Fixed some minor bugs or typos
+
 COPPER 1.1
 ==========
 - JMX Management & Monitoring
