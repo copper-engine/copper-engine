@@ -1,3 +1,7 @@
+COPPER 2.1
+==========
+- Now using gradle instead of ant for build
+
 COPPER 2.0
 ==========
 - New feature: Check consistency of all workflow instances during startup (optional) - IDs of inconsistent workflows are logged

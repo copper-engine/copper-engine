@@ -21,8 +21,8 @@ import junit.framework.TestCase;
 import org.objectweb.asm.Type;
 
 public class BuildStackInfoAdapterTest extends TestCase {
-	
-	
+
+
 	public void testDup() {
 		StackInfo f = new StackInfo();
 		f.pushStack(Type.INT_TYPE);

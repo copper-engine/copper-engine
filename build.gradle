@@ -1,0 +1,42 @@
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile 'junit:junit:3.8.1'
+    }
+
+    version = '2.1.0-SNAPSHOT'
+
+    jar {
+        manifest.attributes provider: 'gradle'
+    }
+
+    
+    task replace_headers << {
+    	def licenseFile = file('../../common/apache-license-file.txt')
+    	def licenseHeader
+    	
+    	ant.loadfile(srcFile: licenseFile, property: 'licenseHeader')
+    	
+    	licenseHeader = "${ant.properties['licenseHeader']}"
+    	
+       	//println "Replacing java source file headers with"
+       	//println licenseHeader
+       	
+       	licenseHeader = licenseHeader + "package "
+       	
+       	ant.replaceregexp(match: '(/\\*.*\\*/.*)??^package ', flags: 'sm', replace: licenseHeader) {
+		    fileset(dir: 'src') {
+		        include(name: '**/*.java')
+		    }
+	}
+    }
+    
+    compileJava.dependsOn replace_headers
+    
+}

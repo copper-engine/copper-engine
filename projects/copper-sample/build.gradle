@@ -1,0 +1,16 @@
+dependencies {
+		
+		compile project(':projects:copper-coreengine')
+
+		compile 'log4j:log4j:1.2.14'
+
+		compile 'commons-lang:commons-lang:2.6'
+
+		compile 'org.mortbay.jetty:jetty:6.1.18'
+		compile 'org.mortbay.jetty:jetty-util:6.1.18'
+
+		compile 'org.apache.cxf:cxf-rt-frontend-jaxws:2.3.2'
+		compile 'org.apache.cxf:cxf-rt-frontend-simple:2.3.2'
+		compile 'org.apache.cxf:cxf-rt-transports-http:2.3.2'
+		compile 'org.apache.cxf:cxf-rt-transports-http-jetty:2.3.2'
+}
