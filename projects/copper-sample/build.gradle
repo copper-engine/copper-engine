@@ -1,4 +1,6 @@
-dependencies {
+project(':projects:copper-sample') {
+
+    dependencies {
 		
 		compile project(':projects:copper-coreengine')
 
@@ -13,4 +15,6 @@ dependencies {
 		compile 'org.apache.cxf:cxf-rt-frontend-simple:2.3.2'
 		compile 'org.apache.cxf:cxf-rt-transports-http:2.3.2'
 		compile 'org.apache.cxf:cxf-rt-transports-http-jetty:2.3.2'
+    }
+    
 }

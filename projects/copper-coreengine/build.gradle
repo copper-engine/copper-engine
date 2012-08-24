@@ -1,4 +1,6 @@
-dependencies {
+project(':projects:copper-coreengine') {
+
+    dependencies {
 		compile 'aopalliance:aopalliance:1.0'
 		
 		// asm
@@ -36,6 +38,8 @@ dependencies {
 		compile 'org.apache.derby:derby:10.8.2.2'
 		compile 'postgresql:postgresql:9.1-901.jdbc4'    
 		
-		compile fileTree(dir: '../../libs', includes: ['*.jar'])
+		compile fileTree(dir: '../../3rdPartyLibs', includes: ['*.jar'])
+
+    }
 
 }
