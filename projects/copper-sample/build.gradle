@@ -1,20 +1,69 @@
 project(':projects:copper-sample') {
+    
+    configurations {
+        wsgen
+    }
 
+    sourceSets {
+        schema {
+            ext.srcDir = "$projectDir/src/main/schema"
+        }
+    }
+    sourceSets.main.resources.srcDirs += sourceSets.schema.srcDir
+    
     dependencies {
 		
 		compile project(':projects:copper-coreengine')
 
 		compile 'log4j:log4j:1.2.17'
 
-		compile 'commons-lang:commons-lang:2.6'
+    	compile ('org.apache.cxf:cxf-rt-transports-http-jetty:2.5.3') {
+    		exclude module: 'spring-web'
+    	}
+    	compile ('org.apache.cxf:cxf-rt-frontend-jaxws:2.5.3') {
+    		exclude module: 'spring-web'
+    	}
+    	compile 'org.eclipse.jetty:jetty-server:7.5.4.v20111024'
+        compile 'commons-lang:commons-lang:2.6'
 
-		compile 'org.mortbay.jetty:jetty:6.1.18'
-		compile 'org.mortbay.jetty:jetty-util:6.1.18'
-
-		compile 'org.apache.cxf:cxf-rt-frontend-jaxws:2.3.2'
-		compile 'org.apache.cxf:cxf-rt-frontend-simple:2.3.2'
-		compile 'org.apache.cxf:cxf-rt-transports-http:2.3.2'
-		compile 'org.apache.cxf:cxf-rt-transports-http-jetty:2.3.2'
+        wsgen 'org.apache.cxf:cxf-tools-wsdlto-core:2.6.0'
+        wsgen 'org.apache.cxf:cxf-tools-wsdlto-frontend-jaxws:2.6.0'
+        wsgen 'org.apache.cxf:cxf-tools-wsdlto-databinding-jaxb:2.6.0'
+        wsgen 'org.apache.cxf:cxf-xjc-ts:2.2.12'
+        wsgen 'com.sun.xml.bind:jaxb-xjc:2.2.4-1'		
     }
-    
+
+	tasks.add(name: "gen_wsbindings") {
+		ext.genDirName = "$buildDir/gen.wsdls.src"
+			
+		inputs.dir new File(sourceSets.schema.srcDir)
+    	//inputs.file gen_xmlbinding_config.episodeFileName
+    	outputs.dir new File(ext.genDirName)
+
+ 		println "AUSTER "+ sourceSets.schema.srcDir
+    				        
+        doFirst {
+        	new File(ext.genDirName).mkdirs()
+        }    	
+		doLast {
+			print "AUSTER "+ sourceSets.schema.srcDir
+	        fileTree(dir: sourceSets.schema.srcDir + "/wsdl", include: "**/*.wsdl", exclude: "common.wsdl").each { def wsdlFile -> 
+				javaexec {					
+			        main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
+			        classpath = configurations.wsgen
+			        args '-fe', 'jaxws',	        		
+			                '-db', 'jaxb',
+			                '-xjc-extension',
+			                '-impl', '-server', '-client', '-validate',
+			                '-d', ext.genDirName,
+                            '-wsdlLocation', 'classpath:wsdl/'+wsdlFile.name,
+			                wsdlFile
+			    }	            
+		    } 
+        }		
+	}
+	sourceSets.main.java.srcDirs += gen_wsbindings.genDirName	
+	
+	compileJava.dependsOn gen_wsbindings
+	eclipseClasspath.dependsOn gen_wsbindings    
 }
