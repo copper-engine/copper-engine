@@ -163,6 +163,10 @@ public abstract class Workflow<D> implements Serializable {
 	 * @param correlationIds one ore more correlation ids
 	 */
 	protected final void wait(WaitMode mode, int timeoutMsec, String... correlationIds) throws InterruptException {
+		if (correlationIds.length == 0) throw new IllegalArgumentException();
+		for (int i=0; i<correlationIds.length; i++) {
+			if (correlationIds[i] == null) throw new NullPointerException();
+		}
 		engine.registerCallbacks(this, mode, timeoutMsec, correlationIds);
 	}
 	
