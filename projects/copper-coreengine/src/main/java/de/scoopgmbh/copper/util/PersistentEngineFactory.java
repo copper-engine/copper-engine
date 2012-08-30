@@ -81,6 +81,7 @@ public class PersistentEngineFactory {
 		DatabaseDialect dialect = createDialect(dataSource, wfRepository, engineIdProvider);
 		dialect.startup();
 
+		@SuppressWarnings("rawtypes")
 		RetryingTxnBatchRunner batchRunner = new RetryingTxnBatchRunner();
 		batchRunner.setDataSource(dataSource);
 		BatcherImpl batcher = new BatcherImpl(4);
