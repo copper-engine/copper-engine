@@ -37,16 +37,12 @@ project(':projects:copper-sample') {
 		ext.genDirName = "$buildDir/gen.wsdls.src"
 			
 		inputs.dir new File(sourceSets.schema.srcDir)
-    	//inputs.file gen_xmlbinding_config.episodeFileName
     	outputs.dir new File(ext.genDirName)
 
- 		println "AUSTER "+ sourceSets.schema.srcDir
-    				        
         doFirst {
         	new File(ext.genDirName).mkdirs()
         }    	
 		doLast {
-			print "AUSTER "+ sourceSets.schema.srcDir
 	        fileTree(dir: sourceSets.schema.srcDir + "/wsdl", include: "**/*.wsdl", exclude: "common.wsdl").each { def wsdlFile -> 
 				javaexec {					
 			        main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
