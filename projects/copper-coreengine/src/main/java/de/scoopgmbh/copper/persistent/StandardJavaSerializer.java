@@ -112,16 +112,24 @@ public class StandardJavaSerializer implements Serializer {
 	@Override
 	public SerializedWorkflow serializeWorkflow(Workflow<?> o) throws Exception {
 		SerializedWorkflow sw = new SerializedWorkflow();
-		sw.setData(serialize(o.getData()));
+		sw.setData(serializeData(o));
 		sw.setObjectState(serialize(o));
 		return sw;
 	}
 
+	protected String serializeData(Workflow<?> o) throws IOException {
+		return serialize(o.getData());
+	}
+	
 	@Override
 	public Workflow<?> deserializeWorkflow(SerializedWorkflow sw, WorkflowRepository wfRepo) throws Exception {
 		PersistentWorkflow<?> wf = (PersistentWorkflow<?>) deserialize(sw.getObjectState(), wfRepo);
-		wf.setDataAsObject(deserializeObject(sw.getData()));
+		wf.setDataAsObject(deserializeData(sw));
 		return wf;
+	}
+
+	protected Object deserializeData(SerializedWorkflow sw) throws Exception {
+		return deserializeObject(sw.getData());
 	}
 
 	@Override
