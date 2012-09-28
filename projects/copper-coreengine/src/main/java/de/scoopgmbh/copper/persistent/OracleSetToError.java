@@ -39,16 +39,16 @@ class OracleSetToError {
 		private final DBProcessingState dbProcessingState;
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, Throwable error) {
-			super(NullCallback.instance,250);
+		public Command(PersistentWorkflow<?> wf, Throwable error, final long targetTime) {
+			super(NullCallback.instance,targetTime);
 			this.wf = wf;
 			this.error = error;
 			this.dbProcessingState = DBProcessingState.ERROR;
 		}
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, Throwable error, DBProcessingState dbProcessingState) {
-			super(NullCallback.instance,250);
+		public Command(PersistentWorkflow<?> wf, Throwable error, final long targetTime, DBProcessingState dbProcessingState) {
+			super(NullCallback.instance,targetTime);
 			this.wf = wf;
 			this.error = error;
 			this.dbProcessingState = dbProcessingState;

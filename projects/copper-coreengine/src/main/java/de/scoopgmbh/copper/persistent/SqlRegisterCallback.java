@@ -40,7 +40,7 @@ class SqlRegisterCallback {
 		private final RegisterCall registerCall;
 		private final Serializer serializer;
 
-		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorage) {
+		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorage, final long targetTime) {
 			super(new CommandCallback<Command>() {
 				@Override
 				public void commandCompleted() {
@@ -50,7 +50,7 @@ class SqlRegisterCallback {
 					logger.error("Execution of batch entry in a single txn failed.",e);
 					dbStorage.error(registerCall.workflow, e);
 				}
-			},250);
+			},targetTime);
 			this.registerCall = registerCall;
 			this.serializer = serializer;
 		}

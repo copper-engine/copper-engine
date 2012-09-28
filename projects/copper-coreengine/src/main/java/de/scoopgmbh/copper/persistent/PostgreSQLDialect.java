@@ -54,7 +54,7 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState) {
-		return new SqlSetToError.Command((PersistentWorkflow<?>) w,t,dbProcessingState);
+		return new SqlSetToError.Command((PersistentWorkflow<?>) w,t,dbProcessingState, System.currentTimeMillis()+dbBatchingLatencyMSec);
 	}
 	
 

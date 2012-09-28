@@ -33,8 +33,8 @@ class SqlRemove {
 		private final boolean remove;
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, boolean remove) {
-			super(NullCallback.instance,250);
+		public Command(PersistentWorkflow<?> wf, boolean remove, final long targetTime) {
+			super(NullCallback.instance,targetTime);
 			this.wf = wf;
 			this.remove = remove;
 		}

@@ -60,6 +60,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	private boolean removeWhenFinished = true;
 	protected int defaultStaleResponseRemovalTimeout = 60*60*1000;
 	protected Serializer serializer = new StandardJavaSerializer();
+	protected int dbBatchingLatencyMSec = 50;
 
 	protected String queryUpdateQueueState = getResourceAsString("/sql-query-ready-bpids.sql");
 
@@ -77,6 +78,10 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	public void startup() {
 	}
 
+	public void setDbBatchingLatencyMSec(int dbBatchingLatencyMSec) {
+		this.dbBatchingLatencyMSec = dbBatchingLatencyMSec;
+	}
+	
 	/**
 	 * Sets the default removal timeout for stale responses in the underlying database. A response is stale/timed out when
 	 * there is no workflow instance waiting for it within the specified amount of time. 
@@ -410,21 +415,21 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	@Override
 	@SuppressWarnings({"rawtypes"})
 	public BatchCommand createBatchCommand4Finish(Workflow<?> w) {
-		return new SqlRemove.Command((PersistentWorkflow<?>) w,removeWhenFinished);
+		return new SqlRemove.Command((PersistentWorkflow<?>) w,removeWhenFinished, System.currentTimeMillis()+dbBatchingLatencyMSec);
 	}
 
 	@Override
 	@SuppressWarnings({"rawtypes"})
 	public BatchCommand createBatchCommand4Notify(Response<?> response) throws Exception {
 		if (response == null) throw new NullPointerException();
-		return new SqlNotify.Command(response, serializer);
+		return new SqlNotify.Command(response, serializer, System.currentTimeMillis()+dbBatchingLatencyMSec);
 	}
 
 	@Override
 	@SuppressWarnings({"rawtypes"})
 	public BatchCommand createBatchCommand4registerCallback(RegisterCall rc, ScottyDBStorageInterface dbStorageInterface) throws Exception {
 		if (rc == null) throw new NullPointerException();
-		return new SqlRegisterCallback.Command(rc, serializer, dbStorageInterface);
+		return new SqlRegisterCallback.Command(rc, serializer, dbStorageInterface, System.currentTimeMillis()+dbBatchingLatencyMSec);
 	}
 
 	@Override

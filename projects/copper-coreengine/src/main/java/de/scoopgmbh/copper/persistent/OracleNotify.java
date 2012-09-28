@@ -35,8 +35,8 @@ class OracleNotify {
 		final int defaultStaleResponseRemovalTimeout;
 
 		@SuppressWarnings("unchecked")
-		public Command(Response<?> response, Serializer serializer, int defaultStaleResponseRemovalTimeout) {
-			super(NullCallback.instance,250);
+		public Command(Response<?> response, Serializer serializer, int defaultStaleResponseRemovalTimeout, final long targetTime) {
+			super(NullCallback.instance,targetTime);
 			this.response = response;
 			this.serializer = serializer;
 			this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;

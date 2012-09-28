@@ -36,8 +36,8 @@ class SqlSetToError {
 		private final DBProcessingState dbProcessingState;
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, Throwable error, DBProcessingState dbProcessingState) {
-			super(NullCallback.instance,250);
+		public Command(PersistentWorkflow<?> wf, Throwable error, DBProcessingState dbProcessingState, final long targetTime) {
+			super(NullCallback.instance,targetTime);
 			this.wf = wf;
 			this.error = error;
 			this.dbProcessingState = dbProcessingState;

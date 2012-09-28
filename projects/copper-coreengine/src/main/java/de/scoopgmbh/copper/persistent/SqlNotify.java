@@ -34,8 +34,8 @@ class SqlNotify {
 		final Serializer serializer;
 
 		@SuppressWarnings("unchecked")
-		public Command(Response<?> response, Serializer serializer) {
-			super(NullCallback.instance,250);
+		public Command(Response<?> response, Serializer serializer, final long targetTime) {
+			super(NullCallback.instance,targetTime);
 			this.response = response;
 			this.serializer = serializer;
 		}

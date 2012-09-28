@@ -42,7 +42,7 @@ class OracleRegisterCallback {
 		private final RegisterCall registerCall;
 		private final Serializer serializer;
 
-		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorageInterface) {
+		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorageInterface, final long targetTime) {
 			super(new CommandCallback<Command>() {
 				@Override
 				public void commandCompleted() {
@@ -53,7 +53,7 @@ class OracleRegisterCallback {
 					logger.error("Execution of batch entry in a single txn failed.",e);
 					dbStorageInterface.error((PersistentWorkflow<Serializable>)registerCall.workflow, e);
 				}
-			},250);
+			},targetTime);
 			this.registerCall = registerCall;
 			this.serializer = serializer;
 		}
