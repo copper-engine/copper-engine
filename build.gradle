@@ -13,8 +13,6 @@ subprojects {
             testCompile 'junit:junit:3.8.1'
         }
 
-        version = '2.1.0-SNAPSHOT'
-
         jar {
             manifest.attributes provider: 'gradle'
         }
