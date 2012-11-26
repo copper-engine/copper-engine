@@ -17,7 +17,6 @@ subprojects {
             manifest.attributes provider: 'gradle'
         }
 
-
         task replace_headers << {
             def licenseFile = file("$projectDir/../../common/apache-license-file.txt")
             def licenseHeader
@@ -39,7 +38,59 @@ subprojects {
         }
 
         compileJava.dependsOn replace_headers
-    
-    }
 
+        // build additional artifacts
+ 
+        task sourcesJar(type: Jar, dependsOn:classes) {
+            classifier = 'sources'
+            from sourceSets.main.allSource
+        }
+
+        task javadocJar(type: Jar, dependsOn:javadoc) {
+            classifier = 'javadoc'
+            from javadoc.destinationDir
+        }
+
+        testJava = file("src/test/java").isDirectory() 
+
+        if (testJava) {
+            task testJar(type: Jar, dependsOn:testClasses) {
+                classifier = 'test'
+                from sourceSets.test.output
+            }
+	
+            task testSourcesJar(type: Jar, dependsOn:testJar) {
+                classifier = 'testSources'
+                from sourceSets.test.allSource
+            }
+
+            assemble.dependsOn testJar
+            assemble.dependsOn testSourcesJar
+        }
+
+        databaseScripts = file("src/main/database").isDirectory() 
+
+        if (databaseScripts) {
+            task scriptsZip(type: Zip) {
+                classifier = 'scripts'
+                from file("src/main/database")
+                into 'scripts/sql'
+            }
+
+            assemble.dependsOn scriptsZip
+        }
+
+        artifacts {      
+	        archives sourcesJar      
+        	archives javadocJar
+            if (testJava) {
+	           archives testJar
+	           archives testSourcesJar
+            }
+            if (databaseScripts) {
+               archives scriptsZip
+            }
+        }   
+    }
 }
+
