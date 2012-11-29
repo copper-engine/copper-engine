@@ -15,11 +15,15 @@
  */
 package de.scoopgmbh.copper.audit;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,16 +40,24 @@ class BatchInsertIntoAutoTrail {
 	static final class Command extends AbstractBatchCommand<Executor, Command>{
 
 		final AuditTrailEvent data;
+		final boolean isOracle;
+		final String sqlStmt;
+		final List<Method> propertyGetters;
 
 		@SuppressWarnings("unchecked")
-		public Command(AuditTrailEvent data) {
-			super(NullCallback.instance,250);
-			this.data = data;
+		public Command(AuditTrailEvent data, boolean isOracle, String sqlStmt, List<Method> propertyGetters) {
+			this(data, isOracle, sqlStmt, propertyGetters, NullCallback.instance);
 		}
 
-		public Command(AuditTrailEvent data, CommandCallback<Command> callback) {
+		public Command(AuditTrailEvent data, boolean isOracle, String sqlStmt, List<Method> propertyGetters, CommandCallback<Command> callback) {
 			super(callback,250);
+			if (data == null) throw new NullPointerException();
+			if (sqlStmt == null) throw new NullPointerException();
+			if (propertyGetters == null) throw new NullPointerException();
 			this.data = data;
+			this.isOracle = isOracle;
+			this.sqlStmt = sqlStmt;
+			this.propertyGetters = propertyGetters;
 		}
 
 		@Override
@@ -72,21 +84,18 @@ class BatchInsertIntoAutoTrail {
 
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
-			if (logger.isDebugEnabled()) logger.debug("DatabaseProductName="+con.getMetaData().getDatabaseProductName());
-			String _stmt;
+			if (commands.isEmpty())
+				return;
+			
+			final Command firstCommand = (Command)commands.iterator().next();
+			final boolean isOracle = firstCommand.isOracle;
+			final String sqlStmt = firstCommand.sqlStmt;
+			final List<Method> propertyGetters = firstCommand.propertyGetters;
+
 			PreparedStatement preparedStmt = null;
 			try {
-				final boolean isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
-				if (isOracle) {
-					// Oracle
-					_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID, MESSAGE_TYPE, LONG_MESSAGE) VALUES (NVL(?,COP_SEQ_AUDIT_TRAIL.NEXTVAL),?,?,?,?,?,?,?,?,?)";
-				}
-				else {
-					// ANSI SQL
-					_stmt = "INSERT INTO COP_AUDIT_TRAIL_EVENT (OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,LONG_MESSAGE,TRANSACTION_ID,MESSAGE_TYPE) VALUES (?,?,?,?,?,?,?,?,?)";
 
-				}
-				preparedStmt = con.prepareStatement(_stmt);
+				preparedStmt = con.prepareStatement(sqlStmt);
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command)_cmd;
 					int idx=1;
@@ -98,39 +107,63 @@ class BatchInsertIntoAutoTrail {
 						else {
 							preparedStmt.setLong(idx++, data.getSequenceId().longValue());
 						}
-						preparedStmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
-						preparedStmt.setString(idx++, data.conversationId);
-						preparedStmt.setInt(idx++, data.logLevel);
-						preparedStmt.setString(idx++, data.context);
-						preparedStmt.setString(idx++, data.instanceId);
-						preparedStmt.setString(idx++, data.correlationId);
-						preparedStmt.setString(idx++, data.transactionId);
-						preparedStmt.setString(idx++, data.messageType);
-						preparedStmt.setString(idx++, data.message);
 					}
 					else {
 						if (data.getSequenceId() != null) {
 							throw new UnsupportedOperationException("Custom SequenceId currently not supported for this DBMS");
 						}
-						preparedStmt.setTimestamp(idx++, new Timestamp(data.occurrence.getTime()));
-						preparedStmt.setString(idx++, data.conversationId);
-						preparedStmt.setInt(idx++, data.logLevel);
-						preparedStmt.setString(idx++, data.context);
-						preparedStmt.setString(idx++, data.instanceId);
-						preparedStmt.setString(idx++, data.correlationId);
-						preparedStmt.setString(idx++, data.message);
-						preparedStmt.setString(idx++, data.transactionId);
-						preparedStmt.setString(idx++, data.messageType);
+					}
+					for (Method m : propertyGetters) {
+						try {
+							Object value = null;
+							if (m.getDeclaringClass().isAssignableFrom(data.getClass())) {
+								value = m.invoke(data, (Object[])null);
+							}
+							if (value != null) {
+								if (value instanceof Date) {
+									value = new Timestamp(((Date)value).getTime());
+								}
+								preparedStmt.setObject(idx++, value, guessJdbcType(m));
+							}
+							else {
+								preparedStmt.setNull(idx++, guessJdbcType(m));
+							}
+						}
+						catch(SQLException e) {
+							logger.error("Setting property "+m+" failed",e);
+							throw e;
+						}
 					}
 					preparedStmt.addBatch();
 				}
 				preparedStmt.executeBatch();
+			}
+			catch(SQLException e) {
+				logger.error(firstCommand.sqlStmt+" failed",e);
+				throw e;
 			}
 			finally {
 				JdbcUtils.closeStatement(preparedStmt);
 			}
 		}
 
+	}
+
+	static int guessJdbcType(Method m) {
+		Class<?> type = m.getReturnType();
+		if (type == String.class) 
+			return Types.VARCHAR;
+		if (type == Integer.class || type == Integer.TYPE) 
+			return Types.INTEGER;
+		if (type == Long.class || type == Long.TYPE) 
+			return Types.NUMERIC;
+		if (type == Float.class || type == Float.TYPE) 
+			return Types.NUMERIC;
+		if (type == Double.class || type == Double.TYPE) 
+			return Types.NUMERIC;
+		if (type == Timestamp.class || type == Date.class || type == java.sql.Date.class) 
+			return Types.TIMESTAMP;
+		throw new UnsupportedOperationException("no mapping for type "+type);
 	}
 
 }

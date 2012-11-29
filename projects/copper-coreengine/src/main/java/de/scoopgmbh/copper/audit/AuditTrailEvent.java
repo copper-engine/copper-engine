@@ -48,7 +48,7 @@ public class AuditTrailEvent implements Serializable {
 		if (correlationId != null && correlationId.length() > 128) throw new IllegalArgumentException("correlationId is too long (>128)");
 		if (transactionId != null && transactionId.length() > 128) throw new IllegalArgumentException("transactionId is too long (>128)");
 		if (messageType != null && messageType.length() > 256) throw new IllegalArgumentException("messageType is too long (>256)");
-		if (logLevel < 0 || logLevel > 99) throw new IllegalArgumentException("logLevel must be between 0 and 99");
+		if (logLevel < 0 || logLevel > 99) throw new IllegalArgumentException("logLevel must bee between 0 and 99");
 		this.sequenceId = sequenceId;
 		this.logLevel = logLevel;
 		this.occurrence = occurrence;
