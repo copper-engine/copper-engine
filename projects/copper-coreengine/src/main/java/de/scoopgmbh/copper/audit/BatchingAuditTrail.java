@@ -40,7 +40,8 @@ import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.management.AuditTrailMXBean;
 
 /**
- * Fast db based audit trail implementation.
+ * Fast db based audit trail implementation. It is possible to extend the COPPER audit trail with custom attributes. See JUnitTest
+ * {@link BatchingAuditTrailTest#testCustomTable()} for an example.
  * 
  * @author austermann
  *
