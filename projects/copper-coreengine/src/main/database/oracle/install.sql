@@ -5,5 +5,6 @@
 @create-types.sql
 @copper-head.sql
 @copper-body.sql
+@lock-table-stats.sql
 
 quit;
