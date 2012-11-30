@@ -84,4 +84,8 @@ public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
 		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
 	}
 	
+	public void testNotifyWithoutEarlyResponseHandling() throws Exception {
+		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
+	}
+	
 }

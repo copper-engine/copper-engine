@@ -33,6 +33,7 @@ public class Response<E> implements Serializable {
 	private final boolean timeout;
 	private final String metaData;
 	private final Integer internalProcessingTimeout;
+	private boolean earlyResponseHandling = true;
 	
 	public Response(String correlationId, E response, Exception exception, boolean isTimeout, String metaData, Integer internalProcessingTimeout) {
 		super();
@@ -106,6 +107,18 @@ public class Response<E> implements Serializable {
 	public String getMetaData() {
 		return metaData;
 	}
+	
+	public void setEarlyResponseHandling(boolean earlyResponseHandling) {
+		this.earlyResponseHandling = earlyResponseHandling;
+	}
+	
+	/**
+	 * If true, a response is queued temporarily in the 'early response container' if currently no workflow instance is (yet) waiting 
+	 * for the responses' correlationId.
+	 */
+	public boolean isEarlyResponseHandling() {
+		return earlyResponseHandling;
+	}
 
 	@Override
 	public String toString() {
@@ -113,7 +126,8 @@ public class Response<E> implements Serializable {
 				+ response + ", exception=" + exception + ", timeout="
 				+ timeout + ", metaData=" + metaData
 				+ ", internalProcessingTimeout=" + internalProcessingTimeout
-				+ "]";
+				+ ", earlyResponseHandling=" + earlyResponseHandling + "]";
 	}
 
+	
 }

@@ -17,9 +17,12 @@ package de.scoopgmbh.copper.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import de.scoopgmbh.copper.Response;
@@ -28,19 +31,37 @@ import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.NullCallback;
 
-class OracleNotify {
+class SqlNotifyNoEarlyResponseHandling {
+	
+	private static final Logger logger = LoggerFactory.getLogger(SqlNotifyNoEarlyResponseHandling.class);
+
+	static final String SQL_MYSQL = 
+			"INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA) "+
+					"SELECT D.* FROM "+
+					"(select correlation_id from cop_wait where correlation_id = ?) W, " +
+					"(select ? as correlation_id, ? as response_ts, ? as response, ? as response_timeout, ? as response_meta_data) D " +
+					"WHERE D.correlation_id = W.correlation_id";	
+
+	static final String SQL_POSTGRES = 
+			"INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA) "+
+					"SELECT D.* FROM "+
+					"(select correlation_id from cop_wait where correlation_id = ?) W, " +
+					"(select ?::text correlation_id, ?::timestamp response_ts, ?::text response, ?::timestamp as response_timeout, ?::text as response_meta_data) D " +
+					"WHERE D.correlation_id = W.correlation_id";	
 
 	static final class Command extends AbstractBatchCommand<Executor, Command>{
 
 		final Response<?> response;
 		final Serializer serializer;
+		final String sql;
 		final int defaultStaleResponseRemovalTimeout;
 
 		@SuppressWarnings("unchecked")
-		public Command(Response<?> response, Serializer serializer, int defaultStaleResponseRemovalTimeout, final long targetTime) {
+		public Command(Response<?> response, Serializer serializer, String sql, int defaultStaleResponseRemovalTimeout, final long targetTime) {
 			super(NullCallback.instance,targetTime);
 			this.response = response;
 			this.serializer = serializer;
+			this.sql = sql;
 			this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
 		}
 
@@ -67,21 +88,36 @@ class OracleNotify {
 
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
-			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?,?)");
+			if (commands.isEmpty())
+				return;
+			final Command firstCmd = (Command) commands.iterator().next();
+			
+			System.err.println(firstCmd.sql);
+			
+			final PreparedStatement stmt = con.prepareStatement(firstCmd.sql);
 			try {
+				final Timestamp now = new Timestamp(System.currentTimeMillis());
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command)_cmd;
 					stmt.setString(1, cmd.response.getCorrelationId());
-					stmt.setTimestamp(2, now);
+					stmt.setString(2, cmd.response.getCorrelationId());
+					stmt.setTimestamp(3, now);
 					String payload = cmd.serializer.serializeResponse(cmd.response);
-					stmt.setString(3, payload.length() > 4000 ? null : payload);
-					stmt.setString(4, payload.length() > 4000 ? payload : null);
-					stmt.setString(5, cmd.response.getMetaData());
-					stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
+					stmt.setString(4, payload);
+					stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
+					stmt.setString(6, cmd.response.getMetaData());
 					stmt.addBatch();
 				}
 				stmt.executeBatch();
+			}
+			catch(SQLException e) {
+				logger.error("doExec failed",e);
+				logger.error("NextException=",e.getNextException());
+				throw e;
+			}
+			catch(Exception e) {
+				logger.error("doExec failed",e);
+				throw e;
 			}
 			finally {
 				JdbcUtils.closeStatement(stmt);

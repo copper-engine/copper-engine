@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.test.persistent;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import de.scoopgmbh.copper.EngineState;
+import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.audit.AuditTrailEvent;
@@ -45,15 +47,15 @@ import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 
 public class BasePersistentWorkflowTest extends TestCase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(BasePersistentWorkflowTest.class);
-	
+
 	static final String PersistentUnitTestWorkflow_CLASS = "de.scoopgmbh.copper.test.persistent.PersistentUnitTestWorkflow";
-	
+
 	public final void testDummy() {
 		// for junit only
 	}
-	
+
 	void cleanDB(DataSource ds) throws Exception {
 		new RetryingTransaction(ds) {
 			@Override
@@ -67,7 +69,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 			}
 		}.run();
 	}
-	
+
 	final String createTestData(int length) {
 		StringBuilder dataSB = new StringBuilder(length);
 		for (int i=0; i<length; i++) {
@@ -88,7 +90,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
 		try {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
-			
+
 			for (int i=0; i<NUMB; i++) {
 				engine.run(PersistentUnitTestWorkflow_CLASS, DATA);
 			}
@@ -106,7 +108,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
-		
+
 	}
 
 	public void testAsnychResponseLargeData(String dsContext, int dataSize) throws Exception {
@@ -120,7 +122,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
 		try {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
-			
+
 			for (int i=0; i<NUMB; i++) {
 				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_CLASS);
 				Workflow<String> wf = wfFactory.newInstance();
@@ -182,9 +184,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
-		
+
 	}
-	
+
 	public void testWithConnectionBulkInsert(String dsContext) throws Exception {
 		logger.info("running testWithConnectionBulkInsert");
 		final int NUMB = 50;
@@ -203,7 +205,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 				Workflow<?> wf = wfFactory.newInstance();
 				list.add(wf);
 			}
-			
+
 			new RetryingTransaction(ds) {
 				@Override
 				protected void execute() throws Exception {
@@ -223,9 +225,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
-		
+
 	}
-	
+
 	public void testTimeouts(String dsContext) throws Exception {
 		logger.info("running testTimeouts");
 		final int NUMB = 10;
@@ -236,7 +238,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
 		try {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
-			
+
 			for (int i=0; i<NUMB; i++) {
 				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.TimingOutPersistentUnitTestWorkflow");
 				Workflow<?> wf = wfFactory.newInstance();
@@ -255,9 +257,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
-		
+
 	}
-	
+
 	public void testErrorHandlingInCoreEngine(String dsContext) throws Exception {
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
@@ -301,7 +303,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
-	
+
 	public void testErrorHandlingInCoreEngine_restartAll(String dsContext) throws Exception {
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
@@ -345,8 +347,8 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
-	
-	
+
+
 	public void testParentChildWorkflow(String dsContext) throws Exception {
 		logger.info("running testParentChildWorkflow");
 		final int NUMB = 20;
@@ -357,7 +359,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
 		try {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
-			
+
 			for (int i=0; i<NUMB; i++) {
 				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.subworkflow.TestParentWorkflow");
 				Workflow<?> wf = wfFactory.newInstance();
@@ -377,8 +379,8 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
-	
-	
+
+
 	public void testErrorKeepWorkflowInstanceInDB(String dsContext) throws Exception {
 		logger.info("running testErrorKeepWorkflowInstanceInDB");
 		final int NUMB = 20;
@@ -392,7 +394,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
 		try {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
-			
+
 			for (int i=0; i<NUMB; i++) {
 				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_CLASS);
 				Workflow<String> wf = wfFactory.newInstance();
@@ -417,7 +419,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 					assertEquals(NUMB, x);
 				}
 			}.run();
-			
+
 		}
 		finally {
 			context.close();
@@ -425,7 +427,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
-	
+
 	public void testCompressedAuditTrail(String dsContext) throws Exception {
 		logger.info("running testCompressedAuditTrail");
 		final int NUMB = 20;
@@ -438,7 +440,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
 		try {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
-			
+
 			for (int i=0; i<NUMB; i++) {
 				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.PersistentUnitTestWorkflow");
 				Workflow<String> wf = wfFactory.newInstance();
@@ -465,16 +467,16 @@ public class BasePersistentWorkflowTest extends TestCase {
 					assertFalse(rs.next());
 				}
 			}.run();
-			
+
 		}
 		finally {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
-		
+
 	}	
-	
+
 	public void testAutoCommit(String dsContext) throws Exception {
 		logger.info("running testAutoCommit");
 		final ConfigurableApplicationContext context = createContext(dsContext);
@@ -491,7 +493,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 	}
-	
+
 	private static String createTestMessage(int size) {
 		final StringBuilder sb = new StringBuilder(4000);
 		for (int i=0; i<(size/10); i++) {
@@ -500,7 +502,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final String msg = sb.toString();
 		return msg;
 	}	
-	
+
 	public void testAuditTrailUncompressed(String dsContext) throws Exception {
 		logger.info("running testAuditTrailSmallData");
 		final ConfigurableApplicationContext context = createContext(dsContext);
@@ -516,7 +518,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 	}
-	
+
 	public void testErrorHandlingWithWaitHook(String dsContext) throws Exception {
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
@@ -545,7 +547,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
-	
+
 	public void testAuditTrailCustomSeqNr(String dsContext) throws Exception {
 		logger.info("running testAuditTrailCustomSeqNr");
 		final ConfigurableApplicationContext context = createContext(dsContext);
@@ -579,5 +581,45 @@ public class BasePersistentWorkflowTest extends TestCase {
 			context.close();
 		}
 	}	
-	
+
+	public void testNotifyWithoutEarlyResponseHandling(String dsContext) throws Exception {
+		logger.info("running testNotifyWithoutEarlyResponseHandling");
+		final ConfigurableApplicationContext context = createContext(dsContext);
+		cleanDB(context.getBean(DataSource.class));
+		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+		try {
+			engine.startup();
+			new RetryingTransaction(context.getBean(DataSource.class)) {
+				@Override
+				protected void execute() throws Exception {
+					try {
+						Response<?> response = new Response<String>("CID#withEarlyResponse", "TEST", null);
+						engine.notify(response, getConnection());
+						ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_response");
+						assertTrue(rs.next());
+						assertEquals(response.getCorrelationId(), rs.getString("CORRELATION_ID"));
+						assertFalse(rs.next());
+						getConnection().rollback();
+
+						response = new Response<String>("CID#withoutEarlyResponse", "TEST", null);
+						response.setEarlyResponseHandling(false);
+						engine.notify(response, getConnection());
+						rs = getConnection().createStatement().executeQuery("select * from cop_response");
+						assertFalse(rs.next());
+						getConnection().rollback();
+					}
+					catch(Exception e) {
+						logger.error("testNotifyWithoutEarlyResponseHandling failed",e);
+						throw e;
+					}
+				}
+			}.run();
+		}
+		finally {
+			context.close();
+		}
+		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
+
+	}		
 }

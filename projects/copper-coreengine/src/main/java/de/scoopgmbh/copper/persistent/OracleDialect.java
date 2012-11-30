@@ -446,43 +446,47 @@ public class OracleDialect implements DatabaseDialect {
 		logger.info("All error/invalid workflow instances successfully queued for restart.");
 	}
 
-	/* (non-Javadoc)
-	 * @see de.scoopgmbh.copper.persistent.DatabaseDialect#notify(java.util.List, java.sql.Connection)
-	 */
+	
 	@Override
 	public void notify(List<Response<?>> responses, Connection c) throws Exception {
+		final int MAX = 50;
+		final List<Response<?>> subsetWithERH = new ArrayList<Response<?>>(MAX);
+		final List<Response<?>> subsetWithoutERH = new ArrayList<Response<?>>(MAX);
+		for (int i=0; i<responses.size(); i++) {
+			Response<?> r = responses.get(i);
+			if (r.isEarlyResponseHandling()) {
+				subsetWithERH.add(r);
+			}
+			else {
+				subsetWithoutERH.add(r);
+			}
+			if (subsetWithERH.size() == MAX) {
+				insertResponses(subsetWithERH, c);
+				subsetWithERH.clear();
+			}
+			if (subsetWithoutERH.size() == MAX) {
+				insertResponses(subsetWithoutERH, c);
+				subsetWithoutERH.clear();
+			}
+		}
+		insertResponses(subsetWithERH, c);
+		subsetWithERH.clear();
+
+		insertResponses(subsetWithoutERH, c);
+		subsetWithoutERH.clear();
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private void insertResponses(List<Response<?>> responses, Connection con) throws Exception {
 		if (responses.isEmpty()) 
 			return;
-
-		final PreparedStatement stmt = c.prepareCall("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?,?)");
-		try {
-			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			int counter=0;
-			for(Response<?> r : responses) {
-				stmt.setString(1, r.getCorrelationId());
-				stmt.setTimestamp(2, now);
-				String payload = serializer.serializeResponse(r);
-				stmt.setString(3, payload.length() > 4000 ? null : payload);
-				stmt.setString(4, payload.length() > 4000 ? payload : null);
-				stmt.setString(5, r.getMetaData());
-				stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis() + (r.getInternalProcessingTimeout() == null ? defaultStaleResponseRemovalTimeout : r.getInternalProcessingTimeout())));
-				stmt.addBatch();
-				counter++;
-				if (counter == 50) {
-					stmt.executeBatch();
-					stmt.clearBatch();
-					counter = 0;
-				}
-			}
-			if (counter != 0) {
-				stmt.executeBatch();
-			}
+		List<BatchCommand> cmds = new ArrayList<BatchCommand>(responses.size());
+		for (Response<?> r : responses) {
+			cmds.add(createBatchCommand4Notify(r));
 		}
-		finally {
-			JdbcUtils.closeStatement(stmt);
-		}
-	}	
-
+		cmds.get(0).executor().doExec(cmds, con);
+	}
+	
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.DatabaseDialect#createBatchCommand4Finish(de.scoopgmbh.copper.Workflow)
 	 */
@@ -501,7 +505,10 @@ public class OracleDialect implements DatabaseDialect {
 	public BatchCommand createBatchCommand4Notify(final Response<?> response) throws Exception {
 		if (response == null)
 			throw new NullPointerException();
-		return new OracleNotify.Command(response, serializer, defaultStaleResponseRemovalTimeout,System.currentTimeMillis()+dbBatchingLatencyMSec);
+		if (response.isEarlyResponseHandling())
+			return new OracleNotify.Command(response, serializer, defaultStaleResponseRemovalTimeout,System.currentTimeMillis()+dbBatchingLatencyMSec);
+		else
+			return new OracleNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout,System.currentTimeMillis()+dbBatchingLatencyMSec);
 	}
 
 	/* (non-Javadoc)

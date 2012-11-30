@@ -191,4 +191,9 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 		super.testAuditTrailCustomSeqNr(DS_CONTEXT);
 	}
 	
+	public void testNotifyWithoutEarlyResponseHandling() throws Exception {
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
+	}
+	
 }

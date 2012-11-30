@@ -98,8 +98,9 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 
 	@Override
 	public void notify(Response<?> response) {
-		if (logger.isDebugEnabled()) logger.debug("notify("+response+")");
-
+		logger.debug("notify({})", response);
+		if (response == null) throw new NullPointerException();
+		
 		try {
 			startupBlocker.pass();
 		} 
@@ -109,7 +110,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		
 		synchronized (correlationMap) {
 			final CorrelationSet cs = correlationMap.remove(response.getCorrelationId());
-			if (cs == null) {
+			if (cs == null && response.isEarlyResponseHandling()) {
 				earlyResponseContainer.put(response);
 				return;
 			}

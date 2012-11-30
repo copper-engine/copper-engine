@@ -105,4 +105,9 @@ public class PostgreSQLPersistentWorkflowTest extends BasePersistentWorkflowTest
 		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
 	}
 	
+	public void testNotifyWithoutEarlyResponseHandling() throws Exception {
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
+	}
+	
 }

@@ -103,5 +103,11 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 	public void testAutoCommit() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAutoCommit(DS_CONTEXT);
-	}		
+	}
+	
+	public void testNotifyWithoutEarlyResponseHandling() throws Exception {
+		if (!dbmsAvailable) fail("DBMS not available");
+		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
+	}
+	
 }

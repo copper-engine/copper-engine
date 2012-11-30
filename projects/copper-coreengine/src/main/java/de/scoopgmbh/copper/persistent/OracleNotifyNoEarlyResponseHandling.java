@@ -20,15 +20,20 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Collection;
 
-import org.springframework.jdbc.support.JdbcUtils;
-
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.NullCallback;
 
-class OracleNotify {
+class OracleNotifyNoEarlyResponseHandling {
+	
+	private static final String SQL = 
+			"INSERT INTO cop_response (CORRELATION_ID,RESPONSE_TS,RESPONSE,LONG_RESPONSE,RESPONSE_TIMEOUT,RESPONSE_META_DATA) "+
+			"SELECT D.* FROM "+
+			"(select correlation_id from cop_wait where correlation_id = ?) W, " +
+			"(select ? as correlation_id, ? as response_ts, ? as response, ? as long_response, ? as response_timeout, ? as response_meta_data from dual) D " +
+			"WHERE D.correlation_id = W.correlation_id";
 
 	static final class Command extends AbstractBatchCommand<Executor, Command>{
 
@@ -68,24 +73,20 @@ class OracleNotify {
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?,?)");
-			try {
-				for (BatchCommand<Executor, Command> _cmd : commands) {
-					Command cmd = (Command)_cmd;
-					stmt.setString(1, cmd.response.getCorrelationId());
-					stmt.setTimestamp(2, now);
-					String payload = cmd.serializer.serializeResponse(cmd.response);
-					stmt.setString(3, payload.length() > 4000 ? null : payload);
-					stmt.setString(4, payload.length() > 4000 ? payload : null);
-					stmt.setString(5, cmd.response.getMetaData());
-					stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
-					stmt.addBatch();
-				}
-				stmt.executeBatch();
+			final PreparedStatement stmt = con.prepareStatement(SQL);
+			for (BatchCommand<Executor, Command> _cmd : commands) {
+				Command cmd = (Command)_cmd;
+				stmt.setString(1, cmd.response.getCorrelationId());
+				stmt.setString(2, cmd.response.getCorrelationId());
+				stmt.setTimestamp(3, now);
+				String payload = cmd.serializer.serializeResponse(cmd.response);
+				stmt.setString(4, payload.length() > 4000 ? null : payload);
+				stmt.setString(5, payload.length() > 4000 ? payload : null);
+				stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
+				stmt.setString(7, cmd.response.getMetaData());
+				stmt.addBatch();
 			}
-			finally {
-				JdbcUtils.closeStatement(stmt);
-			}
+			stmt.executeBatch();
 		}
 
 	}

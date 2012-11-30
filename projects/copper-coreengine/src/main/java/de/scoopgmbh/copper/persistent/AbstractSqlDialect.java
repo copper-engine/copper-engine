@@ -389,16 +389,30 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	@Override
 	public void notify(List<Response<?>> responses, Connection c) throws Exception {
 		final int MAX = 50;
-		final List<Response<?>> subset = new ArrayList<Response<?>>(MAX);
+		final List<Response<?>> subsetWithERH = new ArrayList<Response<?>>(MAX);
+		final List<Response<?>> subsetWithoutERH = new ArrayList<Response<?>>(MAX);
 		for (int i=0; i<responses.size(); i++) {
-			subset.add(responses.get(i));
-			if (subset.size() == MAX) {
-				insertResponses(subset, c);
-				subset.clear();
+			Response<?> r = responses.get(i);
+			if (r.isEarlyResponseHandling()) {
+				subsetWithERH.add(r);
+			}
+			else {
+				subsetWithoutERH.add(r);
+			}
+			if (subsetWithERH.size() == MAX) {
+				insertResponses(subsetWithERH, c);
+				subsetWithERH.clear();
+			}
+			if (subsetWithoutERH.size() == MAX) {
+				insertResponses(subsetWithoutERH, c);
+				subsetWithoutERH.clear();
 			}
 		}
-		insertResponses(subset, c);
-		subset.clear();
+		insertResponses(subsetWithERH, c);
+		subsetWithERH.clear();
+
+		insertResponses(subsetWithoutERH, c);
+		subsetWithoutERH.clear();
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -422,8 +436,14 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	@SuppressWarnings({"rawtypes"})
 	public BatchCommand createBatchCommand4Notify(Response<?> response) throws Exception {
 		if (response == null) throw new NullPointerException();
-		return new SqlNotify.Command(response, serializer, System.currentTimeMillis()+dbBatchingLatencyMSec);
+		if (response.isEarlyResponseHandling())
+			return new SqlNotify.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec);
+		else
+			return createBatchCommand4NotifyNoEarlyResponseHandling(response);
 	}
+	
+	@SuppressWarnings({"rawtypes"})
+	public abstract BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response) throws Exception;
 
 	@Override
 	@SuppressWarnings({"rawtypes"})

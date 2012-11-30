@@ -17,9 +17,13 @@ package de.scoopgmbh.copper.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import de.scoopgmbh.copper.Response;
@@ -28,7 +32,9 @@ import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.NullCallback;
 
-class OracleNotify {
+class DerbyDbNotifyNoEarlyResponseHandling {
+
+	private static final Logger logger = LoggerFactory.getLogger(DerbyDbNotifyNoEarlyResponseHandling.class);
 
 	static final class Command extends AbstractBatchCommand<Executor, Command>{
 
@@ -67,24 +73,50 @@ class OracleNotify {
 
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
-			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?,?)");
+			if (commands.isEmpty())
+				return;
+
+			final PreparedStatement selectStmt = con.prepareStatement("select count(*) from cop_wait where correlation_id = ?");
+			final PreparedStatement insertStmt = con.prepareStatement("INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA) VALUES (?,?,?,?,?)");
 			try {
+				final Timestamp now = new Timestamp(System.currentTimeMillis());
+				int counter = 0;
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command)_cmd;
-					stmt.setString(1, cmd.response.getCorrelationId());
-					stmt.setTimestamp(2, now);
-					String payload = cmd.serializer.serializeResponse(cmd.response);
-					stmt.setString(3, payload.length() > 4000 ? null : payload);
-					stmt.setString(4, payload.length() > 4000 ? payload : null);
-					stmt.setString(5, cmd.response.getMetaData());
-					stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
-					stmt.addBatch();
+					selectStmt.clearParameters();
+					selectStmt.setString(1, cmd.response.getCorrelationId());
+					ResultSet rs = selectStmt.executeQuery();
+					rs.next();
+					final int c = rs.getInt(1);
+					rs.close();
+
+					if (c == 1) {
+						insertStmt.setString(1, cmd.response.getCorrelationId());
+						insertStmt.setString(2, cmd.response.getCorrelationId());
+						insertStmt.setTimestamp(3, now);
+						final String payload = cmd.serializer.serializeResponse(cmd.response);
+						insertStmt.setString(4, payload);
+						insertStmt.setTimestamp(5, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
+						insertStmt.setString(6, cmd.response.getMetaData());
+						insertStmt.addBatch();
+						counter++;
+					}
 				}
-				stmt.executeBatch();
+				if (counter > 0) {
+					insertStmt.executeBatch();
+				}
+			}
+			catch(SQLException e) {
+				logger.error("doExec failed",e);
+				logger.error("NextException=",e.getNextException());
+				throw e;
+			}
+			catch(Exception e) {
+				logger.error("doExec failed",e);
+				throw e;
 			}
 			finally {
-				JdbcUtils.closeStatement(stmt);
+				JdbcUtils.closeStatement(insertStmt);
 			}
 		}
 

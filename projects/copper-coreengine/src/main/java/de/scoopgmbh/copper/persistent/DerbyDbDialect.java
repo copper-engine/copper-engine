@@ -30,6 +30,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 
@@ -169,6 +170,13 @@ public class DerbyDbDialect extends AbstractSqlDialect {
 			logger.info("Database shut down normally");
 		}
 	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response) throws Exception {
+		return new DerbyDbNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec);
+	}	
+
 
 
 

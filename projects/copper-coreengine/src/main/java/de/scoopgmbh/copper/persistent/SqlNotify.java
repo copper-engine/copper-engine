@@ -32,12 +32,14 @@ class SqlNotify {
 
 		final Response<?> response;
 		final Serializer serializer;
+		final int defaultStaleResponseRemovalTimeout;
 
 		@SuppressWarnings("unchecked")
-		public Command(Response<?> response, Serializer serializer, final long targetTime) {
+		public Command(Response<?> response, Serializer serializer, int defaultStaleResponseRemovalTimeout, final long targetTime) {
 			super(NullCallback.instance,targetTime);
 			this.response = response;
 			this.serializer = serializer;
+			this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
 		}
 
 		@Override
@@ -64,13 +66,15 @@ class SqlNotify {
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE) VALUES (?,?,?)");
+			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA) VALUES (?,?,?,?,?)");
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				Command cmd = (Command)_cmd;
 				stmt.setString(1, cmd.response.getCorrelationId());
 				stmt.setTimestamp(2, now);
 				String payload = cmd.serializer.serializeResponse(cmd.response);
 				stmt.setString(3, payload);
+				stmt.setTimestamp(4, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
+				stmt.setString(5, cmd.response.getMetaData());
 				stmt.addBatch();
 			}
 			stmt.executeBatch();
