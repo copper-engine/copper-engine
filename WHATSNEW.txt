@@ -1,6 +1,11 @@
 COPPER 2.1
 ==========
 - Now using gradle instead of ant for build
+- New feature: Refactoring of StandardJavaSerializer to enable easy subclassing
+- New feature: Batching latency time now configurable
+- New feature: Extendable/customizable AuditTrail, see issue #38
+- New feature: Disengageable early response handling, see issue #37
+- New feature: Versioning of Workflows now supported by COPPER
 
 COPPER 2.0
 ==========

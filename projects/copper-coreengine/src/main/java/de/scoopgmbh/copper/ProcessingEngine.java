@@ -76,39 +76,12 @@ public interface ProcessingEngine {
 	public String createUUID();
 	
 	/**
-	 * Creates a workflow factory for the creation of workflow instances.
-	 * @param <E> class of the workflows <code>data</code> field
-	 * @param classname classname of the workflows class
-	 * @return a factory object for the creation of the specified workflow instances
-	 * @throws ClassNotFoundException if the specified classname is unknown in the underlying workflow repository
-	 * @deprecated
-	 */
-	public <E> WorkflowFactory<E> createWorkflowFactory(String classname) throws ClassNotFoundException;
-	
-	/**
 	 * Enqueues the specified workflow instance into the engine for execution.  
-	 * @param w the workflow instance to run
-	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
-	 * @deprecated
-	 */
-	public void run(Workflow<?> w) throws CopperException;
-	
-	/**
-	 * Enqueues the specified list of workflow instances into the engine for execution.  
-	 * @param w the list of workflow instances to run
-	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
-	 * @deprecated
-	 */
-	public void run(List<Workflow<?>> w) throws CopperException;
-
-	
-	/**
-	 * Enqueues the specified workflow instance into the engine for execution.  
-	 * @param wfclassname classname of the workflows class
+	 * @param wfname name or alias of the workflows class
 	 * @param w the workflow instance to run
 	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
 	 */
-	public void run(String wfclassname, Object data) throws CopperException;
+	public void run(String wfname, Object data) throws CopperException;
 	
 	/**
 	 * Enqueues the specified workflow instance description into the engine for execution.  

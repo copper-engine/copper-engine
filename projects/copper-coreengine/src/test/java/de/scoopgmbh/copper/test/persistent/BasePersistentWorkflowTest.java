@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,7 +35,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.WorkflowFactory;
+import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.audit.AuditTrailEvent;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.CompressedBase64PostProcessor;
@@ -45,11 +48,12 @@ import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 
+@WorkflowDescription(alias="de.scoopgmbh.copper.test.persistent.BasePersistentWorkflowTest", majorVersion=1, minorVersion=2, patchLevelVersion=3)
 public class BasePersistentWorkflowTest extends TestCase {
 
 	private static final Logger logger = LoggerFactory.getLogger(BasePersistentWorkflowTest.class);
 
-	static final String PersistentUnitTestWorkflow_CLASS = "de.scoopgmbh.copper.test.persistent.PersistentUnitTestWorkflow";
+	static final String PersistentUnitTestWorkflow_NAME = "de.scoopgmbh.copper.test.persistent.PersistentUnitTestWorkflow";
 
 	public final void testDummy() {
 		// for junit only
@@ -91,7 +95,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 
 			for (int i=0; i<NUMB; i++) {
-				engine.run(PersistentUnitTestWorkflow_CLASS, DATA);
+				engine.run(PersistentUnitTestWorkflow_NAME, DATA);
 			}
 
 			for (int i=0; i<NUMB; i++) {
@@ -123,10 +127,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_CLASS);
-				Workflow<String> wf = wfFactory.newInstance();
-				wf.setData(DATA);
-				engine.run(wf);
+				engine.run(PersistentUnitTestWorkflow_NAME, DATA);
 			}
 
 			for (int i=0; i<NUMB; i++) {
@@ -200,7 +201,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 
 			final List<Workflow<?>> list = new ArrayList<Workflow<?>>();
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_CLASS);
+				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_NAME);
 				Workflow<?> wf = wfFactory.newInstance();
 				list.add(wf);
 			}
@@ -239,9 +240,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.TimingOutPersistentUnitTestWorkflow");
-				Workflow<?> wf = wfFactory.newInstance();
-				engine.run(wf);
+				engine.run("de.scoopgmbh.copper.test.persistent.TimingOutPersistentUnitTestWorkflow", null);
 			}
 
 			for (int i=0; i<NUMB; i++) {
@@ -265,9 +264,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		try {
 			engine.startup();
-			WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
-			final Workflow<?> wf = wfFactory.newInstance();
-			engine.run(wf);
+			final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
+			wfInstanceDescr.setId(engine.createUUID());
+			engine.run(wfInstanceDescr);
 			Thread.sleep(5000);
 			//check
 			new RetryingTransaction(context.getBean(DataSource.class)) {
@@ -275,22 +274,22 @@ public class BasePersistentWorkflowTest extends TestCase {
 				protected void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
-					assertEquals(wf.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
 				}
 			}.run();
-			engine.restart(wf.getId());
+			engine.restart(wfInstanceDescr.getId());
 			Thread.sleep(5000);
 			new RetryingTransaction(context.getBean(DataSource.class)) {
 				@Override
 				protected void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
-					assertEquals(wf.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertTrue(rs.next());
-					assertEquals(wf.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
 				}
@@ -309,9 +308,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		try {
 			engine.startup();
-			WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
-			final Workflow<?> wf = wfFactory.newInstance();
-			engine.run(wf);
+			final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("de.scoopgmbh.copper.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
+			wfInstanceDescr.setId(engine.createUUID());
+			engine.run(wfInstanceDescr);
 			Thread.sleep(5000);
 			//check
 			new RetryingTransaction(context.getBean(DataSource.class)) {
@@ -319,7 +318,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 				protected void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
-					assertEquals(wf.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
 				}
@@ -331,10 +330,10 @@ public class BasePersistentWorkflowTest extends TestCase {
 				protected void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
-					assertEquals(wf.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertTrue(rs.next());
-					assertEquals(wf.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
 				}
@@ -360,9 +359,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.subworkflow.TestParentWorkflow");
-				Workflow<?> wf = wfFactory.newInstance();
-				engine.run(wf);
+				engine.run("de.scoopgmbh.copper.test.persistent.subworkflow.TestParentWorkflow",null);
 			}
 
 			for (int i=0; i<NUMB; i++) {
@@ -395,10 +392,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_CLASS);
-				Workflow<String> wf = wfFactory.newInstance();
-				wf.setData(DATA);
-				engine.run(wf);
+				engine.run(PersistentUnitTestWorkflow_NAME, DATA);
 			}
 
 			for (int i=0; i<NUMB; i++) {
@@ -441,10 +435,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 
 			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.PersistentUnitTestWorkflow");
-				Workflow<String> wf = wfFactory.newInstance();
-				wf.setData(DATA);
-				engine.run(wf);
+				engine.run(PersistentUnitTestWorkflow_NAME, DATA);
 			}
 
 			for (int i=0; i<NUMB; i++) {
@@ -524,9 +515,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		try {
 			engine.startup();
-			final WorkflowFactory<?> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.persistent.ErrorWaitHookUnitTestWorkflow");
-			final Workflow<?> wf = wfFactory.newInstance();
-			engine.run(wf);
+			final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("de.scoopgmbh.copper.test.persistent.ErrorWaitHookUnitTestWorkflow");
+			wfInstanceDescr.setId(engine.createUUID());
+			engine.run(wfInstanceDescr, null);
 			Thread.sleep(2500);
 			//check
 			new RetryingTransaction(context.getBean(DataSource.class)) {
@@ -534,7 +525,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 				protected void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
-					assertEquals(wf.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
 				}

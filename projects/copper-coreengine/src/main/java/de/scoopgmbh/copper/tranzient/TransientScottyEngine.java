@@ -142,7 +142,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	}
 
 	@Override
-	public void run(Workflow<?> w) {
+	protected void run(Workflow<?> w) {
 		try {
 			startupBlocker.pass();
 		} 
@@ -273,7 +273,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	}
 
 	@Override
-	public void run(List<Workflow<?>> list) {
+	protected void run(List<Workflow<?>> list) {
 		for (Workflow<?> w : list) {
 			run(w);
 		}

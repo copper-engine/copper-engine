@@ -27,25 +27,6 @@ import java.util.List;
 public interface PersistentProcessingEngine extends ProcessingEngine {
 	
 	/**
-	 * Enqueues the specified workflow instance into the engine for execution.  
-	 * @param w the workflow instance to run
-	 * @param con connection used for the inserting the workflow to the database 
-	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
-	 * @deprecated
-	 */
-	public void run(Workflow<?> w, Connection con) throws CopperException;
-	
-	/**
-	 * Enqueues the specified list of workflow instances into the engine for execution.  
-	 * @param w the list of workflow instances to run
-	 * @param con connection used for the inserting the workflow to the database 
-	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
-	 * @deprecated
-	 */
-	public void run(List<Workflow<?>> w, Connection con) throws CopperException;
-	
-	
-	/**
 	 * Enqueues the specified list of workflow instances into the engine for execution.  
 	 * @param wfInstanceDescr workflow instance descriptions to run
 	 * @param con connection used for the inserting the workflow to the database 

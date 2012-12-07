@@ -101,7 +101,7 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 
 			for (int i=0; i<NUMB; i++) {
 				ProcessingEngine engine = i % 2 == 0 ? engineRed : engineBlue;
-				engine.run(PersistentUnitTestWorkflow_CLASS,null);
+				engine.run(PersistentUnitTestWorkflow_NAME,null);
 			}
 
 			int x=0;

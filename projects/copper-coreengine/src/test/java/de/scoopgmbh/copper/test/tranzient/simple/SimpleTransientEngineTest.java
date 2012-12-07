@@ -22,10 +22,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.test.TestResponseReceiver;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
-import de.scoopgmbh.copper.util.AsyncResponseReceiver;
 import de.scoopgmbh.copper.util.BlockingResponseReceiver;
 
 public class SimpleTransientEngineTest extends TestCase {
@@ -48,11 +46,8 @@ public class SimpleTransientEngineTest extends TestCase {
 		assertEquals(EngineState.STARTED,engine.getEngineState());
 		
 		try {
-			WorkflowFactory<AsyncResponseReceiver<Integer>> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.tranzient.simple.SimpleTransientWorkflow");
-			Workflow<AsyncResponseReceiver<Integer>> wf = wfFactory.newInstance();
 			BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
-			wf.setData(brr);
-			engine.run(wf);
+			engine.run("de.scoopgmbh.copper.test.tranzient.simple.SimpleTransientWorkflow", brr);
 			synchronized (response) {
 				if (response[0] == -1) {
 					response.wait(30000);

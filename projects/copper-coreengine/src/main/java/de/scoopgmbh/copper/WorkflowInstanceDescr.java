@@ -17,31 +17,32 @@ package de.scoopgmbh.copper;
 
 public class WorkflowInstanceDescr<T> {
 	
-	private final String wfClassname;
+	private final String wfName;
 	private T data;
 	private Integer priority;
 	private String processorPoolId;
 	private String id;
+	private WorkflowVersion workflowVersion;
 	
-	public WorkflowInstanceDescr(String wfClassname) {
-		this(wfClassname,null,null,null,null);
+	public WorkflowInstanceDescr(String wfName) {
+		this(wfName,null,null,null,null);
 	}
 	
-	public WorkflowInstanceDescr(String wfClassname, T data) {
-		this(wfClassname,data,null,null,null);
+	public WorkflowInstanceDescr(String wfName, T data) {
+		this(wfName,data,null,null,null);
 	}
 	
-	public WorkflowInstanceDescr(String wfClassname, T data, String id, Integer priority, String processorPoolId) {
-		if (wfClassname == null) throw new IllegalArgumentException("wfClassname is null");
-		this.wfClassname = wfClassname;
+	public WorkflowInstanceDescr(String wfName, T data, String id, Integer priority, String processorPoolId) {
+		if (wfName == null) throw new IllegalArgumentException("wfName is null");
+		this.wfName = wfName;
 		this.data = data;
 		this.priority = priority;
 		this.processorPoolId = processorPoolId;
 		this.id = id;
 	}
 
-	public String getWfClassname() {
-		return wfClassname;
+	public String getWfName() {
+		return wfName;
 	}
 
 	public T getData() {
@@ -76,4 +77,11 @@ public class WorkflowInstanceDescr<T> {
 		this.id = id;
 	}
 	
+	public WorkflowVersion getVersion() {
+		return workflowVersion;
+	}
+	
+	public void setVersion(WorkflowVersion workflowVersion) {
+		this.workflowVersion = workflowVersion;
+	}
 }

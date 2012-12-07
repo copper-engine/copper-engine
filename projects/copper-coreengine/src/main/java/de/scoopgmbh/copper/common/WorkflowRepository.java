@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.common;
 
 import de.scoopgmbh.copper.WorkflowFactory;
+import de.scoopgmbh.copper.WorkflowVersion;
 
 
 /**
@@ -28,7 +29,8 @@ import de.scoopgmbh.copper.WorkflowFactory;
  */
 public interface WorkflowRepository {
 
-	public <E> WorkflowFactory<E> createWorkflowFactory(final String classname) throws ClassNotFoundException;
+	public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName) throws ClassNotFoundException;
+	public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName, final WorkflowVersion version) throws ClassNotFoundException;
 	public java.lang.Class<?> resolveClass(	java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException;
 	public void start();
 	public void shutdown();

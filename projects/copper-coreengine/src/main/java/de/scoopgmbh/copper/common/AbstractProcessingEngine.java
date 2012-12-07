@@ -110,14 +110,14 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 		return wfi;
 	}	
 
-	public abstract void run(Workflow<?> w) throws CopperException;
+	protected abstract void run(Workflow<?> w) throws CopperException;
 
-	public abstract void run(List<Workflow<?>> w) throws CopperException;
+	protected abstract void run(List<Workflow<?>> w) throws CopperException;
 	
 	@Override
-	public void run(String wfclassname, Object data) throws CopperException {
+	public void run(String wfname, Object data) throws CopperException {
 		try {
-			Workflow<Object> wf = createWorkflowFactory(wfclassname).newInstance();
+			Workflow<Object> wf = createWorkflowFactory(wfname).newInstance();
 			wf.setData(data);
 			run(wf);
 		}
@@ -149,7 +149,14 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 	}
 
 	protected Workflow<Object> createWorkflowInstance(WorkflowInstanceDescr<?> wfInstanceDescr) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		Workflow<Object> wf = createWorkflowFactory(wfInstanceDescr.getWfClassname()).newInstance();
+		try {
+			startupBlocker.pass();
+		} 
+		catch (InterruptedException e) {
+			// ignore
+		}
+		
+		final Workflow<Object> wf = wfRepository.createWorkflowFactory(wfInstanceDescr.getWfName() ,wfInstanceDescr.getVersion()).newInstance();
 		if (wfInstanceDescr.getData() != null) wf.setData(wfInstanceDescr.getData());
 		if (wfInstanceDescr.getId() != null) wf.setId(wfInstanceDescr.getId());
 		if (wfInstanceDescr.getPriority() != null) wf.setPriority(wfInstanceDescr.getPriority());

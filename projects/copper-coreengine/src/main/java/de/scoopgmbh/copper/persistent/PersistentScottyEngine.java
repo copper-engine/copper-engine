@@ -173,7 +173,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	}
 
 	@Override
-	public void run(Workflow<?> wf) throws CopperException {
+	protected void run(Workflow<?> wf) throws CopperException {
 		run(wf,null);
 	}
 

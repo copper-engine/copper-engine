@@ -21,10 +21,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import de.scoopgmbh.copper.EngineState;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
-import de.scoopgmbh.copper.util.AsyncResponseReceiver;
 import de.scoopgmbh.copper.util.BlockingResponseReceiver;
 
 public class DerivedTransientEngineTest extends TestCase {
@@ -36,11 +33,8 @@ public class DerivedTransientEngineTest extends TestCase {
 		assertEquals(EngineState.STARTED,engine.getEngineState());
 		
 		try {
-			WorkflowFactory<AsyncResponseReceiver<Integer>> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.tranzient.classhierarchy.DerivedDerived");
-			Workflow<AsyncResponseReceiver<Integer>> wf = wfFactory.newInstance();
-			BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
-			wf.setData(brr);
-			engine.run(wf);
+			final BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
+			engine.run("de.scoopgmbh.copper.test.tranzient.classhierarchy.DerivedDerived", brr);
 			brr.wait4response(30000);
 			assertEquals(10, brr.getResponse().intValue());
 		}

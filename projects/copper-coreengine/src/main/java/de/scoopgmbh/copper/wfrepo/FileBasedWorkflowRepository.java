@@ -47,7 +47,9 @@ import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.WorkflowFactory;
+import de.scoopgmbh.copper.WorkflowVersion;
 import de.scoopgmbh.copper.instrument.ScottyFindInterruptableMethodsVisitor;
 import de.scoopgmbh.copper.util.FileUtil;
 
@@ -60,11 +62,13 @@ import de.scoopgmbh.copper.util.FileUtil;
 public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 
 	private static final class VolatileState {
-		Map<String,Class<?>> wfMap;
-		ClassLoader classLoader;
-		long checksum;
-		VolatileState(Map<String, Class<?>> wfMap, ClassLoader classLoader, long checksum) {
-			this.wfMap = wfMap;
+		final Map<String,Class<?>> wfMapLatest;
+		final Map<String,Class<?>> wfMapVersioned;
+		final ClassLoader classLoader;
+		final long checksum;
+		VolatileState(Map<String, Class<?>> wfMap, Map<String,Class<?>> wfMapVersioned, ClassLoader classLoader, long checksum) {
+			this.wfMapLatest = wfMap;
+			this.wfMapVersioned = wfMapVersioned;
 			this.classLoader = classLoader;
 			this.checksum = checksum;
 		}
@@ -191,22 +195,42 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	}
 
 	@Override
-	public <E> WorkflowFactory<E> createWorkflowFactory(final String classname) throws ClassNotFoundException {
+	public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName) throws ClassNotFoundException {
+		return createWorkflowFactory(wfName,null);
+	}
+
+	@Override
+	public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName, final WorkflowVersion version) throws ClassNotFoundException {
+		if (wfName == null) throw new NullPointerException();
 		if (stopped)
 			throw new IllegalStateException("Repo is stopped");
+
+		if (version == null) {
+			if (!volatileState.wfMapLatest.containsKey(wfName)) {
+				throw new ClassNotFoundException("Workflow "+wfName+" not found");
+			}
+			return new WorkflowFactory<E>() {
+				@SuppressWarnings("unchecked")
+				@Override
+				public Workflow<E> newInstance() throws InstantiationException, IllegalAccessException {
+					return (Workflow<E>) volatileState.wfMapLatest.get(wfName).newInstance();
+				}
+			};
+		}
 		
-		if (!volatileState.wfMap.containsKey(classname)) {
-			throw new ClassNotFoundException("Workflow class "+classname+" not found");
+		final String alias = createAliasName(wfName, version);
+		if (!volatileState.wfMapVersioned.containsKey(alias)) {
+			throw new ClassNotFoundException("Workflow "+wfName+" with version "+version+" not found");
 		}
 		return new WorkflowFactory<E>() {
 			@SuppressWarnings("unchecked")
 			@Override
 			public Workflow<E> newInstance() throws InstantiationException, IllegalAccessException {
-				return (Workflow<E>) volatileState.wfMap.get(classname).newInstance();
+				return (Workflow<E>) volatileState.wfMapVersioned.get(alias).newInstance();
 			}
 		};
 	}
-
+	
 	@Override
 	public java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException ,ClassNotFoundException {
 		return Class.forName(desc.getName(), false, volatileState.classLoader);
@@ -307,7 +331,40 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		instrumentWorkflows(adaptedTargetDir, clazzMap, compileTargetDir);
 		final ClassLoader cl = createClassLoader(map, adaptedTargetDir, loadNonWorkflowClasses ? compileTargetDir : adaptedTargetDir, clazzMap);
 		checkConstraints(map);
-		return new VolatileState(map, cl, checksum);
+		
+		final Map<String,Class<?>> wfMapLatest = new HashMap<String, Class<?>>(map.size());
+		final Map<String,Class<?>> wfMapVersioned = new HashMap<String, Class<?>>(map.size());
+		final Map<String,WorkflowVersion> latest = new HashMap<String, WorkflowVersion>(map.size());
+		
+		for (Class<?> wfClass : map.values()) {
+			wfMapLatest.put(wfClass.getName(), wfClass); // workflow is always accessible by its name
+			
+			WorkflowDescription wfDesc = wfClass.getAnnotation(WorkflowDescription.class);
+			if (wfDesc != null) {
+				final String alias = wfDesc.alias();
+				final WorkflowVersion version = new WorkflowVersion(wfDesc.majorVersion(), wfDesc.minorVersion(), wfDesc.patchLevelVersion());
+				wfMapVersioned.put(createAliasName(alias, version), wfClass);
+				
+				WorkflowVersion existingLatest = latest.get(alias);
+				if (existingLatest == null || version.isLargerThan(existingLatest)) {
+					wfMapLatest.put(alias, wfClass);
+					latest.put(alias, version);
+				}
+			}
+		}
+		if (logger.isTraceEnabled()) {
+			for (Map.Entry<String, Class<?>> e : wfMapLatest.entrySet()) {
+				logger.trace("wfMapLatest.key={}, class={}", e.getKey(), e.getValue().getName());
+			}
+			for (Map.Entry<String, Class<?>> e : wfMapVersioned.entrySet()) {
+				logger.trace("wfMapVersioned.key={}, class={}", e.getKey(), e.getValue().getName());
+			}
+		}
+		return new VolatileState(wfMapLatest, wfMapVersioned, cl, checksum);
+	}
+
+	private String createAliasName(final String alias, final WorkflowVersion version) {
+		return alias+"#"+version.format();
 	}
 	
 	private void checkConstraints(Map<String, Class<?>> workflowClasses) throws CopperRuntimeException {
@@ -481,5 +538,6 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		repo.setTargetDir("target/compiled_workflow");
 		repo.start();
 	}
+
 
 }

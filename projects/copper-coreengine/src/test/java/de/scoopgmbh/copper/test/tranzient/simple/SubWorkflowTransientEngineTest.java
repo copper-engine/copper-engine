@@ -23,8 +23,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import de.scoopgmbh.copper.EngineState;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
@@ -40,10 +38,7 @@ public class SubWorkflowTransientEngineTest extends TestCase {
 		assertEquals(EngineState.STARTED,engine.getEngineState());
 		
 		try {
-			WorkflowFactory<String> wfFactory = engine.createWorkflowFactory("de.scoopgmbh.copper.test.tranzient.simple.SimpleTestParentWorkflow");
-			Workflow<String> wf = wfFactory.newInstance();
-			wf.setData("testData");
-			engine.run(wf);
+			engine.run("de.scoopgmbh.copper.test.tranzient.simple.SimpleTestParentWorkflow","testData");
 			WorkflowResult r = backChannelQueue.dequeue(2000, TimeUnit.MILLISECONDS);
 			assertNotNull(r);
 		}
