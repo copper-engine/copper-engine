@@ -31,6 +31,8 @@ public interface WorkflowRepository {
 
 	public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName) throws ClassNotFoundException;
 	public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName, final WorkflowVersion version) throws ClassNotFoundException;
+	public WorkflowVersion findLatestMajorVersion(final String wfName, long majorVersion);
+	public WorkflowVersion findLatestMinorVersion(final String wfName, long majorVersion, long minorVersion);
 	public java.lang.Class<?> resolveClass(	java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException;
 	public void start();
 	public void shutdown();

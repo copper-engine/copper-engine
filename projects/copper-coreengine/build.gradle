@@ -1,4 +1,11 @@
 project(':projects:copper-coreengine') {
+    sourceSets {
+        main {
+            java {
+                srcDir = "$projectDir/src/workflow/java"
+            }
+        }
+    }
 
     dependencies {
 		compile 'aopalliance:aopalliance:1.0'

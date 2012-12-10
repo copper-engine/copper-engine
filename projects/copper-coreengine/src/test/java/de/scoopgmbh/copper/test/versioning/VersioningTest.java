@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.test.versioning;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.springframework.context.ConfigurableApplicationContext;
@@ -24,24 +25,40 @@ import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.WorkflowVersion;
+import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 import de.scoopgmbh.copper.util.BlockingResponseReceiver;
 
 public class VersioningTest extends TestCase {
-	
+
+	public void testFindLatest() throws Exception {
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
+		try {
+			final WorkflowRepository repo = context.getBean(WorkflowRepository.class);
+			WorkflowVersion v = repo.findLatestMajorVersion(VersionTestWorkflowDef.NAME, 9);
+			Assert.assertEquals(new WorkflowVersion(9, 3, 1), v);
+			
+			v = repo.findLatestMinorVersion(VersionTestWorkflowDef.NAME, 9, 1);
+			Assert.assertEquals(new WorkflowVersion(9, 1, 1), v);
+		}
+		finally {
+			context.close();
+		}
+	}
+
 	public void testLatest() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine _engine = (TransientScottyEngine) context.getBean("transientEngine");
 		assertEquals(EngineState.STARTED,_engine.getEngineState());
 		ProcessingEngine engine = _engine;
-		
+
 		try {
 			final BlockingResponseReceiver<String> brr = new BlockingResponseReceiver<String>();
 			final WorkflowInstanceDescr<BlockingResponseReceiver<String>> descr = new WorkflowInstanceDescr<BlockingResponseReceiver<String>>(VersionTestWorkflowDef.NAME);
 			descr.setData(brr);
-			
+
 			engine.run(descr);
-			
+
 			brr.wait4response(5000);
 			final String workflowClassname = brr.getResponse();
 
@@ -52,23 +69,23 @@ public class VersioningTest extends TestCase {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
+
 	}
-	
+
 	public void testVersion() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine _engine = (TransientScottyEngine) context.getBean("transientEngine");
 		assertEquals(EngineState.STARTED,_engine.getEngineState());
 		ProcessingEngine engine = _engine;
-		
+
 		try {
 			final BlockingResponseReceiver<String> brr = new BlockingResponseReceiver<String>();
 			final WorkflowInstanceDescr<BlockingResponseReceiver<String>> descr = new WorkflowInstanceDescr<BlockingResponseReceiver<String>>(VersionTestWorkflowDef.NAME);
 			descr.setVersion(new WorkflowVersion(1, 0, 1));
 			descr.setData(brr);
-			
+
 			engine.run(descr);
-			
+
 			brr.wait4response(5000);
 			final String workflowClassname = brr.getResponse();
 
@@ -79,7 +96,7 @@ public class VersioningTest extends TestCase {
 			context.close();
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
+
 	}	
-	
+
 }

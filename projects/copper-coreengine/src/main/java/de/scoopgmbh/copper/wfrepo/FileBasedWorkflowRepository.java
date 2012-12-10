@@ -64,13 +64,15 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	private static final class VolatileState {
 		final Map<String,Class<?>> wfMapLatest;
 		final Map<String,Class<?>> wfMapVersioned;
+		final Map<String,List<WorkflowVersion>> wfVersions;
 		final ClassLoader classLoader;
 		final long checksum;
-		VolatileState(Map<String, Class<?>> wfMap, Map<String,Class<?>> wfMapVersioned, ClassLoader classLoader, long checksum) {
+		VolatileState(Map<String, Class<?>> wfMap, Map<String,Class<?>> wfMapVersioned, Map<String,List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum) {
 			this.wfMapLatest = wfMap;
 			this.wfMapVersioned = wfMapVersioned;
 			this.classLoader = classLoader;
 			this.checksum = checksum;
+			this.wfVersions = wfVersions;
 		}
 	}
 
@@ -335,7 +337,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		final Map<String,Class<?>> wfMapLatest = new HashMap<String, Class<?>>(map.size());
 		final Map<String,Class<?>> wfMapVersioned = new HashMap<String, Class<?>>(map.size());
 		final Map<String,WorkflowVersion> latest = new HashMap<String, WorkflowVersion>(map.size());
-		
+		final Map<String,List<WorkflowVersion>> versions = new HashMap<String, List<WorkflowVersion>>();
 		for (Class<?> wfClass : map.values()) {
 			wfMapLatest.put(wfClass.getName(), wfClass); // workflow is always accessible by its name
 			
@@ -350,7 +352,17 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 					wfMapLatest.put(alias, wfClass);
 					latest.put(alias, version);
 				}
+				
+				List<WorkflowVersion> versionsList = versions.get(alias);
+				if (versionsList == null) {
+					versionsList = new ArrayList<WorkflowVersion>();
+					versions.put(alias, versionsList);
+				}
+				versionsList.add(version);
 			}
+		}
+		for (List<WorkflowVersion> vl : versions.values()) {
+			Collections.sort(vl, new WorkflowVersion.Comparator());
 		}
 		if (logger.isTraceEnabled()) {
 			for (Map.Entry<String, Class<?>> e : wfMapLatest.entrySet()) {
@@ -360,7 +372,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 				logger.trace("wfMapVersioned.key={}, class={}", e.getKey(), e.getValue().getName());
 			}
 		}
-		return new VolatileState(wfMapLatest, wfMapVersioned, cl, checksum);
+		return new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, checksum);
 	}
 
 	private String createAliasName(final String alias, final WorkflowVersion version) {
@@ -537,6 +549,38 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		repo.addSourceDir("src/workflow/java");
 		repo.setTargetDir("target/compiled_workflow");
 		repo.start();
+	}
+
+	@Override
+	public WorkflowVersion findLatestMajorVersion(String wfName, long majorVersion) {
+		final List<WorkflowVersion> versionsList = volatileState.wfVersions.get(wfName);
+		if (versionsList == null)
+			return null;
+
+		WorkflowVersion rv = null;
+		for (WorkflowVersion v : versionsList) {
+			if (v.getMajorVersion() > majorVersion) {
+				break;
+			}
+			rv = v;
+		}
+		return rv;
+	}
+
+	@Override
+	public WorkflowVersion findLatestMinorVersion(String wfName, long majorVersion, long minorVersion) {
+		final List<WorkflowVersion> versionsList = volatileState.wfVersions.get(wfName);
+		if (versionsList == null)
+			return null;
+
+		WorkflowVersion rv = null;
+		for (WorkflowVersion v : versionsList) {
+			if ((v.getMajorVersion() > majorVersion) || (v.getMajorVersion() == majorVersion && v.getMinorVersion() > minorVersion)) {
+				break;
+			}
+			rv = v;
+		}
+		return rv;
 	}
 
 

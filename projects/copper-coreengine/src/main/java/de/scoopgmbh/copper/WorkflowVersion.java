@@ -17,6 +17,17 @@ package de.scoopgmbh.copper;
 
 public class WorkflowVersion {
 	
+	public static final class Comparator implements java.util.Comparator<WorkflowVersion> {
+		@Override
+		public int compare(WorkflowVersion o1, WorkflowVersion o2) {
+			if (!o1.isLargerThan(o2))
+				return -1;
+			if (o1.isLargerThan(o2))
+				return 1;
+			return 0;
+		}
+	}
+	
 	final long majorVersion;
 	final long minorVersion;
 	final long patchLevel;
