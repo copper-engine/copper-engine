@@ -22,13 +22,6 @@ eclipse {
     				    root.appendNode('classpathentry', attributes);
     				    root.remove(classpathentry);
     				}
-    				if (classpathentry.attributes().path.contains('swt-3.5.jar')){
-    					
-    					java.util.Map attributes = classpathentry.attributes();
-    				    attributes.put('sourcepath','libs/swt-sources-3.5.zip');
-    				    root.appendNode('classpathentry', attributes);
-    				    root.remove(classpathentry);
-    				}
 				}			
 	    	}
     	}
@@ -43,7 +36,6 @@ repositories {
 dependencies {
 	compile files('libs/jfxrt.jar')
 	compile files('libs/copper-coreengine-2.0.0.jar')
-	compile files('libs/swt-3.5.jar')
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
