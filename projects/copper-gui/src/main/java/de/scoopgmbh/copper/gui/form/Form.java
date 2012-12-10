@@ -3,21 +3,23 @@ package de.scoopgmbh.copper.gui.form;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import de.scoopgmbh.copper.gui.util.Message;
+import de.scoopgmbh.copper.gui.util.MessageProvider;
 
 public abstract class Form {
 
 	private final TabPane mainTabPane;
 	private final String menueItemtextKey;
+	protected final MessageProvider messageProvider;
 	
-	public Form(TabPane mainTabPane, String menueItemtextKey) {
+	public Form(TabPane mainTabPane, String menueItemtextKey, MessageProvider messageProvider) {
 		super();
 		this.mainTabPane = mainTabPane;
 		this.menueItemtextKey = menueItemtextKey;
+		this.messageProvider = messageProvider;
 	}
 
 	public String getMenueItemText(){
-		return Message.getText(menueItemtextKey);
+		return messageProvider.getText(menueItemtextKey);
 	}
 	
 	public void showInTab(){

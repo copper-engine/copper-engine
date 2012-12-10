@@ -20,7 +20,7 @@ public class Main extends Application {
 		
 		primaryStage.setTitle("Copper gui");
 		final Group rootGroup = new Group();
-		final Scene scene = new Scene(rootGroup, 800, 600, Color.WHEAT);
+		final Scene scene = new Scene(rootGroup, 1024, 768, Color.WHEAT);
 		
 		final MenuBar menuBar = new MenuBar();
 		menuBar.getMenus().add(mainFactory.getFormManager().createMenue());
