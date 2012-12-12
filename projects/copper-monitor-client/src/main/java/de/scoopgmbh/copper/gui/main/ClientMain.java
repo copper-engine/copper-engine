@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import de.scoopgmbh.copper.gui.factory.MainFactory;
 
-public class Main extends Application {
+public class ClientMain extends Application {
 
 	@Override
 	public void start(final Stage primaryStage) { //Stage = window

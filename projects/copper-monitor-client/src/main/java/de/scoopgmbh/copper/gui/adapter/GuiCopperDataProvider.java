@@ -1,5 +1,9 @@
 package de.scoopgmbh.copper.gui.adapter;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,14 +13,22 @@ import de.scoopgmbh.copper.gui.model.AuditTrailInfoModel;
 import de.scoopgmbh.copper.gui.model.WorkflowClassInfoModel;
 import de.scoopgmbh.copper.gui.model.WorkflowInstancesInfoModel;
 import de.scoopgmbh.copper.monitor.adapter.CopperDataProvider;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 
 public class GuiCopperDataProvider {
 	
 	private final CopperDataProvider copperDataProvider;
 	
-	public GuiCopperDataProvider(CopperDataProvider copperDataProvider) {
+	public GuiCopperDataProvider(String host, int port) {
 		super();
-		this.copperDataProvider = copperDataProvider;
+		
+		Registry registry;
+		try {
+			registry = LocateRegistry.getRegistry(host,port);
+			copperDataProvider = (CopperDataProvider) registry.lookup(CopperDataProvider.class.getSimpleName());
+		} catch (RemoteException | NotBoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public int getWorkflowInstancesInfosCount(){
@@ -24,10 +36,16 @@ public class GuiCopperDataProvider {
 	}
 	
 	public List<WorkflowInstancesInfoModel> getWorkflowInstancesInfos(int fromCount, int toCount){
+		List<WorkflowInstanceInfo> infos;
+		try {
+			infos = copperDataProvider.getWorkflowInstancesInfos(fromCount, toCount);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
 		ArrayList<WorkflowInstancesInfoModel> result = new ArrayList<>();
-		result.add(new WorkflowInstancesInfoModel("id1", "42", 1, "processorPoolId", new Date()));
-		result.add(new WorkflowInstancesInfoModel("id2", "42", 1, "processorPoolId", new Date()));
-		result.add(new WorkflowInstancesInfoModel("id3", "42", 2, "processorPoolId", new Date()));
+		for (WorkflowInstanceInfo workflowInstancesInfo: infos){
+			result.add(new WorkflowInstancesInfoModel(workflowInstancesInfo.getId(),workflowInstancesInfo.getProcessorPoolId(),workflowInstancesInfo.getPriority(), workflowInstancesInfo.getProcessorPoolId(), workflowInstancesInfo.getTimeout()));
+		}
 		return result;
 	}
 	

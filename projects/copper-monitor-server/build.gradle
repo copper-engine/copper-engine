@@ -10,5 +10,3 @@ dependencies {
 	compile project(':projects:copper-monitor-core')
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
-
-mainClassName = "helloworld.HelloWorld"

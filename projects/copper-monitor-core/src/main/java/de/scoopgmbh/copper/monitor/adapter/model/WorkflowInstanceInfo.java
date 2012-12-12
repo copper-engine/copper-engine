@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitor.adapter;
+package de.scoopgmbh.copper.monitor.adapter.model;
 
 import java.beans.ConstructorProperties;
+import java.io.Serializable;
 import java.util.Date;
 
-public class WorkflowInfo {
+public class WorkflowInstanceInfo implements Serializable{
 	
 	private String id;
 	private String state;
@@ -26,11 +27,11 @@ public class WorkflowInfo {
 	private String processorPoolId;
 	private Date timeout;
 	
-	public WorkflowInfo() {
+	public WorkflowInstanceInfo() {
 	}
 	
 	@ConstructorProperties({"id", "state", "priority","processorPoolId","timeout"}) 
-	public WorkflowInfo(String id, String state, int priority, String processorPoolId, Date timeout) {
+	public WorkflowInstanceInfo(String id, String state, int priority, String processorPoolId, Date timeout) {
 		super();
 		this.id = id;
 		this.state = state;

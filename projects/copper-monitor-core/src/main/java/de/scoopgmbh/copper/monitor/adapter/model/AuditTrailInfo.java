@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitor.adapter;
+package de.scoopgmbh.copper.monitor.adapter.model;
+
+import java.io.Serializable;
 
 
-public class AuditTrailInfo {
+public class AuditTrailInfo implements Serializable{
 
 	long id;
 

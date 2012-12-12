@@ -1,5 +1,6 @@
 package de.scoopgmbh.copper.gui.factory;
 
+import java.rmi.registry.Registry;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
@@ -44,7 +45,7 @@ public class MainFactory {
 
 	public Form<TabPane> createDynamicWorkflowForm(){
 		return new FxmlForm<TabPane>(mainTabPane, "dynamicworkflow.title", "/de/scoopgmbh/copper/gui/ui/dynamicworkflow/DynamicWorkflow.fxml",
-				new DynamicWorkflowController(new GuiCopperDataProvider(null)), messageProvider,  new TabPaneShowFormStrategie());
+				new DynamicWorkflowController(new GuiCopperDataProvider("172.23.193.107",Registry.REGISTRY_PORT)), messageProvider,  new TabPaneShowFormStrategie());
 	}
 	
 	public Form<BorderPane> createLoginForm(){
