@@ -1,4 +1,4 @@
-You need "gradle" to build COPPER.
+You need "gradle 1.3" to build COPPER.
 
 To build all COPPER projects, just execute
 gradle assemble
