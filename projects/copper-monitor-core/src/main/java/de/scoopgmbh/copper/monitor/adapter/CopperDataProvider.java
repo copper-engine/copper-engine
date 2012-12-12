@@ -1,10 +1,7 @@
-package de.scoopgmbh.copper.gui.adapter;
+package de.scoopgmbh.copper.monitor.adapter;
 
 import java.rmi.Remote;
 import java.util.List;
-
-import de.scoopgmbh.copper.management.AuditTrailInfo;
-import de.scoopgmbh.copper.management.WorkflowInfo;
 
 public interface CopperDataProvider extends Remote {
 	

@@ -1,4 +1,4 @@
-package de.scoopgmbh.copper.gui.adapter;
+package de.scoopgmbh.copper.monitor.adapter;
 
 /**
  * placeholder

@@ -8,6 +8,7 @@ import de.scoopgmbh.copper.gui.model.AuditTrailFilterModel;
 import de.scoopgmbh.copper.gui.model.AuditTrailInfoModel;
 import de.scoopgmbh.copper.gui.model.WorkflowClassInfoModel;
 import de.scoopgmbh.copper.gui.model.WorkflowInstancesInfoModel;
+import de.scoopgmbh.copper.monitor.adapter.CopperDataProvider;
 
 public class GuiCopperDataProvider {
 	

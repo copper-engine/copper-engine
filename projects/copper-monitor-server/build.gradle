@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-	compile project(':copper-monitor-core')
+	compile project(':projects:copper-monitor-core')
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
