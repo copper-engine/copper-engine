@@ -12,7 +12,17 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 
 public interface CopperDataProvider extends Remote {
 
-	public int getWorkflowInstancesInfosCount(String session) throws RemoteException;
+	class CountInfo {
+		String workflowClass;
+		String workflowAlias;
+		workflowVersion;
+		status;
+		int count;
+	}
+
+	public List<CountInfo> getWorkflowInstancesInfosCount(String session) throws RemoteException;
+
+
 
 	public List<WorkflowInstanceInfo> getWorkflowInstancesInfos(String session, int fromCount, int toCount) throws RemoteException;
 
