@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class WorkflowInstanceInfo implements Serializable{
+	private static final long serialVersionUID = 3115987442310287971L;
 	
 	private String id;
 	private String state;

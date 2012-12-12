@@ -19,6 +19,7 @@ import java.io.Serializable;
 
 
 public class AuditTrailInfo implements Serializable{
+	private static final long serialVersionUID = -209662541110736345L;
 
 	long id;
 
