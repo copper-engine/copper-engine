@@ -2,6 +2,10 @@ package de.scoopgmbh.copper.gui.form;
 
 import javafx.scene.Node;
 
-public interface ShowFormStrategy<E extends Node> {
-	public void showOn(E component, Form<E> form);
+public abstract class ShowFormStrategy<E extends Node> {
+	protected E component;
+	public ShowFormStrategy(E component){
+		this.component=component;
+	}
+	public abstract void show(Form<?> form);
 }

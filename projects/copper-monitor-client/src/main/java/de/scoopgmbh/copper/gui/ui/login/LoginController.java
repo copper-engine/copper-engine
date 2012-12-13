@@ -1,6 +1,8 @@
 package de.scoopgmbh.copper.gui.ui.login;
 
 import java.net.URL;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.ResourceBundle;
 
 import javafx.event.ActionEvent;
@@ -11,13 +13,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import de.scoopgmbh.copper.gui.factory.MainFactory;
+import de.scoopgmbh.copper.gui.form.FxmlController;
+import de.scoopgmbh.copper.monitor.adapter.ServerLogin;
 
-/**
- * Controller class for JavaFX 2 Menus with FXML post and demonstration.
- * 
- * @author Dustin
- */
-public class LoginController implements Initializable {
+public class LoginController implements Initializable, FxmlController {
 	private final MainFactory mainFactory;
 
 
@@ -56,11 +55,24 @@ public class LoginController implements Initializable {
 		readonlyRadioButton.setToggleGroup(groupAccessmode);
 		
 		startButton.setOnAction(new EventHandler<ActionEvent>() {
-		    @Override public void handle(ActionEvent e) {
-		    	mainFactory.getMainPane().setCenter(mainFactory.getMainTabPane());
-		    	mainFactory.getMainPane().setTop(mainFactory.createMenueBar());
+		    @Override public void handle(ActionEvent event) {
+		    	
+				Registry registry;
+				try {
+					registry = LocateRegistry.getRegistry("172.23.193.107",Registry.REGISTRY_PORT);
+					ServerLogin serverLogin = (ServerLogin) registry.lookup(ServerLogin.class.getSimpleName());
+					mainFactory.setGuiCopperDataProvider(serverLogin.login("", ""));
+					mainFactory.getFormFactory().setupGUIStructure();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 		    }
 		});
 		
+	}
+
+	@Override
+	public URL getFxmlRessource() {
+		return getClass().getResource("Login.fxml");
 	}
 }

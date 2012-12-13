@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="716.0" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0">
+      <bottom>
+        <Button fx:id="refreshButton" mnemonicParsing="false" text="refresh" />
+      </bottom>
+      <center>
+        <TreeView fx:id="workflowTree" prefHeight="286.0" prefWidth="644.0" />
+      </center>
+    </BorderPane>
+  </children>
+  <effect>
+    <DropShadow />
+  </effect>
+</AnchorPane>

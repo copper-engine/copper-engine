@@ -1,9 +1,6 @@
 package de.scoopgmbh.copper.monitor.server;
 
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.RemoteServer;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,31 +11,19 @@ import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
 
-public class RMIForwardCopperDataProvider implements CopperDataProvider {
-
+public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements CopperDataProvider {
+	private static final long serialVersionUID = -5757718583261293846L;
 	
-	public RMIForwardCopperDataProvider(int port) {
-		try {
-			LocateRegistry.createRegistry( port );
-			CopperDataProvider stub = (CopperDataProvider) UnicastRemoteObject.exportObject(this, 0);
-			RemoteServer.setLog(System.out);
-
-			Registry registry = LocateRegistry.getRegistry();
-			registry.rebind(CopperDataProvider.class.getSimpleName(), stub);
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	
-	@Override
-	public int getWorkflowInstancesInfosCount() {
-		return 0;
+	protected RMIForwardCopperDataProvider() throws RemoteException {
+		super();
 	}
 
+
+
 	@Override
-	public List<WorkflowInstanceInfo> getWorkflowInstancesInfos(int fromCount, int toCount) {
+	public List<WorkflowInstanceInfo> getWorkflowInstancesInfos(String worklfowId, int fromCount, int toCount) throws RemoteException {
 		ArrayList<WorkflowInstanceInfo> result = new ArrayList<>();
 		WorkflowInstanceInfo workflowInfo = new WorkflowInstanceInfo();
 		workflowInfo.setId("1");
@@ -53,47 +38,51 @@ public class RMIForwardCopperDataProvider implements CopperDataProvider {
 	}
 
 	@Override
-	public int getWorkflowInstancesInfosCount(String worklfowId) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public List<WorkflowInstanceInfo> getWorkflowInstancesInfos(String worklfowId, int fromCount, int toCount) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<WorkflowClassesInfo> getWorklowClassesInfos() {
+	public List<WorkflowClassesInfo> getWorklowClassesInfos() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<AuditTrailInfo> getAuditTrails(String transactionId, String conversationId, String correlationId, Integer level,
-			int maxResult) {
+			int maxResult) throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getAuditTrailMessage(long id) {
+	public String getAuditTrailMessage(long id) throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public WorkflowInstanceMetaDataInfo getWorkflowInstanceMetaData(String worklfowId) {
+	public WorkflowInstanceMetaDataInfo getWorkflowInstanceMetaData(String worklfowId) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CopperStatusInfo getCopperStatus() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
+
 	@Override
-	public CopperStatusInfo getCopperStatus() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<WorkflowSummery> getWorkflowSummery(String workflowclass, String minorversion, String majorversion) throws RemoteException {
+		ArrayList<WorkflowSummery> result = new ArrayList<>();
+		WorkflowSummery workflowSummery = new WorkflowSummery();
+		workflowSummery.setClazz("worklfowclass1");
+		result.add(workflowSummery);
+		workflowSummery = new WorkflowSummery();
+		workflowSummery.setClazz("worklfowclass2");
+		result.add(workflowSummery);
+		workflowSummery = new WorkflowSummery();
+		workflowSummery.setClazz("worklfowclass3");
+		result.add(workflowSummery);
+		return result;
 	}
 
 

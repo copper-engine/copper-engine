@@ -8,22 +8,21 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.MenuItemBuilder;
-import javafx.scene.control.TabPane;
  
-public class FormManager {
+public class FormGroup {
     
-	ArrayList<Form<TabPane>> forms = new ArrayList<>();
+	ArrayList<Form<?>> forms = new ArrayList<>();
 	
-	public FormManager(List<Form<TabPane>> forms){
+	public FormGroup(List<Form<?>> forms){
 		this.forms.addAll(forms);
 	}
 	
 	public Menu createMenue(){
 		final Menu fileMenu = new Menu("Window");
-		for (final Form<TabPane> form: forms){
+		for (final Form<?> form: forms){
 			MenuItem menueItem = MenuItemBuilder
 					.create()
-					.text(form.getMenueItemText())
+					.text(form.getTitle())
 					.onAction(new EventHandler<ActionEvent>() {
 						@Override
 						public void handle(ActionEvent e) {

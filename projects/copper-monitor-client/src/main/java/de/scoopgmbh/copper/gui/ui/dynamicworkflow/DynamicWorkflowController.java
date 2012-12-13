@@ -15,14 +15,10 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
+import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.model.WorkflowInstancesInfoModel;
 
-/**
- * Controller class for JavaFX 2 Menus with FXML post and demonstration.
- * 
- * @author Dustin
- */
-public class DynamicWorkflowController implements Initializable {
+public class DynamicWorkflowController implements Initializable, FxmlController {
 	GuiCopperDataProvider copperDataProvider;
 
     @FXML
@@ -67,5 +63,10 @@ public class DynamicWorkflowController implements Initializable {
 			}
 		});
 		
+	}
+
+	@Override
+	public URL getFxmlRessource() {
+		return getClass().getResource("DynamicWorkflow.fxml");
 	}
 }

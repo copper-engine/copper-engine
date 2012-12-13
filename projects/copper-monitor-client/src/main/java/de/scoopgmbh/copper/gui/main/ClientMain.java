@@ -1,7 +1,6 @@
 package de.scoopgmbh.copper.gui.main;
 
 import javafx.application.Application;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -13,17 +12,9 @@ public class ClientMain extends Application {
 	public void start(final Stage primaryStage) { //Stage = window
 		
 		primaryStage.setTitle("Copper gui");
-		final Group rootGroup = new Group();
-		final Scene scene = new Scene(rootGroup, 1024, 768, Color.WHEAT);
+		MainFactory mainFactory = new MainFactory();
+		final Scene scene = new Scene(mainFactory.getMainPane(), 1024, 768, Color.WHEAT);
 
-		
-		MainFactory mainFactory = new MainFactory(primaryStage);
-	
-		
-
-		mainFactory.getMainPane().prefHeightProperty().bind(scene.heightProperty());
-		mainFactory.getMainPane().prefWidthProperty().bind(scene.widthProperty());
-		rootGroup.getChildren().add(mainFactory.getMainPane());
 		
 		primaryStage.setScene(scene);
 		primaryStage.show();

@@ -8,28 +8,23 @@ import javafx.scene.Parent;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 
 
-public class FxmlForm<T extends Node> extends Form<T> {
-
+public class FxmlForm<C extends FxmlController> extends Form<C> {
 	String fxmlPath;
-	Object controler;
 
-	
-//	public FxmlForm(TabPane mainTabPane, String menueItemtext, String fxmlPath, Object controler, MessageProvider messageProvider) {
-//		super(mainTabPane, menueItemtext, messageProvider);
-//		this.fxmlPath = fxmlPath;
-//		this.controler = controler;
-//	}
-
-	public FxmlForm(T displayTarget, String menueItemtextKey, String fxmlPath, Object controler, MessageProvider messageProvider, ShowFormStrategy<T> showFormStrategie) {
-		super(displayTarget, menueItemtextKey, messageProvider, showFormStrategie);
+	public FxmlForm(String menueItemtextKey, C controller, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie) {
+		super(menueItemtextKey, messageProvider, showFormStrategie,controller);
 		this.fxmlPath = fxmlPath;
-		this.controler = controler;
+	}
+	
+	public FxmlForm(String menueItemtextKey, C controller, MessageProvider messageProvider) {
+		super(menueItemtextKey, messageProvider, new NotShowFormStrategie(),controller);
+		this.fxmlPath = fxmlPath;
 	}
 
 	@Override
 	public Node createContent() {
-		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlPath));
-		fxmlLoader.setController(controler);
+		FXMLLoader fxmlLoader = new FXMLLoader(controller.getFxmlRessource());
+		fxmlLoader.setController(controller);
 		fxmlLoader.setResources(messageProvider.getBundle());
 		try {
 			return (Parent) fxmlLoader.load();
@@ -37,6 +32,7 @@ public class FxmlForm<T extends Node> extends Form<T> {
 			throw new RuntimeException(exception);
 		}
 	}
+	
 
 	
 	

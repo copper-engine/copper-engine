@@ -3,12 +3,17 @@ package de.scoopgmbh.copper.gui.form;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
-public class TabPaneShowFormStrategie implements ShowFormStrategy<TabPane> {
-	public void showOn(TabPane component, Form<TabPane> form){
+public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
+
+	public TabPaneShowFormStrategie(TabPane component) {
+		super(component);
+	}
+
+	public void show(Form<?> form){
 		Tab tab = new Tab();
 		tab.setText("new tab");
 		tab.setContent(form.createContent());
-		tab.setText(form.getMenueItemText());
+		tab.setText(form.getTitle());
 		component.getTabs().add(tab);
 	}
 }

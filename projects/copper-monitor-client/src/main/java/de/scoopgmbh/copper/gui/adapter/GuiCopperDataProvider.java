@@ -1,9 +1,6 @@
 package de.scoopgmbh.copper.gui.adapter;
 
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,23 +9,18 @@ import de.scoopgmbh.copper.gui.model.AuditTrailFilterModel;
 import de.scoopgmbh.copper.gui.model.AuditTrailInfoModel;
 import de.scoopgmbh.copper.gui.model.WorkflowClassInfoModel;
 import de.scoopgmbh.copper.gui.model.WorkflowInstancesInfoModel;
+import de.scoopgmbh.copper.gui.ui.workflowsummery.result.WorkflowSummeryResultModel;
 import de.scoopgmbh.copper.monitor.adapter.CopperDataProvider;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
 
 public class GuiCopperDataProvider {
 	
 	private final CopperDataProvider copperDataProvider;
 	
-	public GuiCopperDataProvider(String host, int port) {
+	public GuiCopperDataProvider(CopperDataProvider copperDataProvider) {
 		super();
-		
-		Registry registry;
-		try {
-			registry = LocateRegistry.getRegistry(host,port);
-			copperDataProvider = (CopperDataProvider) registry.lookup(CopperDataProvider.class.getSimpleName());
-		} catch (RemoteException | NotBoundException e) {
-			throw new RuntimeException(e);
-		}
+		this.copperDataProvider=copperDataProvider;
 	}
 
 	public int getWorkflowInstancesInfosCount(){
@@ -38,7 +30,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowInstancesInfoModel> getWorkflowInstancesInfos(int fromCount, int toCount){
 		List<WorkflowInstanceInfo> infos;
 		try {
-			infos = copperDataProvider.getWorkflowInstancesInfos(fromCount, toCount);
+			infos = copperDataProvider.getWorkflowInstancesInfos("dummySession",fromCount, toCount);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -79,6 +71,20 @@ public class GuiCopperDataProvider {
 	
 	String getAuditTrailMessage(long id){
 		return "bla";
+	}
+
+	public List<WorkflowSummeryResultModel> getWorkflowSummery(String workflowclass, String minorversion, String majorversion) {
+		List<WorkflowSummery> summeries;
+		try {
+			summeries = copperDataProvider.getWorkflowSummery(workflowclass, minorversion, majorversion);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+		ArrayList<WorkflowSummeryResultModel> result = new ArrayList<>();
+		for (WorkflowSummery workflowSummery: summeries){
+			result.add(new WorkflowSummeryResultModel(workflowSummery));
+		}
+		return result;
 	}
 	
 //		getAuditTrails(String transactionId, String conversationId, String correlationId, Integer level, int maxResult)

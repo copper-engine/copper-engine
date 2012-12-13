@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<FlowPane alignment="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="52.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <Label text="workflowclass">
+      <labelFor>
+        <TextField fx:id="workflowClass" prefWidth="200.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="workflowClass" />
+    <Label text="major version">
+      <labelFor>
+        <TextField fx:id="minorVersion" prefWidth="139.0" />
+      </labelFor>
+    </Label>
+    <TextField fx:id="majorVersion" prefWidth="161.0" />
+    <Label labelFor="$minorVersion" text="minor version" />
+    <fx:reference source="minorVersion" />
+  </children>
+</FlowPane>
