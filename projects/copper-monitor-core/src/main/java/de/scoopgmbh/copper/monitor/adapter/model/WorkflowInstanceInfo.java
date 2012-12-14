@@ -23,7 +23,7 @@ public class WorkflowInstanceInfo implements Serializable{
 	private static final long serialVersionUID = 3115987442310287971L;
 	
 	private String id;
-	private String state;
+	private WorkflowInstanceState state;
 	private int priority;
 	private String processorPoolId;
 	private Date timeout;
@@ -32,7 +32,7 @@ public class WorkflowInstanceInfo implements Serializable{
 	}
 	
 	@ConstructorProperties({"id", "state", "priority","processorPoolId","timeout"}) 
-	public WorkflowInstanceInfo(String id, String state, int priority, String processorPoolId, Date timeout) {
+	public WorkflowInstanceInfo(String id, WorkflowInstanceState state, int priority, String processorPoolId, Date timeout) {
 		super();
 		this.id = id;
 		this.state = state;
@@ -49,11 +49,11 @@ public class WorkflowInstanceInfo implements Serializable{
 		this.id = id;
 	}
 
-	public String getState() {
+	public WorkflowInstanceState getState() {
 		return state;
 	}
 
-	public void setState(String state) {
+	public void setState(WorkflowInstanceState state) {
 		this.state = state;
 	}
 

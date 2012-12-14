@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+  <top>
+    <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
+      <columns>
+        <TableColumn prefWidth="75.0" text="id" fx:id="idColumn" />
+        <TableColumn prefWidth="75.0" text="occurrence" fx:id="occurrenceColumn" />
+        <TableColumn prefWidth="75.0" text="conversationId" fx:id="conversationIdColumn" />
+        <TableColumn prefWidth="75.0" text="loglevel" fx:id="loglevelColumn" />
+        <TableColumn prefWidth="75.0" text="workflowInstanceId" fx:id="workflowInstanceIdColumn" />
+        <TableColumn prefWidth="75.0" text="correlationId" fx:id="correlationIdColumn" />
+        <TableColumn prefWidth="75.0" text="transactionId" fx:id="transactionIdColumn" />
+        <TableColumn prefWidth="75.0" text="messageType" fx:id="messageTypeColumn" />
+      </columns>
+    </TableView>
+  </top>
+</BorderPane>

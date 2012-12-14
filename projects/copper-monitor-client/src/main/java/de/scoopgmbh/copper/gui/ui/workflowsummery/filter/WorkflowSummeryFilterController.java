@@ -5,15 +5,28 @@ import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.TextField;
-import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
+import de.scoopgmbh.copper.gui.factory.FormFactory;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
 
 public class WorkflowSummeryFilterController implements Initializable, FilterController<WorkflowSummeryFilterModel>, FxmlController {
-	GuiCopperDataProvider copperDataProvider;
+	private WorkflowSummeryFilterModel model;
+	private final FormFactory formFactory;
 
-
+	public WorkflowSummeryFilterController(FormFactory formFactory) {
+		super();
+		this.formFactory = formFactory;
+	}
+	
+	
+	public void setFilter(String workflowclass, String minorVersion, String majorVersion){
+		model.workflowclass.setValue(workflowclass);
+		model.majorVersion.setValue(minorVersion);
+		model.minorVersion.setValue(majorVersion);
+	}
+	
     @FXML //  fx:id="majorVersion"
     private TextField majorVersion; // Value injected by FXMLLoader
 
@@ -23,24 +36,22 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
     @FXML //  fx:id="workflowClass"
     private TextField workflowClass; // Value injected by FXMLLoader
 
-
-	private WorkflowSummeryFilterModel model;
-
-
-	public WorkflowSummeryFilterController() {
-		super();
-	}
+    @FXML //  fx:id="searchMenueItem"
+    private CustomMenuItem searchMenueItem; // Value injected by FXMLLoader
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle rb) {
         assert majorVersion != null : "fx:id=\"majorVersion\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert minorVersion != null : "fx:id=\"minorVersion\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
-
+        assert searchMenueItem != null : "fx:id=\"searchMenueItem\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
+        
         model = new WorkflowSummeryFilterModel();
-        workflowClass.textProperty().bind(model.workflowclass);
-        minorVersion.textProperty().bind(model.minorVersion);
-        majorVersion.textProperty().bind(model.majorVersion);
+        workflowClass.textProperty().bindBidirectional(model.workflowclass);
+        minorVersion.textProperty().bindBidirectional(model.minorVersion);
+        majorVersion.textProperty().bindBidirectional(model.majorVersion);
+        
+        searchMenueItem.setContent(formFactory.createWorkflowClassesTreeForm(this).createContent());
 	}
 
 	@Override

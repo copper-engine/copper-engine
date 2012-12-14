@@ -16,14 +16,14 @@
 package de.scoopgmbh.copper.monitor.adapter.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 
 public class AuditTrailInfo implements Serializable{
 	private static final long serialVersionUID = -209662541110736345L;
 
 	long id;
-
-	long occurrence;
+	Date occurrence;
 	String conversationId;
 	int loglevel;
 	String context;
@@ -32,13 +32,16 @@ public class AuditTrailInfo implements Serializable{
 	String transactionId;
 	String messageType;
 	
+	public AuditTrailInfo(){
+		
+	}
 	
 	public AuditTrailInfo(
 			long id,
 			String transactionId,
 			String conversationId,
 			String correlationId, 
-			long occurrence, 
+			Date occurrence, 
 			int loglevel,
 			String context, 
 			String workflowInstanceId, 
@@ -62,7 +65,7 @@ public class AuditTrailInfo implements Serializable{
 		this.id = id;
 	}
 	
-	public long getOccurrence() {
+	public Date getOccurrence() {
 		return occurrence;
 	}
 	public String getConversationId() {
@@ -86,7 +89,7 @@ public class AuditTrailInfo implements Serializable{
 	public String getMessageType() {
 		return messageType;
 	}
-	public void setOccurrence(long occurrence) {
+	public void setOccurrence(Date occurrence) {
 		this.occurrence = occurrence;
 	}
 	public void setConversationId(String conversationId) {

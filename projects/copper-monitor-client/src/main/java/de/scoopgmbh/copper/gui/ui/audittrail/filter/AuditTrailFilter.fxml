@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<FlowPane alignment="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="52.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <Label text="workflowClass">
+      <labelFor>
+        <TextField fx:id="workflowClass" prefWidth="140.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="workflowClass" />
+    <Label text="workflowInstanceId">
+      <labelFor>
+        <TextField fx:id="workflowInstanceId" prefWidth="140.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="workflowInstanceId" />
+    <Label text="correlationId">
+      <labelFor>
+        <TextField fx:id="correlationId" prefWidth="140.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="correlationId" />
+    <Label text="level">
+      <labelFor>
+        <TextField fx:id="level" prefWidth="140.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="level" />
+  </children>
+</FlowPane>

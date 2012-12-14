@@ -9,16 +9,13 @@ import de.scoopgmbh.copper.gui.util.MessageProvider;
 
 
 public class FxmlForm<C extends FxmlController> extends Form<C> {
-	String fxmlPath;
 
 	public FxmlForm(String menueItemtextKey, C controller, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie) {
 		super(menueItemtextKey, messageProvider, showFormStrategie,controller);
-		this.fxmlPath = fxmlPath;
 	}
 	
 	public FxmlForm(String menueItemtextKey, C controller, MessageProvider messageProvider) {
 		super(menueItemtextKey, messageProvider, new NotShowFormStrategie(),controller);
-		this.fxmlPath = fxmlPath;
 	}
 
 	@Override

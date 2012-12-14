@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<FlowPane alignment="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="52.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <Label text="state">
+      <labelFor>
+        <TextField id="workflowClass" fx:id="priorityField" prefWidth="200.0" />
+      </labelFor>
+    </Label>
+    <ChoiceBox fx:id="stateChoice">
+      <items>
+        <FXCollections fx:factory="observableArrayList">
+          <String fx:value="Item 1" />
+          <String fx:value="Item 2" />
+          <String fx:value="Item 3" />
+        </FXCollections>
+      </items>
+    </ChoiceBox>
+    <Label text="priority">
+      <labelFor>
+        <TextField fx:id="minorVersion" prefWidth="139.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="priorityField" />
+  </children>
+</FlowPane>

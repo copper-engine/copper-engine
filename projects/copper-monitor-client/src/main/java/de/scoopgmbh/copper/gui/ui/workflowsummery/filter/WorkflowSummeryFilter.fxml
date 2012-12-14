@@ -11,17 +11,22 @@
   <children>
     <Label text="workflowclass">
       <labelFor>
-        <TextField fx:id="workflowClass" prefWidth="200.0" />
+        <TextField fx:id="workflowClass" prefWidth="146.0" />
       </labelFor>
     </Label>
     <fx:reference source="workflowClass" />
     <Label text="major version">
       <labelFor>
-        <TextField fx:id="minorVersion" prefWidth="139.0" />
+        <TextField fx:id="minorVersion" prefWidth="71.0" />
       </labelFor>
     </Label>
-    <TextField fx:id="majorVersion" prefWidth="161.0" />
+    <TextField fx:id="majorVersion" prefWidth="92.0" />
     <Label labelFor="$minorVersion" text="minor version" />
     <fx:reference source="minorVersion" />
+    <MenuButton mnemonicParsing="false" prefWidth="106.0" text="Search">
+      <items>
+        <CustomMenuItem mnemonicParsing="false" text="Unspecified Action" fx:id="searchMenueItem" />
+      </items>
+    </MenuButton>
   </children>
 </FlowPane>

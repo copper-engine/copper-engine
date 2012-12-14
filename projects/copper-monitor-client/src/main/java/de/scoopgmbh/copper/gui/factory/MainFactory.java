@@ -9,7 +9,7 @@ import de.scoopgmbh.copper.gui.form.Form;
 import de.scoopgmbh.copper.gui.form.FxmlForm;
 import de.scoopgmbh.copper.gui.ui.login.LoginController;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
-import de.scoopgmbh.copper.monitor.adapter.CopperDataProvider;
+import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 
 public class MainFactory {
 
@@ -22,7 +22,7 @@ public class MainFactory {
 	}
 
 	GuiCopperDataProvider guiCopperDataProvider;
-	public void setGuiCopperDataProvider(CopperDataProvider copperDataProvider){
+	public void setGuiCopperDataProvider(CopperMonitorInterface copperDataProvider){
 		this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);
 	}
 	

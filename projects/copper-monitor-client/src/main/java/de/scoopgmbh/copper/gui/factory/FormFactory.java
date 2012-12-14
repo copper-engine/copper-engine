@@ -13,7 +13,14 @@ import de.scoopgmbh.copper.gui.form.TabPaneShowFormStrategie;
 import de.scoopgmbh.copper.gui.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
-import de.scoopgmbh.copper.gui.ui.dynamicworkflow.DynamicWorkflowController;
+import de.scoopgmbh.copper.gui.ui.audittrail.filter.AuditTrailFilterController;
+import de.scoopgmbh.copper.gui.ui.audittrail.filter.AuditTrailFilterModel;
+import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultController;
+import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeController;
+import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeForm;
+import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterController;
+import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
+import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultController;
 import de.scoopgmbh.copper.gui.ui.workflowsummery.filter.WorkflowSummeryFilterController;
 import de.scoopgmbh.copper.gui.ui.workflowsummery.filter.WorkflowSummeryFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowsummery.result.WorkflowSummeryResultController;
@@ -37,9 +44,9 @@ public class FormFactory {
 		this.mainPane = mainPane;
 		
 		ArrayList<Form<?>> group = new ArrayList<>();
-		group.add(createDynamicWorkflowForm());
-		group.add(createWorkflowClassesTreeForm());
 		group.add(createWorkflowSummeryForm());
+		group.add(createWorkflowInstanceForm());
+		group.add(createAudittrailForm());
 		formGroup = new FormGroup(group);
 	}
 	
@@ -54,10 +61,15 @@ public class FormFactory {
 		return menuBar;
 	}
 	
+	public WorkflowClassesTreeForm createWorkflowClassesTreeForm(WorkflowSummeryFilterController filterController){
+		return new WorkflowClassesTreeForm("workflowClassesTreeForm.title", messageProvider,new WorkflowClassesTreeController(guiCopperDataProvider,filterController));
+	}
+	
+	
 	public FilterAbleForm<WorkflowSummeryFilterModel> createWorkflowSummeryForm(){
 		//same hacks are needed cause java cant handle generics as expected
 		
-		FilterController<WorkflowSummeryFilterModel> fCtrl = new WorkflowSummeryFilterController(); 
+		FilterController<WorkflowSummeryFilterModel> fCtrl = new WorkflowSummeryFilterController(this); 
 		FxmlForm<FilterController<WorkflowSummeryFilterModel>> filterForm = new FxmlForm<>("workflowsummeryFilter.title",
 				fCtrl, messageProvider);
 		
@@ -65,16 +77,37 @@ public class FormFactory {
 		FxmlForm<FilterResultController<WorkflowSummeryFilterModel>> resultForm = new FxmlForm<>("workflowsummeryFilter.title",
 				resCtrl, messageProvider);
 		
-		return new FilterAbleForm<WorkflowSummeryFilterModel>("workflowsummery.title", messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm);
+		return new FilterAbleForm<>("workflowsummery.title", messageProvider,
+				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
-	public Form<DynamicWorkflowController> createWorkflowClassesTreeForm(){
-		return new FxmlForm<>("dynamicworkflow.title", new DynamicWorkflowController(guiCopperDataProvider), messageProvider,  new TabPaneShowFormStrategie(mainTabPane));
+	public FilterAbleForm<WorkflowInstanceFilterModel> createWorkflowInstanceForm(){
+		//same hacks are needed cause java cant handle generics as expected
+		
+		FilterController<WorkflowInstanceFilterModel> fCtrl = new WorkflowInstanceFilterController(); 
+		FxmlForm<FilterController<WorkflowInstanceFilterModel>> filterForm = new FxmlForm<>("workflowsummeryFilter.title",
+				fCtrl, messageProvider);
+		
+		FilterResultController<WorkflowInstanceFilterModel> resCtrl = new WorkflowInstanceResultController(guiCopperDataProvider);
+		FxmlForm<FilterResultController<WorkflowInstanceFilterModel>> resultForm = new FxmlForm<>("workflowsummeryFilter.title",
+				resCtrl, messageProvider);
+		
+		return new FilterAbleForm<>("workflowInstance.title", messageProvider,
+				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
-	public Form<DynamicWorkflowController> createDynamicWorkflowForm(){
-		return new FxmlForm<>("dynamicworkflow.title",
-				new DynamicWorkflowController(guiCopperDataProvider), messageProvider,  new TabPaneShowFormStrategie(mainTabPane));
+	public FilterAbleForm<AuditTrailFilterModel> createAudittrailForm(){
+		//same hacks are needed cause java cant handle generics as expected
+		
+		FilterController<AuditTrailFilterModel> fCtrl = new AuditTrailFilterController(); 
+		FxmlForm<FilterController<AuditTrailFilterModel>> filterForm = new FxmlForm<>("workflowsummeryFilter.title",
+				fCtrl, messageProvider);
+		
+		FilterResultController<AuditTrailFilterModel> resCtrl = new AuditTrailResultController(guiCopperDataProvider);
+		FxmlForm<FilterResultController<AuditTrailFilterModel>> resultForm = new FxmlForm<>("workflowsummeryFilter.title",
+				resCtrl, messageProvider);
+		
+		return new FilterAbleForm<>("audittrail.title", messageProvider,
+				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 }

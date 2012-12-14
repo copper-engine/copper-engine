@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+  <top>
+    <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
+      <columns>
+        <TableColumn prefWidth="75.0" text="Workflowid" fx:id="idColumn" />
+        <TableColumn prefWidth="75.0" text="State" fx:id="stateColumn" />
+        <TableColumn prefWidth="75.0" text="priority" fx:id="prioritynColumn" />
+        <TableColumn prefWidth="75.0" text="ProcessorPool" fx:id="processorPoolColumn" />
+        <TableColumn prefWidth="75.0" text="Status" fx:id="timeoutColumn" />
+      </columns>
+    </TableView>
+  </top>
+</BorderPane>
