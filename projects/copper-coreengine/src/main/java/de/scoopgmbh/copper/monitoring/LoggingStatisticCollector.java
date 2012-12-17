@@ -56,6 +56,8 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 	private static final Logger logger = LoggerFactory.getLogger(LoggingStatisticCollector.class);
 
 	private int loggingIntervalSec = 15;
+	private boolean resetAfterLogging = false;
+	
 	private Thread thread;
 	private boolean shutdown = false;
 	private volatile Map<String,StatSet> map = new HashMap<String, StatSet>();
@@ -63,6 +65,13 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 
 	public void setLoggingIntervalSec(int loggingIntervalSec) {
 		this.loggingIntervalSec = loggingIntervalSec;
+	}
+	
+	/**
+	 * If set to true, the internal statistics are reseted after a each periodical logging.
+	 */
+	public void setResetAfterLogging(boolean resetAfterLogging) {
+		this.resetAfterLogging = resetAfterLogging;
 	}
 
 	public synchronized void start() {
@@ -74,6 +83,9 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 					try {
 						Thread.sleep(loggingIntervalSec*1000L);
 						log();
+						if (resetAfterLogging) {
+							reset();
+						}
 					}
 					catch(InterruptedException e) {
 						// ignore
