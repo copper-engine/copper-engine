@@ -583,5 +583,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		return rv;
 	}
 
+	protected ClassLoader getClassLoader() {
+		return volatileState.classLoader;
+	}
 
 }
