@@ -26,24 +26,25 @@ import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 /**
- * Incompatible change example E002
+ * Incompatible change example E006
  * 
  * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * 
- * adding a new local variable to a directly or indirectly waiting method
+ * Adding a field that is not serializable and not transient (when using standard Java serialisation) 
  *
  * @author austermann
  *
  */
-@WorkflowDescription(alias=CompatibilityCheckWorkflowDef.NAME,majorVersion=1,minorVersion=1,patchLevelVersion=002)
-public class CompatibilityCheckWorkflow_E002 extends PersistentWorkflow<Serializable> {
+@WorkflowDescription(alias=CompatibilityCheckWorkflowDef.NAME,majorVersion=1,minorVersion=0,patchLevelVersion=6)
+public class CompatibilityCheckWorkflow_E006 extends PersistentWorkflow<Serializable> {
 	
-	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_E002.class);
+	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_E006.class);
 
 	private static final long serialVersionUID = 1L;
 	
 	private String aString;
 	private String bString;
+	private NonSerializableClass nonSerializableField; // Adding a new field that is not serializable
 	
 	@Override
 	public void main() throws InterruptException {
@@ -52,14 +53,15 @@ public class CompatibilityCheckWorkflow_E002 extends PersistentWorkflow<Serializ
 		directlyWaitingMethod(aString, localIntValue);
 		bString = "B";
 		localIntValue++;
+		nonSerializableField = new NonSerializableClass(); // Creating a new instance of NonSerializableClass
+		logger.info("created nonSerializableField={}", nonSerializableField);
 		indirectlyWaitingMethod(bString, localIntValue);
+		logger.info("nonSerializableField={}", nonSerializableField);
 	}
 	
 	protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
-		Object NEW_LOCAL_VARIABLE = "NEW_LOCAL_VARIABLE";
 		neverWaitingMethod(strValue, intValue);
 		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
-		logger.info("{}", NEW_LOCAL_VARIABLE);
 	}
 	
 	protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {

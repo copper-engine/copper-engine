@@ -40,6 +40,7 @@ public class CompatibilityCheckWorkflow_E101 extends PersistentWorkflow<Serializ
 
 	private static final long serialVersionUID = 1L;
 	
+	@SuppressWarnings("unused")
 	private String aString;
 	private String bString;
 	

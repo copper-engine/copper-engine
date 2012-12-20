@@ -26,19 +26,19 @@ import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 /**
- * Incompatible change example E002
+ * Compatible change example 0008
  * 
- * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * 
- * adding a new local variable to a directly or indirectly waiting method
- *
+ * removing an obsolete method
+ * 
  * @author austermann
  *
  */
-@WorkflowDescription(alias=CompatibilityCheckWorkflowDef.NAME,majorVersion=1,minorVersion=1,patchLevelVersion=002)
-public class CompatibilityCheckWorkflow_E002 extends PersistentWorkflow<Serializable> {
+@WorkflowDescription(alias=CompatibilityCheckWorkflowDef.NAME,majorVersion=1,minorVersion=0,patchLevelVersion=8)
+public class CompatibilityCheckWorkflow_0008 extends PersistentWorkflow<Serializable> {
 	
-	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_E002.class);
+	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_0008.class);
 
 	private static final long serialVersionUID = 1L;
 	
@@ -56,10 +56,8 @@ public class CompatibilityCheckWorkflow_E002 extends PersistentWorkflow<Serializ
 	}
 	
 	protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
-		Object NEW_LOCAL_VARIABLE = "NEW_LOCAL_VARIABLE";
 		neverWaitingMethod(strValue, intValue);
 		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
-		logger.info("{}", NEW_LOCAL_VARIABLE);
 	}
 	
 	protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
@@ -70,11 +68,11 @@ public class CompatibilityCheckWorkflow_E002 extends PersistentWorkflow<Serializ
 	
 	protected void neverWaitingMethod(String strValue, int intValue) {
 		logger.debug("strValue="+strValue+", intValue="+intValue);
-		anotherNeverWaitingMethod(strValue, intValue);
+//		anotherNeverWaitingMethod(strValue, intValue);
 	}
 	
-	protected void anotherNeverWaitingMethod(String strValue, int intValue) {
-		logger.debug("strValue="+strValue+", intValue="+intValue);
-	}
+//	protected void anotherNeverWaitingMethod(String strValue, int intValue) {
+//		logger.debug("strValue="+strValue+", intValue="+intValue);
+//	}
 
 }
