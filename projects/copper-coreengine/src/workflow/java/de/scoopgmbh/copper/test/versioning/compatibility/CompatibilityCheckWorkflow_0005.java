@@ -30,7 +30,7 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
  * 
  * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * 
- * Changing the implementation of a method, as long as no COPPER wait calls are added or deleted
+ * Changing the implementation of a method, as long as no COPPER wait calls are mixed up 
  *
  * @author austermann
  *

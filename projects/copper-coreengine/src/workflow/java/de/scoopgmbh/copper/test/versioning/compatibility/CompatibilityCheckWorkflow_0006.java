@@ -30,8 +30,8 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
  * 
  * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * 
- * Adding a new waiting method an calling it AFTER existing code in the main method. 
- * Adding a new wait call in the main method AFTER existing code. 
+ * Adding a new waiting method and calling it AFTER existing wait calls (directly or indirectly). 
+ * Adding a new wait call AFTER existing wait calls (directly or indirectly). 
  *
  * @author austermann
  *
