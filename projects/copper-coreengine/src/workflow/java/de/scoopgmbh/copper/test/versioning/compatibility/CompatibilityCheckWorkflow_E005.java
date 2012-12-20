@@ -28,7 +28,9 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 /**
  * Incompatible change example E005
  * 
- * xxx
+ * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * 
+ * Changing the serialVersionUID 
  *
  * @author austermann
  *
@@ -38,7 +40,7 @@ public class CompatibilityCheckWorkflow_E005 extends PersistentWorkflow<Serializ
 	
 	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_E005.class);
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 42L; // Changed from 1 to 42
 	
 	private String aString;
 	private String bString;

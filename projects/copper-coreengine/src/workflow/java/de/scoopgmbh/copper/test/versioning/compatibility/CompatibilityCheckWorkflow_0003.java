@@ -28,7 +28,9 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 /**
  * Compatible change example 0003
  * 
- * Adding a new method at the end of the class and using it somewhere/everywhere
+ * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * 
+ * Adding a new method and using it somewhere/everywhere within the workflow
  *
  * Important: The new method does not use COPPERs wait directly or indirectly and it does not declare to throw InterruptException
  * 

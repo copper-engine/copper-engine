@@ -28,6 +28,8 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 /**
  * Compatible change example 0001
  * 
+ * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * 
  * renaming of variable/parameter names;
  * 
  * @author austermann

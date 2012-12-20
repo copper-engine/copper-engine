@@ -16,19 +16,21 @@
 package de.scoopgmbh.copper.test.versioning.compatibility;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.WaitMode;
-import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 /**
- * Changing the type of a class instance field
+ * Incompatible change example E003
  * 
- * xxx
+ * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * 
+ * Changing the type of a field
  *
  * @author austermann
  *
@@ -39,17 +41,17 @@ public class CompatibilityCheckWorkflow_E004 extends PersistentWorkflow<Serializ
 
 	private static final long serialVersionUID = 1L;
 	
-	private String aString;
-	private Integer bInteger;
+	private BigInteger aString; // New field type - changed fom String to BigInteger
+	private String bString;
 	
 	@Override
 	public void main() throws InterruptException {
-		aString = "A";
+		aString = BigInteger.TEN;
 		int localIntValue = 1;
-		directlyWaitingMethod(aString, localIntValue);
-		bInteger = 1;
+		directlyWaitingMethod(aString.toString(), localIntValue);
+		bString = "B";
 		localIntValue++;
-		indirectlyWaitingMethod(bInteger.toString(), localIntValue);
+		indirectlyWaitingMethod(bString, localIntValue);
 	}
 	
 	protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {

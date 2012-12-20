@@ -28,7 +28,9 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 /**
  * Compatible change example 0005
  * 
- * changing the implementation of a method, as long as no COPPER wait calls are added or deleted
+ * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * 
+ * Changing the implementation of a method, as long as no COPPER wait calls are added or deleted
  *
  * @author austermann
  *
@@ -60,6 +62,9 @@ public class CompatibilityCheckWorkflow_0005 extends PersistentWorkflow<Serializ
 		bString = "B";
 		localIntValue++;
 		indirectlyWaitingMethod(bString, localIntValue);
+		if (aString.equals(bString)) {
+			logger.debug("The are equal!");
+		}
 	}
 	
 	protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {

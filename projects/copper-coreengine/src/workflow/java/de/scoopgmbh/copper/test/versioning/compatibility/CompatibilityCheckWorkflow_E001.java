@@ -28,6 +28,8 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 /**
  * Incompatible change example E001
  * 
+ * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * 
  * adding a new parameter to a directly or indirectly waiting method
  *
  * @author austermann

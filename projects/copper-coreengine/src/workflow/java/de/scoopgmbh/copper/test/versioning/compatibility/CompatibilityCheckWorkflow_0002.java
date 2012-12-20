@@ -30,7 +30,9 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 /**
  * Compatible change example 0002
  * 
- * Adding and using a new field in the class
+ * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * 
+ * adding and using a new field
  * 
  * @author austermann
  *

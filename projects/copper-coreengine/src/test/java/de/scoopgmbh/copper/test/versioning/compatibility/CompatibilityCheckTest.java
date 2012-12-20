@@ -41,19 +41,20 @@ public class CompatibilityCheckTest extends TestCase {
 		repo.start();
 		TestEngine engine = new TestEngine();
 		try {
-			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0001",true);
-			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0002",true);
-			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0003",true);
-			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0004",true);
-			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0005",true);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0001",true, true);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0002",true, true);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0003",true, true);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0004",true, true);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0005",true, true);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_0006",true, false);
 			
-			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_E001",false);
-			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_E002",false);
-			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_E003",false);
-			//doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_E004",false);
-			//doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_E005",false);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_E001",false, true);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_E002",false, true);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_E003",false, true);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_E004",false, true);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.CompatibilityCheckWorkflow_E005",false, true);
 
-			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_E101",false);
+			doTest(repo, engine, "de.scoopgmbh.copper.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_Base", "de.scoopgmbh.copper.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_E101",false, true);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -65,7 +66,7 @@ public class CompatibilityCheckTest extends TestCase {
 
 	}
 
-	private void doTest(TestWorkflowRepository repo, TestEngine engine, String baseClass, String compatibleClass, boolean successExpected) throws InterruptException, Exception {
+	private void doTest(TestWorkflowRepository repo, TestEngine engine, String baseClass, String compatibleClass, boolean successExpected, boolean checkIterations) throws InterruptException, Exception {
 		try {
 			TestJavaSerializer serializer = new TestJavaSerializer();
 			serializer.setClassNameReplacement(compatibleClass);
@@ -97,7 +98,7 @@ public class CompatibilityCheckTest extends TestCase {
 			wf.__beforeProcess();
 			wf.main();
 
-			checkCompatibility(checkPoint1, checkPoint2, baseClass, compatibleClass, serializer, engine, repo);
+			checkCompatibility(checkPoint1, checkPoint2, baseClass, compatibleClass, serializer, engine, repo, checkIterations);
 
 			if (!successExpected) {
 				fail("Expected an exception");
@@ -112,15 +113,21 @@ public class CompatibilityCheckTest extends TestCase {
 		}
 	}
 
-	private void checkCompatibility(SerializedWorkflow cp1, SerializedWorkflow cp2, String baseClass, String className, Serializer serializer, ProcessingEngine engine, TestWorkflowRepository repo) throws Exception {
+	private void checkCompatibility(SerializedWorkflow cp1, SerializedWorkflow cp2, String baseClass, String className, Serializer serializer, ProcessingEngine engine, TestWorkflowRepository repo, boolean checkIterations) throws Exception {
 		repo.triggerClassname = baseClass;
 		repo.overrideClassname = className;
 		Workflow<?> wf1 = serializer.deserializeWorkflow(cp1, repo);
 		Assert.assertEquals(className, wf1.getClass().getName());
-		doRun(engine, wf1,1);
+		if (checkIterations) 
+			doRun(engine, wf1,1);
+		else
+			doRun(engine, wf1);
 		Workflow<?> wf2 = serializer.deserializeWorkflow(cp2, repo);
 		Assert.assertEquals(className, wf1.getClass().getName());
-		doRun(engine, wf2,0);
+		if (checkIterations)
+			doRun(engine, wf2,0);
+		else
+			doRun(engine, wf2);
 
 	}
 
@@ -146,4 +153,17 @@ public class CompatibilityCheckTest extends TestCase {
 		}
 	}
 
+	private void doRun(ProcessingEngine engine, Workflow<?> wf) {
+		for (;;) {
+			wf.setEngine(engine);
+			wf.__beforeProcess();
+			try {
+				wf.main();
+				break;
+			} 
+			catch (InterruptException e) {
+				// ok
+			}
+		}
+	}	
 }

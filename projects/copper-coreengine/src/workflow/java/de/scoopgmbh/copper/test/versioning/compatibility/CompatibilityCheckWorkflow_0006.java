@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.test.versioning.compatibility.check2;
+package de.scoopgmbh.copper.test.versioning.compatibility;
 
 import java.io.Serializable;
 
@@ -22,21 +22,24 @@ import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.WaitMode;
+import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 /**
- * Incompatible change example E101
+ * Compatible change example 0006
  * 
- * This class is a incompatible version of {@link de.scoopgmbh.copper.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * 
- * Replacing method calls of methods that directly or indirectly use COPPER wait 
+ * Adding a new waiting method an calling it AFTER existing code in the main method. 
+ * Adding a new wait call in the main method AFTER existing code. 
  *
  * @author austermann
  *
  */
-public class CompatibilityCheckWorkflow_E101 extends PersistentWorkflow<Serializable> {
+@WorkflowDescription(alias=CompatibilityCheckWorkflowDef.NAME,majorVersion=1,minorVersion=0,patchLevelVersion=0006)
+public class CompatibilityCheckWorkflow_0006 extends PersistentWorkflow<Serializable> {
 	
-	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_E101.class);
+	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_0006.class);
 
 	private static final long serialVersionUID = 1L;
 	
@@ -47,29 +50,33 @@ public class CompatibilityCheckWorkflow_E101 extends PersistentWorkflow<Serializ
 	public void main() throws InterruptException {
 		aString = "A";
 		int localIntValue = 1;
-		//directlyWaitingMethod(aString, localIntValue);
-		anotherDirectlyWaitingMethod(4711L, localIntValue); // REPLACED HERE
+		directlyWaitingMethod(aString, localIntValue);
 		bString = "B";
 		localIntValue++;
 		indirectlyWaitingMethod(bString, localIntValue);
+		
+		// Here is a new method call for a waiting method
+		anotherDirectlyWaitingMethod();
+		// It' also ok to add a further wait call directly here 
+		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
 	}
 	
 	protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
-		String localString = strValue;
-		Integer localInteger = intValue;
-		neverWaitingMethod(strValue, localInteger);
+		neverWaitingMethod(strValue, intValue);
 		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
-		logger.debug(localString);
+		
+		// It's also ok to add a further wait call here.
+		// It is important to add the new wait call AFTER the existing code, ore more precise:
+		// the new wait call MUST be after pre existing wait calls and after method calls that directly or indirectly 
+		// execute COPPER wait.
+		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
 	}
-	
-	protected void anotherDirectlyWaitingMethod(Long longValue, Integer intValue) throws InterruptException {
-		neverWaitingMethod(longValue.toString(), intValue);
-		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
-	}	
 	
 	protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
 		final Object localObject = 10867L;
 		directlyWaitingMethod(strValue, intValue);
+		// To add this wait call is also ok 
+		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
 		logger.debug("{}", localObject);
 	}
 	
@@ -81,4 +88,10 @@ public class CompatibilityCheckWorkflow_E101 extends PersistentWorkflow<Serializ
 	protected void anotherNeverWaitingMethod(String strValue, int intValue) {
 		logger.debug("strValue="+strValue+", intValue="+intValue);
 	}
+
+	
+	protected void anotherDirectlyWaitingMethod() throws InterruptException {
+		logger.debug("anotherDirectlyWaitingMethod()");
+		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
+	}	
 }

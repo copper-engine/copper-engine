@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.WaitMode;
-import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 public class CompatibilityCheckWorkflow_Base extends PersistentWorkflow<Serializable> {

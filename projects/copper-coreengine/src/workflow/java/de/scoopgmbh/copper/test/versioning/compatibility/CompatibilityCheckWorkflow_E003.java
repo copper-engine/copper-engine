@@ -28,7 +28,10 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 /**
  * Incompatible change example E003
  * 
- * adding and using a new directly waiting method
+ * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * 
+ * adding and using a new directly waiting method somewhere before an existing COPPER wait or a method that uses
+ * directly or indirectly COPPER wait
  *
  * @author austermann
  *
