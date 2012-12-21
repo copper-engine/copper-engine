@@ -1,1 +1,1 @@
-include ":projects:copper-coreengine", ":projects:copper-sample"
+include ":projects:copper-coreengine", ":projects:copper-sample", ":projects:copper-examples:orchestration:orch-engine", ":projects:copper-examples:orchestration:orch-interfaces", ":projects:copper-examples:orchestration:orch-simulators"
