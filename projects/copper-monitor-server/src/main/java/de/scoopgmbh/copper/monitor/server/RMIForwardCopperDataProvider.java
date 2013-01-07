@@ -8,6 +8,7 @@ import java.util.List;
 
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
@@ -106,6 +107,19 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		result.add(new WorkflowClassesInfo("blubclass2",""+Math.random(),""));
 		result.add(new WorkflowClassesInfo("blubclass3",""+Math.random(),""));
 		return result;
+	}
+
+
+	@Override
+	public WorkflowInstanceMetaDataInfo getWorkflowInstanceDetails(String workflowInstanceId) {
+		// TODO Auto-generated method stub
+		return new WorkflowInstanceMetaDataInfo();
+	}
+
+
+	@Override
+	public CopperLoadInfo getCopperLoadInfo() throws RemoteException {
+		return new CopperLoadInfo((int)(Math.random()*100),(int)(Math.random()*100));
 	}
 
 	

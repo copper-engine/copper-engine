@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
@@ -33,5 +34,9 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	public List<WorkflowClassesInfo> getWorkflowClassesList() throws RemoteException;
 
 	public CopperStatusInfo getCopperStatus() throws RemoteException;
+	
+	public WorkflowInstanceMetaDataInfo getWorkflowInstanceDetails(String workflowInstanceId)  throws RemoteException;
+
+	public CopperLoadInfo getCopperLoadInfo() throws RemoteException;
 }
 
