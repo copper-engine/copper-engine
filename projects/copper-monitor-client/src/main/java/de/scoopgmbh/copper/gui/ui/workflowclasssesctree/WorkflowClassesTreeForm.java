@@ -1,5 +1,6 @@
 package de.scoopgmbh.copper.gui.ui.workflowclasssesctree;
 
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -20,6 +21,7 @@ public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController>
 		ListView<WorkflowClassesModel> workflowView = new ListView<>();
 		pane.setCenter(workflowView);
 		Button refreshButton  = new Button("Refresh");
+		BorderPane.setMargin(refreshButton, new Insets(5));
 		pane.setBottom(refreshButton);
 		controller.initialize(refreshButton, workflowView);
 		return pane;

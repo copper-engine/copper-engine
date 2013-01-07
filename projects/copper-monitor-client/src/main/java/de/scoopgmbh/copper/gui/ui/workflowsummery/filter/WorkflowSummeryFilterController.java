@@ -3,19 +3,21 @@ package de.scoopgmbh.copper.gui.ui.workflowsummery.filter;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.TextField;
-import de.scoopgmbh.copper.gui.factory.FormFactory;
+import de.scoopgmbh.copper.gui.context.FormContext;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
 
 public class WorkflowSummeryFilterController implements Initializable, FilterController<WorkflowSummeryFilterModel>, FxmlController {
 	private WorkflowSummeryFilterModel model;
-	private final FormFactory formFactory;
+	private final FormContext formFactory;
 
-	public WorkflowSummeryFilterController(FormFactory formFactory) {
+	public WorkflowSummeryFilterController(FormContext formFactory) {
 		super();
 		this.formFactory = formFactory;
 	}
@@ -52,6 +54,14 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
         majorVersion.textProperty().bindBidirectional(model.majorVersion);
         
         searchMenueItem.setContent(formFactory.createWorkflowClassesTreeForm(this).createContent());
+        
+        searchMenueItem.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				
+			}
+		});
+//        searchMenueItem.getParentMenu().
 	}
 
 	@Override

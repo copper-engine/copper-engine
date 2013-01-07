@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<FlowPane alignment="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="52.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml">
+<FlowPane alignment="CENTER" hgap="5.0" layoutX="0.0" layoutY="0.0" prefHeight="40.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml">
   <children>
     <Label text="workflowClass">
       <labelFor>
@@ -29,7 +29,7 @@
     <fx:reference source="correlationId" />
     <Label text="level">
       <labelFor>
-        <TextField fx:id="level" prefWidth="140.0" />
+        <TextField fx:id="level" prefWidth="41.0" />
       </labelFor>
     </Label>
     <fx:reference source="level" />

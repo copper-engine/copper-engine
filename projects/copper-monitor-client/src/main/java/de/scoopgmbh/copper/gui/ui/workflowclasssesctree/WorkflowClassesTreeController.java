@@ -31,7 +31,7 @@ public class WorkflowClassesTreeController {
 		listView.setItems(content);
 	}
 	
-	public void initialize(Button refreshButton, final  ListView<WorkflowClassesModel> listView) {
+	public void initialize(final Button refreshButton, final ListView<WorkflowClassesModel> listView) {
 		refresh(listView);
 		refreshButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override

@@ -9,25 +9,31 @@ import java.util.ResourceBundle;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
+import de.scoopgmbh.copper.gui.context.FormContext;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
 public class WorkflowInstanceResultController implements Initializable, FilterResultController<WorkflowInstanceFilterModel>, FxmlController {
-	GuiCopperDataProvider copperDataProvider;
-
-	public WorkflowInstanceResultController(GuiCopperDataProvider copperDataProvider) {
+	private final GuiCopperDataProvider copperDataProvider;
+	private final FormContext formcontext;
+	
+	public WorkflowInstanceResultController(GuiCopperDataProvider copperDataProvider, FormContext formcontext) {
 		super();
 		this.copperDataProvider = copperDataProvider;
+		this.formcontext = formcontext;
 	}
 
     @FXML //  fx:id="idColumn"
@@ -109,9 +115,18 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
             }
         });
         
- 
+        resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         
-        resultTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        resultTable.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+		            if(mouseEvent.getClickCount() == 2 && !resultTable.getSelectionModel().isEmpty()){
+		            	formcontext.createWorkflowInstanceDetailForm(resultTable.getSelectionModel().getSelectedItem().id.getValue()).show();
+		            }
+		        }
+			}
+		});
     }
 
 	@Override

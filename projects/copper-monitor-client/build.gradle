@@ -13,7 +13,7 @@ eclipse {
 		        NodeList nodeList = root.getAt(new groovy.xml.QName('classpathentry'));
 		        for ( classpathentry in nodeList ) {
     				if (classpathentry.attributes().path.contains('jfxrt.jar')){
-				        classpathentry.appendNode('attributes').appendNode('attribute',[name:'javadoc_location', value:'jar:platform:/resource/copper-gui/libs/jfxrt-javadoc.zip!/']);
+				        classpathentry.appendNode('attributes').appendNode('attribute',[name:'javadoc_location', value:'jar:platform:/resource/copper-monitor-client/libs/jfxrt-javadoc.zip!/']);
     				}
 				}			
 	    	}

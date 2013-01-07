@@ -4,16 +4,16 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import de.scoopgmbh.copper.gui.factory.MainFactory;
+import de.scoopgmbh.copper.gui.context.ApplicationContext;
 
 public class ClientMain extends Application {
 
 	@Override
 	public void start(final Stage primaryStage) { //Stage = window
 		
-		primaryStage.setTitle("Copper gui");
-		MainFactory mainFactory = new MainFactory();
-		final Scene scene = new Scene(mainFactory.getMainPane(), 1024, 768, Color.WHEAT);
+		primaryStage.setTitle("Copper Monitor");
+		ApplicationContext mainFactory = new ApplicationContext();
+		final Scene scene = new Scene(mainFactory.getMainPane(), 1200, 768, Color.WHEAT);
 
 		
 		primaryStage.setScene(scene);

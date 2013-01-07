@@ -15,5 +15,6 @@ public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
 		tab.setContent(form.createContent());
 		tab.setText(form.getTitle());
 		component.getTabs().add(tab);
+		component.getSelectionModel().select(tab);
 	}
 }

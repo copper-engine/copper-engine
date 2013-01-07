@@ -11,8 +11,11 @@ import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowsummery.result.WorkflowSummeryResultModel;
+import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
+import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
@@ -105,6 +108,22 @@ public class GuiCopperDataProvider {
 			result.add(new WorkflowClassesModel(workflowClassesInfo));
 		}
 		return result;
+	}
+
+	public WorkflowInstanceDetailResultModel getWorkflowDetails(WorkflowInstanceDetailFilterModel filter ) {
+		try {
+			return new WorkflowInstanceDetailResultModel(copperDataProvider.getWorkflowInstanceDetails(filter.workflowInstanceId.getValue()));
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public CopperLoadInfo getCopperLoadInfo() {
+		try {
+			return  copperDataProvider.getCopperLoadInfo();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	

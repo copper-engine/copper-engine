@@ -1,4 +1,4 @@
-package de.scoopgmbh.copper.gui.factory;
+package de.scoopgmbh.copper.gui.context;
 
 import java.util.ResourceBundle;
 
@@ -11,12 +11,12 @@ import de.scoopgmbh.copper.gui.ui.login.LoginController;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 
-public class MainFactory {
+public class ApplicationContext {
 
 	private BorderPane mainPane;
 	MessageProvider messageProvider;
 
-	public MainFactory() {
+	public ApplicationContext() {
 		mainPane = new BorderPane();
 		messageProvider = new MessageProvider(ResourceBundle.getBundle("de.scoopgmbh.copper.gui.message"));
 	}
@@ -26,11 +26,11 @@ public class MainFactory {
 		this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);
 	}
 	
-	public FormFactory getFormFactory(){
+	public FormContext getFormFactory(){
 		if (guiCopperDataProvider==null){
 			throw new IllegalStateException("guiCopperDataProvider must initialised");
 		}
-		return new FormFactory(mainPane,guiCopperDataProvider,messageProvider);
+		return new FormContext(mainPane,guiCopperDataProvider,messageProvider);
 	}
 	
 	public Form<LoginController> createLoginForm(){

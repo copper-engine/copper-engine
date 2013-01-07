@@ -8,7 +8,7 @@
 <?import javafx.scene.paint.*?>
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
-  <top>
+  <center>
     <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
       <columns>
         <TableColumn prefWidth="75.0" text="Workflowclass" fx:id="workflowClassColumn" />
@@ -19,5 +19,5 @@
         <TableColumn prefWidth="75.0" text="Count" fx:id="countColumn" />
       </columns>
     </TableView>
-  </top>
+  </center>
 </BorderPane>

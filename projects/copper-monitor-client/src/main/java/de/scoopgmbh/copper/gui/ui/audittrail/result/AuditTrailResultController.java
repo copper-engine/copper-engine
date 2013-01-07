@@ -119,7 +119,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 			}
 		});
         
-        resultTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
 	@Override
