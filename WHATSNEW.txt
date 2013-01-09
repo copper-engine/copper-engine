@@ -6,6 +6,9 @@ COPPER 2.1
 - New feature: Extendable/customizable AuditTrail, see issue #38
 - New feature: Disengageable early response handling, see issue #37
 - New feature: Versioning of Workflows now supported by COPPER
+- New minor feature: LoggingStatisticCollector.setResetAfterLogging
+- Documentation enhancement: Compatibility rules for workflow modifications
+- Documentation enhancement: Revised example copper project
 
 COPPER 2.0
 ==========
