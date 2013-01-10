@@ -5,6 +5,7 @@ import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.MenuItemBuilder;
@@ -32,6 +33,21 @@ public class FormGroup {
 			fileMenu.getItems().add(menueItem);
 		}
 		return fileMenu;
+	}
+	
+	public List<Button> createButtonList(){
+		ArrayList<Button> result = new ArrayList<>();
+		for (final Form<?> form: forms){
+			Button button = new Button(form.getTitle());
+			button.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent event) {
+					form.show();
+				}
+			});
+			result.add(button);
+		}
+		return result;
 	}
 	
 }

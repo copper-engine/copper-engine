@@ -4,11 +4,13 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesModel;
+import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowsummery.result.WorkflowSummeryResultModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
@@ -18,7 +20,6 @@ import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
 
 public class GuiCopperDataProvider {
@@ -47,10 +48,12 @@ public class GuiCopperDataProvider {
 		return maxResultCount;
 	}
 	
-	public List<WorkflowInstanceResultModel> getWorkflowInstanceList(WorkflowInstanceState state, Integer priority){
+	public List<WorkflowInstanceResultModel> getWorkflowInstanceList(WorkflowInstanceFilterModel filter){
 		List<WorkflowInstanceInfo> list;
 		try {
-			list = copperDataProvider.getWorkflowInstanceList(state, priority);
+			list = copperDataProvider.getWorkflowInstanceList(filter.workflowSummeryFilterModel.workflowclass.getValue(),
+					filter.workflowSummeryFilterModel.workflowMajorVersion.getValue(),filter.workflowSummeryFilterModel.workflowMinorVersion.getValue(),
+					filter.state.getValue(), filter.priority.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -121,6 +124,14 @@ public class GuiCopperDataProvider {
 	public CopperLoadInfo getCopperLoadInfo() {
 		try {
 			return  copperDataProvider.getCopperLoadInfo();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public String getAuditMessage(SimpleLongProperty id) {
+		try {
+			return  copperDataProvider.getAuditTrailMessage(id.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

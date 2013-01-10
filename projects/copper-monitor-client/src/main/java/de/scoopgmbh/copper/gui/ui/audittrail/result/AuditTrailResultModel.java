@@ -7,15 +7,15 @@ import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 
 public class AuditTrailResultModel {
 
-	SimpleLongProperty id;
-	SimpleStringProperty occurrence;
-	SimpleStringProperty conversationId;
-	SimpleIntegerProperty loglevel;
-	SimpleStringProperty context;
-	SimpleStringProperty workflowInstanceId;
-	SimpleStringProperty correlationId;
-	SimpleStringProperty transactionId;
-	SimpleStringProperty messageType;
+	public SimpleLongProperty id;
+	public SimpleStringProperty occurrence;
+	public SimpleStringProperty conversationId;
+	public SimpleIntegerProperty loglevel;
+	public SimpleStringProperty context;
+	public SimpleStringProperty workflowInstanceId;
+	public SimpleStringProperty correlationId;
+	public SimpleStringProperty transactionId;
+	public SimpleStringProperty messageType;
 	
 
 	public AuditTrailResultModel(AuditTrailInfo auditTrailInfo) {

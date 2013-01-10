@@ -6,6 +6,7 @@
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" exported="true"/>
 	<classpathentry kind="src" path="/copper-monitor-core" exported="true"/>
+	<classpathentry sourcepath="C:/Users/hbrackmann/.gradle/caches/artifacts-14/filestore/org.apache.commons/commons-lang3/3.1/source/8d30b90ae8bda4fbac8363161c8a9b5a99e23baf/commons-lang3-3.1-sources.jar" kind="lib" path="C:/Users/hbrackmann/.gradle/caches/artifacts-14/filestore/org.apache.commons/commons-lang3/3.1/jar/905075e6c80f206bbe6cf1e809d2caa69f420c76/commons-lang3-3.1.jar" exported="true"/>
 	<classpathentry sourcepath="C:/Users/hbrackmann/.gradle/caches/artifacts-14/filestore/junit/junit/4.11/source/28e0ad201304e4a4abf999ca0570b7cffc352c3c/junit-4.11-sources.jar" kind="lib" path="C:/Users/hbrackmann/.gradle/caches/artifacts-14/filestore/junit/junit/4.11/jar/4e031bb61df09069aeb2bffb4019e7a5034a4ee0/junit-4.11.jar" exported="true"/>
 	<classpathentry sourcepath="C:/Users/hbrackmann/.gradle/caches/artifacts-14/filestore/org.hamcrest/hamcrest-core/1.3/source/1dc37250fbc78e23a65a67fbbaf71d2e9cbc3c0b/hamcrest-core-1.3-sources.jar" kind="lib" path="C:/Users/hbrackmann/.gradle/caches/artifacts-14/filestore/org.hamcrest/hamcrest-core/1.3/jar/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar" exported="true"/>
 	<classpathentry kind="lib" path="C:/scoop/copperGui/workspace/monitoring/projects/copper-monitor-client/libs/jfxrt.jar" exported="true">
@@ -13,4 +14,5 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/copper-monitor-client/libs/jfxrt-javadoc.zip!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/scoop/copperGui/workspace/monitoring/projects/copper-monitor-client/libs/java2html.jar" exported="true" sourcepath="libs/java2html-src.zip"/>
 </classpath>

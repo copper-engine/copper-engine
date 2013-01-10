@@ -11,7 +11,7 @@ import de.scoopgmbh.copper.gui.form.filter.FilterController;
 
 public class AuditTrailFilterController implements Initializable, FilterController<AuditTrailFilterModel>, FxmlController {
 
-	private AuditTrailFilterModel model;
+	private AuditTrailFilterModel model = new AuditTrailFilterModel();
 	public AuditTrailFilterController() {
 		super();
 	}
@@ -36,8 +36,6 @@ public class AuditTrailFilterController implements Initializable, FilterControll
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'AuditTrailFilter.fxml'.";
         assert workflowInstanceId != null : "fx:id=\"workflowInstanceId\" was not injected: check your FXML file 'AuditTrailFilter.fxml'.";
 
-
-        model = new AuditTrailFilterModel();
         workflowClass.textProperty().bind(model.workflowClass);
         level.textProperty().bind(model.level.asString());
         correlationId.textProperty().bind(model.correlationId);

@@ -6,9 +6,15 @@
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
+<?import javafx.scene.web.*?>
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <Label text="//stackstrace//variables content//line" />
+    <Pane prefHeight="310.0" prefWidth="502.0">
+      <children>
+        <Label layoutX="62.0" layoutY="39.0" text="//stackstrace//variables content//line" />
+        <WebView fx:id="sourceView" layoutX="62.0" layoutY="79.0" prefHeight="217.0" prefWidth="414.0" />
+      </children>
+    </Pane>
   </center>
 </BorderPane>

@@ -2,7 +2,9 @@ package de.scoopgmbh.copper.gui.ui.load.result;
 
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
@@ -17,7 +19,7 @@ import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
 import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
 
-public class EngineLoadResultController implements Initializable, FilterResultController<EngineLoadFilterModel>, FxmlController {
+public class EngineLoadResultController implements Initializable, FilterResultController<EngineLoadFilterModel,CopperLoadInfo>, FxmlController {
 	private final GuiCopperDataProvider copperDataProvider;
 	
 	public EngineLoadResultController(GuiCopperDataProvider copperDataProvider) {
@@ -47,28 +49,30 @@ public class EngineLoadResultController implements Initializable, FilterResultCo
         XYChart.Series<String, Number> waiting= new XYChart.Series<>();
         waiting.setName("waiting");
         
-        areaChart.getData().addAll(running, waiting);
+        areaChart.getData().add(running);
+        areaChart.getData().add(waiting);
     }
-
-	@Override
-	public void applyFilter(EngineLoadFilterModel filter) {
-		
-		
-		CopperLoadInfo copperLoadInfo = copperDataProvider.getCopperLoadInfo();
-		
-		String date = new SimpleDateFormat("MM.dd.yyyy HH:mm:ss").format(new Date());
-		
-		if (filter.showRunning.getValue() ){
-			areaChart.getData().get(0).getData().add(new XYChart.Data<String, Number>(date, copperLoadInfo.numberOfRunningWorkflowInstances));
-		}
-		if (filter.showWaiting.getValue() ){
-			areaChart.getData().get(1).getData().add(new XYChart.Data<String, Number>(date, copperLoadInfo.numberOfWaitingWorkflowInstances));
-		}
-	}
 	
 	@Override
 	public URL getFxmlRessource() {
 		return getClass().getResource("EngineLoadResult.fxml");
+	}
+
+	@Override
+	public void showFilteredResult(List<CopperLoadInfo> filteredlist, EngineLoadFilterModel usedFilter) {
+		CopperLoadInfo copperLoadInfo = filteredlist.get(0);	
+		String date = new SimpleDateFormat("HH:mm:ss").format(new Date());
+		if (usedFilter.showRunning.getValue() ){
+			areaChart.getData().get(0).getData().add(new XYChart.Data<String, Number>(date, copperLoadInfo.numberOfRunningWorkflowInstances));
+		}
+		if (usedFilter.showWaiting.getValue() ){
+			areaChart.getData().get(1).getData().add(new XYChart.Data<String, Number>(date, copperLoadInfo.numberOfWaitingWorkflowInstances));
+		}
+	}
+
+	@Override
+	public List<CopperLoadInfo> applyFilterInBackgroundThread(EngineLoadFilterModel filter) {
+		return Arrays.asList(copperDataProvider.getCopperLoadInfo());
 	}
 
 }

@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<FlowPane alignment="CENTER" hgap="5.0" layoutX="0.0" layoutY="0.0" prefHeight="40.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml">
+<FlowPane alignment="CENTER_LEFT" hgap="5.0" layoutX="0.0" layoutY="0.0" prefHeight="40.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml">
   <children>
     <Label text="workflowClass">
       <labelFor>

@@ -3,19 +3,20 @@
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.collections.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<FlowPane alignment="CENTER" hgap="5.0" layoutX="0.0" layoutY="0.0" prefHeight="40.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml">
+<FlowPane alignment="CENTER_LEFT" hgap="5.0" layoutX="0.0" layoutY="0.0" prefHeight="40.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml">
   <children>
     <Label text="state">
-      <labelFor>
-        <TextField id="workflowClass" fx:id="priorityField" prefWidth="200.0" />
-      </labelFor>
+      <FlowPane.margin>
+        <Insets left="5.0" />
+      </FlowPane.margin>
     </Label>
-    <ChoiceBox fx:id="stateChoice">
+    <ChoiceBox fx:id="stateChoice" prefWidth="104.0">
       <items>
         <FXCollections fx:factory="observableArrayList">
           <String fx:value="Item 1" />
@@ -26,9 +27,27 @@
     </ChoiceBox>
     <Label text="priority">
       <labelFor>
-        <TextField fx:id="minorVersion" prefWidth="139.0" />
+        <TextField fx:id="priorityField" prefWidth="40.0" />
       </labelFor>
     </Label>
     <fx:reference source="priorityField" />
+    <Label text="workflowclass">
+      <labelFor>
+        <TextField fx:id="workflowClass" prefWidth="104.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="workflowClass" />
+    <Label text="major version">
+      <labelFor>
+        <TextField id="workflowClass" fx:id="majorVersion" prefWidth="57.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="majorVersion" />
+    <Label text="minor Version">
+      <labelFor>
+        <TextField id="workflowClass" fx:id="minorVersion" prefWidth="57.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="minorVersion" />
   </children>
 </FlowPane>

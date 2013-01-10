@@ -11,9 +11,9 @@
   <children>
     <GridPane layoutX="32.0" layoutY="51.0" prefHeight="119.0" prefWidth="670.0">
       <children>
-        <RadioButton fx:id="jmxRadioButton" mnemonicParsing="false" prefWidth="125.0" text="Copper server" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <RadioButton id="jmxRadioButton" fx:id="copperDirektRadioButton" mnemonicParsing="false" prefWidth="125.0" text="Copper server" GridPane.columnIndex="0" GridPane.rowIndex="1" />
         <RadioButton fx:id="serverRadioButton" mnemonicParsing="false" prefWidth="342.0" text="Monitoring Server" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-        <TextField prefWidth="540.0" promptText="example: localhost" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+        <TextField fx:id="copperDirektAdressTextField" prefWidth="540.0" promptText="server adress eg.: localhost" GridPane.columnIndex="1" GridPane.rowIndex="1" />
         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
           <children>
             <TextField fx:id="serverAdress" prefWidth="183.0" />

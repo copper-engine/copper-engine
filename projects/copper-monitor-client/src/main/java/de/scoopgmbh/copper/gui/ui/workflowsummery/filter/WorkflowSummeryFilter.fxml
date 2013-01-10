@@ -8,8 +8,16 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<FlowPane alignment="CENTER" hgap="5.0" layoutX="0.0" layoutY="0.0" minHeight="40.0" prefHeight="40.0" prefWidth="757.0" xmlns:fx="http://javafx.com/fxml">
+<FlowPane alignment="CENTER_LEFT" hgap="5.0" layoutX="0.0" layoutY="0.0" minHeight="40.0" prefHeight="40.0" prefWidth="757.0" xmlns:fx="http://javafx.com/fxml">
   <children>
+    <MenuButton fx:id="serachbutton" graphicTextGap="4.0" mnemonicParsing="false" prefWidth="37.0" text="">
+      <items>
+        <CustomMenuItem mnemonicParsing="false" text="Unspecified Action" fx:id="searchMenueItem" />
+      </items>
+      <FlowPane.margin>
+        <Insets left="5.0" />
+      </FlowPane.margin>
+    </MenuButton>
     <Label text="workflowclass">
       <labelFor>
         <TextField fx:id="workflowClass" prefWidth="146.0" />
@@ -24,11 +32,6 @@
     <TextField fx:id="majorVersion" prefWidth="92.0" />
     <Label labelFor="$minorVersion" text="minor version" />
     <fx:reference source="minorVersion" />
-    <MenuButton graphicTextGap="4.0" mnemonicParsing="false" prefWidth="135.0" text="search class">
-      <items>
-        <CustomMenuItem mnemonicParsing="false" text="Unspecified Action" fx:id="searchMenueItem" />
-      </items>
-    </MenuButton>
   </children>
   <padding>
     <Insets />

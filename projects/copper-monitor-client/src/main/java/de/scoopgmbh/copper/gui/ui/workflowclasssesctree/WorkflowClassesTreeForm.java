@@ -3,10 +3,11 @@ package de.scoopgmbh.copper.gui.ui.workflowclasssesctree;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.gui.form.Form;
 import de.scoopgmbh.copper.gui.form.NotShowFormStrategie;
+import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 
 public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController>{
@@ -18,7 +19,7 @@ public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController>
 	@Override
 	public Node createContent() {
 		BorderPane pane = new BorderPane();
-		ListView<WorkflowClassesModel> workflowView = new ListView<>();
+		TreeView<DisplayWorkflowClassesModel> workflowView = new TreeView<>();
 		pane.setCenter(workflowView);
 		Button refreshButton  = new Button("Refresh");
 		BorderPane.setMargin(refreshButton, new Insets(5));

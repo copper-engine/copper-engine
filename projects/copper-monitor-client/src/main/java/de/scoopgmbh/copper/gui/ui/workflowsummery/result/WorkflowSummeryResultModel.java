@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
 
 public class WorkflowSummeryResultModel {
-	public SimpleStringProperty clazz;
+	public SimpleStringProperty workflowclass;
 	public SimpleStringProperty alias;
 	public SimpleStringProperty workflowMajorVersion;
 	public SimpleStringProperty workflowMinorVersion;
@@ -14,7 +14,7 @@ public class WorkflowSummeryResultModel {
 	public WorkflowSummeryResultModel(String  clazz, String alias, String workflowMajorVersion,
 			String workflowMinorVersion, String status, String count) {
 		super();
-		this.clazz = new SimpleStringProperty(clazz);
+		this.workflowclass = new SimpleStringProperty(clazz);
 		this.alias = new SimpleStringProperty(alias);
 		this.workflowMajorVersion = new SimpleStringProperty(workflowMajorVersion);
 		this.workflowMinorVersion = new SimpleStringProperty(workflowMinorVersion);
@@ -23,7 +23,7 @@ public class WorkflowSummeryResultModel {
 	}
 
 	public WorkflowSummeryResultModel(WorkflowSummery workflowSummery) {
-		this.clazz = new SimpleStringProperty(workflowSummery.getClazz());
+		this.workflowclass = new SimpleStringProperty(workflowSummery.getClazz());
 		this.alias = new SimpleStringProperty(workflowSummery.getAlias());
 		this.workflowMajorVersion = new SimpleStringProperty(workflowSummery.getWorkflowMajorVersion());
 		this.workflowMinorVersion = new SimpleStringProperty(workflowSummery.getWorkflowMinorVersion());
