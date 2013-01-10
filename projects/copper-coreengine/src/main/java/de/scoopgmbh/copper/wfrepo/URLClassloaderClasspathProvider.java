@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,9 @@ public class URLClassloaderClasspathProvider implements CompilerOptionsProvider 
 	public Collection<String> getOptions() {
 		StringBuilder buf = new StringBuilder();
 		URLClassLoader loader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-		for ( URL url : loader.getURLs() ) {
-			buf.append(url.getFile()).append(File.pathSeparator);
+		for (URL url : loader.getURLs() ) {
+			File f = new File(url.getFile().replace("%20", " "));
+			buf.append("\"").append(f.getAbsolutePath()).append("\"").append(File.pathSeparator);
 		}
 		List<String> options = new ArrayList<String>();
 		options.add("-classpath");
