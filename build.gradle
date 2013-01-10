@@ -1,44 +1,73 @@
-subprojects {
+allprojects {
+    apply plugin: 'maven'
+    apply plugin: 'project-report'
 
-    if (!project.name.endsWith("projects") && !project.name.endsWith("copper-examples") && !project.name.endsWith("orchestration")) {
+    /* for setting the group name determine the first hierarchy project */
+    def groupProject = project;
+    while (groupProject.parent != null && groupProject.parent.parent != null) {
+        groupProject = groupProject.parent;
+    }
+    group = "de.scoopgmbh.copper." + groupProject.name.toLowerCase()
 
-        apply plugin: 'java'
-        apply plugin: 'eclipse'
+    repositories {
+        mavenCentral()
+    }
+}
 
-        repositories {
-            mavenCentral()
-        }
+configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directory || new File(it.projectDir, 'src/main/schema').directory}) {
+    println "configuring Leaf module " + project.path
 
-        dependencies {
-            testCompile 'junit:junit:3.8.1'
-        }
+    apply plugin: 'java'
+    compileJava.options.encoding = 'utf-8'
+    compileJava.sourceCompatibility = '1.6'
+    compileJava.targetCompatibility = '1.6'
+    compileTestJava.options.encoding = 'utf-8'
+    compileTestJava.sourceCompatibility = '1.6'
+    compileTestJava.targetCompatibility = '1.6'
 
-        jar {
-            manifest.attributes provider: 'gradle'
-        }
+    /*
+    *  apply eclipse plugin only for 'deepest' subprojects
+    *  since eclipse does not understand subprojects
+    */
+    apply plugin: 'eclipse'
+    /*
+    * be sure to always regenerate eclipse files, because
+    * default behavior is merging into existing files
+    */
+    tasks.eclipse.dependsOn(cleanEclipse)
+    eclipse.classpath.defaultOutputDir = new File("$buildDir/classes/main")
+    
+    dependencies {
+        testCompile 'junit:junit:3.8.1'
+    }
 
-        task replace_headers << {
-            def licenseFile = file("$rootDir/common/apache-license-file.txt")
-            def licenseHeader
+    jar {
+        manifest.attributes provider: 'gradle'
+    }
+
+    task replace_headers << {
+        def licenseFile = file("$rootDir/common/apache-license-file.txt")
+        def licenseHeader
         	
-            ant.loadfile(srcFile: licenseFile, property: 'licenseHeader')
+        ant.loadfile(srcFile: licenseFile, property: 'licenseHeader')
         	
-            licenseHeader = "${ant.properties['licenseHeader']}"
+        licenseHeader = "${ant.properties['licenseHeader']}"
         	
-            //println "Replacing java source file headers with"
-            //println licenseHeader
+        println "Replacing java source file headers in "+project.path
+        // println licenseHeader
            	
-            licenseHeader = licenseHeader + "package "
-           	
-            ant.replaceregexp(match: '(/\\*.*\\*/.*)??^package ', flags: 'sm', replace: licenseHeader) {
-                fileset(dir: "$projectDir/src") {
-                    include(name: '**/*.java')
-                }
+        licenseHeader = licenseHeader + "package "
+          	
+        ant.replaceregexp(match: '(/\\*.*\\*/.*)??^package ', flags: 'sm', replace: licenseHeader) {
+            fileset(dir: "$projectDir/src") {
+                include(name: '**/*.java')
             }
         }
-
-        compileJava.dependsOn replace_headers
-
+    }
+    compileJava.dependsOn replace_headers    
+    
+    
+    /// ********
         // build additional artifacts
  
         task sourcesJar(type: Jar, dependsOn:classes) {
@@ -91,18 +120,18 @@ subprojects {
                archives scriptsZip
             }
         }   
-    }
 }
 
 project(':projects:copper-coreengine') {
+
     sourceSets {
-        main {
-            java {
-                srcDir = "$projectDir/src/workflow/java"
-            }
+        workflow {
+            ext.srcDir = "$projectDir/src/workflow/java"
         }
     }
-
+    sourceSets.main.resources.srcDirs += sourceSets.workflow.srcDir
+        
+        
     dependencies {
 		compile 'aopalliance:aopalliance:1.0'
 		
@@ -141,21 +170,19 @@ project(':projects:copper-coreengine') {
 		compile 'org.apache.derby:derby:10.9.1.0'
 		compile 'postgresql:postgresql:9.1-901.jdbc4'    
 		
-		compile fileTree(dir: '$rootDir/3rdPartyLibs', includes: ['*.jar'])
-
+		compile fileTree(dir: project(':').projectDir.toString()+'/3rdPartyLibs', include: '*.jar')		
     }
 
 }
 
 project(':projects:copper-examples:orchestration:orch-engine') {
     sourceSets {
-        main {
-            java {
-                srcDir = "$projectDir/src/workflow/java"
-            }
+        workflow {
+            ext.srcDir = "$projectDir/src/workflow/java"
         }
     }
-
+    sourceSets.main.resources.srcDirs += sourceSets.workflow.srcDir
+    
     dependencies {
 	compile project(':projects:copper-coreengine')
 	compile project(':projects:copper-examples:orchestration:orch-interfaces')
