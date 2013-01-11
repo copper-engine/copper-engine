@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.wfrepo;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -29,8 +30,15 @@ public class URLClassloaderClasspathProvider implements CompilerOptionsProvider 
 		StringBuilder buf = new StringBuilder();
 		URLClassLoader loader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
 		for (URL url : loader.getURLs() ) {
-			File f = new File(url.getFile().replace("%20", " "));
-			buf.append("\"").append(f.getAbsolutePath()).append("\"").append(File.pathSeparator);
+			File f = null;
+			try {
+				//convert the URL to a URI to remove the HTML encoding, if it exists.
+				f = new File(url.toURI().getPath());
+			} 
+			catch (URISyntaxException e) {
+				throw new RuntimeException("failed to convert the classpath URL '"+url+"' to a URI",e);
+			}
+			buf.append(f.getAbsolutePath()).append(File.pathSeparator);
 		}
 		List<String> options = new ArrayList<String>();
 		options.add("-classpath");
