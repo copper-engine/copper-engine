@@ -2,22 +2,31 @@
 
 <?import java.lang.*?>
 <?import java.util.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<BorderPane id="BorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="531.0" prefWidth="733.0" xmlns:fx="http://javafx.com/fxml">
-  <left>
-    <GridPane>
-      <children>
-        <Label text="Audittrail colors" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-        <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+<BorderPane id="BorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="531.0" prefWidth="914.0" xmlns:fx="http://javafx.com/fxml">
+  <center>
+    <SplitPane dividerPositions="0.04431599229287091, 0.6724470134874759" focusTraversable="true" orientation="VERTICAL" prefHeight="521.0" prefWidth="871.0">
+      <items>
+        <Label text="Audittrail colors" />
+        <BorderPane prefHeight="200.0" prefWidth="200.0">
           <bottom>
-            <FlowPane prefHeight="30.0" prefWidth="546.0">
+            <FlowPane alignment="CENTER_LEFT" hgap="5.0" prefHeight="33.0" prefWidth="902.0" vgap="0.0">
               <children>
-                <Button fx:id="addButton" mnemonicParsing="false" text="add" />
-                <Button fx:id="removeButton" mnemonicParsing="false" text="remove" />
+                <Button fx:id="addButton" mnemonicParsing="false" text="add">
+                  <FlowPane.margin>
+                    <Insets left="5.0" />
+                  </FlowPane.margin>
+                </Button>
+                <Button fx:id="removeButton" mnemonicParsing="false" text="remove">
+                  <FlowPane.margin>
+                    <Insets />
+                  </FlowPane.margin>
+                </Button>
               </children>
             </FlowPane>
           </bottom>
@@ -37,7 +46,7 @@
             </TableView>
           </center>
         </BorderPane>
-        <GridPane prefHeight="88.0" prefWidth="680.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+        <GridPane prefHeight="88.0" prefWidth="680.0">
           <children>
             <Label text="color " GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <ColorPicker fx:id="colorDetail" promptText="" GridPane.columnIndex="1" GridPane.rowIndex="1" />
@@ -53,8 +62,8 @@
             <TextField prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
             <TextField prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
             <TextField prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-            <Label text="Label" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <TextField prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="loglevel regex" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <TextField fx:id="loglevelDetail" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Label text="Label" GridPane.columnIndex="2" GridPane.rowIndex="2" />
           </children>
           <columnConstraints>
@@ -71,16 +80,10 @@
             <RowConstraints maxHeight="114.0" minHeight="10.0" prefHeight="33.0" vgrow="SOMETIMES" />
           </rowConstraints>
         </GridPane>
-      </children>
-      <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="733.0" minWidth="10.0" prefWidth="680.0" />
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="365.0" minWidth="0.0" prefWidth="53.0" />
-      </columnConstraints>
-      <rowConstraints>
-        <RowConstraints maxHeight="174.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
-        <RowConstraints maxHeight="410.0" minHeight="10.0" prefHeight="360.0" vgrow="SOMETIMES" />
-        <RowConstraints maxHeight="177.0" minHeight="10.0" prefHeight="143.0" vgrow="SOMETIMES" />
-      </rowConstraints>
-    </GridPane>
-  </left>
+      </items>
+      <BorderPane.margin>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </BorderPane.margin>
+    </SplitPane>
+  </center>
 </BorderPane>

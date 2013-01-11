@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2012 SCOOP Software GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.scoopgmbh.copper.gui.adapter;
 
 import java.rmi.RemoteException;
@@ -12,6 +27,7 @@ import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
+import de.scoopgmbh.copper.gui.ui.workflowsummery.filter.WorkflowSummeryFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowsummery.result.WorkflowSummeryResultModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
@@ -41,7 +57,6 @@ public class GuiCopperDataProvider {
 			}
 		});
 	}
-
 	
 	SimpleObjectProperty<Integer> maxResultCount;
 	public SimpleObjectProperty<Integer> getMaxResultCount(){
@@ -64,8 +79,6 @@ public class GuiCopperDataProvider {
 		return result;
 	}
 	
-	
-	
 	public List<AuditTrailResultModel> getAuditTrails(de.scoopgmbh.copper.gui.ui.audittrail.filter.AuditTrailFilterModel  filter){
 		
 		List<AuditTrailInfo> list;
@@ -85,10 +98,10 @@ public class GuiCopperDataProvider {
 		return "bla";
 	}
 
-	public List<WorkflowSummeryResultModel> getWorkflowSummery(String workflowclass, String minorversion, String majorversion) {
+	public List<WorkflowSummeryResultModel> getWorkflowSummery(WorkflowSummeryFilterModel filter) {
 		List<WorkflowSummery> summeries;
 		try {
-			summeries = copperDataProvider.getWorkflowSummery(workflowclass, minorversion, majorversion);
+			summeries = copperDataProvider.getWorkflowSummery(filter.workflowclass.getValue(), filter.workflowMajorVersion.getValue(), filter.workflowMinorVersion.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -136,6 +149,5 @@ public class GuiCopperDataProvider {
 			throw new RuntimeException(e);
 		}
 	}
-	
 	
 }

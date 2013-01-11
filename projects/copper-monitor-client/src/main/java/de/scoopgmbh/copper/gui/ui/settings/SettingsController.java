@@ -1,13 +1,25 @@
+/*
+ * Copyright 2002-2012 SCOOP Software GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.scoopgmbh.copper.gui.ui.settings;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -74,7 +86,8 @@ public class SettingsController implements Initializable, FxmlController {
     @FXML //  fx:id="occurrenceDetail"
     private TextField occurrenceDetail; // Value injected by FXMLLoader
 
-
+    @FXML //  fx:id="loglevelDetail"
+    private TextField loglevelDetail; // Value injected by FXMLLoader
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -92,6 +105,7 @@ public class SettingsController implements Initializable, FxmlController {
         assert colorTable != null : "fx:id=\"colorTable\" was not injected: check your FXML file 'Settings.fxml'.";
         assert colorDetail != null : "fx:id=\"colorDetail\" was not injected: check your FXML file 'Settings.fxml'.";
         assert occurrenceDetail != null : "fx:id=\"occurrenceDetail\" was not injected: check your FXML file 'Settings.fxml'.";
+        assert loglevelDetail != null : "fx:id=\"loglevelDetail\" was not injected: check your FXML file 'Settings.fxml'.";
         
         colorColumn.setCellFactory(new Callback<TableColumn<AuditralColorMapping,Color>, TableCell<AuditralColorMapping,Color>>() {
 			@Override
@@ -105,6 +119,13 @@ public class SettingsController implements Initializable, FxmlController {
 						super.updateItem(color, empty);
 					};
 				};
+			}
+		});
+        
+        loglevelColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(
+					CellDataFeatures<AuditralColorMapping, String> p) {
+				return p.getValue().loglevelRegEx;
 			}
 		});
         
@@ -164,16 +185,13 @@ public class SettingsController implements Initializable, FxmlController {
 			}
 		});
         
-		ObservableList<AuditralColorMapping> content = FXCollections.observableList(new ArrayList<AuditralColorMapping>());;
-		content.addAll(settingsModel.auditralColorMappings);
-		colorTable.setItems(content);
+		colorTable.setItems(settingsModel.auditralColorMappings);
 		
 		addButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				AuditralColorMapping newItem = new AuditralColorMapping();
-				newItem.color.setValue(Color.RED);
-				newItem.idRegEx.set("*");
+				newItem.color.setValue(Color.rgb(240, 20, 20));
 				colorTable.getItems().add(newItem);
 			}
 		});
@@ -185,13 +203,16 @@ public class SettingsController implements Initializable, FxmlController {
 				if (oldValue!=null){
 					colorDetail.valueProperty().unbindBidirectional(oldValue.color);
 					occurrenceDetail.textProperty().unbindBidirectional(oldValue.occurrenceRegEx);
+					loglevelDetail.textProperty().unbindBidirectional(oldValue.loglevelRegEx);
 				}
 				if (newValue!=null){
 					colorDetail.valueProperty().bindBidirectional(newValue.color);
 					occurrenceDetail.textProperty().bindBidirectional(newValue.occurrenceRegEx);
+					loglevelDetail.textProperty().bindBidirectional(newValue.loglevelRegEx);
 				} 
 			}
 		});
+		colorTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		
 	}
 

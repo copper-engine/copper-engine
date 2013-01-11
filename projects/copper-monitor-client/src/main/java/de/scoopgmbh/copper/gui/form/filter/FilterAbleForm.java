@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2012 SCOOP Software GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.scoopgmbh.copper.gui.form.filter;
 
 import java.util.List;
@@ -109,13 +124,18 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		    }
 		});
 		filterbox.getChildren().add(refreshButton);
-		TextField maxCountTextField = new TextField();
-		maxCountTextField.setPrefWidth(70);
-		maxCountTextField.textProperty().bindBidirectional(copperDataProvider.getMaxResultCount(), new IntegerStringConverter());
-		Label label = new Label("Limit rows:");
-		label.setLabelFor(maxCountTextField);
-		filterbox.getChildren().add(label);
-		filterbox.getChildren().add(maxCountTextField);
+		
+		if (resultForm.getController().canLimitResult()){
+			TextField maxCountTextField = new TextField();
+			maxCountTextField.setPrefWidth(70);
+			maxCountTextField.textProperty().bindBidirectional(copperDataProvider.getMaxResultCount(), new IntegerStringConverter());
+			
+			
+			Label label = new Label("Limit rows:");
+			label.setLabelFor(maxCountTextField);
+			filterbox.getChildren().add(label);
+			filterbox.getChildren().add(maxCountTextField);
+		}
 		
 		BorderPane wrapper = new BorderPane();
 		wrapper.setCenter(filterbox);

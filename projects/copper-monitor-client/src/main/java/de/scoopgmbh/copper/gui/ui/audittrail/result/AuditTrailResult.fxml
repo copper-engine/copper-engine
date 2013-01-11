@@ -14,14 +14,14 @@
       <items>
         <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
           <columns>
+            <TableColumn prefWidth="75.0" text="id" fx:id="idColumn" />
+            <TableColumn prefWidth="75.0" text="loglevel" fx:id="loglevelColumn" />
             <TableColumn prefWidth="75.0" text="occurrence" fx:id="occurrenceColumn" />
             <TableColumn prefWidth="75.0" text="conversationId" fx:id="conversationIdColumn" />
-            <TableColumn prefWidth="75.0" text="loglevel" fx:id="loglevelColumn" />
             <TableColumn prefWidth="75.0" text="workflowInstanceId" fx:id="workflowInstanceIdColumn" />
             <TableColumn prefWidth="75.0" text="correlationId" fx:id="correlationIdColumn" />
             <TableColumn prefWidth="75.0" text="transactionId" fx:id="transactionIdColumn" />
             <TableColumn prefWidth="75.0" text="messageType" fx:id="messageTypeColumn" />
-            <TableColumn prefWidth="75.0" text="id" fx:id="idColumn" />
           </columns>
         </TableView>
         <StackPane fx:id="detailstackPane" prefHeight="150.0" prefWidth="200.0">

@@ -16,7 +16,7 @@
         <TextField fx:id="copperDirektAdressTextField" prefWidth="540.0" promptText="server adress eg.: localhost" GridPane.columnIndex="1" GridPane.rowIndex="1" />
         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
           <children>
-            <TextField fx:id="serverAdress" prefWidth="183.0" />
+            <TextField fx:id="serverAdress" prefWidth="183.0" text="localhost" />
             <Label text="user" />
             <TextField fx:id="user" prefWidth="112.0" />
             <Label graphicTextGap="4.0" text="password" />
