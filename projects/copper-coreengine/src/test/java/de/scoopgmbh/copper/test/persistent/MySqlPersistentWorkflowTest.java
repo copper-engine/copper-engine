@@ -23,29 +23,39 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 
 public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
-	
+
 	private static final String DS_CONTEXT = "/datasources/datasource-mysql.xml";
 	private static final Logger logger = LoggerFactory.getLogger(MySqlPersistentWorkflowTest.class);
-	
+
 	private static boolean dbmsAvailable = false;
-	
+
 	static {
-		final ConfigurableApplicationContext context = new MySqlPersistentWorkflowTest().createContext(DS_CONTEXT);
-		try {
-			DataSource ds = context.getBean(DataSource.class);
-			ds.setLoginTimeout(10);
-			ds.getConnection();
+		if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
 			dbmsAvailable = true;
 		}
-		catch(Exception e) {
-			logger.error("MySQL not available! Skipping MySQL unit tests.",e);
-			e.printStackTrace();
-		}
-		finally {
-			context.close();
+		else {
+			final ConfigurableApplicationContext context = new MySqlPersistentWorkflowTest().createContext(DS_CONTEXT);
+			try {
+				DataSource ds = context.getBean(DataSource.class);
+				ds.setLoginTimeout(10);
+				ds.getConnection();
+				dbmsAvailable = true;
+			}
+			catch(Exception e) {
+				logger.error("MySQL not available! Skipping MySQL unit tests.",e);
+				e.printStackTrace();
+			}
+			finally {
+				context.close();
+			}
 		}
 	}
-	
+
+	@Override
+	protected boolean skipTests() {
+		return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
+	}
+
 	public void testAsnychResponse() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAsnychResponse(DS_CONTEXT);
@@ -60,12 +70,12 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testWithConnection(DS_CONTEXT);
 	}
-	
+
 	public void testWithConnectionBulkInsert() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testWithConnectionBulkInsert(DS_CONTEXT);
 	}
-	
+
 	public void testTimeouts() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testTimeouts(DS_CONTEXT);
@@ -75,7 +85,7 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingInCoreEngine(DS_CONTEXT);
 	}
-	
+
 	public void testParentChildWorkflow() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testParentChildWorkflow(DS_CONTEXT);
@@ -85,11 +95,11 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
 	}
-	
-//	public void testCompressedAuditTrail() throws Exception {
-//		if (mySqlAvailable) super.testCompressedAuditTrail(DS_CONTEXT);
-//	}
-	
+
+	//	public void testCompressedAuditTrail() throws Exception {
+	//		if (mySqlAvailable) super.testCompressedAuditTrail(DS_CONTEXT);
+	//	}
+
 	public void testAuditTrailUncompressed() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAuditTrailUncompressed(DS_CONTEXT);
@@ -99,15 +109,15 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
 	}
-		
+
 	public void testAutoCommit() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAutoCommit(DS_CONTEXT);
 	}
-	
+
 	public void testNotifyWithoutEarlyResponseHandling() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
 	}
-	
+
 }

@@ -13,28 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.wfrepo;
+package de.scoopgmbh.copper.test.persistent;
 
-import junit.framework.TestCase;
-
-public class URLClassloaderClasspathProviderTest extends TestCase {
-
-	public void testGetOptions() {
-		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
-		try {
-			repo.addSourceDir("src/workflow/java");
-			repo.setTargetDir("target/compiled_workflow");
-			repo.addCompilerOptionsProvider(new URLClassloaderClasspathProvider());
-			repo.start();
-		}
-		finally {
-			try {
-				repo.shutdown();
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
+public interface Constants {
+	public static final String SKIP_EXTERNAL_DB_TESTS_KEY = "copper.unittest.skip.external.db.tests";
 }

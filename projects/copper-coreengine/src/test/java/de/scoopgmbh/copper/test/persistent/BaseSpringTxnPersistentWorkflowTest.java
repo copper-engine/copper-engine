@@ -39,6 +39,7 @@ public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowT
 	}	
 	
 	public void testSpringTxnUnitTestWorkflow(String dsContext) throws Exception {
+		if (skipTests()) return;
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);

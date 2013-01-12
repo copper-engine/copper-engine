@@ -35,29 +35,39 @@ import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 
 
 public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
-	
+
 	private static final String DS_CONTEXT = "/datasources/datasource-oracle.xml";
 	private static final Logger logger = LoggerFactory.getLogger(OraclePersistentWorkflowTest.class);
-	
+
 	private static boolean dbmsAvailable = false;
-	
+
 	static {
-		final ConfigurableApplicationContext context = new OraclePersistentWorkflowTest().createContext(DS_CONTEXT);
-		try {
-			DataSource ds = context.getBean(DataSource.class);
-			ds.setLoginTimeout(10);
-			ds.getConnection();
+		if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
 			dbmsAvailable = true;
 		}
-		catch(Exception e) {
-			logger.error("Oracle DBMS not available! Skipping Oracle unit tests.",e);
-			e.printStackTrace();
-		}
-		finally {
-			context.close();
+		else {
+			final ConfigurableApplicationContext context = new OraclePersistentWorkflowTest().createContext(DS_CONTEXT);
+			try {
+				DataSource ds = context.getBean(DataSource.class);
+				ds.setLoginTimeout(10);
+				ds.getConnection();
+				dbmsAvailable = true;
+			}
+			catch(Exception e) {
+				logger.error("Oracle DBMS not available! Skipping Oracle unit tests.",e);
+				e.printStackTrace();
+			}
+			finally {
+				context.close();
+			}
 		}
 	}	
-	
+
+	@Override
+	protected boolean skipTests() {
+		return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
+	}
+
 	public void testAsnychResponse() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAsnychResponse(DS_CONTEXT);
@@ -72,18 +82,20 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testWithConnection(DS_CONTEXT);
 	}
-	
+
 	public void testWithConnectionBulkInsert() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testWithConnectionBulkInsert(DS_CONTEXT);
 	}
-	
+
 	public void testTimeouts() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testTimeouts(DS_CONTEXT);
 	}
-	
+
 	public void testMultipleEngines() throws Exception {
+		if (skipTests()) return;
+		
 		if (!dbmsAvailable) fail("DBMS not available");
 
 		logger.info("running testMultipleEngines");
@@ -145,12 +157,12 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 		assertEquals(0,engineBlue.getNumberOfWorkflowInstances());
 
 	}
-	
+
 	public void testErrorHandlingInCoreEngine() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingInCoreEngine(DS_CONTEXT);
 	}
-	
+
 	public void testParentChildWorkflow() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testParentChildWorkflow(DS_CONTEXT);
@@ -160,40 +172,40 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
 	}
-	
+
 	public void testErrorHandlingInCoreEngine_restartAll() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingInCoreEngine_restartAll(DS_CONTEXT);
 	}
-	
+
 	public void testCompressedAuditTrail() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testCompressedAuditTrail(DS_CONTEXT);
 	}
-	
+
 	public void testAutoCommit() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAutoCommit(DS_CONTEXT);
 	}
-	
+
 	public void testAuditTrailUncompressed() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAuditTrailUncompressed(DS_CONTEXT);
 	}
-	
+
 	public void testErrorHandlingWithWaitHook() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
 	}
-	
+
 	public void testAuditTrailCustomSeqNr() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAuditTrailCustomSeqNr(DS_CONTEXT);
 	}
-	
+
 	public void testNotifyWithoutEarlyResponseHandling() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
 	}
-	
+
 }

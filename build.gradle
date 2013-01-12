@@ -173,6 +173,10 @@ project(':projects:copper-coreengine') {
 		compile fileTree(dir: project(':').projectDir.toString()+'/3rdPartyLibs', include: '*.jar')		
     }
 
+    test {
+        //configuring a system property for tests
+        systemProperty 'copper.unittest.skip.external.db.tests', 'true'
+    }
 }
 
 project(':projects:copper-examples:orchestration:orch-engine') {
