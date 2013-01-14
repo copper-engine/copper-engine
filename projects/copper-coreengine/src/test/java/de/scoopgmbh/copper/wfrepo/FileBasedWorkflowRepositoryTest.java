@@ -29,7 +29,7 @@ public class FileBasedWorkflowRepositoryTest extends TestCase {
 	public void testCreateWorkflowFactory() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		repo.addSourceDir("src/workflow/java");
-		repo.setTargetDir("target/compiled_workflow");
+		repo.setTargetDir("build/compiled_workflow");
 		repo.start();
 		try {
 			WorkflowFactory<Object> factory = repo.createWorkflowFactory("foo");

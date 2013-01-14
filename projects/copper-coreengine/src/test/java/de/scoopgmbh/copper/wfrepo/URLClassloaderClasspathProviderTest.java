@@ -23,7 +23,7 @@ public class URLClassloaderClasspathProviderTest extends TestCase {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		try {
 			repo.addSourceDir("src/workflow/java");
-			repo.setTargetDir("target/compiled_workflow");
+			repo.setTargetDir("build/compiled_workflow");
 			repo.addCompilerOptionsProvider(new URLClassloaderClasspathProvider());
 			repo.start();
 		}

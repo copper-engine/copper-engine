@@ -15,7 +15,7 @@
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
 	<bean id="datasource_default" class="org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40">
-    	<property name="databaseName" value="./target/copperUnitTestDB;create=true"/>
+    	<property name="databaseName" value="./build/copperUnitTestDB;create=true"/>
 	</bean>
 	
 	<bean id="dbDialect" class="de.scoopgmbh.copper.persistent.DerbyDbDialect" scope="singleton" init-method="startup">

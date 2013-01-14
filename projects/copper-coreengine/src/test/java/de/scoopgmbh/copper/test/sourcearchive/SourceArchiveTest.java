@@ -36,7 +36,7 @@ public class SourceArchiveTest extends TestCase {
 		repo.addSourceArchiveUrl(url);
 		repo.addSourceArchiveUrl(url);
 		repo.addSourceArchiveUrl(url);
-		repo.setTargetDir("target/compiled_workflow");
+		repo.setTargetDir("build/compiled_workflow");
 		repo.start();
 		Assert.assertNotNull(repo.createWorkflowFactory("de.scoopgmbh.copper.archivetest.ArchiveTestWorkflow"));
 		repo.shutdown();

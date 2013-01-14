@@ -547,7 +547,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	public static void main(String[] args) {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		repo.addSourceDir("src/workflow/java");
-		repo.setTargetDir("target/compiled_workflow");
+		repo.setTargetDir("build/compiled_workflow");
 		repo.start();
 	}
 

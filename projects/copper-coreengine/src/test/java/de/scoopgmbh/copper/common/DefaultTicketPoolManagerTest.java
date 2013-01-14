@@ -33,7 +33,7 @@ public class DefaultTicketPoolManagerTest extends TestCase {
 
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		repo.addSourceDir("src/workflow/java");
-		repo.setTargetDir("target/compiled_workflow");
+		repo.setTargetDir("build/compiled_workflow");
 		
 		repo.start();
 		ticketPoolManager.startup();

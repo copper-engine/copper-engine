@@ -45,7 +45,7 @@ public class BatchingAuditTrailTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		ds = new EmbeddedConnectionPoolDataSource40();
-		ds.setDatabaseName("./target/copperUnitTestDB;create=true");
+		ds.setDatabaseName("./build/copperUnitTestDB;create=true");
 		DerbyDbDialect.checkAndCreateSchema(ds);
 	}
 
