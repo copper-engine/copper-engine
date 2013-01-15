@@ -1,3 +1,5 @@
+apply plugin: 'idea'
+
 allprojects {
     apply plugin: 'maven'
     apply plugin: 'project-report'
@@ -30,6 +32,7 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
     *  since eclipse does not understand subprojects
     */
     apply plugin: 'eclipse'
+    apply plugin: 'idea'
     /*
     * be sure to always regenerate eclipse files, because
     * default behavior is merging into existing files
@@ -129,7 +132,7 @@ project(':projects:copper-coreengine') {
             ext.srcDir = "$projectDir/src/workflow/java"
         }
     }
-    sourceSets.main.resources.srcDirs += sourceSets.workflow.srcDir
+    sourceSets.test.resources.srcDirs += sourceSets.workflow.srcDir
         
         
     dependencies {
@@ -256,7 +259,13 @@ project(':projects:copper-examples:orchestration:orch-interfaces') {
 	sourceSets.main.java.srcDirs += gen_wsbindings.genDirName	
 	
 	compileJava.dependsOn gen_wsbindings
-	eclipseClasspath.dependsOn gen_wsbindings    
+	eclipseClasspath.dependsOn gen_wsbindings
+
+    idea {
+        module {
+            excludeDirs -= file('build')
+        }
+    }
 
 }
 
@@ -265,6 +274,7 @@ project(':projects:copper-examples:orchestration:orch-simulators') {
 	compile project(':projects:copper-coreengine')
 	compile project(':projects:copper-examples:orchestration:orch-interfaces')
 	compile 'log4j:log4j:1.2.17'
+    compile 'org.slf4j:slf4j-api:1.6.6'
     }
 }
 
