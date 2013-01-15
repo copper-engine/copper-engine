@@ -15,8 +15,6 @@
  */
 package de.scoopgmbh.copper.gui.ui.audittrail.result;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +25,17 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 import javafx.util.Callback;
@@ -44,15 +45,19 @@ import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
 import de.scoopgmbh.copper.gui.ui.audittrail.filter.AuditTrailFilterModel;
 import de.scoopgmbh.copper.gui.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsModel;
+import de.scoopgmbh.copper.gui.util.CodeMirrorFormatter;
+import de.scoopgmbh.copper.gui.util.CodeMirrorFormatter.CodeFormatLanguage;
 
 public class AuditTrailResultController implements Initializable, FilterResultController<AuditTrailFilterModel,AuditTrailResultModel>, FxmlController {
-	GuiCopperDataProvider copperDataProvider;
-	SettingsModel settingsModel;
-
-	public AuditTrailResultController(GuiCopperDataProvider copperDataProvider, SettingsModel settingsModel) {
+	private final GuiCopperDataProvider copperDataProvider;
+	private final SettingsModel settingsModel;
+	private final CodeMirrorFormatter codeMirrorFormatter;
+	
+	public AuditTrailResultController(GuiCopperDataProvider copperDataProvider, SettingsModel settingsModel, CodeMirrorFormatter codeMirrorFormatter) {
 		super();
 		this.copperDataProvider = copperDataProvider;
 		this.settingsModel = settingsModel;
+		this.codeMirrorFormatter = codeMirrorFormatter;
 	}
 
 
@@ -91,9 +96,14 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
     
     @FXML //  fx:id="detailstackPane"
     private StackPane detailstackPane; // Value injected by FXMLLoader
+    
+    @FXML //  fx:id="resultTextarea"
+    private TextArea resultTextarea; // Value injected by FXMLLoader
+    
+    @FXML //  fx:id="searchField"
+    private TextField searchField; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+	@Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert conversationIdColumn != null : "fx:id=\"conversationIdColumn\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
         assert correlationIdColumn != null : "fx:id=\"correlationIdColumn\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
@@ -107,33 +117,74 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
         assert transactionIdColumn != null : "fx:id=\"transactionIdColumn\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
         assert workflowInstanceIdColumn != null : "fx:id=\"workflowInstanceIdColumn\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
         assert detailstackPane != null : "fx:id=\"detailstackPane\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
-        
-        
-        resultTable.setRowFactory(new Callback<TableView<AuditTrailResultModel>, TableRow<AuditTrailResultModel>>() {
-			@Override
-			public TableRow<AuditTrailResultModel> call(TableView<AuditTrailResultModel> param) {
-				return new TableRow<AuditTrailResultModel>(){
-					@Override
-					protected void updateItem(AuditTrailResultModel item, boolean empty) {
-						if (item!=null ){
-							for (int i=0;i<settingsModel.auditralColorMappings.size();i++){
-								AuditralColorMapping auditralColorMapping = settingsModel.auditralColorMappings.get(i);
-								if (auditralColorMapping.match(item)){
-									this.setStyle("-fx-background-color: rgb("+
-											(int)(255*auditralColorMapping.color.getValue().getRed())+","+
-											(int)(255*auditralColorMapping.color.getValue().getGreen())+","+
-											(int)(255*auditralColorMapping.color.getValue().getBlue())+");");
+        assert resultTextarea != null : "fx:id=\"resultTextarea\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
+        assert searchField != null : "fx:id=\"searchField\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
+  
 
+//        resultTable.setRowFactory(new Callback<TableView<AuditTrailResultModel>, TableRow<AuditTrailResultModel>>() {
+//			@Override
+//			public TableRow<AuditTrailResultModel> call(TableView<AuditTrailResultModel> param) {
+//				return new TableRow<AuditTrailResultModel>(){
+//					@Override
+//					protected void updateItem(AuditTrailResultModel item, boolean empty) {
+//						if (item!=null ){
+//							for (int i=0;i<settingsModel.auditralColorMappings.size();i++){
+//								AuditralColorMapping auditralColorMapping = settingsModel.auditralColorMappings.get(i);
+////								this.getStyleClass().clear();
+////								this.getStyleClass().add("highligt"+auditralColorMapping.color.getValue());
+//								if (auditralColorMapping.match(item)){
+//									this.setStyle("-fx-control-inner-background: rgb("+
+//											(int)(255*auditralColorMapping.color.getValue().getRed())+","+
+//											(int)(255*auditralColorMapping.color.getValue().getGreen())+","+
+//											(int)(255*auditralColorMapping.color.getValue().getBlue())+");" +
+//													"-fx-text-inner-color black");
+//
+//								}
+//							}
+//						}
+//						super.updateItem(item, empty);
+//					}
+//				};
+//			}
+//		});
+//        
+		for (TableColumn<AuditTrailResultModel, ?> columnddummy : resultTable.getColumns()) {
+			@SuppressWarnings("unchecked")
+			TableColumn<AuditTrailResultModel, String> column = (TableColumn<AuditTrailResultModel, String>) columnddummy;
+			column.setCellFactory(new Callback<TableColumn<AuditTrailResultModel, String>, TableCell<AuditTrailResultModel, String>>() {
+				@Override
+				public TableCell<AuditTrailResultModel, String> call(TableColumn<AuditTrailResultModel, String> param) {
+					TableCell<AuditTrailResultModel, String> tableCell = new TableCell<AuditTrailResultModel, String>() {
+						@Override
+						public void updateItem(String item, boolean empty) {
+							super.updateItem(item, empty);
+					        setText(empty ? null : (getItem() == null ? "" : getItem().toString()));
+					        setGraphic(null);
+					            
+							AuditTrailResultModel rowitem = (AuditTrailResultModel) getTableRow().getItem();
+							if (rowitem != null) {
+								for (int i = 0; i < settingsModel.auditralColorMappings.size(); i++) {
+									AuditralColorMapping auditralColorMapping = settingsModel.auditralColorMappings.get(i);
+									if (auditralColorMapping.match(rowitem)) {
+										this.setTextFill(auditralColorMapping.color.getValue());
+										this.setStyle(
+//											   "    -fx-background-color: -fx-table-cell-border-color, -fx-control-inner-background;\r\n" + 
+											   "	-fx-border-color: rgb("
+												+ (int) (200 * auditralColorMapping.color.getValue().getRed()) + ","
+												+ (int) (200 * auditralColorMapping.color.getValue().getGreen()) + ","
+												+ (int) (200 * auditralColorMapping.color.getValue().getBlue())+");");
+									}
 								}
 							}
+
 						}
-						super.updateItem(item, empty);
-					}
-				};
-			}
-		});
-   
+					};
+					return tableCell;
+				}
+			});
+        }
         
+
         loglevelColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditTrailResultModel, String> p) {
@@ -192,84 +243,31 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
         
         resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         
-		final ProgressIndicator bar = new ProgressIndicator();
-		detailstackPane.getChildren().add(bar);
-		new Thread(new Runnable() {
+		initTable();
+		
+		searchField.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
-			public void run() {
-				final String codemirrorcss;
-				final String codemirrorjs;
-				final String xmlmodejs;
-				final String javascriptjs;
-				try {
-					try (InputStream input = getClass().getResourceAsStream("/codemirror/lib/codemirror.css")) {
-						codemirrorcss = convertStreamToString(input);
-					}
-					try (InputStream input = getClass().getResourceAsStream("/codemirror/lib/codemirror.js")) {
-						codemirrorjs = convertStreamToString(input);
-					}
-					try (InputStream input = getClass().getResourceAsStream("/codemirror/mode/json/javascript.js")) {
-						javascriptjs = convertStreamToString(input);
-					}
-					try (InputStream input = getClass().getResourceAsStream("/codemirror/mode/xml/xml.js")) {
-						xmlmodejs = convertStreamToString(input);
-					}
-				} catch (IOException e) {
-					throw new RuntimeException(e);
+			public void handle(ActionEvent event) {
+				if (resultTextarea.getText()!=null && searchField.getText()!=null){
+					int from = resultTextarea.getText().indexOf(searchField.getText(),resultTextarea.getSelection().getEnd());
+					resultTextarea.selectRange(from,from+searchField.getText().length());
+					
 				}
-
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						detailstackPane.getChildren().remove(bar);
-						initTable(codemirrorcss, codemirrorjs, xmlmodejs, javascriptjs);
-					}
-				});
 			}
-		}).start();
+		});
 		
     }
 
-	private void initTable(final String codemirrorcss, final String codemirrorjs, final String xmlmodejs, final String javascriptjs) {
+	private void initTable() {
 		resultTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<AuditTrailResultModel>() {
 			private void updateView(String message, final AuditTrailResultModel newValue){
-				String mode = xmlmodejs;
-				String modeScript= "<script>\n" + 
-						"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n" + 
-						"        mode: {name: \"xml\", alignCDATA: true},\n" + 
-						"        lineNumbers: true\n" + 
-						"      });\n" + 
-						"    </script>";
-				if (newValue.messageType.getValue()!=null && newValue.messageType.getValue().toLowerCase().contains("json")){
-					mode=javascriptjs;
-					modeScript=
-							"    <script>\r\n" + 
-							"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\r\n" + 
-							"        lineNumbers: true,\r\n" + 
-							"        matchBrackets: true,\r\n" + 
-							"        extraKeys: {\"Enter\": \"newlineAndIndentContinueComment\"}\r\n" + 
-							"      });\r\n" + 
-							"    </script>";
+				CodeFormatLanguage mode = CodeFormatLanguage.XML;
+				if (newValue.messageType.getValue()!=null && newValue.messageType.getValue().toLowerCase().equals("json")){
+					mode=CodeFormatLanguage.JAVASCRIPT;
 				}
-						
-				String formatedMessage = "<!doctype html>" +
-						"<html><head>" +
-						"<style type=\"text/css\">\n" + 
-						codemirrorcss+"\n"+
-						"</style>"+
-						" <script>"+codemirrorjs+"</script>" +
-						" <script>"+mode+"</script>" +
-						"</head>" +
-						"<body>" +
-						"<form><textarea id=\"code\" name=\"code\" style=\"width: 100%; height: 100%;\">\n" +
-						message+
-						"</textarea></form>" +
-						modeScript+
-						"</body>" +
-						"</html>";
-	
-				htmlMessageView.getEngine().loadContent(
-						formatedMessage);
+				String formatedMessage = codeMirrorFormatter.format(message, mode);
+				
+				htmlMessageView.getEngine().loadContent(formatedMessage);
 				textMessageView.setText(message);
 			}
 			
@@ -284,7 +282,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
-							final String message = copperDataProvider.getAuditMessage(newValue.id);
+							final String message = copperDataProvider.getAuditTrailMessage(newValue.id);
 
 							Platform.runLater(new Runnable() {
 								@Override
@@ -305,12 +303,6 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 		});
 		
 	}
-    
-    public static String convertStreamToString(java.io.InputStream is) {
-        @SuppressWarnings("resource")
-		java.util.Scanner s = new java.util.Scanner(is,"UTF-8").useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
-    }
 
 	@Override
 	public URL getFxmlRessource() {
@@ -322,6 +314,23 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 		ObservableList<AuditTrailResultModel> content = FXCollections.observableList(new ArrayList<AuditTrailResultModel>());;
 		content.addAll(filteredResult);
 		resultTable.setItems(content);
+		
+		StringBuilder textresult = new StringBuilder();
+		for (AuditTrailResultModel row: filteredResult){
+			textresult.append(row.id.getValue());
+			textresult.append(", ");
+			textresult.append(row.loglevel.getValue());
+			textresult.append(", ");
+			textresult.append(row.occurrence.getValue());
+			textresult.append(", ");
+			textresult.append(row.correlationId.getValue());
+			textresult.append(", ");
+			textresult.append(row.messageType.getValue());
+			textresult.append(", ");
+			textresult.append(row.transactionId.getValue());
+			textresult.append("\n");
+		}
+		resultTextarea.setText(textresult.toString());
 	}
 
 	@Override

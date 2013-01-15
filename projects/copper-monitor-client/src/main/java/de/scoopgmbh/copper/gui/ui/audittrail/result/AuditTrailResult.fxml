@@ -10,20 +10,45 @@
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <SplitPane dividerPositions="0.5371287128712872" focusTraversable="true" orientation="VERTICAL" prefHeight="406.0" prefWidth="540.0">
+    <SplitPane dividerPositions="0.6683168316831684" focusTraversable="true" orientation="VERTICAL" prefHeight="406.0" prefWidth="540.0">
       <items>
-        <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
-          <columns>
-            <TableColumn prefWidth="75.0" text="id" fx:id="idColumn" />
-            <TableColumn prefWidth="75.0" text="loglevel" fx:id="loglevelColumn" />
-            <TableColumn prefWidth="75.0" text="occurrence" fx:id="occurrenceColumn" />
-            <TableColumn prefWidth="75.0" text="conversationId" fx:id="conversationIdColumn" />
-            <TableColumn prefWidth="75.0" text="workflowInstanceId" fx:id="workflowInstanceIdColumn" />
-            <TableColumn prefWidth="75.0" text="correlationId" fx:id="correlationIdColumn" />
-            <TableColumn prefWidth="75.0" text="transactionId" fx:id="transactionIdColumn" />
-            <TableColumn prefWidth="75.0" text="messageType" fx:id="messageTypeColumn" />
-          </columns>
-        </TableView>
+        <TabPane prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE">
+          <tabs>
+            <Tab text="Table">
+              <content>
+                <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
+                  <columns>
+                    <TableColumn prefWidth="75.0" text="id" fx:id="idColumn" />
+                    <TableColumn prefWidth="75.0" text="loglevel" fx:id="loglevelColumn" />
+                    <TableColumn prefWidth="75.0" text="occurrence" fx:id="occurrenceColumn" />
+                    <TableColumn prefWidth="75.0" text="conversationId" fx:id="conversationIdColumn" />
+                    <TableColumn prefWidth="75.0" text="workflowInstanceId" fx:id="workflowInstanceIdColumn" />
+                    <TableColumn prefWidth="75.0" text="correlationId" fx:id="correlationIdColumn" />
+                    <TableColumn prefWidth="75.0" text="transactionId" fx:id="transactionIdColumn" />
+                    <TableColumn prefWidth="75.0" text="messageType" fx:id="messageTypeColumn" />
+                  </columns>
+                </TableView>
+              </content>
+            </Tab>
+            <Tab text="Text">
+              <content>
+                <BorderPane prefHeight="200.0" prefWidth="200.0">
+                  <bottom>
+                    <FlowPane alignment="CENTER_LEFT" hgap="5.0" prefHeight="33.999900000002526" prefWidth="497.0">
+                      <children>
+                        <Label text="Search" />
+                        <TextField id="serachField" fx:id="searchField" prefWidth="200.0" />
+                      </children>
+                    </FlowPane>
+                  </bottom>
+                  <center>
+                    <TextArea fx:id="resultTextarea" prefWidth="200.0" wrapText="true" />
+                  </center>
+                </BorderPane>
+              </content>
+            </Tab>
+          </tabs>
+        </TabPane>
         <StackPane fx:id="detailstackPane" prefHeight="150.0" prefWidth="200.0">
           <children>
             <BorderPane prefHeight="200.0" prefWidth="200.0">

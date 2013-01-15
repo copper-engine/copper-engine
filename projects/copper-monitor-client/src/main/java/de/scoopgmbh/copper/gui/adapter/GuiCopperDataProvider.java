@@ -21,9 +21,9 @@ import java.util.List;
 
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultModel;
+import de.scoopgmbh.copper.gui.ui.sql.filter.SqlFilterModel;
+import de.scoopgmbh.copper.gui.ui.sql.result.SqlResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
@@ -46,16 +46,6 @@ public class GuiCopperDataProvider {
 		super();
 		this.copperDataProvider=copperDataProvider;
 		maxResultCount= new SimpleObjectProperty<>(1000);
-		maxResultCount.addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-				try {
-					copperDataProvider.setMaxResultCount(newValue.intValue());
-				} catch (RemoteException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		});
 	}
 	
 	SimpleObjectProperty<Integer> maxResultCount;
@@ -68,7 +58,7 @@ public class GuiCopperDataProvider {
 		try {
 			list = copperDataProvider.getWorkflowInstanceList(filter.workflowSummeryFilterModel.workflowclass.getValue(),
 					filter.workflowSummeryFilterModel.workflowMajorVersion.getValue(),filter.workflowSummeryFilterModel.workflowMinorVersion.getValue(),
-					filter.state.getValue(), filter.priority.getValue());
+					filter.state.getValue(), filter.priority.getValue(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -83,7 +73,7 @@ public class GuiCopperDataProvider {
 		
 		List<AuditTrailInfo> list;
 		try {
-			list = copperDataProvider.getAuditTrails(filter.workflowClass.getValue(), filter.workflowInstanceId.getValue(), filter.correlationId.getValue(), filter.level.getValue());
+			list = copperDataProvider.getAuditTrails(filter.workflowClass.getValue(), filter.workflowInstanceId.getValue(), filter.correlationId.getValue(), filter.level.getValue(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -93,15 +83,11 @@ public class GuiCopperDataProvider {
 		}
 		return result;
 	}
-	
-	String getAuditTrailMessage(long id){
-		return "bla";
-	}
 
 	public List<WorkflowSummeryResultModel> getWorkflowSummery(WorkflowSummeryFilterModel filter) {
 		List<WorkflowSummery> summeries;
 		try {
-			summeries = copperDataProvider.getWorkflowSummery(filter.workflowclass.getValue(), filter.workflowMajorVersion.getValue(), filter.workflowMinorVersion.getValue());
+			summeries = copperDataProvider.getWorkflowSummery(filter.workflowclass.getValue(), filter.workflowMajorVersion.getValue(), filter.workflowMinorVersion.getValue(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -142,12 +128,26 @@ public class GuiCopperDataProvider {
 		}
 	}
 
-	public String getAuditMessage(SimpleLongProperty id) {
+	public String getAuditTrailMessage(SimpleLongProperty id) {
 		try {
 			return  copperDataProvider.getAuditTrailMessage(id.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public List<SqlResultModel> executeSqlQuery(SqlFilterModel filter){
+		List<String[]> list;
+		try {
+			list = copperDataProvider.executeSqlQuery(filter.sqlQuery.getValue(), maxResultCount.getValue());
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+		ArrayList<SqlResultModel> result = new ArrayList<>();
+		for (String[] row: list){
+			result.add(new SqlResultModel(row));
+		}
+		return result;
 	}
 	
 }

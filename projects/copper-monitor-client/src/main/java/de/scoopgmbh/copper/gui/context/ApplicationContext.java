@@ -72,7 +72,6 @@ public class ApplicationContext {
 		try (ByteArrayInputStream is=new ByteArrayInputStream(prefs.getByteArray(SETTINGS_KEY, defaultModelbytes))){
 			ObjectInputStream o = new ObjectInputStream(is);
 			settingsModelSinglton = (SettingsModel)o.readObject();
-			settingsModelSinglton=defaultSettings;
 		} catch (InvalidClassException e){
 			e.printStackTrace();
 			settingsModelSinglton=defaultSettings;

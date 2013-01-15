@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitor.adapter.model;
+package de.scoopgmbh.copper.gui.ui.sql.filter;
 
-import java.io.Serializable;
+import javafx.beans.property.SimpleStringProperty;
 
-public class WorkflowInstanceMetaDataInfo implements Serializable{
-	private static final long serialVersionUID = -3474254791751446121L;
+public class SqlFilterModel {
 	
-	//stackstrace
-	//variables content
-	//line
+	public SimpleStringProperty sqlQuery = new SimpleStringProperty();
 
 }

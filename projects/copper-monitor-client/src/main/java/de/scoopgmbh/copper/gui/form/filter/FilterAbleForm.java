@@ -73,8 +73,17 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			@SuppressWarnings("unchecked")
 			@Override
             public void handle(WorkerStateEvent t) {
-            	ResultFilterPair<F, R> result = (ResultFilterPair<F,R>)t.getSource().getValue();
-				resultForm.getController().showFilteredResult(result.result, result.usedFilter);
+				try {
+	            	ResultFilterPair<F, R> result = (ResultFilterPair<F,R>)t.getSource().getValue();
+					resultForm.getController().showFilteredResult(result.result, result.usedFilter);
+				} catch (Exception e){
+					e.printStackTrace(); //Future swollows Exceptions
+					if (e instanceof RuntimeException){
+						throw (RuntimeException)e;
+					} else {
+						throw new RuntimeException(e);
+					}
+				}
             }
         });
 		repeatFilterService = new RepeatFilterService<>(resultForm.getController(), filterForm);
@@ -93,6 +102,9 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		final StackPane stackPane = new StackPane();
 		filterService.stateProperty().addListener(new ChangeListener<Worker.State>() {
 			ProgressIndicator indicator = new ProgressIndicator();
+			{
+				indicator.setStyle("-fx-background-color: rgba(230,230,230,0.7);");
+			}
 			@Override
 			public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
 				if (newValue==State.RUNNING){

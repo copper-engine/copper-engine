@@ -42,6 +42,10 @@ import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.gui.ui.load.result.EngineLoadResultController;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsController;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsModel;
+import de.scoopgmbh.copper.gui.ui.sql.filter.SqlFilterController;
+import de.scoopgmbh.copper.gui.ui.sql.filter.SqlFilterModel;
+import de.scoopgmbh.copper.gui.ui.sql.result.SqlResultController;
+import de.scoopgmbh.copper.gui.ui.sql.result.SqlResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeController;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeForm;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterController;
@@ -56,6 +60,7 @@ import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceD
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultController;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
+import de.scoopgmbh.copper.gui.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
 
@@ -65,6 +70,7 @@ public class FormContext {
 	private FormGroup formGroup;
 	private final MessageProvider messageProvider;
 	private final SettingsModel settingsModelSinglton;
+	private final CodeMirrorFormatter codeMirrorFormatterSingelton = new CodeMirrorFormatter();
 
 	public TabPane getMainTabPane() {
 		return mainTabPane;
@@ -83,6 +89,7 @@ public class FormContext {
 		group.add(createWorkflowInstanceForm());
 		group.add(createAudittrailForm());
 		group.add(createEngineLoadForm());
+		group.add(createSqlForm());
 		group.add(createLoginForm());
 		formGroup = new FormGroup(group);
 	}
@@ -158,7 +165,7 @@ public class FormContext {
 		FxmlForm<FilterController<AuditTrailFilterModel>> filterForm = new FxmlForm<>("workflowsummeryFilter.title",
 				fCtrl, messageProvider);
 		
-		FilterResultController<AuditTrailFilterModel,AuditTrailResultModel> resCtrl = new AuditTrailResultController(guiCopperDataProvider, settingsModelSinglton);
+		FilterResultController<AuditTrailFilterModel,AuditTrailResultModel> resCtrl = new AuditTrailResultController(guiCopperDataProvider, settingsModelSinglton, codeMirrorFormatterSingelton);
 		FxmlForm<FilterResultController<AuditTrailFilterModel,AuditTrailResultModel>> resultForm = new FxmlForm<>("workflowsummeryFilter.title",
 				resCtrl, messageProvider);
 		
@@ -198,5 +205,20 @@ public class FormContext {
 	
 	public Form<SettingsController> createLoginForm(){
 		return new FxmlForm<>("settings.title", new SettingsController(settingsModelSinglton), messageProvider,  new TabPaneShowFormStrategie(mainTabPane));
+	}
+	
+	public FilterAbleForm<SqlFilterModel,SqlResultModel> createSqlForm(){
+		//same hacks are needed cause java cant handle generics as expected
+		
+		FilterController<SqlFilterModel> fCtrl = new SqlFilterController(codeMirrorFormatterSingelton); 
+		FxmlForm<FilterController<SqlFilterModel>> filterForm = new FxmlForm<>("engineLoad.title",
+				fCtrl, messageProvider);
+		
+		FilterResultController<SqlFilterModel,SqlResultModel> resCtrl = new SqlResultController(guiCopperDataProvider);
+		FxmlForm<FilterResultController<SqlFilterModel,SqlResultModel>> resultForm = new FxmlForm<>("sql.title",
+				resCtrl, messageProvider);
+		
+		return new FilterAbleForm<>("sql.title", messageProvider,
+				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 }

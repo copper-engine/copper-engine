@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitor.adapter.model;
+package de.scoopgmbh.copper.gui.ui.sql.result;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-public class WorkflowInstanceMetaDataInfo implements Serializable{
-	private static final long serialVersionUID = -3474254791751446121L;
+import javafx.beans.property.SimpleStringProperty;
+
+
+public class SqlResultModel {
+	public final List<SimpleStringProperty> rows = new ArrayList<>();
 	
-	//stackstrace
-	//variables content
-	//line
-
+	public SqlResultModel(String... rows){
+		for (String row: rows){
+			this.rows.add(new SimpleStringProperty(row));;
+		}
+	}
+	
 }

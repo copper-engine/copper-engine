@@ -1,13 +1,32 @@
+/*
+ * Copyright 2002-2012 SCOOP Software GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.scoopgmbh.copper.monitor.server;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
@@ -26,19 +45,72 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 
 	@Override
 	public String getAuditTrailMessage(long id) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		String json = "{\r\n" + 
+				"		    \"firstName\": \"John\",\r\n" + 
+				"		    \"lastName\": \"Smith\",\r\n" + 
+				"		    \"age\": 25,\r\n" + 
+				"		    \"address\": {\r\n" + 
+				"		        \"streetAddress\": \"21 2nd Street\",\r\n" + 
+				"		        \"city\": \"New York\",\r\n" + 
+				"		        \"state\": \"NY\",\r\n" + 
+				"		        \"postalCode\": 10021\r\n" + 
+				"		    },\r\n" + 
+				"		    \"phoneNumber\": [\r\n" + 
+				"		        {\r\n" + 
+				"		            \"type\": \"home\",\r\n" + 
+				"		            \"number\": \"212 555-1234\"\r\n" + 
+				"		        },\r\n" + 
+				"		        {\r\n" + 
+				"		            \"type\": \"fax\",\r\n" + 
+				"		            \"number\": \"646 555-4567\"\r\n" + 
+				"		        }\r\n" + 
+				"		    ]\r\n" + 
+				"		}";
+		
+		String xml = 
+				"<?xml version=\"1.0\"?>\r\n" + 
+				"<note>\r\n" + 
+				"    <to>Tove</to>\r\n" + 
+				"    <from>Jani</from>\r\n" + 
+				"    <heading>Reminder</heading>\r\n" + 
+				"    <body>Don't forget me this weekend!</body>\r\n" + 
+				"</note>\r\n" + 
+				"";
+		
+		String text = "blablablbalabl";
+		
+		int rnd = new Random().nextInt(3);
+		if (rnd==0){
+			return json;
+		}
+		if (rnd==1){
+			return xml;
+		}
+		if (rnd==2){
+			return text;
+		}
+		return "";
 	}
 
 
 	@Override
-	public List<WorkflowSummery> getWorkflowSummery(String workflowclass, String minorversion, String majorversion) throws RemoteException {
+	public List<WorkflowSummery> getWorkflowSummery(String workflowclass, String minorversion, String majorversion, long resultRowLimit) throws RemoteException {
 		ArrayList<WorkflowSummery> result = new ArrayList<>();
 		WorkflowSummery workflowSummery = new WorkflowSummery();
 		workflowSummery.setClazz("worklfowclass1");
 		result.add(workflowSummery);
 		workflowSummery = new WorkflowSummery();
 		workflowSummery.setClazz("worklfowclass2");
+		workflowSummery.setWorkflowMajorVersion("1");
+		workflowSummery.setWorkflowMinorVersion(""+new Date());
+		result.add(workflowSummery);
+		workflowSummery = new WorkflowSummery();
+		workflowSummery.setClazz("worklfowclass2");
+		workflowSummery.setWorkflowMajorVersion("2");
+		result.add(workflowSummery);
+		workflowSummery = new WorkflowSummery();
+		workflowSummery.setClazz("worklfowclass2");
+		workflowSummery.setWorkflowMajorVersion("3");
 		result.add(workflowSummery);
 		workflowSummery = new WorkflowSummery();
 		workflowSummery.setClazz("worklfowclass3");
@@ -46,10 +118,9 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		return result;
 	}
 
-
-
 	@Override
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(WorkflowInstanceState state, Integer priority) throws RemoteException {
+	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String workflowclass, String minorversion, String majorversion,
+			WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException {
 		ArrayList<WorkflowInstanceInfo> result = new ArrayList<>();
 		WorkflowInstanceInfo workflowInfo = new WorkflowInstanceInfo();
 		workflowInfo.setId("1");
@@ -65,33 +136,26 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public void setMaxResultCount(int count) {
-		System.out.println("new count: "+count);
-	}
-
-	@Override
-	public List<AuditTrailInfo> getAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level)
+	public List<AuditTrailInfo> getAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level, long resultRowLimit)
 			throws RemoteException {
 		ArrayList<AuditTrailInfo> result = new ArrayList<>();
 		AuditTrailInfo auditTrailInfo = new AuditTrailInfo();
 		auditTrailInfo.setId(1);
+		auditTrailInfo.setLoglevel(1);
 		result.add(auditTrailInfo);
 		auditTrailInfo = new AuditTrailInfo();
 		auditTrailInfo.setId(2);
+		auditTrailInfo.setLoglevel(2);
 		result.add(auditTrailInfo);
 		auditTrailInfo = new AuditTrailInfo();
 		auditTrailInfo.setId(3);
+		auditTrailInfo.setLoglevel(3);
 		auditTrailInfo.setOccurrence(new Date());
+		auditTrailInfo.setMessageType("json");
 		result.add(auditTrailInfo);
 		return result;
 	}
 
-
-	@Override
-	public WorkflowInstanceMetaDataInfo getWorkflowInstanceMetaData(String workflowInstanceId) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public CopperStatusInfo getCopperStatus() throws RemoteException {
@@ -99,16 +163,19 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		return null;
 	}
 
-
 	@Override
 	public List<WorkflowClassesInfo> getWorkflowClassesList() throws RemoteException {
 		ArrayList<WorkflowClassesInfo> result = new ArrayList<>();
-		result.add(new WorkflowClassesInfo("blubclass1",""+Math.random(),""));
-		result.add(new WorkflowClassesInfo("blubclass2",""+Math.random(),""));
-		result.add(new WorkflowClassesInfo("blubclass3",""+Math.random(),""));
+		result.add(new WorkflowClassesInfo("blubclass1","major"+Math.random(),"minor"+Math.random()));
+		result.add(new WorkflowClassesInfo("blubclass2","major"+1,"minor"+Math.random()));
+		result.add(new WorkflowClassesInfo("blubclass2","major"+1,"minor"+Math.random()));
+		result.add(new WorkflowClassesInfo("blubclass2","major"+1,"minor"+Math.random()));
+		result.add(new WorkflowClassesInfo("blubclass2","major"+2,"minor"+Math.random()));
+		result.add(new WorkflowClassesInfo("blubclass2","major"+2,"minor"+Math.random()));
+		result.add(new WorkflowClassesInfo("blubclass2","major"+2,"minor"+Math.random()));
+		result.add(new WorkflowClassesInfo("blubclass3","major"+Math.random(),"minor"+Math.random()));
 		return result;
 	}
-
 
 	@Override
 	public WorkflowInstanceMetaDataInfo getWorkflowInstanceDetails(String workflowInstanceId) {
@@ -119,7 +186,25 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 
 	@Override
 	public CopperLoadInfo getCopperLoadInfo() throws RemoteException {
-		return new CopperLoadInfo((int)(Math.random()*100),(int)(Math.random()*100));
+		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
+		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
+			map.put(workflowInstanceState, (int)(Math.random()*100));
+		}
+		return new CopperLoadInfo(map);
+	}
+
+
+	@Override
+	public CopperInterfaceSettings getSettings() throws RemoteException {
+		return new CopperInterfaceSettings(true);
+	}
+
+
+	@Override
+	public List<String[]> executeSqlQuery(String query, long resultRowLimit) {
+		List<String[]>  result = new ArrayList<>();
+		result.add(new String[]{"column1","column2","column3"});
+		return result;
 	}
 
 	

@@ -16,7 +16,7 @@
         <Insets left="5.0" />
       </FlowPane.margin>
     </Label>
-    <ChoiceBox fx:id="stateChoice" prefWidth="104.0">
+    <ChoiceBox fx:id="stateChoice" prefWidth="143.0">
       <items>
         <FXCollections fx:factory="observableArrayList">
           <String fx:value="Item 1" />

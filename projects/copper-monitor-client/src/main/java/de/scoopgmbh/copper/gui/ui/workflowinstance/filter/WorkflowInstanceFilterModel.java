@@ -22,7 +22,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
 public class WorkflowInstanceFilterModel {
 	
-	public SimpleObjectProperty<WorkflowInstanceState> state = new SimpleObjectProperty<>();
-	public SimpleIntegerProperty priority = new SimpleIntegerProperty();
-	public WorkflowSummeryFilterModel workflowSummeryFilterModel = new WorkflowSummeryFilterModel();
+	public final SimpleObjectProperty<WorkflowInstanceState> state = new SimpleObjectProperty<>();
+	public final SimpleIntegerProperty priority = new SimpleIntegerProperty();
+	public final WorkflowSummeryFilterModel workflowSummeryFilterModel = new WorkflowSummeryFilterModel();
 }

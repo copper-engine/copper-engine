@@ -24,11 +24,11 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
 public class WorkflowInstanceResultModel {
-	public SimpleStringProperty id;
-	public SimpleObjectProperty<WorkflowInstanceState> state;
-	public SimpleIntegerProperty priority;
-	public SimpleStringProperty processorPoolId;
-	public SimpleObjectProperty<Date> timeout;
+	public final SimpleStringProperty id;
+	public final SimpleObjectProperty<WorkflowInstanceState> state;
+	public final SimpleIntegerProperty priority;
+	public final SimpleStringProperty processorPoolId;
+	public final SimpleObjectProperty<Date> timeout;
 
 	public WorkflowInstanceResultModel(WorkflowInstanceInfo workflowInstanceInfo) {
 		this.id = new SimpleStringProperty(workflowInstanceInfo.getId());

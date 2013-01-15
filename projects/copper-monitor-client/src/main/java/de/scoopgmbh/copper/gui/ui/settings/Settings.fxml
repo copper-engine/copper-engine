@@ -8,11 +8,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<BorderPane id="BorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="531.0" prefWidth="914.0" xmlns:fx="http://javafx.com/fxml">
+<BorderPane id="" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="531.0" prefWidth="914.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <SplitPane dividerPositions="0.04431599229287091, 0.6724470134874759" focusTraversable="true" orientation="VERTICAL" prefHeight="521.0" prefWidth="871.0">
+    <SplitPane dividerPositions="0.6570327552986512" focusTraversable="true" orientation="VERTICAL" prefHeight="521.0" prefWidth="871.0">
       <items>
-        <Label text="Audittrail colors" />
         <BorderPane prefHeight="200.0" prefWidth="200.0">
           <bottom>
             <FlowPane alignment="CENTER_LEFT" hgap="5.0" prefHeight="33.0" prefWidth="902.0" vgap="0.0">
@@ -45,39 +44,46 @@
               </columns>
             </TableView>
           </center>
+          <padding>
+            <Insets left="5.0" right="5.0" />
+          </padding>
+          <top>
+            <Label text="Audittrail colors" />
+          </top>
         </BorderPane>
         <GridPane prefHeight="88.0" prefWidth="680.0">
           <children>
             <Label text="color " GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <ColorPicker fx:id="colorDetail" promptText="" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label text="Details:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <Label text="Label" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-            <Label text="Label" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-            <Label text="occurrence regex" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-            <Label text="Label" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-            <Label text="Label" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-            <TextField prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <TextField prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <TextField fx:id="occurrenceDetail" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-            <TextField prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-            <TextField prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-            <TextField prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+            <Label text="workflowid regex" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+            <Label text="correlationid regex" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+            <Label text="occurrence regex" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <Label text="messagetyp regex" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+            <Label id="idDetail" text="id regex" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+            <TextField fx:id="workflowidDetail" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField fx:id="correlationidDetail" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <TextField fx:id="occurrenceDetail" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+            <TextField id="conversionIdDetail" fx:id="conversionidDetail" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+            <TextField fx:id="messageTypDetail" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+            <TextField fx:id="idDetail" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
             <Label text="loglevel regex" GridPane.columnIndex="0" GridPane.rowIndex="2" />
             <TextField fx:id="loglevelDetail" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label text="Label" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Label text="conversionid regex" GridPane.columnIndex="3" GridPane.rowIndex="2" />
           </children>
           <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="181.0" minWidth="10.0" prefWidth="181.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="259.0" minWidth="10.0" prefWidth="257.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="179.0" minWidth="6.0" prefWidth="8.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="349.0" minWidth="10.0" prefWidth="213.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="395.0" minWidth="10.0" prefWidth="243.0" />
           </columnConstraints>
           <rowConstraints>
-            <RowConstraints maxHeight="43.0" minHeight="10.0" prefHeight="12.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="69.0" minHeight="10.0" prefHeight="27.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="69.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="82.0" minHeight="4.0" prefHeight="36.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="114.0" minHeight="10.0" prefHeight="33.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="43.0" minHeight="10.0" prefHeight="19.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="69.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="69.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="82.0" minHeight="4.0" prefHeight="42.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="114.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
           </rowConstraints>
         </GridPane>
       </items>
