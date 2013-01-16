@@ -15,8 +15,8 @@
  */
 package de.scoopgmbh.copper.test;
 
-import junit.framework.TestCase;
 
+import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -24,8 +24,11 @@ import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 import de.scoopgmbh.copper.util.BlockingResponseReceiver;
 
-public class SwitchCaseTest extends TestCase {
-	
+import static org.junit.Assert.assertEquals;
+
+public class SwitchCaseTest{
+
+	@Test
 	public void testWorkflow() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");

@@ -15,8 +15,7 @@
  */
 package de.scoopgmbh.copper.test.tranzient.classhierarchy;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -24,8 +23,11 @@ import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 import de.scoopgmbh.copper.util.BlockingResponseReceiver;
 
-public class DerivedTransientEngineTest extends TestCase {
+import static org.junit.Assert.assertEquals;
 
+public class DerivedTransientEngineTest {
+
+	@Test
 	public void testWorkflow() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");

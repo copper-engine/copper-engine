@@ -15,7 +15,7 @@
  */
 package de.scoopgmbh.copper.test;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Workflow;
 

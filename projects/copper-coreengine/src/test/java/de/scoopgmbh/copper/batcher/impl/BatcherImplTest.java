@@ -18,8 +18,7 @@ package de.scoopgmbh.copper.batcher.impl;
 import java.sql.Connection;
 import java.util.Collection;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,7 @@ import de.scoopgmbh.copper.batcher.CommandCallback;
 import de.scoopgmbh.copper.batcher.NullCallback;
 import de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner;
 
-public class BatcherImplTest extends TestCase {
+public class BatcherImplTest {
 	
 	private static final Logger logger = LoggerFactory.getLogger(BatcherImplTest.class);
 	
@@ -85,6 +84,7 @@ public class BatcherImplTest extends TestCase {
 	
 
 	@SuppressWarnings("rawtypes")
+	@Test
 	public final void testSubmitBatchCommand() throws InterruptedException {
 		BatcherImpl batcher = new BatcherImpl(2);
 		batcher.setBatchRunner(new RetryingTxnBatchRunner());

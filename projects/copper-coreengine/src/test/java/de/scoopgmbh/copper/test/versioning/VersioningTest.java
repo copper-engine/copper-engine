@@ -15,9 +15,7 @@
  */
 package de.scoopgmbh.copper.test.versioning;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -29,23 +27,27 @@ import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 import de.scoopgmbh.copper.util.BlockingResponseReceiver;
 
-public class VersioningTest extends TestCase {
+import static org.junit.Assert.assertEquals;
 
+public class VersioningTest {
+
+	@Test
 	public void testFindLatest() throws Exception {
 		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		try {
 			final WorkflowRepository repo = context.getBean(WorkflowRepository.class);
 			WorkflowVersion v = repo.findLatestMajorVersion(VersionTestWorkflowDef.NAME, 9);
-			Assert.assertEquals(new WorkflowVersion(9, 3, 1), v);
+			assertEquals(new WorkflowVersion(9, 3, 1), v);
 			
 			v = repo.findLatestMinorVersion(VersionTestWorkflowDef.NAME, 9, 1);
-			Assert.assertEquals(new WorkflowVersion(9, 1, 1), v);
+			assertEquals(new WorkflowVersion(9, 1, 1), v);
 		}
 		finally {
 			context.close();
 		}
 	}
 
+	@Test
 	public void testLatest() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine _engine = (TransientScottyEngine) context.getBean("transientEngine");
@@ -72,6 +74,7 @@ public class VersioningTest extends TestCase {
 
 	}
 
+	@Test
 	public void testVersion() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine _engine = (TransientScottyEngine) context.getBean("transientEngine");

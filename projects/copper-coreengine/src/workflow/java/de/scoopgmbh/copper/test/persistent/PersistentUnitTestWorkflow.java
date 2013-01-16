@@ -18,7 +18,6 @@ package de.scoopgmbh.copper.test.persistent;
 import java.sql.Connection;
 import java.util.Date;
 
-import junit.framework.Assert;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,8 @@ import de.scoopgmbh.copper.test.DataHolder;
 import de.scoopgmbh.copper.test.MockAdapter;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
+
+import static org.junit.Assert.*;
 
 public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
@@ -74,7 +75,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 			
 			for (int i=0; i<5; i++) {
 				callFoo();
-				Assert.assertNotNull(this.getCreationTS());
+				assertNotNull(this.getCreationTS());
 			}
 			
 			callFooWithWaitHook();
@@ -94,10 +95,10 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		wait(WaitMode.ALL, 10000, cid);
 		Response<?> res = getAndRemoveResponse(cid);
 		logger.info(res.toString());
-		Assert.assertNotNull(res);
-		Assert.assertFalse(res.isTimeout());
-		Assert.assertEquals(getData(),res.getResponse());
-		Assert.assertNull(res.getException());
+		assertNotNull(res);
+		assertFalse(res.isTimeout());
+		assertEquals(getData(), res.getResponse());
+		assertNull(res.getException());
 		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
 	}
 	
@@ -109,21 +110,21 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		getEngine().addWaitHook(this.getId(), new WaitHook() {
 			@Override
 			public void onWait(Workflow<?> wf, Connection con) throws Exception {
-				Assert.assertNotNull(wf);
-				Assert.assertNotNull(con);
+				assertNotNull(wf);
+				assertNotNull(con);
 				dataHolder.put(cid,wf.getId());
 			}
 		});
 		wait(WaitMode.ALL, 10000, cid);
-		Assert.assertEquals(getId(), dataHolder.get(cid));
+		assertEquals(getId(), dataHolder.get(cid));
 		dataHolder.clear(cid);
 
 		Response<?> res = getAndRemoveResponse(cid);
 		logger.info(res.toString());
-		Assert.assertNotNull(res);
-		Assert.assertFalse(res.isTimeout());
-		Assert.assertEquals(getData(),res.getResponse());
-		Assert.assertNull(res.getException());
+		assertNotNull(res);
+		assertFalse(res.isTimeout());
+		assertEquals(getData(),res.getResponse());
+		assertNull(res.getException());
 	}
 	
 	private void testWaitFirst() throws InterruptException {
@@ -135,24 +136,24 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
 		Response<?> resEarly = getAndRemoveResponse(cidEarly);
 		logger.info(resEarly.toString());
-		Assert.assertNotNull(resEarly);
-		Assert.assertFalse(resEarly.isTimeout());
-		Assert.assertEquals(getData(),resEarly.getResponse());
-		Assert.assertNull(resEarly.getException());
+		assertNotNull(resEarly);
+		assertFalse(resEarly.isTimeout());
+		assertEquals(getData(),resEarly.getResponse());
+		assertNull(resEarly.getException());
 		
 		Response<?> resLate = getAndRemoveResponse(cidLate);
-		Assert.assertNotNull(resLate);
-		Assert.assertTrue(resLate.isTimeout());
+		assertNotNull(resLate);
+		assertTrue(resLate.isTimeout());
 
 		mockAdapter.foo(getData(), cidLate,  50);
 		
 		wait(WaitMode.ALL, 5000, cidLate);
 
 		resEarly = getAndRemoveResponse(cidEarly);
-		Assert.assertNull(resEarly);
+		assertNull(resEarly);
 		
 		resLate = getAndRemoveResponse(cidLate);
-		Assert.assertNotNull(resLate);
-		Assert.assertFalse(resLate.isTimeout());
+		assertNotNull(resLate);
+		assertFalse(resLate.isTimeout());
 	}	
 }

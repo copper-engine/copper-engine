@@ -15,8 +15,7 @@
  */
 package de.scoopgmbh.copper.test;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -25,8 +24,12 @@ import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.management.WorkflowInfo;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 
-public class ExceptionHandlingTest extends TestCase {
-	
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class ExceptionHandlingTest {
+
+	@Test
 	public void testExceptionHandlingTestWF() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
@@ -53,7 +56,10 @@ public class ExceptionHandlingTest extends TestCase {
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		
-	}	
+	}
+
+
+	@Test
 	public void testIssueClassCastExceptionWorkflow3() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");

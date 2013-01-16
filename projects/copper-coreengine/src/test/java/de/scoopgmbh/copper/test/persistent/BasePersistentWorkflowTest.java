@@ -24,9 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -48,8 +47,10 @@ import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 
+import static org.junit.Assert.*;
+
 @WorkflowDescription(alias="de.scoopgmbh.copper.test.persistent.BasePersistentWorkflowTest", majorVersion=1, minorVersion=2, patchLevelVersion=3)
-public class BasePersistentWorkflowTest extends TestCase {
+public class BasePersistentWorkflowTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(BasePersistentWorkflowTest.class);
 
@@ -86,6 +87,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		return dataSB.toString(); 
 	}
 
+
 	public void testAsnychResponse(String dsContext) throws Exception {
 		if (skipTests()) return;
 		logger.info("running testAsnychResponse");
@@ -105,10 +107,10 @@ public class BasePersistentWorkflowTest extends TestCase {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				Assert.assertNotNull(x);
-				Assert.assertNotNull(x.getResult());
-				Assert.assertNotNull(x.getResult().toString().length() == DATA.length());
-				Assert.assertNull(x.getException());
+				assertNotNull(x);
+				assertNotNull(x.getResult());
+				assertNotNull(x.getResult().toString().length() == DATA.length());
+				assertNull(x.getException());
 			}
 		}
 		finally {
@@ -118,6 +120,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 
 	}
+
 
 	public void testAsnychResponseLargeData(String dsContext, int dataSize) throws Exception {
 		if (skipTests()) return;
@@ -138,10 +141,10 @@ public class BasePersistentWorkflowTest extends TestCase {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				Assert.assertNotNull(x);
-				Assert.assertNotNull(x.getResult());
-				Assert.assertNotNull(x.getResult().toString().length() == DATA.length());
-				Assert.assertNull(x.getException());
+				assertNotNull(x);
+				assertNotNull(x.getResult());
+				assertNotNull(x.getResult().toString().length() == DATA.length());
+				assertNull(x.getException());
 			}
 		}
 		finally {
@@ -156,6 +159,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "/CopperTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml"});
 		return context;
 	}
+
 
 	public void testWithConnection(String dsContext) throws Exception {
 		if (skipTests()) return;
@@ -181,9 +185,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				Assert.assertNotNull(x);
-				Assert.assertNull(x.getResult());
-				Assert.assertNull(x.getException());
+				assertNotNull(x);
+				assertNull(x.getResult());
+				assertNull(x.getException());
 			}
 		}
 		finally {
@@ -193,6 +197,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 
 	}
+
 
 	public void testWithConnectionBulkInsert(String dsContext) throws Exception {
 		if (skipTests()) return;
@@ -223,9 +228,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				Assert.assertNotNull(x);
-				Assert.assertNull(x.getResult());
-				Assert.assertNull(x.getException());
+				assertNotNull(x);
+				assertNull(x.getResult());
+				assertNull(x.getException());
 			}
 		}
 		finally {
@@ -235,6 +240,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 
 	}
+
 
 	public void testTimeouts(String dsContext) throws Exception {
 		if (skipTests()) return;
@@ -254,9 +260,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				Assert.assertNotNull(x);
-				Assert.assertNull(x.getResult());
-				Assert.assertNull(x.getException());
+				assertNotNull(x);
+				assertNull(x.getResult());
+				assertNull(x.getException());
 			}
 		}
 		finally {
@@ -266,6 +272,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 
 	}
+
 
 	public void testErrorHandlingInCoreEngine(String dsContext) throws Exception {
 		if (skipTests()) return;
@@ -311,6 +318,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
+
 
 	public void testErrorHandlingInCoreEngine_restartAll(String dsContext) throws Exception {
 		if (skipTests()) return;
@@ -376,9 +384,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				Assert.assertNotNull("Timeout!",x);
-				Assert.assertNull(x.getResult());
-				Assert.assertNull(x.getException());
+				assertNotNull("Timeout!",x);
+				assertNull(x.getResult());
+				assertNull(x.getException());
 			}
 		}
 		finally {
@@ -387,7 +395,6 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
-
 
 	public void testErrorKeepWorkflowInstanceInDB(String dsContext) throws Exception {
 		if (skipTests()) return;
@@ -410,10 +417,10 @@ public class BasePersistentWorkflowTest extends TestCase {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				Assert.assertNotNull(x);
-				Assert.assertNotNull(x.getResult());
-				Assert.assertNotNull(x.getResult().toString().length() == DATA.length());
-				Assert.assertNull(x.getException());
+				assertNotNull(x);
+				assertNotNull(x.getResult());
+				assertNotNull(x.getResult().toString().length() == DATA.length());
+				assertNull(x.getException());
 			}
 
 			new RetryingTransaction(context.getBean(DataSource.class)) {
@@ -433,6 +440,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 	}
+
 
 	public void testCompressedAuditTrail(String dsContext) throws Exception {
 		if (skipTests()) return;
@@ -454,10 +462,10 @@ public class BasePersistentWorkflowTest extends TestCase {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				Assert.assertNotNull(x);
-				Assert.assertNotNull(x.getResult());
-				Assert.assertNotNull(x.getResult().toString().length() == DATA.length());
-				Assert.assertNull(x.getException());
+				assertNotNull(x);
+				assertNotNull(x.getResult());
+				assertNotNull(x.getResult().toString().length() == DATA.length());
+				assertNull(x.getException());
 			}
 			new RetryingTransaction(context.getBean(DataSource.class)) {
 				@Override
@@ -479,7 +487,9 @@ public class BasePersistentWorkflowTest extends TestCase {
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 
-	}	
+	}
+
+
 
 	public void testAutoCommit(String dsContext) throws Exception {
 		if (skipTests()) return;
@@ -506,7 +516,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		}
 		final String msg = sb.toString();
 		return msg;
-	}	
+	}
 
 	public void testAuditTrailUncompressed(String dsContext) throws Exception {
 		if (skipTests()) return;
@@ -588,7 +598,7 @@ public class BasePersistentWorkflowTest extends TestCase {
 		finally {
 			context.close();
 		}
-	}	
+	}
 
 	public void testNotifyWithoutEarlyResponseHandling(String dsContext) throws Exception {
 		if (skipTests()) return;

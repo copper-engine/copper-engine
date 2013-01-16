@@ -15,10 +15,11 @@
  */
 package de.scoopgmbh.copper.wfrepo;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class URLClassloaderClasspathProviderTest extends TestCase {
+public class URLClassloaderClasspathProviderTest {
 
+	@Test
 	public void testGetOptions() {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		try {

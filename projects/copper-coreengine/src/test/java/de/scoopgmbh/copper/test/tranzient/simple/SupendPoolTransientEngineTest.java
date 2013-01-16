@@ -15,9 +15,7 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -26,8 +24,12 @@ import de.scoopgmbh.copper.tranzient.TransientProcessorPool;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 import de.scoopgmbh.copper.util.BlockingResponseReceiver;
 
-public class SupendPoolTransientEngineTest extends TestCase {
-	
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+public class SupendPoolTransientEngineTest {
+
+	@Test
 	public void testWorkflow() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
@@ -37,7 +39,7 @@ public class SupendPoolTransientEngineTest extends TestCase {
 		try {
 			final BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
 			Thread.sleep(10);
-			Assert.assertFalse(brr.isResponseReceived());
+			assertFalse(brr.isResponseReceived());
 			
 			processorPool.suspend();
 			
@@ -45,7 +47,7 @@ public class SupendPoolTransientEngineTest extends TestCase {
 
 			brr.wait4response(100L);
 			
-			Assert.assertFalse(brr.isResponseReceived());
+			assertFalse(brr.isResponseReceived());
 
 			processorPool.resume();
 			

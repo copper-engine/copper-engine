@@ -15,7 +15,6 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
-import junit.framework.Assert;
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
@@ -23,6 +22,8 @@ import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.test.MockAdapter;
 import de.scoopgmbh.copper.test.TestResponseReceiver;
+
+import static org.junit.Assert.fail;
 
 public class SimpleTransientWorkflow extends Workflow<String> {
 
@@ -115,7 +116,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			Assert.fail("should never come here");
+			fail("should never come here");
 		}
 		finally {
 			System.out.println("finally");
@@ -128,7 +129,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			Assert.fail("should never come here");
+			fail("should never come here");
 		}
 		finally {
 			System.out.println("finally");

@@ -20,8 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import junit.framework.Assert;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -31,13 +29,19 @@ import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 
 public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowTest {
 
 	protected ConfigurableApplicationContext createContext(String dsContext) {
 		return new ClassPathXmlApplicationContext(new String[] {dsContext, "SpringTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml", "unittest-context.xml"});
-	}	
-	
+	}
+
+
 	public void testSpringTxnUnitTestWorkflow(String dsContext) throws Exception {
 		if (skipTests()) return;
 		final ConfigurableApplicationContext context = createContext(dsContext);
@@ -48,9 +52,9 @@ public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowT
 			engine.startup();
 			engine.run("de.scoopgmbh.copper.test.persistent.springtxn.SpringTxnUnitTestWorkflow", "TestData");
 			WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-			Assert.assertNotNull(x);
-			Assert.assertNotNull(x.getResult());
-			Assert.assertNull(x.getException());
+			assertNotNull(x);
+			assertNotNull(x.getResult());
+			assertNull(x.getException());
 
 			//check
 			new RetryingTransaction(context.getBean(DataSource.class)) {

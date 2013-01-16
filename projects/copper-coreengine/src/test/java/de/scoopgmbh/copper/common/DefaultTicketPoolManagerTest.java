@@ -15,14 +15,17 @@
  */
 package de.scoopgmbh.copper.common;
 
-import junit.framework.TestCase;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
+import org.junit.Test;
 
-public class DefaultTicketPoolManagerTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public class DefaultTicketPoolManagerTest {
 
 	private static final String WF_CLASSNAME = "de.scoopgmbh.copper.test.tranzient.simple.SimpleTransientWorkflow";
 
+	@Test
 	public void testObtain() throws Exception {
 		
 		final String T_POOL_ID = "testTicketPoolId";

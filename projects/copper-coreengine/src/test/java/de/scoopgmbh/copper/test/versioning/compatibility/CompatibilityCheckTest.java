@@ -18,11 +18,10 @@ package de.scoopgmbh.copper.test.versioning.compatibility;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
@@ -31,10 +30,14 @@ import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.persistent.SerializedWorkflow;
 import de.scoopgmbh.copper.persistent.Serializer;
 
-public class CompatibilityCheckTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+public class CompatibilityCheckTest {
 	
 	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckTest.class);
 
+	@Test
 	public void testCheckCompatibility() throws Exception, InterruptException {
 		TestWorkflowRepository repo = new TestWorkflowRepository();
 		repo.setSourceDirs(Arrays.asList(new String[] {"./src/workflow/java"}));
@@ -121,13 +124,13 @@ public class CompatibilityCheckTest extends TestCase {
 		repo.triggerClassname = baseClass;
 		repo.overrideClassname = className;
 		Workflow<?> wf1 = serializer.deserializeWorkflow(cp1, repo);
-		Assert.assertEquals(className, wf1.getClass().getName());
+		assertEquals(className, wf1.getClass().getName());
 		if (checkIterations) 
 			doRun(repo, serializer, engine, wf1,1);
 		else
 			doRun(repo, serializer, engine, wf1);
 		Workflow<?> wf2 = serializer.deserializeWorkflow(cp2, repo);
-		Assert.assertEquals(className, wf1.getClass().getName());
+		assertEquals(className, wf1.getClass().getName());
 		if (checkIterations)
 			doRun(repo, serializer, engine, wf2,0);
 		else

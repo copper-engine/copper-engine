@@ -15,19 +15,23 @@
  */
 package de.scoopgmbh.copper.persistent;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.Assert;
 
-public class OracleScottyDBStorageTest extends TestCase {
+import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
+public class OracleScottyDBStorageTest {
+
+	@Test
 	public void testcomputeLockId() {
-		Assert.assertTrue(OracleDialect.computeLockId("polygenelubricants") >= 0);
-		Assert.assertTrue(OracleDialect.computeLockId("polygenelubricants") < 1073741823);
+		assertTrue(OracleDialect.computeLockId("polygenelubricants") >= 0);
+		assertTrue(OracleDialect.computeLockId("polygenelubricants") < 1073741823);
 
-		Assert.assertTrue(OracleDialect.computeLockId("234234") >= 0);
-		Assert.assertTrue(OracleDialect.computeLockId("234234") < 1073741823);
+		assertTrue(OracleDialect.computeLockId("234234") >= 0);
+		assertTrue(OracleDialect.computeLockId("234234") < 1073741823);
 
-		Assert.assertTrue(OracleDialect.computeLockId("test") >= 0);
-		Assert.assertTrue(OracleDialect.computeLockId("test") < 1073741823);
+		assertTrue(OracleDialect.computeLockId("test") >= 0);
+		assertTrue(OracleDialect.computeLockId("test") < 1073741823);
 }
 }

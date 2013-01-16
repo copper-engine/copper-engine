@@ -20,10 +20,15 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.common.JdkRandomUUIDFactory;
 import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
+import org.junit.Test;
 
-public class StandardJavaSerializerTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class StandardJavaSerializerTest{
 	
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testX() throws Exception {
 		final int SIZE = 20*1024;
 		StringBuilder dataSB = new StringBuilder(SIZE);

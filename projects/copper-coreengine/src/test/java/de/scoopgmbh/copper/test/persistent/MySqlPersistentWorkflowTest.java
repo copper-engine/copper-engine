@@ -17,9 +17,12 @@ package de.scoopgmbh.copper.test.persistent;
 
 import javax.sql.DataSource;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import static org.junit.Assert.fail;
 
 
 public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
@@ -56,41 +59,49 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 		return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
 	}
 
+	@Test
 	public void testAsnychResponse() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAsnychResponse(DS_CONTEXT);
 	}
 
+	@Test
 	public void testAsnychResponseLargeData() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAsnychResponseLargeData(DS_CONTEXT,65536);
 	}
 
+	@Test
 	public void testWithConnection() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testWithConnection(DS_CONTEXT);
 	}
 
+	@Test
 	public void testWithConnectionBulkInsert() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testWithConnectionBulkInsert(DS_CONTEXT);
 	}
 
+	@Test
 	public void testTimeouts() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testTimeouts(DS_CONTEXT);
 	}
 
+	@Test
 	public void testErrorHandlingInCoreEngine() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingInCoreEngine(DS_CONTEXT);
 	}
 
+	@Test
 	public void testParentChildWorkflow() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testParentChildWorkflow(DS_CONTEXT);
-	}	
+	}
 
+	@Test
 	public void testErrorKeepWorkflowInstanceInDB() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
@@ -100,21 +111,25 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
 	//		if (mySqlAvailable) super.testCompressedAuditTrail(DS_CONTEXT);
 	//	}
 
+	@Test
 	public void testAuditTrailUncompressed() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAuditTrailUncompressed(DS_CONTEXT);
 	}
 
+	@Test
 	public void testErrorHandlingWithWaitHook() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
 	}
 
+	@Test
 	public void testAutoCommit() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAutoCommit(DS_CONTEXT);
 	}
 
+	@Test
 	public void testNotifyWithoutEarlyResponseHandling() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);

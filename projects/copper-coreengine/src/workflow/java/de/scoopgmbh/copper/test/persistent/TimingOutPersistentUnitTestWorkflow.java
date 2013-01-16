@@ -17,7 +17,6 @@ package de.scoopgmbh.copper.test.persistent;
 
 import java.io.Serializable;
 
-import junit.framework.Assert;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,10 @@ import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TimingOutPersistentUnitTestWorkflow extends PersistentWorkflow<Serializable> {
 
@@ -52,10 +55,10 @@ public class TimingOutPersistentUnitTestWorkflow extends PersistentWorkflow<Seri
 			try {
 				Response<?> res = getAndRemoveResponse(cid);
 				logger.info(res.toString());
-				Assert.assertNotNull(res);
-				Assert.assertTrue(res.isTimeout());
-				Assert.assertNull(res.getResponse());
-				Assert.assertNull(res.getException());
+				assertNotNull(res);
+				assertTrue(res.isTimeout());
+				assertNull(res.getResponse());
+				assertNull(res.getException());
 			}
 			catch(RuntimeException e) {
 				logger.error("just for testing - runtime exception caught",e);

@@ -41,7 +41,7 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
     eclipse.classpath.defaultOutputDir = new File("$buildDir/classes/main")
     
     dependencies {
-        testCompile 'junit:junit:3.8.1'
+        testCompile 'junit:junit:4.11'
     }
 
     jar {

@@ -18,6 +18,10 @@ package de.scoopgmbh.copper.test.persistent;
 import javax.sql.DataSource;
 
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
+import org.junit.After;
+import org.junit.Test;
+
+import static org.junit.Assert.fail;
 
 
 public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersistentWorkflowTest {
@@ -32,61 +36,63 @@ public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersist
 		super.cleanDB(ds);
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		DerbyDbDialect.shutdownDerby();
-		super.tearDown();
 	}
 
+	@Test
 	public void testAsnychResponse() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAsnychResponse(DS_CONTEXT);
 	}
 
+	@Test
 	public void testAsnychResponseLargeData() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAsnychResponseLargeData(DS_CONTEXT,10000);
 	}
 
+	@Test
 	public void testWithConnection() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testWithConnection(DS_CONTEXT);
 	}
 
+	@Test
 	public void testWithConnectionBulkInsert() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testWithConnectionBulkInsert(DS_CONTEXT);
 	}
 
+	@Test
 	public void testTimeouts() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testTimeouts(DS_CONTEXT);
 	}
 
+	@Test
 	public void testErrorHandlingInCoreEngine() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingInCoreEngine(DS_CONTEXT);
 	}
 
+	@Test
 	public void testParentChildWorkflow() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testParentChildWorkflow(DS_CONTEXT);
-	}	
+	}
 
+	@Test
 	public void testErrorKeepWorkflowInstanceInDB() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
 	}
 
+	@Test(expected=UnsupportedOperationException.class)
 	public void testErrorHandlingInCoreEngine_restartAll() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
-		try {
-			super.testErrorHandlingInCoreEngine_restartAll(DS_CONTEXT);
-			fail();
-		}
-		catch(UnsupportedOperationException e) {
-			// ok
-		}
+		super.testErrorHandlingInCoreEngine_restartAll(DS_CONTEXT);
 	}
 
 	//	public void testCompressedAuditTrail() throws Exception {
@@ -94,31 +100,31 @@ public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersist
 	//		super.testCompressedAuditTrail(DS_CONTEXT);
 	//	}
 
+	@Test
 	public void testAutoCommit() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAutoCommit(DS_CONTEXT);
 	}
 
+	@Test
 	public void testAuditTrailUncompressed() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testAuditTrailUncompressed(DS_CONTEXT);
 	}
 
+	@Test
 	public void testErrorHandlingWithWaitHook() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
 	}
 
+	@Test(expected=UnsupportedOperationException.class)
 	public void testAuditTrailCustomSeqNr() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
-		try {
-			super.testAuditTrailCustomSeqNr(DS_CONTEXT);
-			fail();		}
-		catch(UnsupportedOperationException e) {
-			// ok
-		}
+		super.testAuditTrailCustomSeqNr(DS_CONTEXT);
 	}
 
+	@Test
 	public void testSpringTxnUnitTestWorkflow() throws Exception {
 		if (!dbmsAvailable) fail("DBMS not available");
 		super.testSpringTxnUnitTestWorkflow(DS_CONTEXT);

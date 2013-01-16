@@ -15,17 +15,20 @@
  */
 package de.scoopgmbh.copper.wfrepo;
 
-import junit.framework.TestCase;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.WorkflowFactory;
 
-public class FileBasedWorkflowRepositoryTest extends TestCase {
+import static org.junit.Assert.fail;
+
+public class FileBasedWorkflowRepositoryTest{
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileBasedWorkflowRepositoryTest.class);
 
+	@Test
 	public void testCreateWorkflowFactory() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		repo.addSourceDir("src/workflow/java");

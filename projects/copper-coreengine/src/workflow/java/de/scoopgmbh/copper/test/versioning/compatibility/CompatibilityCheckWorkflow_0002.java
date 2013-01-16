@@ -17,7 +17,6 @@ package de.scoopgmbh.copper.test.versioning.compatibility;
 
 import java.io.Serializable;
 
-import junit.framework.Assert;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +25,8 @@ import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
+
+import static org.junit.Assert.assertNull;
 
 /**
  * Compatible change example 0002
@@ -61,7 +62,7 @@ public class CompatibilityCheckWorkflow_0002 extends PersistentWorkflow<Serializ
 		// Allthough the new field is initialized at the beginning of the main method, 
 		// its value is null in "migrated" workflow instances, because the standard java deserialization
 		// will set the value of this formerly unknown field to NULL
-		Assert.assertNull(NEW_STRING_FIELD);  
+		assertNull(NEW_STRING_FIELD);
 	}
 	
 	protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
