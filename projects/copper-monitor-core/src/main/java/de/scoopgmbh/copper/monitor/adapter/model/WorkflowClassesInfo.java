@@ -21,36 +21,43 @@ import java.io.Serializable;
 public class WorkflowClassesInfo implements Serializable{
 	private static final long serialVersionUID = -1189606285407748364L;
 	
-    String classname;
-	String versionMajor;
-	String versionMinor;
-	public WorkflowClassesInfo(String classname, String versionMajor, String versionMinor) {
+	private String classname;
+	private long majorVersion;
+	private long minorVersion;
+	
+	private long patchLevel;
+	public WorkflowClassesInfo(String classname, long majorVersion, long minorVersion, long patchLevel) {
 		super();
 		this.classname = classname;
-		this.versionMajor = versionMajor;
-		this.versionMinor = versionMinor;
+		this.majorVersion = majorVersion;
+		this.minorVersion = minorVersion;
+		this.patchLevel = patchLevel;
 	}
+	
+	
 	public String getClassname() {
 		return classname;
 	}
 	public void setClassname(String classname) {
 		this.classname = classname;
 	}
-	public String getVersionMajor() {
-		return versionMajor;
+	public long getMajorVersion() {
+		return majorVersion;
 	}
-	public void setVersionMajor(String versionMajor) {
-		this.versionMajor = versionMajor;
+	public void setMajorVersion(long majorVersion) {
+		this.majorVersion = majorVersion;
 	}
-	public String getVersionMinor() {
-		return versionMinor;
+	public long getMinorVersion() {
+		return minorVersion;
 	}
-	public void setVersionMinor(String versionMinor) {
-		this.versionMinor = versionMinor;
+	public void setMinorVersion(long minorVersion) {
+		this.minorVersion = minorVersion;
 	}
-	
-
-	
-
+	public long getPatchLevel() {
+		return patchLevel;
+	}
+	public void setPatchLevel(long patchLevel) {
+		this.patchLevel = patchLevel;
+	}
 	
 }

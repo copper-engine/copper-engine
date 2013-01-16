@@ -13,24 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.gui.form.filter;
+package de.scoopgmbh.copper.gui.ui.ressource.filter;
 
-import java.util.List;
 
-import de.scoopgmbh.copper.gui.form.FxmlController;
-
-/**
- *
- * @param <F>Filtermodel
- * @param <T>Resultmodel
- */
-public interface FilterResultController<F,R> extends FxmlController{
+public class ResourceFilterModel {
 	
-	/**update gui
-	 * executed in JavaFX Application Thread
-	 */
-	public void showFilteredResult(List<R> filteredResult, F usedFilter);
-	public List<R> applyFilterInBackgroundThread(F filter);
-	public boolean canLimitResult();
-	public void clear();
 }

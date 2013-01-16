@@ -29,6 +29,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
@@ -94,32 +95,40 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 
 
 	@Override
-	public List<WorkflowSummery> getWorkflowSummery(String workflowclass, String minorversion, String majorversion, long resultRowLimit) throws RemoteException {
+	public List<WorkflowSummery> getWorkflowSummery(String workflowclass, Long majorversion, Long minorversion, Long patchlevel, long resultRowLimit) throws RemoteException {
 		ArrayList<WorkflowSummery> result = new ArrayList<>();
 		WorkflowSummery workflowSummery = new WorkflowSummery();
-		workflowSummery.setClazz("worklfowclass1");
+		workflowSummery.setWorkflowClass("worklfowclass1");
 		result.add(workflowSummery);
 		workflowSummery = new WorkflowSummery();
-		workflowSummery.setClazz("worklfowclass2");
-		workflowSummery.setWorkflowMajorVersion("1");
-		workflowSummery.setWorkflowMinorVersion(""+new Date());
+		workflowSummery.setWorkflowClass("worklfowclass2");
+		workflowSummery.setWorkflowMajorVersion(1);
+		workflowSummery.setWorkflowMinorVersion(2);
 		result.add(workflowSummery);
 		workflowSummery = new WorkflowSummery();
-		workflowSummery.setClazz("worklfowclass2");
-		workflowSummery.setWorkflowMajorVersion("2");
+		workflowSummery.setWorkflowClass("worklfowclass2");
+		workflowSummery.setWorkflowMajorVersion(2);
 		result.add(workflowSummery);
 		workflowSummery = new WorkflowSummery();
-		workflowSummery.setClazz("worklfowclass2");
-		workflowSummery.setWorkflowMajorVersion("3");
+		workflowSummery.setWorkflowClass("worklfowclass2");
+		workflowSummery.setWorkflowMajorVersion(3);
 		result.add(workflowSummery);
 		workflowSummery = new WorkflowSummery();
-		workflowSummery.setClazz("worklfowclass3");
+		workflowSummery.setWorkflowClass("worklfowclass3");
 		result.add(workflowSummery);
+		
+		workflowSummery = new WorkflowSummery();
+		workflowSummery.setWorkflowClass(workflowclass);
+		workflowSummery.setWorkflowMajorVersion(majorversion!=null?majorversion:0);
+		workflowSummery.setWorkflowMinorVersion(minorversion!=null?minorversion:0);
+		workflowSummery.setWorkflowPatchLevel(patchlevel!=null?patchlevel:0);
+		result.add(workflowSummery);
+		
 		return result;
 	}
 
 	@Override
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String workflowclass, String minorversion, String majorversion,
+	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String workflowclass, Long majorversion, Long minorversion, Long patchlevel,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException {
 		ArrayList<WorkflowInstanceInfo> result = new ArrayList<>();
 		WorkflowInstanceInfo workflowInfo = new WorkflowInstanceInfo();
@@ -132,6 +141,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		workflowInfo.setId("3");
 		workflowInfo.setTimeout(new Date());
 		result.add(workflowInfo);
+		
 		return result;
 	}
 
@@ -166,14 +176,14 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	@Override
 	public List<WorkflowClassesInfo> getWorkflowClassesList() throws RemoteException {
 		ArrayList<WorkflowClassesInfo> result = new ArrayList<>();
-		result.add(new WorkflowClassesInfo("blubclass1","major"+Math.random(),"minor"+Math.random()));
-		result.add(new WorkflowClassesInfo("blubclass2","major"+1,"minor"+Math.random()));
-		result.add(new WorkflowClassesInfo("blubclass2","major"+1,"minor"+Math.random()));
-		result.add(new WorkflowClassesInfo("blubclass2","major"+1,"minor"+Math.random()));
-		result.add(new WorkflowClassesInfo("blubclass2","major"+2,"minor"+Math.random()));
-		result.add(new WorkflowClassesInfo("blubclass2","major"+2,"minor"+Math.random()));
-		result.add(new WorkflowClassesInfo("blubclass2","major"+2,"minor"+Math.random()));
-		result.add(new WorkflowClassesInfo("blubclass3","major"+Math.random(),"minor"+Math.random()));
+		result.add(new WorkflowClassesInfo("blubclass1",0,+(int)(Math.random()*100),0));
+		result.add(new WorkflowClassesInfo("blubclass2",1,+(int)(Math.random()*100),0));
+		result.add(new WorkflowClassesInfo("blubclass2",1,+(int)(Math.random()*100),0));
+		result.add(new WorkflowClassesInfo("blubclass2",1,+(int)(Math.random()*100),0));
+		result.add(new WorkflowClassesInfo("blubclass2",2,+(int)(Math.random()*100),0));
+		result.add(new WorkflowClassesInfo("blubclass2",2,+(int)(Math.random()*100),0));
+		result.add(new WorkflowClassesInfo("blubclass2",2,+(int)(Math.random()*100),0));
+		result.add(new WorkflowClassesInfo("blubclass3",3,+(int)(Math.random()*100),0));
 		return result;
 	}
 
@@ -205,6 +215,12 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		List<String[]>  result = new ArrayList<>();
 		result.add(new String[]{"column1","column2","column3"});
 		return result;
+	}
+	
+	
+	@Override
+	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException {
+		return new PerformanceMonitor().getRessourcenInfo();
 	}
 
 	

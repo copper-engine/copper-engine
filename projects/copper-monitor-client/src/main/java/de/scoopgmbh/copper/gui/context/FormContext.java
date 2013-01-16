@@ -40,6 +40,9 @@ import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterController;
 import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.gui.ui.load.result.EngineLoadResultController;
+import de.scoopgmbh.copper.gui.ui.ressource.filter.ResourceFilterController;
+import de.scoopgmbh.copper.gui.ui.ressource.filter.ResourceFilterModel;
+import de.scoopgmbh.copper.gui.ui.ressource.result.RessourceResultController;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsController;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.gui.ui.sql.filter.SqlFilterController;
@@ -63,6 +66,7 @@ import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceD
 import de.scoopgmbh.copper.gui.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 
 public class FormContext {
 	private final TabPane mainTabPane;
@@ -90,7 +94,7 @@ public class FormContext {
 		group.add(createAudittrailForm());
 		group.add(createEngineLoadForm());
 		group.add(createSqlForm());
-		group.add(createLoginForm());
+		group.add(createRessourceForm());
 		formGroup = new FormGroup(group);
 	}
 	
@@ -219,6 +223,21 @@ public class FormContext {
 				resCtrl, messageProvider);
 		
 		return new FilterAbleForm<>("sql.title", messageProvider,
+				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+	}
+	
+	public FilterAbleForm<ResourceFilterModel,SystemResourcesInfo> createRessourceForm(){
+		//same hacks are needed cause java cant handle generics as expected
+		
+		FilterController<ResourceFilterModel> fCtrl = new ResourceFilterController(); 
+		FxmlForm<FilterController<ResourceFilterModel>> filterForm = new FxmlForm<>("engineLoad.title",
+				fCtrl, messageProvider);
+		
+		FilterResultController<ResourceFilterModel,SystemResourcesInfo> resCtrl = new RessourceResultController(guiCopperDataProvider);
+		FxmlForm<FilterResultController<ResourceFilterModel,SystemResourcesInfo>> resultForm = new FxmlForm<>("resource.title",
+				resCtrl, messageProvider);
+		
+		return new FilterAbleForm<>("resource.title", messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 }

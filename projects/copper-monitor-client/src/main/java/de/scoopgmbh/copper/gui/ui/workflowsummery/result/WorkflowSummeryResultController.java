@@ -61,10 +61,13 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
     private TableColumn<WorkflowSummeryResultModel, String> countColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="majorVersionColumn"
-    private TableColumn<WorkflowSummeryResultModel, String> majorVersionColumn; // Value injected by FXMLLoader
+    private TableColumn<WorkflowSummeryResultModel, Long> majorVersionColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="minorVersionColumn"
-    private TableColumn<WorkflowSummeryResultModel, String> minorVersionColumn; // Value injected by FXMLLoader
+    private TableColumn<WorkflowSummeryResultModel, Long> minorVersionColumn; // Value injected by FXMLLoader
+   
+    @FXML //  fx:id="patchlevelColumn"
+    private TableColumn<WorkflowSummeryResultModel, Long> patchlevelColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="resultTable"
     private TableView<WorkflowSummeryResultModel> resultTable; // Value injected by FXMLLoader
@@ -74,6 +77,8 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 
     @FXML //  fx:id="workflowClass"
     private TableColumn<WorkflowSummeryResultModel, String> workflowClassColumn; // Value injected by FXMLLoader
+    
+    
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
@@ -85,26 +90,33 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert statusColumn != null : "fx:id=\"statusColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert workflowClassColumn != null : "fx:id=\"workflowClassColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
-
+        assert patchlevelColumn != null : "fx:id=\"patchlevelColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
 
         workflowClassColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowSummeryResultModel, String> p) {
-				return p.getValue().workflowclass;
+				return p.getValue().version.classname;
 			}
 		});
         
-        majorVersionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(
-					CellDataFeatures<WorkflowSummeryResultModel, String> p) {
-				return p.getValue().workflowMajorVersion;
+        majorVersionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, Long>, ObservableValue<Long>>() {
+			public ObservableValue<Long> call(
+					final CellDataFeatures<WorkflowSummeryResultModel, Long> p) {
+				return p.getValue().version.versionMajor; 
 			}
 		});
 
-        minorVersionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(
-					CellDataFeatures<WorkflowSummeryResultModel, String> p) {
-				return p.getValue().workflowMinorVersion;
+        minorVersionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, Long>, ObservableValue<Long>>() {
+			public ObservableValue<Long> call(
+					final CellDataFeatures<WorkflowSummeryResultModel, Long> p) {
+				return p.getValue().version.versionMinor; 
+			}
+		});
+        
+        patchlevelColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, Long>, ObservableValue<Long>>() {
+			public ObservableValue<Long> call(
+					final CellDataFeatures<WorkflowSummeryResultModel, Long> p) {
+				return p.getValue().version.patchlevel; 
 			}
 		});
         
@@ -137,7 +149,7 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 				if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
 		            if(mouseEvent.getClickCount() == 2 && !resultTable.getSelectionModel().isEmpty()){
 		            	FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = formcontext.createWorkflowInstanceForm();
-						workflowInstanceForm.getFilter().workflowSummeryFilterModel.setAllFrom(getSelectedEntry());
+						workflowInstanceForm.getFilter().version.setAllFrom(getSelectedEntry().version);
 						workflowInstanceForm.show();
 		            }
 		        }
@@ -149,7 +161,7 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 			@Override
 			public void handle(ActionEvent event) {
 				FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = formcontext.createWorkflowInstanceForm();
-				workflowInstanceForm.getFilter().workflowSummeryFilterModel.setAllFrom(getSelectedEntry());
+				workflowInstanceForm.getFilter().version.setAllFrom(getSelectedEntry().version);
 				workflowInstanceForm.show();
 			}
 		});
@@ -184,6 +196,11 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 	@Override
 	public boolean canLimitResult() {
 		return true;
+	}
+	
+	@Override
+	public void clear() {
+		resultTable.getItems().clear();
 	}
 
 }

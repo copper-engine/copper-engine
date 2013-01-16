@@ -196,5 +196,10 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 	public boolean canLimitResult() {
 		return true;
 	}
+	
+	@Override
+	public void clear() {
+		resultTable.getItems().clear();
+	}
 
 }

@@ -93,3 +93,9 @@
 .choice-box {
 	-fx-base: rgb(50, 50, 50);
 }
+
+.workflowclassSearchMenueItem:focused {
+     -fx-background: transparent;
+     -fx-background-color: transparent;
+     -fx-text-fill: -fx-selection-bar-text;
+}

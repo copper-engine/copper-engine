@@ -34,6 +34,7 @@ import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceD
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
@@ -56,8 +57,9 @@ public class GuiCopperDataProvider {
 	public List<WorkflowInstanceResultModel> getWorkflowInstanceList(WorkflowInstanceFilterModel filter){
 		List<WorkflowInstanceInfo> list;
 		try {
-			list = copperDataProvider.getWorkflowInstanceList(filter.workflowSummeryFilterModel.workflowclass.getValue(),
-					filter.workflowSummeryFilterModel.workflowMajorVersion.getValue(),filter.workflowSummeryFilterModel.workflowMinorVersion.getValue(),
+			list = copperDataProvider.getWorkflowInstanceList(filter.version.classname.getValue(),
+					filter.version.versionMajor.getValue(),filter.version.versionMinor.getValue(),
+					filter.version.patchlevel.getValue(),
 					filter.state.getValue(), filter.priority.getValue(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
@@ -87,7 +89,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowSummeryResultModel> getWorkflowSummery(WorkflowSummeryFilterModel filter) {
 		List<WorkflowSummery> summeries;
 		try {
-			summeries = copperDataProvider.getWorkflowSummery(filter.workflowclass.getValue(), filter.workflowMajorVersion.getValue(), filter.workflowMinorVersion.getValue(), maxResultCount.getValue());
+			summeries = copperDataProvider.getWorkflowSummery(filter.classname.getValue(), filter.versionMajor.getValue(), filter.versionMinor.getValue(), filter.patchlevel.getValue(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -148,6 +150,14 @@ public class GuiCopperDataProvider {
 			result.add(new SqlResultModel(row));
 		}
 		return result;
+	}
+
+	public SystemResourcesInfo getSystemRessources() {
+		try {
+			return  copperDataProvider.getSystemResourceInfo();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 }

@@ -61,15 +61,14 @@ public class WorkflowClassesTreeController {
 		//		->minorversion		
 		
 		List<TreeItem<DisplayWorkflowClassesModel>> result = new ArrayList<>();
-		for (WorkflowClassesModel newData: list){
-
+		for (WorkflowClassesModel newWorkflowVersion: list){
 			TreeItem<DisplayWorkflowClassesModel> majorVersionItemToAdd = null;
 			TreeItem<DisplayWorkflowClassesModel> classnameItemToAdd = null;
 			for (TreeItem<DisplayWorkflowClassesModel> classnameItem: result){
-				if (newData.classname.getValue().equals(classnameItem.getValue().value.classname.getValue())){
+				if (newWorkflowVersion.classname.getValue().equals(classnameItem.getValue().value.classname.getValue())){
 					classnameItemToAdd=classnameItem;
 					for (TreeItem<DisplayWorkflowClassesModel> majorItem: classnameItem.getChildren()){
-						if (newData.versionMajor.getValue().equals(majorItem.getValue().value.versionMajor.getValue())){
+						if (newWorkflowVersion.versionMajor.getValue().equals(majorItem.getValue().value.versionMajor.getValue())){
 							majorVersionItemToAdd=majorItem;
 							break;
 						}
@@ -78,16 +77,16 @@ public class WorkflowClassesTreeController {
 			}
 			
 			if (classnameItemToAdd==null){
-				classnameItemToAdd = new TreeItem<>(new DisplayWorkflowClassesModel(newData, newData.classname.getValue()));
+				classnameItemToAdd = new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.classname.getValue()));
 				result.add(classnameItemToAdd);
 			}
 			
 			if (majorVersionItemToAdd==null){
-				TreeItem<DisplayWorkflowClassesModel> newitemMajor =new TreeItem<>(new DisplayWorkflowClassesModel(newData, newData.versionMajor.getValue()));
+				TreeItem<DisplayWorkflowClassesModel> newitemMajor =new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.versionMajor.getValue().toString()));
 				classnameItemToAdd.getChildren().add(newitemMajor);
 				majorVersionItemToAdd=newitemMajor;
 			}
-			majorVersionItemToAdd.getChildren().add(new TreeItem<>(new DisplayWorkflowClassesModel(newData, newData.versionMinor.getValue())));
+			majorVersionItemToAdd.getChildren().add(new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.versionMinor.getValue().toString())));
 		}
 		
 		return result;
@@ -136,9 +135,7 @@ public class WorkflowClassesTreeController {
 					TreeItem<DisplayWorkflowClassesModel> oldValue, TreeItem<DisplayWorkflowClassesModel> newValue) {
 				if (newValue!=null && newValue.getValue()!=null){
 					WorkflowClassesModel workflowClassesModel = newValue.getValue().value;
-					filterController.setFilter(workflowClassesModel.classname.getValue(), 
-							workflowClassesModel.versionMajor.getValue(),
-							workflowClassesModel.versionMinor.getValue());
+					filterController.setFilter(workflowClassesModel);
 				}
 			}
 		});

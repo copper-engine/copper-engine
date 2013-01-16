@@ -20,10 +20,11 @@ import java.io.Serializable;
 public class WorkflowSummery implements Serializable {
 	private static final long serialVersionUID = 4867510351238162279L;
 	
-	private String clazz;
+	private String workflowClass;
 	private String alias;
-	private String workflowMajorVersion;
-	private String workflowMinorVersion;
+	private long workflowMajorVersion;
+	private long workflowMinorVersion;
+	private long workflowPatchLevel;
 	private String status;
 	private int count;
 	
@@ -31,38 +32,41 @@ public class WorkflowSummery implements Serializable {
 		super();
 	}
 	
-	public WorkflowSummery(String clazz, String alias, String workflowMajorVersion, String workflowMinorVersion, String status, int count) {
+	public long getWorkflowPatchLevel() {
+		return workflowPatchLevel;
+	}
+
+	public void setWorkflowPatchLevel(long workflowPatchLevel) {
+		this.workflowPatchLevel = workflowPatchLevel;
+	}
+
+
+	public WorkflowSummery(String workflowClass, String alias, long workflowMajorVersion, long workflowMinorVersion, long workflowPatchLevel,
+			String status, int count) {
 		super();
-		this.clazz = clazz;
+		this.workflowClass = workflowClass;
 		this.alias = alias;
 		this.workflowMajorVersion = workflowMajorVersion;
 		this.workflowMinorVersion = workflowMinorVersion;
+		this.workflowPatchLevel = workflowPatchLevel;
 		this.status = status;
 		this.count = count;
 	}
-	public String getClazz() {
-		return clazz;
+
+
+	public String getWorkflowClass() {
+		return workflowClass;
 	}
-	public void setClazz(String clazz) {
-		this.clazz = clazz;
+
+	public void setWorkflowClass(String workflowClass) {
+		this.workflowClass = workflowClass;
 	}
+
 	public String getAlias() {
 		return alias;
 	}
 	public void setAlias(String alias) {
 		this.alias = alias;
-	}
-	public String getWorkflowMajorVersion() {
-		return workflowMajorVersion;
-	}
-	public void setWorkflowMajorVersion(String workflowMajorVersion) {
-		this.workflowMajorVersion = workflowMajorVersion;
-	}
-	public String getWorkflowMinorVersion() {
-		return workflowMinorVersion;
-	}
-	public void setWorkflowMinorVersion(String workflowMinorVersion) {
-		this.workflowMinorVersion = workflowMinorVersion;
 	}
 	public String getStatus() {
 		return status;
@@ -75,6 +79,22 @@ public class WorkflowSummery implements Serializable {
 	}
 	public void setCount(int count) {
 		this.count = count;
+	}
+
+	public long getWorkflowMajorVersion() {
+		return workflowMajorVersion;
+	}
+
+	public void setWorkflowMajorVersion(long workflowMajorVersion) {
+		this.workflowMajorVersion = workflowMajorVersion;
+	}
+
+	public long getWorkflowMinorVersion() {
+		return workflowMinorVersion;
+	}
+
+	public void setWorkflowMinorVersion(long workflowMinorVersion) {
+		this.workflowMinorVersion = workflowMinorVersion;
 	}
 	
 	

@@ -22,17 +22,16 @@ import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 
 public class AuditTrailResultModel {
 
-	public SimpleLongProperty id;
-	public SimpleStringProperty occurrence;
-	public SimpleStringProperty conversationId;
-	public SimpleIntegerProperty loglevel;
-	public SimpleStringProperty context;
-	public SimpleStringProperty workflowInstanceId;
-	public SimpleStringProperty correlationId;
-	public SimpleStringProperty transactionId;
-	public SimpleStringProperty messageType;
+	public final SimpleLongProperty id;
+	public final SimpleStringProperty occurrence;
+	public final SimpleStringProperty conversationId;
+	public final SimpleIntegerProperty loglevel;
+	public final SimpleStringProperty context;
+	public final SimpleStringProperty workflowInstanceId;
+	public final SimpleStringProperty correlationId;
+	public final SimpleStringProperty transactionId;
+	public final SimpleStringProperty messageType;
 	
-
 	public AuditTrailResultModel(AuditTrailInfo auditTrailInfo) {
 		id= new SimpleLongProperty(auditTrailInfo.getId());
 		occurrence = new SimpleStringProperty(auditTrailInfo.getOccurrence()!=null?auditTrailInfo.getOccurrence().toString():"");
@@ -44,8 +43,5 @@ public class AuditTrailResultModel {
 		transactionId = new SimpleStringProperty(auditTrailInfo.getTransactionId());
 		messageType = new SimpleStringProperty(auditTrailInfo.getMessageType());
 	}
-	
-	
-	
 	
 }

@@ -26,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.util.converter.LongStringConverter;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
@@ -60,9 +61,9 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
 
         priorityField.textProperty().bind(model.priority.asString());
-        workflowClass.textProperty().bind(model.workflowSummeryFilterModel.workflowclass);
-        majorVersion.textProperty().bind(model.workflowSummeryFilterModel.workflowMajorVersion);
-        minorVersion.textProperty().bind(model.workflowSummeryFilterModel.workflowMinorVersion);
+        workflowClass.textProperty().bind(model.version.classname);
+        majorVersion.textProperty().bindBidirectional(model.version.versionMajor, new LongStringConverter());
+        minorVersion.textProperty().bindBidirectional(model.version.versionMinor, new LongStringConverter());
         
         stateChoice.setItems(FXCollections.observableList(Arrays.asList(WorkflowInstanceState.values())));
         stateChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<WorkflowInstanceState>() {

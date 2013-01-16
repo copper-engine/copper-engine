@@ -29,6 +29,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -36,6 +37,8 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 import javafx.util.Callback;
@@ -102,6 +105,9 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
     
     @FXML //  fx:id="searchField"
     private TextField searchField; // Value injected by FXMLLoader
+    
+    @FXML //  fx:id="copyButton"
+    private Button copyButton; // Value injected by FXMLLoader
 
 	@Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -119,7 +125,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
         assert detailstackPane != null : "fx:id=\"detailstackPane\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
         assert resultTextarea != null : "fx:id=\"resultTextarea\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
         assert searchField != null : "fx:id=\"searchField\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
-  
+        assert copyButton != null : "fx:id=\"copyButton\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
 
 //        resultTable.setRowFactory(new Callback<TableView<AuditTrailResultModel>, TableRow<AuditTrailResultModel>>() {
 //			@Override
@@ -256,6 +262,15 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 			}
 		});
 		
+		copyButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				final Clipboard clipboard = Clipboard.getSystemClipboard();
+			    final ClipboardContent content = new ClipboardContent();
+			    content.putString(resultTextarea.getText());
+			    clipboard.setContent(content);
+			}
+		});
     }
 
 	private void initTable() {
@@ -316,17 +331,35 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 		resultTable.setItems(content);
 		
 		StringBuilder textresult = new StringBuilder();
+		textresult.append("id");
+		textresult.append("\t");
+		textresult.append("loglevel");
+		textresult.append("\t");
+		textresult.append("occurrence");
+		textresult.append("\t");
+		textresult.append("workflowInstanceId");
+		textresult.append("\t");
+		textresult.append("correlationId");
+		textresult.append("\t");
+		textresult.append("messageType");
+		textresult.append("\t");
+		textresult.append("transactionId");
+		textresult.append("\n");
+		
 		for (AuditTrailResultModel row: filteredResult){
+			
 			textresult.append(row.id.getValue());
-			textresult.append(", ");
+			textresult.append("\t");
 			textresult.append(row.loglevel.getValue());
-			textresult.append(", ");
+			textresult.append("\t");
 			textresult.append(row.occurrence.getValue());
-			textresult.append(", ");
+			textresult.append("\t");
+			textresult.append(row.workflowInstanceId.getValue());
+			textresult.append("\t");
 			textresult.append(row.correlationId.getValue());
-			textresult.append(", ");
+			textresult.append("\t");
 			textresult.append(row.messageType.getValue());
-			textresult.append(", ");
+			textresult.append("\t");
 			textresult.append(row.transactionId.getValue());
 			textresult.append("\n");
 		}
@@ -341,6 +374,11 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 	@Override
 	public boolean canLimitResult() {
 		return true;
+	}
+
+	@Override
+	public void clear() {
+		resultTable.getItems().clear();
 	}
 
 }

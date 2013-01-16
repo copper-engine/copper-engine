@@ -24,6 +24,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
@@ -32,9 +33,9 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
 
 public interface CopperMonitorInterface extends Remote, Serializable {
 
-	public List<WorkflowSummery> getWorkflowSummery(String workflowclass, String majorversion, String minorversion, long resultRowLimit) throws RemoteException;
+	public List<WorkflowSummery> getWorkflowSummery(String workflowclass, Long majorversion, Long minorversion, Long patchlevel, long resultRowLimit) throws RemoteException;
 
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String workflowclass, String majorversion, String minorversion, WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException;
+	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String workflowclass, Long majorversion, Long minorversion, Long patchlevel, WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException;
 
 	public List<AuditTrailInfo> getAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level, long resultRowLimit) throws RemoteException;
 
@@ -51,5 +52,7 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	public CopperInterfaceSettings getSettings() throws RemoteException;
 
 	public List<String[]> executeSqlQuery(String query, long resultRowLimit) throws RemoteException;
+	
+	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException;
 }
 

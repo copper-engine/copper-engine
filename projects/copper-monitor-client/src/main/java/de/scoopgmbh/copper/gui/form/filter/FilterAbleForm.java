@@ -136,6 +136,16 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		    }
 		});
 		filterbox.getChildren().add(refreshButton);
+
+		
+		final Button clearButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/clear.png"))));
+		clearButton.setTooltip(new Tooltip(messageProvider.getText("FilterAbleForm.button.clear")));
+		clearButton.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override public void handle(ActionEvent e) {
+		    	resultForm.getController().clear();
+		    }
+		});
+		filterbox.getChildren().add(clearButton);
 		
 		if (resultForm.getController().canLimitResult()){
 			TextField maxCountTextField = new TextField();
@@ -179,6 +189,9 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	
 		filterbox.getChildren().add(repeatProgressIndicator);
 		filterbox.getChildren().add(toggleButton);
+		
+		refreshButton.disableProperty().bind(toggleButton.selectedProperty());
+		clearButton.disableProperty().bind(toggleButton.selectedProperty());
 		
 		filterService.reset();
 		filterService.start();

@@ -12,15 +12,17 @@
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="266.0" prefWidth="657.0" xmlns:fx="http://javafx.com/fxml">
   <bottom>
-    <ChoiceBox fx:id="history" prefWidth="544.0">
-      <items>
-        <FXCollections fx:factory="observableArrayList">
-          <String fx:value="Item 1" />
-          <String fx:value="Item 2" />
-          <String fx:value="Item 3" />
-        </FXCollections>
-      </items>
-    </ChoiceBox>
+    <FlowPane alignment="CENTER_LEFT" hgap="5.0" minHeight="25.0" prefHeight="39.0" prefWidth="657.0">
+      <children>
+        <Label text="History">
+          <FlowPane.margin>
+            <Insets left="5.0" />
+          </FlowPane.margin>
+        </Label>
+        <ChoiceBox fx:id="history" prefWidth="544.0">
+        </ChoiceBox>
+      </children>
+    </FlowPane>
   </bottom>
   <center>
     <WebView fx:id="sqlEditor" prefHeight="283.0" prefWidth="632.0" />

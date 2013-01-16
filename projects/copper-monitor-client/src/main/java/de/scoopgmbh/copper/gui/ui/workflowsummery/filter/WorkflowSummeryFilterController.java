@@ -27,12 +27,14 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.converter.LongStringConverter;
 import de.scoopgmbh.copper.gui.context.FormContext;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
+import de.scoopgmbh.copper.gui.util.WorkflowVersion;
 
 public class WorkflowSummeryFilterController implements Initializable, FilterController<WorkflowSummeryFilterModel>, FxmlController {
-	private WorkflowSummeryFilterModel model;
+	private final WorkflowSummeryFilterModel model= new WorkflowSummeryFilterModel();
 	private final FormContext formFactory;
 
 	public WorkflowSummeryFilterController(FormContext formFactory) {
@@ -41,10 +43,8 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
 	}
 	
 	
-	public void setFilter(String workflowclass, String minorVersion, String majorVersion){
-		model.workflowclass.setValue(workflowclass);
-		model.workflowMajorVersion.setValue(minorVersion);
-		model.workflowMinorVersion.setValue(majorVersion);
+	public void setFilter(WorkflowVersion workflowVersion){
+		model.setAllFrom(workflowVersion);
 	}
 	
     @FXML //  fx:id="majorVersion"
@@ -61,7 +61,9 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
 
     @FXML //  fx:id="workflowClass"
     private TextField workflowClass; // Value injected by FXMLLoader
-
+    
+    @FXML //  fx:id="patchLevel"
+    private TextField patchLevel; // Value injected by FXMLLoader
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -70,12 +72,12 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
         assert searchMenueItem != null : "fx:id=\"searchMenueItem\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert serachbutton != null : "fx:id=\"serachbutton\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
-
+        assert patchLevel != null : "fx:id=\"patchLevel\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         
-        model = new WorkflowSummeryFilterModel();
-        workflowClass.textProperty().bindBidirectional(model.workflowclass);
-        minorVersion.textProperty().bindBidirectional(model.workflowMinorVersion);
-        majorVersion.textProperty().bindBidirectional(model.workflowMajorVersion);
+        workflowClass.textProperty().bindBidirectional(model.classname );
+        majorVersion.textProperty().bindBidirectional(model.versionMajor, new LongStringConverter());
+        minorVersion.textProperty().bindBidirectional(model.versionMinor, new LongStringConverter());
+        patchLevel.textProperty().bindBidirectional(model.patchlevel, new LongStringConverter());
         
         searchMenueItem.setContent(formFactory.createWorkflowClassesTreeForm(this).createContent());
         serachbutton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/search.png"))));
@@ -86,7 +88,8 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
 				
 			}
 		});
-//        searchMenueItem.getParentMenu().
+
+        searchMenueItem.getStyleClass().setAll("workflowclassSearchMenueItem","menu-item");
 	}
 
 	@Override

@@ -89,4 +89,9 @@ public class SqlResultController implements Initializable, FilterResultControlle
 		return true;
 	}
 
+	@Override
+	public void clear() {
+		resultTable.getItems().clear();
+	}
+
 }

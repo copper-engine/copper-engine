@@ -97,4 +97,8 @@ public class WorkflowInstanceDetailResultController implements Initializable, Fi
 		return true;
 	}
 
+	@Override
+	public void clear() {
+		//TODO
+	}
 }

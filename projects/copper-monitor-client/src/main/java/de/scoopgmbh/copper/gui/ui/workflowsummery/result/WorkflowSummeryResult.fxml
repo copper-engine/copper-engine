@@ -12,8 +12,9 @@
     <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
       <columns>
         <TableColumn prefWidth="75.0" text="Workflowclass" fx:id="workflowClassColumn" />
-        <TableColumn prefWidth="75.0" text="Major version" fx:id="majorVersionColumn" />
-        <TableColumn prefWidth="75.0" text="Minor version" fx:id="minorVersionColumn" />
+        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="27.0" text="Major version" fx:id="majorVersionColumn" />
+        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="27.0" text="Minor version" fx:id="minorVersionColumn" />
+        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="23.0" text="Patchlevel" fx:id="patchlevelColumn" />
         <TableColumn prefWidth="75.0" text="Alias" fx:id="aliasColumn" />
         <TableColumn prefWidth="75.0" text="Status" fx:id="statusColumn" />
         <TableColumn prefWidth="75.0" text="Count" fx:id="countColumn" />

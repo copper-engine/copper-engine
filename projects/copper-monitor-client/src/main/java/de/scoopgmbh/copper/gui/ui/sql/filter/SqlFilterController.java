@@ -34,7 +34,7 @@ public class SqlFilterController implements Initializable, FilterController<SqlF
 	private final CodeMirrorFormatter codeMirrorFormatter;
 
     @FXML //  fx:id="history"
-    private ChoiceBox<?> history; // Value injected by FXMLLoader
+    private ChoiceBox<String> history; // Value injected by FXMLLoader
 
     @FXML //  fx:id="sqlEditor"
     private WebView sqlEditor; // Value injected by FXMLLoader
@@ -53,9 +53,18 @@ public class SqlFilterController implements Initializable, FilterController<SqlF
         sqlEditor.setOnKeyTyped(new EventHandler<Event>() {
 			@Override
 			public void handle(Event event) {
-				model.sqlQuery.setValue( (String )sqlEditor.getEngine().executeScript("editor.getValue();"));
+				String query = (String )sqlEditor.getEngine().executeScript("editor.getValue();");
+				model.sqlQuery.setValue( query);
+				if (!query.isEmpty()){
+					history.getItems().add(query);
+					if (history.getItems().size()>10){
+						history.getItems().remove(0);
+					}
+				}
 			}
 		});
+        
+        
 	}
 
 	@Override

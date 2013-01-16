@@ -26,12 +26,18 @@
     <fx:reference source="workflowClass" />
     <Label text="major version">
       <labelFor>
-        <TextField fx:id="minorVersion" prefWidth="71.0" />
+        <TextField fx:id="minorVersion" prefWidth="51.0" />
       </labelFor>
     </Label>
-    <TextField fx:id="majorVersion" prefWidth="92.0" />
+    <TextField fx:id="majorVersion" prefWidth="51.0" />
     <Label labelFor="$minorVersion" text="minor version" />
     <fx:reference source="minorVersion" />
+    <Label text="patch level">
+      <labelFor>
+        <TextField id="minorVersion" fx:id="patchLevel" prefWidth="51.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="patchLevel" />
   </children>
   <padding>
     <Insets />

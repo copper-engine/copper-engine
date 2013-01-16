@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.gui.ui.load.result;
+package de.scoopgmbh.copper.gui.ui.ressource.result;
 
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
 import javafx.collections.ObservableList;
@@ -36,14 +32,13 @@ import javafx.scene.chart.XYChart.Data;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
-import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterModel;
-import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.gui.ui.ressource.filter.ResourceFilterModel;
+import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 
-public class EngineLoadResultController implements Initializable, FilterResultController<EngineLoadFilterModel,CopperLoadInfo>, FxmlController {
+public class RessourceResultController implements Initializable, FilterResultController<ResourceFilterModel,SystemResourcesInfo>, FxmlController {
 	private final GuiCopperDataProvider copperDataProvider;
 	
-	public EngineLoadResultController(GuiCopperDataProvider copperDataProvider) {
+	public RessourceResultController(GuiCopperDataProvider copperDataProvider) {
 		super();
 		this.copperDataProvider = copperDataProvider;
 	}
@@ -57,8 +52,6 @@ public class EngineLoadResultController implements Initializable, FilterResultCo
     @FXML //  fx:id="numberAxis"
     private NumberAxis numberAxis; // Value injected by FXMLLoader
 
-    private Map<WorkflowInstanceState,XYChart.Series<String, Number>> stateToAxis = new HashMap<>();
-
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert areaChart != null : "fx:id=\"areaChart\" was not injected: check your FXML file 'EngineLoadResult.fxml'.";
@@ -70,44 +63,48 @@ public class EngineLoadResultController implements Initializable, FilterResultCo
     }
 
 	private void initChart() {
-		stateToAxis.clear();
-        for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-        	XYChart.Series<String, Number> axis= new XYChart.Series<>();
-        	axis.setName(workflowInstanceState.toString());
-        	stateToAxis.put(workflowInstanceState,axis);
-        	areaChart.getData().add(axis);
-        }
+        axis = new XYChart.Series<>();
+        axis.setName("SystemCpuLoad");
+        areaChart.getData().add(axis);
+        
+        axisProcessCpuLoad = new XYChart.Series<>();
+        axisProcessCpuLoad.setName("ProcessCpuLoad");
+        areaChart.getData().add(axisProcessCpuLoad);
 	}
 	
 	@Override
 	public URL getFxmlRessource() {
-		return getClass().getResource("EngineLoadResult.fxml");
+		return getClass().getResource("ResourceResult.fxml");
 	}
 
 	private static final int MAX_DATA_POINTS = 30;
+
+	private XYChart.Series<String, Number> axis;
+	private XYChart.Series<String, Number> axisProcessCpuLoad;
+	
 	@Override
-	public void showFilteredResult(List<CopperLoadInfo> filteredlist, EngineLoadFilterModel usedFilter) {
-		
-		CopperLoadInfo copperLoadInfo = filteredlist.get(0);	
-		String date = new SimpleDateFormat("HH:mm:ss").format(new Date());
-		
-		for (Entry<WorkflowInstanceState,Integer> entry: copperLoadInfo.getNumberOfWorkflowInstancesWithState().entrySet()){
-			ObservableList<Data<String, Number>> data = stateToAxis.get(entry.getKey()).getData();
-			if (usedFilter.stateFilters.get(entry.getKey()).getValue()){
-				data.add(new XYChart.Data<String, Number>(date, entry.getValue()));
-				if (data.size() > MAX_DATA_POINTS) {
-					data.remove(0);
-				}
-			} else {
-				data.clear();
-			}
+	public void showFilteredResult(List<SystemResourcesInfo> filteredlist, ResourceFilterModel usedFilter) {
+
+		SystemResourcesInfo systemRessourcesInfo = filteredlist.get(0);
+		String date = new SimpleDateFormat("HH:mm:ss").format(systemRessourcesInfo.getTimestamp());
+
+		ObservableList<Data<String, Number>> data = axis.getData();
+		data.add(new XYChart.Data<String, Number>(date, systemRessourcesInfo.getSystemCpuLoad()));
+		if (data.size() > MAX_DATA_POINTS) {
+			data.remove(0);
 		}
 		
+		data = axisProcessCpuLoad.getData();
+		data.add(new XYChart.Data<String, Number>(date, systemRessourcesInfo.getProcessCpuLoad()));
+		if (data.size() > MAX_DATA_POINTS) {
+			data.remove(0);
+		}
+
 	}
 
 	@Override
-	public List<CopperLoadInfo> applyFilterInBackgroundThread(EngineLoadFilterModel filter) {
-		return Arrays.asList(copperDataProvider.getCopperLoadInfo());
+	public List<SystemResourcesInfo> applyFilterInBackgroundThread(ResourceFilterModel filter) {
+		return Arrays.asList(copperDataProvider.getSystemRessources());
 	}
 
 	@Override
