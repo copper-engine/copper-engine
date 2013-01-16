@@ -33,6 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
 
 public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowTest {
@@ -43,7 +44,7 @@ public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowT
 
 
 	public void testSpringTxnUnitTestWorkflow(String dsContext) throws Exception {
-		if (skipTests()) return;
+		assumeFalse(skipTests());
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
