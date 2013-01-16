@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 
 public class PostgreSQLSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersistentWorkflowTest {

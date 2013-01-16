@@ -15,8 +15,6 @@
  */
 package de.scoopgmbh.copper.persistent;
 
-import org.junit.Assert;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

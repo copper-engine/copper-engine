@@ -15,7 +15,6 @@
  */
 package de.scoopgmbh.copper.persistent;
 
-import junit.framework.TestCase;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.common.JdkRandomUUIDFactory;
