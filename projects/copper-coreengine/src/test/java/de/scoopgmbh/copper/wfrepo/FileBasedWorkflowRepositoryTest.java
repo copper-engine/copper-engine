@@ -28,7 +28,7 @@ public class FileBasedWorkflowRepositoryTest{
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileBasedWorkflowRepositoryTest.class);
 
-	@Test
+	@Test(expected = ClassNotFoundException.class)
 	public void testCreateWorkflowFactory() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		repo.addSourceDir("src/workflow/java");
@@ -37,14 +37,6 @@ public class FileBasedWorkflowRepositoryTest{
 		try {
 			WorkflowFactory<Object> factory = repo.createWorkflowFactory("foo");
 			factory.newInstance();
-			fail("expected ClassNotFoundException");
-		}
-		catch(ClassNotFoundException e) {
-			// OK
-		}
-		catch(Throwable e) {
-			logger.error("",e);
-			fail("expected ClassNotFoundException");
 		}
 		finally {
 			repo.shutdown();
