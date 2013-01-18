@@ -15,7 +15,13 @@
         <TableColumn prefWidth="75.0" text="State" fx:id="stateColumn" />
         <TableColumn prefWidth="75.0" text="priority" fx:id="prioritynColumn" />
         <TableColumn prefWidth="75.0" text="ProcessorPool" fx:id="processorPoolColumn" />
-        <TableColumn prefWidth="75.0" text="Status" fx:id="timeoutColumn" />
+        <TableColumn prefWidth="75.0" text="timeout" fx:id="timeoutColumn" />
+	    <TableColumn prefWidth="75.0" text="lastActivityTimestamp" fx:id="lastActivityTimestamp" />
+		<TableColumn prefWidth="75.0" text="overallLifetimeInMs" fx:id="overallLifetimeInMs" />
+	    <TableColumn prefWidth="75.0" text="startTime" fx:id="startTime" />
+	    <TableColumn prefWidth="75.0" text="finishTime" fx:id="finishTime" />
+	    <TableColumn prefWidth="75.0" text="lastErrorTime" fx:id="lastErrorTime" />
+	    <TableColumn prefWidth="75.0" text="errorInfos" fx:id="errorInfos" />
       </columns>
     </TableView>
   </center>

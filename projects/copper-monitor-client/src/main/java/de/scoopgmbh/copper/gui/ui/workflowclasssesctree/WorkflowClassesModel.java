@@ -16,11 +16,11 @@
 package de.scoopgmbh.copper.gui.ui.workflowclasssesctree;
 
 import de.scoopgmbh.copper.gui.util.WorkflowVersion;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassDescription;
 
 public class WorkflowClassesModel extends WorkflowVersion{
 
-	public WorkflowClassesModel(WorkflowClassesInfo workflowClassesInfo) {
+	public WorkflowClassesModel(WorkflowClassDescription workflowClassesInfo) {
 		super(workflowClassesInfo);
 	}
 	

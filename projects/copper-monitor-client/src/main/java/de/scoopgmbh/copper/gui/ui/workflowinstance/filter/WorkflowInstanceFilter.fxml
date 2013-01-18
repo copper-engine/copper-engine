@@ -16,7 +16,7 @@
         <Insets left="5.0" />
       </FlowPane.margin>
     </Label>
-    <ChoiceBox fx:id="stateChoice" prefWidth="143.0">
+    <ChoiceBox fx:id="stateChoice" prefWidth="129.0">
       <items>
         <FXCollections fx:factory="observableArrayList">
           <String fx:value="Item 1" />
@@ -33,21 +33,27 @@
     <fx:reference source="priorityField" />
     <Label text="workflowclass">
       <labelFor>
-        <TextField fx:id="workflowClass" prefWidth="104.0" />
+        <TextField fx:id="workflowClass" prefWidth="231.0" />
       </labelFor>
     </Label>
     <fx:reference source="workflowClass" />
-    <Label text="major version">
+    <Label text="Version">
       <labelFor>
-        <TextField id="workflowClass" fx:id="majorVersion" prefWidth="57.0" />
+        <TextField id="workflowClass" fx:id="majorVersion" prefWidth="33.0" promptText="" />
       </labelFor>
     </Label>
     <fx:reference source="majorVersion" />
-    <Label text="minor Version">
+    <Label text=".">
       <labelFor>
-        <TextField id="workflowClass" fx:id="minorVersion" prefWidth="57.0" />
+        <TextField id="workflowClass" fx:id="minorVersion" prefWidth="33.0" />
       </labelFor>
     </Label>
     <fx:reference source="minorVersion" />
+    <Label text=".">
+      <labelFor>
+        <TextField id="workflowClass" fx:id="patchLevel" prefWidth="33.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="patchLevel" />
   </children>
 </FlowPane>

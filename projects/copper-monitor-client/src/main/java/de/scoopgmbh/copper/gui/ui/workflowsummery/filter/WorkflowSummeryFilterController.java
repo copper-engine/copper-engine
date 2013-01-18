@@ -42,9 +42,8 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
 		this.formFactory = formFactory;
 	}
 	
-	
 	public void setFilter(WorkflowVersion workflowVersion){
-		model.setAllFrom(workflowVersion);
+		model.version.setAllFrom(workflowVersion);
 	}
 	
     @FXML //  fx:id="majorVersion"
@@ -64,6 +63,9 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
     
     @FXML //  fx:id="patchLevel"
     private TextField patchLevel; // Value injected by FXMLLoader
+    
+    @FXML //  fx:id="alias"
+    private TextField alias; // Value injected by FXMLLoader
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -73,11 +75,13 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
         assert serachbutton != null : "fx:id=\"serachbutton\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert patchLevel != null : "fx:id=\"patchLevel\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
+        assert alias != null : "fx:id=\"alias\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         
-        workflowClass.textProperty().bindBidirectional(model.classname );
-        majorVersion.textProperty().bindBidirectional(model.versionMajor, new LongStringConverter());
-        minorVersion.textProperty().bindBidirectional(model.versionMinor, new LongStringConverter());
-        patchLevel.textProperty().bindBidirectional(model.patchlevel, new LongStringConverter());
+        workflowClass.textProperty().bindBidirectional(model.version.classname );
+        majorVersion.textProperty().bindBidirectional(model.version.versionMajor, new LongStringConverter());
+        minorVersion.textProperty().bindBidirectional(model.version.versionMinor, new LongStringConverter());
+        patchLevel.textProperty().bindBidirectional(model.version.patchlevel, new LongStringConverter());
+        alias.textProperty().bindBidirectional(model.version.alias);
         
         searchMenueItem.setContent(formFactory.createWorkflowClassesTreeForm(this).createContent());
         serachbutton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/search.png"))));
@@ -101,6 +105,10 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
 	public URL getFxmlRessource() {
 		return getClass().getResource("WorkflowSummeryFilter.fxml");
 	}
-	
+
+	@Override
+	public boolean supportsFiltering() {
+		return true;
+	}
 	
 }

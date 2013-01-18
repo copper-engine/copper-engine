@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -43,6 +44,7 @@ import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowsummery.filter.WorkflowSummeryFilterModel;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
 public class WorkflowSummeryResultController implements Initializable, FilterResultController<WorkflowSummeryFilterModel,WorkflowSummeryResultModel>, FxmlController {
 	GuiCopperDataProvider copperDataProvider;
@@ -61,19 +63,10 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
     private TableColumn<WorkflowSummeryResultModel, String> countColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="majorVersionColumn"
-    private TableColumn<WorkflowSummeryResultModel, Long> majorVersionColumn; // Value injected by FXMLLoader
-
-    @FXML //  fx:id="minorVersionColumn"
-    private TableColumn<WorkflowSummeryResultModel, Long> minorVersionColumn; // Value injected by FXMLLoader
-   
-    @FXML //  fx:id="patchlevelColumn"
-    private TableColumn<WorkflowSummeryResultModel, Long> patchlevelColumn; // Value injected by FXMLLoader
+    private TableColumn<WorkflowSummeryResultModel, String> versionColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="resultTable"
     private TableView<WorkflowSummeryResultModel> resultTable; // Value injected by FXMLLoader
-
-    @FXML //  fx:id="statusColumn"
-    private TableColumn<WorkflowSummeryResultModel, String> statusColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="workflowClass"
     private TableColumn<WorkflowSummeryResultModel, String> workflowClassColumn; // Value injected by FXMLLoader
@@ -85,12 +78,9 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert aliasColumn != null : "fx:id=\"aliasColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert countColumn != null : "fx:id=\"countColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
-        assert majorVersionColumn != null : "fx:id=\"majorVersionColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
-        assert minorVersionColumn != null : "fx:id=\"minorVersionColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
+        assert versionColumn != null : "fx:id=\"versionColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
-        assert statusColumn != null : "fx:id=\"statusColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert workflowClassColumn != null : "fx:id=\"workflowClassColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
-        assert patchlevelColumn != null : "fx:id=\"patchlevelColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
 
         workflowClassColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
 			public ObservableValue<String> call(
@@ -99,48 +89,43 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 			}
 		});
         
-        majorVersionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, Long>, ObservableValue<Long>>() {
-			public ObservableValue<Long> call(
-					final CellDataFeatures<WorkflowSummeryResultModel, Long> p) {
-				return p.getValue().version.versionMajor; 
-			}
-		});
-
-        minorVersionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, Long>, ObservableValue<Long>>() {
-			public ObservableValue<Long> call(
-					final CellDataFeatures<WorkflowSummeryResultModel, Long> p) {
-				return p.getValue().version.versionMinor; 
-			}
-		});
-        
-        patchlevelColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, Long>, ObservableValue<Long>>() {
-			public ObservableValue<Long> call(
-					final CellDataFeatures<WorkflowSummeryResultModel, Long> p) {
-				return p.getValue().version.patchlevel; 
+        versionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(
+					final CellDataFeatures<WorkflowSummeryResultModel, String> p) {
+				return new SimpleStringProperty(
+						p.getValue().version.versionMajor.getValue()+"."+
+						p.getValue().version.versionMinor.getValue()+"."+
+						p.getValue().version.patchlevel.getValue()); 
 			}
 		});
         
         aliasColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowSummeryResultModel, String> p) {
-				return p.getValue().alias;
-			}
-		});
-        
-        statusColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(
-					CellDataFeatures<WorkflowSummeryResultModel, String> p) {
-				return p.getValue().status;
+				return p.getValue().version.alias;
 			}
 		});
         
         countColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(
-					CellDataFeatures<WorkflowSummeryResultModel, String> p) {
-				return p.getValue().count;
-			}
-		});
+        	public ObservableValue<String> call(
+        			CellDataFeatures<WorkflowSummeryResultModel, String> p) {
+        		return p.getValue().totalcount;
+        	}
+        });
         
+        
+        for (final WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
+        	TableColumn<WorkflowSummeryResultModel, String> tableColumn = new TableColumn<>(workflowInstanceState.toString());
+        	tableColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
+            	public ObservableValue<String> call(
+            			CellDataFeatures<WorkflowSummeryResultModel, String> p) {
+            		return new SimpleStringProperty(
+            				String.valueOf(p.getValue().workflowStateSummery.getNumberOfWorkflowInstancesWithState().get(workflowInstanceState)));
+            	}
+            });
+			resultTable.getColumns().add(tableColumn);
+        }
+
         resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         
         resultTable.setOnMousePressed(new EventHandler<MouseEvent>() {

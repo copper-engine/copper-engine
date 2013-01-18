@@ -29,6 +29,28 @@
     -fx-background-radius: 0;
     -fx-padding: 0.4em 1.833333em 0.4em 1.833333em;
 }
+
+.segmented-button-bar .menu-button {
+    -fx-background-color:
+        -darkest-black,
+        -dark-highlight,
+        linear-gradient(to bottom, -light-black 2%, -dark-black 98%);
+    -fx-background-insets: 0, 1 1 1 0, 2 1 1 1;
+    -fx-background-radius: 0;
+    -fx-padding: 0.4em 1.833333em 0.4em 1.833333em;
+}
+
+.segmented-button-bar .menu-button .label {
+    -fx-padding: 0em 0.4em 0em 0em; /* 4 6 4 6*/
+}
+
+
+.segmented-button-bar .button:pressed {
+    -fx-background-color:
+        -darkest-black,
+        rgb(55, 57, 58),
+        linear-gradient(to top, -light-black 2%, -dark-black 98%);
+}
  
 .segmented-button-bar .button.first {
     -fx-background-insets: 0, 1, 2 1 1 1;

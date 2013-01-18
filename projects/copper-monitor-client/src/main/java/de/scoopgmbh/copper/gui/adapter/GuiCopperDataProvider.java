@@ -33,10 +33,11 @@ import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceD
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.EngineDiscriptor;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassDescription;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
 
 public class GuiCopperDataProvider {
@@ -57,9 +58,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowInstanceResultModel> getWorkflowInstanceList(WorkflowInstanceFilterModel filter){
 		List<WorkflowInstanceInfo> list;
 		try {
-			list = copperDataProvider.getWorkflowInstanceList(filter.version.classname.getValue(),
-					filter.version.versionMajor.getValue(),filter.version.versionMinor.getValue(),
-					filter.version.patchlevel.getValue(),
+			list = copperDataProvider.getWorkflowInstanceList(filter.engine.getValue() ,filter.version.convert(),
 					filter.state.getValue(), filter.priority.getValue(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
@@ -89,7 +88,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowSummeryResultModel> getWorkflowSummery(WorkflowSummeryFilterModel filter) {
 		List<WorkflowSummery> summeries;
 		try {
-			summeries = copperDataProvider.getWorkflowSummery(filter.classname.getValue(), filter.versionMajor.getValue(), filter.versionMinor.getValue(), filter.patchlevel.getValue(), maxResultCount.getValue());
+			summeries = copperDataProvider.getWorkflowSummery(filter.engine.getValue(), filter.version.convert(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -101,14 +100,14 @@ public class GuiCopperDataProvider {
 	}
 	
 	public List<WorkflowClassesModel> getWorkflowClassesList(){
-		List<WorkflowClassesInfo> list;
+		List<WorkflowClassDescription> list;
 		try {
 			list = copperDataProvider.getWorkflowClassesList();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 		ArrayList<WorkflowClassesModel> result = new ArrayList<>();
-		for (WorkflowClassesInfo workflowClassesInfo: list){
+		for (WorkflowClassDescription workflowClassesInfo: list){
 			result.add(new WorkflowClassesModel(workflowClassesInfo));
 		}
 		return result;
@@ -122,9 +121,9 @@ public class GuiCopperDataProvider {
 		}
 	}
 
-	public CopperLoadInfo getCopperLoadInfo() {
+	public WorkflowStateSummery getCopperLoadInfo(EngineDiscriptor engine) {
 		try {
-			return  copperDataProvider.getCopperLoadInfo();
+			return  copperDataProvider.getAggregatedWorkflowStateSummery(engine);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -154,7 +153,15 @@ public class GuiCopperDataProvider {
 
 	public SystemResourcesInfo getSystemRessources() {
 		try {
-			return  copperDataProvider.getSystemResourceInfo();
+			return copperDataProvider.getSystemResourceInfo();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public List<EngineDiscriptor> getEngineList() {
+		try {
+			return copperDataProvider.getEngineList();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

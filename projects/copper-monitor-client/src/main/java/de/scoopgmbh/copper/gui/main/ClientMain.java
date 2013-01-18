@@ -31,7 +31,7 @@ public class ClientMain extends Application {
 		primaryStage.setTitle("Copper Monitor");
 		ApplicationContext mainFactory = new ApplicationContext();
 		new Button(); // Trigger loading of default stylesheet
-		final Scene scene = new Scene(mainFactory.getMainPane(), 1200, 768, Color.WHEAT);
+		final Scene scene = new Scene(mainFactory.getMainPane(), 1300, 800, Color.WHEAT);
 
 		
 		scene.getStylesheets().add(this.getClass().getResource("/de/scoopgmbh/copper/gui/css/base.css").toExternalForm());

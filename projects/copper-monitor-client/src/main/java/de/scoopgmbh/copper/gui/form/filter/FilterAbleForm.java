@@ -56,9 +56,9 @@ import de.scoopgmbh.copper.gui.util.MessageProvider;
  * @param <R> ResultModel
  */
 public class FilterAbleForm<F,R> extends Form<Object>{
-	private final Form<FilterController<F>> filterForm;
-	private final Form<FilterResultController<F,R>> resultForm;
-	private final GuiCopperDataProvider copperDataProvider;
+	protected final Form<FilterController<F>> filterForm;
+	protected final Form<FilterResultController<F,R>> resultForm;
+	protected final GuiCopperDataProvider copperDataProvider;
 	private FilterService<F,R> filterService;
 	private RepeatFilterService<F,R> repeatFilterService;
 
@@ -97,13 +97,17 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		return filterForm.getController().getFilter();
 	}
 
+	protected void beforFilterHook(HBox filterbox){}
+	
+	
 	@Override
 	public Node createContent() {
 		final StackPane stackPane = new StackPane();
 		filterService.stateProperty().addListener(new ChangeListener<Worker.State>() {
 			ProgressIndicator indicator = new ProgressIndicator();
 			{
-				indicator.setStyle("-fx-background-color: rgba(230,230,230,0.7);");
+				indicator.setStyle("-fx-background-color: rgba(230,230,230,0.7);" +
+						"-fx-padding: 5em 5em 5em 5em;");
 			}
 			@Override
 			public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
@@ -122,10 +126,14 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		filterbox.setAlignment(Pos.CENTER);
 		filterbox.setSpacing(5);
 		
-		Node filter = filterForm.createContent();
-		HBox.setHgrow(filter, Priority.ALWAYS);
-		filterbox.getChildren().add(filter);
-		filterbox.getChildren().add(new Separator(Orientation.VERTICAL));
+		beforFilterHook(filterbox);
+		
+		if (filterForm.getController().supportsFiltering()){
+			Node filter = filterForm.createContent();
+			HBox.setHgrow(filter, Priority.ALWAYS);
+			filterbox.getChildren().add(filter);
+			filterbox.getChildren().add(new Separator(Orientation.VERTICAL));
+		}
 		
 		final Button refreshButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/refresh.png"))));
 		refreshButton.setTooltip(new Tooltip(messageProvider.getText("FilterAbleForm.button.refresh")));
@@ -136,6 +144,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		    }
 		});
 		filterbox.getChildren().add(refreshButton);
+		HBox.setMargin(refreshButton, new Insets(5));
 
 		
 		final Button clearButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/clear.png"))));
@@ -227,7 +236,16 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 							Platform.runLater(new Runnable() {
 								@Override
 								public void run() {
-									filterResultController.showFilteredResult(result, filterForm.getController().getFilter());
+									try {
+										filterResultController.showFilteredResult(result, filterForm.getController().getFilter());
+									} catch (Exception e) {
+										e.printStackTrace(); // Future swollows Exceptions
+										if (e instanceof RuntimeException) {
+											throw (RuntimeException) e;
+										} else {
+											throw new RuntimeException(e);
+										}
+								}
 								}
 							});
 							lasttime = System.currentTimeMillis();
@@ -255,9 +273,18 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		protected Task<ResultFilterPair<F,R>> createTask() {
 			return new Task<ResultFilterPair<F,R>>() {
                 protected ResultFilterPair<F,R> call() throws Exception {
-                	List<R> result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
-                	return new ResultFilterPair<F,R>(result,filterForm.getController().getFilter());
-                }
+					try {
+						List<R> result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
+						return new ResultFilterPair<F, R>(result, filterForm.getController().getFilter());
+					} catch (Exception e) {
+						e.printStackTrace(); // Future swollows Exceptions
+						if (e instanceof RuntimeException) {
+							throw (RuntimeException) e;
+						} else {
+							throw new RuntimeException(e);
+						}
+					}
+				}
             };
         }
     }

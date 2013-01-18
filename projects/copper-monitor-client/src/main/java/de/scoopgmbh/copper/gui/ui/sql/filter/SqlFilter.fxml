@@ -19,8 +19,10 @@
             <Insets left="5.0" />
           </FlowPane.margin>
         </Label>
-        <ChoiceBox fx:id="history" prefWidth="544.0">
-        </ChoiceBox>
+        <ComboBox fx:id="history" prefWidth="586.0">
+          <items>
+          </items>
+        </ComboBox>
       </children>
     </FlowPane>
   </bottom>

@@ -76,6 +76,24 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
     @FXML //  fx:id="timeoutColumn"
     private TableColumn<WorkflowInstanceResultModel, Date> timeoutColumn; // Value injected by FXMLLoader
 
+    @FXML //  fx:id="timeoutColumn"
+    private TableColumn<WorkflowInstanceResultModel, Date> lastActivityTimestamp;
+
+    @FXML //  fx:id="timeoutColumn"
+    private TableColumn<WorkflowInstanceResultModel, String> overallLifetimeInMs;
+
+    @FXML //  fx:id="timeoutColumn"
+    private TableColumn<WorkflowInstanceResultModel, Date> startTime;
+
+    @FXML //  fx:id="timeoutColumn"
+    private TableColumn<WorkflowInstanceResultModel, Date> finishTime;
+
+    @FXML //  fx:id="timeoutColumn"
+    private TableColumn<WorkflowInstanceResultModel, Date> lastErrorTime;
+
+    @FXML //  fx:id="timeoutColumn"
+    private TableColumn<WorkflowInstanceResultModel, String> errorInfos;
+
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -85,6 +103,12 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert stateColumn != null : "fx:id=\"stateColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert timeoutColumn != null : "fx:id=\"timeoutColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
+        assert lastActivityTimestamp !=null;
+        assert overallLifetimeInMs !=null;
+        assert startTime !=null;
+        assert finishTime !=null;
+        assert lastErrorTime !=null;
+        assert errorInfos !=null;
 
 
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
@@ -136,6 +160,49 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
                 return cell;
             }
         });
+        
+        
+        lastActivityTimestamp.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
+			public ObservableValue<Date> call(
+					CellDataFeatures<WorkflowInstanceResultModel, Date> p) {
+				return p.getValue().lastActivityTimestamp;
+			}
+		});
+        overallLifetimeInMs.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(
+					CellDataFeatures<WorkflowInstanceResultModel, String> p) {
+				return p.getValue().overallLifetimeInMs.asString();
+			}
+		});
+        startTime.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
+			public ObservableValue<Date> call(
+					CellDataFeatures<WorkflowInstanceResultModel, Date> p) {
+				return p.getValue().startTime;
+			}
+		});
+        finishTime.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
+			public ObservableValue<Date> call(
+					CellDataFeatures<WorkflowInstanceResultModel, Date> p) {
+				return p.getValue().finishTime;
+			}
+		});
+        lastErrorTime.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
+			public ObservableValue<Date> call(
+					CellDataFeatures<WorkflowInstanceResultModel, Date> p) {
+				return p.getValue().lastErrorTime;
+			}
+		});
+        errorInfos.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(
+					CellDataFeatures<WorkflowInstanceResultModel, String> p) {
+				return p.getValue().errorInfos;
+			}
+		});
+        
+        
+        
+        
+        
         
         resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         

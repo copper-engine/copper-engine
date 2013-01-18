@@ -34,6 +34,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -127,33 +128,31 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
         assert searchField != null : "fx:id=\"searchField\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
         assert copyButton != null : "fx:id=\"copyButton\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
 
-//        resultTable.setRowFactory(new Callback<TableView<AuditTrailResultModel>, TableRow<AuditTrailResultModel>>() {
-//			@Override
-//			public TableRow<AuditTrailResultModel> call(TableView<AuditTrailResultModel> param) {
-//				return new TableRow<AuditTrailResultModel>(){
-//					@Override
-//					protected void updateItem(AuditTrailResultModel item, boolean empty) {
-//						if (item!=null ){
-//							for (int i=0;i<settingsModel.auditralColorMappings.size();i++){
-//								AuditralColorMapping auditralColorMapping = settingsModel.auditralColorMappings.get(i);
-////								this.getStyleClass().clear();
-////								this.getStyleClass().add("highligt"+auditralColorMapping.color.getValue());
-//								if (auditralColorMapping.match(item)){
-//									this.setStyle("-fx-control-inner-background: rgb("+
-//											(int)(255*auditralColorMapping.color.getValue().getRed())+","+
-//											(int)(255*auditralColorMapping.color.getValue().getGreen())+","+
-//											(int)(255*auditralColorMapping.color.getValue().getBlue())+");" +
-//													"-fx-text-inner-color black");
-//
-//								}
-//							}
-//						}
-//						super.updateItem(item, empty);
-//					}
-//				};
-//			}
-//		});
-//        
+        resultTable.setRowFactory(new Callback<TableView<AuditTrailResultModel>, TableRow<AuditTrailResultModel>>() {
+			@Override
+			public TableRow<AuditTrailResultModel> call(TableView<AuditTrailResultModel> param) {
+				return new TableRow<AuditTrailResultModel>(){
+					@Override
+					protected void updateItem(AuditTrailResultModel item, boolean empty) {
+						if (item!=null ){
+							for (int i=0;i<settingsModel.auditralColorMappings.size();i++){
+								AuditralColorMapping auditralColorMapping = settingsModel.auditralColorMappings.get(i);
+								if (auditralColorMapping.match(item)){
+									this.setStyle("-fx-control-inner-background: rgb("+
+											(int)(255*auditralColorMapping.color.getValue().getRed())+","+
+											(int)(255*auditralColorMapping.color.getValue().getGreen())+","+
+											(int)(255*auditralColorMapping.color.getValue().getBlue())+");");
+
+								}
+							}
+						}
+						super.updateItem(item, empty);
+					}
+				};
+			}
+		});
+//   
+        //strange that this is necessary but else column not colored text is white(not visible)
 		for (TableColumn<AuditTrailResultModel, ?> columnddummy : resultTable.getColumns()) {
 			@SuppressWarnings("unchecked")
 			TableColumn<AuditTrailResultModel, String> column = (TableColumn<AuditTrailResultModel, String>) columnddummy;
@@ -168,14 +167,14 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 					        setGraphic(null);
 					            
 							AuditTrailResultModel rowitem = (AuditTrailResultModel) getTableRow().getItem();
+//							this.setTextFill(Color.BLACK);
 							if (rowitem != null) {
 								for (int i = 0; i < settingsModel.auditralColorMappings.size(); i++) {
 									AuditralColorMapping auditralColorMapping = settingsModel.auditralColorMappings.get(i);
 									if (auditralColorMapping.match(rowitem)) {
-										this.setTextFill(auditralColorMapping.color.getValue());
 										this.setStyle(
 //											   "    -fx-background-color: -fx-table-cell-border-color, -fx-control-inner-background;\r\n" + 
-											   "	-fx-border-color: rgb("
+											   "	-fx-control-inner-background: rgb("
 												+ (int) (200 * auditralColorMapping.color.getValue().getRed()) + ","
 												+ (int) (200 * auditralColorMapping.color.getValue().getGreen()) + ","
 												+ (int) (200 * auditralColorMapping.color.getValue().getBlue())+");");
@@ -294,7 +293,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 					
 					final ProgressIndicator bar = new ProgressIndicator();
 					detailstackPane.getChildren().add(bar);
-					new Thread(new Runnable() {
+					Thread thread = new Thread(new Runnable() {
 						@Override
 						public void run() {
 							final String message = copperDataProvider.getAuditTrailMessage(newValue.id);
@@ -307,7 +306,9 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 								}
 							});
 						}
-					}).start();
+					});
+					thread.setDaemon(true);
+					thread.start();
 
 				} else {
 					htmlMessageView.getEngine().loadContent("");

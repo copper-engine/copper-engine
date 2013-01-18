@@ -15,9 +15,10 @@
  */
 package de.scoopgmbh.copper.gui.ui.workflowsummery.filter;
 
+import de.scoopgmbh.copper.gui.util.EngineFilter;
 import de.scoopgmbh.copper.gui.util.WorkflowVersion;
 
-public class WorkflowSummeryFilterModel extends WorkflowVersion{
- 
+public class WorkflowSummeryFilterModel extends EngineFilter{
+	public final WorkflowVersion version = new WorkflowVersion();
 
 }

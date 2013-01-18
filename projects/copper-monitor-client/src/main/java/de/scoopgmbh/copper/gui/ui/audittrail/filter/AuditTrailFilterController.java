@@ -66,6 +66,11 @@ public class AuditTrailFilterController implements Initializable, FilterControll
 	public URL getFxmlRessource() {
 		return getClass().getResource("AuditTrailFilter.fxml");
 	}
+
+	@Override
+	public boolean supportsFiltering() {
+		return true;
+	}
 	
 	
 }

@@ -51,6 +51,8 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
     @FXML //  fx:id="workflowClass"
     private TextField workflowClass; // Value injected by FXMLLoader
 
+    @FXML //  fx:id="patchLevel"
+    private TextField patchLevel; // Value injected by FXMLLoader
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -59,11 +61,13 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
         assert priorityField != null : "fx:id=\"priorityField\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
         assert stateChoice != null : "fx:id=\"stateChoice\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
-
+        assert patchLevel != null : "fx:id=\"patchLevel\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
+        
         priorityField.textProperty().bind(model.priority.asString());
         workflowClass.textProperty().bind(model.version.classname);
         majorVersion.textProperty().bindBidirectional(model.version.versionMajor, new LongStringConverter());
         minorVersion.textProperty().bindBidirectional(model.version.versionMinor, new LongStringConverter());
+        patchLevel.textProperty().bindBidirectional(model.version.patchlevel, new LongStringConverter());
         
         stateChoice.setItems(FXCollections.observableList(Arrays.asList(WorkflowInstanceState.values())));
         stateChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<WorkflowInstanceState>() {
@@ -84,5 +88,9 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
 		return getClass().getResource("WorkflowInstanceFilter.fxml");
 	}
 	
+	@Override
+	public boolean supportsFiltering() {
+		return true;
+	}
 	
 }

@@ -20,82 +20,59 @@ import java.io.Serializable;
 public class WorkflowSummery implements Serializable {
 	private static final long serialVersionUID = 4867510351238162279L;
 	
-	private String workflowClass;
 	private String alias;
-	private long workflowMajorVersion;
-	private long workflowMinorVersion;
-	private long workflowPatchLevel;
-	private String status;
-	private int count;
+	private int totalcount;
+	private WorkflowStateSummery stateSummery;
+	private WorkflowClassDescription classDescription;
 	
 	public WorkflowSummery() {
 		super();
 	}
-	
-	public long getWorkflowPatchLevel() {
-		return workflowPatchLevel;
-	}
 
-	public void setWorkflowPatchLevel(long workflowPatchLevel) {
-		this.workflowPatchLevel = workflowPatchLevel;
-	}
-
-
-	public WorkflowSummery(String workflowClass, String alias, long workflowMajorVersion, long workflowMinorVersion, long workflowPatchLevel,
-			String status, int count) {
+	public WorkflowSummery(String alias, int totalcount, WorkflowClassDescription classDescription, WorkflowStateSummery stateSummery) {
 		super();
-		this.workflowClass = workflowClass;
 		this.alias = alias;
-		this.workflowMajorVersion = workflowMajorVersion;
-		this.workflowMinorVersion = workflowMinorVersion;
-		this.workflowPatchLevel = workflowPatchLevel;
-		this.status = status;
-		this.count = count;
-	}
-
-
-	public String getWorkflowClass() {
-		return workflowClass;
-	}
-
-	public void setWorkflowClass(String workflowClass) {
-		this.workflowClass = workflowClass;
+		this.totalcount = totalcount;
+		this.stateSummery = stateSummery;
+		this.classDescription = classDescription;
 	}
 
 	public String getAlias() {
 		return alias;
 	}
+
 	public void setAlias(String alias) {
 		this.alias = alias;
 	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	public int getCount() {
-		return count;
-	}
-	public void setCount(int count) {
-		this.count = count;
+
+	public int getTotalcount() {
+		return totalcount;
 	}
 
-	public long getWorkflowMajorVersion() {
-		return workflowMajorVersion;
+	public void setTotalcount(int totalcount) {
+		this.totalcount = totalcount;
 	}
 
-	public void setWorkflowMajorVersion(long workflowMajorVersion) {
-		this.workflowMajorVersion = workflowMajorVersion;
+	public WorkflowStateSummery getStateSummery() {
+		return stateSummery;
 	}
 
-	public long getWorkflowMinorVersion() {
-		return workflowMinorVersion;
+	public void setStateSummery(WorkflowStateSummery stateSummery) {
+		this.stateSummery = stateSummery;
 	}
 
-	public void setWorkflowMinorVersion(long workflowMinorVersion) {
-		this.workflowMinorVersion = workflowMinorVersion;
+	public WorkflowClassDescription getClassDescription() {
+		return classDescription;
 	}
+
+	public void setClassDescription(WorkflowClassDescription classDescription) {
+		this.classDescription = classDescription;
+	}
+
+
+	
+
+
 	
 	
 	

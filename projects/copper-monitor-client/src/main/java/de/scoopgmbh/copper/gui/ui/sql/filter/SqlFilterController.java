@@ -22,7 +22,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.web.WebView;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
@@ -34,7 +34,7 @@ public class SqlFilterController implements Initializable, FilterController<SqlF
 	private final CodeMirrorFormatter codeMirrorFormatter;
 
     @FXML //  fx:id="history"
-    private ChoiceBox<String> history; // Value injected by FXMLLoader
+    private ComboBox<String> history; // Value injected by FXMLLoader
 
     @FXML //  fx:id="sqlEditor"
     private WebView sqlEditor; // Value injected by FXMLLoader
@@ -77,5 +77,8 @@ public class SqlFilterController implements Initializable, FilterController<SqlF
 		return getClass().getResource("SqlFilter.fxml");
 	}
 	
-	
+	@Override
+	public boolean supportsFiltering() {
+		return true;
+	}
 }

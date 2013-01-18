@@ -59,5 +59,9 @@ public class WorkflowInstanceDetailFilterController implements Initializable, Fi
 		return getClass().getResource("WorkflowInstanceDetailFilter.fxml");
 	}
 	
+	@Override
+	public boolean supportsFiltering() {
+		return true;
+	}
 	
 }

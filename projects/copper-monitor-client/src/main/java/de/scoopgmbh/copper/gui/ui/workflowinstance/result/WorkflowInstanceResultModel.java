@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.gui.ui.workflowinstance.result;
 import java.util.Date;
 
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
@@ -29,6 +30,13 @@ public class WorkflowInstanceResultModel {
 	public final SimpleIntegerProperty priority;
 	public final SimpleStringProperty processorPoolId;
 	public final SimpleObjectProperty<Date> timeout;
+	
+	public final SimpleObjectProperty<Date> lastActivityTimestamp;
+	public final SimpleLongProperty overallLifetimeInMs;
+    public final SimpleObjectProperty<Date> startTime;
+    public final SimpleObjectProperty<Date> finishTime;
+    public final SimpleObjectProperty<Date> lastErrorTime;
+    public final SimpleStringProperty errorInfos;
 
 	public WorkflowInstanceResultModel(WorkflowInstanceInfo workflowInstanceInfo) {
 		this.id = new SimpleStringProperty(workflowInstanceInfo.getId());
@@ -36,6 +44,13 @@ public class WorkflowInstanceResultModel {
 		this.priority = new SimpleIntegerProperty(workflowInstanceInfo.getPriority());
 		this.processorPoolId = new SimpleStringProperty(workflowInstanceInfo.getProcessorPoolId());
 		this.timeout = new SimpleObjectProperty<>(workflowInstanceInfo.getTimeout());
+		
+		this.lastActivityTimestamp=new SimpleObjectProperty<Date>(workflowInstanceInfo.getLastActivityTimestamp());
+		this.overallLifetimeInMs=new SimpleLongProperty(workflowInstanceInfo.getOverallLifetimeInMs());
+	    this.startTime=new SimpleObjectProperty<Date>(workflowInstanceInfo.getStartTime());
+	    this.finishTime=new SimpleObjectProperty<Date>(workflowInstanceInfo.getFinishTime());
+	    this.lastErrorTime=new SimpleObjectProperty<Date>(workflowInstanceInfo.getLastErrorTime());
+	    this.errorInfos=new SimpleStringProperty(workflowInstanceInfo.getErrorInfos());
 	}
 	
 	

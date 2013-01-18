@@ -18,51 +18,49 @@ package de.scoopgmbh.copper.gui.form;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
+import javafx.scene.Node;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.MenuItemBuilder;
+import javafx.scene.control.MenuButton;
+import de.scoopgmbh.copper.gui.util.MessageProvider;
  
-public class FormGroup {
-    
+public class FormGroup extends Form<Object>{
 	ArrayList<Form<?>> forms = new ArrayList<>();
 	
-	public FormGroup(List<Form<?>> forms){
+	public FormGroup(List<Form<?>> forms, String titleTextKey, MessageProvider messageProvider){
+		super(titleTextKey, messageProvider, new NotShowFormStrategie(), null);
 		this.forms.addAll(forms);
 	}
 	
-	public Menu createMenue(){
+	public Menu createMenu(){
 		final Menu fileMenu = new Menu("Window");
 		for (final Form<?> form: forms){
-			MenuItem menueItem = MenuItemBuilder
-					.create()
-					.text(form.getTitle())
-					.onAction(new EventHandler<ActionEvent>() {
-						@Override
-						public void handle(ActionEvent e) {
-							form.show();
-						}
-					}).build();
-			fileMenu.getItems().add(menueItem);
+			fileMenu.getItems().add(form.createShowFormMenuItem());
 		}
 		return fileMenu;
 	}
 	
-	public List<Button> createButtonList(){
-		ArrayList<Button> result = new ArrayList<>();
+	public List<ButtonBase> createButtonList(){
+		ArrayList<ButtonBase> result = new ArrayList<>();
 		for (final Form<?> form: forms){
-			Button button = new Button(form.getTitle());
-			button.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event) {
-					form.show();
-				}
-			});
-			result.add(button);
+			result.add(form.createShowFormButton());
 		}
 		return result;
+	}
+
+	@Override
+	public Node createContent() {
+		throw new UnsupportedOperationException("FormGroup ist not a displayable form");
+	}
+	
+	@Override
+	public ButtonBase createShowFormButton() {
+		MenuButton menuButton = new MenuButton();
+		menuButton.setText(getTitle());
+		for (final Form<?> form: forms){
+			menuButton.getItems().add(form.createShowFormMenuItem());
+		}
+		return menuButton;
 	}
 	
 }

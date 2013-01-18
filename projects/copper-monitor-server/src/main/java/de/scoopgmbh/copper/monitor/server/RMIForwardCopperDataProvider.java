@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitor.server;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,13 +28,15 @@ import java.util.Random;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
-import de.scoopgmbh.copper.monitor.adapter.model.CopperLoadInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.EngineDiscriptor;
+import de.scoopgmbh.copper.monitor.adapter.model.EngineDiscriptor.EngineTyp;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassesInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassDescription;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
 
 public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements CopperMonitorInterface {
@@ -93,42 +96,29 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		return "";
 	}
 
-
 	@Override
-	public List<WorkflowSummery> getWorkflowSummery(String workflowclass, Long majorversion, Long minorversion, Long patchlevel, long resultRowLimit) throws RemoteException {
+	public List<WorkflowSummery> getWorkflowSummery(EngineDiscriptor engine, WorkflowClassDescription workflowClassDescription,
+			long resultRowLimit) throws RemoteException {		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
+		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
+			map.put(workflowInstanceState, (int)(Math.random()*100));
+		}
+		
 		ArrayList<WorkflowSummery> result = new ArrayList<>();
-		WorkflowSummery workflowSummery = new WorkflowSummery();
-		workflowSummery.setWorkflowClass("worklfowclass1");
-		result.add(workflowSummery);
-		workflowSummery = new WorkflowSummery();
-		workflowSummery.setWorkflowClass("worklfowclass2");
-		workflowSummery.setWorkflowMajorVersion(1);
-		workflowSummery.setWorkflowMinorVersion(2);
-		result.add(workflowSummery);
-		workflowSummery = new WorkflowSummery();
-		workflowSummery.setWorkflowClass("worklfowclass2");
-		workflowSummery.setWorkflowMajorVersion(2);
-		result.add(workflowSummery);
-		workflowSummery = new WorkflowSummery();
-		workflowSummery.setWorkflowClass("worklfowclass2");
-		workflowSummery.setWorkflowMajorVersion(3);
-		result.add(workflowSummery);
-		workflowSummery = new WorkflowSummery();
-		workflowSummery.setWorkflowClass("worklfowclass3");
+		WorkflowSummery workflowSummery = new WorkflowSummery("",10,
+				new WorkflowClassDescription("blubclass1","alias",0L,+(long)(Math.random()*100),0L),
+				new WorkflowStateSummery(map));
 		result.add(workflowSummery);
 		
-		workflowSummery = new WorkflowSummery();
-		workflowSummery.setWorkflowClass(workflowclass);
-		workflowSummery.setWorkflowMajorVersion(majorversion!=null?majorversion:0);
-		workflowSummery.setWorkflowMinorVersion(minorversion!=null?minorversion:0);
-		workflowSummery.setWorkflowPatchLevel(patchlevel!=null?patchlevel:0);
-		result.add(workflowSummery);
+		WorkflowSummery inputcopy = new WorkflowSummery("",10,
+				workflowClassDescription,
+				new WorkflowStateSummery(map));
+		result.add(inputcopy);
 		
 		return result;
 	}
 
 	@Override
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String workflowclass, Long majorversion, Long minorversion, Long patchlevel,
+	public List<WorkflowInstanceInfo> getWorkflowInstanceList(EngineDiscriptor engine, WorkflowClassDescription workflowClassDescription,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException {
 		ArrayList<WorkflowInstanceInfo> result = new ArrayList<>();
 		WorkflowInstanceInfo workflowInfo = new WorkflowInstanceInfo();
@@ -174,16 +164,16 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowClassesInfo> getWorkflowClassesList() throws RemoteException {
-		ArrayList<WorkflowClassesInfo> result = new ArrayList<>();
-		result.add(new WorkflowClassesInfo("blubclass1",0,+(int)(Math.random()*100),0));
-		result.add(new WorkflowClassesInfo("blubclass2",1,+(int)(Math.random()*100),0));
-		result.add(new WorkflowClassesInfo("blubclass2",1,+(int)(Math.random()*100),0));
-		result.add(new WorkflowClassesInfo("blubclass2",1,+(int)(Math.random()*100),0));
-		result.add(new WorkflowClassesInfo("blubclass2",2,+(int)(Math.random()*100),0));
-		result.add(new WorkflowClassesInfo("blubclass2",2,+(int)(Math.random()*100),0));
-		result.add(new WorkflowClassesInfo("blubclass2",2,+(int)(Math.random()*100),0));
-		result.add(new WorkflowClassesInfo("blubclass3",3,+(int)(Math.random()*100),0));
+	public List<WorkflowClassDescription> getWorkflowClassesList() throws RemoteException {
+		ArrayList<WorkflowClassDescription> result = new ArrayList<>();
+		result.add(new WorkflowClassDescription("blubclass1","alias",0L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassDescription("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassDescription("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassDescription("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassDescription("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassDescription("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassDescription("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassDescription("blubclass3","alias",3L,+(long)(Math.random()*100),0L));
 		return result;
 	}
 
@@ -193,35 +183,50 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		return new WorkflowInstanceMetaDataInfo();
 	}
 
-
-	@Override
-	public CopperLoadInfo getCopperLoadInfo() throws RemoteException {
-		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
-		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-			map.put(workflowInstanceState, (int)(Math.random()*100));
-		}
-		return new CopperLoadInfo(map);
-	}
-
-
 	@Override
 	public CopperInterfaceSettings getSettings() throws RemoteException {
 		return new CopperInterfaceSettings(true);
 	}
 
-
 	@Override
 	public List<String[]> executeSqlQuery(String query, long resultRowLimit) {
 		List<String[]>  result = new ArrayList<>();
-		result.add(new String[]{"column1","column2","column3"});
+		result.add(new String[]{"column1","column2",query});
 		return result;
 	}
-	
 	
 	@Override
 	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException {
 		return new PerformanceMonitor().getRessourcenInfo();
 	}
 
+	@Override
+	public WorkflowStateSummery getAggregatedWorkflowStateSummery(EngineDiscriptor engine) throws RemoteException {
+		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
+		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
+			map.put(workflowInstanceState, (int)(Math.random()*100));
+		}
+		return new WorkflowStateSummery(map);
+	}
+
+	@Override
+	public void restart(String workflowInstanceId, EngineDiscriptor engine) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void restartAll(EngineDiscriptor engine) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<EngineDiscriptor> getEngineList() throws RemoteException {
+		return Arrays.asList(
+				new EngineDiscriptor(EngineTyp.TRANSIENT,"ppId1","peId2"),
+				new EngineDiscriptor(EngineTyp.TRANSIENT,"ppId1","peId2")
+				);
+	}
 	
 }

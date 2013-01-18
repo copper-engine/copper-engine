@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+  <bottom>
+    <FlowPane fx:id="downPanel" prefHeight="153.0" prefWidth="507.0" />
+  </bottom>
+  <center>
+    <Pane prefHeight="459.0" prefWidth="957.0">
+      <children>
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="DODGERBLUE" height="387.0" layoutX="23.0" layoutY="36.0" stroke="BLACK" strokeType="INSIDE" width="913.0" />
+        <Rectangle arcHeight="50.0" arcWidth="50.0" height="271.0" layoutX="389.0" layoutY="121.0" stroke="BLACK" strokeType="INSIDE" width="266.0">
+          <fill>
+            <Color blue="0.400" green="0.400" red="1.000" fx:id="x3" />
+          </fill>
+        </Rectangle>
+        <Label layoutX="55.0" layoutY="41.0" text="ProcessoEnginel" textFill="WHITE" />
+        <Label layoutX="51.0" layoutY="72.0" text="id" />
+        <TextField editable="false" layoutX="98.0" layoutY="69.0" prefWidth="112.0" />
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="$x3" height="207.0" layoutX="48.0" layoutY="184.0" stroke="BLACK" strokeType="INSIDE" width="289.0" />
+        <Label layoutX="55.0" layoutY="197.0" text="ProcessingPool" textFill="WHITE" />
+        <Label layoutX="60.0" layoutY="233.0" text="id" />
+        <TextField editable="false" layoutX="93.0" layoutY="233.0" prefWidth="112.0" />
+        <Label layoutX="51.0" layoutY="102.0" text="state" />
+        <TextField editable="false" layoutX="98.0" layoutY="97.0" prefWidth="112.0" />
+        <Ellipse fill="$x3" layoutX="803.0" layoutY="356.0" radiusX="100.0" radiusY="35.0" stroke="BLACK" strokeType="INSIDE" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="$x3" height="70.0" layoutX="703.0" layoutY="286.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+        <Ellipse fill="$x3" layoutX="803.0" layoutY="284.0" radiusX="100.0" radiusY="35.0" stroke="BLACK" strokeType="INSIDE" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="$x3" height="19.951171875" layoutX="704.0" layoutY="337.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="197.99998474121094" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" height="55.0" layoutX="227.0" layoutY="202.0" stroke="BLACK" strokeType="INSIDE" width="94.0">
+          <fill>
+            <Color blue="0.078" green="0.961" red="0.980" fx:id="x1" />
+          </fill>
+        </Rectangle>
+        <Label layoutX="239.0" layoutY="207.0" prefHeight="19.951171875" text="RUNNING" />
+        <TextField layoutX="238.0" layoutY="227.0" prefWidth="62.0" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x1" height="55.0" layoutX="228.0" layoutY="325.0" stroke="BLACK" strokeType="INSIDE" width="94.0" />
+        <TextField layoutX="238.0" layoutY="350.0" prefWidth="61.9998779296875" />
+        <Label layoutX="238.0" layoutY="332.0" prefHeight="19.951171875" text="DEQUEUED" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x1" height="55.0" layoutX="519.0" layoutY="314.0" stroke="BLACK" strokeType="INSIDE" width="94.0" />
+        <TextField layoutX="529.0" layoutY="339.0" prefWidth="61.9998779296875" />
+        <Label layoutX="529.0" layoutY="321.0" prefHeight="19.951171875" text="FINISHED" />
+        <Label layoutX="402.0" layoutY="127.0" text="Instancestorage" textFill="WHITE" />
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#606060" height="115.951171875" layoutX="456.0" layoutY="163.0" stroke="BLACK" strokeType="INSIDE" width="183.0" />
+        <Label layoutX="466.0" layoutY="172.0" text="batcher" textFill="WHITE" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x1" height="55.0" layoutX="227.0" layoutY="265.0" stroke="BLACK" strokeType="INSIDE" width="94.0" />
+        <TextField layoutX="237.0" layoutY="290.0" prefWidth="61.9998779296875" />
+        <Label layoutX="236.0" layoutY="270.0" prefHeight="19.951171875" text="ENQUEUED" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" height="55.0" layoutX="421.0" layoutY="315.0" stroke="BLACK" strokeType="INSIDE" width="81.0">
+          <fill>
+            <Color blue="0.078" green="0.961" red="0.980" fx:id="x2" />
+          </fill>
+        </Rectangle>
+        <Label layoutX="431.0" layoutY="322.0" text="WAITING" />
+        <TextField layoutX="431.0" layoutY="340.0" prefWidth="62.0" />
+        <Label layoutX="57.0" layoutY="287.0" text="NumberOfThreads" />
+        <Label layoutX="57.0" layoutY="312.0" text="ThreadPriority" />
+        <Label layoutX="60.0" layoutY="262.0" text="typ" />
+        <Label layoutX="736.0" layoutY="271.0" text="WorkflowRepository" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="55.0" layoutX="226.0" layoutY="47.0" stroke="BLACK" strokeType="INSIDE" width="94.0" />
+        <Label layoutX="239.0" layoutY="52.0" prefHeight="19.951171875" text="ROW" />
+        <TextField layoutX="238.0" layoutY="72.0" prefWidth="62.0" />
+      </children>
+    </Pane>
+  </center>
+</BorderPane>

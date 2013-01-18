@@ -59,6 +59,7 @@ public class SqlResultController implements Initializable, FilterResultControlle
 	public void showFilteredResult(List<SqlResultModel> filteredResult, SqlFilterModel usedFilter) {
 		resultTable.getColumns().clear();
 		
+		
 		if (!filteredResult.isEmpty()){
 			for (int i=0;i<filteredResult.get(0).rows.size();i++){
 				TableColumn<SqlResultModel, String> rowColumn = new TableColumn<SqlResultModel,String>();
@@ -68,15 +69,17 @@ public class SqlResultController implements Initializable, FilterResultControlle
 					public ObservableValue<String> call(CellDataFeatures<SqlResultModel, String> param) {
 						return param.getValue().rows.get(rowindex);
 					}
-				});
+				});//-2 for the border
+				rowColumn.prefWidthProperty().bind(resultTable.widthProperty().add(-2).divide(filteredResult.get(0).rows.size()));
 				resultTable.getColumns().add(rowColumn);
 			}
 		}
-		 resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		
 		ObservableList<SqlResultModel> content = FXCollections.observableList(new ArrayList<SqlResultModel>());;
 		content.addAll(filteredResult);
 		resultTable.setItems(content);
+//		resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		
 	}
 
 	@Override

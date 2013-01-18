@@ -15,7 +15,6 @@
  */
 package de.scoopgmbh.copper.monitor.adapter.model;
 
-import java.beans.ConstructorProperties;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -28,18 +27,36 @@ public class WorkflowInstanceInfo implements Serializable{
 	private String processorPoolId;
 	private Date timeout;
 	
+	private Date lastActivityTimestamp;
+    private long overallLifetimeInMs;
+    private Date startTime;
+    private Date finishTime;
+    private Date lastErrorTime;
+    private String errorInfos;
+
+	
 	public WorkflowInstanceInfo() {
 	}
 	
-	@ConstructorProperties({"id", "state", "priority","processorPoolId","timeout"}) 
-	public WorkflowInstanceInfo(String id, WorkflowInstanceState state, int priority, String processorPoolId, Date timeout) {
+
+
+	public WorkflowInstanceInfo(String id, WorkflowInstanceState state, int priority, String processorPoolId, Date timeout,
+			Date lastActivityTimestamp, long overallLifetimeInMs, Date startTime, Date finishTime, Date lastErrorTime, String errorInfos) {
 		super();
 		this.id = id;
 		this.state = state;
 		this.priority = priority;
 		this.processorPoolId = processorPoolId;
 		this.timeout = timeout;
+		this.lastActivityTimestamp = lastActivityTimestamp;
+		this.overallLifetimeInMs = overallLifetimeInMs;
+		this.startTime = startTime;
+		this.finishTime = finishTime;
+		this.lastErrorTime = lastErrorTime;
+		this.errorInfos = errorInfos;
 	}
+
+
 
 	public String getId() {
 		return id;
@@ -87,6 +104,80 @@ public class WorkflowInstanceInfo implements Serializable{
 				+ priority + ", processorPoolId=" + processorPoolId
 				+ ", timeout=" + timeout + "]";
 	}
+
+
+
+	public Date getLastActivityTimestamp() {
+		return lastActivityTimestamp;
+	}
+
+
+
+	public void setLastActivityTimestamp(Date lastActivityTimestamp) {
+		this.lastActivityTimestamp = lastActivityTimestamp;
+	}
+
+
+
+	public long getOverallLifetimeInMs() {
+		return overallLifetimeInMs;
+	}
+
+
+
+	public void setOverallLifetimeInMs(long overallLifetimeInMs) {
+		this.overallLifetimeInMs = overallLifetimeInMs;
+	}
+
+
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+
+
+	public Date getFinishTime() {
+		return finishTime;
+	}
+
+
+
+	public void setFinishTime(Date finishTime) {
+		this.finishTime = finishTime;
+	}
+
+
+
+	public Date getLastErrorTime() {
+		return lastErrorTime;
+	}
+
+
+
+	public void setLastErrorTime(Date lastErrorTime) {
+		this.lastErrorTime = lastErrorTime;
+	}
+
+
+
+	public String getErrorInfos() {
+		return errorInfos;
+	}
+
+
+
+	public void setErrorInfos(String errorInfos) {
+		this.errorInfos = errorInfos;
+	}
+	
+	
 	
 	
 }

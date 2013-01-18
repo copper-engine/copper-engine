@@ -59,5 +59,10 @@ public class EngineLoadFilterController implements Initializable, FilterControll
 		return getClass().getResource("EngineLoadFilter.fxml");
 	}
 	
+	@Override
+	public boolean supportsFiltering() {
+		return true;
+	}
+	
 	
 }

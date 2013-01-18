@@ -17,24 +17,19 @@ package de.scoopgmbh.copper.gui.ui.workflowsummery.result;
 
 import javafx.beans.property.SimpleStringProperty;
 import de.scoopgmbh.copper.gui.util.WorkflowVersion;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
 
 public class WorkflowSummeryResultModel {
-	public final SimpleStringProperty alias;
 	public final WorkflowVersion version;
-	public final SimpleStringProperty status;
-	public final SimpleStringProperty count;
+	public final SimpleStringProperty totalcount;
+	public final WorkflowStateSummery workflowStateSummery;
 
 	public WorkflowSummeryResultModel(WorkflowSummery workflowSummery) {
-		this.alias = new SimpleStringProperty(workflowSummery.getAlias());
+		this.totalcount = new SimpleStringProperty(""+workflowSummery.getTotalcount());
+		this.version = new WorkflowVersion(workflowSummery.getClassDescription());
+		this.workflowStateSummery = workflowSummery.getStateSummery();
 		
-		this.version = new WorkflowVersion(
-				workflowSummery.getWorkflowClass(),
-				workflowSummery.getWorkflowMajorVersion(),
-				workflowSummery.getWorkflowMinorVersion(), 
-				workflowSummery.getWorkflowPatchLevel());
-		this.status = new SimpleStringProperty(workflowSummery.getStatus());
-		this.count = new SimpleStringProperty(String.valueOf(workflowSummery.getCount()));
 	}
 	
 	
