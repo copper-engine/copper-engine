@@ -15,28 +15,27 @@
  */
 package de.scoopgmbh.copper.gui.ui.dashboard.result;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import javafx.beans.property.SimpleIntegerProperty;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
 
 public class DashboardResultModel {
 	
-	private Map<WorkflowInstanceState,SimpleIntegerProperty> stateOverview = new HashMap<>();
+	public final List<ProcessingEngineInfo> engines = new ArrayList<>();
+	private Map<String,WorkflowStateSummery> engineIdTostateSummery = new HashMap<>();
 	
-	public DashboardResultModel(WorkflowStateSummery stateSummery){
-		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-			stateOverview.put(workflowInstanceState, new SimpleIntegerProperty());
-		}
-		
-		update(stateSummery);
+	public DashboardResultModel(Map<String, WorkflowStateSummery> engineIdTostateSummery, List<ProcessingEngineInfo> processingEngineInfo){
+		this.engineIdTostateSummery.putAll(engineIdTostateSummery);
+		this.engines.addAll(processingEngineInfo);
 	}
 	
-	public void update(WorkflowStateSummery stateSummery){
-		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-			stateOverview.get(workflowInstanceState).setValue(stateSummery.getNumberOfWorkflowInstancesWithState().get(workflowInstanceState));
-		}
+	public WorkflowStateSummery getStateSummery(String engineId){
+		return engineIdTostateSummery.get(engineId);
 	}
+	
+
 }

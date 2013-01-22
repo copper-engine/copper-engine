@@ -21,14 +21,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.gui.form.Form;
-import de.scoopgmbh.copper.gui.form.NotShowFormStrategie;
+import de.scoopgmbh.copper.gui.form.ShowFormStrategy;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
-import de.scoopgmbh.copper.gui.util.MessageProvider;
 
 public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController>{
 
-	public WorkflowClassesTreeForm(String menueItemtextKey, MessageProvider messageProvider, WorkflowClassesTreeController controller) {
-		super(menueItemtextKey, messageProvider, new NotShowFormStrategie(), controller);
+	public WorkflowClassesTreeForm(String dynamicTitle, ShowFormStrategy<?> showFormStrategie, WorkflowClassesTreeController controller) {
+		super(dynamicTitle, showFormStrategie, controller);
 	}
 
 	@Override

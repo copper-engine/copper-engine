@@ -95,7 +95,7 @@ public class LoginController implements Initializable, FxmlController {
 					} else {
 						registry = LocateRegistry.getRegistry(copperDirektAdressTextField.getText(),Registry.REGISTRY_PORT);
 						CopperMonitorInterface copperMonitor = (CopperMonitorInterface) registry.lookup(CopperMonitorInterface.class.getSimpleName());
-						mainFactory.setGuiCopperDataProvider(copperMonitor);
+						mainFactory.setGuiCopperDataProvider(copperMonitor,serverAdress.getText());
 					}
 				} catch (Exception e) {
 					throw new RuntimeException(e);

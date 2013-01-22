@@ -17,8 +17,8 @@ package de.scoopgmbh.copper.gui.form;
 
 import javafx.scene.layout.BorderPane;
 
-public class NotShowFormStrategie extends ShowFormStrategy<BorderPane> {
-	public NotShowFormStrategie() {
+public class EmptyShowFormStrategie extends ShowFormStrategy<BorderPane> {
+	public EmptyShowFormStrategie() {
 		super(null);
 	}
 

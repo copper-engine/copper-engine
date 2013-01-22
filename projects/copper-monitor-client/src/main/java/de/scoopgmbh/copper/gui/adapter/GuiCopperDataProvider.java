@@ -33,9 +33,9 @@ import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceD
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.EngineDiscriptor;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassDescription;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
@@ -100,14 +100,14 @@ public class GuiCopperDataProvider {
 	}
 	
 	public List<WorkflowClassesModel> getWorkflowClassesList(){
-		List<WorkflowClassDescription> list;
+		List<WorkflowClassVersionInfo> list;
 		try {
 			list = copperDataProvider.getWorkflowClassesList();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 		ArrayList<WorkflowClassesModel> result = new ArrayList<>();
-		for (WorkflowClassDescription workflowClassesInfo: list){
+		for (WorkflowClassVersionInfo workflowClassesInfo: list){
 			result.add(new WorkflowClassesModel(workflowClassesInfo));
 		}
 		return result;
@@ -121,7 +121,7 @@ public class GuiCopperDataProvider {
 		}
 	}
 
-	public WorkflowStateSummery getCopperLoadInfo(EngineDiscriptor engine) {
+	public WorkflowStateSummery getCopperLoadInfo(ProcessingEngineInfo engine) {
 		try {
 			return  copperDataProvider.getAggregatedWorkflowStateSummery(engine);
 		} catch (RemoteException e) {
@@ -159,9 +159,9 @@ public class GuiCopperDataProvider {
 		}
 	}
 	
-	public List<EngineDiscriptor> getEngineList() {
+	public List<ProcessingEngineInfo> getEngineList() {
 		try {
-			return copperDataProvider.getEngineList();
+			return copperDataProvider.getProccessingEngineList();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

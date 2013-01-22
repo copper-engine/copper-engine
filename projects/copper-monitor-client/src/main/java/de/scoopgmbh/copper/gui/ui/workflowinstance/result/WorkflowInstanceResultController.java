@@ -22,30 +22,40 @@ import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.context.FormContext;
 import de.scoopgmbh.copper.gui.form.FxmlController;
+import de.scoopgmbh.copper.gui.form.FxmlForm;
 import de.scoopgmbh.copper.gui.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
 import de.scoopgmbh.copper.gui.ui.audittrail.filter.AuditTrailFilterModel;
 import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
+import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
+import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
+import de.scoopgmbh.copper.gui.util.ComponentUtil;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
 public class WorkflowInstanceResultController implements Initializable, FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>, FxmlController {
@@ -94,21 +104,30 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
     @FXML //  fx:id="timeoutColumn"
     private TableColumn<WorkflowInstanceResultModel, String> errorInfos;
 
+    @FXML //  fx:id="timeoutColumn"
+    private BorderPane detailPane;
+    
+    @FXML //  fx:id="timeoutColumn"
+    private StackPane stackDetailPane;
+	private FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm;
+	private Service<Void> service;
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
+        assert detailPane != null : "fx:id=\"detailPane\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
+        assert errorInfos != null : "fx:id=\"errorInfos\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
+        assert finishTime != null : "fx:id=\"finishTime\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert idColumn != null : "fx:id=\"idColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
+        assert lastActivityTimestamp != null : "fx:id=\"lastActivityTimestamp\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
+        assert lastErrorTime != null : "fx:id=\"lastErrorTime\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
+        assert overallLifetimeInMs != null : "fx:id=\"overallLifetimeInMs\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert prioritynColumn != null : "fx:id=\"prioritynColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert processorPoolColumn != null : "fx:id=\"processorPoolColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
+        assert stackDetailPane != null : "fx:id=\"stackDetailPane\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
+        assert startTime != null : "fx:id=\"startTime\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert stateColumn != null : "fx:id=\"stateColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert timeoutColumn != null : "fx:id=\"timeoutColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
-        assert lastActivityTimestamp !=null;
-        assert overallLifetimeInMs !=null;
-        assert startTime !=null;
-        assert finishTime !=null;
-        assert lastErrorTime !=null;
-        assert errorInfos !=null;
 
 
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
@@ -213,12 +232,16 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 		            if(mouseEvent.getClickCount() == 2 && !resultTable.getSelectionModel().isEmpty()){
 		            	formcontext.createWorkflowInstanceDetailForm(resultTable.getSelectionModel().getSelectedItem().id.getValue()).show();
 		            }
+		            if(mouseEvent.getClickCount() == 1 && !resultTable.getSelectionModel().isEmpty()){
+		            	showDetails(resultTable.getSelectionModel().getSelectedItem());
+		            }
+		            
 		        }
 			}
 		});
         
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem detailMenuItem = new MenuItem("Details");
+        MenuItem detailMenuItem = new MenuItem("Details in new tab");
         detailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -240,8 +263,11 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
         contextMenu.getItems().add(audittrailMenuItem);
         
         resultTable.setContextMenu(contextMenu);
+        
+		detailForm = formcontext.createWorkflowinstanceDetailResultForm(detailPane);
+		detailForm.show();
     }
-	
+    
 	@Override
 	public URL getFxmlRessource() {
 		return getClass().getResource("WorkflowInstanceResult.fxml");
@@ -267,6 +293,62 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 	@Override
 	public void clear() {
 		resultTable.getItems().clear();
+	}
+	
+	private void showDetails(final WorkflowInstanceResultModel workflowInstanceResultModel){
+
+		
+
+		if (service==null) {
+			service = new Service<Void>(){
+				@Override
+				protected Task<Void> createTask() {
+					return new Task<Void>() {
+						final ProgressIndicator indicator = ComponentUtil.createProgressIndicator();
+						private WorkflowInstanceDetailFilterModel filter;
+						private List<WorkflowInstanceDetailResultModel> result;
+						@Override
+						protected Void call() throws Exception {
+							Platform.runLater(new Runnable() {
+			                     @Override public void run() {
+			                    	 stackDetailPane.getChildren().add(indicator);
+			                     }
+			                 });
+							filter = new WorkflowInstanceDetailFilterModel();
+							filter.workflowInstanceId.setValue(workflowInstanceResultModel.id.getValue());
+							result = detailForm.getController().applyFilterInBackgroundThread(filter);
+							return null;
+						}
+						
+						@Override 
+						protected void succeeded() {
+							detailForm.getController().showFilteredResult(result, filter);
+							stackDetailPane.getChildren().remove(indicator);
+							if (getException()!=null){
+								throw new RuntimeException(service.getException());
+							}
+							super.succeeded();
+						}
+						
+						@Override 
+						protected void failed() {
+							stackDetailPane.getChildren().remove(indicator);
+							if (getException()!=null){
+								throw new RuntimeException(service.getException());
+							}
+							super.failed();
+						}
+						
+						
+					};
+				}
+			};
+		}
+		
+		if (!service.isRunning()){
+			service.reset();
+			service.start();
+		}
 	}
 
 }

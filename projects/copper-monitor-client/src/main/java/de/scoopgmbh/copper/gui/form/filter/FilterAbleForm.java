@@ -49,6 +49,7 @@ import javafx.util.converter.IntegerStringConverter;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.form.Form;
 import de.scoopgmbh.copper.gui.form.ShowFormStrategy;
+import de.scoopgmbh.copper.gui.util.ComponentUtil;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 
 /**
@@ -61,10 +62,12 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	protected final GuiCopperDataProvider copperDataProvider;
 	private FilterService<F,R> filterService;
 	private RepeatFilterService<F,R> repeatFilterService;
+	private final MessageProvider messageProvider;
 
-	public FilterAbleForm(String menueItemtextKey, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
+	public FilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
 			Form<FilterController<F>> filterForm, final Form<FilterResultController<F,R>> resultForm, GuiCopperDataProvider copperDataProvider ) {
-		super(menueItemtextKey, messageProvider, showFormStrategie, null);
+		super("", showFormStrategie, null);
+		this.messageProvider = messageProvider;
 		this.filterForm = filterForm;
 		this.resultForm = resultForm;
 		this.copperDataProvider = copperDataProvider;
@@ -104,11 +107,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	public Node createContent() {
 		final StackPane stackPane = new StackPane();
 		filterService.stateProperty().addListener(new ChangeListener<Worker.State>() {
-			ProgressIndicator indicator = new ProgressIndicator();
-			{
-				indicator.setStyle("-fx-background-color: rgba(230,230,230,0.7);" +
-						"-fx-padding: 5em 5em 5em 5em;");
-			}
+			ProgressIndicator indicator = ComponentUtil.createProgressIndicator();
 			@Override
 			public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
 				if (newValue==State.RUNNING){

@@ -44,6 +44,7 @@ import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowsummery.filter.WorkflowSummeryFilterModel;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
 public class WorkflowSummeryResultController implements Initializable, FilterResultController<WorkflowSummeryFilterModel,WorkflowSummeryResultModel>, FxmlController {
@@ -133,9 +134,7 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 			public void handle(MouseEvent mouseEvent) {
 				if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
 		            if(mouseEvent.getClickCount() == 2 && !resultTable.getSelectionModel().isEmpty()){
-		            	FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = formcontext.createWorkflowInstanceForm();
-						workflowInstanceForm.getFilter().version.setAllFrom(getSelectedEntry().version);
-						workflowInstanceForm.show();
+		            	openWorkflowInstance();
 		            }
 		        }
 			}
@@ -145,9 +144,7 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
         detailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = formcontext.createWorkflowInstanceForm();
-				workflowInstanceForm.getFilter().version.setAllFrom(getSelectedEntry().version);
-				workflowInstanceForm.show();
+				openWorkflowInstance();
 			}
 		});
         detailMenuItem.disableProperty().bind(resultTable.getSelectionModel().selectedItemProperty().isNull());
@@ -155,6 +152,13 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
         
         resultTable.setContextMenu(contextMenu);
     }
+    
+	private void openWorkflowInstance() {
+		FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = formcontext.createWorkflowInstanceForm();
+		workflowInstanceForm.getFilter().version.setAllFrom(getSelectedEntry().version);
+		workflowInstanceForm.getFilter().engine.setValue(lastFilteredWithProcessingEngineInfo);
+		workflowInstanceForm.show();
+	}
     
     private WorkflowSummeryResultModel getSelectedEntry(){
     	return resultTable.getSelectionModel().getSelectedItem();
@@ -166,8 +170,10 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 		return getClass().getResource("WorkflowSummeryResult.fxml");
 	}
 
+	private ProcessingEngineInfo lastFilteredWithProcessingEngineInfo;
 	@Override
 	public void showFilteredResult(List<WorkflowSummeryResultModel> filteredResult, WorkflowSummeryFilterModel usedFilter) {
+		lastFilteredWithProcessingEngineInfo = usedFilter.engine.getValue();
 		ObservableList<WorkflowSummeryResultModel> content = FXCollections.observableList(new ArrayList<WorkflowSummeryResultModel>());;
 		content.addAll(filteredResult);
 		resultTable.setItems(content);

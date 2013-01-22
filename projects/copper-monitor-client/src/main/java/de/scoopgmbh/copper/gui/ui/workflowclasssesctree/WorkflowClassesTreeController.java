@@ -133,9 +133,10 @@ public class WorkflowClassesTreeController {
 			@Override
 			public void changed(ObservableValue<? extends TreeItem<DisplayWorkflowClassesModel>> observable,
 					TreeItem<DisplayWorkflowClassesModel> oldValue, TreeItem<DisplayWorkflowClassesModel> newValue) {
-				if (newValue!=null && newValue.getValue()!=null){
+				if (newValue!=null && newValue.getValue()!=null && newValue.getChildren().isEmpty()){
 					WorkflowClassesModel workflowClassesModel = newValue.getValue().value;
 					filterController.setFilter(workflowClassesModel);
+					filterController.startValueSetAnimation();
 				}
 			}
 		});

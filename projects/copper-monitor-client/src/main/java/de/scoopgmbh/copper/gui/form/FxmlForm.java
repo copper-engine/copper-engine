@@ -25,12 +25,16 @@ import de.scoopgmbh.copper.gui.util.MessageProvider;
 
 public class FxmlForm<C extends FxmlController> extends Form<C> {
 
-	public FxmlForm(String menueItemtextKey, C controller, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie) {
-		super(menueItemtextKey, messageProvider, showFormStrategie,controller);
+
+	private final MessageProvider messageProvider;
+	public FxmlForm(String dynamicTitle, C controller, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie) {
+		super(dynamicTitle, showFormStrategie, controller);
+		this.messageProvider = messageProvider;
 	}
 	
-	public FxmlForm(String menueItemtextKey, C controller, MessageProvider messageProvider) {
-		super(menueItemtextKey, messageProvider, new NotShowFormStrategie(),controller);
+	public FxmlForm(C controller, MessageProvider messageProvider) {
+		super("", new EmptyShowFormStrategie(), controller);
+		this.messageProvider = messageProvider;
 	}
 
 	@Override

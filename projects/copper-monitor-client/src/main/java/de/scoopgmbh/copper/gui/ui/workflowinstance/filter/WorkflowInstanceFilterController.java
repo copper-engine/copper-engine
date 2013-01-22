@@ -16,7 +16,7 @@
 package de.scoopgmbh.copper.gui.ui.workflowinstance.filter;
 
 import java.net.URL;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
@@ -26,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.util.StringConverter;
 import javafx.util.converter.LongStringConverter;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
@@ -34,6 +35,16 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 public class WorkflowInstanceFilterController implements Initializable, FilterController<WorkflowInstanceFilterModel>, FxmlController {
 	WorkflowInstanceFilterModel model = new WorkflowInstanceFilterModel();
 
+	public class EmptySelectionWorkaround{
+		public WorkflowInstanceState value;
+		public String text;
+		public EmptySelectionWorkaround(WorkflowInstanceState value, String text) {
+			super();
+			this.value = value;
+			this.text = text;
+		}
+		
+	}
 
 
     @FXML //  fx:id="majorVersion"
@@ -46,7 +57,7 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
     private TextField priorityField; // Value injected by FXMLLoader
 
     @FXML //  fx:id="stateChoice"
-    private ChoiceBox<WorkflowInstanceState> stateChoice; // Value injected by FXMLLoader
+    private ChoiceBox<EmptySelectionWorkaround> stateChoice; // Value injected by FXMLLoader
 
     @FXML //  fx:id="workflowClass"
     private TextField workflowClass; // Value injected by FXMLLoader
@@ -69,12 +80,30 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
         minorVersion.textProperty().bindBidirectional(model.version.versionMinor, new LongStringConverter());
         patchLevel.textProperty().bindBidirectional(model.version.patchlevel, new LongStringConverter());
         
-        stateChoice.setItems(FXCollections.observableList(Arrays.asList(WorkflowInstanceState.values())));
-        stateChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<WorkflowInstanceState>() {
-            public void changed(ObservableValue<? extends WorkflowInstanceState> observableValue, WorkflowInstanceState anEnum, WorkflowInstanceState anEnum1) {
-            	model.state.setValue(anEnum1);
+        ArrayList<EmptySelectionWorkaround> states = new ArrayList<>();
+        for (WorkflowInstanceState state: WorkflowInstanceState.values()){
+        	states.add(new EmptySelectionWorkaround(state,state.toString()));
+    	}	
+        EmptySelectionWorkaround emptyItem = new EmptySelectionWorkaround(null,"any");
+		states.add(emptyItem);
+        stateChoice.setItems(FXCollections.observableList(states));
+        stateChoice.setConverter(new StringConverter<WorkflowInstanceFilterController.EmptySelectionWorkaround>() {
+			@Override
+			public String toString(EmptySelectionWorkaround object) {
+				return object.text;
+			}
+			
+			@Override
+			public EmptySelectionWorkaround fromString(String string) {
+				return null;
+			}
+		});
+        stateChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<EmptySelectionWorkaround>() {
+            public void changed(ObservableValue<? extends EmptySelectionWorkaround> observableValue, EmptySelectionWorkaround anEnum, EmptySelectionWorkaround anEnum1) {
+            	model.state.setValue(anEnum1.value);
             }
         });
+        stateChoice.getSelectionModel().select(emptyItem);
 
 	}
 

@@ -16,30 +16,42 @@
 package de.scoopgmbh.copper.gui.ui.dashboard.result;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TabPane;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
+import de.scoopgmbh.copper.gui.context.FormContext;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
 
 public class DashboardResultController implements Initializable, FilterResultController<EmptyFilterModel,DashboardResultModel>, FxmlController {
 	private final GuiCopperDataProvider copperDataProvider;
+	private final FormContext formContext;
 	
-	public DashboardResultController(GuiCopperDataProvider copperDataProvider) {
+	public DashboardResultController(GuiCopperDataProvider copperDataProvider, FormContext formContext) {
 		super();
 		this.copperDataProvider = copperDataProvider;
+		this.formContext = formContext;
 	}
 
+    @FXML //  fx:id="engines"
+    private TabPane engines; // Value injected by FXMLLoader
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
+        assert engines != null : "fx:id=\"engines\" was not injected: check your FXML file 'DashboardResult.fxml'.";
 
         
-
     }
 
 	
@@ -50,14 +62,21 @@ public class DashboardResultController implements Initializable, FilterResultCon
 
 	@Override
 	public void showFilteredResult(List<DashboardResultModel> filteredlist, EmptyFilterModel usedFilter) {
-		
-
-		
+		DashboardResultModel dashboardResultModel = filteredlist.get(0);
+		engines.getTabs().clear();
+		for (ProcessingEngineInfo processingEngineInfo: dashboardResultModel.engines){
+			formContext.createEngineForm(engines,processingEngineInfo,dashboardResultModel).show();
+		}
 	}
 
 	@Override
 	public List<DashboardResultModel> applyFilterInBackgroundThread(EmptyFilterModel filter) {
-		return null;//Arrays.asList(new DashboardResultModel(copperDataProvider.getCopperLoadInfo()));
+		List<ProcessingEngineInfo> engines = copperDataProvider.getEngineList();
+		Map<String, WorkflowStateSummery> engineIdTostateSummery = new HashMap<>();
+		for (ProcessingEngineInfo processingEngineInfo: engines){
+			engineIdTostateSummery.put(processingEngineInfo.getId(), copperDataProvider.getCopperLoadInfo(processingEngineInfo));
+		}
+		return Arrays.asList(new DashboardResultModel(engineIdTostateSummery,engines));
 	}
 
 	@Override

@@ -17,7 +17,7 @@ package de.scoopgmbh.copper.gui.util;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassDescription;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 
 public class WorkflowVersion {
 	public final SimpleStringProperty classname = new SimpleStringProperty(); 
@@ -38,7 +38,7 @@ public class WorkflowVersion {
 		this.patchlevel.setValue(patchlevel);
 	}
 	
-	public WorkflowVersion(WorkflowClassDescription workflowClassesInfo){
+	public WorkflowVersion(WorkflowClassVersionInfo workflowClassesInfo){
 		this.classname.setValue(workflowClassesInfo.getClassname());
 		this.alias.setValue(workflowClassesInfo.getAlias());
 		this.versionMajor.setValue(workflowClassesInfo.getMajorVersion());
@@ -53,8 +53,8 @@ public class WorkflowVersion {
 		patchlevel.set(workflowVersion.patchlevel.get());
 	}
 	
-	public WorkflowClassDescription convert(){
-		return new WorkflowClassDescription(classname.getValue(),alias.getValue(),versionMajor.getValue(),versionMinor.getValue(),patchlevel.getValue());
+	public WorkflowClassVersionInfo convert(){
+		return new WorkflowClassVersionInfo(classname.getValue(),alias.getValue(),versionMajor.getValue(),versionMinor.getValue(),patchlevel.getValue());
 	}
 	
 	

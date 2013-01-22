@@ -15,14 +15,8 @@
  */
 package de.scoopgmbh.copper.gui.form;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBase;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.MenuItemBuilder;
-import de.scoopgmbh.copper.gui.util.MessageProvider;
 
 /**
  *
@@ -30,21 +24,20 @@ import de.scoopgmbh.copper.gui.util.MessageProvider;
  */
 public abstract class Form<C> {
 
-	private final String titleTextKey;
-	protected final MessageProvider messageProvider;
+	private final SimpleStringProperty dynamicTitle;
 	private final ShowFormStrategy<?> showFormStrategie;
 	protected final C controller;
 	
-	public Form(String titleTextKey, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie, C controller) {
+
+	public Form(String dynamicTitle, ShowFormStrategy<?> showFormStrategie, C controller) {
 		super();
-		this.titleTextKey = titleTextKey;
-		this.messageProvider = messageProvider;
+		this.dynamicTitle = new SimpleStringProperty(dynamicTitle);
 		this.showFormStrategie = showFormStrategie;
 		this.controller = controller;
 	}
 
-	public String getTitle(){
-		return messageProvider.getText(titleTextKey);
+	public SimpleStringProperty dynamicTitleProperty(){
+		return dynamicTitle;
 	}
 	
 	public void show(){
@@ -56,33 +49,9 @@ public abstract class Form<C> {
 	public C getController(){
 		return controller;
 	}
-	
-	public MenuItem createShowFormMenuItem(){
-		MenuItem menueItem = MenuItemBuilder
-				.create()
-				.text(getTitle())
-				.onAction(new EventHandler<ActionEvent>() {
-					@Override
-					public void handle(ActionEvent e) {
-						show();
-					}
-				}).build();
-		return menueItem;
+
+	public void setDynamicTitle(String staticTitle) {
+		dynamicTitleProperty().setValue(staticTitle);
 	}
-	
-	public ButtonBase createShowFormButton(){
-		Button button = new Button(getTitle());
-		button.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				show();
-			}
-		});
-		return button;
-	}
-	
-	
-;
-	
 	
 }

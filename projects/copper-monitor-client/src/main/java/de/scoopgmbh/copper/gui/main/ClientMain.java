@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.gui.main;
 import java.util.Map;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
@@ -28,8 +29,8 @@ public class ClientMain extends Application {
 
 	@Override
 	public void start(final Stage primaryStage) { //Stage = window
-		primaryStage.setTitle("Copper Monitor");
 		ApplicationContext mainFactory = new ApplicationContext();
+		primaryStage.titleProperty().bind(new SimpleStringProperty("Copper Monitor (server: ").concat(mainFactory.serverAdressProperty().concat(")")));
 		new Button(); // Trigger loading of default stylesheet
 		final Scene scene = new Scene(mainFactory.getMainPane(), 1300, 800, Color.WHEAT);
 
@@ -55,7 +56,7 @@ public class ClientMain extends Application {
 		
 	}
 
-	public static void main(final String[] arguments) {
+	public static void main(final String[] arguments) { 
 		Application.launch(arguments);
 	}
 }

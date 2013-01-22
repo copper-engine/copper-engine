@@ -28,6 +28,7 @@ import java.rmi.registry.Registry;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
@@ -47,6 +48,11 @@ public class ApplicationContext {
 	private BorderPane mainPane;
 	MessageProvider messageProvider;
 	SettingsModel settingsModelSinglton;
+	
+	private SimpleStringProperty serverAdress= new SimpleStringProperty();
+	public SimpleStringProperty serverAdressProperty() {
+		return serverAdress;
+	}
 	
 	public ApplicationContext() {
 		mainPane = new BorderPane();
@@ -97,7 +103,8 @@ public class ApplicationContext {
 	}
 
 	GuiCopperDataProvider guiCopperDataProvider;
-	public void setGuiCopperDataProvider(CopperMonitorInterface copperDataProvider){
+	public void setGuiCopperDataProvider(CopperMonitorInterface copperDataProvider, String serverAdress){
+		this.serverAdress.set(serverAdress);
 		this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);
 	}
 	
@@ -106,7 +113,7 @@ public class ApplicationContext {
 			Registry registry = LocateRegistry.getRegistry(serverAdress,Registry.REGISTRY_PORT);
 			ServerLogin serverLogin = (ServerLogin) registry.lookup(ServerLogin.class.getSimpleName());
 			
-			setGuiCopperDataProvider(serverLogin.login(user, (password!=null?password.hashCode():"")+""));
+			setGuiCopperDataProvider(serverLogin.login(user, (password!=null?password.hashCode():"")+""),serverAdress);
 			getFormFactory().setupGUIStructure();
 		} catch (RemoteException | NotBoundException e) {
 			throw new RuntimeException(e);

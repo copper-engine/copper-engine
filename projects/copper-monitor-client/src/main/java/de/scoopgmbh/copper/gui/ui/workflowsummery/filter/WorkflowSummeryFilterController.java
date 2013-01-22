@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.gui.ui.workflowsummery.filter;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -27,6 +28,10 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import javafx.util.converter.LongStringConverter;
 import de.scoopgmbh.copper.gui.context.FormContext;
 import de.scoopgmbh.copper.gui.form.FxmlController;
@@ -66,6 +71,12 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
     
     @FXML //  fx:id="alias"
     private TextField alias; // Value injected by FXMLLoader
+   
+    @FXML
+    private StackPane stackPane;
+    
+    @FXML
+    private Pane filterPane;
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -76,6 +87,8 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert patchLevel != null : "fx:id=\"patchLevel\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert alias != null : "fx:id=\"alias\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
+        assert stackPane != null : "fx:id=\"stackPane\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
+        assert filterPane !=null;
         
         workflowClass.textProperty().bindBidirectional(model.version.classname );
         majorVersion.textProperty().bindBidirectional(model.version.versionMajor, new LongStringConverter());
@@ -110,5 +123,23 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
 	public boolean supportsFiltering() {
 		return true;
 	}
+	
+	public void startValueSetAnimation() {
+		final javafx.scene.shape.Rectangle rectangle = new javafx.scene.shape.Rectangle();
+		rectangle.widthProperty().bind(filterPane.widthProperty());
+		rectangle.heightProperty().bind(filterPane.heightProperty());
+		rectangle.setFill(Color.RED);
+		stackPane.getChildren().add(rectangle);
+		FadeTransition ft = new FadeTransition(Duration.millis(400), rectangle);
+		ft.setFromValue(1.0);
+		ft.setToValue(0.2);
+		ft.play();
+		ft.setOnFinished(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+				stackPane.getChildren().remove(rectangle);
+			}
+		});
+	}
+	
 	
 }

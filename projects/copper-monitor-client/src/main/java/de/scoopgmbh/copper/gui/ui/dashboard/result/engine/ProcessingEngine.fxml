@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+  <center>
+    <Pane prefHeight="459.0" prefWidth="957.0">
+      <children>
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#0e51a7" height="387.0" layoutX="23.0" layoutY="36.0" stroke="BLACK" strokeType="INSIDE" width="913.0" />
+        <Rectangle arcHeight="50.0" arcWidth="50.0" height="271.0" layoutX="389.0" layoutY="121.0" stroke="BLACK" strokeType="INSIDE" width="266.0">
+          <fill>
+            <Color blue="0.000" green="0.137" red="1.000" fx:id="x1" />
+          </fill>
+        </Rectangle>
+        <Label layoutX="51.0" layoutY="42.0" text="ProcessingEngine" textFill="WHITE" />
+        <Label layoutX="51.0" layoutY="70.0" text="id" textFill="WHITE" />
+        <TextField fx:id="id" editable="false" layoutX="98.0" layoutY="71.0" opacity="0.75" prefHeight="22.0" prefWidth="112.0" />
+        <Label layoutX="51.0" layoutY="97.0" text="typ" textFill="WHITE" />
+        <TextField fx:id="typ" editable="false" layoutX="98.0" layoutY="99.0" opacity="0.75" prefHeight="22.0" prefWidth="112.0" />
+        <Ellipse fill="$x1" layoutX="803.0" layoutY="356.0" radiusX="100.0" radiusY="35.0" stroke="BLACK" strokeType="INSIDE" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="$x1" height="70.0" layoutX="703.0" layoutY="286.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+        <Ellipse fill="$x1" layoutX="802.0" layoutY="284.0" radiusX="100.0" radiusY="35.0" stroke="BLACK" strokeType="INSIDE" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="$x1" height="19.951171875" layoutX="704.0" layoutY="337.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="197.99998474121094" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" height="55.0" layoutX="519.0" layoutY="314.0" stroke="BLACK" strokeType="INSIDE" width="94.0">
+          <fill>
+            <Color blue="0.000" green="0.620" red="1.000" fx:id="x2" />
+          </fill>
+        </Rectangle>
+        <TextField fx:id="finished" editable="false" layoutX="529.0" layoutY="340.0" opacity="0.75" prefHeight="22.0" prefWidth="61.9998779296875" />
+        <Label layoutX="529.0" layoutY="321.0" prefHeight="19.951171875" text="FINISHED" />
+        <Label layoutX="402.0" layoutY="127.0" text="Instancestorage" textFill="WHITE" />
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#606060" height="115.951171875" layoutX="456.0" layoutY="163.0" stroke="BLACK" strokeType="INSIDE" width="183.0" />
+        <Label layoutX="466.0" layoutY="172.0" text="batcher" textFill="WHITE" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="55.0" layoutX="421.0" layoutY="315.0" stroke="BLACK" strokeType="INSIDE" width="81.0" />
+        <Label layoutX="431.0" layoutY="322.0" text="WAITING" />
+        <TextField fx:id="waiting" editable="false" layoutX="431.0" layoutY="342.0" opacity="0.75" prefHeight="22.0" prefWidth="62.0" />
+        <Label layoutX="736.0" layoutY="271.0" text="WorkflowRepository" textFill="WHITE" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="55.0" layoutX="260.0" layoutY="64.0" stroke="BLACK" strokeType="INSIDE" width="94.0" />
+        <Label layoutX="273.0" layoutY="69.0" prefHeight="19.951171875" text="ROW" />
+        <TextField fx:id="row" editable="false" layoutX="272.0" layoutY="89.0" opacity="0.75" prefHeight="22.0" prefWidth="62.0" />
+        <TabPane id="polls" fx:id="pools" layoutX="55.0" layoutY="149.0" prefHeight="251.0" prefWidth="289.0" side="BOTTOM" style="-fx-background-color: rgba(0,0,0,0);" tabClosingPolicy="UNAVAILABLE" />
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="$x1" height="115.951171875" layoutX="704.0" layoutY="119.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+        <Label layoutX="717.0" layoutY="125.0" text="AdapterInjector" textFill="WHITE" />
+      </children>
+    </Pane>
+  </center>
+</BorderPane>

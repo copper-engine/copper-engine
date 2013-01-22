@@ -7,22 +7,31 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="333.0" prefWidth="430.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
-      <columns>
-        <TableColumn prefWidth="75.0" text="Workflowid" fx:id="idColumn" />
-        <TableColumn prefWidth="75.0" text="State" fx:id="stateColumn" />
-        <TableColumn prefWidth="75.0" text="priority" fx:id="prioritynColumn" />
-        <TableColumn prefWidth="75.0" text="ProcessorPool" fx:id="processorPoolColumn" />
-        <TableColumn prefWidth="75.0" text="timeout" fx:id="timeoutColumn" />
-	    <TableColumn prefWidth="75.0" text="lastActivityTimestamp" fx:id="lastActivityTimestamp" />
-		<TableColumn prefWidth="75.0" text="overallLifetimeInMs" fx:id="overallLifetimeInMs" />
-	    <TableColumn prefWidth="75.0" text="startTime" fx:id="startTime" />
-	    <TableColumn prefWidth="75.0" text="finishTime" fx:id="finishTime" />
-	    <TableColumn prefWidth="75.0" text="lastErrorTime" fx:id="lastErrorTime" />
-	    <TableColumn prefWidth="75.0" text="errorInfos" fx:id="errorInfos" />
-      </columns>
-    </TableView>
+    <SplitPane dividerPositions="0.5015105740181269" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+      <items>
+        <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
+          <columns>
+            <TableColumn prefWidth="75.0" text="Workflowid" fx:id="idColumn" />
+            <TableColumn prefWidth="75.0" text="State" fx:id="stateColumn" />
+            <TableColumn prefWidth="75.0" text="priority" fx:id="prioritynColumn" />
+            <TableColumn prefWidth="75.0" text="ProcessorPool" fx:id="processorPoolColumn" />
+            <TableColumn prefWidth="75.0" text="timeout" fx:id="timeoutColumn" />
+            <TableColumn prefWidth="75.0" text="lastActivityTimestamp" fx:id="lastActivityTimestamp" />
+            <TableColumn prefWidth="75.0" text="overallLifetimeInMs" fx:id="overallLifetimeInMs" />
+            <TableColumn prefWidth="75.0" text="startTime" fx:id="startTime" />
+            <TableColumn prefWidth="75.0" text="finishTime" fx:id="finishTime" />
+            <TableColumn prefWidth="75.0" text="lastErrorTime" fx:id="lastErrorTime" />
+            <TableColumn prefWidth="75.0" text="errorInfos" fx:id="errorInfos" />
+          </columns>
+        </TableView>
+        <StackPane fx:id="stackDetailPane" prefHeight="150.0" prefWidth="200.0">
+          <children>
+            <BorderPane fx:id="detailPane" prefHeight="85.0" prefWidth="158.0" />
+          </children>
+        </StackPane>
+      </items>
+    </SplitPane>
   </center>
 </BorderPane>

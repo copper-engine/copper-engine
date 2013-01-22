@@ -9,19 +9,16 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<FlowPane alignment="CENTER_LEFT" hgap="5.0" layoutX="0.0" layoutY="0.0" prefHeight="40.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml">
+<HBox alignment="CENTER_LEFT" layoutX="0.0" layoutY="0.0" prefHeight="40.0" prefWidth="811.0" spacing="5.0" xmlns:fx="http://javafx.com/fxml">
   <children>
     <Label text="state">
-      <FlowPane.margin>
+      <HBox.margin>
         <Insets left="5.0" />
-      </FlowPane.margin>
+      </HBox.margin>
     </Label>
     <ChoiceBox fx:id="stateChoice" prefWidth="129.0">
       <items>
         <FXCollections fx:factory="observableArrayList">
-          <String fx:value="Item 1" />
-          <String fx:value="Item 2" />
-          <String fx:value="Item 3" />
         </FXCollections>
       </items>
     </ChoiceBox>
@@ -33,7 +30,7 @@
     <fx:reference source="priorityField" />
     <Label text="workflowclass">
       <labelFor>
-        <TextField fx:id="workflowClass" prefWidth="231.0" />
+        <TextField fx:id="workflowClass" maxWidth="-1.0" prefWidth="231.0" HBox.hgrow="ALWAYS" />
       </labelFor>
     </Label>
     <fx:reference source="workflowClass" />
@@ -51,9 +48,13 @@
     <fx:reference source="minorVersion" />
     <Label text=".">
       <labelFor>
-        <TextField id="workflowClass" fx:id="patchLevel" prefWidth="33.0" />
+        <TextField id="workflowClass" fx:id="patchLevel" prefWidth="33.0">
+          <HBox.margin>
+            <Insets right="5.0" />
+          </HBox.margin>
+        </TextField>
       </labelFor>
     </Label>
     <fx:reference source="patchLevel" />
   </children>
-</FlowPane>
+</HBox>

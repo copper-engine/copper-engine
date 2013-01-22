@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.gui.form;
+package de.scoopgmbh.copper.gui.util;
 
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.ProgressIndicator;
 
-public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
-	boolean transparentHeader=false;
-	private Tab tab;
-
-	public TabPaneShowFormStrategie(TabPane component) {
-		super(component);
+public class ComponentUtil {
+	
+	public static ProgressIndicator createProgressIndicator(){
+		ProgressIndicator indicator = new ProgressIndicator();
 		
-		tab = new Tab();
-		tab.setText("new tab");
+		indicator.setStyle("-fx-background-color: rgba(230,230,230,0.7);" +
+					"-fx-padding: 5em 5em 5em 5em;");
+
+		return indicator;
 	}
 
-	public void show(Form<?> form){
-		if (tab.getContent()==null){
-			tab.setContent(form.createContent());
-			tab.textProperty().bind(form.dynamicTitleProperty());
-			component.getTabs().add(tab);
-		}
-		component.getSelectionModel().select(tab);
-	}
 }
