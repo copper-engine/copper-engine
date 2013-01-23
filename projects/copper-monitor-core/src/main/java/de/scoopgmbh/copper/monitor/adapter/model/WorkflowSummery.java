@@ -23,13 +23,13 @@ public class WorkflowSummery implements Serializable {
 	private String alias;
 	private int totalcount;
 	private WorkflowStateSummery stateSummery;
-	private WorkflowClassDescription classDescription;
+	private WorkflowClassVersionInfo classDescription;
 	
 	public WorkflowSummery() {
 		super();
 	}
 
-	public WorkflowSummery(String alias, int totalcount, WorkflowClassDescription classDescription, WorkflowStateSummery stateSummery) {
+	public WorkflowSummery(String alias, int totalcount, WorkflowClassVersionInfo classDescription, WorkflowStateSummery stateSummery) {
 		super();
 		this.alias = alias;
 		this.totalcount = totalcount;
@@ -61,11 +61,11 @@ public class WorkflowSummery implements Serializable {
 		this.stateSummery = stateSummery;
 	}
 
-	public WorkflowClassDescription getClassDescription() {
+	public WorkflowClassVersionInfo getClassDescription() {
 		return classDescription;
 	}
 
-	public void setClassDescription(WorkflowClassDescription classDescription) {
+	public void setClassDescription(WorkflowClassVersionInfo classDescription) {
 		this.classDescription = classDescription;
 	}
 

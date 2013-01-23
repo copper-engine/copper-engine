@@ -23,9 +23,9 @@ import java.util.List;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.EngineDiscriptor;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassDescription;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
@@ -34,21 +34,21 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
 
 public interface CopperMonitorInterface extends Remote, Serializable {
 
-	public List<WorkflowSummery> getWorkflowSummery(EngineDiscriptor engine, WorkflowClassDescription workflowClassDescription, long resultRowLimit) throws RemoteException;
+	public List<WorkflowSummery> getWorkflowSummery(ProcessingEngineInfo engine, WorkflowClassVersionInfo workflowClassDescription, long resultRowLimit) throws RemoteException;
 
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(EngineDiscriptor engine, WorkflowClassDescription workflowClassDescription, WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException;
+	public List<WorkflowInstanceInfo> getWorkflowInstanceList(ProcessingEngineInfo engine, WorkflowClassVersionInfo workflowClassDescription, WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException;
 
 	public List<AuditTrailInfo> getAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level, long resultRowLimit) throws RemoteException;
 
 	public String getAuditTrailMessage(long id) throws RemoteException;
 	
-	public List<WorkflowClassDescription> getWorkflowClassesList() throws RemoteException;
+	public List<WorkflowClassVersionInfo> getWorkflowClassesList() throws RemoteException;
 
 	public CopperStatusInfo getCopperStatus() throws RemoteException;
 	
 	public WorkflowInstanceMetaDataInfo getWorkflowInstanceDetails(String workflowInstanceId)  throws RemoteException;
 
-	public WorkflowStateSummery getAggregatedWorkflowStateSummery(EngineDiscriptor engine) throws RemoteException;
+	public WorkflowStateSummery getAggregatedWorkflowStateSummery(ProcessingEngineInfo engine) throws RemoteException;
 	
 	public CopperInterfaceSettings getSettings() throws RemoteException;
 
@@ -60,14 +60,14 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	 * Trigger restart a workflow instance that is in the error state.
 	 * @param workflowInstanceId
 	 */
-	public void restart(String workflowInstanceId, EngineDiscriptor engine) throws RemoteException;
+	public void restart(String workflowInstanceId, ProcessingEngineInfo engine) throws RemoteException;
 
 	/**
 	 * Trigger restart all workflow instances that are in error state.
 	 */
-	public void restartAll(EngineDiscriptor engine) throws RemoteException;
+	public void restartAll(ProcessingEngineInfo engine) throws RemoteException;
 	
-	public List<EngineDiscriptor> getEngineList() throws RemoteException;
+	public List<ProcessingEngineInfo> getProccessingEngineList() throws RemoteException;
 	
 	
 	

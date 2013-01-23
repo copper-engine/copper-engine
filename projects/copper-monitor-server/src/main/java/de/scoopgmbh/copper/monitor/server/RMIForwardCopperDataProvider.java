@@ -29,10 +29,12 @@ import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.EngineDiscriptor;
-import de.scoopgmbh.copper.monitor.adapter.model.EngineDiscriptor.EngineTyp;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo.ProcessorPoolTyp;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassDescription;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
@@ -97,7 +99,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowSummery> getWorkflowSummery(EngineDiscriptor engine, WorkflowClassDescription workflowClassDescription,
+	public List<WorkflowSummery> getWorkflowSummery(ProcessingEngineInfo engine, WorkflowClassVersionInfo workflowClassDescription,
 			long resultRowLimit) throws RemoteException {		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
@@ -105,7 +107,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		
 		ArrayList<WorkflowSummery> result = new ArrayList<>();
 		WorkflowSummery workflowSummery = new WorkflowSummery("",10,
-				new WorkflowClassDescription("blubclass1","alias",0L,+(long)(Math.random()*100),0L),
+				new WorkflowClassVersionInfo("blubclass1","alias",0L,+(long)(Math.random()*100),0L),
 				new WorkflowStateSummery(map));
 		result.add(workflowSummery);
 		
@@ -118,7 +120,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(EngineDiscriptor engine, WorkflowClassDescription workflowClassDescription,
+	public List<WorkflowInstanceInfo> getWorkflowInstanceList(ProcessingEngineInfo engine, WorkflowClassVersionInfo workflowClassDescription,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException {
 		ArrayList<WorkflowInstanceInfo> result = new ArrayList<>();
 		WorkflowInstanceInfo workflowInfo = new WorkflowInstanceInfo();
@@ -164,16 +166,16 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowClassDescription> getWorkflowClassesList() throws RemoteException {
-		ArrayList<WorkflowClassDescription> result = new ArrayList<>();
-		result.add(new WorkflowClassDescription("blubclass1","alias",0L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassDescription("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassDescription("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassDescription("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassDescription("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassDescription("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassDescription("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassDescription("blubclass3","alias",3L,+(long)(Math.random()*100),0L));
+	public List<WorkflowClassVersionInfo> getWorkflowClassesList() throws RemoteException {
+		ArrayList<WorkflowClassVersionInfo> result = new ArrayList<>();
+		result.add(new WorkflowClassVersionInfo("blubclass1","alias",0L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassVersionInfo("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassVersionInfo("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassVersionInfo("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassVersionInfo("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassVersionInfo("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassVersionInfo("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
+		result.add(new WorkflowClassVersionInfo("blubclass3","alias",3L,+(long)(Math.random()*100),0L));
 		return result;
 	}
 
@@ -201,7 +203,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public WorkflowStateSummery getAggregatedWorkflowStateSummery(EngineDiscriptor engine) throws RemoteException {
+	public WorkflowStateSummery getAggregatedWorkflowStateSummery(ProcessingEngineInfo engine) throws RemoteException {
 		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
@@ -210,22 +212,22 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public void restart(String workflowInstanceId, EngineDiscriptor engine) throws RemoteException {
+	public void restart(String workflowInstanceId, ProcessingEngineInfo engine) throws RemoteException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void restartAll(EngineDiscriptor engine) throws RemoteException {
+	public void restartAll(ProcessingEngineInfo engine) throws RemoteException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public List<EngineDiscriptor> getEngineList() throws RemoteException {
+	public List<ProcessingEngineInfo> getProccessingEngineList() throws RemoteException {
 		return Arrays.asList(
-				new EngineDiscriptor(EngineTyp.TRANSIENT,"ppId1","peId2"),
-				new EngineDiscriptor(EngineTyp.TRANSIENT,"ppId1","peId2")
+				new ProcessingEngineInfo(EngineTyp.PERSISTENT,"peId1", new ProcessorPoolInfo("poId1",ProcessorPoolTyp.PERSISTENT)),
+				new ProcessingEngineInfo(EngineTyp.TRANSIENT,"peId2", new ProcessorPoolInfo("poId2",ProcessorPoolTyp.TRANSIENT), new ProcessorPoolInfo("poId3",ProcessorPoolTyp.PRIORITY_TRANSIENT))
 				);
 	}
 	

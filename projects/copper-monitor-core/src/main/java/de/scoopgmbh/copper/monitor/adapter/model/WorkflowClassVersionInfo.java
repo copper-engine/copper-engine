@@ -18,7 +18,7 @@ package de.scoopgmbh.copper.monitor.adapter.model;
 import java.io.Serializable;
 
 
-public class WorkflowClassDescription implements Serializable{
+public class WorkflowClassVersionInfo implements Serializable{
 	private static final long serialVersionUID = -1189606285407748364L;
 	
 	private String classname;
@@ -27,7 +27,7 @@ public class WorkflowClassDescription implements Serializable{
 	private Long minorVersion;
 	private Long patchLevel;
 	
-	public WorkflowClassDescription(String classname, String alias, Long majorVersion, Long minorVersion, Long patchLevel) {
+	public WorkflowClassVersionInfo(String classname, String alias, Long majorVersion, Long minorVersion, Long patchLevel) {
 		super();
 		this.classname = classname;
 		this.majorVersion = majorVersion;
