@@ -84,6 +84,7 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
         assert workflowClassColumn != null : "fx:id=\"workflowClassColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
 
         workflowClassColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowSummeryResultModel, String> p) {
 				return p.getValue().version.classname;
@@ -91,6 +92,7 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 		});
         
         versionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					final CellDataFeatures<WorkflowSummeryResultModel, String> p) {
 				return new SimpleStringProperty(
@@ -101,6 +103,7 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 		});
         
         aliasColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowSummeryResultModel, String> p) {
 				return p.getValue().version.alias;
@@ -108,7 +111,8 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 		});
         
         countColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
-        	public ObservableValue<String> call(
+        	@Override
+			public ObservableValue<String> call(
         			CellDataFeatures<WorkflowSummeryResultModel, String> p) {
         		return p.getValue().totalcount;
         	}
@@ -118,7 +122,8 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
         for (final WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
         	TableColumn<WorkflowSummeryResultModel, String> tableColumn = new TableColumn<>(workflowInstanceState.toString());
         	tableColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
-            	public ObservableValue<String> call(
+            	@Override
+				public ObservableValue<String> call(
             			CellDataFeatures<WorkflowSummeryResultModel, String> p) {
             		return new SimpleStringProperty(
             				String.valueOf(p.getValue().workflowStateSummery.getNumberOfWorkflowInstancesWithState().get(workflowInstanceState)));

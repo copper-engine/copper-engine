@@ -22,6 +22,7 @@ public class BorderPaneShowFormStrategie extends ShowFormStrategy<BorderPane> {
 		super(component);
 	}
 
+	@Override
 	public void show(Form<?> form){
 		component.setCenter(form.createContent());
 	}

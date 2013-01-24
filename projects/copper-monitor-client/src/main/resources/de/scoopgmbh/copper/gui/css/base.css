@@ -20,17 +20,7 @@
     -fx-effect: dropshadow(two-pass-box,black,5,.2,0,0);
 }
 
-.segmented-button-bar .button {
-    -fx-background-color:
-        -darkest-black,
-        -dark-highlight,
-        linear-gradient(to bottom, -light-black 2%, -dark-black 98%);
-    -fx-background-insets: 0, 1 1 1 0, 2 1 1 1;
-    -fx-background-radius: 0;
-    -fx-padding: 0.4em 1.833333em 0.4em 1.833333em;
-}
-
-.segmented-button-bar .menu-button {
+.segmented-button-bar .button, .segmented-button-bar .menu-button {
     -fx-background-color:
         -darkest-black,
         -dark-highlight,
@@ -43,7 +33,6 @@
 .segmented-button-bar .menu-button .label {
     -fx-padding: 0em 0.4em 0em 0em; /* 4 6 4 6*/
 }
-
 
 .segmented-button-bar .button:pressed {
     -fx-background-color:
@@ -62,7 +51,7 @@
     -fx-background-radius: 0 3 3 0, 0 2 2 0, 0 2 2 0;
 }
  
-.segmented-button-bar .button:pressed {
+.segmented-button-bar .button:pressed, .segmented-button-bar .menu-button:pressed  {
     -fx-background-color:
         -darkest-black,
         rgb(55, 57, 58),
@@ -96,23 +85,7 @@
     -fx-padding: 10 20 10 20;
 }*/
 
-.button {
-	-fx-base: rgb(50, 50, 50);
-}
-
-.toggle-button {
-	-fx-base: rgb(50, 50, 50);
-}
-
-.button {
-	-fx-base: rgb(50, 50, 50);
-}
-
-.menu-button {
-	-fx-base: rgb(50, 50, 50);
-}
-
-.choice-box {
+.button, .toggle-button, .menu-button, .choice-box {
 	-fx-base: rgb(50, 50, 50);
 }
 

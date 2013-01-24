@@ -135,6 +135,7 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
 		ft.setToValue(0.2);
 		ft.play();
 		ft.setOnFinished(new EventHandler<ActionEvent>() {
+			@Override
 			public void handle(ActionEvent event) {
 				stackPane.getChildren().remove(rectangle);
 			}

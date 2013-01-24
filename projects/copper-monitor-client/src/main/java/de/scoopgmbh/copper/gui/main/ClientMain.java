@@ -45,6 +45,14 @@ public class ClientMain extends Application {
 		String monitorServerAdress = parameter.get("monitorServerAdress");
 		String monitorServerUser = parameter.get("monitorServerUser");
 		String monitorServerPassword = parameter.get("monitorServerPassword");
+	
+//		wont work http://stackoverflow.com/questions/12318861/javafx-2-catching-all-runtime-exceptions
+//		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+//			@Override
+//			public void uncaughtException(Thread t, Throwable e) {
+//				System.out.println("qqqq");
+//			}
+//		});
 
 		if (monitorServerAdress==null){
 			mainFactory.createLoginForm().show();

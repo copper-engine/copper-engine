@@ -31,8 +31,10 @@ import de.scoopgmbh.copper.gui.ui.workflowsummery.filter.WorkflowSummeryFilterMo
 import de.scoopgmbh.copper.gui.ui.workflowsummery.result.WorkflowSummeryResultModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
+import de.scoopgmbh.copper.gui.util.EngineFilter;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
@@ -162,6 +164,14 @@ public class GuiCopperDataProvider {
 	public List<ProcessingEngineInfo> getEngineList() {
 		try {
 			return copperDataProvider.getProccessingEngineList();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public List<MeasurePointData> getMeasurePoints(EngineFilter engineFilter) {
+		try {
+			return copperDataProvider.getMeasurePoints(engineFilter.engine.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

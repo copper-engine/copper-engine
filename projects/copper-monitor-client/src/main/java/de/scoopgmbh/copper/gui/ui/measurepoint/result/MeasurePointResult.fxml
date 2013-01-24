@@ -9,19 +9,19 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="460.0" prefWidth="616.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <AreaChart fx:id="areaChart">
+    <BarChart fx:id="chart">
       <xAxis>
-        <CategoryAxis fx:id="categoryAxis" side="BOTTOM">
+        <CategoryAxis side="BOTTOM">
           <categories>
             <FXCollections fx:factory="observableArrayList" />
           </categories>
         </CategoryAxis>
       </xAxis>
       <yAxis>
-        <NumberAxis fx:id="numberAxis" label="Workflow instance count" side="LEFT" />
+        <NumberAxis side="LEFT" />
       </yAxis>
-    </AreaChart>
+    </BarChart>
   </center>
 </BorderPane>

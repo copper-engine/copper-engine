@@ -99,7 +99,8 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
 			}
 		});
         stateChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<EmptySelectionWorkaround>() {
-            public void changed(ObservableValue<? extends EmptySelectionWorkaround> observableValue, EmptySelectionWorkaround anEnum, EmptySelectionWorkaround anEnum1) {
+            @Override
+			public void changed(ObservableValue<? extends EmptySelectionWorkaround> observableValue, EmptySelectionWorkaround anEnum, EmptySelectionWorkaround anEnum1) {
             	model.state.setValue(anEnum1.value);
             }
         });

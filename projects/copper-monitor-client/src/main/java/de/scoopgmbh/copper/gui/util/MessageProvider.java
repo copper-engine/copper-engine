@@ -25,8 +25,8 @@ public class MessageProvider {
 		this.bundle = bundle;
 	}
 	
-	public String getText(String key) {
-		return bundle.getString(key);
+	public String getText(MessageKey key) {
+		return bundle.getString(key.toString());
 	}
 
 	public ResourceBundle getBundle() {

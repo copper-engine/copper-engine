@@ -131,6 +131,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 
 
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowInstanceResultModel, String> p) {
 				return p.getValue().id;
@@ -138,6 +139,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 		});
         
         prioritynColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowInstanceResultModel, String> p) {
 				return p.getValue().priority.asString();
@@ -145,6 +147,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 		});
 
         processorPoolColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowInstanceResultModel, String> p) {
 				return p.getValue().processorPoolId;
@@ -152,6 +155,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 		});
         
         stateColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, WorkflowInstanceState>, ObservableValue<WorkflowInstanceState>>() {
+			@Override
 			public ObservableValue<WorkflowInstanceState> call(
 					CellDataFeatures<WorkflowInstanceResultModel, WorkflowInstanceState> p) {
 				return p.getValue().state;
@@ -159,6 +163,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 		});
         
         timeoutColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
+			@Override
 			public ObservableValue<Date> call(
 					CellDataFeatures<WorkflowInstanceResultModel, Date> p) {
 				return p.getValue().timeout;
@@ -182,36 +187,42 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
         
         
         lastActivityTimestamp.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
+			@Override
 			public ObservableValue<Date> call(
 					CellDataFeatures<WorkflowInstanceResultModel, Date> p) {
 				return p.getValue().lastActivityTimestamp;
 			}
 		});
         overallLifetimeInMs.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowInstanceResultModel, String> p) {
 				return p.getValue().overallLifetimeInMs.asString();
 			}
 		});
         startTime.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
+			@Override
 			public ObservableValue<Date> call(
 					CellDataFeatures<WorkflowInstanceResultModel, Date> p) {
 				return p.getValue().startTime;
 			}
 		});
         finishTime.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
+			@Override
 			public ObservableValue<Date> call(
 					CellDataFeatures<WorkflowInstanceResultModel, Date> p) {
 				return p.getValue().finishTime;
 			}
 		});
         lastErrorTime.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
+			@Override
 			public ObservableValue<Date> call(
 					CellDataFeatures<WorkflowInstanceResultModel, Date> p) {
 				return p.getValue().lastErrorTime;
 			}
 		});
         errorInfos.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowInstanceResultModel, String> p) {
 				return p.getValue().errorInfos;

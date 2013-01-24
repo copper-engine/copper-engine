@@ -33,6 +33,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
@@ -77,6 +78,7 @@ public class EngineLoadResultController implements Initializable, FilterResultCo
         	stateToAxis.put(workflowInstanceState,axis);
         	areaChart.getData().add(axis);
         }
+//        areaChart.getXAxis().setAnimated(false);
 	}
 	
 	@Override
@@ -92,14 +94,19 @@ public class EngineLoadResultController implements Initializable, FilterResultCo
 		String date = new SimpleDateFormat("HH:mm:ss").format(new Date());
 		
 		for (Entry<WorkflowInstanceState,Integer> entry: copperLoadInfo.getNumberOfWorkflowInstancesWithState().entrySet()){
-			ObservableList<Data<String, Number>> data = stateToAxis.get(entry.getKey()).getData();
+			Series<String, Number> axis = stateToAxis.get(entry.getKey());
+			ObservableList<Data<String, Number>> data = axis.getData();
+			data.add(new XYChart.Data<String, Number>(date, entry.getValue()));
+			if (data.size() > MAX_DATA_POINTS) {
+				data.remove(0);
+			}
+			
 			if (usedFilter.stateFilters.get(entry.getKey()).getValue()){
-				data.add(new XYChart.Data<String, Number>(date, entry.getValue()));
-				if (data.size() > MAX_DATA_POINTS) {
-					data.remove(0);
+				if (!areaChart.getData().contains(axis)){
+					areaChart.getData().add(axis);
 				}
 			} else {
-				data.clear();
+				areaChart.getData().remove(axis);
 			}
 		}
 		

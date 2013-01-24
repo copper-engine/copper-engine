@@ -50,6 +50,7 @@ import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.form.Form;
 import de.scoopgmbh.copper.gui.form.ShowFormStrategy;
 import de.scoopgmbh.copper.gui.util.ComponentUtil;
+import de.scoopgmbh.copper.gui.util.MessageKey;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 
 /**
@@ -135,7 +136,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		}
 		
 		final Button refreshButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/refresh.png"))));
-		refreshButton.setTooltip(new Tooltip(messageProvider.getText("FilterAbleForm.button.refresh")));
+		refreshButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_refresh)));
 		refreshButton.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override public void handle(ActionEvent e) {
 		    	filterService.reset();
@@ -147,7 +148,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 
 		
 		final Button clearButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/clear.png"))));
-		clearButton.setTooltip(new Tooltip(messageProvider.getText("FilterAbleForm.button.clear")));
+		clearButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_clear)));
 		clearButton.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override public void handle(ActionEvent e) {
 		    	resultForm.getController().clear();
@@ -225,8 +226,10 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			super.start();
 		}
         
+		@Override
 		protected Task<Void> createTask() {
 			return new Task<Void>() {
+				@Override
 				protected Void call() throws Exception {
 					while (!isCancelled()) {
 						if (lasttime + REFRESH_RATE < System.currentTimeMillis()) {
@@ -269,9 +272,11 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			this.filterForm = filterForm;
 		}
 
+		@Override
 		protected Task<ResultFilterPair<F,R>> createTask() {
 			return new Task<ResultFilterPair<F,R>>() {
-                protected ResultFilterPair<F,R> call() throws Exception {
+                @Override
+				protected ResultFilterPair<F,R> call() throws Exception {
 					try {
 						List<R> result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
 						return new ResultFilterPair<F, R>(result, filterForm.getController().getFilter());

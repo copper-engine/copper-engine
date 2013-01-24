@@ -20,6 +20,8 @@ import java.io.IOException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.layout.Region;
+import de.scoopgmbh.copper.gui.form.filter.GenericFilterController;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 
 
@@ -39,17 +41,19 @@ public class FxmlForm<C extends FxmlController> extends Form<C> {
 
 	@Override
 	public Node createContent() {
-		FXMLLoader fxmlLoader = new FXMLLoader(controller.getFxmlRessource());
-		fxmlLoader.setController(controller);
-		fxmlLoader.setResources(messageProvider.getBundle());
-		try {
-			return (Parent) fxmlLoader.load();
-		} catch (IOException exception) {
-			throw new RuntimeException(exception);
+		if (controller.getFxmlRessource()!=GenericFilterController.EMPTY_DUMMY_URL){
+			FXMLLoader fxmlLoader = new FXMLLoader(controller.getFxmlRessource());
+			fxmlLoader.setController(controller);
+			fxmlLoader.setResources(messageProvider.getBundle());
+			try {
+				Parent load = (Parent) fxmlLoader.load();
+				return load;
+			} catch (IOException exception) {
+				throw new RuntimeException(exception);
+			}
 		}
+		return new Region();
 	}
-	
-
 	
 	
 }

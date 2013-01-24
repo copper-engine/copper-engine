@@ -45,7 +45,11 @@ dependencies {
 	compile project(':projects:copper-monitor-core')
 	compile files('libs/jfxrt.jar')
 	compile files('libs/java2html.jar')
-	compile group: 'com.esotericsoftware.kryo', name: 'kryo', version: '2.+'
+	//Spring remote
+	//compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'
+	//compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'	
+
+
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 

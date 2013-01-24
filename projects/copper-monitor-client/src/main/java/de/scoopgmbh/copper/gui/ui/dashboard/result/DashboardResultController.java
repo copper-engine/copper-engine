@@ -50,10 +50,7 @@ public class DashboardResultController implements Initializable, FilterResultCon
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert engines != null : "fx:id=\"engines\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-
-        
     }
-
 	
 	@Override
 	public URL getFxmlRessource() {

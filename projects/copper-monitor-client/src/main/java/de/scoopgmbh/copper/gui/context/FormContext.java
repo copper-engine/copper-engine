@@ -19,12 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.form.BorderPaneShowFormStrategie;
@@ -36,11 +38,11 @@ import de.scoopgmbh.copper.gui.form.FxmlForm;
 import de.scoopgmbh.copper.gui.form.ShowFormStrategy;
 import de.scoopgmbh.copper.gui.form.TabPaneShowFormStrategie;
 import de.scoopgmbh.copper.gui.form.enginefilter.EngineFilterAbleform;
-import de.scoopgmbh.copper.gui.form.filter.EmptyFilterController;
 import de.scoopgmbh.copper.gui.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.gui.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
+import de.scoopgmbh.copper.gui.form.filter.GenericFilterController;
 import de.scoopgmbh.copper.gui.ui.audittrail.filter.AuditTrailFilterController;
 import de.scoopgmbh.copper.gui.ui.audittrail.filter.AuditTrailFilterModel;
 import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultController;
@@ -52,6 +54,7 @@ import de.scoopgmbh.copper.gui.ui.dashboard.result.pool.ProccessorPoolController
 import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterController;
 import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.gui.ui.load.result.EngineLoadResultController;
+import de.scoopgmbh.copper.gui.ui.measurepoint.result.MeasurePointResultController;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsController;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.gui.ui.sql.filter.SqlFilterController;
@@ -76,7 +79,10 @@ import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceD
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultController;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.gui.util.CodeMirrorFormatter;
+import de.scoopgmbh.copper.gui.util.EngineFilter;
+import de.scoopgmbh.copper.gui.util.MessageKey;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
+import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
@@ -105,59 +111,69 @@ public class FormContext {
 		this.settingsModelSinglton = settingsModelSinglton;
 		
 		ArrayList<FormCreator> maingroup = new ArrayList<>();
-		maingroup.add(new FormCreator(messageProvider.getText("dashboard.title")) {
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
 			@Override
 			public Form<?> createForm() {
 				return createDashboardForm();
 			}
 		});
-		maingroup.add(new FormCreator(messageProvider.getText("workflowsummery.title")) {
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowoverview_title)) {
 			@Override
 			public Form<?> createForm() {
 				return createWorkflowOverviewForm();
 			}
 		});
-		maingroup.add(new FormCreator(messageProvider.getText("workflowInstance.title")) {
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowInstance_title)) {
 			@Override
 			public Form<?> createForm() {
 				return createWorkflowInstanceForm();
 			}
 		});
-		maingroup.add(new FormCreator(messageProvider.getText("audittrail.title")) {
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.audittrail_title)) {
 			@Override
 			public Form<?> createForm() {
 				return createAudittrailForm();
 			}
 		});
 		
-		ArrayList<FormCreator> loadgroup = new ArrayList<>();
-		loadgroup.add(new FormCreator(messageProvider.getText("engineLoad.title")) {
-			@Override
-			public Form<?> createForm() {
-				return createEngineLoadForm();
-			}
-		});
-		loadgroup.add(new FormCreator(messageProvider.getText("resource.title")) {
-			@Override
-			public Form<?> createForm() {
-				return createRessourceForm();
-			}
-		});
-		maingroup.add(new FormGroup(messageProvider.getText("loadGroup.title"),loadgroup));
+		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.loadGroup_title),createLoadGroup(messageProvider)));
 		
-		maingroup.add(new FormCreator(messageProvider.getText("sql.title")) {
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.sql_title)) {
 			@Override
 			public Form<?> createForm() {
 				return createSqlForm();
 			}
 		});
-		maingroup.add(new FormCreator(messageProvider.getText("settings.title")) {
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.settings_title)) {
 			@Override
 			public Form<?> createForm() {
 				return createSettingsForm();
 			}
 		});
 		formGroup = new FormGroup("",maingroup);
+	}
+
+	public ArrayList<FormCreator> createLoadGroup(MessageProvider messageProvider) {
+		ArrayList<FormCreator> loadgroup = new ArrayList<>();
+		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.engineLoad_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createEngineLoadForm();
+			}
+		});
+		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.resource_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createRessourceForm();
+			}
+		});
+		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.measurePoint_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createMeasurePointForm();
+			}
+		});
+		return loadgroup;
 	}
 	
 	public void setupGUIStructure(){
@@ -177,6 +193,8 @@ public class FormContext {
 		spacer.getStyleClass().setAll("spacer");
 
 		HBox buttonBar = new HBox();
+		buttonBar.setAlignment(Pos.CENTER);
+		HBox.setHgrow(buttonBar, Priority.ALWAYS);
 		buttonBar.getStyleClass().setAll("segmented-button-bar");
 
 		List<ButtonBase> buttons = formGroup.createButtonList();
@@ -184,8 +202,8 @@ public class FormContext {
 		buttons.get(buttons.size() - 1).getStyleClass().addAll("last", "capsule");
 
 		buttonBar.getChildren().addAll(buttons);
-		toolBar.getItems().addAll(spacer, buttonBar);
-
+		toolBar.getItems().addAll(/*spacer,*/ buttonBar);
+		toolBar.setCache(true);
 		return toolBar;
 	}
 	
@@ -203,7 +221,7 @@ public class FormContext {
 		FilterResultController<WorkflowSummeryFilterModel,WorkflowSummeryResultModel> resCtrl = new WorkflowSummeryResultController(guiCopperDataProvider,this);
 		FxmlForm<FilterResultController<WorkflowSummeryFilterModel,WorkflowSummeryResultModel>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
 		
-		return new EngineFilterAbleform<>(messageProvider.getText("workflowsummery.title"),messageProvider,
+		return new EngineFilterAbleform<>(messageProvider.getText(MessageKey.workflowoverview_title),messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
@@ -216,7 +234,7 @@ public class FormContext {
 		FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> resCtrl = new WorkflowInstanceResultController(guiCopperDataProvider,this);
 		FxmlForm<FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
 		
-		return new EngineFilterAbleform<>(messageProvider.getText("workflowInstance.title"),messageProvider,
+		return new EngineFilterAbleform<>(messageProvider.getText(MessageKey.workflowInstance_title),messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
@@ -268,7 +286,7 @@ public class FormContext {
 		FilterResultController<EngineLoadFilterModel,WorkflowStateSummery> resCtrl = new EngineLoadResultController(guiCopperDataProvider);
 		FxmlForm<FilterResultController<EngineLoadFilterModel,WorkflowStateSummery>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
 		
-		return new EngineFilterAbleform<>(messageProvider.getText("engineLoad.title"),messageProvider,
+		return new EngineFilterAbleform<>(messageProvider.getText(MessageKey.engineLoad_title),messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
@@ -307,7 +325,7 @@ public class FormContext {
 	
 	public FilterAbleForm<EmptyFilterModel,DashboardResultModel> createDashboardForm(){
 		if (dasboardFormSingleton==null){
-			FilterController<EmptyFilterModel> fCtrl = new EmptyFilterController(); 
+			FilterController<EmptyFilterModel> fCtrl = new GenericFilterController<EmptyFilterModel>(); 
 			FxmlForm<FilterController<EmptyFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
 			
 			FilterResultController<EmptyFilterModel,DashboardResultModel> resCtrl = new DashboardResultController(guiCopperDataProvider,this);
@@ -326,4 +344,17 @@ public class FormContext {
 	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model){
 		return new FxmlForm<>(engine.getId(), new ProcessingEngineController(engine,model,this), messageProvider, new TabPaneShowFormStrategie(tabPane));
 	}
+	
+	public FilterAbleForm<EngineFilter, MeasurePointData> createMeasurePointForm() {
+
+		FilterController<EngineFilter> fCtrl = new GenericFilterController<EngineFilter>(new EngineFilter());
+		FxmlForm<FilterController<EngineFilter>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
+
+		FilterResultController<EngineFilter, MeasurePointData> resCtrl = new MeasurePointResultController(guiCopperDataProvider);
+		FxmlForm<FilterResultController<EngineFilter, MeasurePointData>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
+
+		return new EngineFilterAbleform<>(messageProvider.getText(MessageKey.measurePoint_title),messageProvider, new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,
+				guiCopperDataProvider);
+	}
+	
 }

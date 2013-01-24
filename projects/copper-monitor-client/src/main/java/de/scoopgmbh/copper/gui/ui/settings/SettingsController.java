@@ -143,6 +143,7 @@ public class SettingsController implements Initializable, FxmlController {
 		});
         
         loglevelColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditralColorMapping, String> p) {
 				return p.getValue().loglevelRegEx;
@@ -150,6 +151,7 @@ public class SettingsController implements Initializable, FxmlController {
 		});
         
         colorColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, Color>, ObservableValue<Color>>() {
+			@Override
 			public ObservableValue<Color> call(
 					CellDataFeatures<AuditralColorMapping, Color> p) {
 				return p.getValue().color;
@@ -157,6 +159,7 @@ public class SettingsController implements Initializable, FxmlController {
 		});
 		
         conversationIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditralColorMapping, String> p) {
 				return p.getValue().conversationIdRegEx;
@@ -164,6 +167,7 @@ public class SettingsController implements Initializable, FxmlController {
 		});
         
         correlationIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditralColorMapping, String> p) {
 				return p.getValue().correlationIdRegEx;
@@ -171,6 +175,7 @@ public class SettingsController implements Initializable, FxmlController {
 		});
 
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditralColorMapping, String> p) {
 				return p.getValue().idRegEx;
@@ -178,6 +183,7 @@ public class SettingsController implements Initializable, FxmlController {
 		});
         
         messageTypeColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditralColorMapping, String> p) {
 				return p.getValue().messageTypeRegEx;
@@ -185,6 +191,7 @@ public class SettingsController implements Initializable, FxmlController {
 		});
         
         occurrenceColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditralColorMapping, String> p) {
 				return p.getValue().occurrenceRegEx;
@@ -192,6 +199,7 @@ public class SettingsController implements Initializable, FxmlController {
 		});
         
         transactionIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditralColorMapping, String> p) {
 				return p.getValue().transactionIdRegEx;
@@ -199,6 +207,7 @@ public class SettingsController implements Initializable, FxmlController {
 		});
         
         workflowInstanceIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditralColorMapping, String> p) {
 				return p.getValue().workflowInstanceIdRegEx;

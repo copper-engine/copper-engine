@@ -15,23 +15,44 @@
  */
 package de.scoopgmbh.copper.gui.form.filter;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
-public class EmptyFilterController implements FilterController<EmptyFilterModel>{
-
-	@Override
-	public URL getFxmlRessource() {
-		return null;
+public class GenericFilterController<T> implements FilterController<T>{
+	
+	public static final URL EMPTY_DUMMY_URL;
+	static{
+		try {
+			EMPTY_DUMMY_URL = new URL("http://a");
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private final T filter;
+	public GenericFilterController(T filter) {
+		super();
+		this.filter = filter;
+	}
+	
+	public GenericFilterController() {
+		super();
+		this.filter = null;
 	}
 
 	@Override
-	public EmptyFilterModel getFilter() {
-		return null;
+	public URL getFxmlRessource() {
+		return EMPTY_DUMMY_URL;
+	}
+
+	@Override
+	public T getFilter() {
+		return filter;
 	}
 
 	@Override
 	public boolean supportsFiltering() {
-		return false;
+		return filter!=null;
 	}
 
 }

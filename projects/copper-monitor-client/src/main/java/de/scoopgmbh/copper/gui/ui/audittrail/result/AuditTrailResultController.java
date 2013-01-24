@@ -191,6 +191,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
         
 
         loglevelColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditTrailResultModel, String> p) {
 				return p.getValue().loglevel.asString();
@@ -198,6 +199,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 		});
         
         conversationIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditTrailResultModel, String> p) {
 				return p.getValue().conversationId;
@@ -205,6 +207,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 		});
         
         correlationIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditTrailResultModel, String> p) {
 				return p.getValue().correlationId;
@@ -212,6 +215,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 		});
 
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditTrailResultModel, String> p) {
 				return p.getValue().id.asString();
@@ -219,6 +223,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 		});
         
         messageTypeColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditTrailResultModel, String> p) {
 				return p.getValue().messageType;
@@ -226,6 +231,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 		});
         
         occurrenceColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditTrailResultModel, String> p) {
 				return p.getValue().occurrence;
@@ -233,6 +239,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 		});
         
         transactionIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditTrailResultModel, String> p) {
 				return p.getValue().transactionId;
@@ -240,6 +247,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 		});
         
         workflowInstanceIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
+			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<AuditTrailResultModel, String> p) {
 				return p.getValue().workflowInstanceId;

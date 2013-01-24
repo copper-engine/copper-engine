@@ -29,6 +29,7 @@ public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
 		tab.setText("new tab");
 	}
 
+	@Override
 	public void show(Form<?> form){
 		if (tab.getContent()==null){
 			tab.setContent(form.createContent());

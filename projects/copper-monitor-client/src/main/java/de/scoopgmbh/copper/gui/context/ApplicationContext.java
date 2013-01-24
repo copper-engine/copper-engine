@@ -88,7 +88,8 @@ public class ApplicationContext {
     	Runtime.getRuntime().addShutdownHook( 
     		new Thread(
     			new Runnable() {
-    				public void run() {
+    				@Override
+					public void run() {
     					try (ByteArrayOutputStream os=new ByteArrayOutputStream()){
     						ObjectOutputStream o = new ObjectOutputStream(os);
     						o.writeObject(settingsModelSinglton);

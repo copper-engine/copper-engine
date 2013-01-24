@@ -112,6 +112,7 @@ public class EngineFilterAbleform<F extends EngineFilter, R> extends FilterAbleF
 		filterbox.getChildren().add(new Separator(Orientation.VERTICAL));
 	}
 	
+	@Override
 	public void setDynamicTitle(String staticTitle) {
 		//do nothing
 	}
