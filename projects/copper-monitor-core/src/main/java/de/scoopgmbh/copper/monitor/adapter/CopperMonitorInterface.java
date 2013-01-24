@@ -23,6 +23,7 @@ import java.util.List;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
@@ -68,6 +69,8 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	public void restartAll(ProcessingEngineInfo engine) throws RemoteException;
 	
 	public List<ProcessingEngineInfo> getProccessingEngineList() throws RemoteException;
+	
+	public List<MeasurePointData> getMeasurePoints(ProcessingEngineInfo engine) throws RemoteException;
 	
 	
 	
