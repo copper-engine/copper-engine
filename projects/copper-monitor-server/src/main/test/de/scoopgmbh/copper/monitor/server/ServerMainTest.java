@@ -28,6 +28,7 @@ public class ServerMainTest {
 	@Test
 	public void test_connect() throws Exception{
 		new Thread(){
+			@Override
 			public void run() {
 				try {
 					ServerMain.main(null);

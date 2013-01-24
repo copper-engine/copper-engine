@@ -29,6 +29,7 @@ import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
@@ -229,6 +230,16 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 				new ProcessingEngineInfo(EngineTyp.PERSISTENT,"peId1", new ProcessorPoolInfo("poId1",ProcessorPoolTyp.PERSISTENT)),
 				new ProcessingEngineInfo(EngineTyp.TRANSIENT,"peId2", new ProcessorPoolInfo("poId2",ProcessorPoolTyp.TRANSIENT), new ProcessorPoolInfo("poId3",ProcessorPoolTyp.PRIORITY_TRANSIENT))
 				);
+	}
+
+
+	@Override
+	public List<MeasurePointData> getMeasurePoints(ProcessingEngineInfo engine) {
+		ArrayList<MeasurePointData> result = new ArrayList<>();
+		for (int i=0;i<20;i++){
+			result.add(new MeasurePointData("point dhajsgdjahdgsdjasdgjasgdhjgfhjsgfjshd"+i,10,i+(int)(10000*Math.random()),10));
+		}
+		return result;
 	}
 	
 }
