@@ -50,6 +50,7 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.WorkflowVersion;
+import de.scoopgmbh.copper.instrument.ClassInfo;
 import de.scoopgmbh.copper.instrument.ScottyFindInterruptableMethodsVisitor;
 import de.scoopgmbh.copper.util.FileUtil;
 
@@ -330,7 +331,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 
 		compile(compileTargetDir,additionalSourcesDir);
 		final Map<String, Clazz> clazzMap = findInterruptableMethods(compileTargetDir);
-		instrumentWorkflows(adaptedTargetDir, clazzMap, compileTargetDir);
+		final Map<String, ClassInfo> clazzInfoMap = new HashMap<String, ClassInfo>();
+		instrumentWorkflows(adaptedTargetDir, clazzMap, clazzInfoMap, compileTargetDir);
 		final ClassLoader cl = createClassLoader(map, adaptedTargetDir, loadNonWorkflowClasses ? compileTargetDir : adaptedTargetDir, clazzMap);
 		checkConstraints(map);
 		
@@ -466,6 +468,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 	private void compile(File compileTargetDir, File additionalSourcesDir) throws IOException {
 		logger.info("Compiling workflows");
 		List<String> options = new ArrayList<String>();
+		options.add("-g");
 		options.add("-d");
 		options.add(compileTargetDir.getAbsolutePath());
 		for (CompilerOptionsProvider cop : compilerOptionsProviders) {

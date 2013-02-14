@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.instrument;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -54,12 +55,18 @@ class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 	private final Label begin = new Label();
 	private final Set<String> interruptableMethods;
 	private final ByteCodeStackInfo stackInfo;
+	private final MethodInfo info;
 
-	public ScottyMethodAdapter(MethodVisitor mv, String currentClassName, Set<String> interruptableMethods, ByteCodeStackInfo stackInfo, String name) {
+	public ScottyMethodAdapter(MethodVisitor mv, String currentClassName, Set<String> interruptableMethods, ByteCodeStackInfo stackInfo, String name, int access, String descriptor) {
 		super(mv);
+		info = new MethodInfo(currentClassName, name, access, descriptor);
 		this.currentClassName = currentClassName;
 		this.interruptableMethods = interruptableMethods;
 		this.stackInfo = stackInfo;
+	}
+	
+	public MethodInfo getMethodInfo() {
+		return info;
 	}
 
 
@@ -379,19 +386,26 @@ class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 		visitTypeInsn(CHECKCAST, Type.getInternalName(StackEntry.class));
 		visitFieldInsn(GETFIELD, Type.getInternalName(StackEntry.class), "jumpNo", "I");
 
+
 		if (!labels.isEmpty()) {
 			int labelNo = 0;
 			for (Label label : labels) {
+				
 				Label nextCheck = new Label();
 				visitInsn(DUP);
 				visitIntInsn(SIPUSH, labelNo);
 				visitJumpInsn(IF_ICMPNE, nextCheck);
 				visitInsn(POP);
-				recreateLocals(labelInfo.get(label));
-				recreateStack(labelInfo.get(label));				
+
+				StackInfo currentLabelInfo = labelInfo.get(label);
+				recreateLocals(currentLabelInfo);
+				recreateStack(currentLabelInfo);				
 				incStackPos();
+				
 				visitJumpInsn(GOTO, label);
 				visitLabel(nextCheck);
+				
+				info.addLabelInfo(new MethodInfo.LabelInfo(labelNo, currentLabelInfo.lineNo, Arrays.asList(stackInfo.getLocalNames(currentLabelInfo.lineNo, currentLabelInfo.localsSize())), Arrays.asList(stackInfo.getLocalDescriptors(currentLabelInfo.lineNo, currentLabelInfo.localsSize())), currentLabelInfo.locals, currentLabelInfo.stack));
 				++labelNo;
 			}
 			visitTypeInsn(NEW, "java/lang/RuntimeException");
@@ -404,6 +418,7 @@ class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 			visitInsn(POP);
 			visitJumpInsn(GOTO, begin);
 		}
+		
 	}
 
 

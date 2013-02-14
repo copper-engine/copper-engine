@@ -44,12 +44,14 @@ class StackInfo {
 		locals = (Vector<Type>)orig.locals.clone();
 		stack = new Stack<Type>();
 		stack.addAll(orig.stack);
+		lineNo = orig.lineNo;
 		//this.numLocals = orig.numLocals;
 	}
 	
 	//int numLocals;
 	Vector<Type> locals;
-	Stack<Type> stack;
+	Stack<Type>  stack;
+	int          lineNo = -1;
 	
 	public void setLocal(int pos, Type t) {
 		ComputationalCategory cat = t!=null?getCategory(t):null;
@@ -368,5 +370,9 @@ class StackInfo {
 
 	public int stackSize() {
 		return stack.size();
+	}
+	
+	public void setLineNo(int lineNo) {
+		this.lineNo = lineNo;
 	}
 }

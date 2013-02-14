@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.common.WorkflowRepository;
+import de.scoopgmbh.copper.instrument.ClassInfo;
 import de.scoopgmbh.copper.instrument.ScottyClassAdapter;
 import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.instrument.TryCatchBlockHandler;
@@ -45,7 +46,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractWorkflowRepository.class);
 	
-	void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, File compileTargetDir) throws IOException {
+	void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, Map<String, ClassInfo> classInfos, File compileTargetDir) throws IOException {
 		logger.info("Instrumenting classfiles");
 		URLClassLoader tmpClassLoader = new URLClassLoader(new URL[] { compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
 		for (Clazz clazz : clazzMap.values()) {
@@ -72,8 +73,9 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 				ClassReader cr = new ClassReader(bytes);
 				ClassWriter cw = new ClassWriter(0);
 
-				ClassVisitor cv = new ScottyClassAdapter(cw,clazz.aggregatedInterruptableMethods);
+				ScottyClassAdapter cv = new ScottyClassAdapter(cw,clazz.aggregatedInterruptableMethods);
 				cr.accept(cv,0);
+				classInfos.put(clazz.classname, cv.getClassInfo());
 				bytes = cw.toByteArray();
 				
 				// Recompute frames, etc.
