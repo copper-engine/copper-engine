@@ -110,8 +110,10 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		
 		synchronized (correlationMap) {
 			final CorrelationSet cs = correlationMap.remove(response.getCorrelationId());
-			if (cs == null && response.isEarlyResponseHandling()) {
-				earlyResponseContainer.put(response);
+			if (cs == null) {
+				if (response.isEarlyResponseHandling()) {
+					earlyResponseContainer.put(response);
+				}
 				return;
 			}
 			final Workflow<?> wf = workflowMap.get(cs.getWorkflowId());
