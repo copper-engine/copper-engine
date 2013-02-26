@@ -4,12 +4,7 @@ allprojects {
     apply plugin: 'maven'
     apply plugin: 'project-report'
 
-    /* for setting the group name determine the first hierarchy project */
-    def groupProject = project;
-    while (groupProject.parent != null && groupProject.parent.parent != null) {
-        groupProject = groupProject.parent;
-    }
-    group = "de.scoopgmbh.copper." + groupProject.name.toLowerCase()
+    group = "de.scoopgmbh.copper"
 
     repositories {
         mavenCentral()
