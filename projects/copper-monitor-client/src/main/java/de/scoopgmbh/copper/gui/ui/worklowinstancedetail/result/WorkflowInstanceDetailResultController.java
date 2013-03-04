@@ -62,28 +62,26 @@ public class WorkflowInstanceDetailResultController implements Initializable, Fi
 
 	@Override
 	public void showFilteredResult(List<WorkflowInstanceDetailResultModel> filteredResult, WorkflowInstanceDetailFilterModel usedFilter) {
-		//Create a reader of the raw input text
-		StringReader stringReader = new StringReader(
-		  "/** Simple Java2Html Demo */\r\n"+      
-		  "public static int doThis(String text){ return text.length() + 2; }");
+		// Create a reader of the raw input text
+		StringReader stringReader = new StringReader("/** Simple Java2Html Demo */\r\n" + "public static int doThis(String text){ return text.length() + 2; }");
 
-		//Parse the raw text to a JavaSource object
+		// Parse the raw text to a JavaSource object
 		JavaSource source = null;
 		try {
-		  source = new JavaSourceParser().parse(stringReader);
+			source = new JavaSourceParser().parse(stringReader);
 		} catch (IOException e) {
-		  e.printStackTrace();
-		  System.exit(1);
+			throw new RuntimeException(e);
 		}
 
-		//Create a converter and write the JavaSource object as Html
+		// Create a converter and write the JavaSource object as Html
 		JavaSource2HTMLConverter converter = new JavaSource2HTMLConverter();
-		StringWriter writer = new StringWriter(); 
+		StringWriter writer = new StringWriter();
 		try {
-		  converter.convert(source, JavaSourceConversionOptions.getDefault(),writer);
+			converter.convert(source, JavaSourceConversionOptions.getDefault(), writer);
 		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-	
+
 		sourceView.getEngine().loadContent(writer.toString());
 	}
 

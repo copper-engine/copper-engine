@@ -60,7 +60,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowInstanceResultModel> getWorkflowInstanceList(WorkflowInstanceFilterModel filter){
 		List<WorkflowInstanceInfo> list;
 		try {
-			list = copperDataProvider.getWorkflowInstanceList(filter.engine.getValue() ,filter.version.convert(),
+			list = copperDataProvider.getWorkflowInstanceList(filter.engine.getValue().getId() ,filter.version.convert(),
 					filter.state.getValue(), filter.priority.getValue(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
@@ -90,7 +90,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowSummeryResultModel> getWorkflowSummery(WorkflowSummeryFilterModel filter) {
 		List<WorkflowSummary> summeries;
 		try {
-			summeries = copperDataProvider.getWorkflowSummery(filter.engine.getValue(), filter.version.convert(), maxResultCount.getValue());
+			summeries = copperDataProvider.getWorkflowSummery(filter.engine.getValue().getId(), filter.version.convert(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -125,7 +125,7 @@ public class GuiCopperDataProvider {
 
 	public WorkflowStateSummary getCopperLoadInfo(ProcessingEngineInfo engine) {
 		try {
-			return  copperDataProvider.getAggregatedWorkflowStateSummery(engine);
+			return  copperDataProvider.getAggregatedWorkflowStateSummery(engine.getId());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -171,7 +171,7 @@ public class GuiCopperDataProvider {
 	
 	public List<MeasurePointData> getMeasurePoints(EngineFilter engineFilter) {
 		try {
-			return copperDataProvider.getMeasurePoints(engineFilter.engine.getValue());
+			return copperDataProvider.getMeasurePoints(engineFilter.engine.getValue().getId());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

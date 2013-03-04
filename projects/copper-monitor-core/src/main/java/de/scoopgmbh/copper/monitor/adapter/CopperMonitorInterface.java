@@ -34,9 +34,9 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 
 public interface CopperMonitorInterface extends Remote, Serializable {
 
-	public List<WorkflowSummary> getWorkflowSummery(ProcessingEngineInfo engine, WorkflowClassVersionInfo workflowClassDescription, long resultRowLimit) throws RemoteException;
+	public List<WorkflowSummary> getWorkflowSummery(String engineid, WorkflowClassVersionInfo workflowClassDescription, long resultRowLimit) throws RemoteException;
 
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(ProcessingEngineInfo engine, WorkflowClassVersionInfo workflowClassDescription, WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException;
+	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String engineid, WorkflowClassVersionInfo workflowClassDescription, WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException;
 
 	public List<AuditTrailInfo> getAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level, long resultRowLimit) throws RemoteException;
 
@@ -46,7 +46,7 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	
 	public WorkflowInstanceMetaDataInfo getWorkflowInstanceDetails(String workflowInstanceId)  throws RemoteException;
 
-	public WorkflowStateSummary getAggregatedWorkflowStateSummery(ProcessingEngineInfo engine) throws RemoteException;
+	public WorkflowStateSummary getAggregatedWorkflowStateSummery(String engineid) throws RemoteException;
 	
 	public CopperInterfaceSettings getSettings() throws RemoteException;
 
@@ -58,16 +58,16 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	 * Trigger restart a workflow instance that is in the error state.
 	 * @param workflowInstanceId
 	 */
-	public void restart(String workflowInstanceId, ProcessingEngineInfo engine) throws RemoteException;
+	public void restart(String workflowInstanceId, String engineid) throws RemoteException;
 
 	/**
 	 * Trigger restart all workflow instances that are in error state.
 	 */
-	public void restartAll(ProcessingEngineInfo engine) throws RemoteException;
+	public void restartAll(String engineid) throws RemoteException;
 	
 	public List<ProcessingEngineInfo> getProccessingEngineList() throws RemoteException;
 	
-	public List<MeasurePointData> getMeasurePoints(ProcessingEngineInfo engine) throws RemoteException;
+	public List<MeasurePointData> getMeasurePoints(String engineid) throws RemoteException;
 	
 	
 	

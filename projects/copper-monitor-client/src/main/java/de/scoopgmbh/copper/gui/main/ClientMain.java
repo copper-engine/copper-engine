@@ -19,11 +19,8 @@ import java.util.Map;
 
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import de.scoopgmbh.copper.gui.context.ApplicationContext;
@@ -78,19 +75,13 @@ public class ClientMain extends Application {
 //		     }
 //		});
 		
-		scene.addEventFilter(Event.ANY, new EventHandler<Event>() {
-			@Override
-			public void handle(Event event) {
-				System.out.println(event);
-			}
-		});
-		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(KeyEvent event) {
-				System.out.println(event);
-			}
-		});
-		
+//		scene.addEventFilter(Event.ANY, new EventHandler<Event>() {
+//			@Override
+//			public void handle(Event event) {
+//				System.out.println(event);
+//			}
+//		});
+
 	}
 
 	public static void main(final String[] arguments) { 

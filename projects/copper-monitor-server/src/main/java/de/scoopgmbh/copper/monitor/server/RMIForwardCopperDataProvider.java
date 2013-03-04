@@ -99,7 +99,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowSummary> getWorkflowSummery(ProcessingEngineInfo engine, WorkflowClassVersionInfo workflowClassDescription,
+	public List<WorkflowSummary> getWorkflowSummery(String engineid, WorkflowClassVersionInfo workflowClassDescription,
 			long resultRowLimit) throws RemoteException {		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
@@ -120,7 +120,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(ProcessingEngineInfo engine, WorkflowClassVersionInfo workflowClassDescription,
+	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String engineid, WorkflowClassVersionInfo workflowClassDescription,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException {
 		ArrayList<WorkflowInstanceInfo> result = new ArrayList<>();
 		WorkflowInstanceInfo workflowInfo = new WorkflowInstanceInfo();
@@ -196,7 +196,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public WorkflowStateSummary getAggregatedWorkflowStateSummery(ProcessingEngineInfo engine) throws RemoteException {
+	public WorkflowStateSummary getAggregatedWorkflowStateSummery(String engineid) throws RemoteException {
 		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
@@ -205,13 +205,13 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public void restart(String workflowInstanceId, ProcessingEngineInfo engine) throws RemoteException {
+	public void restart(String workflowInstanceId, String engineid) throws RemoteException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void restartAll(ProcessingEngineInfo engine) throws RemoteException {
+	public void restartAll(String engineid) throws RemoteException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -226,7 +226,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 
 
 	@Override
-	public List<MeasurePointData> getMeasurePoints(ProcessingEngineInfo engine) {
+	public List<MeasurePointData> getMeasurePoints(String engineid) {
 		ArrayList<MeasurePointData> result = new ArrayList<>();
 		for (int i=0;i<20;i++){
 			result.add(new MeasurePointData("point dhajsgdjahdgsdjasdgjasgdhjgfhjsgfjshd"+i,10,i+(int)(10000*Math.random()),10));
