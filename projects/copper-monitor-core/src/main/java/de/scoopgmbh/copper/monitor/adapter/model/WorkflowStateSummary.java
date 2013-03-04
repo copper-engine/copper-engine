@@ -18,7 +18,7 @@ package de.scoopgmbh.copper.monitor.adapter.model;
 import java.io.Serializable;
 import java.util.Map;
 
-public class WorkflowStateSummery implements Serializable {
+public class WorkflowStateSummary implements Serializable {
 	private static final long serialVersionUID = -5328848786752720825L;
 	
 	private Map<WorkflowInstanceState,Integer> numberOfWorkflowInstancesWithState;
@@ -31,7 +31,7 @@ public class WorkflowStateSummery implements Serializable {
 		this.numberOfWorkflowInstancesWithState = numberOfWorkflowInstancesWithState;
 	}
 
-	public WorkflowStateSummery(Map<WorkflowInstanceState, Integer> numberOfWorkflowInstancesWithState) {
+	public WorkflowStateSummary(Map<WorkflowInstanceState, Integer> numberOfWorkflowInstancesWithState) {
 		super();
 		this.numberOfWorkflowInstancesWithState = numberOfWorkflowInstancesWithState;
 	}

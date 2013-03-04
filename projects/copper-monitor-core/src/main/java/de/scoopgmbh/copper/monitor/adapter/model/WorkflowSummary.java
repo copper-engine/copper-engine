@@ -17,19 +17,19 @@ package de.scoopgmbh.copper.monitor.adapter.model;
 
 import java.io.Serializable;
 
-public class WorkflowSummery implements Serializable {
+public class WorkflowSummary implements Serializable {
 	private static final long serialVersionUID = 4867510351238162279L;
 	
 	private String alias;
 	private int totalcount;
-	private WorkflowStateSummery stateSummery;
+	private WorkflowStateSummary stateSummery;
 	private WorkflowClassVersionInfo classDescription;
 	
-	public WorkflowSummery() {
+	public WorkflowSummary() {
 		super();
 	}
 
-	public WorkflowSummery(String alias, int totalcount, WorkflowClassVersionInfo classDescription, WorkflowStateSummery stateSummery) {
+	public WorkflowSummary(String alias, int totalcount, WorkflowClassVersionInfo classDescription, WorkflowStateSummary stateSummery) {
 		super();
 		this.alias = alias;
 		this.totalcount = totalcount;
@@ -53,11 +53,11 @@ public class WorkflowSummery implements Serializable {
 		this.totalcount = totalcount;
 	}
 
-	public WorkflowStateSummery getStateSummery() {
+	public WorkflowStateSummary getStateSummery() {
 		return stateSummery;
 	}
 
-	public void setStateSummery(WorkflowStateSummery stateSummery) {
+	public void setStateSummery(WorkflowStateSummary stateSummery) {
 		this.stateSummery = stateSummery;
 	}
 

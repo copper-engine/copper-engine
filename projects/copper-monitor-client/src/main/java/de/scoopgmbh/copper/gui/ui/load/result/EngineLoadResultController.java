@@ -39,9 +39,9 @@ import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
 import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 
-public class EngineLoadResultController implements Initializable, FilterResultController<EngineLoadFilterModel,WorkflowStateSummery>, FxmlController {
+public class EngineLoadResultController implements Initializable, FilterResultController<EngineLoadFilterModel,WorkflowStateSummary>, FxmlController {
 	private final GuiCopperDataProvider copperDataProvider;
 	
 	public EngineLoadResultController(GuiCopperDataProvider copperDataProvider) {
@@ -88,9 +88,9 @@ public class EngineLoadResultController implements Initializable, FilterResultCo
 
 	private static final int MAX_DATA_POINTS = 30;
 	@Override
-	public void showFilteredResult(List<WorkflowStateSummery> filteredlist, EngineLoadFilterModel usedFilter) {
+	public void showFilteredResult(List<WorkflowStateSummary> filteredlist, EngineLoadFilterModel usedFilter) {
 		
-		WorkflowStateSummery copperLoadInfo = filteredlist.get(0);	
+		WorkflowStateSummary copperLoadInfo = filteredlist.get(0);	
 		String date = new SimpleDateFormat("HH:mm:ss").format(new Date());
 		
 		for (Entry<WorkflowInstanceState,Integer> entry: copperLoadInfo.getNumberOfWorkflowInstancesWithState().entrySet()){
@@ -113,7 +113,7 @@ public class EngineLoadResultController implements Initializable, FilterResultCo
 	}
 
 	@Override
-	public List<WorkflowStateSummery> applyFilterInBackgroundThread(EngineLoadFilterModel filter) {
+	public List<WorkflowStateSummary> applyFilterInBackgroundThread(EngineLoadFilterModel filter) {
 		return Arrays.asList(copperDataProvider.getCopperLoadInfo(filter.engine.getValue()));
 	}
 

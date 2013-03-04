@@ -31,7 +31,7 @@ import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 
 public class DashboardResultController implements Initializable, FilterResultController<EmptyFilterModel,DashboardResultModel>, FxmlController {
 	private final GuiCopperDataProvider copperDataProvider;
@@ -69,7 +69,7 @@ public class DashboardResultController implements Initializable, FilterResultCon
 	@Override
 	public List<DashboardResultModel> applyFilterInBackgroundThread(EmptyFilterModel filter) {
 		List<ProcessingEngineInfo> engines = copperDataProvider.getEngineList();
-		Map<String, WorkflowStateSummery> engineIdTostateSummery = new HashMap<>();
+		Map<String, WorkflowStateSummary> engineIdTostateSummery = new HashMap<>();
 		for (ProcessingEngineInfo processingEngineInfo: engines){
 			engineIdTostateSummery.put(processingEngineInfo.getId(), copperDataProvider.getCopperLoadInfo(processingEngineInfo));
 		}

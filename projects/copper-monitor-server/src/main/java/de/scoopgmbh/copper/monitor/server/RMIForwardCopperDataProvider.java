@@ -28,7 +28,6 @@ import java.util.Random;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
-import de.scoopgmbh.copper.monitor.adapter.model.CopperStatusInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
@@ -39,8 +38,8 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 
 public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements CopperMonitorInterface {
 	private static final long serialVersionUID = -5757718583261293846L;
@@ -100,21 +99,21 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowSummery> getWorkflowSummery(ProcessingEngineInfo engine, WorkflowClassVersionInfo workflowClassDescription,
+	public List<WorkflowSummary> getWorkflowSummery(ProcessingEngineInfo engine, WorkflowClassVersionInfo workflowClassDescription,
 			long resultRowLimit) throws RemoteException {		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
 		}
 		
-		ArrayList<WorkflowSummery> result = new ArrayList<>();
-		WorkflowSummery workflowSummery = new WorkflowSummery("",10,
+		ArrayList<WorkflowSummary> result = new ArrayList<>();
+		WorkflowSummary workflowSummery = new WorkflowSummary("",10,
 				new WorkflowClassVersionInfo("blubclass1","alias",0L,+(long)(Math.random()*100),0L),
-				new WorkflowStateSummery(map));
+				new WorkflowStateSummary(map));
 		result.add(workflowSummery);
 		
-		WorkflowSummery inputcopy = new WorkflowSummery("",10,
+		WorkflowSummary inputcopy = new WorkflowSummary("",10,
 				workflowClassDescription,
-				new WorkflowStateSummery(map));
+				new WorkflowStateSummary(map));
 		result.add(inputcopy);
 		
 		return result;
@@ -159,13 +158,6 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		return result;
 	}
 
-
-	@Override
-	public CopperStatusInfo getCopperStatus() throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	@Override
 	public List<WorkflowClassVersionInfo> getWorkflowClassesList() throws RemoteException {
 		ArrayList<WorkflowClassVersionInfo> result = new ArrayList<>();
@@ -204,12 +196,12 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public WorkflowStateSummery getAggregatedWorkflowStateSummery(ProcessingEngineInfo engine) throws RemoteException {
+	public WorkflowStateSummary getAggregatedWorkflowStateSummery(ProcessingEngineInfo engine) throws RemoteException {
 		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
 		}
-		return new WorkflowStateSummery(map);
+		return new WorkflowStateSummary(map);
 	}
 
 	@Override

@@ -39,8 +39,8 @@ import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummery;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 
 public class GuiCopperDataProvider {
 	
@@ -88,14 +88,14 @@ public class GuiCopperDataProvider {
 	}
 
 	public List<WorkflowSummeryResultModel> getWorkflowSummery(WorkflowSummeryFilterModel filter) {
-		List<WorkflowSummery> summeries;
+		List<WorkflowSummary> summeries;
 		try {
 			summeries = copperDataProvider.getWorkflowSummery(filter.engine.getValue(), filter.version.convert(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 		ArrayList<WorkflowSummeryResultModel> result = new ArrayList<>();
-		for (WorkflowSummery workflowSummery: summeries){
+		for (WorkflowSummary workflowSummery: summeries){
 			result.add(new WorkflowSummeryResultModel(workflowSummery));
 		}
 		return result;
@@ -123,7 +123,7 @@ public class GuiCopperDataProvider {
 		}
 	}
 
-	public WorkflowStateSummery getCopperLoadInfo(ProcessingEngineInfo engine) {
+	public WorkflowStateSummary getCopperLoadInfo(ProcessingEngineInfo engine) {
 		try {
 			return  copperDataProvider.getAggregatedWorkflowStateSummery(engine);
 		} catch (RemoteException e) {

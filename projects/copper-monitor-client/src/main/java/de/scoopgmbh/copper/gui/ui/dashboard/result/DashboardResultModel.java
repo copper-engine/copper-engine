@@ -21,19 +21,19 @@ import java.util.List;
 import java.util.Map;
 
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 
 public class DashboardResultModel {
 	
 	public final List<ProcessingEngineInfo> engines = new ArrayList<>();
-	private Map<String,WorkflowStateSummery> engineIdTostateSummery = new HashMap<>();
+	private Map<String,WorkflowStateSummary> engineIdTostateSummery = new HashMap<>();
 	
-	public DashboardResultModel(Map<String, WorkflowStateSummery> engineIdTostateSummery, List<ProcessingEngineInfo> processingEngineInfo){
+	public DashboardResultModel(Map<String, WorkflowStateSummary> engineIdTostateSummery, List<ProcessingEngineInfo> processingEngineInfo){
 		this.engineIdTostateSummery.putAll(engineIdTostateSummery);
 		this.engines.addAll(processingEngineInfo);
 	}
 	
-	public WorkflowStateSummery getStateSummery(String engineId){
+	public WorkflowStateSummary getStateSummery(String engineId){
 		return engineIdTostateSummery.get(engineId);
 	}
 	

@@ -86,7 +86,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummery;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 
 public class FormContext {
 	private final TabPane mainTabPane;
@@ -277,14 +277,14 @@ public class FormContext {
 		return createWorkflowinstanceDetailResultForm(new BorderPaneShowFormStrategie(target));
 	}
 	
-	public FilterAbleForm<EngineLoadFilterModel,WorkflowStateSummery> createEngineLoadForm(){
+	public FilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary> createEngineLoadForm(){
 		//same hacks are needed cause java cant handle generics as expected
 		
 		FilterController<EngineLoadFilterModel> fCtrl = new EngineLoadFilterController(); 
 		FxmlForm<FilterController<EngineLoadFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
 		
-		FilterResultController<EngineLoadFilterModel,WorkflowStateSummery> resCtrl = new EngineLoadResultController(guiCopperDataProvider);
-		FxmlForm<FilterResultController<EngineLoadFilterModel,WorkflowStateSummery>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
+		FilterResultController<EngineLoadFilterModel,WorkflowStateSummary> resCtrl = new EngineLoadResultController(guiCopperDataProvider);
+		FxmlForm<FilterResultController<EngineLoadFilterModel,WorkflowStateSummary>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
 		
 		return new EngineFilterAbleform<>(messageProvider.getText(MessageKey.engineLoad_title),messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);

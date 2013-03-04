@@ -19,8 +19,11 @@ import java.util.Map;
 
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import de.scoopgmbh.copper.gui.context.ApplicationContext;
@@ -61,6 +64,32 @@ public class ClientMain extends Application {
 		} else {
 			mainFactory.setGuiCopperDataProvider(monitorServerAdress, monitorServerUser, monitorServerPassword);
 		}
+		
+		
+//		KeyboardFocusManager kfm = DefaultKeyboardFocusManager.getCurrentKeyboardFocusManager();
+//		kfm.addKeyEventDispatcher(new KeyEventDispatcher() {
+//		    @Override
+//		    public boolean dispatchKeyEvent(KeyEvent e) {
+//		    if (DefaultKeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner() == fxPanel) {
+//		        if (e.getID() == KeyEvent.KEY_TYPED && e.getKeyChar() == 10) {
+//		            e.setKeyChar((char) 13);
+//		        }
+//		        return false;
+//		     }
+//		});
+		
+		scene.addEventFilter(Event.ANY, new EventHandler<Event>() {
+			@Override
+			public void handle(Event event) {
+				System.out.println(event);
+			}
+		});
+		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent event) {
+				System.out.println(event);
+			}
+		});
 		
 	}
 
