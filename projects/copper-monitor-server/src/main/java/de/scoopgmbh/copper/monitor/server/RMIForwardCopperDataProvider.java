@@ -233,5 +233,19 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		}
 		return result;
 	}
+
+
+	@Override
+	public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setThreadPriority(String engineid, String processorPoolId, int threadPriority) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

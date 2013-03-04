@@ -65,6 +65,10 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	 */
 	public void restartAll(String engineid) throws RemoteException;
 	
+	public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads);
+	
+	public void setThreadPriority(String engineid, String processorPoolId, int threadPriority);
+	
 	public List<ProcessingEngineInfo> getProccessingEngineList() throws RemoteException;
 	
 	public List<MeasurePointData> getMeasurePoints(String engineid) throws RemoteException;
