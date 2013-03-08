@@ -188,7 +188,7 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 	}
 	
 	public void reset() {
-		logger.info("Attention! Resetting current statistics");
+		logger.debug("Attention! Resetting current statistics");
 		final Map<String, StatSet> localMap = map;
 		for (StatSet ss : localMap.values()) {
 			synchronized (ss) {
