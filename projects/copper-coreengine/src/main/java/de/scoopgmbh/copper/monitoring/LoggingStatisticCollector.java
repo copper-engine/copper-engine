@@ -26,9 +26,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.management.MeasurePointData;
-import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
-
 /**
  * Collects runtime statistics and logs average processing times to the logging system in a 
  * configurable time interval. 
@@ -36,7 +33,7 @@ import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
  * @author austermann
  *
  */
-public class LoggingStatisticCollector implements RuntimeStatisticsCollector, StatisticsCollectorMXBean {
+public class LoggingStatisticCollector implements RuntimeStatisticsCollector {
 	
 	private static final class StatSet {
 		final String mpId;
@@ -54,6 +51,7 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(LoggingStatisticCollector.class);
+	private static final Logger statLogger = LoggerFactory.getLogger("stat");
 
 	private int loggingIntervalSec = 15;
 	private boolean resetAfterLogging = false;
@@ -76,7 +74,7 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 
 	public synchronized void start() {
 		if (thread != null) throw new IllegalStateException();
-		thread = new Thread(this.getClass().getSimpleName()) {
+		thread = new Thread("StatisticsCollector") {
 			@Override
 			public void run() {
 				while(!shutdown) {
@@ -168,7 +166,17 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 	}
 	
 	private void log() {
-		logger.info("Current statistics\n"+print());
+		final Map<String, StatSet> localMap = map;
+		final List<StatSet> list = new ArrayList<LoggingStatisticCollector.StatSet>(localMap.values());
+		Collections.sort(list,new Comparator<StatSet>() {
+			@Override
+			public int compare(StatSet o1, StatSet o2) {
+				return o1.mpId.compareToIgnoreCase(o2.mpId);
+			}
+		});
+		for (StatSet ss : list) {
+			statLogger.info(toString(ss));
+		}
 	}
 	
 	private String toString(StatSet ss) {
@@ -197,26 +205,6 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 		}
 	}
 
-	@Override
-	public List<MeasurePointData> queryAll() {
-		final Map<String, StatSet> localMap = map;
-		List<MeasurePointData> rv = new ArrayList<MeasurePointData>(localMap.size());
-		for (StatSet ss : localMap.values()) {
-			synchronized (ss) {
-				MeasurePointData e = new MeasurePointData(ss.mpId, ss.elementCount, ss.elapsedTimeMicros, ss.count);
-				rv.add(e);
-			}
-		}
-		return rv;
-	}
-
-	@Override
-	public MeasurePointData query(String measurePointId) {
-		StatSet ss = map.get(measurePointId);
-		if (ss == null)
-			return null;
-		return new MeasurePointData(ss.mpId, ss.elementCount, ss.elapsedTimeMicros, ss.count);
-	}
 	
 }
 
