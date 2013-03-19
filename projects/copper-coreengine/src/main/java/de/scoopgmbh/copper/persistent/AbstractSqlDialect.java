@@ -71,11 +71,12 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	private StmtStatistic deleteStaleResponsesStmtStatistic;
 
 	public AbstractSqlDialect() {
-		initStats();
+
 	}
 
 
 	public void startup() {
+        initStats();
 	}
 
 	public void setDbBatchingLatencyMSec(int dbBatchingLatencyMSec) {
