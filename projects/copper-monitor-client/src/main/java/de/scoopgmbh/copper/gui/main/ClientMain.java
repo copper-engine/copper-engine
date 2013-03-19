@@ -29,6 +29,7 @@ public class ClientMain extends Application {
 
 	@Override
 	public void start(final Stage primaryStage) { //Stage = window
+		System.out.println(com.sun.javafx.runtime.VersionInfo.getRuntimeVersion());
 		ApplicationContext mainFactory = new ApplicationContext();
 		primaryStage.titleProperty().bind(new SimpleStringProperty("Copper Monitor (server: ").concat(mainFactory.serverAdressProperty().concat(")")));
 		new Button(); // Trigger loading of default stylesheet

@@ -99,7 +99,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowSummary> getWorkflowSummery(String engineid, WorkflowClassVersionInfo workflowClassDescription,
+	public List<WorkflowSummary> getWorkflowSummary(String engineid, WorkflowClassVersionInfo workflowClassDescription,
 			long resultRowLimit) throws RemoteException {		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
@@ -196,7 +196,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public WorkflowStateSummary getAggregatedWorkflowStateSummery(String engineid) throws RemoteException {
+	public WorkflowStateSummary getAggregatedWorkflowStateSummary(String engineid) throws RemoteException {
 		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
@@ -205,13 +205,13 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public void restart(String workflowInstanceId, String engineid) throws RemoteException {
+	public void restartErroneousInstance(String workflowInstanceId, String engineid) throws RemoteException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void restartAll(String engineid) throws RemoteException {
+	public void restartAllErroneousInstances(String engineid) throws RemoteException {
 		// TODO Auto-generated method stub
 		
 	}

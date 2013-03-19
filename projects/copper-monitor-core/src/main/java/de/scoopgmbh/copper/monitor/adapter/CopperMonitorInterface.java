@@ -34,7 +34,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 
 public interface CopperMonitorInterface extends Remote, Serializable {
 
-	public List<WorkflowSummary> getWorkflowSummery(String engineid, WorkflowClassVersionInfo workflowClassDescription, long resultRowLimit) throws RemoteException;
+	public List<WorkflowSummary> getWorkflowSummary(String engineid, WorkflowClassVersionInfo workflowClassDescription, long resultRowLimit) throws RemoteException;
 
 	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String engineid, WorkflowClassVersionInfo workflowClassDescription, WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException;
 
@@ -46,24 +46,37 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	
 	public WorkflowInstanceMetaDataInfo getWorkflowInstanceDetails(String workflowInstanceId)  throws RemoteException;
 
-	public WorkflowStateSummary getAggregatedWorkflowStateSummery(String engineid) throws RemoteException;
+	public WorkflowStateSummary getAggregatedWorkflowStateSummary(String engineid) throws RemoteException;
 	
 	public CopperInterfaceSettings getSettings() throws RemoteException;
 
+	/**
+	 * Executes an sql query on the database of the copper runtime this monitor interface is connected to.
+	 * @param query
+	 * @param resultRowLimit
+	 * @return
+	 * @throws RemoteException
+	 */
 	public List<String[]> executeSqlQuery(String query, long resultRowLimit) throws RemoteException;
 	
+	/**
+	 * System resources as JMX interface reports them
+	 * @return
+	 * @throws RemoteException
+	 */
 	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException;
 
+	
 	/**
-	 * Trigger restart a workflow instance that is in the error state.
+	 * Trigger restart of a workflow instance that is in the error state.
 	 * @param workflowInstanceId
 	 */
-	public void restart(String workflowInstanceId, String engineid) throws RemoteException;
+	public void restartErroneousInstance(String workflowInstanceId, String engineid) throws RemoteException;
 
 	/**
-	 * Trigger restart all workflow instances that are in error state.
+	 * Trigger restart of all workflow instances that are in error state.
 	 */
-	public void restartAll(String engineid) throws RemoteException;
+	public void restartAllErroneousInstances(String engineid) throws RemoteException;
 	
 	public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads);
 	

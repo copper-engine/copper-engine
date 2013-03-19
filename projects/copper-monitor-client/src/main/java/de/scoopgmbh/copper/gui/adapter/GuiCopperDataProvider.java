@@ -90,7 +90,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowSummeryResultModel> getWorkflowSummery(WorkflowSummeryFilterModel filter) {
 		List<WorkflowSummary> summeries;
 		try {
-			summeries = copperDataProvider.getWorkflowSummery(filter.engine.getValue().getId(), filter.version.convert(), maxResultCount.getValue());
+			summeries = copperDataProvider.getWorkflowSummary(filter.engine.getValue().getId(), filter.version.convert(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -125,7 +125,7 @@ public class GuiCopperDataProvider {
 
 	public WorkflowStateSummary getCopperLoadInfo(ProcessingEngineInfo engine) {
 		try {
-			return  copperDataProvider.getAggregatedWorkflowStateSummery(engine.getId());
+			return  copperDataProvider.getAggregatedWorkflowStateSummary(engine.getId());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
