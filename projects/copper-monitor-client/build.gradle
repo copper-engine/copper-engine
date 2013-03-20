@@ -44,6 +44,7 @@ repositories {
 dependencies {
 	compile project(':projects:copper-monitor-core')
 	compile files('libs/jfxrt.jar')
+	compile files('libs/ScenicView.jar')
 	compile files('libs/java2html.jar')
 	//Spring remote
 	//compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'

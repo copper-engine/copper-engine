@@ -13,5 +13,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/copper-monitor-client/libs/jfxrt-javadoc.zip!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/scoop/copperGui/workspace/monitoring/projects/copper-monitor-client/libs/ScenicView.jar" exported="true"/>
 	<classpathentry kind="lib" path="C:/scoop/copperGui/workspace/monitoring/projects/copper-monitor-client/libs/java2html.jar" exported="true" sourcepath="libs/java2html-src.zip"/>
 </classpath>

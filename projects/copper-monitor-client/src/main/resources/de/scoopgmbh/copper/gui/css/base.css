@@ -94,3 +94,10 @@
      -fx-background-color: transparent;
      -fx-text-fill: -fx-selection-bar-text;
 }
+
+.copperpool-tab-pane.floating > .tab-content-area {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+}

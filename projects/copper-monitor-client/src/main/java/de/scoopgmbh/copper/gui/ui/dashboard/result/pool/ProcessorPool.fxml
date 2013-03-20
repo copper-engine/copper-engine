@@ -10,24 +10,24 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.shape.*?>
 
-<Pane prefHeight="207.0" prefWidth="290.0" style="-fx-background-color: #0E51A7;" visible="true" xmlns:fx="http://javafx.com/fxml">
+<Pane prefHeight="207.0" prefWidth="290.0" style="-fx-background-color: rgba(0,0,0,0);" visible="true" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#ff9999" height="207.0" layoutX="0.0" layoutY="0.0" stroke="BLACK" strokeType="INSIDE" style="" width="289.0" />
-    <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#ff2300" height="207.0" layoutX="0.0" layoutY="0.0" stroke="BLACK" strokeType="INSIDE" style="" width="172.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ff9999" height="207.0" layoutX="0.0" layoutY="1.0" opacity="0.75" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(209, 74, 67));&#10;-fx-background-color: transparent;" width="289.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ff2300" height="207.0" layoutX="0.0" layoutY="0.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="172.0" />
     <Label layoutX="7.0" layoutY="13.0" text="ProcessorPool" textFill="WHITE" />
     <Label layoutX="12.0" layoutY="49.0" text="id" textFill="WHITE" />
     <TextField fx:id="id" editable="false" layoutX="45.0" layoutY="47.0" opacity="0.75" prefHeight="22.0" prefWidth="120.0" promptText="" />
-    <Rectangle arcHeight="30.0" arcWidth="30.0" height="55.0" layoutX="179.0" layoutY="18.0" stroke="BLACK" strokeType="INSIDE" width="94.0">
+    <Rectangle arcHeight="30.0" arcWidth="30.0" height="55.0" layoutX="179.0" layoutY="18.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0">
       <fill>
         <Color blue="0.000" green="0.620" red="1.000" fx:id="x1" />
       </fill>
     </Rectangle>
     <Label layoutX="191.0" layoutY="23.0" prefHeight="19.951171875" text="RUNNING" />
     <TextField fx:id="running" editable="false" layoutX="193.0" layoutY="45.0" opacity="0.75" prefHeight="22.0" prefWidth="62.0" />
-    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x1" height="55.0" layoutX="181.0" layoutY="141.0" stroke="BLACK" strokeType="INSIDE" width="94.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x1" height="55.0" layoutX="180.0" layoutY="141.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0" />
     <TextField fx:id="dequeued" editable="false" layoutX="194.0" layoutY="169.0" opacity="0.75" prefHeight="22.0" prefWidth="61.9998779296875" />
     <Label layoutX="190.0" layoutY="148.0" prefHeight="19.951171875" text="DEQUEUED" />
-    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x1" height="55.0" layoutX="179.0" layoutY="81.0" stroke="BLACK" strokeType="INSIDE" width="94.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x1" height="55.0" layoutX="179.0" layoutY="81.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0" />
     <TextField fx:id="enqueued" editable="false" layoutX="193.0" layoutY="109.0" opacity="0.75" prefHeight="22.0" prefWidth="61.9998779296875" />
     <Label layoutX="188.0" layoutY="86.0" prefHeight="19.951171875" text="ENQUEUED" />
     <Label layoutX="12.0" layoutY="78.0" text="typ" textFill="WHITE" />
