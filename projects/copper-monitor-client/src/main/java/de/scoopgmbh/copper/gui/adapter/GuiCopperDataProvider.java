@@ -177,4 +177,20 @@ public class GuiCopperDataProvider {
 		}
 	}
 	
+	public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads){
+		try {
+			copperDataProvider.setNumberOfThreads(engineid, processorPoolId, numberOfThreads);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}		
+	}
+	
+	public void setThreadPriority(String engineid, String processorPoolId, int threadPriority){
+		try {
+			copperDataProvider.setThreadPriority(engineid, processorPoolId, threadPriority);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}		
+	}
+	
 }

@@ -49,7 +49,7 @@
       <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="55.0" layoutX="260.0" layoutY="64.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0" />
       <Label layoutX="273.0" layoutY="69.0" prefHeight="19.951171875" text="ROW" />
       <TextField fx:id="row" editable="false" layoutX="272.0" layoutY="89.0" opacity="0.75" prefHeight="22.0" prefWidth="62.0" />
-      <TabPane id="polls" fx:id="pools" layoutX="55.0" layoutY="149.0" prefHeight="251.0" prefWidth="289.0" side="BOTTOM" style="-fx-background-color: rgba(0,0,0,0);" styleClass="copperpool-tab-pane" tabClosingPolicy="UNAVAILABLE" />
+      <TabPane id="polls" fx:id="pools" layoutX="55.0" layoutY="149.0" prefHeight="240.0" prefWidth="289.0" side="BOTTOM" style="-fx-background-color: rgba(0,0,0,0);" styleClass="copperpool-tab-pane" tabClosingPolicy="UNAVAILABLE" />
       <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x1" height="115.951171875" layoutX="704.0" layoutY="119.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="200.0" />
       <Label layoutX="717.0" layoutY="125.0" text="AdapterInjector" textFill="WHITE" />
     </children>
