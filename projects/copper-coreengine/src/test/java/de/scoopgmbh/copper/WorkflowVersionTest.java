@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,22 @@
  */
 package de.scoopgmbh.copper;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class WorkflowVersionTest extends TestCase {
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+public class WorkflowVersionTest {
+
+	@Test
 	public void testIsLargerThan() {
 		final WorkflowVersion a = new WorkflowVersion(1, 2, 3);
-		Assert.assertTrue(a.equals(a));
-		Assert.assertFalse(a.isLargerThan(a));
+		assertTrue(a.equals(a));
+		assertFalse(a.isLargerThan(a));
 
 		final WorkflowVersion b = new WorkflowVersion(1, 3, 0);
-		Assert.assertFalse(a.equals(b));
-		Assert.assertTrue(b.isLargerThan(a));
+		assertFalse(a.equals(b));
+		assertTrue(b.isLargerThan(a));
 	}
 
 }

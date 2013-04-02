@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package de.scoopgmbh.copper.test.tranzient.simple;
 
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
 
+import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -27,9 +27,13 @@ import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 
-public class SubWorkflowTransientEngineTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class SubWorkflowTransientEngineTest{
 	
 
+	@Test
 	public void testWorkflow() throws Exception {
 		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		final TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");

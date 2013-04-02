@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package de.scoopgmbh.copper.test.persistent.springtxn;
 
 import java.util.Date;
 
-import junit.framework.Assert;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,8 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.test.MockAdapter;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
+
+import static org.junit.Assert.*;
 
 public class SpringTxnUnitTestWorkflow extends PersistentWorkflow<String> {
 
@@ -62,7 +63,7 @@ public class SpringTxnUnitTestWorkflow extends PersistentWorkflow<String> {
 		try {
 			for (int i=0; i<3; i++) {
 				callFoo();
-				Assert.assertNotNull(this.getCreationTS());
+				assertNotNull(this.getCreationTS());
 			}
 			backChannelQueue.enqueue(new WorkflowResult(getData(), null));
 			backChannelQueue = null;
@@ -91,10 +92,10 @@ public class SpringTxnUnitTestWorkflow extends PersistentWorkflow<String> {
 
 		auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "afterFoo", getId(), cid, cid, "afterFoo - result = "+res.toString(), "String", null));
 		
-		Assert.assertNotNull(res);
-		Assert.assertFalse(res.isTimeout());
-		Assert.assertEquals(getData(),res.getResponse());
-		Assert.assertNull(res.getException());
+		assertNotNull(res);
+		assertFalse(res.isTimeout());
+		assertEquals(getData(), res.getResponse());
+		assertNull(res.getException());
 		
 		// This is also running within the current DB transaction
 		auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "Assertions checked", getId(), cid, cid, "Assertions checked", "String", null));

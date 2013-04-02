@@ -18,7 +18,7 @@
     	<property name="sourceDirs"><list>
     		<value>src/workflow/java</value>
     	</list></property>
-    	<property name="targetDir" value="target/compiled_workflow"/>
+    	<property name="targetDir" value="build/compiled_workflow"/>
     </bean>
     
 	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource">

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package de.scoopgmbh.copper.test.persistent.subworkflow;
 
-import junit.framework.Assert;
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
@@ -24,6 +23,8 @@ import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
+
+import static org.junit.Assert.*;
 
 public class TestParentWorkflow extends PersistentWorkflow<String> {
 
@@ -48,11 +49,11 @@ public class TestParentWorkflow extends PersistentWorkflow<String> {
 			
 			// collect the responses
 			Response<String> r = getAndRemoveResponse(id);
-			Assert.assertNotNull(r);
-			Assert.assertNotNull(r.getResponse());
-			Assert.assertNull(r.getException());
-			Assert.assertFalse(r.isTimeout());
-			Assert.assertEquals("54321", r.getResponse());
+			assertNotNull(r);
+			assertNotNull(r.getResponse());
+			assertNull(r.getException());
+			assertFalse(r.isTimeout());
+			assertEquals("54321", r.getResponse());
 
 			backChannelQueue.enqueue(new WorkflowResult(null, null));
 		}

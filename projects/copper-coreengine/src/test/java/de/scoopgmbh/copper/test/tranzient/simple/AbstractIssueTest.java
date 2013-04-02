@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -25,10 +24,15 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.test.TestResponseReceiver;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 
-public class AbstractIssueTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class AbstractIssueTest {
 	
 	private final int[] response = { -1 };
 
+	@Test
 	public void testWorkflow() throws Exception {
 		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
 		TransientScottyEngine engine = context.getBean("transientEngine", TransientScottyEngine.class);

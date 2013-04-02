@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.management.MeasurePointData;
-import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
-
 /**
  * Collects runtime statistics and logs average processing times to the logging system in a 
  * configurable time interval. 
@@ -36,7 +33,7 @@ import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
  * @author austermann
  *
  */
-public class LoggingStatisticCollector implements RuntimeStatisticsCollector, StatisticsCollectorMXBean {
+public class LoggingStatisticCollector implements RuntimeStatisticsCollector {
 	
 	private static final class StatSet {
 		final String mpId;
@@ -54,8 +51,11 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(LoggingStatisticCollector.class);
+	private static final Logger statLogger = LoggerFactory.getLogger("stat");
 
 	private int loggingIntervalSec = 15;
+	private boolean resetAfterLogging = false;
+	
 	private Thread thread;
 	private boolean shutdown = false;
 	private volatile Map<String,StatSet> map = new HashMap<String, StatSet>();
@@ -64,16 +64,26 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 	public void setLoggingIntervalSec(int loggingIntervalSec) {
 		this.loggingIntervalSec = loggingIntervalSec;
 	}
+	
+	/**
+	 * If set to true, the internal statistics are reseted after a each periodical logging.
+	 */
+	public void setResetAfterLogging(boolean resetAfterLogging) {
+		this.resetAfterLogging = resetAfterLogging;
+	}
 
 	public synchronized void start() {
 		if (thread != null) throw new IllegalStateException();
-		thread = new Thread(this.getClass().getSimpleName()) {
+		thread = new Thread("StatisticsCollector") {
 			@Override
 			public void run() {
 				while(!shutdown) {
 					try {
 						Thread.sleep(loggingIntervalSec*1000L);
 						log();
+						if (resetAfterLogging) {
+							reset();
+						}
 					}
 					catch(InterruptedException e) {
 						// ignore
@@ -156,7 +166,17 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 	}
 	
 	private void log() {
-		logger.info("Current statistics\n"+print());
+		final Map<String, StatSet> localMap = map;
+		final List<StatSet> list = new ArrayList<LoggingStatisticCollector.StatSet>(localMap.values());
+		Collections.sort(list,new Comparator<StatSet>() {
+			@Override
+			public int compare(StatSet o1, StatSet o2) {
+				return o1.mpId.compareToIgnoreCase(o2.mpId);
+			}
+		});
+		for (StatSet ss : list) {
+			statLogger.info(toString(ss));
+		}
 	}
 	
 	private String toString(StatSet ss) {
@@ -176,7 +196,7 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 	}
 	
 	public void reset() {
-		logger.info("Attention! Resetting current statistics");
+		logger.debug("Attention! Resetting current statistics");
 		final Map<String, StatSet> localMap = map;
 		for (StatSet ss : localMap.values()) {
 			synchronized (ss) {
@@ -185,26 +205,6 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 		}
 	}
 
-	@Override
-	public List<MeasurePointData> queryAll() {
-		final Map<String, StatSet> localMap = map;
-		List<MeasurePointData> rv = new ArrayList<MeasurePointData>(localMap.size());
-		for (StatSet ss : localMap.values()) {
-			synchronized (ss) {
-				MeasurePointData e = new MeasurePointData(ss.mpId, ss.elementCount, ss.elapsedTimeMicros, ss.count);
-				rv.add(e);
-			}
-		}
-		return rv;
-	}
-
-	@Override
-	public MeasurePointData query(String measurePointId) {
-		StatSet ss = map.get(measurePointId);
-		if (ss == null)
-			return null;
-		return new MeasurePointData(ss.mpId, ss.elementCount, ss.elapsedTimeMicros, ss.count);
-	}
 	
 }
 

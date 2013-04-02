@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,45 +25,47 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.audit.BatchingAuditTrail.Property2ColumnMapping;
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 
-public class BatchingAuditTrailTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class BatchingAuditTrailTest {
 	
 	private static final Logger logger = LoggerFactory.getLogger(BatchingAuditTrailTest.class);
 
 	EmbeddedConnectionPoolDataSource40 ds;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		ds = new EmbeddedConnectionPoolDataSource40();
-		ds.setDatabaseName("./target/copperUnitTestDB;create=true");
+		ds.setDatabaseName("./build/copperUnitTestDB;create=true");
 		DerbyDbDialect.checkAndCreateSchema(ds);
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@After
+	public void tearDown() throws Exception {
 		DerbyDbDialect.shutdownDerby();
 	}
 
+	@Test
 	public void testGetSqlStmt() throws Exception {
 		BatchingAuditTrail batchingAuditTrail = new BatchingAuditTrail();
 		batchingAuditTrail.setDataSource(ds);
 		batchingAuditTrail.startup();
 
-		Assert.assertEquals("INSERT INTO COP_AUDIT_TRAIL_EVENT (LOGLEVEL,OCCURRENCE,CONVERSATION_ID,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID,MESSAGE_TYPE,LONG_MESSAGE) VALUES (?,?,?,?,?,?,?,?,?)", batchingAuditTrail.getSqlStmt());
+		assertEquals("INSERT INTO COP_AUDIT_TRAIL_EVENT (LOGLEVEL,OCCURRENCE,CONVERSATION_ID,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID,MESSAGE_TYPE,LONG_MESSAGE) VALUES (?,?,?,?,?,?,?,?,?)", batchingAuditTrail.getSqlStmt());
 	}
 
 
+	@Test
 	public void testLog() throws Exception {
 		BatchingAuditTrail batchingAuditTrail = new BatchingAuditTrail();
 		batchingAuditTrail.setDataSource(ds);
@@ -81,9 +83,10 @@ public class BatchingAuditTrailTest extends TestCase {
 			con.close();
 		}
 
-		Assert.assertEquals("INSERT INTO COP_AUDIT_TRAIL_EVENT (LOGLEVEL,OCCURRENCE,CONVERSATION_ID,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID,MESSAGE_TYPE,LONG_MESSAGE) VALUES (?,?,?,?,?,?,?,?,?)", batchingAuditTrail.getSqlStmt());
-	}	
+		assertEquals("INSERT INTO COP_AUDIT_TRAIL_EVENT (LOGLEVEL,OCCURRENCE,CONVERSATION_ID,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID,MESSAGE_TYPE,LONG_MESSAGE) VALUES (?,?,?,?,?,?,?,?,?)", batchingAuditTrail.getSqlStmt());
+	}
 
+	@Test
 	public void testCustomTable() throws Exception {
 		createCustomAuditTrailTable();
 
@@ -99,7 +102,7 @@ public class BatchingAuditTrailTest extends TestCase {
 		batchingAuditTrail.setAdditionalMapping(additionalMapping);		
 		batchingAuditTrail.startup();
 
-		Assert.assertEquals("INSERT INTO COP_AUDIT_TRAIL_EVENT_EXTENDED (CUSTOM_INT,CUSTOM_TIMESTAMP,CUSTOM_VARCHAR,LOGLEVEL,OCCURRENCE,CONVERSATION_ID,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID,MESSAGE_TYPE,LONG_MESSAGE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", batchingAuditTrail.getSqlStmt());
+		assertEquals("INSERT INTO COP_AUDIT_TRAIL_EVENT_EXTENDED (CUSTOM_INT,CUSTOM_TIMESTAMP,CUSTOM_VARCHAR,LOGLEVEL,OCCURRENCE,CONVERSATION_ID,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID,MESSAGE_TYPE,LONG_MESSAGE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", batchingAuditTrail.getSqlStmt());
 		
 		final Connection con = ds.getConnection();
 		try {
@@ -114,15 +117,15 @@ public class BatchingAuditTrailTest extends TestCase {
 			con.commit();
 
 			ResultSet rs = con.createStatement().executeQuery("SELECT * FROM COP_AUDIT_TRAIL_EVENT_EXTENDED ORDER BY SEQ_ID ASC");
-			Assert.assertTrue(rs.next());
-			Assert.assertEquals("conversationId", rs.getString("CONVERSATION_ID"));
-			Assert.assertEquals("TEST", rs.getString("CUSTOM_VARCHAR"));
+			assertTrue(rs.next());
+			assertEquals("conversationId", rs.getString("CONVERSATION_ID"));
+			assertEquals("TEST", rs.getString("CUSTOM_VARCHAR"));
 			
-			Assert.assertTrue(rs.next());
-			Assert.assertEquals("conversationId", rs.getString("CONVERSATION_ID"));
-			Assert.assertNull(rs.getString("CUSTOM_VARCHAR"));
+			assertTrue(rs.next());
+			assertEquals("conversationId", rs.getString("CONVERSATION_ID"));
+			assertNull(rs.getString("CUSTOM_VARCHAR"));
 			
-			Assert.assertFalse(rs.next());
+			assertFalse(rs.next());
 		}
 		finally {
 			con.close();

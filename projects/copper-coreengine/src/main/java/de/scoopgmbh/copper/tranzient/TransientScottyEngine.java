@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,8 +110,10 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		
 		synchronized (correlationMap) {
 			final CorrelationSet cs = correlationMap.remove(response.getCorrelationId());
-			if (cs == null && response.isEarlyResponseHandling()) {
-				earlyResponseContainer.put(response);
+			if (cs == null) {
+				if (response.isEarlyResponseHandling()) {
+					earlyResponseContainer.put(response);
+				}
 				return;
 			}
 			final Workflow<?> wf = workflowMap.get(cs.getWorkflowId());

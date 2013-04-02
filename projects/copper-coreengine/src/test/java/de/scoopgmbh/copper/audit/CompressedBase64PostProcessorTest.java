@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,15 @@
  */
 package de.scoopgmbh.copper.audit;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class CompressedBase64PostProcessorTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+public class CompressedBase64PostProcessorTest {
+
+	@Test
 	public void testSimple() throws Exception {
 		simpleTest("");
 		simpleTest("1");
@@ -26,6 +31,7 @@ public class CompressedBase64PostProcessorTest extends TestCase {
 		simpleTest("1234567890abcdefghij");
 	}
 
+	@Test
 	public void testNull() {
 		CompressedBase64PostProcessor compressor = new CompressedBase64PostProcessor();
 
@@ -36,6 +42,7 @@ public class CompressedBase64PostProcessorTest extends TestCase {
 		String nullDeserialization = compressor.deserialize(nullSerialization);
 		assertNull("Deserialized repsesentation of null must be null again.", nullDeserialization);
 	}
+
 
 	private void simpleTest(String msg) {
 		CompressedBase64PostProcessor compressor = new CompressedBase64PostProcessor();

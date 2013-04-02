@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,16 @@
  */
 package de.scoopgmbh.copper.instrument;
 
+import org.objectweb.asm.Type;
+
 public interface ByteCodeStackInfo {
 	
 	StackInfo getPreviousStackInfo();
 
 	StackInfo getCurrentStackInfo();
+	
+	public String[] getLocalNames(int lineNo, int count);
+
+	public Type[] getLocalDescriptors(int lineNo, int count);
 
 }

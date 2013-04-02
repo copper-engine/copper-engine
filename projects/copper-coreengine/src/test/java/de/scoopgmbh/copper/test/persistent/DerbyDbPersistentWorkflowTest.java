@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package de.scoopgmbh.copper.test.persistent;
 import javax.sql.DataSource;
 
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
+import org.junit.After;
+import org.junit.Test;
 
 
 public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
@@ -30,40 +32,47 @@ public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
 		super.cleanDB(ds);
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		DerbyDbDialect.shutdownDerby();
-		super.tearDown();
 	}
-	
+
+	@Test
 	public void testAsnychResponse() throws Exception {
 		super.testAsnychResponse(DS_CONTEXT);
 	}
 
+	@Test
 	public void testAsnychResponseLargeData() throws Exception {
 		super.testAsnychResponseLargeData(DS_CONTEXT, 10000);
 	}
 
+	@Test
 	public void testWithConnection() throws Exception {
 		super.testWithConnection(DS_CONTEXT);
 	}
-	
+
+	@Test
 	public void testWithConnectionBulkInsert() throws Exception {
 		super.testWithConnectionBulkInsert(DS_CONTEXT);
 	}
-	
+
+	@Test
 	public void testTimeouts() throws Exception {
 		super.testTimeouts(DS_CONTEXT);
 	}
-	
+
+	@Test
 	public void testErrorHandlingInCoreEngine() throws Exception {
 		super.testErrorHandlingInCoreEngine(DS_CONTEXT);
 	}
-	
+
+	@Test
 	public void testParentChildWorkflow() throws Exception {
 		super.testParentChildWorkflow(DS_CONTEXT);
-	}	
+	}
 
+	@Test
 	public void testErrorKeepWorkflowInstanceInDB() throws Exception {
 		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
 	}
@@ -71,19 +80,23 @@ public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
 //	public void testCompressedAuditTrail() throws Exception {
 //		super.testCompressedAuditTrail(DS_CONTEXT);
 //	}
-	
+
+	@Test
 	public void testAutoCommit() throws Exception {
 		super.testAutoCommit(DS_CONTEXT);
-	}	
-	
+	}
+
+	@Test
 	public void testAuditTrailUncompressed() throws Exception {
 		super.testAuditTrailUncompressed(DS_CONTEXT);
 	}
-	
+
+	@Test
 	public void testErrorHandlingWithWaitHook() throws Exception {
 		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
 	}
-	
+
+	@Test
 	public void testNotifyWithoutEarlyResponseHandling() throws Exception {
 		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
 	}

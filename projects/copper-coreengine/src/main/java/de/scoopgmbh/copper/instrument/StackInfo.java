@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,12 +44,14 @@ class StackInfo {
 		locals = (Vector<Type>)orig.locals.clone();
 		stack = new Stack<Type>();
 		stack.addAll(orig.stack);
+		lineNo = orig.lineNo;
 		//this.numLocals = orig.numLocals;
 	}
 	
 	//int numLocals;
 	Vector<Type> locals;
-	Stack<Type> stack;
+	Stack<Type>  stack;
+	int          lineNo = -1;
 	
 	public void setLocal(int pos, Type t) {
 		ComputationalCategory cat = t!=null?getCategory(t):null;
@@ -368,5 +370,9 @@ class StackInfo {
 
 	public int stackSize() {
 		return stack.size();
+	}
+	
+	public void setLineNo(int lineNo) {
+		this.lineNo = lineNo;
 	}
 }

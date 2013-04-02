@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,11 +71,12 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	private StmtStatistic deleteStaleResponsesStmtStatistic;
 
 	public AbstractSqlDialect() {
-		initStats();
+
 	}
 
 
 	public void startup() {
+        initStats();
 	}
 
 	public void setDbBatchingLatencyMSec(int dbBatchingLatencyMSec) {

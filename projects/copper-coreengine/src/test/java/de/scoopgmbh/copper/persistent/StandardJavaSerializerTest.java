@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,19 @@
  */
 package de.scoopgmbh.copper.persistent;
 
-import junit.framework.TestCase;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.common.JdkRandomUUIDFactory;
 import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
+import org.junit.Test;
 
-public class StandardJavaSerializerTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class StandardJavaSerializerTest{
 	
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testX() throws Exception {
 		final int SIZE = 20*1024;
 		StringBuilder dataSB = new StringBuilder(SIZE);
@@ -35,7 +39,7 @@ public class StandardJavaSerializerTest extends TestCase {
 		
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		repo.addSourceDir("src/workflow/java");
-		repo.setTargetDir("target/compiled_workflow");
+		repo.setTargetDir("build/compiled_workflow");
 		repo.start();
 		WorkflowFactory<String> wfFactory = repo.createWorkflowFactory("de.scoopgmbh.copper.test.PersistentSpock2GTestWF");
 		Workflow<String> wf = wfFactory.newInstance();

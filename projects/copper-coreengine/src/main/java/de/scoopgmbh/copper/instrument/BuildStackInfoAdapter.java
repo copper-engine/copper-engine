@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,10 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -52,7 +54,9 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 	StackInfo lastDeclaredFrame;
 	StackInfo currentFrame;
 	StackInfo previousFrame;
-	Map<Label, StackInfo> forwardFrames = new HashMap<Label, StackInfo>();
+	Map<Label, StackInfo> forwardFrames  = new HashMap<Label, StackInfo>();
+	Map<Label, int[]>     lineNumbers    = new HashMap<Label, int[]>();
+	List<LocalVariable>   localVariables = new ArrayList<LocalVariable>();
 	MethodVisitor delegate;
 
 	public BuildStackInfoAdapter(String classType, boolean isStatic, String methodName, String arguments, String extendedArguments) {
@@ -451,13 +455,16 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 
 	@Override
 	public void visitLineNumber(int arg0, Label arg1) {
+		getLineNumber(arg1)[0] = arg0;
+		currentFrame.setLineNo(arg0);
 		delegate.visitLineNumber(arg0, arg1);
 	}
 
 	@Override
-	public void visitLocalVariable(String arg0, String arg1, String arg2,
-			Label arg3, Label arg4, int arg5) {
-		delegate.visitLocalVariable(arg0, arg1, arg2, arg3, arg4, arg5);
+	public void visitLocalVariable(String name, String desc, String signature,
+			Label start, Label end, int index) {
+		localVariables.add(new LocalVariable(name,desc,start,end,index));
+		delegate.visitLocalVariable(name, desc, signature, start, end, index);
 	}
 
 	@Override
@@ -594,8 +601,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 	}
 
 	public static void main(String[] args) throws Exception {
-//		Class<?> clazz = ScottyClassAdapter.class;
-		File basedir = new File("C:/SCOOP_SVN/Polzug_Project/Solution/trunk/projects/gui/target/classes");
+		File basedir = new File("C:/SVN/POLZUG-Solution-1.0-trucking/projects/gui/target/classes");
 		testAllClasses(basedir,basedir);
 
 	}
@@ -622,20 +628,20 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 		}
 	}
 
-	private static void testClass(File file, String className) throws IOException,
+	private static void testClass(File file, final String className) throws IOException,
 			FileNotFoundException {
 		ClassReader cr = new ClassReader(new FileInputStream(file));
 		ClassWriter cw = new ClassWriter(0);
-		final String desc = Type.getObjectType(className).getDescriptor();
+		final String cDesc = Type.getObjectType(className).getDescriptor();
 		ClassVisitor cv =
 		 new ClassAdapter(cw) {
 			
 			
 			 @Override
-			public MethodVisitor visitMethod(int arg0, String arg1,
-					String arg2, String arg3, String[] arg4) {
-				 if (logger.isDebugEnabled()) logger.debug("=======>"+arg0+" "+arg1+" "+arg2+" "+arg3);
-				  return new BuildStackInfoAdapter(desc, (arg0&Opcodes.ACC_STATIC) > 0, arg1, arg2, arg3);
+			public MethodVisitor visitMethod(int access, String name,
+					String desc, String signature, String[] exceptions) {
+				 if (logger.isDebugEnabled()) logger.debug("=======>"+access+" "+name+" "+desc+" "+signature);
+				  return new BuildStackInfoAdapter(cDesc, (access&Opcodes.ACC_STATIC) > 0, name, desc, signature);
 			}
 			 
 			 @Override
@@ -753,11 +759,67 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 	public StackInfo getPreviousStackInfo() {
 		return new StackInfo(previousFrame);
 	}
-
+	
 	@Override
 	public StackInfo getCurrentStackInfo() {
 		return new StackInfo(currentFrame);
 	}
+
+	private int[] getLineNumber(Label l) {
+		int[] lineNo = lineNumbers.get(l);
+		if (lineNo == null) {
+			lineNumbers.put(l, lineNo = new int[]{-1});
+		}
+		return lineNo;
+	}
 	
+	@Override
+	public String[] getLocalNames(int lineNo, int count) {
+		String[] names = new String[count];
+		outerLoop: for (int index = 0; index < count; ++index) {
+			names[index] = "var"+index;
+			for (LocalVariable var : localVariables) {
+				if (var.index == index && var.fromLine[0] <= lineNo && var.toLine[0] >= lineNo) {
+					names[index] = var.name;
+					continue outerLoop;
+				}
+			}
+		}
+		return names;
+	}
+
+	@Override
+	public Type[] getLocalDescriptors(int lineNo, int count) {
+		Type[] types = new Type[count];
+		outerLoop: for (int index = 0; index < count; ++index) {
+			for (LocalVariable var : localVariables) {
+				if (var.index == index && var.fromLine[0] <= lineNo && var.toLine[0] >= lineNo) {
+					types[index] = Type.getType(var.declaredDescriptor);
+					continue outerLoop;
+				}
+			}
+		}
+		return types;
+	}
+
+	public class LocalVariable {
+		
+		public LocalVariable(String name, String declaredDescriptor, Label from, Label to, int index) {
+			this.name     = name;
+			this.fromLine = getLineNumber(from);
+			this.toLine   =   getLineNumber(to);
+			if (this.toLine[0] == -1)
+				this.toLine[0] = Integer.MAX_VALUE;
+			this.index    = index;
+			this.declaredDescriptor = declaredDescriptor;
+		}
+		
+		String name;
+		int[]  fromLine;
+		int[]  toLine;
+		int    index;
+		String declaredDescriptor;
+		
+	}
 
 }

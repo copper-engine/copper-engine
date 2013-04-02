@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.wfrepo;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -28,8 +29,16 @@ public class URLClassloaderClasspathProvider implements CompilerOptionsProvider 
 	public Collection<String> getOptions() {
 		StringBuilder buf = new StringBuilder();
 		URLClassLoader loader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-		for ( URL url : loader.getURLs() ) {
-			buf.append(url.getFile()).append(File.pathSeparator);
+		for (URL url : loader.getURLs() ) {
+			File f = null;
+			try {
+				//convert the URL to a URI to remove the HTML encoding, if it exists.
+				f = new File(url.toURI().getPath());
+			} 
+			catch (URISyntaxException e) {
+				throw new RuntimeException("failed to convert the classpath URL '"+url+"' to a URI",e);
+			}
+			buf.append(f.getAbsolutePath()).append(File.pathSeparator);
 		}
 		List<String> options = new ArrayList<String>();
 		options.add("-classpath");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,45 +15,48 @@
  */
 package de.scoopgmbh.copper.instrument;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
+import org.junit.Test;
 import org.objectweb.asm.Type;
 
-public class BuildStackInfoAdapterTest extends TestCase {
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
+public class BuildStackInfoAdapterTest{
 
+	@Test
 	public void testDup() {
 		StackInfo f = new StackInfo();
 		f.pushStack(Type.INT_TYPE);
 		f.dupStack();
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
 		try {
 			f.popStack();
-			Assert.fail("Expected empty stack exception");
+			fail("Expected empty stack exception");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
 		f.pushStack(Type.DOUBLE_TYPE);
 		try {
 			f.dupStack();
-			Assert.fail("Expected exception: wrong computational type.");
+			fail("Expected exception: wrong computational type.");
 		} catch (Exception ex) {
 		}
 	}
 
+	@Test
 	public void testDupX1() {
 		StackInfo f = new StackInfo();
 		f.pushStack(Type.INT_TYPE);
 		f.pushStack(Type.FLOAT_TYPE);
 		f.dupX1Stack();
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
 		try {
 			f.popStack();
-			Assert.fail("Expected empty stack exception");
+			fail("Expected empty stack exception");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
@@ -61,7 +64,7 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.INT_TYPE);
 		try {
 			f.dupX1Stack();
-			Assert.fail("Expected exception: wrong computational type.");
+			fail("Expected exception: wrong computational type.");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
@@ -69,36 +72,37 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.DOUBLE_TYPE);
 		try {
 			f.dupX1Stack();
-			Assert.fail("Expected exception: wrong computational type.");
+			fail("Expected exception: wrong computational type.");
 		} catch (Exception ex) {
 		}
 	}
 
+	@Test
 	public void testDupX2() {
 		StackInfo f = new StackInfo();
 		f.pushStack(Type.INT_TYPE);
 		f.pushStack(Type.FLOAT_TYPE);
 		f.pushStack(Type.BYTE_TYPE);
 		f.dupX2Stack();
-		Assert.assertSame(Type.BYTE_TYPE, f.popStack());
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
-		Assert.assertSame(Type.BYTE_TYPE, f.popStack());
+		assertSame(Type.BYTE_TYPE, f.popStack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.BYTE_TYPE, f.popStack());
 		try {
 			f.popStack();
-			Assert.fail("Expected empty stack exception");
+			fail("Expected empty stack exception");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
 		f.pushStack(Type.DOUBLE_TYPE);
 		f.pushStack(Type.INT_TYPE);
 		f.dupX2Stack();
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
-		Assert.assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
+		assertSame(Type.INT_TYPE, f.popStack());
 		try {
 			f.popStack();
-			Assert.fail("Expected empty stack exception");
+			fail("Expected empty stack exception");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
@@ -107,7 +111,7 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.DOUBLE_TYPE);
 		try {
 			f.dupX2Stack();
-			Assert.fail("Expected exception: wrong computational type.");
+			fail("Expected exception: wrong computational type.");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
@@ -116,33 +120,34 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.INT_TYPE);
 		try {
 			f.dupX2Stack();
-			Assert.fail("Expected exception: wrong computational type.");
+			fail("Expected exception: wrong computational type.");
 		} catch (Exception ex) {
 		}
 	}
 
+	@Test
 	public void testDup2() {
 		StackInfo f = new StackInfo();
 		f.pushStack(Type.INT_TYPE);
 		f.pushStack(Type.FLOAT_TYPE);
 		f.dup2Stack();
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
 		try {
 			f.popStack();
-			Assert.fail("Expected empty stack exception");
+			fail("Expected empty stack exception");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
 		f.pushStack(Type.DOUBLE_TYPE);
 		f.dup2Stack();
-		Assert.assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
-		Assert.assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
+		assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
+		assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
 		try {
 			f.popStack();
-			Assert.fail("Expected empty stack exception");
+			fail("Expected empty stack exception");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
@@ -151,38 +156,38 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.INT_TYPE);
 		try {
 			f.dup2Stack();
-			Assert.fail("Expected exception: wrong computational type.");
+			fail("Expected exception: wrong computational type.");
 		} catch (Exception ex) {
 		}
 	}
 
-
+	@Test
 	public void testDup2X1() {
 		StackInfo f = new StackInfo();
 		f.pushStack(Type.INT_TYPE);
 		f.pushStack(Type.FLOAT_TYPE);
 		f.pushStack(Type.CHAR_TYPE);
 		f.dup2X1Stack();
-		Assert.assertSame(Type.CHAR_TYPE, f.popStack());
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
-		Assert.assertSame(Type.CHAR_TYPE, f.popStack());
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.CHAR_TYPE, f.popStack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.CHAR_TYPE, f.popStack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
 		try {
 			f.popStack();
-			Assert.fail("Expected empty stack exception");
+			fail("Expected empty stack exception");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
 		f.pushStack(Type.INT_TYPE);
 		f.pushStack(Type.DOUBLE_TYPE);
 		f.dup2X1Stack();
-		Assert.assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
-		Assert.assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
+		assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
+		assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
 		try {
 			f.popStack();
-			Assert.fail("Expected empty stack exception");
+			fail("Expected empty stack exception");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
@@ -190,7 +195,7 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.DOUBLE_TYPE);
 		try {
 			f.dup2X1Stack();
-			Assert.fail("Expected exception: wrong computational type.");
+			fail("Expected exception: wrong computational type.");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
@@ -199,11 +204,12 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.INT_TYPE);
 		try {
 			f.dup2X1Stack();
-			Assert.fail("Expected exception: wrong computational type.");
+			fail("Expected exception: wrong computational type.");
 		} catch (Exception ex) {
 		}
 	}
 
+	@Test
 	public void testDup2X2() {
 		StackInfo f = new StackInfo();
 		//FORM1
@@ -212,15 +218,15 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.CHAR_TYPE);
 		f.pushStack(Type.BYTE_TYPE);
 		f.dup2X2Stack();
-		Assert.assertSame(Type.BYTE_TYPE, f.popStack());
-		Assert.assertSame(Type.CHAR_TYPE, f.popStack());
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
-		Assert.assertSame(Type.BYTE_TYPE, f.popStack());
-		Assert.assertSame(Type.CHAR_TYPE, f.popStack());
+		assertSame(Type.BYTE_TYPE, f.popStack());
+		assertSame(Type.CHAR_TYPE, f.popStack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.BYTE_TYPE, f.popStack());
+		assertSame(Type.CHAR_TYPE, f.popStack());
 		try {
 			f.popStack();
-			Assert.fail("Expected empty stack exception");
+			fail("Expected empty stack exception");
 		} catch (Exception ex) {
 		}
 		//FORM2
@@ -229,13 +235,13 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.FLOAT_TYPE);
 		f.pushStack(Type.DOUBLE_TYPE);
 		f.dup2X2Stack();
-		Assert.assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
-		Assert.assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
+		assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
 		try {
 			f.popStack();
-			Assert.fail("Expected empty stack exception");
+			fail("Expected empty stack exception");
 		} catch (Exception ex) {
 		}
 		//FORM3
@@ -244,18 +250,18 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.INT_TYPE);
 		f.pushStack(Type.FLOAT_TYPE);
 		f.dup2X2Stack();
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
-		Assert.assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
-		Assert.assertSame(Type.FLOAT_TYPE, f.popStack());
-		Assert.assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
+		assertSame(Type.DOUBLE_TYPE, f.pop2Stack());
+		assertSame(Type.FLOAT_TYPE, f.popStack());
+		assertSame(Type.INT_TYPE, f.popStack());
 		f = new StackInfo();
 		f.pushStack(Type.INT_TYPE);
 		f.pushStack(Type.DOUBLE_TYPE);
 		f.pushStack(Type.FLOAT_TYPE);
 		try {
 			f.dup2X2Stack();
-			Assert.fail("Expected exception: wrong computational type.");
+			fail("Expected exception: wrong computational type.");
 		} catch (Exception ex) {
 		}
 		f = new StackInfo();
@@ -264,7 +270,7 @@ public class BuildStackInfoAdapterTest extends TestCase {
 		f.pushStack(Type.DOUBLE_TYPE);
 		try {
 			f.dup2X2Stack();
-			Assert.fail("Expected exception: wrong computational type.");
+			fail("Expected exception: wrong computational type.");
 		} catch (Exception ex) {
 		}
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import junit.framework.Assert;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -31,14 +29,22 @@ import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
+
 
 public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowTest {
 
 	protected ConfigurableApplicationContext createContext(String dsContext) {
 		return new ClassPathXmlApplicationContext(new String[] {dsContext, "SpringTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml", "unittest-context.xml"});
-	}	
-	
+	}
+
+
 	public void testSpringTxnUnitTestWorkflow(String dsContext) throws Exception {
+		assumeFalse(skipTests());
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
@@ -47,9 +53,9 @@ public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowT
 			engine.startup();
 			engine.run("de.scoopgmbh.copper.test.persistent.springtxn.SpringTxnUnitTestWorkflow", "TestData");
 			WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-			Assert.assertNotNull(x);
-			Assert.assertNotNull(x.getResult());
-			Assert.assertNull(x.getException());
+			assertNotNull(x);
+			assertNotNull(x.getResult());
+			assertNull(x.getException());
 
 			//check
 			new RetryingTransaction(context.getBean(DataSource.class)) {

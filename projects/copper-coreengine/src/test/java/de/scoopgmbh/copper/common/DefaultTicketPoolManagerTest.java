@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,17 @@
  */
 package de.scoopgmbh.copper.common;
 
-import junit.framework.TestCase;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
+import org.junit.Test;
 
-public class DefaultTicketPoolManagerTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public class DefaultTicketPoolManagerTest {
 
 	private static final String WF_CLASSNAME = "de.scoopgmbh.copper.test.tranzient.simple.SimpleTransientWorkflow";
 
+	@Test
 	public void testObtain() throws Exception {
 		
 		final String T_POOL_ID = "testTicketPoolId";
@@ -33,7 +36,7 @@ public class DefaultTicketPoolManagerTest extends TestCase {
 
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		repo.addSourceDir("src/workflow/java");
-		repo.setTargetDir("target/compiled_workflow");
+		repo.setTargetDir("build/compiled_workflow");
 		
 		repo.start();
 		ticketPoolManager.startup();

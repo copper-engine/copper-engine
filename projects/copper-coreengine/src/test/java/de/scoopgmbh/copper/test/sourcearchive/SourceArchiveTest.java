@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,19 @@ package de.scoopgmbh.copper.test.sourcearchive;
 
 import java.io.File;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
 
-public class SourceArchiveTest extends TestCase {
+import static org.junit.Assert.assertNotNull;
+
+public class SourceArchiveTest {
 	
 	private Logger logger = LoggerFactory.getLogger(SourceArchiveTest.class);
-	
+
+	@Test
 	public void testSourceArchive() throws Exception {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		String url = new File("src/workflow_archive/workflow_archive.jar").toURI().toURL().toString();
@@ -36,9 +37,9 @@ public class SourceArchiveTest extends TestCase {
 		repo.addSourceArchiveUrl(url);
 		repo.addSourceArchiveUrl(url);
 		repo.addSourceArchiveUrl(url);
-		repo.setTargetDir("target/compiled_workflow");
+		repo.setTargetDir("build/compiled_workflow");
 		repo.start();
-		Assert.assertNotNull(repo.createWorkflowFactory("de.scoopgmbh.copper.archivetest.ArchiveTestWorkflow"));
+		assertNotNull(repo.createWorkflowFactory("de.scoopgmbh.copper.archivetest.ArchiveTestWorkflow"));
 		repo.shutdown();
 	}
 }

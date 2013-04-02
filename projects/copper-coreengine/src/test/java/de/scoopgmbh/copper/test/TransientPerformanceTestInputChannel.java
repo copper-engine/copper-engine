@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,11 @@ public class TransientPerformanceTestInputChannel implements Runnable {
 	public static long max=Long.MIN_VALUE;
 	public static long sum=0;
 	public static long statCounter=0;
-	public static final Object mutex=new Object();	
+	public static final Object mutex=new Object();
+	
+	private static final Object doneMutex = new Object();
+	private static boolean done = false;
+	
 
 	public static void report() {
 		System.out.println("counter="+counter);
@@ -48,16 +52,19 @@ public class TransientPerformanceTestInputChannel implements Runnable {
 
 	public static void increment() {
 		if (counter.incrementAndGet() == NUMB) {
-			synchronized (counter) {
-				counter.notify();
+			synchronized (doneMutex) {
+				done = true;
+				doneMutex.notify();
 			}
 		}
 	}
 
 	public static void wait4finish() {
-		synchronized (counter) {
+		synchronized (doneMutex) {
 			try {
-				counter.wait();
+				while (!done) {
+					doneMutex.wait();
+				}
 			} 
 			catch (InterruptedException e) {
 				e.printStackTrace();

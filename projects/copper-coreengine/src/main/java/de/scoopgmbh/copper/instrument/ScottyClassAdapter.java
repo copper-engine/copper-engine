@@ -1,9 +1,12 @@
  package de.scoopgmbh.copper.instrument;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -16,6 +19,7 @@ public class ScottyClassAdapter extends ClassAdapter implements Opcodes {
 	
 	private String currentClassName;
 	private final Set<String> interruptableMethods;
+	private final List<MethodInfo> methodInfos = new ArrayList<MethodInfo>();
 
 	public ScottyClassAdapter(ClassVisitor cv, Set<String> interruptableMethods) {
 		super(cv);
@@ -49,10 +53,17 @@ public class ScottyClassAdapter extends ClassAdapter implements Opcodes {
 			
 			String classDesc = Type.getObjectType(currentClassName).getDescriptor();
 			BuildStackInfoAdapter stackInfo = new BuildStackInfoAdapter(classDesc,(access & ACC_STATIC) > 0, name, desc, signature);
-			ScottyMethodAdapter scotty = new ScottyMethodAdapter(mv, currentClassName, interruptableMethods, stackInfo, name);
+			final ScottyMethodAdapter scotty = new ScottyMethodAdapter(mv, currentClassName, interruptableMethods, stackInfo, name, access, desc);
+			MethodAdapter collectMethodInfo = new MethodAdapter(stackInfo) {
+				@Override
+				public void visitEnd() {
+					super.visitEnd();
+					methodInfos.add(scotty.getMethodInfo());
+				}
+			};
 			stackInfo.setMethodVisitor(scotty);
 //			ScottyMethodAdapter stackInfo = new ScottyMethodAdapter(mv, currentClassName, interruptableMethods);
-			return stackInfo;
+			return collectMethodInfo;
 		}
 		return super.visitMethod(access, name, desc, signature, exceptions);
 	}
@@ -60,5 +71,10 @@ public class ScottyClassAdapter extends ClassAdapter implements Opcodes {
 	@Override
 	public void visitEnd() {
 		super.visitEnd();
+	}
+	
+	public ClassInfo getClassInfo() {
+		return new ClassInfo(methodInfos);
+		
 	}
 }
