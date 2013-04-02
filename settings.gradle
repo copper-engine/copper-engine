@@ -1,1 +1,1 @@
-include ":projects:copper-coreengine", ":projects:copper-sample", ':projects:copper-monitor-core', ':projects:copper-monitor-server', ':projects:copper-monitor-client'
+include ":projects:copper-coreengine", ":projects:copper-examples", ':projects:copper-monitor-core', ':projects:copper-monitor-server', ':projects:copper-monitor-client'
