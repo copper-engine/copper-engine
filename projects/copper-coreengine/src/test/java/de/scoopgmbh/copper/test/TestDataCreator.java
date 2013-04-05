@@ -27,7 +27,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.scoopgmbh.copper.common.IdFactory;
 import de.scoopgmbh.copper.common.JdkRandomUUIDFactory;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
-import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
 
 public class TestDataCreator {
@@ -100,9 +100,9 @@ public class TestDataCreator {
 
 	private static void test(final DataSource dataSource, final IdFactory idFactory, final byte[] data, final byte[] response, final String data_s, final String response_s, final PrintStream ps) throws InterruptedException, Exception {
 		Thread.sleep(30000);
-		final StmtStatistic a = new StmtStatistic("INSERT INTO BUSI", new NullRuntimeStatisticsCollector());
-		final StmtStatistic b = new StmtStatistic("INSERT INTO WAIT", new NullRuntimeStatisticsCollector());
-		final StmtStatistic c = new StmtStatistic("INSERT INTO RESP", new NullRuntimeStatisticsCollector());
+		final StmtStatistic a = new StmtStatistic("INSERT INTO BUSI", new NoMonitoringDataCollector());
+		final StmtStatistic b = new StmtStatistic("INSERT INTO WAIT", new NoMonitoringDataCollector());
+		final StmtStatistic c = new StmtStatistic("INSERT INTO RESP", new NoMonitoringDataCollector());
 		for (int i=0; i<5; i++) {
 			final List<String> ids = new ArrayList<String>(100000);
 			final List<String> cids = new ArrayList<String>(100000);

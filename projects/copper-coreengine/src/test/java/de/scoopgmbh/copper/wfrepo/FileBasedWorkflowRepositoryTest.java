@@ -16,18 +16,17 @@
 package de.scoopgmbh.copper.wfrepo;
 
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.util.Arrays;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.WorkflowFactory;
 
-import static org.junit.Assert.fail;
-
 public class FileBasedWorkflowRepositoryTest{
 	
-	private static final Logger logger = LoggerFactory.getLogger(FileBasedWorkflowRepositoryTest.class);
-
 	@Test(expected = ClassNotFoundException.class)
 	public void testCreateWorkflowFactory() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
@@ -43,5 +42,21 @@ public class FileBasedWorkflowRepositoryTest{
 		}
 		
 	}
+	
+	@Test
+	public void testGetAll() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+		FileBasedWorkflowRepository wfRepository = new FileBasedWorkflowRepository();
+		wfRepository.setSourceDirs(Arrays.asList("src/test/java/de/scoopgmbh/copper/monitoring/integrationtest/workflow"));
+		wfRepository.setTargetDir("build/compiled_workflow");
+		wfRepository.start();
+	
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		assertEquals(new File("src/test/java/de/scoopgmbh/copper/monitoring/integrationtest/workflow").listFiles().length, wfRepository.getAllWorkflowsInfos().size());
+	}
+	
 
 }
