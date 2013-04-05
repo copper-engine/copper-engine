@@ -35,5 +35,21 @@ public class WorkflowStateSummary implements Serializable {
 		super();
 		this.numberOfWorkflowInstancesWithState = numberOfWorkflowInstancesWithState;
 	}
+
+	@Override
+	public String toString() {
+		return "WorkflowStateSummary [numberOfWorkflowInstancesWithState=" + numberOfWorkflowInstancesWithState + "]";
+	}
+	
+	public int getCount(WorkflowInstanceState workflowInstanceState){
+		Integer count = numberOfWorkflowInstancesWithState.get(workflowInstanceState);
+		if (count == null){
+			return 0;
+		} else {
+			return count;
+		}
+	}
+	
+	
 	
 }

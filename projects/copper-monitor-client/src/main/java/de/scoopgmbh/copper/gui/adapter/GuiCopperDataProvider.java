@@ -60,8 +60,8 @@ public class GuiCopperDataProvider {
 	public List<WorkflowInstanceResultModel> getWorkflowInstanceList(WorkflowInstanceFilterModel filter){
 		List<WorkflowInstanceInfo> list;
 		try {
-			list = copperDataProvider.getWorkflowInstanceList(filter.engine.getValue().getId() ,filter.version.convert(),
-					filter.state.getValue(), filter.priority.getValue(), maxResultCount.getValue());
+			list = copperDataProvider.getWorkflowInstanceList(getPoolId(filter.engine.getValue()),filter.version.classname.getValue(),
+					filter.state.getValue(), getFilterReadyInteger(filter.priority.getValue()), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -72,11 +72,23 @@ public class GuiCopperDataProvider {
 		return result;
 	}
 	
+	private Integer getFilterReadyInteger(String string){
+		try {
+			return string==null?null:Integer.valueOf(string);
+		} catch (NumberFormatException e){
+			return null;
+		}
+	}
+
+	public String getPoolId(ProcessingEngineInfo engine) {
+		return engine.getPools().size()==1?engine.getPools().get(0).getId():null;
+	}
+	
 	public List<AuditTrailResultModel> getAuditTrails(de.scoopgmbh.copper.gui.ui.audittrail.filter.AuditTrailFilterModel  filter){
 		
 		List<AuditTrailInfo> list;
 		try {
-			list = copperDataProvider.getAuditTrails(filter.workflowClass.getValue(), filter.workflowInstanceId.getValue(), filter.correlationId.getValue(), filter.level.getValue(), maxResultCount.getValue());
+			list = copperDataProvider.getAuditTrails(filter.workflowClass.getValue(), filter.workflowInstanceId.getValue(), filter.correlationId.getValue(), getFilterReadyInteger(filter.level.getValue()), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -90,7 +102,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowSummeryResultModel> getWorkflowSummery(WorkflowSummeryFilterModel filter) {
 		List<WorkflowSummary> summeries;
 		try {
-			summeries = copperDataProvider.getWorkflowSummary(filter.engine.getValue().getId(), filter.version.convert(), maxResultCount.getValue());
+			summeries = copperDataProvider.getWorkflowSummary(getPoolId(filter.engine.getValue()), filter.version.classname.get(), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

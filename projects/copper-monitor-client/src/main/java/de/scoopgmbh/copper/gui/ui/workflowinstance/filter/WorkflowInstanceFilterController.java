@@ -74,8 +74,8 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
         assert patchLevel != null : "fx:id=\"patchLevel\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
         
-        priorityField.textProperty().bind(model.priority.asString());
-        workflowClass.textProperty().bind(model.version.classname);
+        priorityField.textProperty().bindBidirectional(model.priority);
+        workflowClass.textProperty().bindBidirectional(model.version.classname);
         majorVersion.textProperty().bindBidirectional(model.version.versionMajor, new LongStringConverter());
         minorVersion.textProperty().bindBidirectional(model.version.versionMinor, new LongStringConverter());
         patchLevel.textProperty().bindBidirectional(model.version.patchlevel, new LongStringConverter());

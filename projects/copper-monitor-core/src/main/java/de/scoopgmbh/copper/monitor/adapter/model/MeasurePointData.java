@@ -21,56 +21,72 @@ import java.io.Serializable;
 public class MeasurePointData implements Serializable {
 	private static final long serialVersionUID = -2755509084700249664L;
 	
-	private String mpId;
+	private final String measurePointId;
 	private long elementCount = 0L;
 	private long elapsedTimeMicros = 0L;
 	private long count = 0L;
 	
-	public MeasurePointData() {
-	}
-	
 	@ConstructorProperties({"mpId", "elementCount", "elapsedTimeMicros", "count"})
-	public MeasurePointData(String mpId, long elementCount, long elapsedTimeMicros, long count) {
+	public MeasurePointData(String measurePointId, long elementCount, long elapsedTimeMicros, long count) {
 		super();
-		this.mpId = mpId;
+		this.measurePointId = measurePointId;
 		this.elementCount = elementCount;
 		this.elapsedTimeMicros = elapsedTimeMicros;
 		this.count = count;
 	}
 
-	public String getMpId() {
-		return mpId;
+	
+	public MeasurePointData(String measurePointId) {
+		this.measurePointId = measurePointId;
 	}
-
-	public void setMpId(String mpId) {
-		this.mpId = mpId;
+	void reset() {
+		elementCount = 0L;
+		elapsedTimeMicros = 0L;
+		count = 0L;
 	}
-
 	public long getElementCount() {
 		return elementCount;
 	}
-
 	public void setElementCount(long elementCount) {
 		this.elementCount = elementCount;
 	}
-
 	public long getElapsedTimeMicros() {
 		return elapsedTimeMicros;
 	}
-
 	public void setElapsedTimeMicros(long elapsedTimeMicros) {
 		this.elapsedTimeMicros = elapsedTimeMicros;
 	}
-
 	public long getCount() {
 		return count;
 	}
-
 	public void setCount(long count) {
 		this.count = count;
 	}
+	public String getMeasurePointId() {
+		return measurePointId;
+	}
 	
+	public void update( long elementCount,long elapsedTimeMicros){
+		this.elementCount+=elementCount;
+		this.elapsedTimeMicros+=elapsedTimeMicros;
+		this.count++;
+		if (this.elapsedTimeMicros<0 || this.elementCount<0 || this.count<0){//long overflow
+			reset();
+		}
+	}
 	
+	@Override
+	public String toString() {
+		final String DOTS = ".................................................1";
+		long calcCount = 0L;
+
+		calcCount = count > 0 ? count : 1;
+
+		final long avgElementCount = elementCount/calcCount;
+		final double avgTimePerElement = elementCount > 0 ? (double)elapsedTimeMicros/(double)elementCount/1000.0 : 0.0;
+		final double avgTimePerExecution = count > 0 ? (double)elapsedTimeMicros/(double)calcCount/1000.0 : 0.0;
+		return String.format("%1$55.55s #elements=%2$6d; avgCount=%3$6d; avgTime/Element=%4$12.5f msec; avgTime/Exec=%5$12.5f msec", measurePointId+DOTS, elementCount, avgElementCount, avgTimePerElement, avgTimePerExecution);
+	}
 	
 
 }

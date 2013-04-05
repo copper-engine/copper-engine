@@ -36,11 +36,11 @@ public class ProcessorPoolInfo implements Serializable {
 	private int memoryQueueSize;
 	
 	
-	public ProcessorPoolInfo(String id, ProcessorPoolTyp processorPoolTyp, int lowerThreshold, int upperThreshold,
+	public ProcessorPoolInfo(String poolId, ProcessorPoolTyp processorPoolTyp, int lowerThreshold, int upperThreshold,
 			int upperThresholdReachedWaitMSec, int emptyQueueWaitMSec, int dequeueBulkSize, int numberOfThreads, int threadPriority,
 			int memoryQueueSize) {
 		super();
-		this.id = id;
+		this.id = poolId;
 		this.processorPoolTyp = processorPoolTyp;
 		this.lowerThreshold = lowerThreshold;
 		this.upperThreshold = upperThreshold;
@@ -53,9 +53,9 @@ public class ProcessorPoolInfo implements Serializable {
 	}
 	
 	
-	public ProcessorPoolInfo(String processingEngineId, ProcessorPoolTyp processorPoolTyp) {
+	public ProcessorPoolInfo(String poolId, ProcessorPoolTyp processorPoolTyp) {
 		super();
-		this.id = processingEngineId;
+		this.id = poolId;
 		this.processorPoolTyp = processorPoolTyp;
 	}
 
@@ -143,8 +143,19 @@ public class ProcessorPoolInfo implements Serializable {
 
 
 
+	@Override
+	public String toString() {
+		return "ProcessorPoolInfo [id=" + id + ", processorPoolTyp=" + processorPoolTyp + ", lowerThreshold=" + lowerThreshold + ", upperThreshold="
+				+ upperThreshold + ", upperThresholdReachedWaitMSec=" + upperThresholdReachedWaitMSec + ", emptyQueueWaitMSec=" + emptyQueueWaitMSec
+				+ ", dequeueBulkSize=" + dequeueBulkSize + ", numberOfThreads=" + numberOfThreads + ", threadPriority=" + threadPriority + ", memoryQueueSize="
+				+ memoryQueueSize + "]";
+	}
+
+
+
+
 	public static enum ProcessorPoolTyp{
-		TRANSIENT, PERSISTENT, PRIORITY_TRANSIENT, PRIORITY_PERSISTENT
+		TRANSIENT, PERSISTENT
 	}
 	
 }

@@ -32,13 +32,13 @@
     <Label layoutX="195.0" layoutY="89.0" prefHeight="19.951171875" text="ENQUEUED" />
     <Label layoutX="12.0" layoutY="60.0" text="typ" textFill="WHITE" />
     <TextField fx:id="typ" editable="false" layoutX="71.0" layoutY="59.0" opacity="0.75" prefHeight="22.0" prefWidth="94.0" />
-    <Button id="numemrbutton" fx:id="nummerbutton" layoutX="80.0" layoutY="109.0" mnemonicParsing="false" prefHeight="21.9610595703125" prefWidth="84.9998779296875" text="setzen" />
-    <TextField fx:id="nummerNew" layoutX="14.0" layoutY="110.0" prefWidth="61.999900000002526" />
-    <Button fx:id="prioButton" layoutX="80.0" layoutY="163.0" mnemonicParsing="false" prefHeight="21.9610595703125" prefWidth="84.9998779296875" text="setzen" />
-    <TextField fx:id="prioNew" layoutX="14.0" layoutY="163.0" prefWidth="62.000022070315026" />
+    <Button id="numemrbutton" fx:id="nummerbutton" alignment="TOP_CENTER" layoutX="103.0" layoutY="109.0" minHeight="19.951171875" mnemonicParsing="false" prefHeight="22.000099999997474" prefWidth="61.9998779296875" text="set" />
+    <TextField fx:id="nummerNew" layoutX="14.0" layoutY="110.0" prefHeight="22.0" prefWidth="87.00002207031503" />
+    <Button fx:id="prioButton" layoutX="103.0" layoutY="162.0" minHeight="22.0" mnemonicParsing="false" prefHeight="22.0001220703125" prefWidth="61.9998779296875" text="set" />
+    <TextField fx:id="prioNew" layoutX="14.0" layoutY="163.0" prefHeight="22.0" prefWidth="87.00002207031503" />
     <Label layoutX="12.0" layoutY="86.0" prefHeight="17.499908447265625" prefWidth="94.0" text="Thread Nummer" textFill="WHITE" />
-    <TextField id="typ" fx:id="threadNummerInfo" editable="false" layoutX="103.0" layoutY="84.0" opacity="0.75" prefHeight="22.0" prefWidth="62.0" />
+    <TextField id="typ" fx:id="threadNummerInfo" editable="false" layoutX="103.0" layoutY="85.0" opacity="0.75" prefHeight="22.0" prefWidth="62.0" />
     <Label layoutX="12.0" layoutY="136.0" prefWidth="94.0" text="Thread Priorität" textFill="WHITE" />
-    <TextField id="typ" fx:id="threadPrioritaetInfo" editable="false" layoutX="103.0" layoutY="137.0" opacity="0.75" prefHeight="22.0" prefWidth="62.0" />
+    <TextField id="typ" fx:id="threadPrioritaetInfo" editable="false" layoutX="103.0" layoutY="136.0" opacity="0.75" prefHeight="22.0" prefWidth="62.0" />
   </children>
 </Pane>

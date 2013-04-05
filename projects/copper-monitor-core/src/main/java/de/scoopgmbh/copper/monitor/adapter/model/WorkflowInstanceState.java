@@ -16,6 +16,16 @@
 package de.scoopgmbh.copper.monitor.adapter.model;
 
 
-public enum WorkflowInstanceState{
-	RAW, ENQUEUED, DEQUEUED, RUNNING, WAITING, FINISHED, ERROR, INVALID
+public enum WorkflowInstanceState {
+
+	ENQUEUED, 
+	PROCESSING, 
+	WAITING, 
+	FINISHED, 
+	INVALID, 
+	ERROR;
+	
+	
+	
+	
 }

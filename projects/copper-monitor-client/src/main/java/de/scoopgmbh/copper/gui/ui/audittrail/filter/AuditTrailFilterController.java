@@ -51,10 +51,10 @@ public class AuditTrailFilterController implements Initializable, FilterControll
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'AuditTrailFilter.fxml'.";
         assert workflowInstanceId != null : "fx:id=\"workflowInstanceId\" was not injected: check your FXML file 'AuditTrailFilter.fxml'.";
 
-        workflowClass.textProperty().bind(model.workflowClass);
-        level.textProperty().bind(model.level.asString());
-        correlationId.textProperty().bind(model.correlationId);
-        workflowInstanceId.textProperty().bind(model.workflowInstanceId);
+        workflowClass.textProperty().bindBidirectional(model.workflowClass);
+        level.textProperty().bindBidirectional(model.level);
+        correlationId.textProperty().bindBidirectional(model.correlationId);
+        workflowInstanceId.textProperty().bindBidirectional(model.workflowInstanceId);
 	}
 
 	@Override

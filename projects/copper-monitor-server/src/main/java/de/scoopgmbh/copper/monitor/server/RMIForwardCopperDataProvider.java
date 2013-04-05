@@ -99,7 +99,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowSummary> getWorkflowSummary(String engineid, WorkflowClassVersionInfo workflowClassDescription,
+	public List<WorkflowSummary> getWorkflowSummary(String poolid, String classname,
 			long resultRowLimit) throws RemoteException {		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
@@ -112,7 +112,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 		result.add(workflowSummery);
 		
 		WorkflowSummary inputcopy = new WorkflowSummary("",10,
-				workflowClassDescription,
+				new WorkflowClassVersionInfo(classname,"alias",0L,+(long)(Math.random()*100),0L),
 				new WorkflowStateSummary(map));
 		result.add(inputcopy);
 		
@@ -120,7 +120,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String engineid, WorkflowClassVersionInfo workflowClassDescription,
+	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String poolid, String classname,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException {
 		ArrayList<WorkflowInstanceInfo> result = new ArrayList<>();
 		WorkflowInstanceInfo workflowInfo = new WorkflowInstanceInfo();
@@ -220,7 +220,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	public List<ProcessingEngineInfo> getProccessingEngineList() throws RemoteException {
 		return Arrays.asList(
 				new ProcessingEngineInfo(EngineTyp.PERSISTENT,"peId1", new ProcessorPoolInfo("poId1",ProcessorPoolTyp.PERSISTENT)),
-				new ProcessingEngineInfo(EngineTyp.TRANSIENT,"peId2", new ProcessorPoolInfo("poId2",ProcessorPoolTyp.TRANSIENT), new ProcessorPoolInfo("poId3",ProcessorPoolTyp.PRIORITY_TRANSIENT))
+				new ProcessingEngineInfo(EngineTyp.TRANSIENT,"peId2", new ProcessorPoolInfo("poId2",ProcessorPoolTyp.TRANSIENT), new ProcessorPoolInfo("poId3",ProcessorPoolTyp.TRANSIENT))
 				);
 	}
 

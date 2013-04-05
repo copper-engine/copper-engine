@@ -34,9 +34,10 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 
 public interface CopperMonitorInterface extends Remote, Serializable {
 
-	public List<WorkflowSummary> getWorkflowSummary(String engineid, WorkflowClassVersionInfo workflowClassDescription, long resultRowLimit) throws RemoteException;
+	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname, long resultRowLimit) throws RemoteException;
 
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String engineid, WorkflowClassVersionInfo workflowClassDescription, WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException;
+	public List<WorkflowInstanceInfo> getWorkflowInstanceList(final String poolid, final String classname,
+			final WorkflowInstanceState state, final Integer priority, long resultRowLimit) throws RemoteException;
 
 	public List<AuditTrailInfo> getAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level, long resultRowLimit) throws RemoteException;
 
@@ -78,9 +79,9 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	 */
 	public void restartAllErroneousInstances(String engineid) throws RemoteException;
 	
-	public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads);
+	public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads) throws RemoteException;
 	
-	public void setThreadPriority(String engineid, String processorPoolId, int threadPriority);
+	public void setThreadPriority(String engineid, String processorPoolId, int threadPriority) throws RemoteException;
 	
 	public List<ProcessingEngineInfo> getProccessingEngineList() throws RemoteException;
 	

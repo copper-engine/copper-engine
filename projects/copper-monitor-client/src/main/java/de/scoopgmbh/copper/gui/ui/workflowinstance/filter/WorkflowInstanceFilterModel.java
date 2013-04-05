@@ -15,8 +15,8 @@
  */
 package de.scoopgmbh.copper.gui.ui.workflowinstance.filter;
 
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import de.scoopgmbh.copper.gui.util.EngineFilter;
 import de.scoopgmbh.copper.gui.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
@@ -24,6 +24,6 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 public class WorkflowInstanceFilterModel extends EngineFilter{
 	
 	public final SimpleObjectProperty<WorkflowInstanceState> state = new SimpleObjectProperty<>();
-	public final SimpleIntegerProperty priority = new SimpleIntegerProperty();
+	public final SimpleStringProperty priority = new SimpleStringProperty();
 	public final WorkflowVersion version = new WorkflowVersion();
 }

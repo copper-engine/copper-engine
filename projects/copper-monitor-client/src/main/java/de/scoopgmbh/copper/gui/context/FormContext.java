@@ -338,7 +338,7 @@ public class FormContext {
 	}
 	
 	public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool, DashboardResultModel model){
-		return new FxmlForm<>(pool.getId(), new ProccessorPoolController(engine,pool,model,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane));
+		return new FxmlForm<>(pool.getId(), new ProccessorPoolController(engine,pool,model,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
 	}
 	
 	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model){

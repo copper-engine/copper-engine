@@ -32,7 +32,7 @@ public class ClientMain extends Application {
 		ApplicationContext mainFactory = new ApplicationContext();
 		primaryStage.titleProperty().bind(new SimpleStringProperty("Copper Monitor (server: ").concat(mainFactory.serverAdressProperty().concat(")")));
 		new Button(); // Trigger loading of default stylesheet
-		final Scene scene = new Scene(mainFactory.getMainPane(), 1300, 800, Color.WHEAT);
+		final Scene scene = new Scene(mainFactory.getMainPane(), 1300, 900, Color.WHEAT);
 
 		
 		scene.getStylesheets().add(this.getClass().getResource("/de/scoopgmbh/copper/gui/css/base.css").toExternalForm());

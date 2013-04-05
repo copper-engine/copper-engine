@@ -30,6 +30,7 @@ import de.scoopgmbh.copper.gui.ui.dashboard.result.DashboardResultModel;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 
 public class ProccessorPoolController implements Initializable, FxmlController {
 	private final ProcessorPoolInfo pool;
@@ -93,11 +94,13 @@ public class ProccessorPoolController implements Initializable, FxmlController {
         assert threadPrioritaetInfo != null : "fx:id=\"threadPrioritaetInfo\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
         assert typ != null : "fx:id=\"typ\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
 
+        WorkflowStateSummary workflowStateSummary = model.getStateSummery(engine.getId());
+
      
-		dequeued.setText(model.getStateSummery(engine.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.DEQUEUED).toString());
-		enqueued.setText(model.getStateSummery(engine.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.ENQUEUED).toString());
+//		dequeued.setText(model.getStateSummery(engine.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.DEQUEUED).toString());
+		enqueued.setText(Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.ENQUEUED)));
 		id.setText(pool.getId());
-		running.setText(model.getStateSummery(engine.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.RUNNING).toString());
+//		running.setText(model.getStateSummery(engine.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.RUNNING).toString());
 		typ.setText(pool.getProcessorPoolTyp().toString());
 		
 		threadNummerInfo.setText(String.valueOf(pool.getNumberOfThreads()));

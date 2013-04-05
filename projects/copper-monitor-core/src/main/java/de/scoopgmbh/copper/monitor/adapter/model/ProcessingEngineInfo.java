@@ -65,7 +65,17 @@ public class ProcessingEngineInfo implements Serializable {
 		this.pools = pools;
 	}
 
-	
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		result.append("ProcessingEngine: "+id+", ");
+		result.append("Typ: "+typ+", ");
+		result.append("Pools:\n");
+		for (ProcessorPoolInfo pool: pools){
+			result.append(pool.toString());
+		}
+		return result.toString();
+	}
 	
 	
 }

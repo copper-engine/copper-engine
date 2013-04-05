@@ -40,7 +40,6 @@ import de.scoopgmbh.copper.gui.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
-import de.scoopgmbh.copper.monitor.adapter.ServerLogin;
 
 public class ApplicationContext {
 
@@ -111,10 +110,13 @@ public class ApplicationContext {
 	
 	public void setGuiCopperDataProvider(String serverAdress, String user, String password){
 		try {
+//			Registry registry = LocateRegistry.getRegistry(serverAdress,Registry.REGISTRY_PORT);
+//			ServerLogin serverLogin = (ServerLogin) registry.lookup(ServerLogin.class.getSimpleName());
+//			
+//			setGuiCopperDataProvider(serverLogin.login(user, (password!=null?password.hashCode():"")+""),serverAdress);
 			Registry registry = LocateRegistry.getRegistry(serverAdress,Registry.REGISTRY_PORT);
-			ServerLogin serverLogin = (ServerLogin) registry.lookup(ServerLogin.class.getSimpleName());
-			
-			setGuiCopperDataProvider(serverLogin.login(user, (password!=null?password.hashCode():"")+""),serverAdress);
+//			ServerLogin serverLogin = (ServerLogin) registry.lookup(ServerLogin.class.getSimpleName());
+			setGuiCopperDataProvider((CopperMonitorInterface) registry.lookup(CopperMonitorInterface.class.getSimpleName()),serverAdress);
 			getFormFactory().setupGUIStructure();
 		} catch (RemoteException | NotBoundException e) {
 			throw new RuntimeException(e);

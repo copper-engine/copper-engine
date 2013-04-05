@@ -28,6 +28,7 @@ import de.scoopgmbh.copper.gui.ui.dashboard.result.DashboardResultModel;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 
 public class ProcessingEngineController implements Initializable, FxmlController {
 	private final ProcessingEngineInfo processingEngineInfo;
@@ -68,12 +69,15 @@ public class ProcessingEngineController implements Initializable, FxmlController
         assert row != null : "fx:id=\"row\" was not injected: check your FXML file 'ProcessingEngine.fxml'.";
         assert typ != null : "fx:id=\"typ\" was not injected: check your FXML file 'ProcessingEngine.fxml'.";
         assert waiting != null : "fx:id=\"waiting\" was not injected: check your FXML file 'ProcessingEngine.fxml'.";
+       
+        WorkflowStateSummary workflowStateSummary = dashboardResultModel.getStateSummery(processingEngineInfo.getId());
 
-        finished.setText(dashboardResultModel.getStateSummery(processingEngineInfo.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.FINISHED).toString());
+
+        finished.setText(Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.FINISHED)));
         id.setText(processingEngineInfo.getId());
-        row.setText(dashboardResultModel.getStateSummery(processingEngineInfo.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.RAW).toString());
+//        row.setText(dashboardResultModel.getStateSummery(processingEngineInfo.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.RAW).toString());
         typ.setText(processingEngineInfo.getTyp().toString());
-        waiting.setText(dashboardResultModel.getStateSummery(processingEngineInfo.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.WAITING).toString());
+        waiting.setText(Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.WAITING)));
         
         pools.getStyleClass().add("floating");//transparent tabheader
         for (ProcessorPoolInfo processorPoolInfo: processingEngineInfo.getPools()){

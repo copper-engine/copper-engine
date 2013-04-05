@@ -15,12 +15,15 @@
  */
 package de.scoopgmbh.copper.gui.form;
 
+import javafx.application.Platform;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.Region;
 
 public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
 	boolean transparentHeader=false;
 	private Tab tab;
+	private boolean forceTabSizeTocontentesize;
 
 	public TabPaneShowFormStrategie(TabPane component) {
 		super(component);
@@ -28,14 +31,31 @@ public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
 		tab = new Tab();
 		tab.setText("new tab");
 	}
+	
+	public TabPaneShowFormStrategie(TabPane component, boolean forceTabSizeTocontentesize) {
+		this(component);
+		this.forceTabSizeTocontentesize=forceTabSizeTocontentesize;
+	}
+	
 
 	@Override
 	public void show(Form<?> form){
 		if (tab.getContent()==null){
 			tab.setContent(form.createContent());
 			tab.textProperty().bind(form.dynamicTitleProperty());
-			tab.getContent().setStyle("-fx-background-color: transparent; -fx-background-radius: 40.0;");;
+			tab.getContent().setStyle("-fx-background-color: transparent;");;
 			component.getTabs().add(tab);
+		}
+		if (forceTabSizeTocontentesize){
+			if (tab.getContent() instanceof Region){
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						component.setMinWidth(((Region)tab.getContent()).getPrefWidth());
+						component.setMinHeight(((Region)tab.getContent()).getPrefHeight()+42);
+					}
+				});
+			}
 		}
 		component.getSelectionModel().select(tab);
 	}

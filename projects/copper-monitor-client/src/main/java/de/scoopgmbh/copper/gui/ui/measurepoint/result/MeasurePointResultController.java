@@ -68,7 +68,7 @@ public class MeasurePointResultController implements Initializable, FilterResult
 		clear();
 		for (MeasurePointData measurePointData: filteredlist){
 			ObservableList<Data<String, Number>> data = axis.getData();
-			data.add(new XYChart.Data<String, Number>(measurePointData.getMpId(), measurePointData.getElapsedTimeMicros()/measurePointData.getCount()));
+			data.add(new XYChart.Data<String, Number>(measurePointData.getMeasurePointId(), measurePointData.getElapsedTimeMicros()/measurePointData.getCount()));
 		}
 	}
 	
