@@ -15,11 +15,51 @@
  */
 package de.scoopgmbh.copper.persistent;
 
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+
 enum DBProcessingState {
-	ENQUEUED, 
-	PROCESSING /* so far unused */, 
-	WAITING, 
-	FINISHED, 
-	INVALID, 
-	ERROR 
+	ENQUEUED(0), 
+	PROCESSING(1) /* so far unused */, 
+	WAITING(2), 
+	FINISHED(3), 
+	INVALID(4), 
+	ERROR(5);
+	
+	static final DBProcessingState[] states = new DBProcessingState[values().length];
+	static {
+		for (DBProcessingState s : values()) {
+			if (states[s.key()] != null)
+				throw new RuntimeException("Inconsistent key mapping found for "+s);
+			states[s.key()] = s;
+			//check 1 to 1 mapping between DBProcessingState and WorkflowInstanceState
+			WorkflowInstanceState.valueOf(s.name());
+		}
+		//check 1 to 1 mapping between DBProcessingState and WorkflowInstanceState
+		for (WorkflowInstanceState s : WorkflowInstanceState.values()) {
+			DBProcessingState.valueOf(s.name());
+		}
+	}
+	
+	final int key;
+	DBProcessingState(int key) {
+		this.key = key;
+	}
+	public int key() {
+		return key;
+	}
+	public WorkflowInstanceState asWorkflowInstanceState() {
+		return WorkflowInstanceState.valueOf(name());
+	}
+	
+	public static DBProcessingState fromKey(int key) {
+		DBProcessingState state = states[key];
+		if (state == null)
+			throw new IllegalArgumentException("No value for "+key);
+		return state;
+	}
+	
+	public static DBProcessingState fromWorkflowInstanceState(WorkflowInstanceState workflowInstanceState) {
+		return DBProcessingState.valueOf(workflowInstanceState.name());
+	}
+	
 }

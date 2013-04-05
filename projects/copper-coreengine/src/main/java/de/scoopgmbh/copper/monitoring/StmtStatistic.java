@@ -32,7 +32,7 @@ public class StmtStatistic {
 		}
 	};
 	
-	private final RuntimeStatisticsCollector runtimeStatisticsCollector;
+	private final MonitoringDataCollector runtimeStatisticsCollector;
 	private final String measurePointId;
 	
 	
@@ -40,7 +40,7 @@ public class StmtStatistic {
 	 * creates a new StmtStatistic with a name only. 
 	 * @param name
 	 */
-	public StmtStatistic(final String measurePointId, final RuntimeStatisticsCollector runtimeStatisticsCollector) {
+	public StmtStatistic(final String measurePointId, final MonitoringDataCollector runtimeStatisticsCollector) {
 		if (measurePointId == null) throw new NullPointerException();
 		if (runtimeStatisticsCollector == null) throw new NullPointerException();
 		this.measurePointId = measurePointId;
@@ -53,7 +53,7 @@ public class StmtStatistic {
 	
 	public long stop(int updateCount) {
 		long et = System.nanoTime() - startTS.get()[0];
-		runtimeStatisticsCollector.submit(measurePointId, updateCount, et, TimeUnit.NANOSECONDS);
+		runtimeStatisticsCollector.submitMeasurePoint(measurePointId, updateCount, et, TimeUnit.NANOSECONDS);
 		return et;
 	}	
 }

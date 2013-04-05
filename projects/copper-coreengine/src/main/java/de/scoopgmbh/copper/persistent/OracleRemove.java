@@ -66,7 +66,7 @@ class OracleRemove {
 			final PreparedStatement stmtDelResponse = c.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
 			final PreparedStatement stmtDelWait = c.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
 			final PreparedStatement stmtDelErrors = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
-			final PreparedStatement stmtDelBP = ((Command)commands.iterator().next()).remove ? c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?") : c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE="+DBProcessingState.FINISHED.ordinal()+", LAST_MOD_TS=SYSTIMESTAMP WHERE ID=?");
+			final PreparedStatement stmtDelBP = ((Command)commands.iterator().next()).remove ? c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?") : c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE="+DBProcessingState.FINISHED.key()+", LAST_MOD_TS=SYSTIMESTAMP WHERE ID=?");
 			try {
 				boolean cidsFound = false;
 				for (BatchCommand<Executor, Command> _cmd : commands) {

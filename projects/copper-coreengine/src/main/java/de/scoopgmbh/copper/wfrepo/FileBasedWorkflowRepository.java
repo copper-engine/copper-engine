@@ -52,6 +52,9 @@ import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.WorkflowVersion;
 import de.scoopgmbh.copper.instrument.ClassInfo;
 import de.scoopgmbh.copper.instrument.ScottyFindInterruptableMethodsVisitor;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 import de.scoopgmbh.copper.util.FileUtil;
 
 /**
@@ -588,6 +591,24 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 
 	protected ClassLoader getClassLoader() {
 		return volatileState.classLoader;
+	}
+
+	@Override
+	public List<WorkflowClassVersionInfo> getAllWorkflowsInfos() {
+		List<WorkflowClassVersionInfo> result = new ArrayList<WorkflowClassVersionInfo>();
+		for (String wfName: volatileState.wfVersions.keySet()){
+			final List<WorkflowVersion> versionsList = volatileState.wfVersions.get(wfName);
+			for (WorkflowVersion workflowVersion: versionsList){
+				result.add(new WorkflowClassVersionInfo(volatileState.wfMapLatest.get(wfName).getName(), wfName, workflowVersion.getMajorVersion(), workflowVersion.getMinorVersion(), workflowVersion.getPatchLevel()));
+			}
+		}
+		return result;
+	}
+
+	MonitoringDataCollector monitoringDataCollector= new NoMonitoringDataCollector();;
+	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
+		this.monitoringDataCollector = monitoringDataCollector;
+		monitoringDataCollector.registerWorkflowRepository(this);
 	}
 
 }

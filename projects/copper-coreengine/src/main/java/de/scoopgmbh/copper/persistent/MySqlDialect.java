@@ -63,4 +63,9 @@ public class MySqlDialect extends AbstractSqlDialect {
 	public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response) throws Exception {
 		return new SqlNotifyNoEarlyResponseHandling.Command(response, serializer, SqlNotifyNoEarlyResponseHandling.SQL_MYSQL, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec);
 	}	
+	
+	@Override
+	public String getResultLimitingQuery(String query, long limit) {
+		return query+ " LIMIT "+limit;
+	}
 }

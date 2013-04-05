@@ -91,7 +91,7 @@ class SqlRegisterCallback {
 				}
 				int idx=1;
 				SerializedWorkflow sw = cmd.serializer.serializeWorkflow(rc.workflow);
-				updateWfiStmt.setInt(idx++, DBProcessingState.WAITING.ordinal());
+				updateWfiStmt.setInt(idx++, DBProcessingState.WAITING.key());
 				updateWfiStmt.setInt(idx++, rc.workflow.getPriority());
 				updateWfiStmt.setTimestamp(idx++, now);
 				updateWfiStmt.setString(idx++, rc.workflow.getProcessorPoolId());

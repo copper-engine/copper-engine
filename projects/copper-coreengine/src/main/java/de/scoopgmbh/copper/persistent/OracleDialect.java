@@ -40,8 +40,8 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
-import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
-import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
 
 /**
@@ -50,7 +50,7 @@ import de.scoopgmbh.copper.monitoring.StmtStatistic;
  * @author austermann
  *
  */
-public class OracleDialect implements DatabaseDialect {
+public class OracleDialect extends BaseSqlDialect {
 
 	private static final Logger logger = LoggerFactory.getLogger(OracleDialect.class);
 
@@ -72,7 +72,7 @@ public class OracleDialect implements DatabaseDialect {
 	// optional Properties
 	private boolean multiEngineMode = false;
 	private int lockWaitSeconds = 10;
-	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
+	private MonitoringDataCollector runtimeStatisticsCollector = new NoMonitoringDataCollector();
 	private Serializer serializer = new StandardJavaSerializer();
 	private boolean removeWhenFinished = true;
 	private int defaultStaleResponseRemovalTimeout = 60*60*1000;
@@ -131,7 +131,7 @@ public class OracleDialect implements DatabaseDialect {
 		this.multiEngineMode = multiEngineMode;
 	}
 
-	public void setRuntimeStatisticsCollector(RuntimeStatisticsCollector runtimeStatisticsCollector) {
+	public void setRuntimeStatisticsCollector(MonitoringDataCollector runtimeStatisticsCollector) {
 		this.runtimeStatisticsCollector = runtimeStatisticsCollector;
 	}
 
@@ -139,7 +139,7 @@ public class OracleDialect implements DatabaseDialect {
 		this.wfRepository = wfRepository;
 	}
 
-	public RuntimeStatisticsCollector getRuntimeStatisticsCollector() {
+	public MonitoringDataCollector getRuntimeStatisticsCollector() {
 		return runtimeStatisticsCollector;
 	}
 
@@ -354,7 +354,7 @@ public class OracleDialect implements DatabaseDialect {
 				Workflow<?> wf = wfs.get(i);
 				final SerializedWorkflow sw = serializer.serializeWorkflow(wf);
 				stmt.setString(1, wf.getId());
-				stmt.setInt(2, DBProcessingState.ENQUEUED.ordinal());
+				stmt.setInt(2, DBProcessingState.ENQUEUED.key());
 				stmt.setInt(3, wf.getPriority());
 				stmt.setString(4, wf.getProcessorPoolId());
 				if (sw.getData() != null) {
@@ -549,8 +549,8 @@ public class OracleDialect implements DatabaseDialect {
 		final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,creation_ts,data,long_data,object_state,long_object_state,PPOOL_ID from COP_WORKFLOW_INSTANCE where state not in (?,?)");
 		try {
 			final List<String> idsOfBadWorkflows = new ArrayList<String>();
-			dequeueStmt.setInt(1, DBProcessingState.INVALID.ordinal());
-			dequeueStmt.setInt(2, DBProcessingState.FINISHED.ordinal());
+			dequeueStmt.setInt(1, DBProcessingState.INVALID.key());
+			dequeueStmt.setInt(2, DBProcessingState.FINISHED.key());
 			ResultSet rs = dequeueStmt.executeQuery();
 			while(rs.next()) {
 				final String id = rs.getString(1);
@@ -591,4 +591,13 @@ public class OracleDialect implements DatabaseDialect {
 			}
 		}
 	}
+	
+	@Override
+	public String getResultLimitingQuery(String query, long limit) {
+		return "SELECT * FROM (\n" + 
+							query+ 
+				"			\n)\n" + 
+				"			WHERE rownum <= "+limit;
+	}
+
 }

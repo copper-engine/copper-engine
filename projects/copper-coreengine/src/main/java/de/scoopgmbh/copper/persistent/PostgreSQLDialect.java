@@ -63,7 +63,11 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
 	@Override
 	public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response) throws Exception {
 		return new SqlNotifyNoEarlyResponseHandling.Command(response, serializer, SqlNotifyNoEarlyResponseHandling.SQL_POSTGRES, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec);
-	}	
+	}
 	
+	@Override
+	public String getResultLimitingQuery(String query, long limit) {
+		return query+ " LIMIT "+limit;
+	}
 
 }

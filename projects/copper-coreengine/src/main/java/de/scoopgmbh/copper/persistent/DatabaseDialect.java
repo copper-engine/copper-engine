@@ -21,7 +21,13 @@ import java.util.List;
 
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.batcher.BatchCommand;
+import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 
 public interface DatabaseDialect {
 
@@ -71,5 +77,18 @@ public interface DatabaseDialect {
 	public void startup();
 	
 	public void shutdown();
+
+	public abstract WorkflowStateSummary selectTotalWorkflowStateSummary(Connection con);
+
+	public abstract List<AuditTrailInfo> selectAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level,
+			long resultRowLimit, Connection con);
+
+	public abstract String selectAuditTrailMessage(long id, Connection con, MessagePostProcessor messagePostProcessor);
+
+	public abstract List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname, long resultRowLimit, Connection con);
+
+	public abstract List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
+			WorkflowInstanceState state, Integer priority, long resultRowLimit, Connection con);
+
 
 }

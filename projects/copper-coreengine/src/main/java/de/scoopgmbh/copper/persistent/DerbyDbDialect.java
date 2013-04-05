@@ -175,8 +175,12 @@ public class DerbyDbDialect extends AbstractSqlDialect {
 	@Override
 	public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response) throws Exception {
 		return new DerbyDbNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec);
-	}	
+	}
 
+	@Override
+	public String getResultLimitingQuery(String query, long limit) {
+		return query +" FETCH FIRST "+limit+" ROWS ONLY";
+	}
 
 
 

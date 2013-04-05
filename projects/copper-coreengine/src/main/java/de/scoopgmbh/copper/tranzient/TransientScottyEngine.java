@@ -41,8 +41,8 @@ import de.scoopgmbh.copper.common.TicketPoolManager;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.WorkflowInfo;
-import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
-import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 /**
@@ -65,9 +65,9 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	private EarlyResponseContainer earlyResponseContainer;
 	private TicketPoolManager ticketPoolManager;
 	private DependencyInjector dependencyInjector;
-	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
+	private MonitoringDataCollector statisticsCollector = new NoMonitoringDataCollector();
 	
-	public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
+	public void setStatisticsCollector(MonitoringDataCollector statisticsCollector) {
 		this.statisticsCollector = statisticsCollector;
 	}
 	
@@ -270,7 +270,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		if (wf != null) {
 			WorkflowAccessor.setProcessingState(wf, ProcessingState.FINISHED);
 			ticketPoolManager.release(wf);
-			statisticsCollector.submit(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
+			statisticsCollector.submitMeasurePoint(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
 		}
 	}
 

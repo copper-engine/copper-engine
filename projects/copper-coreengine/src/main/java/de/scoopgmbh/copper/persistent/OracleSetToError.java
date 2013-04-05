@@ -75,7 +75,7 @@ class OracleSetToError {
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command)_cmd;
 					logger.error("Setting workflow instance '{}' to state {}", cmd.wf.getId(), cmd.dbProcessingState.name());
-					stmtUpdateState.setInt(1, cmd.dbProcessingState.ordinal());
+					stmtUpdateState.setInt(1, cmd.dbProcessingState.key());
 					stmtUpdateState.setString(2, cmd.wf.getId());
 					stmtUpdateState.addBatch();
 

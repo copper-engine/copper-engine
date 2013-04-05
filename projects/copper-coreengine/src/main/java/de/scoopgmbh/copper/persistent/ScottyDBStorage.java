@@ -30,8 +30,14 @@ import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.Batcher;
+import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 import de.scoopgmbh.copper.persistent.txn.DatabaseTransaction;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
@@ -432,5 +438,82 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			logger.error("finish failed",e);
 			error(w,e);
 		}
-	}	
+	}
+
+	@Override
+	public WorkflowStateSummary selectTotalWorkflowStateSummary() {
+		try {
+			return run(new DatabaseTransaction<WorkflowStateSummary>() {
+				@Override
+				public WorkflowStateSummary run(Connection con) throws Exception {
+					return dialect.selectTotalWorkflowStateSummary(con);
+				}
+			});
+		} catch (Exception e) {
+			logger.error("error",e);
+			return null;
+		}
+	}
+
+	@Override
+	public List<AuditTrailInfo> selectAuditTrails(final String workflowClass, final String workflowInstanceId, final String correlationId, final Integer level, final long resultRowLimit) {
+		try {
+			return run(new DatabaseTransaction<List<AuditTrailInfo>>() {
+				@Override
+				public List<AuditTrailInfo> run(Connection con) throws Exception {
+					return dialect.selectAuditTrails(workflowClass, workflowInstanceId, correlationId, level, resultRowLimit, con);
+				}
+			});
+		} catch (Exception e) {
+			logger.error("error",e);
+			return null;
+		}
+	}
+
+	@Override
+	public String selectAuditTrailMessage(final long id,final MessagePostProcessor messagePostProcessor) {
+		try {
+			return run(new DatabaseTransaction<String>() {
+				@Override
+				public String run(Connection con) throws Exception {
+					return dialect.selectAuditTrailMessage(id,con,messagePostProcessor);
+				}
+			});
+		} catch (Exception e) {
+			logger.error("error",e);
+			return null;
+		}
+	}
+
+	@Override
+	public List<WorkflowSummary> selectWorkflowSummary(final String poolid, final String classname, final long resultRowLimit) {
+		try {
+			return run(new DatabaseTransaction<List<WorkflowSummary> >() {
+				@Override
+				public List<WorkflowSummary> run(Connection con) throws Exception {
+					return dialect.selectWorkflowStateSummary(poolid, classname, resultRowLimit,con);
+				}
+			});
+		} catch (Exception e) {
+			logger.error("error",e);
+			return null;
+		}
+	}
+
+	@Override
+	public List<WorkflowInstanceInfo> selectWorkflowInstanceList(final String poolid, final String classname,
+			final WorkflowInstanceState state, final Integer priority, final long resultRowLimit) {
+		try {
+			return run(new DatabaseTransaction<List<WorkflowInstanceInfo>>() {
+				@Override
+				public List<WorkflowInstanceInfo> run(Connection con) throws Exception {
+					return dialect.selectWorkflowInstanceList(poolid, classname, state, priority, resultRowLimit,con);
+				}
+			});
+		} catch (Exception e) {
+			logger.error("error",e);
+			return null;
+		}
+	}
+
 }

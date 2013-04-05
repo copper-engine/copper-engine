@@ -29,6 +29,8 @@ import de.scoopgmbh.copper.common.Processor;
 import de.scoopgmbh.copper.common.WfPriorityQueue;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.management.PersistentPriorityProcessorPoolMXBean;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo.ProcessorPoolTyp;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
 /**
@@ -231,6 +233,17 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	
 	protected TransactionController getTransactionController() {
 		return transactionController;
+	}
+	
+	public ProcessorPoolInfo getProcessorPoolInfo(){
+		ProcessorPoolInfo processorPoolInfo = super.getProcessorPoolInfo();
+		processorPoolInfo.setProcessorPoolTyp(ProcessorPoolTyp.PERSISTENT);
+		processorPoolInfo.setLowerThreshold(lowerThreshold);
+		processorPoolInfo.setUpperThreshold(upperThresholdReachedWaitMSec);
+		processorPoolInfo.setUpperThresholdReachedWaitMSec(upperThresholdReachedWaitMSec);
+		processorPoolInfo.setEmptyQueueWaitMSec(emptyQueueWaitMSec);
+		processorPoolInfo.setDequeueBulkSize(dequeueBulkSize);
+		return processorPoolInfo;
 	}
 
 

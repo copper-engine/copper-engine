@@ -20,6 +20,12 @@ import java.util.List;
 
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.audit.MessagePostProcessor;
+import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 
 /**
  * Interface for the storage of a {@link PersistentScottyEngine}.
@@ -120,6 +126,18 @@ public interface ScottyDBStorageInterface {
 	 * @throws Exception 
 	 */
 	public void restartAll() throws Exception;
+	
+	
+	public WorkflowStateSummary selectTotalWorkflowStateSummary();
+
+	public List<AuditTrailInfo> selectAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level, long resultRowLimit);
+
+	public String selectAuditTrailMessage(long id, MessagePostProcessor messagePostProcessor);
+
+	public List<WorkflowSummary> selectWorkflowSummary(String poolid, String classname, long resultRowLimit);
+
+	public List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
+			WorkflowInstanceState state, Integer priority, long resultRowLimit);
 
 
 }

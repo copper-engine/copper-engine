@@ -62,7 +62,7 @@ class DerbyDbSetToError {
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				final Timestamp NOW = new Timestamp(System.currentTimeMillis());
 				Command cmd = (Command)_cmd;
-				stmtUpdateState.setInt(1, cmd.dbProcessingState.ordinal());
+				stmtUpdateState.setInt(1, cmd.dbProcessingState.key());
 				stmtUpdateState.setTimestamp(2, NOW);
 				stmtUpdateState.setString(3, cmd.wf.getId());
 				stmtUpdateState.addBatch();

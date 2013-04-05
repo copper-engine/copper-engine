@@ -41,8 +41,8 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
-import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
-import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
 
 /**
@@ -51,12 +51,12 @@ import de.scoopgmbh.copper.monitoring.StmtStatistic;
  * @author austermann
  *
  */
-public abstract class AbstractSqlDialect implements DatabaseDialect {
+public abstract class AbstractSqlDialect extends BaseSqlDialect {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractSqlDialect.class);
 
 	private WorkflowRepository wfRepository;
-	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
+	private MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
 	private boolean removeWhenFinished = true;
 	protected int defaultStaleResponseRemovalTimeout = 60*60*1000;
 	protected Serializer serializer = new StandardJavaSerializer();
@@ -96,16 +96,16 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 		this.serializer = serializer;
 	}
 
-	public void setRuntimeStatisticsCollector(RuntimeStatisticsCollector runtimeStatisticsCollector) {
-		this.runtimeStatisticsCollector = runtimeStatisticsCollector;
+	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
+		this.monitoringDataCollector = monitoringDataCollector;
 	}
 
 	private void initStats() {
-		dequeueStmtStatistic = new StmtStatistic("DBStorage.dequeue.fullquery",runtimeStatisticsCollector);
-		queueDeleteStmtStatistic = new StmtStatistic("DBStorage.queue.delete",runtimeStatisticsCollector);
-		enqueueUpdateStateStmtStatistic = new StmtStatistic("DBStorage.enqueue.updateState",runtimeStatisticsCollector);
-		insertStmtStatistic = new StmtStatistic("DBStorage.insert",runtimeStatisticsCollector);
-		deleteStaleResponsesStmtStatistic = new StmtStatistic("DBStorage.deleteStaleResponses",runtimeStatisticsCollector);
+		dequeueStmtStatistic = new StmtStatistic("DBStorage.dequeue.fullquery",monitoringDataCollector);
+		queueDeleteStmtStatistic = new StmtStatistic("DBStorage.queue.delete",monitoringDataCollector);
+		enqueueUpdateStateStmtStatistic = new StmtStatistic("DBStorage.enqueue.updateState",monitoringDataCollector);
+		insertStmtStatistic = new StmtStatistic("DBStorage.insert",monitoringDataCollector);
+		deleteStaleResponsesStmtStatistic = new StmtStatistic("DBStorage.deleteStaleResponses",monitoringDataCollector);
 	}
 
 	protected String getResourceAsString(String name) {
@@ -363,16 +363,16 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 			stmtQueue = c.prepareStatement("INSERT INTO COP_QUEUE (PPOOL_ID, PRIORITY, LAST_MOD_TS, WORKFLOW_INSTANCE_ID) (SELECT PPOOL_ID, PRIORITY, ?, ID FROM COP_WORKFLOW_INSTANCE WHERE ID=? AND (STATE=? OR STATE=?))");
 			stmtQueue.setTimestamp(1, NOW);
 			stmtQueue.setString(2, workflowInstanceId);
-			stmtQueue.setInt(3, DBProcessingState.ERROR.ordinal());
-			stmtQueue.setInt(4, DBProcessingState.INVALID.ordinal());
+			stmtQueue.setInt(3, DBProcessingState.ERROR.key());
+			stmtQueue.setInt(4, DBProcessingState.INVALID.key());
 			final int rowCount = stmtQueue.executeUpdate();
 			if (rowCount > 0) {
 				stmtInstance = c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE ID=? AND (STATE=? OR STATE=?)");
-				stmtInstance.setInt(1, DBProcessingState.ENQUEUED.ordinal());
+				stmtInstance.setInt(1, DBProcessingState.ENQUEUED.key());
 				stmtInstance.setTimestamp(2, NOW);
 				stmtInstance.setString(3, workflowInstanceId);
-				stmtInstance.setInt(4, DBProcessingState.ERROR.ordinal());
-				stmtInstance.setInt(5, DBProcessingState.INVALID.ordinal());
+				stmtInstance.setInt(4, DBProcessingState.ERROR.key());
+				stmtInstance.setInt(5, DBProcessingState.INVALID.key());
 				stmtInstance.execute();
 			}
 		}
@@ -466,7 +466,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 				Workflow<?> wf = wfs.get(i);
 				final SerializedWorkflow sw = serializer.serializeWorkflow(wf);
 				stmtWF.setString(1, wf.getId());
-				stmtWF.setInt(2, DBProcessingState.ENQUEUED.ordinal());
+				stmtWF.setInt(2, DBProcessingState.ENQUEUED.key());
 				stmtWF.setInt(3, wf.getPriority());
 				stmtWF.setTimestamp(4,NOW);
 				stmtWF.setString(5, wf.getProcessorPoolId());
@@ -540,8 +540,8 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 		final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,object_state,PPOOL_ID from COP_WORKFLOW_INSTANCE where state not in (?,?)");
 		try {
 			final List<String> idsOfBadWorkflows = new ArrayList<String>();
-			dequeueStmt.setInt(1, DBProcessingState.INVALID.ordinal());
-			dequeueStmt.setInt(2, DBProcessingState.FINISHED.ordinal());
+			dequeueStmt.setInt(1, DBProcessingState.INVALID.key());
+			dequeueStmt.setInt(2, DBProcessingState.FINISHED.key());
 			ResultSet rs = dequeueStmt.executeQuery();
 			while(rs.next()) {
 				final String id = rs.getString(1);
@@ -574,5 +574,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	@Override
 	public void shutdown() {
 	}
+	
+
 
 }

@@ -29,8 +29,8 @@ import de.scoopgmbh.copper.batcher.BatchRunner;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.impl.BatcherQueue.State;
 import de.scoopgmbh.copper.management.BatcherMXBean;
-import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
-import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 
 /**
  * COPPERs default implementation of the {@link Batcher} interface
@@ -65,7 +65,7 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 					final BatchExecutorBase e = commands.get(0).executor();
 					final long startTS = System.currentTimeMillis();
 					batchRunner.run(commands, e);
-					statisticsCollector.submit(e.id(), commands.size(), System.currentTimeMillis()-startTS, TimeUnit.MILLISECONDS);
+					monitoringDataCollector.submitMeasurePoint(e.id(), commands.size(), System.currentTimeMillis()-startTS, TimeUnit.MILLISECONDS);
 					
 				} catch (InterruptedException e) {
 					logger.warn("Interrupted",e);
@@ -80,7 +80,7 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 	}
 	
 	BatcherQueue queue = new BatcherQueue();
-	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
+	private MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
 	private List<WorkerThread> threads = new ArrayList<WorkerThread>();
 	private int numThreads;
 	@SuppressWarnings("rawtypes")
@@ -110,8 +110,8 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 		}
 	}
 
-	public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
-		this.statisticsCollector = statisticsCollector;
+	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
+		this.monitoringDataCollector = monitoringDataCollector;
 	}
 	
 	private synchronized void adjustNumberOfThreads() throws InterruptedException {

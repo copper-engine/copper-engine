@@ -45,8 +45,9 @@ import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.WorkflowInfo;
-import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
-import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 
 /**
  * COPPER processing engine that offers persistent workflow processing. 
@@ -59,15 +60,16 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	private static final Logger logger = LoggerFactory.getLogger(PersistentScottyEngine.class);
 
 	private ScottyDBStorageInterface dbStorage;
-	private ProcessorPoolManager<PersistentProcessorPool> processorPoolManager;
+	private ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager;
 	private DependencyInjector dependencyInjector;
 	private boolean notifyProcessorPoolsOnResponse = false;
 	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
-	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
+	private MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
 	private final Map<String, List<WaitHook>> waitHookMap = new HashMap<String, List<WaitHook>>();
 
-	public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
-		this.statisticsCollector = statisticsCollector;
+	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
+		this.monitoringDataCollector = monitoringDataCollector;
+		monitoringDataCollector.resgisterEngine(getEngineId(), EngineTyp.PERSISTENT,this);
 	}
 
 	/**
@@ -97,7 +99,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		return dbStorage;
 	}
 
-	public void setProcessorPoolManager(ProcessorPoolManager<PersistentProcessorPool> processorPoolManager) {
+	public void setProcessorPoolManager(ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager) {
 		this.processorPoolManager = processorPoolManager;
 	}
 
@@ -305,7 +307,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		Workflow<?> existingWF = workflowMap.remove(wf.getId());
 		assert existingWF != null;
 		if (existingWF != null && existingWF.getProcessingState() == ProcessingState.FINISHED) {
-			statisticsCollector.submit(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
+			monitoringDataCollector.submitMeasurePoint(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
 		}
 		getAndRemoveWaitHooks(wf); // Clean up...
 	}

@@ -15,8 +15,11 @@
  */
 package de.scoopgmbh.copper.common;
 
+import java.util.List;
+
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.WorkflowVersion;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 
 
 /**
@@ -36,5 +39,6 @@ public interface WorkflowRepository {
 	public java.lang.Class<?> resolveClass(	java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException;
 	public void start();
 	public void shutdown();
+	public List<WorkflowClassVersionInfo> getAllWorkflowsInfos();
 
 }

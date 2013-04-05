@@ -26,6 +26,10 @@ import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.internal.SuspendableQueue;
 import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo.ProcessorPoolTyp;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 
 /**
  * A {@link ProcessorPool} implementation using a priority queue.
@@ -92,6 +96,19 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 			throw new IllegalArgumentException("engine is already set");
 		}
 		this.engine = engine;
+		monitoringDataCollector.registerPool(getProcessorPoolInfo(), engine.getEngineId(),this);
+	}
+	
+	public ProcessorPoolInfo getProcessorPoolInfo(){//overriding in persistente
+		ProcessorPoolInfo processorPoolInfo = new ProcessorPoolInfo(getId(),ProcessorPoolTyp.TRANSIENT);
+		processorPoolInfo.setNumberOfThreads(numberOfThreads);
+		processorPoolInfo.setThreadPriority(threadPriority);
+		return processorPoolInfo;
+	}
+	
+	MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
+	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector){
+		this.monitoringDataCollector = monitoringDataCollector;
 	}
 
 	public void setId(String id) {
