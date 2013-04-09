@@ -85,7 +85,7 @@ public interface DatabaseDialect {
 
 	public abstract String selectAuditTrailMessage(long id, Connection con, MessagePostProcessor messagePostProcessor);
 
-	public abstract List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname, long resultRowLimit, Connection con);
+	public abstract List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname, Connection con);
 
 	public abstract List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit, Connection con);

@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.scoopgmbh.copper.AbstractDependencyInjector;
+import de.scoopgmbh.copper.monitor.adapter.model.DependencyInjectorInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.DependencyInjectorInfo.DependencyInjectorTyp;
 
 public class PojoDependencyInjector extends AbstractDependencyInjector {
 
@@ -31,6 +33,11 @@ public class PojoDependencyInjector extends AbstractDependencyInjector {
 	
 	public void register(String beanId, Object bean) {
 		map.put(beanId, bean);
+	}
+
+	@Override
+	public DependencyInjectorInfo getDependencyInjectorInfo() {
+		return new DependencyInjectorInfo(DependencyInjectorTyp.POJO);
 	}
 
 }

@@ -29,6 +29,7 @@ import de.scoopgmbh.copper.batcher.BatchRunner;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.impl.BatcherQueue.State;
 import de.scoopgmbh.copper.management.BatcherMXBean;
+import de.scoopgmbh.copper.monitor.adapter.model.BatcherInfo;
 import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 
@@ -168,6 +169,11 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 		catch (InterruptedException e) {
 			throw new Error("unexpected interruption", e);
 		}
+	}
+
+	@Override
+	public BatcherInfo getBatcherInfo() {
+		return new BatcherInfo(getClass().getName(),numThreads);
 	}
 
 }

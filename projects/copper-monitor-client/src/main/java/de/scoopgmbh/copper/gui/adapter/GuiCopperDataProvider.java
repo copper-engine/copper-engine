@@ -102,7 +102,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowSummeryResultModel> getWorkflowSummery(WorkflowSummeryFilterModel filter) {
 		List<WorkflowSummary> summeries;
 		try {
-			summeries = copperDataProvider.getWorkflowSummary(getPoolId(filter.engine.getValue()), filter.version.classname.get(), maxResultCount.getValue());
+			summeries = copperDataProvider.getWorkflowSummary(getPoolId(filter.engine.getValue()), filter.version.classname.get());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -203,6 +203,22 @@ public class GuiCopperDataProvider {
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}		
+	}
+
+	public void resetMeasurePoints() {
+		try {
+			copperDataProvider.resetMeasurePoints();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}	
+	}
+
+	public void setBatcherNumThreads(String id, int numThread) {
+		try {
+			copperDataProvider.setBatcherNumThreads(numThread, id);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}	
 	}
 	
 }

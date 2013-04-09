@@ -20,8 +20,6 @@ import java.util.concurrent.TimeUnit;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.common.WorkflowRepository;
-import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
-import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
 
 /**
  * All <code>submit</code> invocations are ignored used to avoid null checks
@@ -39,12 +37,12 @@ public class NoMonitoringDataCollector implements MonitoringDataCollector {
 	}
 
 	@Override
-	public void resgisterEngine(String engineId, EngineTyp typ, final ProcessingEngine engine) {
+	public void registerEngine(final ProcessingEngine engine) {
 		//Intentionally do nothing
 	}
 
 	@Override
-	public void registerPool(ProcessorPoolInfo processorPoolInfo, String engineId, final PriorityProcessorPool pool) {
+	public void registerPool(final PriorityProcessorPool pool) {
 		//Intentionally do nothing
 	}
 

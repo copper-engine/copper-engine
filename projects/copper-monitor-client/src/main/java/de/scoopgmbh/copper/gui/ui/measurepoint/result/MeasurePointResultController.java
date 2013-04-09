@@ -20,11 +20,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
+import javafx.scene.control.Button;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
@@ -42,9 +45,21 @@ public class MeasurePointResultController implements Initializable, FilterResult
     @FXML //  fx:id="chart"
     private BarChart<String, Number> chart; // Value injected by FXMLLoader
 
+    @FXML //  fx:id="reset"
+    private Button reset; // Value injected by FXMLLoader
+
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert chart != null : "fx:id=\"chart\" was not injected: check your FXML file 'MeasurePointResult.fxml'.";
+        assert reset != null : "fx:id=\"reset\" was not injected: check your FXML file 'MeasurePointResult.fxml'.";
+
+        reset.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				copperDataProvider.resetMeasurePoints();
+				clear();
+			}
+		});
 
         initChart();
     }

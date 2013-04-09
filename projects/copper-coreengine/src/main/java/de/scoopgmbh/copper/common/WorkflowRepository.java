@@ -20,6 +20,7 @@ import java.util.List;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.WorkflowVersion;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowRepositoryInfo;
 
 
 /**
@@ -40,5 +41,7 @@ public interface WorkflowRepository {
 	public void start();
 	public void shutdown();
 	public List<WorkflowClassVersionInfo> getAllWorkflowsInfos();
+	public WorkflowRepositoryInfo getWorkflowRepositoryInfo();
+	
 
 }

@@ -15,6 +15,8 @@
  */
 package de.scoopgmbh.copper;
 
+import de.scoopgmbh.copper.monitor.adapter.model.DependencyInjectorInfo;
+
 /**
  * Glue interface for adding dependency injection capatibilty to COPPER.
  * Implementations of this interface connect a container, e.g. Spring, with COPPER and enables COPPER
@@ -28,4 +30,6 @@ package de.scoopgmbh.copper;
 public interface DependencyInjector {
 	public void setEngine(ProcessingEngine e);
 	public void inject(Workflow<?> workflow);
+	
+	public DependencyInjectorInfo getDependencyInjectorInfo();
 }

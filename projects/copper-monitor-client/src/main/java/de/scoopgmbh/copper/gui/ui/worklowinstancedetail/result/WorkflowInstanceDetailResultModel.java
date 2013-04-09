@@ -21,7 +21,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 public class WorkflowInstanceDetailResultModel {
 	
 	public WorkflowInstanceDetailResultModel(WorkflowInstanceMetaDataInfo data){
-		
+
 	}
 	
 	

@@ -28,16 +28,20 @@ import java.util.Random;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
+import de.scoopgmbh.copper.monitor.adapter.model.DependencyInjectorInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.DependencyInjectorInfo.DependencyInjectorTyp;
 import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo.ProcessorPoolTyp;
+import de.scoopgmbh.copper.monitor.adapter.model.StorageInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 
@@ -99,8 +103,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowSummary> getWorkflowSummary(String poolid, String classname,
-			long resultRowLimit) throws RemoteException {		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
+	public List<WorkflowSummary> getWorkflowSummary(String poolid, String classname) throws RemoteException {		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
 		}
@@ -219,8 +222,8 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	@Override
 	public List<ProcessingEngineInfo> getProccessingEngineList() throws RemoteException {
 		return Arrays.asList(
-				new ProcessingEngineInfo(EngineTyp.PERSISTENT,"peId1", new ProcessorPoolInfo("poId1",ProcessorPoolTyp.PERSISTENT)),
-				new ProcessingEngineInfo(EngineTyp.TRANSIENT,"peId2", new ProcessorPoolInfo("poId2",ProcessorPoolTyp.TRANSIENT), new ProcessorPoolInfo("poId3",ProcessorPoolTyp.TRANSIENT))
+				new ProcessingEngineInfo(EngineTyp.PERSISTENT,"peId1",new WorkflowRepositoryInfo(),new DependencyInjectorInfo(DependencyInjectorTyp.POJO),new StorageInfo(), new ProcessorPoolInfo("poId1",ProcessorPoolTyp.PERSISTENT)),
+				new ProcessingEngineInfo(EngineTyp.TRANSIENT,"peId2",new WorkflowRepositoryInfo(),new DependencyInjectorInfo(DependencyInjectorTyp.POJO),new StorageInfo(), new ProcessorPoolInfo("poId2",ProcessorPoolTyp.TRANSIENT), new ProcessorPoolInfo("poId3",ProcessorPoolTyp.TRANSIENT))
 				);
 	}
 
@@ -244,6 +247,26 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 
 	@Override
 	public void setThreadPriority(String engineid, String processorPoolId, int threadPriority) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void resetMeasurePoints() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public WorkflowRepositoryInfo getWorkflowRepositoryInfo(String engineid) throws RemoteException {
+		return new WorkflowRepositoryInfo();
+	}
+
+
+	@Override
+	public void setBatcherNumThreads(int numThread, String engineid) {
 		// TODO Auto-generated method stub
 		
 	}

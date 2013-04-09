@@ -22,6 +22,7 @@ import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.StorageInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
@@ -134,10 +135,10 @@ public interface ScottyDBStorageInterface {
 
 	public String selectAuditTrailMessage(long id, MessagePostProcessor messagePostProcessor);
 
-	public List<WorkflowSummary> selectWorkflowSummary(String poolid, String classname, long resultRowLimit);
+	public List<WorkflowSummary> selectWorkflowSummary(String poolid, String classname);
 
 	public List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit);
 
-
+	public StorageInfo getStorageInfo();
 }

@@ -15,6 +15,8 @@
  */
 package de.scoopgmbh.copper.batcher;
 
+import de.scoopgmbh.copper.monitor.adapter.model.BatcherInfo;
+
 /**
  * A batcher is a service that collects homogeneous tasks over a period of time and executes them as a batch.
  * This may increase dramatically the throughput for a kind of tasks.
@@ -28,5 +30,9 @@ package de.scoopgmbh.copper.batcher;
 public interface Batcher {
 	
 	public <E extends BatchExecutor<E,T>, T extends BatchCommand<E,T>> void submitBatchCommand(BatchCommand<E,T> cmd);
+
+	public BatcherInfo getBatcherInfo();
+
+	public void setNumThreads(int numThread);
 
 }

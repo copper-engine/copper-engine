@@ -62,7 +62,7 @@ public class DerbyDbDialectTest{
 	}
 	
 	@Test
-	public void test_selectTotalWorkflowSummery() throws SQLException, Exception{
+	public void test_selectTotalWorkflowSummary() throws SQLException, Exception{
 		DummyPersistentWorkflow wf = new DummyPersistentWorkflow("id", "ppoolId", "1", 1);
 		derbyDbDialect.insert(wf, datasource_default.getConnection());
 		
@@ -123,8 +123,9 @@ public class DerbyDbDialectTest{
 		}
 
 	}
+	
 	@Test
-	public void test_selectWorkflowSummery() throws SQLException, Exception{
+	public void test_selectWorkflowSummary() throws SQLException, Exception{
 		{
 			DummyPersistentWorkflow wf = new DummyPersistentWorkflow("id1", "P#DEFAULT", "1", 1);
 			derbyDbDialect.insert(wf, datasource_default.getConnection());
@@ -139,9 +140,10 @@ public class DerbyDbDialectTest{
 		}
 		
 		try {
-			List<WorkflowSummary> selectSummery = derbyDbDialect.selectWorkflowStateSummary(null, null, 1000, datasource_default.getConnection());
-			assertEquals(1, selectSummery.size());
-			assertEquals(2,selectSummery.get(0).getStateSummery().getCount(WorkflowInstanceState.ENQUEUED));
+			List<WorkflowSummary> selectSummary = derbyDbDialect.selectWorkflowStateSummary(null, null, datasource_default.getConnection());
+			assertEquals(2, selectSummary.size());
+			assertEquals(1,selectSummary.get(0).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
+			assertEquals(2,selectSummary.get(1).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -167,12 +169,11 @@ public class DerbyDbDialectTest{
 		try {
 			List<WorkflowInstanceInfo> selectInstances = derbyDbDialect.selectWorkflowInstanceList(null, null, null, null, 1000, datasource_default.getConnection());
 			assertEquals(3, selectInstances.size());
-//			assertEquals(2,selectSummery.get(0).getStateSummery().getCount(WorkflowInstanceState.ENQUEUED));
+//			assertEquals(2,selectSummary.get(0).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-	
-		
+
 	}
 	
 

@@ -17,6 +17,8 @@ package de.scoopgmbh.copper;
 
 import java.util.List;
 
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
+
 /**
  * Runtime container for COPPER workflows and main entry point for running COPPER workflow instances. 
  * The engine may be transient or persistent - this depends on the concrete implementation.
@@ -115,5 +117,8 @@ public interface ProcessingEngine {
 	 * @param waitHook
 	 */
 	public void addWaitHook(String wfInstanceId, WaitHook waitHook);
+
+	public ProcessingEngineInfo getEngineInfo();
+	
 	
 }

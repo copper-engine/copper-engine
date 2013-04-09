@@ -9,6 +9,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *	provide thread save access to monitoring data by serialize the access with {@link java.util.concurrent.ArrayBlockingQueue}.
+ *  Accessing monitoring data is not blocking so monitoring can't block copper core functionality.
+ */
 public class MonitoringEventQueue {
 
 	public static final String IGNORE_WARN_TEXT = "could not process monitoring data. total ignored:";

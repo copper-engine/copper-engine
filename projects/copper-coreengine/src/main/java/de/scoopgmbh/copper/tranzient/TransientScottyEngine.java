@@ -41,6 +41,8 @@ import de.scoopgmbh.copper.common.TicketPoolManager;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.WorkflowInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
@@ -308,6 +310,14 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	@Override
 	public void addWaitHook(String wfInstanceId, WaitHook waitHook) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public ProcessingEngineInfo getEngineInfo() {
+		return new ProcessingEngineInfo(EngineTyp.TRANSIENT,getEngineId(),
+				wfRepository!=null?wfRepository.getWorkflowRepositoryInfo():null,
+				dependencyInjector!=null?dependencyInjector.getDependencyInjectorInfo():null,
+				null);
 	}
 	
 

@@ -45,6 +45,7 @@ import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.WorkflowInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
@@ -69,7 +70,6 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
 	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
 		this.monitoringDataCollector = monitoringDataCollector;
-		monitoringDataCollector.resgisterEngine(getEngineId(), EngineTyp.PERSISTENT,this);
 	}
 
 	/**
@@ -153,6 +153,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 			engineState = EngineState.STARTED;
 
 			logger.info("Engine is running");
+			monitoringDataCollector.registerEngine(this);
 		} 
 		catch(RuntimeException e) {
 			throw e;
@@ -400,6 +401,14 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 			List<WaitHook> l = waitHookMap.remove(wf.getId());
 			return l == null ? Collections.<WaitHook>emptyList() : l;
 		}
+	}
+
+	@Override
+	public ProcessingEngineInfo getEngineInfo() {
+		return new ProcessingEngineInfo(EngineTyp.TRANSIENT,getEngineId(),
+				wfRepository!=null?wfRepository.getWorkflowRepositoryInfo():null,
+				dependencyInjector!=null?dependencyInjector.getDependencyInjectorInfo():null,
+				dbStorage!=null?dbStorage.getStorageInfo():null);
 	}
 
 }

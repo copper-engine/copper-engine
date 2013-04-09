@@ -191,7 +191,7 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 	
 	@Override
 	public boolean canLimitResult() {
-		return true;
+		return false;
 	}
 	
 	@Override

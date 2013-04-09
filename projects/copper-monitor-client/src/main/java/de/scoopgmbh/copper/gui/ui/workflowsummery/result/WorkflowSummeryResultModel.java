@@ -28,7 +28,7 @@ public class WorkflowSummeryResultModel {
 	public WorkflowSummeryResultModel(WorkflowSummary workflowSummery) {
 		this.totalcount = new SimpleStringProperty(""+workflowSummery.getTotalcount());
 		this.version = new WorkflowVersion(workflowSummery.getClassDescription());
-		this.workflowStateSummery = workflowSummery.getStateSummery();
+		this.workflowStateSummery = workflowSummery.getStateSummary();
 		
 	}
 	

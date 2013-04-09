@@ -96,7 +96,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 			throw new IllegalArgumentException("engine is already set");
 		}
 		this.engine = engine;
-		monitoringDataCollector.registerPool(getProcessorPoolInfo(), engine.getEngineId(),this);
+		monitoringDataCollector.registerPool(this);
 	}
 	
 	public ProcessorPoolInfo getProcessorPoolInfo(){//overriding in persistente
@@ -218,7 +218,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 		updateThreads();
 	}
 
-	protected ProcessingEngine getEngine() {
+	public ProcessingEngine getEngine() {
 		return engine;
 	}
 

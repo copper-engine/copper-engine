@@ -34,6 +34,7 @@ public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController>
 	public Node createContent() {
 		BorderPane pane = new BorderPane();
 		TreeView<DisplayWorkflowClassesModel> workflowView = new TreeView<>();
+		workflowView.setPrefWidth(600);
 		pane.setCenter(workflowView);
 		Button refreshButton  = new Button("Refresh");
 		BorderPane.setMargin(refreshButton, new Insets(5));

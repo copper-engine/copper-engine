@@ -342,7 +342,7 @@ public class FormContext {
 	}
 	
 	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model){
-		return new FxmlForm<>(engine.getId(), new ProcessingEngineController(engine,model,this), messageProvider, new TabPaneShowFormStrategie(tabPane));
+		return new FxmlForm<>(engine.getId(), new ProcessingEngineController(engine,model,this,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane));
 	}
 	
 	public FilterAbleForm<EngineFilter, MeasurePointData> createMeasurePointForm() {

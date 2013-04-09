@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -78,14 +79,11 @@ public abstract class BaseSqlDialect implements DatabaseDialect {
 					"	(? is null or a.CORRELATION_ID=?) AND \n" + 
 					"	(? is null or a.LOGLEVEL=?)",resultRowLimit));
 			int pIdx = 1;
-			selectStmt.setString(pIdx++, workflowClass);
-			selectStmt.setString(pIdx++, workflowClass);
-			selectStmt.setString(pIdx++, workflowInstanceId);
-			selectStmt.setString(pIdx++, workflowInstanceId);
-			selectStmt.setString(pIdx++, correlationId);
-			selectStmt.setString(pIdx++, correlationId);
-			selectStmt.setObject(pIdx++, level,java.sql.Types.INTEGER);
-			selectStmt.setObject(pIdx++, level,java.sql.Types.INTEGER);
+			pIdx = setFilterParam(selectStmt,workflowClass,java.sql.Types.VARCHAR,pIdx);
+			pIdx = setFilterParam(selectStmt,workflowInstanceId,java.sql.Types.VARCHAR,pIdx);
+			pIdx = setFilterParam(selectStmt,correlationId,java.sql.Types.VARCHAR,pIdx);
+			pIdx = setFilterParam(selectStmt,level,java.sql.Types.INTEGER,pIdx);
+		
 			
 			selectStmt.setFetchSize(100);
 			
@@ -142,39 +140,39 @@ public abstract class BaseSqlDialect implements DatabaseDialect {
 	public abstract String getResultLimitingQuery(String query, long limit);
 
 	@Override
-	public List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname, long resultRowLimit,Connection con) {
+	public List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname,Connection con) {
 		PreparedStatement selectStmt = null;
 		try {
-			selectStmt = con.prepareStatement(getResultLimitingQuery(
+			selectStmt = con.prepareStatement(
 					"select CLASSNAME, STATE, count(*) from COP_WORKFLOW_INSTANCE \n" + 
 					"WHERE\n" + 
 					"	(? is null or PPOOL_ID=?) AND \n" + 
-					"	(? is null or CLASSNAME=?) GROUP BY CLASSNAME,STATE",resultRowLimit));
+					"	(? is null or CLASSNAME=?) GROUP BY CLASSNAME,STATE");
 			int pIdx = 1;
-			selectStmt.setString(pIdx++, poolid);
-			selectStmt.setString(pIdx++, poolid);
-			selectStmt.setString(pIdx++, classname);
-			selectStmt.setString(pIdx++, classname);
+			pIdx = setFilterParam(selectStmt,poolid,java.sql.Types.VARCHAR,pIdx);
+			pIdx = setFilterParam(selectStmt,classname,java.sql.Types.VARCHAR,pIdx);
 			
 			selectStmt.setFetchSize(100);
 			ResultSet resultSet = selectStmt.executeQuery();
 			
-			Map<String, WorkflowSummary> classNameToSummery = new HashMap<String, WorkflowSummary>();
+			Map<String, WorkflowSummary> classNameToSummary = new HashMap<String, WorkflowSummary>();
 			while (resultSet.next()) {
 				String instanceClassname=resultSet.getString(1); 
-				WorkflowSummary summery = classNameToSummery.get(instanceClassname);
-				if (summery==null){
-					summery= new WorkflowSummary();
-					summery.setClassDescription(new WorkflowClassVersionInfo(instanceClassname, "", 1L, 1L, 1L));
-					classNameToSummery.put(classname, summery);
+				WorkflowSummary summary = classNameToSummary.get(instanceClassname);
+				if (summary==null){
+					summary= new WorkflowSummary();
+					summary.setClassDescription(new WorkflowClassVersionInfo(instanceClassname, "", 1L, 1L, 1L));
+					summary.setStateSummary(new WorkflowStateSummary(new HashMap<WorkflowInstanceState, Integer>()));
+					classNameToSummary.put(instanceClassname, summary);
+					for (WorkflowInstanceState s : WorkflowInstanceState.values())
+						summary.getStateSummary().getNumberOfWorkflowInstancesWithState().put(s,0);
 				}
 				int status = resultSet.getInt(2);
 				int count = resultSet.getInt(3);
 				
-				summery.setStateSummery(new WorkflowStateSummary(new HashMap<WorkflowInstanceState, Integer>()));
-				summery.getStateSummery().getNumberOfWorkflowInstancesWithState().put(DBProcessingState.fromKey(status).asWorkflowInstanceState(), count);
+				summary.getStateSummary().getNumberOfWorkflowInstancesWithState().put(DBProcessingState.fromKey(status).asWorkflowInstanceState(), count);
 			}
-			return new ArrayList<WorkflowSummary>(classNameToSummery.values());
+			return new ArrayList<WorkflowSummary>(classNameToSummary.values());
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -182,33 +180,45 @@ public abstract class BaseSqlDialect implements DatabaseDialect {
 		}
 	}
 	
+	private int setFilterParam(PreparedStatement stmt, Object value, int sqltype, int nextindex) throws SQLException{
+		if (value != null) {
+			stmt.setObject(nextindex++, value, sqltype);
+			stmt.setObject(nextindex++, value, sqltype);
+		} else {
+			stmt.setNull(nextindex++, sqltype);
+			stmt.setNull(nextindex++, sqltype);				
+		}
+		return nextindex;
+	}
+	
 	@Override
 	public List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit,Connection con) {
 		PreparedStatement selectStmt = null;
 		try {
+			String subselectEXCEPTION = getResultLimitingQuery("SELECT \"EXCEPTION\"  FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID = MASTER.ID ORDER BY ERROR_TS DESC", 1);
+			String subselectERROR_TS = getResultLimitingQuery("SELECT ERROR_TS FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID = MASTER.ID ORDER BY ERROR_TS DESC", 1);
 			selectStmt = con.prepareStatement(getResultLimitingQuery(
-					"SELECT ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,TIMEOUT,CREATION_TS FROM COP_WORKFLOW_INSTANCE \n" + 
+					"SELECT ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,TIMEOUT,CREATION_TS, ("+subselectEXCEPTION+"), ("+subselectERROR_TS+"), LAST_MOD_TS \n" +
+					"FROM COP_WORKFLOW_INSTANCE as master \n" + 
 					"WHERE\n" + 
 					"	(? is null or PPOOL_ID=?) AND \n" + 
 					"	(? is null or CLASSNAME=?) AND \n" + 
 					"	(? is null or STATE=?) AND \n" + 
 					"	(? is null or PRIORITY=?)",resultRowLimit));
 			int pIdx = 1;
-			selectStmt.setString(pIdx++, null);
-			selectStmt.setString(pIdx++, null);
-			selectStmt.setString(pIdx++, classname);
-			selectStmt.setString(pIdx++, classname);
-			selectStmt.setObject(pIdx++, state==null?null:DBProcessingState.fromWorkflowInstanceState(state).key,java.sql.Types.INTEGER);
-			selectStmt.setObject(pIdx++, state==null?null:DBProcessingState.fromWorkflowInstanceState(state).key,java.sql.Types.INTEGER);
-			selectStmt.setObject(pIdx++, priority,java.sql.Types.INTEGER);
-			selectStmt.setObject(pIdx++, priority,java.sql.Types.INTEGER);
+			pIdx = setFilterParam(selectStmt,poolid,java.sql.Types.VARCHAR,pIdx);
+			pIdx = setFilterParam(selectStmt,classname,java.sql.Types.VARCHAR,pIdx);
+			pIdx = setFilterParam(selectStmt,(state==null?null:DBProcessingState.fromWorkflowInstanceState(state).key),java.sql.Types.INTEGER,pIdx);
+			pIdx = setFilterParam(selectStmt,priority,java.sql.Types.INTEGER,pIdx);
 			
 			selectStmt.setFetchSize(100);
 			
 			ResultSet resultSet = selectStmt.executeQuery();
 			
 			ArrayList<WorkflowInstanceInfo> instances = new ArrayList<WorkflowInstanceInfo>();
+			java.sql.ResultSetMetaData rsmd = resultSet.getMetaData();
+			boolean exceptionIsClob = rsmd.getColumnType(8) == Types.CLOB;
 			while (resultSet.next()) {
 				WorkflowInstanceInfo workflowInstanceInfo = new WorkflowInstanceInfo();
 				workflowInstanceInfo.setId(resultSet.getString(1));
@@ -218,11 +228,19 @@ public abstract class BaseSqlDialect implements DatabaseDialect {
 				workflowInstanceInfo.setProcessorPoolId(resultSet.getString(5));
 				workflowInstanceInfo.setTimeout(resultSet.getTimestamp(6)!=null?new Date(resultSet.getTimestamp(6).getTime()):null);
 				workflowInstanceInfo.setStartTime(new Date(resultSet.getTimestamp(7).getTime()));
-				
-//				workflowInstanceInfo.setErrorInfos(errorInfos);
-//				workflowInstanceInfo.setFinishTime(finishTime);
-//				workflowInstanceInfo.setLastErrorTime(lastErrorTime);
-//				workflowInstanceInfo.setOverallLifetimeInMs(overallLifetimeInMs)
+				if (exceptionIsClob) {
+					Clob errorinfo =  resultSet.getClob(8);
+					workflowInstanceInfo.setErrorInfos(errorinfo.getSubString(1, (int)errorinfo.length()));
+				} else {
+					workflowInstanceInfo.setErrorInfos(resultSet.getString(8));
+				}
+				workflowInstanceInfo.setLastErrorTime(resultSet.getTimestamp(9)!=null?new Date(resultSet.getTimestamp(9).getTime()):null);
+				Date lastMod = resultSet.getTimestamp(10)!=null?new Date(resultSet.getTimestamp(10).getTime()):null;
+				if (workflowInstanceInfo.getState() == WorkflowInstanceState.FINISHED){
+					workflowInstanceInfo.setFinishTime(lastMod);
+				}
+				workflowInstanceInfo.setOverallLifetimeInMs(System.currentTimeMillis()-workflowInstanceInfo.getStartTime().getTime());
+					
 				instances.add(workflowInstanceInfo);
 			}
 			return instances;
@@ -232,4 +250,6 @@ public abstract class BaseSqlDialect implements DatabaseDialect {
 			JdbcUtils.closeStatement(selectStmt);
 		}
 	}
+
+
 }

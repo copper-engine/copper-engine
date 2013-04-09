@@ -20,6 +20,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import de.scoopgmbh.copper.AbstractDependencyInjector;
+import de.scoopgmbh.copper.monitor.adapter.model.DependencyInjectorInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.DependencyInjectorInfo.DependencyInjectorTyp;
 
 /**
  * Connects SPRING to COPPER. Enables COPPER to inject dependencies into workflow instances using a spring container/context.
@@ -46,6 +48,11 @@ public class SpringDependencyInjector extends AbstractDependencyInjector impleme
 	@Override
 	protected Object getBean(String beanId) {
 		return context.getBean(beanId);
+	}
+	
+	@Override
+	public DependencyInjectorInfo getDependencyInjectorInfo() {
+		return new DependencyInjectorInfo(DependencyInjectorTyp.SPRING);
 	}
 
 }

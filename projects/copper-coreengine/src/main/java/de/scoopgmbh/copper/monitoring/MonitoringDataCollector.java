@@ -20,19 +20,16 @@ import java.util.concurrent.TimeUnit;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.common.WorkflowRepository;
-import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
-import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
 
 /**
  * Collects copper configuration informations and runtime statistics of named measure points for the purpose of monitoring the performance of an application.
- * It depends on the implementation how runtime statistics are handled. 
  * 
  * @author austermann
  *
  */
 public interface MonitoringDataCollector {
 	public void submitMeasurePoint(String measurePointId, int elementCount, long elapsedTime, TimeUnit timeUnit);
-	public void resgisterEngine(final String engineId, final EngineTyp typ, final ProcessingEngine engine);
-	public void registerPool(final ProcessorPoolInfo processorPoolInfo, final String engineId, final PriorityProcessorPool pool);
+	public void registerEngine(ProcessingEngine engine);
+	public void registerPool(final PriorityProcessorPool pool);
 	public void registerWorkflowRepository(WorkflowRepository workflowRepository);
 }

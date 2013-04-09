@@ -3,6 +3,7 @@
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.collections.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
@@ -10,6 +11,17 @@
 <?import javafx.scene.paint.*?>
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="460.0" prefWidth="616.0" xmlns:fx="http://javafx.com/fxml">
+  <bottom>
+    <HBox prefHeight="37.0" prefWidth="616.0">
+      <children>
+        <Button fx:id="reset" mnemonicParsing="false" text="reset">
+          <HBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+          </HBox.margin>
+        </Button>
+      </children>
+    </HBox>
+  </bottom>
   <center>
     <BarChart fx:id="chart">
       <xAxis>

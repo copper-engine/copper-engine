@@ -13,6 +13,9 @@ import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 
 
+/**
+ * periodically logs monitoring infos
+ */
 public class LoggingMonitoringView{
 	private static final Logger statLogger = LoggerFactory.getLogger("stat");
 	
@@ -39,11 +42,15 @@ public class LoggingMonitoringView{
 		output.start();
 	}
 	
+	public LoggingMonitoringView(final MonitoringEventQueue monitoringQueue){
+		this(monitoringQueue,1);
+	}
+	
 
 	void log(MonitoringData monitoringData) {
 		StringBuilder builder = new StringBuilder("\nCopper Monitoring\n");
 		builder.append("----------Configuration:----------\n");
-		for (ProcessingEngineInfo engineInfo: monitoringData.engineInfos.values()){
+		for (ProcessingEngineInfo engineInfo: monitoringData.createProcessingEngineInfos()){
 			builder.append(engineInfo.toString()+"\n");
 		}
 		final Map<String, MeasurePointData> localMap = monitoringData.measurePoints;

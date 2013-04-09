@@ -39,11 +39,13 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.context.FormContext;
 import de.scoopgmbh.copper.gui.form.FxmlController;
@@ -59,6 +61,71 @@ import de.scoopgmbh.copper.gui.util.ComponentUtil;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
 public class WorkflowInstanceResultController implements Initializable, FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>, FxmlController {
+	
+	
+	
+	public static final class DetailLoadService extends Service<Void> {
+		private WorkflowInstanceResultModel workflowInstanceResultModel;
+		private StackPane stackDetailPane;
+		private FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm;
+
+		public DetailLoadService(WorkflowInstanceResultModel workflowInstanceResultModel,StackPane stackDetailPane, FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm) {
+			this.workflowInstanceResultModel = workflowInstanceResultModel;
+			this.stackDetailPane = stackDetailPane;
+			this.detailForm = detailForm;
+		}
+		
+		public WorkflowInstanceResultModel getWorkflowInstanceResultModel() {
+			return workflowInstanceResultModel;
+		}
+
+		public void setWorkflowInstanceResultModel(WorkflowInstanceResultModel workflowInstanceResultModel) {
+			this.workflowInstanceResultModel = workflowInstanceResultModel;
+		}
+
+		@Override
+		protected Task<Void> createTask() {
+			return new Task<Void>() {
+				final ProgressIndicator indicator = ComponentUtil.createProgressIndicator();
+				private WorkflowInstanceDetailFilterModel filter;
+				private List<WorkflowInstanceDetailResultModel> result;
+				@Override
+				protected Void call() throws Exception {
+					Platform.runLater(new Runnable() {
+		                 @Override public void run() {
+		                	 stackDetailPane.getChildren().add(indicator);
+		                 }
+		             });
+					filter = new WorkflowInstanceDetailFilterModel();
+					filter.workflowInstanceId.setValue(workflowInstanceResultModel.id.getValue());
+					filter.filteredWithworkflowInstanceInfo=workflowInstanceResultModel;
+					result = detailForm.getController().applyFilterInBackgroundThread(filter);
+					return null;
+				}
+				
+				@Override 
+				protected void succeeded() {
+					detailForm.getController().showFilteredResult(result, filter);
+					stackDetailPane.getChildren().remove(indicator);
+					if (getException()!=null){
+						throw new RuntimeException(this.getException());
+					}
+					super.succeeded();
+				}
+				
+				@Override 
+				protected void failed() {
+					stackDetailPane.getChildren().remove(indicator);
+					if (getException()!=null){
+						throw new RuntimeException(this.getException());
+					}
+					super.failed();
+				}
+				
+			};
+		}
+	}
+
 	private final GuiCopperDataProvider copperDataProvider;
 	private final FormContext formcontext;
 	
@@ -110,7 +177,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
     @FXML //  fx:id="timeoutColumn"
     private StackPane stackDetailPane;
 	private FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm;
-	private Service<Void> service;
+	private DetailLoadService service;
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -228,7 +295,22 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 				return p.getValue().errorInfos;
 			}
 		});
-        
+        errorInfos.setCellFactory(new Callback<TableColumn<WorkflowInstanceResultModel,String>, TableCell<WorkflowInstanceResultModel,String>>() {
+			@Override
+			public TableCell<WorkflowInstanceResultModel, String> call(TableColumn<WorkflowInstanceResultModel, String> param) {
+				return new TextFieldTableCell<>(new StringConverter<String>() {
+					@Override
+					public String fromString(String string) {
+						return string;
+					}
+
+					@Override
+					public String toString(String object) {
+						return abbreviate(object,40);
+					}
+				});
+			}
+		});
         
         
         
@@ -279,6 +361,16 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 		detailForm.show();
     }
     
+    public static String abbreviate(String str, int maxWidth) {
+        if (null == str) {
+            return null;
+        }
+        if (str.length() <= maxWidth) {
+            return str;
+        }
+        return str.substring(0, maxWidth) + "...";
+    }
+    
 	@Override
 	public URL getFxmlRessource() {
 		return getClass().getResource("WorkflowInstanceResult.fxml");
@@ -311,53 +403,12 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 		
 
 		if (service==null) {
-			service = new Service<Void>(){
-				@Override
-				protected Task<Void> createTask() {
-					return new Task<Void>() {
-						final ProgressIndicator indicator = ComponentUtil.createProgressIndicator();
-						private WorkflowInstanceDetailFilterModel filter;
-						private List<WorkflowInstanceDetailResultModel> result;
-						@Override
-						protected Void call() throws Exception {
-							Platform.runLater(new Runnable() {
-			                     @Override public void run() {
-			                    	 stackDetailPane.getChildren().add(indicator);
-			                     }
-			                 });
-							filter = new WorkflowInstanceDetailFilterModel();
-							filter.workflowInstanceId.setValue(workflowInstanceResultModel.id.getValue());
-							result = detailForm.getController().applyFilterInBackgroundThread(filter);
-							return null;
-						}
-						
-						@Override 
-						protected void succeeded() {
-							detailForm.getController().showFilteredResult(result, filter);
-							stackDetailPane.getChildren().remove(indicator);
-							if (getException()!=null){
-								throw new RuntimeException(service.getException());
-							}
-							super.succeeded();
-						}
-						
-						@Override 
-						protected void failed() {
-							stackDetailPane.getChildren().remove(indicator);
-							if (getException()!=null){
-								throw new RuntimeException(service.getException());
-							}
-							super.failed();
-						}
-						
-						
-					};
-				}
-			};
+			service = new DetailLoadService(workflowInstanceResultModel,stackDetailPane,detailForm);
 		}
 		
 		if (!service.isRunning()){
 			service.reset();
+			service.setWorkflowInstanceResultModel(workflowInstanceResultModel);
 			service.start();
 		}
 	}

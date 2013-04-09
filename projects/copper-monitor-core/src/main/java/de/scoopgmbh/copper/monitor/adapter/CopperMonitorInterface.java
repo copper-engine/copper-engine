@@ -29,12 +29,13 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 
 public interface CopperMonitorInterface extends Remote, Serializable {
 
-	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname, long resultRowLimit) throws RemoteException;
+	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname) throws RemoteException;
 
 	public List<WorkflowInstanceInfo> getWorkflowInstanceList(final String poolid, final String classname,
 			final WorkflowInstanceState state, final Integer priority, long resultRowLimit) throws RemoteException;
@@ -87,6 +88,12 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	
 	public List<MeasurePointData> getMeasurePoints(String engineid) throws RemoteException;
 	
+	public void resetMeasurePoints() throws RemoteException;
+	
+	
+	public WorkflowRepositoryInfo getWorkflowRepositoryInfo(String engineid) throws RemoteException;
+	
+	public void setBatcherNumThreads(int numThread, String engineid) throws RemoteException;
 	
 	
 }

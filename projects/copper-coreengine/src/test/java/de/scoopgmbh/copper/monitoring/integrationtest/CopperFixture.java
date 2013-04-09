@@ -37,7 +37,6 @@ public class CopperFixture {
 		FileBasedWorkflowRepository wfRepository = new FileBasedWorkflowRepository();
 		wfRepository.setTargetDir("build/classes/test");
 		wfRepository.setSourceDirs(Arrays.asList("src/test/java/de/scoopgmbh/copper/monitoring/integrationtest/workflow"));
-		wfRepository.setMonitoringDataCollector(monitoringDataCollector);
 		wfRepository.start();
 		//wfRepository.shutdown
 		

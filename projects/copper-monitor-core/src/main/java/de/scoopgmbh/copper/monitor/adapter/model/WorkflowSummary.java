@@ -53,11 +53,11 @@ public class WorkflowSummary implements Serializable {
 		this.totalcount = totalcount;
 	}
 
-	public WorkflowStateSummary getStateSummery() {
+	public WorkflowStateSummary getStateSummary() {
 		return stateSummery;
 	}
 
-	public void setStateSummery(WorkflowStateSummary stateSummery) {
+	public void setStateSummary(WorkflowStateSummary stateSummery) {
 		this.stateSummery = stateSummery;
 	}
 

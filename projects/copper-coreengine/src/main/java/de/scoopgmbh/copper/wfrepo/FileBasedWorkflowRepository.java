@@ -53,8 +53,8 @@ import de.scoopgmbh.copper.WorkflowVersion;
 import de.scoopgmbh.copper.instrument.ClassInfo;
 import de.scoopgmbh.copper.instrument.ScottyFindInterruptableMethodsVisitor;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
-import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
-import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowRepositoryInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowRepositoryInfo.WorkflowRepositorTyp;
 import de.scoopgmbh.copper.util.FileUtil;
 
 /**
@@ -605,10 +605,9 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		return result;
 	}
 
-	MonitoringDataCollector monitoringDataCollector= new NoMonitoringDataCollector();;
-	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
-		this.monitoringDataCollector = monitoringDataCollector;
-		monitoringDataCollector.registerWorkflowRepository(this);
+	@Override
+	public WorkflowRepositoryInfo getWorkflowRepositoryInfo() {
+		return new WorkflowRepositoryInfo(WorkflowRepositorTyp.FILE, getClass().getName(), new ArrayList<String>(sourceDirs));
 	}
 
 }

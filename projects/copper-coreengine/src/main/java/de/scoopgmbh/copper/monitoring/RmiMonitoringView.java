@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
@@ -25,9 +26,11 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
+import de.scoopgmbh.copper.persistent.ScottyDBStorage;
 import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 
 public class RmiMonitoringView implements CopperMonitorInterface{
@@ -70,12 +73,12 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 	}
 
 	@Override
-	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname, final long resultRowLimit)
+	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname)
 			throws RemoteException {
 		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<List<WorkflowSummary>>() {
 			@Override
 			public List<WorkflowSummary> call() throws Exception {
-				return dbStorage.selectWorkflowSummary(poolid,  classname, resultRowLimit);
+				return dbStorage.selectWorkflowSummary(poolid,  classname);
 			}
 		});
 	}
@@ -94,22 +97,12 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 	@Override
 	public List<AuditTrailInfo> getAuditTrails(final String workflowClass, final String workflowInstanceId, final String correlationId, final Integer level, final long resultRowLimit)
 			throws RemoteException {
-		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<List<AuditTrailInfo>>() {
-			@Override
-			public List<AuditTrailInfo> call() throws Exception {
-				return dbStorage.selectAuditTrails(workflowClass, workflowInstanceId, correlationId, level, resultRowLimit);
-			}
-		});
+		return dbStorage.selectAuditTrails(workflowClass, workflowInstanceId, correlationId, level, resultRowLimit);
 	}
 
 	@Override
 	public String getAuditTrailMessage(final long id) throws RemoteException {
-		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<String>() {
-			@Override
-			public String call() throws Exception {
-				return dbStorage.selectAuditTrailMessage(id,messagePostProcessor);
-			}
-		});
+		return dbStorage.selectAuditTrailMessage(id,messagePostProcessor);
 	}
 
 	@Override
@@ -134,12 +127,7 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 
 	@Override
 	public WorkflowStateSummary getAggregatedWorkflowStateSummary(String engineid) throws RemoteException {
-		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<WorkflowStateSummary>() {
-			@Override
-			public WorkflowStateSummary call() throws Exception {
-				return dbStorage.selectTotalWorkflowStateSummary();
-			}
-		});
+		return dbStorage.selectTotalWorkflowStateSummary();
 	}
 
 	@Override
@@ -231,7 +219,7 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<List<ProcessingEngineInfo>>() {
 			@Override
 			public List<ProcessingEngineInfo> call() throws Exception {
-				return new ArrayList<ProcessingEngineInfo>(monitoringData.engineInfos.values());
+				return new ArrayList<ProcessingEngineInfo>(monitoringData.createProcessingEngineInfos());
 			}
 		});
 	}
@@ -254,6 +242,42 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 
 	public void setAuditrailMessagePostProcessor(MessagePostProcessor messagePostProcessor) {
 		this.messagePostProcessor = messagePostProcessor;
+	}
+
+	@Override
+	public void resetMeasurePoints() {
+		monitoringQueue.put(new MonitoringDataAwareRunnable() {
+			@Override
+			public void run() {
+				monitoringData.measurePoints.clear();
+			}
+		});
+	}
+
+	@Override
+	public WorkflowRepositoryInfo getWorkflowRepositoryInfo(final String engineid) throws RemoteException {
+		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<WorkflowRepositoryInfo>() {
+			@Override
+			public WorkflowRepositoryInfo call() throws Exception {
+				return monitoringData.createProcessingEngineInfos(engineid).getRepositoryInfo();
+			}
+		});
+	}
+
+	@Override
+	public void setBatcherNumThreads(final int numThread, final String engineid) {
+		monitoringQueue.put(new MonitoringDataAwareRunnable() {
+			@Override
+			public void run() {
+				ProcessingEngine engine =  monitoringData.engines.get(engineid);
+				if (engine instanceof PersistentScottyEngine){
+					ScottyDBStorageInterface storage =  ((PersistentScottyEngine)engine).getDbStorage();
+					if (storage instanceof ScottyDBStorage){
+						((ScottyDBStorage)storage).getBatcher().setNumThreads(numThread);
+					}
+				}
+			}
+		});
 	}
 	
 

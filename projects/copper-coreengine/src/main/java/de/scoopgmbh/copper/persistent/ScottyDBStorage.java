@@ -34,6 +34,7 @@ import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.StorageInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
@@ -97,6 +98,10 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 
 	public void setBatcher(Batcher batcher) {
 		this.batcher = batcher;
+	}
+	
+	public Batcher getBatcher() {
+		return this.batcher;
 	}
 
 	public void setDeleteStaleResponsesIntervalMsec(long deleteStaleResponsesIntervalMsec) {
@@ -486,12 +491,12 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	}
 
 	@Override
-	public List<WorkflowSummary> selectWorkflowSummary(final String poolid, final String classname, final long resultRowLimit) {
+	public List<WorkflowSummary> selectWorkflowSummary(final String poolid, final String classname) {
 		try {
 			return run(new DatabaseTransaction<List<WorkflowSummary> >() {
 				@Override
 				public List<WorkflowSummary> run(Connection con) throws Exception {
-					return dialect.selectWorkflowStateSummary(poolid, classname, resultRowLimit,con);
+					return dialect.selectWorkflowStateSummary(poolid, classname,con);
 				}
 			});
 		} catch (Exception e) {
@@ -514,6 +519,11 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			logger.error("error",e);
 			return null;
 		}
+	}
+
+	@Override
+	public StorageInfo getStorageInfo() {
+		return new StorageInfo(getClass().getName(),batcher!=null?batcher.getBatcherInfo():null);
 	}
 
 }

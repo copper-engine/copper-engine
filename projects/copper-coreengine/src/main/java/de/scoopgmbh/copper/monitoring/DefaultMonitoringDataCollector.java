@@ -2,20 +2,14 @@ package de.scoopgmbh.copper.monitoring;
 
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
-import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
-import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
 
 public class DefaultMonitoringDataCollector implements MonitoringDataCollector{
 	
-	private static final Logger logger = LoggerFactory.getLogger(DefaultMonitoringDataCollector.class);
+//	private static final Logger logger = LoggerFactory.getLogger(DefaultMonitoringDataCollector.class);
 	private final MonitoringEventQueue monitoringQueue;
 	
 	public DefaultMonitoringDataCollector(final MonitoringEventQueue monitoringQueue){
@@ -46,28 +40,21 @@ public class DefaultMonitoringDataCollector implements MonitoringDataCollector{
 	}
 
 	@Override
-	public void resgisterEngine(final String engineId, final EngineTyp typ, final ProcessingEngine engine) {
+	public void registerEngine(final ProcessingEngine engine) {
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringData.engineInfos.put(engineId,new ProcessingEngineInfo(typ, engineId));
-				monitoringData.engines.put(engineId, engine);
+				monitoringData.engines.put(engine.getEngineId(), engine);
 			}
 		});
 	}
 	
 	@Override
-	public void registerPool(final ProcessorPoolInfo processorPoolInfo, final String engineId, final PriorityProcessorPool pool) {
+	public void registerPool(final PriorityProcessorPool pool) {
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				ProcessingEngineInfo processingEngineInfo = monitoringData.engineInfos.get(engineId);
-				if (processingEngineInfo==null){
-					logger.info("cant find engine for pool: '"+processorPoolInfo.getId()+"'");
-				} else {
-					processingEngineInfo.getPools().add(processorPoolInfo);
-				}
-				monitoringData.putPool(pool.getId(),engineId, pool);
+				monitoringData.pools.add(pool);
 			}
 		});
 	}
