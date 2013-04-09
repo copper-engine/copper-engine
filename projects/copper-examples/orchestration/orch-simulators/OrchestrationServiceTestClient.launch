@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/orch-simulators/src/main/java/de/scoopgmbh/copper/examples/orechstration/simulators/clients/OrchestrationServiceTestClient.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="de.scoopgmbh.copper.examples.orechstration.simulators.clients.OrchestrationServiceTestClient"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://localhost:9090/orchestration?wsdl&#13;&#10;491716677889&#13;&#10;sc00p"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="orch-simulators"/>
+</launchConfiguration>

@@ -48,6 +48,7 @@ public class NetworkServiceProviderImpl implements NetworkServiceProvider {
 	private ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 	private Random random = new Random();
 
+	@Override
 	public de.scoopgmbh.network.mobile.services.ResetMailboxAcknowledge asyncResetMailbox(final ResetMailboxRequest parameters) { 
 		logger.info("asyncResetMailbox(msisdn={})", parameters.getMsisdn());
 		final String correlationId = Long.toHexString(cidFactory.incrementAndGet());
@@ -73,6 +74,7 @@ public class NetworkServiceProviderImpl implements NetworkServiceProvider {
 		return ack;
 	}
 
+	@Override
 	public de.scoopgmbh.network.mobile.services.Empty sendSMS(SendSmsRequest parameters) {
 		logger.info("sendSMS(msisdn={}, msg={})", parameters.getMsisdn(), parameters.getMessage());
 		return new Empty();

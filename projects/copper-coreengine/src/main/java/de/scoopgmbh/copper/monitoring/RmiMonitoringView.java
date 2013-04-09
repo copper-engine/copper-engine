@@ -75,23 +75,13 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 	@Override
 	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname)
 			throws RemoteException {
-		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<List<WorkflowSummary>>() {
-			@Override
-			public List<WorkflowSummary> call() throws Exception {
-				return dbStorage.selectWorkflowSummary(poolid,  classname);
-			}
-		});
+		return dbStorage.selectWorkflowSummary(poolid,  classname);
 	}
 
 	@Override
 	public List<WorkflowInstanceInfo> getWorkflowInstanceList(final String poolid, final String classname,
 			final WorkflowInstanceState state, final Integer priority, final long resultRowLimit) throws RemoteException {
-		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<List<WorkflowInstanceInfo>>() {
-			@Override
-			public List<WorkflowInstanceInfo> call() throws Exception {
-				return dbStorage.selectWorkflowInstanceList(poolid,  classname, state, priority, resultRowLimit);
-			}
-		});
+		return dbStorage.selectWorkflowInstanceList(poolid,  classname, state, priority, resultRowLimit);
 	}
 
 	@Override
@@ -143,23 +133,18 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 
 	@Override
 	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException {
-		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<SystemResourcesInfo>() {
-			@Override
-			public SystemResourcesInfo call() throws Exception {
-				//http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
-				com.sun.management.OperatingSystemMXBean operatingSystemMXBean= ((com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean());
-				MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-				java.lang.management.ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-				ClassLoadingMXBean classLoadingMXBean  = ManagementFactory.getClassLoadingMXBean();
-				return new SystemResourcesInfo(new Date(),
-						Math.max(operatingSystemMXBean.getSystemCpuLoad(),0),
-						operatingSystemMXBean.getFreePhysicalMemorySize(),
-						Math.max(operatingSystemMXBean.getProcessCpuLoad(),0),
-						memoryMXBean.getHeapMemoryUsage().getUsed(),
-						threadMXBean.getThreadCount(),
-						classLoadingMXBean.getTotalLoadedClassCount());
-			}
-		});
+		//http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
+		com.sun.management.OperatingSystemMXBean operatingSystemMXBean= ((com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean());
+		MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+		java.lang.management.ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+		ClassLoadingMXBean classLoadingMXBean  = ManagementFactory.getClassLoadingMXBean();
+		return new SystemResourcesInfo(new Date(),
+				Math.max(operatingSystemMXBean.getSystemCpuLoad(),0),
+				operatingSystemMXBean.getFreePhysicalMemorySize(),
+				Math.max(operatingSystemMXBean.getProcessCpuLoad(),0),
+				memoryMXBean.getHeapMemoryUsage().getUsed(),
+				threadMXBean.getThreadCount(),
+				classLoadingMXBean.getTotalLoadedClassCount());
 	}
 
 	@Override

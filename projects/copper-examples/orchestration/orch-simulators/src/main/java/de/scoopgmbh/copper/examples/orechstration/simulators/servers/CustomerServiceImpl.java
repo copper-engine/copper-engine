@@ -38,7 +38,8 @@ public class CustomerServiceImpl implements CustomerService {
     /* (non-Javadoc)
      * @see de.scoopgmbh.customerservice.CustomerService#getCustomersByMsisdn(de.scoopgmbh.customerservice.GetCustomersByMsisdnRequest  parameters )*
      */
-    public de.scoopgmbh.customerservice.GetCustomersByMsisdnResponse getCustomersByMsisdn(GetCustomersByMsisdnRequest parameters) {
+    @Override
+	public de.scoopgmbh.customerservice.GetCustomersByMsisdnResponse getCustomersByMsisdn(GetCustomersByMsisdnRequest parameters) {
     	logger.info("getCustomersByMsisdn(msisdn={})", parameters.getMsisdn());
     	GetCustomersByMsisdnResponse response = new GetCustomersByMsisdnResponse();
     	response.setReturn(new Customer());

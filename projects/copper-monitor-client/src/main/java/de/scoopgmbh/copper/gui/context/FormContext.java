@@ -70,10 +70,10 @@ import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilter
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultController;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
-import de.scoopgmbh.copper.gui.ui.workflowsummery.filter.WorkflowSummeryFilterController;
-import de.scoopgmbh.copper.gui.ui.workflowsummery.filter.WorkflowSummeryFilterModel;
-import de.scoopgmbh.copper.gui.ui.workflowsummery.result.WorkflowSummeryResultController;
-import de.scoopgmbh.copper.gui.ui.workflowsummery.result.WorkflowSummeryResultModel;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummeryFilterController;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummeryFilterModel;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.result.WorkflowSummeryResultController;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.result.WorkflowSummeryResultModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterController;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultController;
@@ -338,7 +338,7 @@ public class FormContext {
 	}
 	
 	public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool, DashboardResultModel model){
-		return new FxmlForm<>(pool.getId(), new ProccessorPoolController(engine,pool,model,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
+		return new FxmlForm<>(pool.getId(), new ProccessorPoolController(engine,pool,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
 	}
 	
 	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model){

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="MobileNetworkServices"
+	targetNamespace="http://services.mobile.network.scoopgmbh.de/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:tns="http://services.mobile.network.scoopgmbh.de/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+	<wsdl:types>
+		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://services.mobile.network.scoopgmbh.de/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://services.mobile.network.scoopgmbh.de/">
+			
+			<xs:complexType name="resetMailboxRequest">
+				<xs:sequence>
+					<xs:element minOccurs="1" maxOccurs="1" name="msisdn" type="xs:string" />
+					<xs:element minOccurs="1" maxOccurs="1" name="callback" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xsd:element name="resetMailboxRequest" type="tns:resetMailboxRequest"/>
+			
+			<xs:complexType name="resetMailboxAcknowledge">
+				<xs:sequence>
+					<xs:element maxOccurs="1" minOccurs="0" name="correlationId" type="xsd:string" />
+					<xs:element maxOccurs="1" minOccurs="1" name="returnCode" type="xsd:unsignedShort" />
+				</xs:sequence>
+			</xs:complexType>
+			<xsd:element name="resetMailboxAcknowledge" type="tns:resetMailboxAcknowledge"/>
+
+			<xs:complexType name="resetMailboxResponse">
+				<xs:sequence>
+					<xs:element maxOccurs="1" minOccurs="1" name="correlationId" type="xsd:string" />
+					<xs:element maxOccurs="1" minOccurs="1" name="success" type="xsd:boolean" />
+					<xs:element maxOccurs="1" minOccurs="1" name="returnCode" type="xsd:unsignedShort" />
+				</xs:sequence>
+			</xs:complexType>
+			<xsd:element name="resetMailboxResponse" type="tns:resetMailboxResponse"/>
+			
+			<xsd:element name="empty">
+				<xsd:complexType></xsd:complexType>
+			</xsd:element>
+			
+			<xsd:simpleType name="SMSText">
+				<xsd:restriction base="xs:string">
+					<xsd:minLength value="1"></xsd:minLength>
+					<xsd:maxLength value="160"></xsd:maxLength>
+				</xsd:restriction>
+			</xsd:simpleType>
+			
+			<xs:complexType name="sendSmsRequest">
+				<xs:sequence>
+					<xs:element minOccurs="1" maxOccurs="1" name="msisdn" type="xs:string" />
+					<xs:element minOccurs="1" maxOccurs="1" name="message" type="tns:SMSText" />
+				</xs:sequence>
+			</xs:complexType>
+			<xsd:element name="sendSmsRequest" type="tns:sendSmsRequest"/>
+			
+		</xs:schema>
+	</wsdl:types>
+	
+	<wsdl:message name="resetMailboxRequest">
+		<wsdl:part name="parameters" element="tns:resetMailboxRequest">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="resetMailboxAcknowledge">
+		<wsdl:part name="parameters" element="tns:resetMailboxAcknowledge">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="sendSmsRequest">
+		<wsdl:part name="parameters" element="tns:sendSmsRequest">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="resetMailboxResponse">
+		<wsdl:part name="parameters" element="tns:resetMailboxResponse">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="empty">
+		<wsdl:part name="parameters" element="tns:empty">
+		</wsdl:part>
+	</wsdl:message>	
+	
+	<wsdl:portType name="NetworkServiceProvider">
+		<wsdl:operation name="asyncResetMailbox">
+			<wsdl:input message="tns:resetMailboxRequest">
+			</wsdl:input>
+			<wsdl:output message="tns:resetMailboxAcknowledge">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="sendSMS">
+			<wsdl:input message="tns:sendSmsRequest">
+			</wsdl:input>
+			<wsdl:output message="tns:empty">
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:portType>
+	
+	<wsdl:portType name="AsyncNetworkServiceResponseReceiver">
+		<wsdl:operation name="resetMailboxResponse">
+			<wsdl:input message="tns:resetMailboxResponse">
+			</wsdl:input>
+			<wsdl:output message="tns:empty">
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:portType>	
+	
+	<wsdl:binding name="NetworkServiceProviderSoapBinding" type="tns:NetworkServiceProvider">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="asyncResetMailbox">
+			<soap:operation soapAction="http://services.mobile.network.scoopgmbh.de/asyncResetMailbox" style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="sendSMS">
+			<soap:operation soapAction="http://services.mobile.network.scoopgmbh.de/sendSMS" style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	
+	<wsdl:binding name="AsyncNetworkServiceResponseReceiverSoapBinding" type="tns:AsyncNetworkServiceResponseReceiver">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="resetMailboxResponse">
+			<soap:operation soapAction="http://services.mobile.network.scoopgmbh.de/resetMailboxResponse" style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	
+	<wsdl:service name="NetworkServiceProviderService">
+		<wsdl:port name="NetworkServiceProviderPort" binding="tns:NetworkServiceProviderSoapBinding">
+			<soap:address location="http://localhost:9091/NetworkServiceProvider" />
+		</wsdl:port>
+	</wsdl:service>
+	
+	<wsdl:service name="AsyncNetworkServiceResponseReceiverService">
+		<wsdl:port name="AsyncNetworkServiceResponseReceiver" binding="tns:AsyncNetworkServiceResponseReceiverSoapBinding">
+			<soap:address location="http://localhost:9092/AsyncNetworkServiceResponseReceiver" />
+		</wsdl:port>
+	</wsdl:service>
+	
+</wsdl:definitions>
