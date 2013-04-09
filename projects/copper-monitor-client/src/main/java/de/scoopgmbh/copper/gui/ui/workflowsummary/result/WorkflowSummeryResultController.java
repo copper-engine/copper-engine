@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.gui.ui.workflowsummery.result;
+package de.scoopgmbh.copper.gui.ui.workflowsummary.result;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ import de.scoopgmbh.copper.gui.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
-import de.scoopgmbh.copper.gui.ui.workflowsummery.filter.WorkflowSummeryFilterModel;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummeryFilterModel;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 

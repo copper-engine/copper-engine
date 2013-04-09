@@ -31,7 +31,7 @@ import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.gui.ui.workflowsummery.filter.WorkflowSummeryFilterController;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummeryFilterController;
 
 public class WorkflowClassesTreeController {
 	private final GuiCopperDataProvider copperDataProvider;

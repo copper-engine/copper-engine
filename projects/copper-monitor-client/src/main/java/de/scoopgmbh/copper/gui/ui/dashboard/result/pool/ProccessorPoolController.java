@@ -26,20 +26,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.form.FxmlController;
-import de.scoopgmbh.copper.gui.ui.dashboard.result.DashboardResultModel;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 
 public class ProccessorPoolController implements Initializable, FxmlController {
 	private final ProcessorPoolInfo pool;
 	private final ProcessingEngineInfo engine;
-	private final DashboardResultModel model;
 	private final GuiCopperDataProvider dataProvider;
 
-    public ProccessorPoolController(ProcessingEngineInfo engine, ProcessorPoolInfo pool, DashboardResultModel model, GuiCopperDataProvider  dataProvider) {
+    public ProccessorPoolController(ProcessingEngineInfo engine, ProcessorPoolInfo pool, GuiCopperDataProvider  dataProvider) {
     	this.pool=pool;
-    	this.model=model;
     	this.engine = engine;
     	this.dataProvider = dataProvider;
 	}
@@ -81,9 +77,6 @@ public class ProccessorPoolController implements Initializable, FxmlController {
         assert threadPrioritaetInfo != null : "fx:id=\"threadPrioritaetInfo\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
         assert typ != null : "fx:id=\"typ\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
 
-        WorkflowStateSummary workflowStateSummary = model.getStateSummery(engine.getId());
-
-     
 		id.setText(pool.getId());
 		typ.setText(pool.getProcessorPoolTyp().toString());
 		
