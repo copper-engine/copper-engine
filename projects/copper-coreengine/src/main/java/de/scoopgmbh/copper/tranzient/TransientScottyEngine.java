@@ -67,10 +67,10 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	private EarlyResponseContainer earlyResponseContainer;
 	private TicketPoolManager ticketPoolManager;
 	private DependencyInjector dependencyInjector;
-	private MonitoringDataCollector statisticsCollector = new NoMonitoringDataCollector();
+	private MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
 	
-	public void setStatisticsCollector(MonitoringDataCollector statisticsCollector) {
-		this.statisticsCollector = statisticsCollector;
+	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
+		this.monitoringDataCollector = monitoringDataCollector;
 	}
 	
 	public void setTicketPoolManager(TicketPoolManager ticketPoolManager) {
@@ -264,6 +264,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		}
 		else {
 			WorkflowAccessor.setProcessingState(w, ProcessingState.WAITING);
+			monitoringDataCollector.submitWorkflowHistory(ProcessingState.WAITING, w.getId(), w.getClass().getName());
 		}
 	}
 
@@ -271,8 +272,9 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		final Workflow<?> wf = workflowMap.remove(id);
 		if (wf != null) {
 			WorkflowAccessor.setProcessingState(wf, ProcessingState.FINISHED);
+			monitoringDataCollector.submitWorkflowHistory(ProcessingState.FINISHED, wf.getId(), wf.getClass().getName());
 			ticketPoolManager.release(wf);
-			statisticsCollector.submitMeasurePoint(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
+			monitoringDataCollector.submitMeasurePoint(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
 		}
 	}
 

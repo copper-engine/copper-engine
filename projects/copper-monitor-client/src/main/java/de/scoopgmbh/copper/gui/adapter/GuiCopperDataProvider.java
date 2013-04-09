@@ -25,6 +25,8 @@ import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.gui.ui.sql.filter.SqlFilterModel;
 import de.scoopgmbh.copper.gui.ui.sql.result.SqlResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesModel;
+import de.scoopgmbh.copper.gui.ui.workflowhistory.filter.WorkflowHistoryFilterModel;
+import de.scoopgmbh.copper.gui.ui.workflowhistory.result.WorkflowHistoryResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummeryFilterModel;
@@ -38,6 +40,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceHistory;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
@@ -219,6 +222,20 @@ public class GuiCopperDataProvider {
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}	
+	}
+
+	public List<WorkflowHistoryResultModel> getWorkflowInstanceHistory(WorkflowHistoryFilterModel filter) {
+		List<WorkflowInstanceHistory> list;
+		try {
+			list = copperDataProvider.getWorkflowInstanceHistory();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+		ArrayList<WorkflowHistoryResultModel> result = new ArrayList<>();
+		for (WorkflowInstanceHistory workflowInstanceHistory: list){
+			result.add(new WorkflowHistoryResultModel(workflowInstanceHistory)); 
+		}
+		return result;
 	}
 	
 }

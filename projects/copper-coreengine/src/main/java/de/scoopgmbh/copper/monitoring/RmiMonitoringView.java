@@ -23,6 +23,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceHistory;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
@@ -261,6 +262,22 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 						((ScottyDBStorage)storage).getBatcher().setNumThreads(numThread);
 					}
 				}
+			}
+		});
+	}
+
+	@Override
+	public List<WorkflowInstanceHistory> getWorkflowInstanceHistory() {
+		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+			@Override
+			public void run() {
+				
+			}
+		});
+		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<List<WorkflowInstanceHistory>>() {
+			@Override
+			public List<WorkflowInstanceHistory> call() throws Exception {
+				return monitoringData.workflowInstanceHistorys;
 			}
 		});
 	}

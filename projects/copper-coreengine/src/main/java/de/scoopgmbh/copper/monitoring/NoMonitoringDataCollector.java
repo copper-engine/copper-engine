@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitoring;
 import java.util.concurrent.TimeUnit;
 
 import de.scoopgmbh.copper.ProcessingEngine;
+import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 
@@ -50,5 +51,11 @@ public class NoMonitoringDataCollector implements MonitoringDataCollector {
 	public void registerWorkflowRepository(WorkflowRepository workflowRepository) {
 		//Intentionally do nothing
 	}
+
+	@Override
+	public void submitWorkflowHistory(ProcessingState stateName, String instanceId, String classname) {
+		//Intentionally do nothing
+	}
+
 
 }

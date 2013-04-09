@@ -66,6 +66,10 @@ import de.scoopgmbh.copper.gui.ui.systemresource.filter.ResourceFilterModel;
 import de.scoopgmbh.copper.gui.ui.systemresource.result.RessourceResultController;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeController;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeForm;
+import de.scoopgmbh.copper.gui.ui.workflowhistory.filter.WorkflowHistoryFilterController;
+import de.scoopgmbh.copper.gui.ui.workflowhistory.filter.WorkflowHistoryFilterModel;
+import de.scoopgmbh.copper.gui.ui.workflowhistory.result.WorkflowHistoryResultController;
+import de.scoopgmbh.copper.gui.ui.workflowhistory.result.WorkflowHistoryResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterController;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultController;
@@ -127,6 +131,12 @@ public class FormContext {
 			@Override
 			public Form<?> createForm() {
 				return createWorkflowInstanceForm();
+			}
+		});
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowHistory_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createWorkflowHistoryForm();
 			}
 		});
 		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.audittrail_title)) {
@@ -235,6 +245,19 @@ public class FormContext {
 		FxmlForm<FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
 		
 		return new EngineFilterAbleform<>(messageProvider.getText(MessageKey.workflowInstance_title),messageProvider,
+				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+	}
+	
+	public FilterAbleForm<WorkflowHistoryFilterModel,WorkflowHistoryResultModel> createWorkflowHistoryForm(){
+		//same hacks are needed cause java cant handle generics as expected
+		
+		FilterController<WorkflowHistoryFilterModel> fCtrl = new WorkflowHistoryFilterController(); 
+		FxmlForm<FilterController<WorkflowHistoryFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
+		
+		FilterResultController<WorkflowHistoryFilterModel,WorkflowHistoryResultModel> resCtrl = new WorkflowHistoryResultController(guiCopperDataProvider);
+		FxmlForm<FilterResultController<WorkflowHistoryFilterModel,WorkflowHistoryResultModel>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
+		
+		return new EngineFilterAbleform<>(messageProvider.getText(MessageKey.workflowHistory_title),messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	

@@ -43,12 +43,10 @@ public class ProcessingEngineInfo implements Serializable {
 		this.typ = typ;
 		this.id = id;
 		this.repositoryInfo = repositoryInfo;
-		this. dependencyInjectorInfo =  dependencyInjectorInfo;
+		this.dependencyInjectorInfo =  dependencyInjectorInfo;
 		this.pools.addAll(Arrays.asList(pools));
 		this.storageInfo = storageInfo;
 	}
-
-	
 	
 	public StorageInfo getStorageInfo() {
 		return storageInfo;

@@ -26,6 +26,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceHistory;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
@@ -95,6 +96,8 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	
 	public void setBatcherNumThreads(int numThread, String engineid) throws RemoteException;
 	
+	
+	public List<WorkflowInstanceHistory> getWorkflowInstanceHistory() throws RemoteException;
 	
 }
 

@@ -405,7 +405,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
 	@Override
 	public ProcessingEngineInfo getEngineInfo() {
-		return new ProcessingEngineInfo(EngineTyp.TRANSIENT,getEngineId(),
+		return new ProcessingEngineInfo(EngineTyp.PERSISTENT,getEngineId(),
 				wfRepository!=null?wfRepository.getWorkflowRepositoryInfo():null,
 				dependencyInjector!=null?dependencyInjector.getDependencyInjectorInfo():null,
 				dbStorage!=null?dbStorage.getStorageInfo():null);

@@ -153,6 +153,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 					if (logger.isTraceEnabled()) logger.trace("Dequeue returned "+rv.size()+" elements.");
 					for (Workflow<?> wf : rv) {
 						WorkflowAccessor.setProcessingState(wf, ProcessingState.DEQUEUED);
+						monitoringDataCollector.submitWorkflowHistory(ProcessingState.DEQUEUED, wf.getId(), wf.getClass().getName());
 						engine.register(wf);
 					}
 					synchronized (queue) {

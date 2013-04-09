@@ -106,7 +106,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 		return processorPoolInfo;
 	}
 	
-	MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
+	protected MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
 	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector){
 		this.monitoringDataCollector = monitoringDataCollector;
 	}

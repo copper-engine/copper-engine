@@ -46,6 +46,7 @@ class TransientProcessor extends Processor {
 		synchronized (wf) {
 			try {
 				WorkflowAccessor.setProcessingState(wf, ProcessingState.RUNNING);
+				
 				wf.__beforeProcess();
 				wf.main();
 				logger.trace("after 'main' - stack={}",wf.get__stack());

@@ -30,7 +30,8 @@ public enum MessageKey {
 	resource_title("resource.title"),
 	loadGroup_title("loadGroup.title"),
 	dashboard_title("dashboard.title"),
-	measurePoint_title("measurePoint.title");
+	measurePoint_title("measurePoint.title"),
+	workflowHistory_title("workflowHistory.title");
 			
     private final String value;
     MessageKey(String v) {

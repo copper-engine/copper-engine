@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<HBox alignment="CENTER_LEFT" layoutX="0.0" layoutY="0.0" prefHeight="40.0" prefWidth="811.0" spacing="5.0" xmlns:fx="http://javafx.com/fxml" />

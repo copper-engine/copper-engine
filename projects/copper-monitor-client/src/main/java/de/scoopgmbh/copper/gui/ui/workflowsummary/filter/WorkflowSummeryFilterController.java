@@ -99,13 +99,6 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
         searchMenueItem.setContent(formFactory.createWorkflowClassesTreeForm(this).createContent());
         serachbutton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/search.png"))));
         
-        searchMenueItem.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				
-			}
-		});
-
         searchMenueItem.getStyleClass().setAll("workflowclassSearchMenueItem","menu-item");
 	}
 

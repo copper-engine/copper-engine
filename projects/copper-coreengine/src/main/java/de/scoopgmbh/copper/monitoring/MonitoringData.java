@@ -2,6 +2,7 @@ package de.scoopgmbh.copper.monitoring;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceHistory;
 
 /**
  *	Contains the data for monitoring.
@@ -20,6 +22,7 @@ public class MonitoringData {
 	public final List<PriorityProcessorPool> pools = new ArrayList<PriorityProcessorPool>();
 	public final Map<String,ProcessingEngine> engines = new HashMap<String,ProcessingEngine>();
 	public WorkflowRepository workflowRepository;
+	public List<WorkflowInstanceHistory> workflowInstanceHistorys= new LinkedList<WorkflowInstanceHistory>();
 	
 	public PriorityProcessorPool getPool(String poolId, String engineid){
 		for (PriorityProcessorPool pool: pools){
@@ -32,6 +35,13 @@ public class MonitoringData {
 	
 	public MonitoringData() {
 		super();
+	}
+	
+	public void addWorkflowInstanceHistorywitdhLimit(WorkflowInstanceHistory workflowInstanceHistory){
+		if(workflowInstanceHistorys.size()>1000){
+			workflowInstanceHistorys.remove(0);
+		}
+		workflowInstanceHistorys.add(workflowInstanceHistory);
 	}
 	
 	

@@ -38,6 +38,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo.ProcessorPool
 import de.scoopgmbh.copper.monitor.adapter.model.StorageInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceHistory;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
@@ -269,6 +270,13 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	public void setBatcherNumThreads(int numThread, String engineid) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	@Override
+	public List<WorkflowInstanceHistory> getWorkflowInstanceHistory() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
