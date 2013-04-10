@@ -17,6 +17,7 @@ package de.scoopgmbh.copper;
 
 import java.util.List;
 
+import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 
 /**
@@ -119,6 +120,9 @@ public interface ProcessingEngine {
 	public void addWaitHook(String wfInstanceId, WaitHook waitHook);
 
 	public ProcessingEngineInfo getEngineInfo();
+	
+	public WorkflowRepository getWfRepository();
+
 	
 	
 }

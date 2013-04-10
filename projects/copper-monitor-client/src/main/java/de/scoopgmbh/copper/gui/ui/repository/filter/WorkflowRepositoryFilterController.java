@@ -13,56 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.gui.ui.load.filter;
+package de.scoopgmbh.copper.gui.ui.repository.filter;
 
 import java.net.URL;
-import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.CheckBox;
-import javafx.scene.layout.HBox;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
-public class EngineLoadFilterController implements Initializable, FilterController<EngineLoadFilterModel>, FxmlController {
-	final EngineLoadFilterModel model= new EngineLoadFilterModel();
+public class WorkflowRepositoryFilterController implements Initializable, FilterController<WorkflowRepositoryFilterModel>, FxmlController {
+	WorkflowRepositoryFilterModel model = new WorkflowRepositoryFilterModel();
 
-
-
-    @FXML //  fx:id="pane"
-    private HBox pane; // Value injected by FXMLLoader
+	public class EmptySelectionWorkaround{
+		public WorkflowInstanceState value;
+		public String text;
+		public EmptySelectionWorkaround(WorkflowInstanceState value, String text) {
+			super();
+			this.value = value;
+			this.text = text;
+		}
+		
+	}
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert pane != null : "fx:id=\"pane\" was not injected: check your FXML file 'EngineLoadFilter.fxml'.";
-
-        for (Entry<WorkflowInstanceState,SimpleBooleanProperty> entry: model.stateFilters.entrySet()){
-        	CheckBox checkBox  = new CheckBox();
-        	checkBox.setText(entry.getKey().toString());
-        	checkBox.selectedProperty().bindBidirectional(entry.getValue());
-        	pane.getChildren().add(checkBox);
-        }
+       
 	}
 
 	@Override
-	public EngineLoadFilterModel getFilter() {
+	public WorkflowRepositoryFilterModel getFilter() {
 		return model;
 	}
 
 	@Override
 	public URL getFxmlRessource() {
-		return getClass().getResource("EngineLoadFilter.fxml");
+		return getClass().getResource("WorkflowRepositoryFilter.fxml");
 	}
 	
 	@Override
 	public boolean supportsFiltering() {
 		return true;
 	}
-	
 	
 }

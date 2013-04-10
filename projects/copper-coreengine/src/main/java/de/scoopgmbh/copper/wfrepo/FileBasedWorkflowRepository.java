@@ -599,7 +599,14 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		for (String wfName: volatileState.wfVersions.keySet()){
 			final List<WorkflowVersion> versionsList = volatileState.wfVersions.get(wfName);
 			for (WorkflowVersion workflowVersion: versionsList){
-				result.add(new WorkflowClassVersionInfo(volatileState.wfMapLatest.get(wfName).getName(), wfName, workflowVersion.getMajorVersion(), workflowVersion.getMinorVersion(), workflowVersion.getPatchLevel()));
+				String alias = "";
+				Class<?> clazz= volatileState.wfMapLatest.get(wfName);
+				for (String aliasKey: volatileState.wfMapVersioned.keySet()){
+					if (volatileState.wfMapVersioned.get(aliasKey)==clazz){
+						alias=aliasKey;
+					}
+				}
+				result.add(new WorkflowClassVersionInfo(volatileState.wfMapLatest.get(wfName).getName(), alias, workflowVersion.getMajorVersion(), workflowVersion.getMinorVersion(), workflowVersion.getPatchLevel()));
 			}
 		}
 		return result;

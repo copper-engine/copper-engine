@@ -23,6 +23,7 @@ import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.Processor;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.persistent.txn.Transaction;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
@@ -31,12 +32,13 @@ public class PersistentProcessor extends Processor {
 	private final PersistentScottyEngine engine;
 	private final TransactionController transactionController;
 
-	public PersistentProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine, TransactionController transactionController) {
+	public PersistentProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine, TransactionController transactionController, MonitoringDataCollector monitoringDataCollector) {
 		super(name, queue, prio, engine);
 		if (engine == null) throw new NullPointerException();
 		if (transactionController == null) throw new NullPointerException();
 		this.engine = (PersistentScottyEngine)engine;
 		this.transactionController = transactionController;
+		this.monitoringDataCollector = monitoringDataCollector;
 	}
 
 	@Override
@@ -49,10 +51,12 @@ public class PersistentProcessor extends Processor {
 					synchronized (pw) {
 						try {
 							WorkflowAccessor.setProcessingState(pw, ProcessingState.RUNNING);
+							monitoringDataCollector.submitWorkflowHistory(ProcessingState.RUNNING, pw.getId(), pw.getClass().getName());
 							engine.getDependencyInjector().inject(pw);
 							pw.__beforeProcess();
 							pw.main();
 							WorkflowAccessor.setProcessingState(pw, ProcessingState.FINISHED);
+							monitoringDataCollector.submitWorkflowHistory(ProcessingState.FINISHED, pw.getId(), pw.getClass().getName());
 							engine.getDbStorage().finish(pw);
 							assert pw.get__stack().isEmpty() : "Stack must be empty";
 						}

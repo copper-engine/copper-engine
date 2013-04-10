@@ -24,16 +24,16 @@ import javafx.beans.property.SimpleObjectProperty;
 import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.gui.ui.sql.filter.SqlFilterModel;
 import de.scoopgmbh.copper.gui.ui.sql.result.SqlResultModel;
-import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesModel;
 import de.scoopgmbh.copper.gui.ui.workflowhistory.filter.WorkflowHistoryFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowhistory.result.WorkflowHistoryResultModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
-import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummeryFilterModel;
-import de.scoopgmbh.copper.gui.ui.workflowsummary.result.WorkflowSummeryResultModel;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummaryFilterModel;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.result.WorkflowSummaryResultModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.gui.util.EngineFilter;
+import de.scoopgmbh.copper.gui.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
@@ -102,30 +102,30 @@ public class GuiCopperDataProvider {
 		return result;
 	}
 
-	public List<WorkflowSummeryResultModel> getWorkflowSummery(WorkflowSummeryFilterModel filter) {
+	public List<WorkflowSummaryResultModel> getWorkflowSummery(WorkflowSummaryFilterModel filter) {
 		List<WorkflowSummary> summeries;
 		try {
 			summeries = copperDataProvider.getWorkflowSummary(getPoolId(filter.engine.getValue()), filter.version.classname.get());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
-		ArrayList<WorkflowSummeryResultModel> result = new ArrayList<>();
+		ArrayList<WorkflowSummaryResultModel> result = new ArrayList<>();
 		for (WorkflowSummary workflowSummery: summeries){
-			result.add(new WorkflowSummeryResultModel(workflowSummery));
+			result.add(new WorkflowSummaryResultModel(workflowSummery));
 		}
 		return result;
 	}
 	
-	public List<WorkflowClassesModel> getWorkflowClassesList(){
+	public List<WorkflowVersion> getWorkflowClassesList(final String engineId){
 		List<WorkflowClassVersionInfo> list;
 		try {
-			list = copperDataProvider.getWorkflowClassesList();
+			list = copperDataProvider.getWorkflowClassesList(engineId);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
-		ArrayList<WorkflowClassesModel> result = new ArrayList<>();
+		ArrayList<WorkflowVersion> result = new ArrayList<>();
 		for (WorkflowClassVersionInfo workflowClassesInfo: list){
-			result.add(new WorkflowClassesModel(workflowClassesInfo));
+			result.add(new WorkflowVersion(workflowClassesInfo));
 		}
 		return result;
 	}

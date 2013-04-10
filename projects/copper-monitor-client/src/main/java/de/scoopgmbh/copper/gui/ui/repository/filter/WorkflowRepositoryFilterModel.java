@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.gui.ui.workflowclasssesctree;
+package de.scoopgmbh.copper.gui.ui.repository.filter;
 
-import de.scoopgmbh.copper.gui.util.WorkflowVersion;
-import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.gui.util.EngineFilter;
 
-public class WorkflowClassesModel extends WorkflowVersion{
+public class WorkflowRepositoryFilterModel extends EngineFilter{
 
-	public WorkflowClassesModel(WorkflowClassVersionInfo workflowClassesInfo) {
-		super(workflowClassesInfo);
-	}
-	
 }

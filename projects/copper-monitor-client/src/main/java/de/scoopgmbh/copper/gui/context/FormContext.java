@@ -24,6 +24,7 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -55,6 +56,9 @@ import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterController;
 import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.gui.ui.load.result.EngineLoadResultController;
 import de.scoopgmbh.copper.gui.ui.measurepoint.result.MeasurePointResultController;
+import de.scoopgmbh.copper.gui.ui.repository.filter.WorkflowRepositoryFilterController;
+import de.scoopgmbh.copper.gui.ui.repository.filter.WorkflowRepositoryFilterModel;
+import de.scoopgmbh.copper.gui.ui.repository.result.WorkflowRepositoryResultController;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsController;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.gui.ui.sql.filter.SqlFilterController;
@@ -65,6 +69,7 @@ import de.scoopgmbh.copper.gui.ui.systemresource.filter.ResourceFilterController
 import de.scoopgmbh.copper.gui.ui.systemresource.filter.ResourceFilterModel;
 import de.scoopgmbh.copper.gui.ui.systemresource.result.RessourceResultController;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeController;
+import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
 import de.scoopgmbh.copper.gui.ui.workflowclasssesctree.WorkflowClassesTreeForm;
 import de.scoopgmbh.copper.gui.ui.workflowhistory.filter.WorkflowHistoryFilterController;
 import de.scoopgmbh.copper.gui.ui.workflowhistory.filter.WorkflowHistoryFilterModel;
@@ -74,10 +79,10 @@ import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilter
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultController;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
-import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummeryFilterController;
-import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummeryFilterModel;
-import de.scoopgmbh.copper.gui.ui.workflowsummary.result.WorkflowSummeryResultController;
-import de.scoopgmbh.copper.gui.ui.workflowsummary.result.WorkflowSummeryResultModel;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummaryFilterController;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummaryFilterModel;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.result.WorkflowSummaryResultController;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.result.WorkflowSummaryResultModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterController;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultController;
@@ -86,6 +91,7 @@ import de.scoopgmbh.copper.gui.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.gui.util.EngineFilter;
 import de.scoopgmbh.copper.gui.util.MessageKey;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
+import de.scoopgmbh.copper.gui.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
@@ -121,16 +127,13 @@ public class FormContext {
 				return createDashboardForm();
 			}
 		});
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowoverview_title)) {
+
+		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.workflowGroup_title),createWorkflowGroup()));
+		
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowRepository_title)) {
 			@Override
 			public Form<?> createForm() {
-				return createWorkflowOverviewForm();
-			}
-		});
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowInstance_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createWorkflowInstanceForm();
+				return createWorkflowRepositoryForm();
 			}
 		});
 		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowHistory_title)) {
@@ -146,7 +149,7 @@ public class FormContext {
 			}
 		});
 		
-		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.loadGroup_title),createLoadGroup(messageProvider)));
+		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.loadGroup_title),createLoadGroup()));
 		
 		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.sql_title)) {
 			@Override
@@ -162,8 +165,25 @@ public class FormContext {
 		});
 		formGroup = new FormGroup("",maingroup);
 	}
+	
+	public ArrayList<FormCreator> createWorkflowGroup() {
+		ArrayList<FormCreator> workflowgroup = new ArrayList<>();
+		workflowgroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowoverview_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createWorkflowOverviewForm();
+			}
+		});
+		workflowgroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowInstance_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createWorkflowInstanceForm();
+			}
+		});
+		return workflowgroup;
+	}
 
-	public ArrayList<FormCreator> createLoadGroup(MessageProvider messageProvider) {
+	public ArrayList<FormCreator> createLoadGroup() {
 		ArrayList<FormCreator> loadgroup = new ArrayList<>();
 		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.engineLoad_title)) {
 			@Override
@@ -217,19 +237,26 @@ public class FormContext {
 		return toolBar;
 	}
 	
-	public WorkflowClassesTreeForm createWorkflowClassesTreeForm(WorkflowSummeryFilterController filterController){
-		return new WorkflowClassesTreeForm("",new EmptyShowFormStrategie(),new WorkflowClassesTreeController(guiCopperDataProvider,filterController));
+	public WorkflowClassesTreeForm createWorkflowClassesTreeForm(WorkflowSummaryFilterController filterController){
+		TreeView<DisplayWorkflowClassesModel> workflowView = new TreeView<DisplayWorkflowClassesModel>();
+		WorkflowClassesTreeController workflowClassesTreeController = createWorkflowClassesTreeController(workflowView);
+		return new WorkflowClassesTreeForm("",new EmptyShowFormStrategie(),workflowClassesTreeController,
+				filterController, workflowView,guiCopperDataProvider);
+	}
+
+	public WorkflowClassesTreeController createWorkflowClassesTreeController(TreeView<DisplayWorkflowClassesModel> workflowView) {
+		WorkflowClassesTreeController workflowClassesTreeController = new WorkflowClassesTreeController(workflowView);
+		return workflowClassesTreeController;
 	}
 	
-	
-	public FilterAbleForm<WorkflowSummeryFilterModel,WorkflowSummeryResultModel> createWorkflowOverviewForm(){
+	public FilterAbleForm<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> createWorkflowOverviewForm(){
 		//same hacks are needed cause java cant handle generics as expected
 		
-		FilterController<WorkflowSummeryFilterModel> fCtrl = new WorkflowSummeryFilterController(this); 
-		FxmlForm<FilterController<WorkflowSummeryFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
+		FilterController<WorkflowSummaryFilterModel> fCtrl = new WorkflowSummaryFilterController(this); 
+		FxmlForm<FilterController<WorkflowSummaryFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
 		
-		FilterResultController<WorkflowSummeryFilterModel,WorkflowSummeryResultModel> resCtrl = new WorkflowSummeryResultController(guiCopperDataProvider,this);
-		FxmlForm<FilterResultController<WorkflowSummeryFilterModel,WorkflowSummeryResultModel>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
+		FilterResultController<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> resCtrl = new WorkflowSummaryResultController(guiCopperDataProvider,this);
+		FxmlForm<FilterResultController<WorkflowSummaryFilterModel,WorkflowSummaryResultModel>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
 		
 		return new EngineFilterAbleform<>(messageProvider.getText(MessageKey.workflowoverview_title),messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
@@ -261,9 +288,20 @@ public class FormContext {
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
-	public FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> createAudittrailForm(){
+	public FilterAbleForm<WorkflowRepositoryFilterModel,WorkflowVersion> createWorkflowRepositoryForm(){
 		//same hacks are needed cause java cant handle generics as expected
 		
+		FilterController<WorkflowRepositoryFilterModel> fCtrl = new WorkflowRepositoryFilterController(); 
+		FxmlForm<FilterController<WorkflowRepositoryFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
+		
+		FilterResultController<WorkflowRepositoryFilterModel,WorkflowVersion> resCtrl = new WorkflowRepositoryResultController(guiCopperDataProvider,this);
+		FxmlForm<FilterResultController<WorkflowRepositoryFilterModel,WorkflowVersion>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
+		
+		return new EngineFilterAbleform<>(messageProvider.getText(MessageKey.workflowRepository_title),messageProvider,
+				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+	}
+	
+	public FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> createAudittrailForm(){
 		FilterController<AuditTrailFilterModel> fCtrl = new AuditTrailFilterController(); 
 		FxmlForm<FilterController<AuditTrailFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
 		
@@ -275,8 +313,6 @@ public class FormContext {
 	}
 	
 	public FilterAbleForm<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId){
-		//same hacks are needed cause java cant handle generics as expected
-		
 		FilterController<WorkflowInstanceDetailFilterModel> fCtrl = new WorkflowInstanceDetailFilterController(workflowInstanceId); 
 		
 		FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
@@ -300,17 +336,19 @@ public class FormContext {
 		return createWorkflowinstanceDetailResultForm(new BorderPaneShowFormStrategie(target));
 	}
 	
+	private FilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary> engineLoadFormSingelton;
 	public FilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary> createEngineLoadForm(){
-		//same hacks are needed cause java cant handle generics as expected
-		
 		FilterController<EngineLoadFilterModel> fCtrl = new EngineLoadFilterController(); 
 		FxmlForm<FilterController<EngineLoadFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
 		
 		FilterResultController<EngineLoadFilterModel,WorkflowStateSummary> resCtrl = new EngineLoadResultController(guiCopperDataProvider);
 		FxmlForm<FilterResultController<EngineLoadFilterModel,WorkflowStateSummary>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
 		
-		return new EngineFilterAbleform<>(messageProvider.getText(MessageKey.engineLoad_title),messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+		if (engineLoadFormSingelton==null){
+			engineLoadFormSingelton = new EngineFilterAbleform<>(messageProvider.getText(MessageKey.engineLoad_title),messageProvider,
+					new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+		}
+		return engineLoadFormSingelton;
 	}
 	
 	public Form<SettingsController> createSettingsForm(){
@@ -321,8 +359,6 @@ public class FormContext {
 	}
 	
 	public FilterAbleForm<SqlFilterModel,SqlResultModel> createSqlForm(){
-		//same hacks are needed cause java cant handle generics as expected
-		
 		FilterController<SqlFilterModel> fCtrl = new SqlFilterController(codeMirrorFormatterSingelton); 
 		FxmlForm<FilterController<SqlFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
 		
@@ -333,17 +369,19 @@ public class FormContext {
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
+	FilterAbleForm<ResourceFilterModel,SystemResourcesInfo> ressourceFormSingelton=null;
 	public FilterAbleForm<ResourceFilterModel,SystemResourcesInfo> createRessourceForm(){
-		//same hacks are needed cause java cant handle generics as expected
-		
 		FilterController<ResourceFilterModel> fCtrl = new ResourceFilterController(); 
 		FxmlForm<FilterController<ResourceFilterModel>> filterForm = new FxmlForm<>(fCtrl, messageProvider);
 		
 		FilterResultController<ResourceFilterModel,SystemResourcesInfo> resCtrl = new RessourceResultController(guiCopperDataProvider);
 		FxmlForm<FilterResultController<ResourceFilterModel,SystemResourcesInfo>> resultForm = new FxmlForm<>(resCtrl, messageProvider);
 		
-		return new FilterAbleForm<>(messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+		if (ressourceFormSingelton==null){
+			ressourceFormSingelton=new FilterAbleForm<>(messageProvider,
+					new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+		}
+		return ressourceFormSingelton; 
 	}
 	
 	public FilterAbleForm<EmptyFilterModel,DashboardResultModel> createDashboardForm(){

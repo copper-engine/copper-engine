@@ -43,8 +43,6 @@ import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.WorkflowInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
-import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
-import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 /**
@@ -67,11 +65,6 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	private EarlyResponseContainer earlyResponseContainer;
 	private TicketPoolManager ticketPoolManager;
 	private DependencyInjector dependencyInjector;
-	private MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
-	
-	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
-		this.monitoringDataCollector = monitoringDataCollector;
-	}
 	
 	public void setTicketPoolManager(TicketPoolManager ticketPoolManager) {
 		if (ticketPoolManager == null) throw new NullPointerException();

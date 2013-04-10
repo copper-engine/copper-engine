@@ -30,6 +30,7 @@ public class WorkflowClassVersionInfo implements Serializable{
 	public WorkflowClassVersionInfo(String classname, String alias, Long majorVersion, Long minorVersion, Long patchLevel) {
 		super();
 		this.classname = classname;
+		this.alias = alias;
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
 		this.patchLevel = patchLevel;

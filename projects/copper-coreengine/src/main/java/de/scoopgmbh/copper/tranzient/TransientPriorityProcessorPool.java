@@ -67,7 +67,7 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
 
 	@Override
 	protected Processor newProcessor(String name, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine) {
-		return new TransientProcessor(name,queue,threadPrioriry,engine);
+		return new TransientProcessor(name,queue,threadPrioriry,engine,monitoringDataCollector);
 	}
 
 }

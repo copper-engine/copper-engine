@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.gui.form.filter;
 import java.util.List;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
@@ -32,7 +33,9 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Separator;
@@ -52,6 +55,7 @@ import de.scoopgmbh.copper.gui.form.ShowFormStrategy;
 import de.scoopgmbh.copper.gui.util.ComponentUtil;
 import de.scoopgmbh.copper.gui.util.MessageKey;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
+import de.scoopgmbh.copper.gui.util.NumerOnlyTextField;
 
 /**
  * @param <F> FilterModel
@@ -122,16 +126,20 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		
 		BorderPane borderPane = new BorderPane();
 		stackPane.getChildren().add(borderPane);
+		
 		HBox filterbox = new HBox();
 		filterbox.setAlignment(Pos.CENTER);
 		filterbox.setSpacing(5);
 		
 		beforFilterHook(filterbox);
 		
+		StackPane filterboxStackPane = new StackPane();
+		filterbox.getChildren().add(filterboxStackPane);
+		Node filterContent=null;
 		if (filterForm.getController().supportsFiltering()){
-			Node filter = filterForm.createContent();
-			HBox.setHgrow(filter, Priority.ALWAYS);
-			filterbox.getChildren().add(filter);
+			filterContent = filterForm.createContent();
+			HBox.setHgrow(filterboxStackPane, Priority.ALWAYS);
+			filterboxStackPane.getChildren().add(filterContent);
 			filterbox.getChildren().add(new Separator(Orientation.VERTICAL));
 		}
 		
@@ -169,23 +177,25 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		}
 		
 		BorderPane wrapper = new BorderPane();
+		BorderPane.setAlignment(filterbox, Pos.CENTER_LEFT);
 		wrapper.setCenter(filterbox);
 		wrapper.setBottom(new Separator(Orientation.HORIZONTAL));
 		borderPane.setTop(wrapper);
 		borderPane.setCenter(resultForm.createContent());
 		
 		final ProgressIndicator repeatProgressIndicator = new ProgressBar();
+		filterboxStackPane.getChildren().add(repeatProgressIndicator);
 		final ToggleButton toggleButton = new ToggleButton("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/repeat.png"))));
 		HBox.setMargin(toggleButton, new Insets(0, 5, 0, 0));
 		BorderPane.setMargin(refreshButton, new Insets(5));
-		repeatProgressIndicator.setPrefWidth(30);
 		repeatProgressIndicator.setVisible(false);
+		repeatProgressIndicator.setPrefWidth(300);
 		repeatProgressIndicator.progressProperty().bind(repeatFilterService.progressProperty());
-		
 		toggleButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 				if (newValue){
+					repeatFilterService.setRefreshIntervall(Long.valueOf(refreshRateInMs.get()));
 					repeatFilterService.reset();
 					repeatFilterService.start();
 					repeatProgressIndicator.setVisible(true);
@@ -196,11 +206,33 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			}
 		});
 	
-		filterbox.getChildren().add(repeatProgressIndicator);
 		filterbox.getChildren().add(toggleButton);
+	
+		
+		MenuButton settings = new MenuButton("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/settings.png"))));
+		settings.setPrefWidth(20);
+		CustomMenuItem customMenuItem = new CustomMenuItem();
+		settings.getItems().add(customMenuItem);
+		customMenuItem.getStyleClass().setAll("noSelectAnimationMenueItem","menu-item");
+		HBox hbox = new HBox(3);
+		hbox.setAlignment(Pos.CENTER_LEFT);
+		hbox.getChildren().add(new Label("Refresh Interval"));
+		TextField interval = new NumerOnlyTextField();
+		interval.setPrefWidth(100);
+		interval.textProperty().bindBidirectional(refreshRateInMs);
+		hbox.getChildren().add(interval);
+		hbox.getChildren().add(new Label("ms"));
+		customMenuItem.setContent(hbox);
+		filterbox.getChildren().add(settings);
+		
 		
 		refreshButton.disableProperty().bind(toggleButton.selectedProperty());
 		clearButton.disableProperty().bind(toggleButton.selectedProperty());
+		if (filterContent!=null){
+			filterContent.disableProperty().bind(toggleButton.selectedProperty());
+		}
+		settings.disableProperty().bind(toggleButton.selectedProperty());
+		
 		
 		filterService.reset();
 		filterService.start();
@@ -208,8 +240,10 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		return stackPane;
 	}
 	
-    public static class RepeatFilterService<F,R>  extends Service<Void> {
-    	private static final int REFRESH_RATE = 1000;
+	SimpleStringProperty refreshRateInMs = new SimpleStringProperty("1000");
+
+	public static class RepeatFilterService<F,R>  extends Service<Void> {
+    	private long refreshRate=1000;
 		long lasttime = System.currentTimeMillis();
         private final FilterResultController<F,R> filterResultController;
         private final Form<FilterController<F>> filterForm;
@@ -220,6 +254,10 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			this.filterForm = filterForm;
 		}
         
+		public void setRefreshIntervall(long refreshRate) {
+			this.refreshRate = refreshRate;
+		}
+
 		@Override
 		public void start() {
 			lasttime = System.currentTimeMillis();
@@ -232,7 +270,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 				@Override
 				protected Void call() throws Exception {
 					while (!isCancelled()) {
-						if (lasttime + REFRESH_RATE < System.currentTimeMillis()) {
+						if (lasttime + refreshRate < System.currentTimeMillis()) {
 							updateProgress(-1, 1);
 							final List<R> result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
 							Platform.runLater(new Runnable() {
@@ -247,14 +285,14 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 										} else {
 											throw new RuntimeException(e);
 										}
-								}
+									}
 								}
 							});
 							lasttime = System.currentTimeMillis();
 						}
 						Thread.sleep(50);
 						long progress = System.currentTimeMillis() - lasttime;
-						updateProgress(progress <= REFRESH_RATE ? progress : REFRESH_RATE, REFRESH_RATE);
+						updateProgress(progress <= refreshRate ? progress : refreshRate, refreshRate);
 					}
 					return null;
 				}

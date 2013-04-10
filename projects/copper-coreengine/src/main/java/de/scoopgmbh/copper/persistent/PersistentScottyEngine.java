@@ -47,8 +47,6 @@ import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.WorkflowInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
-import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
-import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 
 /**
  * COPPER processing engine that offers persistent workflow processing. 
@@ -65,12 +63,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	private DependencyInjector dependencyInjector;
 	private boolean notifyProcessorPoolsOnResponse = false;
 	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
-	private MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
 	private final Map<String, List<WaitHook>> waitHookMap = new HashMap<String, List<WaitHook>>();
-
-	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
-		this.monitoringDataCollector = monitoringDataCollector;
-	}
 
 	/**
 	 * If true, the engine notifies all processor pools about a new reponse available.

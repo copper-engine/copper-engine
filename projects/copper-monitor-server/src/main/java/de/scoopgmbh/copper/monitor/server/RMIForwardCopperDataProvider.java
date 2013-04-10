@@ -163,7 +163,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowClassVersionInfo> getWorkflowClassesList() throws RemoteException {
+	public List<WorkflowClassVersionInfo> getWorkflowClassesList(final String engineId) throws RemoteException {
 		ArrayList<WorkflowClassVersionInfo> result = new ArrayList<>();
 		result.add(new WorkflowClassVersionInfo("blubclass1","alias",0L,+(long)(Math.random()*100),0L));
 		result.add(new WorkflowClassVersionInfo("blubclass2","alias",1L,+(long)(Math.random()*100),0L));

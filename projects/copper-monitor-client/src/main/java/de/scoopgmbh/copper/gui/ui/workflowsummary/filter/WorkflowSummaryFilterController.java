@@ -38,11 +38,11 @@ import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
 import de.scoopgmbh.copper.gui.util.WorkflowVersion;
 
-public class WorkflowSummeryFilterController implements Initializable, FilterController<WorkflowSummeryFilterModel>, FxmlController {
-	private final WorkflowSummeryFilterModel model= new WorkflowSummeryFilterModel();
+public class WorkflowSummaryFilterController implements Initializable, FilterController<WorkflowSummaryFilterModel>, FxmlController {
+	private final WorkflowSummaryFilterModel model= new WorkflowSummaryFilterModel();
 	private final FormContext formFactory;
 
-	public WorkflowSummeryFilterController(FormContext formFactory) {
+	public WorkflowSummaryFilterController(FormContext formFactory) {
 		super();
 		this.formFactory = formFactory;
 	}
@@ -99,17 +99,17 @@ public class WorkflowSummeryFilterController implements Initializable, FilterCon
         searchMenueItem.setContent(formFactory.createWorkflowClassesTreeForm(this).createContent());
         serachbutton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/search.png"))));
         
-        searchMenueItem.getStyleClass().setAll("workflowclassSearchMenueItem","menu-item");
+        searchMenueItem.getStyleClass().setAll("noSelectAnimationMenueItem","menu-item");
 	}
 
 	@Override
-	public WorkflowSummeryFilterModel getFilter() {
+	public WorkflowSummaryFilterModel getFilter() {
 		return model;
 	}
 
 	@Override
 	public URL getFxmlRessource() {
-		return getClass().getResource("WorkflowSummeryFilter.fxml");
+		return getClass().getResource("WorkflowSummaryFilter.fxml");
 	}
 
 	@Override

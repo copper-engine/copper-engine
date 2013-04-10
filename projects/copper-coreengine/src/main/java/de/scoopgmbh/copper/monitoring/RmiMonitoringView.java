@@ -16,6 +16,7 @@ import java.util.List;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
+import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
@@ -97,12 +98,13 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 	}
 
 	@Override
-	public List<WorkflowClassVersionInfo> getWorkflowClassesList() throws RemoteException {
+	public List<WorkflowClassVersionInfo> getWorkflowClassesList(final String engineId) throws RemoteException {
 		return monitoringQueue.callAndWait(new MonitoringDataAwareCallable<List<WorkflowClassVersionInfo>>() {
 			@Override
 			public List<WorkflowClassVersionInfo> call() throws Exception {
-				if (monitoringData.workflowRepository!=null){
-					return monitoringData.workflowRepository.getAllWorkflowsInfos();
+				WorkflowRepository workflowRepository = monitoringData.getWorkflowRepository(engineId);
+				if (workflowRepository!=null){
+					return workflowRepository.getAllWorkflowsInfos();
 				} else {
 					return Collections.emptyList();
 				}

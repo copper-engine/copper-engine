@@ -18,11 +18,9 @@ package de.scoopgmbh.copper.gui.ui.workflowclasssesctree;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -30,30 +28,40 @@ import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummeryFilterController;
+import de.scoopgmbh.copper.gui.util.WorkflowVersion;
 
 public class WorkflowClassesTreeController {
-	private final GuiCopperDataProvider copperDataProvider;
-	private final WorkflowSummeryFilterController filterController;
+	private final TreeView<DisplayWorkflowClassesModel> treeView;
 	
-	public WorkflowClassesTreeController(GuiCopperDataProvider copperDataProvider, WorkflowSummeryFilterController filterController) {
+	public WorkflowClassesTreeController(TreeView<DisplayWorkflowClassesModel> treeView) {
 		super();
-		this.copperDataProvider = copperDataProvider;
-		this.filterController= filterController;
+		this.treeView = treeView;
+		
+		treeView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+		treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<DisplayWorkflowClassesModel>>() {
+			@Override
+			public void changed(ObservableValue<? extends TreeItem<DisplayWorkflowClassesModel>> observable,
+					TreeItem<DisplayWorkflowClassesModel> oldValue, TreeItem<DisplayWorkflowClassesModel> newValue) {
+				
+				if (newValue!=null && newValue.getValue()!=null && newValue.getChildren().isEmpty()){
+					WorkflowVersion workflowClassesModel = newValue.getValue().value;
+					selectedItem.set(workflowClassesModel);
+				}
+			}
+		});
 	}
 	
 	public static class DisplayWorkflowClassesModel{
-		public WorkflowClassesModel value;
+		public WorkflowVersion value;
 		public String displayname;
-		public DisplayWorkflowClassesModel(WorkflowClassesModel value, String displayname) {
+		public DisplayWorkflowClassesModel(WorkflowVersion value, String displayname) {
 			super();
 			this.value = value;
 			this.displayname = displayname;
 		}
 	}
 	
-	public List<TreeItem<DisplayWorkflowClassesModel>> groupToTreeItem(List<WorkflowClassesModel> list){
+	public List<TreeItem<DisplayWorkflowClassesModel>> groupToTreeItem(List<WorkflowVersion> list){
 		//from flat List: classname, majorversion, minorversion
 		//totree: 
 		//classname 
@@ -61,7 +69,7 @@ public class WorkflowClassesTreeController {
 		//		->minorversion		
 		
 		List<TreeItem<DisplayWorkflowClassesModel>> result = new ArrayList<>();
-		for (WorkflowClassesModel newWorkflowVersion: list){
+		for (WorkflowVersion newWorkflowVersion: list){
 			TreeItem<DisplayWorkflowClassesModel> majorVersionItemToAdd = null;
 			TreeItem<DisplayWorkflowClassesModel> classnameItemToAdd = null;
 			for (TreeItem<DisplayWorkflowClassesModel> classnameItem: result){
@@ -77,26 +85,24 @@ public class WorkflowClassesTreeController {
 			}
 			
 			if (classnameItemToAdd==null){
-				classnameItemToAdd = new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.classname.getValue()));
+				classnameItemToAdd = new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.classname.get()));
 				result.add(classnameItemToAdd);
 			}
 			
 			if (majorVersionItemToAdd==null){
-				TreeItem<DisplayWorkflowClassesModel> newitemMajor =new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.versionMajor.getValue().toString()));
+				TreeItem<DisplayWorkflowClassesModel> newitemMajor =new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Major: "+newWorkflowVersion.versionMajor.getValue().toString()));
 				classnameItemToAdd.getChildren().add(newitemMajor);
 				majorVersionItemToAdd=newitemMajor;
 			}
-			majorVersionItemToAdd.getChildren().add(new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.versionMinor.getValue().toString())));
+			majorVersionItemToAdd.getChildren().add(new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Minor: "+newWorkflowVersion.versionMinor.getValue().toString()+"\nAlias: "+newWorkflowVersion.alias.get() )));
 		}
 		
 		return result;
 	}
 
-	private void refresh(final TreeView<DisplayWorkflowClassesModel> treeView) {
-		List<WorkflowClassesModel> allItems = copperDataProvider.getWorkflowClassesList();
-		
+	public void refresh(List<WorkflowVersion> newItems) {
 		TreeItem<DisplayWorkflowClassesModel> rootItem = new TreeItem<>();
-		rootItem.getChildren().addAll(groupToTreeItem(allItems));
+		rootItem.getChildren().addAll(groupToTreeItem(newItems));
 		treeView.setRoot(rootItem);
 
 		treeView.setCellFactory(new Callback<TreeView<DisplayWorkflowClassesModel>, TreeCell<DisplayWorkflowClassesModel>>() {
@@ -119,27 +125,6 @@ public class WorkflowClassesTreeController {
         treeView.setShowRoot(false);
 	}
 	
-	public void initialize(final Button refreshButton, final TreeView<DisplayWorkflowClassesModel> treeView) {
-		refresh(treeView);
-		refreshButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent actionEvent) {
-				refresh(treeView);
-			}
-		});
-		
-		treeView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-		treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<DisplayWorkflowClassesModel>>() {
-			@Override
-			public void changed(ObservableValue<? extends TreeItem<DisplayWorkflowClassesModel>> observable,
-					TreeItem<DisplayWorkflowClassesModel> oldValue, TreeItem<DisplayWorkflowClassesModel> newValue) {
-				if (newValue!=null && newValue.getValue()!=null && newValue.getChildren().isEmpty()){
-					WorkflowClassesModel workflowClassesModel = newValue.getValue().value;
-					filterController.setFilter(workflowClassesModel);
-					filterController.startValueSetAnimation();
-				}
-			}
-		});
-		
-	}
+	public SimpleObjectProperty<WorkflowVersion> selectedItem = new SimpleObjectProperty<>();
+	
 }

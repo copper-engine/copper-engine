@@ -21,8 +21,8 @@ public class MonitoringData {
 	public final Map<String,MeasurePointData> measurePoints = new HashMap<String, MeasurePointData>();
 	public final List<PriorityProcessorPool> pools = new ArrayList<PriorityProcessorPool>();
 	public final Map<String,ProcessingEngine> engines = new HashMap<String,ProcessingEngine>();
-	public WorkflowRepository workflowRepository;
 	public List<WorkflowInstanceHistory> workflowInstanceHistorys= new LinkedList<WorkflowInstanceHistory>();
+	private long historyLimit=1000;
 	
 	public PriorityProcessorPool getPool(String poolId, String engineid){
 		for (PriorityProcessorPool pool: pools){
@@ -33,12 +33,17 @@ public class MonitoringData {
 		return null;
 	}
 	
+	public MonitoringData(long historyLimit) {
+		super();
+		this.historyLimit=historyLimit;
+	}
+	
 	public MonitoringData() {
 		super();
 	}
 	
 	public void addWorkflowInstanceHistorywitdhLimit(WorkflowInstanceHistory workflowInstanceHistory){
-		if(workflowInstanceHistorys.size()>1000){
+		if(workflowInstanceHistorys.size()>=historyLimit){
 			workflowInstanceHistorys.remove(0);
 		}
 		workflowInstanceHistorys.add(workflowInstanceHistory);
@@ -65,6 +70,13 @@ public class MonitoringData {
 			if (processingEngineInfo.getId().equals(engineId)){
 				return processingEngineInfo;
 			}
+		}
+		return null; 
+	}
+	
+	public WorkflowRepository getWorkflowRepository(String engineId){
+		if (engines.containsKey(engineId)){
+			return engines.get(engineId).getWfRepository();
 		}
 		return null; 
 	}

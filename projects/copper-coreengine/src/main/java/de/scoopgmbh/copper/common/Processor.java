@@ -24,6 +24,8 @@ import org.slf4j.MDC;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.instrument.Transformed;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 import de.scoopgmbh.copper.util.MDCConstants;
 
 /**
@@ -38,6 +40,11 @@ public abstract class Processor extends Thread {
 	protected final Queue<Workflow<?>> queue;
 	protected volatile boolean shutdown = false;
 	protected final ProcessingEngine engine;
+	
+	protected MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
+	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
+		this.monitoringDataCollector = monitoringDataCollector;
+	}
 	
 	public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
 		super(name);

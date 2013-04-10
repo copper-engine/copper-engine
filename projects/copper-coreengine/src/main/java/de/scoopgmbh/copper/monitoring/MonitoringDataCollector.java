@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
-import de.scoopgmbh.copper.common.WorkflowRepository;
 
 /**
  * Collects copper configuration informations and runtime statistics of named measure points for the purpose of monitoring the performance of an application.
@@ -32,6 +31,5 @@ public interface MonitoringDataCollector {
 	public void submitMeasurePoint(String measurePointId, int elementCount, long elapsedTime, TimeUnit timeUnit);
 	public void registerEngine(ProcessingEngine engine);
 	public void registerPool(final PriorityProcessorPool pool);
-	public void registerWorkflowRepository(WorkflowRepository workflowRepository);
 	public void submitWorkflowHistory(final ProcessingState stateName, final String instanceId, final String classname);
 }

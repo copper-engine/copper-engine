@@ -113,16 +113,6 @@ public class WorkflowHistoryResultController implements Initializable, FilterRes
         classnameColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.35)); 
     }
     
-    public static String abbreviate(String str, int maxWidth) {
-        if (null == str) {
-            return null;
-        }
-        if (str.length() <= maxWidth) {
-            return str;
-        }
-        return str.substring(0, maxWidth) + "...";
-    }
-    
 	@Override
 	public URL getFxmlRessource() {
 		return getClass().getResource("WorkflowHistoryResult.fxml");

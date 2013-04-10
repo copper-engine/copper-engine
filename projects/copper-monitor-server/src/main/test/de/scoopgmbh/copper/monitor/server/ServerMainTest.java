@@ -31,7 +31,7 @@ public class ServerMainTest {
 			@Override
 			public void run() {
 				try {
-					ServerMain.main(null);
+					ServerMain.main(new String[]{});
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}

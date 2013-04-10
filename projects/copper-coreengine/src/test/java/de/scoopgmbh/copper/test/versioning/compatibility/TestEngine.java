@@ -27,6 +27,7 @@ import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowInstanceDescr;
+import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
 
@@ -118,6 +119,11 @@ public class TestEngine implements PersistentProcessingEngine {
 	@Override
 	public ProcessingEngineInfo getEngineInfo() {
 		return new ProcessingEngineInfo(EngineTyp.TRANSIENT,getEngineId(),null,null,null);
+	}
+
+	@Override
+	public WorkflowRepository getWfRepository() {
+		return null;
 	}
 
 }

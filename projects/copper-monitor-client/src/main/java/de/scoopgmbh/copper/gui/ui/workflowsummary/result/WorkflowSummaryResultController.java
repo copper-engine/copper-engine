@@ -43,34 +43,34 @@ import de.scoopgmbh.copper.gui.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.gui.ui.workflowinstance.result.WorkflowInstanceResultModel;
-import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummeryFilterModel;
+import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummaryFilterModel;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
-public class WorkflowSummeryResultController implements Initializable, FilterResultController<WorkflowSummeryFilterModel,WorkflowSummeryResultModel>, FxmlController {
+public class WorkflowSummaryResultController implements Initializable, FilterResultController<WorkflowSummaryFilterModel,WorkflowSummaryResultModel>, FxmlController {
 	GuiCopperDataProvider copperDataProvider;
 
 	private FormContext formcontext;
-	public WorkflowSummeryResultController(GuiCopperDataProvider copperDataProvider,FormContext formcontext) {
+	public WorkflowSummaryResultController(GuiCopperDataProvider copperDataProvider,FormContext formcontext) {
 		super();
 		this.copperDataProvider = copperDataProvider;
 		this.formcontext = formcontext;
 	}
 
     @FXML //  fx:id="aliasColumn"
-    private TableColumn<WorkflowSummeryResultModel, String> aliasColumn; // Value injected by FXMLLoader
+    private TableColumn<WorkflowSummaryResultModel, String> aliasColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="countColumn"
-    private TableColumn<WorkflowSummeryResultModel, String> countColumn; // Value injected by FXMLLoader
+    private TableColumn<WorkflowSummaryResultModel, String> countColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="majorVersionColumn"
-    private TableColumn<WorkflowSummeryResultModel, String> versionColumn; // Value injected by FXMLLoader
+    private TableColumn<WorkflowSummaryResultModel, String> versionColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="resultTable"
-    private TableView<WorkflowSummeryResultModel> resultTable; // Value injected by FXMLLoader
+    private TableView<WorkflowSummaryResultModel> resultTable; // Value injected by FXMLLoader
 
     @FXML //  fx:id="workflowClass"
-    private TableColumn<WorkflowSummeryResultModel, String> workflowClassColumn; // Value injected by FXMLLoader
+    private TableColumn<WorkflowSummaryResultModel, String> workflowClassColumn; // Value injected by FXMLLoader
     
     
 
@@ -83,18 +83,18 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert workflowClassColumn != null : "fx:id=\"workflowClassColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
 
-        workflowClassColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
+        workflowClassColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(
-					CellDataFeatures<WorkflowSummeryResultModel, String> p) {
+					CellDataFeatures<WorkflowSummaryResultModel, String> p) {
 				return p.getValue().version.classname;
 			}
 		});
         
-        versionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
+        versionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(
-					final CellDataFeatures<WorkflowSummeryResultModel, String> p) {
+					final CellDataFeatures<WorkflowSummaryResultModel, String> p) {
 				return new SimpleStringProperty(
 						p.getValue().version.versionMajor.getValue()+"."+
 						p.getValue().version.versionMinor.getValue()+"."+
@@ -102,29 +102,29 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 			}
 		});
         
-        aliasColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
+        aliasColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(
-					CellDataFeatures<WorkflowSummeryResultModel, String> p) {
+					CellDataFeatures<WorkflowSummaryResultModel, String> p) {
 				return p.getValue().version.alias;
 			}
 		});
         
-        countColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
+        countColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
         	@Override
 			public ObservableValue<String> call(
-        			CellDataFeatures<WorkflowSummeryResultModel, String> p) {
+        			CellDataFeatures<WorkflowSummaryResultModel, String> p) {
         		return p.getValue().totalcount;
         	}
         });
         
         
         for (final WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-        	TableColumn<WorkflowSummeryResultModel, String> tableColumn = new TableColumn<>(workflowInstanceState.toString());
-        	tableColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummeryResultModel, String>, ObservableValue<String>>() {
+        	TableColumn<WorkflowSummaryResultModel, String> tableColumn = new TableColumn<>(workflowInstanceState.toString());
+        	tableColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
             	@Override
 				public ObservableValue<String> call(
-            			CellDataFeatures<WorkflowSummeryResultModel, String> p) {
+            			CellDataFeatures<WorkflowSummaryResultModel, String> p) {
             		return new SimpleStringProperty(
             				String.valueOf(p.getValue().workflowStateSummery.getNumberOfWorkflowInstancesWithState().get(workflowInstanceState)));
             	}
@@ -165,27 +165,27 @@ public class WorkflowSummeryResultController implements Initializable, FilterRes
 		workflowInstanceForm.show();
 	}
     
-    private WorkflowSummeryResultModel getSelectedEntry(){
+    private WorkflowSummaryResultModel getSelectedEntry(){
     	return resultTable.getSelectionModel().getSelectedItem();
     }
 
 	
 	@Override
 	public URL getFxmlRessource() {
-		return getClass().getResource("WorkflowSummeryResult.fxml");
+		return getClass().getResource("WorkflowSummaryResult.fxml");
 	}
 
 	private ProcessingEngineInfo lastFilteredWithProcessingEngineInfo;
 	@Override
-	public void showFilteredResult(List<WorkflowSummeryResultModel> filteredResult, WorkflowSummeryFilterModel usedFilter) {
+	public void showFilteredResult(List<WorkflowSummaryResultModel> filteredResult, WorkflowSummaryFilterModel usedFilter) {
 		lastFilteredWithProcessingEngineInfo = usedFilter.engine.getValue();
-		ObservableList<WorkflowSummeryResultModel> content = FXCollections.observableList(new ArrayList<WorkflowSummeryResultModel>());;
+		ObservableList<WorkflowSummaryResultModel> content = FXCollections.observableList(new ArrayList<WorkflowSummaryResultModel>());;
 		content.addAll(filteredResult);
 		resultTable.setItems(content);
 	}
 
 	@Override
-	public List<WorkflowSummeryResultModel> applyFilterInBackgroundThread(WorkflowSummeryFilterModel filter) {
+	public List<WorkflowSummaryResultModel> applyFilterInBackgroundThread(WorkflowSummaryFilterModel filter) {
 		return copperDataProvider.getWorkflowSummery(filter);
 	}
 	

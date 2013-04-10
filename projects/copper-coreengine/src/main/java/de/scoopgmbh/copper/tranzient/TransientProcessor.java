@@ -23,6 +23,7 @@ import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.Processor;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
 
 /**
  * Internally used class.
@@ -34,9 +35,10 @@ class TransientProcessor extends Processor {
 
 	private TransientScottyEngine engine;
 	
-	public TransientProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine) {
+	public TransientProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine, MonitoringDataCollector monitoringDataCollector) {
 		super(name, queue, prio, engine);
 		this.engine = (TransientScottyEngine) engine;
+		this.monitoringDataCollector = monitoringDataCollector;
 	}
 
 	@Override
@@ -46,6 +48,7 @@ class TransientProcessor extends Processor {
 		synchronized (wf) {
 			try {
 				WorkflowAccessor.setProcessingState(wf, ProcessingState.RUNNING);
+				monitoringDataCollector.submitWorkflowHistory(ProcessingState.RUNNING, wf.getId(), wf.getClass().getName());
 				
 				wf.__beforeProcess();
 				wf.main();

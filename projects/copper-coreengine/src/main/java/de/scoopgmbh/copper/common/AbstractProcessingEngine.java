@@ -24,10 +24,13 @@ import de.scoopgmbh.copper.EngineIdProvider;
 import de.scoopgmbh.copper.EngineIdProviderBean;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
+import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.management.WorkflowInfo;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 import de.scoopgmbh.copper.util.Blocker;
 
 /**
@@ -44,6 +47,11 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 	protected Blocker startupBlocker = new Blocker(true);
 	private List<Runnable> shutdownObserver = new ArrayList<Runnable>();
 	private EngineIdProvider engineIdProvider = new EngineIdProviderBean("default"); 
+	
+	protected MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
+	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
+		this.monitoringDataCollector = monitoringDataCollector;
+	}
 	
 	public EngineState getEngineState() {
 		return engineState;
@@ -70,6 +78,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 		this.wfRepository = wfRepository;
 	}
 	
+	@Override
 	public WorkflowRepository getWfRepository() {
 		return wfRepository;
 	}
@@ -119,6 +128,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 		try {
 			Workflow<Object> wf = createWorkflowFactory(wfname).newInstance();
 			wf.setData(data);
+			if (wf!=null) {monitoringDataCollector.submitWorkflowHistory(ProcessingState.RAW, wf.getId(), wf.getClass().getName());}
 			run(wf);
 		}
 		catch(CopperException e) {
@@ -135,7 +145,9 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 	@Override
 	public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
 		try {
-			run(createWorkflowInstance(wfInstanceDescr));
+			Workflow<Object> wf = createWorkflowInstance(wfInstanceDescr);
+			run(wf);
+			if (wf!=null) {monitoringDataCollector.submitWorkflowHistory(ProcessingState.RAW, wf.getId(), wf.getClass().getName());}
 		}
 		catch(CopperException e) {
 			throw e;
@@ -169,7 +181,9 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 		try {
 			List<Workflow<?>> wfList = new ArrayList<Workflow<?>>(wfInstanceDescr.size());
 			for (WorkflowInstanceDescr<?> wfInsDescr : wfInstanceDescr) {
-				wfList.add(createWorkflowInstance(wfInsDescr));
+				Workflow<Object> wf = createWorkflowInstance(wfInsDescr);
+				wfList.add(wf);
+				if (wf!=null) {monitoringDataCollector.submitWorkflowHistory(ProcessingState.RAW, wf.getId(), wf.getClass().getName());}
 			}
 			run(wfList);
 		}

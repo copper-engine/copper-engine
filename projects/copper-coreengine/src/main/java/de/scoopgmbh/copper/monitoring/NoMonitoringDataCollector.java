@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
-import de.scoopgmbh.copper.common.WorkflowRepository;
 
 /**
  * All <code>submit</code> invocations are ignored used to avoid null checks
@@ -44,11 +43,6 @@ public class NoMonitoringDataCollector implements MonitoringDataCollector {
 
 	@Override
 	public void registerPool(final PriorityProcessorPool pool) {
-		//Intentionally do nothing
-	}
-
-	@Override
-	public void registerWorkflowRepository(WorkflowRepository workflowRepository) {
 		//Intentionally do nothing
 	}
 

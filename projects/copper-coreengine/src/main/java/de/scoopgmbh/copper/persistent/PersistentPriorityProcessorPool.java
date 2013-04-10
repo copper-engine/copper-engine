@@ -82,7 +82,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	
 	@Override
 	protected Processor newProcessor(String name, Queue<Workflow<?>> queue, int threadPriority, ProcessingEngine engine) {
-		return new PersistentProcessor(name, queue, threadPriority, engine, transactionController);
+		return new PersistentProcessor(name, queue, threadPriority, engine, transactionController,monitoringDataCollector);
 	}
 	
 	@Override

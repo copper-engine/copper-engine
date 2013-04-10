@@ -27,9 +27,9 @@
     <TextField fx:id="nummerNew" layoutX="122.0" layoutY="99.0" prefHeight="22.0" prefWidth="68.00002207031503" />
     <Button fx:id="prioButton" font="$x1" layoutX="193.0" layoutY="171.0" minHeight="22.0" mnemonicParsing="false" prefHeight="22.0001220703125" prefWidth="51.0" text="set" />
     <TextField fx:id="prioNew" layoutX="122.0" layoutY="171.0" prefHeight="22.0" prefWidth="68.00002207031503" />
-    <Label layoutX="7.0" layoutY="73.0" prefHeight="19.951171875" prefWidth="138.99997792968497" text="Thread Nummer" textFill="WHITE" />
+    <Label layoutX="7.0" layoutY="73.0" prefHeight="19.951171875" prefWidth="138.99997792968497" text="Thread Count" textFill="WHITE" />
     <TextField id="typ" fx:id="threadNummerInfo" editable="false" layoutX="122.0" layoutY="72.0" opacity="0.75" prefHeight="22.0" prefWidth="119.0" />
-    <Label layoutX="7.0" layoutY="144.0" prefWidth="119.0" text="Thread Priorität" textFill="WHITE" />
+    <Label layoutX="7.0" layoutY="144.0" prefWidth="119.0" text="Thread Priority" textFill="WHITE" />
     <TextField id="typ" fx:id="threadPrioritaetInfo" editable="false" layoutX="122.0" layoutY="142.0" opacity="0.75" prefHeight="22.0" prefWidth="119.0" />
   </children>
 </Pane>

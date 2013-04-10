@@ -43,7 +43,7 @@ public class LoggingMonitoringView{
 	}
 	
 	public LoggingMonitoringView(final MonitoringEventQueue monitoringQueue){
-		this(monitoringQueue,1);
+		this(monitoringQueue,3);
 	}
 	
 

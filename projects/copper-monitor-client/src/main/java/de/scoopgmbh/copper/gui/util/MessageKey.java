@@ -31,8 +31,10 @@ public enum MessageKey {
 	loadGroup_title("loadGroup.title"),
 	dashboard_title("dashboard.title"),
 	measurePoint_title("measurePoint.title"),
-	workflowHistory_title("workflowHistory.title");
-			
+	workflowHistory_title("workflowHistory.title"),
+	workflowGroup_title("workflowGroup.title"),
+	workflowRepository_title("workflowRepository.title");
+			 
     private final String value;
     MessageKey(String v) {
         value = v;

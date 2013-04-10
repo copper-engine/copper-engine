@@ -45,7 +45,7 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 
 	public String getAuditTrailMessage(long id) throws RemoteException;
 	
-	public List<WorkflowClassVersionInfo> getWorkflowClassesList() throws RemoteException;
+	public List<WorkflowClassVersionInfo> getWorkflowClassesList(final String engineId) throws RemoteException;
 	
 	public WorkflowInstanceMetaDataInfo getWorkflowInstanceDetails(String workflowInstanceId)  throws RemoteException;
 
