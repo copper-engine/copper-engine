@@ -20,7 +20,6 @@
 	
 	<bean id="dbDialect" class="de.scoopgmbh.copper.persistent.DerbyDbDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
-		<property name="monitoringDataCollector" ref="monitoringDataCollector"/>
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>
 	
