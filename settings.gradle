@@ -1,1 +1,2 @@
-include ":projects:copper-coreengine", ":projects:copper-examples", ':projects:copper-monitor-core', ':projects:copper-monitor-server', ':projects:copper-monitor-client'
+include ":projects:copper-coreengine", ':projects:copper-monitor-core', ':projects:copper-monitor-server', ':projects:copper-monitor-client',  ":projects:copper-examples:orchestration:orch-engine", ":projects:copper-examples:orchestration:orch-interfaces", ":projects:copper-examples:orchestration:orch-simulators"
+
