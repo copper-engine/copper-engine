@@ -168,6 +168,7 @@ project(':projects:copper-coreengine') {
 		compile 'org.apache.derby:derby:10.9.1.0'
 		compile 'postgresql:postgresql:9.1-901.jdbc4'   
 		
+		compile 'org.fusesource:sigar:1.6.4'
 		compile project(':projects:copper-monitor-core'); 
 		
 		compile fileTree(dir: project(':').projectDir.toString()+'/3rdPartyLibs', include: '*.jar')		
