@@ -26,7 +26,7 @@
 
 	<bean id="dbDialect" class="de.scoopgmbh.copper.persistent.OracleDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
-		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
+		<property name="monitoringDataCollector" ref="monitoringDataCollector"/>
 		<property name="engineIdProvider" ref="engineId_RED"/>
 	</bean>
 	

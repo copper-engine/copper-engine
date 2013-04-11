@@ -29,14 +29,14 @@
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
 		<property name="wfRepository" ref="wfRepository"/>
-		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
+		<property name="monitoringDataCollector" ref="monitoringDataCollector"/>
 	</bean>
 	
-	<bean id="statisticsCollector" class="de.scoopgmbh.copper.monitoring.LoggingStatisticCollector" init-method="start" destroy-method="shutdown"/>
+	<bean id="monitoringDataCollector" class="de.scoopgmbh.copper.monitoring.MonitoringDataCollector"/>
 	
 	<bean id="batcher" class="de.scoopgmbh.copper.batcher.impl.BatcherImpl" scope="singleton" init-method="startup" destroy-method="shutdown">
     	<constructor-arg type="int"><value>3</value></constructor-arg>
-    	<property name="statisticsCollector" ref="statisticsCollector"/>
+    	<property name="monitoringDataCollector" ref="monitoringDataCollector"/>
     	<property name="batchRunner">
     		<bean class="de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner">
 		    	<property name="dataSource" ref="datasource_default"/>
@@ -104,7 +104,7 @@
 		</property>
 		<property name="dbStorage" ref="persistent.dbStorage"/>
 		<property name="wfRepository" ref="wfRepository"/>
-    	<property name="statisticsCollector" ref="statisticsCollector"/>
+    	<property name="monitoringDataCollector" ref="monitoringDataCollector"/>
 	</bean>
 	
 	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton">
