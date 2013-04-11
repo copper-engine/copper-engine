@@ -52,7 +52,8 @@ public class CopperFixture {
 		BatcherImpl batcher = new BatcherImpl(3);
 		batcher.setMonitoringDataCollector(monitoringDataCollector);
 		
-		RetryingTxnBatchRunner<?,?> batchRunner = new RetryingTxnBatchRunner<>();
+		@SuppressWarnings("rawtypes")
+		RetryingTxnBatchRunner batchRunner = new RetryingTxnBatchRunner();
 		batchRunner.setDataSource(datasource_default);
 		batcher.setBatchRunner(batchRunner);
 		batcher.startup();

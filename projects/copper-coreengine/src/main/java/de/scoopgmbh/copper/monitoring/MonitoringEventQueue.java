@@ -28,7 +28,7 @@ public class MonitoringEventQueue {
 	
 	public MonitoringEventQueue(int queueCapacity, MonitoringData monitoringData){
 		this.monitoringData = monitoringData;
-		queue = new ArrayBlockingQueue<>(queueCapacity);
+		queue = new ArrayBlockingQueue<Runnable>(queueCapacity);
 		new Thread("monitoringEventQueue") {
 			{
 				setDaemon(true);

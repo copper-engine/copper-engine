@@ -25,7 +25,7 @@ public class ProcessingEngineInfo implements Serializable {
 	
 	private EngineTyp typ;
 	private String id;
-	private List<ProcessorPoolInfo> pools = new ArrayList<>();
+	private List<ProcessorPoolInfo> pools = new ArrayList<ProcessorPoolInfo>();
 	private WorkflowRepositoryInfo repositoryInfo;
 	private DependencyInjectorInfo dependencyInjectorInfo;
 	private StorageInfo storageInfo;

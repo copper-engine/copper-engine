@@ -15,7 +15,7 @@ public class LogFixture {
 	}
 	
 	public void assertLogContent(LogContentAssertion logContentAssertion){
-		final ArrayList<String> log = new ArrayList<>();
+		final ArrayList<String> log = new ArrayList<String>();
 		Logger l = Logger.getRootLogger();
 		AppenderSkeleton appender = new AppenderSkeleton() {
 			@Override
