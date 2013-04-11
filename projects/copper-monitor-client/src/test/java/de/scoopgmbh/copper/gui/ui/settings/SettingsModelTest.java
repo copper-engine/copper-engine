@@ -42,21 +42,35 @@ public class SettingsModelTest {
 		
 		byte[] data;
 		
-		try (ByteArrayOutputStream os=new ByteArrayOutputStream()){
+		ByteArrayOutputStream os=new ByteArrayOutputStream();
+		try {
 			ObjectOutputStream o = new ObjectOutputStream(os);
 			o.writeObject(settingsModel);
 			data = os.toByteArray();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		} finally {
+			try {
+				os.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		
-		try (ByteArrayInputStream is=new ByteArrayInputStream(data)){
+		ByteArrayInputStream is=new ByteArrayInputStream(data);
+		try{
 			ObjectInputStream o = new ObjectInputStream(is);
 			SettingsModel result= (SettingsModel)o.readObject();
 			Assert.assertEquals(settingsModel.auditralColorMappings.size(), result.auditralColorMappings.size());
 			Assert.assertEquals(settingsModel.auditralColorMappings.get(1).contextRegEx.getValue(), settingsModel.auditralColorMappings.get(1).contextRegEx.getValue());
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		
 	}

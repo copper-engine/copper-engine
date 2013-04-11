@@ -36,21 +36,35 @@ public class AuditralColorMappingTest {
 		auditralColorMapping.contextRegEx.setValue("42");
 		byte[] data;
 		
-		try (ByteArrayOutputStream os=new ByteArrayOutputStream()){
+		ByteArrayOutputStream os=new ByteArrayOutputStream();
+		try{
 			ObjectOutputStream o = new ObjectOutputStream(os);
 			o.writeObject(auditralColorMapping);
 			data = os.toByteArray();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		} finally {
+			try {
+				os.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		
-		try (ByteArrayInputStream is=new ByteArrayInputStream(data)){
+		ByteArrayInputStream is=new ByteArrayInputStream(data);
+		try {
 			ObjectInputStream o = new ObjectInputStream(is);
 			AuditralColorMapping result= (AuditralColorMapping)o.readObject();
 			Assert.assertEquals(auditralColorMapping.color.getValue().toString(), result.color.getValue().toString());
 			Assert.assertEquals(auditralColorMapping.contextRegEx.getValue().toString(), result.contextRegEx.getValue().toString());
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		
 	}
