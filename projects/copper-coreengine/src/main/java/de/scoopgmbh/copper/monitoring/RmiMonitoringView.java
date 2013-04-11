@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2013 SCOOP Software GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.scoopgmbh.copper.monitoring;
 
 import java.lang.management.ClassLoadingMXBean;
@@ -12,6 +27,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import org.hyperic.sigar.CpuPerc;
+import org.hyperic.sigar.Mem;
+import org.hyperic.sigar.Sigar;
+import org.hyperic.sigar.SigarException;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.audit.DummyPostProcessor;
@@ -134,17 +154,32 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 		return null;
 	}
 
+	private static Sigar sigar = new Sigar();
 	@Override
 	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException {
 		//http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
-		com.sun.management.OperatingSystemMXBean operatingSystemMXBean= ((com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean());
+		java.lang.management.OperatingSystemMXBean operatingSystemMXBean= ManagementFactory.getOperatingSystemMXBean();
 		MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 		java.lang.management.ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 		ClassLoadingMXBean classLoadingMXBean  = ManagementFactory.getClassLoadingMXBean();
+		
+		Mem mem = null;
+        try {
+            mem = sigar.getMem();
+        } catch (SigarException se) {
+            se.printStackTrace();
+        }
+		CpuPerc cpuPerc = null;
+		try {
+			cpuPerc = sigar.getCpuPerc();
+        } catch (SigarException se) {
+            se.printStackTrace();
+        }		
+				
 		return new SystemResourcesInfo(new Date(),
-				Math.max(operatingSystemMXBean.getSystemCpuLoad(),0),
-				operatingSystemMXBean.getFreePhysicalMemorySize(),
-				Math.max(operatingSystemMXBean.getProcessCpuLoad(),0),
+				Math.max(cpuPerc.getCombined(),0),
+				mem.getActualFree() / 1024 / 1024,
+				Math.max(cpuPerc.getUser(),0),
 				memoryMXBean.getHeapMemoryUsage().getUsed(),
 				threadMXBean.getThreadCount(),
 				classLoadingMXBean.getTotalLoadedClassCount());

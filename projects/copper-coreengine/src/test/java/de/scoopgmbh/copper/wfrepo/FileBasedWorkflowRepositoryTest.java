@@ -18,7 +18,6 @@ package de.scoopgmbh.copper.wfrepo;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -55,7 +54,7 @@ public class FileBasedWorkflowRepositoryTest{
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		assertEquals(new File("src/test/java/de/scoopgmbh/copper/monitoring/integrationtest/workflow").listFiles().length, wfRepository.getAllWorkflowsInfos().size());
+		assertEquals(2, wfRepository.getAllWorkflowsInfos().size());
 	}
 	
 

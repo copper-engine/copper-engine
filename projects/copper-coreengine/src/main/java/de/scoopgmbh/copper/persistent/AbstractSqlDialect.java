@@ -95,7 +95,7 @@ public abstract class AbstractSqlDialect extends BaseSqlDialect {
 	public void setSerializer(Serializer serializer) {
 		this.serializer = serializer;
 	}
-
+	
 	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
 		this.monitoringDataCollector = monitoringDataCollector;
 	}

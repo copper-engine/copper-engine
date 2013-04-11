@@ -121,6 +121,8 @@ public abstract class RetryingTransaction implements Transaction  {
                             logger.debug("Trying to commit");
                             connection.commit();
                             if (logger.isDebugEnabled()) logger.debug("Transaction "+name+" commited");
+                        } else {
+                            connection.rollback();                      	
                         }
                         break;
                     }

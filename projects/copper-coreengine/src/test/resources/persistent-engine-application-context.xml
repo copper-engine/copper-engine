@@ -27,7 +27,7 @@
     	<property name="targetDir" value="build/compiled_workflow"/>
     </bean>
     
-	<bean id="monitoringDataCollector" class="de.scoopgmbh.copper.monitoring.MonitoringDataCollector"/>
+	<bean id="monitoringDataCollector" class="de.scoopgmbh.copper.monitoring.DefaultMonitoringDataCollector"/>
 	
 	<bean id="batcher" class="de.scoopgmbh.copper.batcher.impl.BatcherImpl" scope="singleton" init-method="startup" destroy-method="shutdown">
     	<constructor-arg type="int"><value>16</value></constructor-arg>
