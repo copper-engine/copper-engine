@@ -104,12 +104,13 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public List<WorkflowSummary> getWorkflowSummary(String poolid, String classname) throws RemoteException {		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
+	public List<WorkflowSummary> getWorkflowSummary(String poolid, String classname) throws RemoteException {	
+		Map<WorkflowInstanceState,Integer> map = new HashMap<WorkflowInstanceState,Integer>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
 		}
 		
-		ArrayList<WorkflowSummary> result = new ArrayList<>();
+		ArrayList<WorkflowSummary> result = new ArrayList<WorkflowSummary>();
 		WorkflowSummary workflowSummery = new WorkflowSummary("",10,
 				new WorkflowClassVersionInfo("blubclass1","alias",0L,+(long)(Math.random()*100),0L),
 				new WorkflowStateSummary(map));
@@ -126,7 +127,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	@Override
 	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String poolid, String classname,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException {
-		ArrayList<WorkflowInstanceInfo> result = new ArrayList<>();
+		ArrayList<WorkflowInstanceInfo> result = new ArrayList<WorkflowInstanceInfo>();
 		WorkflowInstanceInfo workflowInfo = new WorkflowInstanceInfo();
 		workflowInfo.setId("1");
 		result.add(workflowInfo);
@@ -144,7 +145,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 	@Override
 	public List<AuditTrailInfo> getAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level, long resultRowLimit)
 			throws RemoteException {
-		ArrayList<AuditTrailInfo> result = new ArrayList<>();
+		ArrayList<AuditTrailInfo> result = new ArrayList<AuditTrailInfo>();
 		AuditTrailInfo auditTrailInfo = new AuditTrailInfo();
 		auditTrailInfo.setId(1);
 		auditTrailInfo.setLoglevel(1);
@@ -164,7 +165,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 
 	@Override
 	public List<WorkflowClassVersionInfo> getWorkflowClassesList(final String engineId) throws RemoteException {
-		ArrayList<WorkflowClassVersionInfo> result = new ArrayList<>();
+		ArrayList<WorkflowClassVersionInfo> result = new ArrayList<WorkflowClassVersionInfo>();
 		result.add(new WorkflowClassVersionInfo("blubclass1","alias",0L,+(long)(Math.random()*100),0L));
 		result.add(new WorkflowClassVersionInfo("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
 		result.add(new WorkflowClassVersionInfo("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
@@ -189,7 +190,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 
 	@Override
 	public List<String[]> executeSqlQuery(String query, long resultRowLimit) {
-		List<String[]>  result = new ArrayList<>();
+		List<String[]>  result = new ArrayList<String[]>();
 		result.add(new String[]{"column1","column2",query});
 		return result;
 	}
@@ -201,7 +202,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 
 	@Override
 	public WorkflowStateSummary getAggregatedWorkflowStateSummary(String engineid) throws RemoteException {
-		Map<WorkflowInstanceState,Integer> map = new HashMap<>();
+		Map<WorkflowInstanceState,Integer> map = new HashMap<WorkflowInstanceState,Integer>();
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
 			map.put(workflowInstanceState, (int)(Math.random()*100));
 		}
@@ -231,7 +232,7 @@ public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements
 
 	@Override
 	public List<MeasurePointData> getMeasurePoints(String engineid) {
-		ArrayList<MeasurePointData> result = new ArrayList<>();
+		ArrayList<MeasurePointData> result = new ArrayList<MeasurePointData>();
 		for (int i=0;i<20;i++){
 			result.add(new MeasurePointData("point dhajsgdjahdgsdjasdgjasgdhjgfhjsgfjshd"+i,10,i+(int)(10000*Math.random()),10));
 		}

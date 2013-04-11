@@ -9,6 +9,11 @@ repositories {
 dependencies {
 	compile project(':projects:copper-monitor-core')
     testCompile group: 'junit', name: 'junit', version: '4.+'
+    
+    //Spring remote
+	compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'
+	compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+	compile group: 'org.apache.geronimo.specs', name: 'geronimo-servlet_2.5_spec', version: '1.2'
 }
 
 mainClassName = "de.scoopgmbh.copper.monitor.server.ServerMain"

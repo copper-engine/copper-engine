@@ -1,5 +1,8 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+    //Spring remote
+	compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'
+	compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+	compile group: 'org.apache.geronimo.specs', 'geronimo-servlet_2.5_spec', version: 1.2' * Copyright 2002-2012 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
