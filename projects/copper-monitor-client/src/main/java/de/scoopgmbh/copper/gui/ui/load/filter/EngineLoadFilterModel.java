@@ -23,7 +23,7 @@ import de.scoopgmbh.copper.gui.util.EngineFilter;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
 public class EngineLoadFilterModel extends EngineFilter {
-	public final Map<WorkflowInstanceState,SimpleBooleanProperty> stateFilters = new HashMap<>();
+	public final Map<WorkflowInstanceState,SimpleBooleanProperty> stateFilters = new HashMap<WorkflowInstanceState,SimpleBooleanProperty>();
 	
 	public EngineLoadFilterModel(){
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){

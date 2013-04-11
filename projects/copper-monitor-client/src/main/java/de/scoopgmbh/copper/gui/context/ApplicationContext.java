@@ -18,11 +18,8 @@ package de.scoopgmbh.copper.gui.context;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ResourceBundle;
@@ -66,35 +63,66 @@ public class ApplicationContext {
 		newItem.loglevelRegEx.setValue("1");
 		defaultSettings.auditralColorMappings.add(newItem);
 		byte[] defaultModelbytes;
-		try (ByteArrayOutputStream os=new ByteArrayOutputStream()){
+		ByteArrayOutputStream os=null;
+		try{
+		    os=new ByteArrayOutputStream();
 			ObjectOutputStream o = new ObjectOutputStream(os);
 			o.writeObject(defaultSettings);
 			defaultModelbytes = os.toByteArray();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		} finally {
+			if (os!=null){
+				try {
+					os.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
 		}
-
-		try (ByteArrayInputStream is=new ByteArrayInputStream(prefs.getByteArray(SETTINGS_KEY, defaultModelbytes))){
+		
+		settingsModelSinglton=defaultSettings;
+		ByteArrayInputStream is=null;
+		try{
+			is = new ByteArrayInputStream(prefs.getByteArray(SETTINGS_KEY, defaultModelbytes));
 			ObjectInputStream o = new ObjectInputStream(is);
-			settingsModelSinglton = (SettingsModel)o.readObject();
-		} catch (InvalidClassException e){
-			e.printStackTrace();
-			settingsModelSinglton=defaultSettings;
-		} catch (IOException | ClassNotFoundException e) {
+			Object object= o.readObject();
+			if (object instanceof SettingsModel){
+				settingsModelSinglton = (SettingsModel)object;
+			}
+		} catch (Exception e) {
 			throw new RuntimeException(e);
-		} 
+		} finally {
+			if (is!=null){
+				try {
+					is.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 
     	Runtime.getRuntime().addShutdownHook( 
     		new Thread(
     			new Runnable() {
     				@Override
 					public void run() {
-    					try (ByteArrayOutputStream os=new ByteArrayOutputStream()){
+    					ByteArrayOutputStream os=null;
+    					try{
+    						os = new ByteArrayOutputStream();
     						ObjectOutputStream o = new ObjectOutputStream(os);
     						o.writeObject(settingsModelSinglton);
     						prefs.putByteArray(SETTINGS_KEY, os.toByteArray());
     					} catch (IOException e) {
     						throw new RuntimeException(e);
+    					} finally {
+    						if (os!=null){
+    							try {
+									os.close();
+								} catch (IOException e) {
+									throw new RuntimeException(e);
+								}
+    						}
     					}
     				}	
     			}
@@ -109,6 +137,19 @@ public class ApplicationContext {
 	}
 	
 	public void setGuiCopperDataProvider(String serverAdress, String user, String password){
+//		HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+//		httpInvokerProxyFactoryBean.setServiceInterface(ServerLogin.class);
+//		httpInvokerProxyFactoryBean.setServiceUrl("http://localhost/ServerLogin");
+//		httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+//		httpInvokerProxyFactoryBean.afterPropertiesSet();
+//		
+//	    ServerLogin serverLogin = (ServerLogin)httpInvokerProxyFactoryBean.getObject();
+//		try {
+//			setGuiCopperDataProvider(serverLogin.login("", ""),"");
+//		} catch (RemoteException e1) {
+//			throw new RuntimeException(e1);
+//		}
+		
 		try {
 //			Registry registry = LocateRegistry.getRegistry(serverAdress,Registry.REGISTRY_PORT);
 //			ServerLogin serverLogin = (ServerLogin) registry.lookup(ServerLogin.class.getSimpleName());
@@ -118,7 +159,7 @@ public class ApplicationContext {
 //			ServerLogin serverLogin = (ServerLogin) registry.lookup(ServerLogin.class.getSimpleName());
 			setGuiCopperDataProvider((CopperMonitorInterface) registry.lookup(CopperMonitorInterface.class.getSimpleName()),serverAdress);
 			getFormFactory().setupGUIStructure();
-		} catch (RemoteException | NotBoundException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -131,7 +172,7 @@ public class ApplicationContext {
 	}
 	
 	public Form<LoginController> createLoginForm(){
-		return new FxmlForm<>("login.title", new LoginController(this), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
+		return new FxmlForm<LoginController>("login.title", new LoginController(this), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
 	}
 
 	public BorderPane getMainPane() {

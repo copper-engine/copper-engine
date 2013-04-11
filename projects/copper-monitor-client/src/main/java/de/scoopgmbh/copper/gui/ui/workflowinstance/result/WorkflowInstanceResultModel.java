@@ -40,10 +40,10 @@ public class WorkflowInstanceResultModel {
 
 	public WorkflowInstanceResultModel(WorkflowInstanceInfo workflowInstanceInfo) {
 		this.id = new SimpleStringProperty(workflowInstanceInfo.getId());
-		this.state = new SimpleObjectProperty<>(workflowInstanceInfo.getState());
+		this.state = new SimpleObjectProperty<WorkflowInstanceState>(workflowInstanceInfo.getState());
 		this.priority = new SimpleIntegerProperty(workflowInstanceInfo.getPriority());
 		this.processorPoolId = new SimpleStringProperty(workflowInstanceInfo.getProcessorPoolId());
-		this.timeout = new SimpleObjectProperty<>(workflowInstanceInfo.getTimeout());
+		this.timeout = new SimpleObjectProperty<Date>(workflowInstanceInfo.getTimeout());
 		
 		this.lastActivityTimestamp=new SimpleObjectProperty<Date>(workflowInstanceInfo.getLastActivityTimestamp());
 		this.overallLifetimeInMs=new SimpleLongProperty(workflowInstanceInfo.getOverallLifetimeInMs());

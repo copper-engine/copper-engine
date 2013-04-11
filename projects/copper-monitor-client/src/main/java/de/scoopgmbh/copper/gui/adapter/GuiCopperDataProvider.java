@@ -52,7 +52,7 @@ public class GuiCopperDataProvider {
 	public GuiCopperDataProvider(final CopperMonitorInterface copperDataProvider) {
 		super();
 		this.copperDataProvider=copperDataProvider;
-		maxResultCount= new SimpleObjectProperty<>(1000);
+		maxResultCount= new SimpleObjectProperty<Integer>(1000);
 	}
 	
 	SimpleObjectProperty<Integer> maxResultCount;
@@ -68,7 +68,7 @@ public class GuiCopperDataProvider {
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
-		ArrayList<WorkflowInstanceResultModel> result = new ArrayList<>();
+		ArrayList<WorkflowInstanceResultModel> result = new ArrayList<WorkflowInstanceResultModel>();
 		for (WorkflowInstanceInfo workflowInstanceInfo: list){
 			result.add(new WorkflowInstanceResultModel(workflowInstanceInfo));
 		}
@@ -95,7 +95,7 @@ public class GuiCopperDataProvider {
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
-		ArrayList<AuditTrailResultModel> result = new ArrayList<>();
+		ArrayList<AuditTrailResultModel> result = new ArrayList<AuditTrailResultModel>();
 		for (AuditTrailInfo auditTrailInfo: list){
 			result.add(new AuditTrailResultModel(auditTrailInfo));
 		}
@@ -109,7 +109,7 @@ public class GuiCopperDataProvider {
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
-		ArrayList<WorkflowSummaryResultModel> result = new ArrayList<>();
+		ArrayList<WorkflowSummaryResultModel> result = new ArrayList<WorkflowSummaryResultModel>();
 		for (WorkflowSummary workflowSummery: summeries){
 			result.add(new WorkflowSummaryResultModel(workflowSummery));
 		}
@@ -123,7 +123,7 @@ public class GuiCopperDataProvider {
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
-		ArrayList<WorkflowVersion> result = new ArrayList<>();
+		ArrayList<WorkflowVersion> result = new ArrayList<WorkflowVersion>();
 		for (WorkflowClassVersionInfo workflowClassesInfo: list){
 			result.add(new WorkflowVersion(workflowClassesInfo));
 		}
@@ -161,7 +161,7 @@ public class GuiCopperDataProvider {
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
-		ArrayList<SqlResultModel> result = new ArrayList<>();
+		ArrayList<SqlResultModel> result = new ArrayList<SqlResultModel>();
 		for (String[] row: list){
 			result.add(new SqlResultModel(row));
 		}
@@ -231,7 +231,7 @@ public class GuiCopperDataProvider {
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
-		ArrayList<WorkflowHistoryResultModel> result = new ArrayList<>();
+		ArrayList<WorkflowHistoryResultModel> result = new ArrayList<WorkflowHistoryResultModel>();
 		for (WorkflowInstanceHistory workflowInstanceHistory: list){
 			result.add(new WorkflowHistoryResultModel(workflowInstanceHistory)); 
 		}

@@ -58,7 +58,7 @@ public class EngineLoadResultController implements Initializable, FilterResultCo
     @FXML //  fx:id="numberAxis"
     private NumberAxis numberAxis; // Value injected by FXMLLoader
 
-    private Map<WorkflowInstanceState,XYChart.Series<String, Number>> stateToAxis = new HashMap<>();
+    private Map<WorkflowInstanceState,XYChart.Series<String, Number>> stateToAxis = new HashMap<WorkflowInstanceState,XYChart.Series<String, Number>>();
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -73,7 +73,7 @@ public class EngineLoadResultController implements Initializable, FilterResultCo
 	private void initChart() {
 		stateToAxis.clear();
         for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-        	XYChart.Series<String, Number> axis= new XYChart.Series<>();
+        	XYChart.Series<String, Number> axis= new XYChart.Series<String, Number>();
         	axis.setName(workflowInstanceState.toString());
         	stateToAxis.put(workflowInstanceState,axis);
         	areaChart.getData().add(axis);

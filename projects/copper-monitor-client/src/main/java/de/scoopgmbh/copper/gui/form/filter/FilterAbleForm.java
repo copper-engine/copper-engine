@@ -76,7 +76,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		this.filterForm = filterForm;
 		this.resultForm = resultForm;
 		this.copperDataProvider = copperDataProvider;
-		filterService = new FilterService<>(resultForm.getController(), filterForm);
+		filterService = new FilterService<F,R>(resultForm.getController(), filterForm);
 		filterService.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 			@SuppressWarnings("unchecked")
 			@Override
@@ -94,7 +94,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 				}
             }
         });
-		repeatFilterService = new RepeatFilterService<>(resultForm.getController(), filterForm);
+		repeatFilterService = new RepeatFilterService<F,R>(resultForm.getController(), filterForm);
 	}
 	
 	public FilterController<F> getFilterController(){

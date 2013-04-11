@@ -23,7 +23,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
 public class WorkflowInstanceFilterModel extends EngineFilter{
 	
-	public final SimpleObjectProperty<WorkflowInstanceState> state = new SimpleObjectProperty<>();
+	public final SimpleObjectProperty<WorkflowInstanceState> state = new SimpleObjectProperty<WorkflowInstanceState>();
 	public final SimpleStringProperty priority = new SimpleStringProperty();
 	public final WorkflowVersion version = new WorkflowVersion();
 }

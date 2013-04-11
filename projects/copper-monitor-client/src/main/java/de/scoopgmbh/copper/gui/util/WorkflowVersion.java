@@ -22,9 +22,9 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowClassVersionInfo;
 public class WorkflowVersion {
 	public final SimpleStringProperty classname = new SimpleStringProperty(); 
 	public final SimpleStringProperty alias = new SimpleStringProperty(); 
-	public final SimpleObjectProperty<Long> versionMajor = new SimpleObjectProperty<>(); 
-	public final SimpleObjectProperty<Long> versionMinor = new SimpleObjectProperty<>(); 
-	public final SimpleObjectProperty<Long> patchlevel = new SimpleObjectProperty<>(); 
+	public final SimpleObjectProperty<Long> versionMajor = new SimpleObjectProperty<Long>(); 
+	public final SimpleObjectProperty<Long> versionMinor = new SimpleObjectProperty<Long>(); 
+	public final SimpleObjectProperty<Long> patchlevel = new SimpleObjectProperty<Long>(); 
 	
 	public WorkflowVersion(){
 

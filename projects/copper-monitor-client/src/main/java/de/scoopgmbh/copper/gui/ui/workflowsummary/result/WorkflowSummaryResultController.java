@@ -120,7 +120,7 @@ public class WorkflowSummaryResultController implements Initializable, FilterRes
         
         
         for (final WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-        	TableColumn<WorkflowSummaryResultModel, String> tableColumn = new TableColumn<>(workflowInstanceState.toString());
+        	TableColumn<WorkflowSummaryResultModel, String> tableColumn = new TableColumn<WorkflowSummaryResultModel, String>(workflowInstanceState.toString());
         	tableColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
             	@Override
 				public ObservableValue<String> call(

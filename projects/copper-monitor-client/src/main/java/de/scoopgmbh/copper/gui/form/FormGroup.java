@@ -24,7 +24,7 @@ import javafx.scene.control.MenuButton;
  
 public class FormGroup extends FormCreator{
 	
-	ArrayList<FormCreator> forms = new ArrayList<>();
+	ArrayList<FormCreator> forms = new ArrayList<FormCreator>();
 	public FormGroup(String title, List<FormCreator> forms) {
 		super(title);
 		this.forms.addAll(forms);
@@ -39,7 +39,7 @@ public class FormGroup extends FormCreator{
 	}
 	
 	public List<ButtonBase> createButtonList(){
-		ArrayList<ButtonBase> result = new ArrayList<>();
+		ArrayList<ButtonBase> result = new ArrayList<ButtonBase>();
 		for (final FormCreator form: forms){
 			result.add(form.createShowFormButton());
 		}

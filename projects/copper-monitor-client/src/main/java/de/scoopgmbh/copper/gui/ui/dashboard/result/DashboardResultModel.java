@@ -25,8 +25,8 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 
 public class DashboardResultModel {
 	
-	public final List<ProcessingEngineInfo> engines = new ArrayList<>();
-	private Map<String,WorkflowStateSummary> engineIdTostateSummery = new HashMap<>();
+	public final List<ProcessingEngineInfo> engines = new ArrayList<ProcessingEngineInfo>();
+	private Map<String,WorkflowStateSummary> engineIdTostateSummery = new HashMap<String,WorkflowStateSummary>();
 	
 	public DashboardResultModel(Map<String, WorkflowStateSummary> engineIdTostateSummery, List<ProcessingEngineInfo> processingEngineInfo){
 		this.engineIdTostateSummery.putAll(engineIdTostateSummery);

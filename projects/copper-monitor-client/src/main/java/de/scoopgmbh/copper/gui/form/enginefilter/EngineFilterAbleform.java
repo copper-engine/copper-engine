@@ -45,7 +45,7 @@ public class EngineFilterAbleform<F extends EngineFilter, R> extends FilterAbleF
 		super(messageProvider, showFormStrategie, filterForm, resultForm, copperDataProvider);
 		// TODO Auto-generated constructor stub
 		
-		choicebox = new ChoiceBox<>();
+		choicebox = new ChoiceBox<ProcessingEngineInfo>();
 		choicebox.setConverter(new StringConverter<ProcessingEngineInfo>() {
 			@Override
 			public String toString(ProcessingEngineInfo object) {

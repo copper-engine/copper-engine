@@ -37,7 +37,7 @@ public class AuditralColorMapping implements Serializable{
 	public SimpleStringProperty correlationIdRegEx = new SimpleStringProperty("");
 	public SimpleStringProperty transactionIdRegEx = new SimpleStringProperty("");
 	public SimpleStringProperty messageTypeRegEx = new SimpleStringProperty("");
-	public SimpleObjectProperty<Color> color = new SimpleObjectProperty<>();
+	public SimpleObjectProperty<Color> color = new SimpleObjectProperty<Color>();
 
 	public boolean match(AuditTrailResultModel item) {
 		return (!isEmpty(item.id.getValue()) && (""+item.id.getValue()).matches(idRegEx.getValue())) ||
@@ -91,7 +91,7 @@ public class AuditralColorMapping implements Serializable{
 		double g = in.readDouble();
 		double b = in.readDouble(); 
 		double o = in.readDouble(); 
-		color = new SimpleObjectProperty<>(new Color(r,g,b,o));
+		color = new SimpleObjectProperty<Color>(new Color(r,g,b,o));
 	}
 	
 }

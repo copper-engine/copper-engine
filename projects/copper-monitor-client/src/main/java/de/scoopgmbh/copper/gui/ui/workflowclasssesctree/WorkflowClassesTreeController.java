@@ -68,7 +68,7 @@ public class WorkflowClassesTreeController {
 		//	->majorversion
 		//		->minorversion		
 		
-		List<TreeItem<DisplayWorkflowClassesModel>> result = new ArrayList<>();
+		List<TreeItem<DisplayWorkflowClassesModel>> result = new ArrayList<TreeItem<DisplayWorkflowClassesModel>>();
 		for (WorkflowVersion newWorkflowVersion: list){
 			TreeItem<DisplayWorkflowClassesModel> majorVersionItemToAdd = null;
 			TreeItem<DisplayWorkflowClassesModel> classnameItemToAdd = null;
@@ -85,30 +85,30 @@ public class WorkflowClassesTreeController {
 			}
 			
 			if (classnameItemToAdd==null){
-				classnameItemToAdd = new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.classname.get()));
+				classnameItemToAdd = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.classname.get()));
 				result.add(classnameItemToAdd);
 			}
 			
 			if (majorVersionItemToAdd==null){
-				TreeItem<DisplayWorkflowClassesModel> newitemMajor =new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Major: "+newWorkflowVersion.versionMajor.getValue().toString()));
+				TreeItem<DisplayWorkflowClassesModel> newitemMajor =new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Major: "+newWorkflowVersion.versionMajor.getValue().toString()));
 				classnameItemToAdd.getChildren().add(newitemMajor);
 				majorVersionItemToAdd=newitemMajor;
 			}
-			majorVersionItemToAdd.getChildren().add(new TreeItem<>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Minor: "+newWorkflowVersion.versionMinor.getValue().toString()+"\nAlias: "+newWorkflowVersion.alias.get() )));
+			majorVersionItemToAdd.getChildren().add(new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Minor: "+newWorkflowVersion.versionMinor.getValue().toString()+"\nAlias: "+newWorkflowVersion.alias.get() )));
 		}
 		
 		return result;
 	}
 
 	public void refresh(List<WorkflowVersion> newItems) {
-		TreeItem<DisplayWorkflowClassesModel> rootItem = new TreeItem<>();
+		TreeItem<DisplayWorkflowClassesModel> rootItem = new TreeItem<DisplayWorkflowClassesModel>();
 		rootItem.getChildren().addAll(groupToTreeItem(newItems));
 		treeView.setRoot(rootItem);
 
 		treeView.setCellFactory(new Callback<TreeView<DisplayWorkflowClassesModel>, TreeCell<DisplayWorkflowClassesModel>>() {
 		    @Override
 		    public TreeCell<DisplayWorkflowClassesModel> call(TreeView<DisplayWorkflowClassesModel> listView) {
-		        return new TextFieldTreeCell<>(new StringConverter<DisplayWorkflowClassesModel>() {
+		        return new TextFieldTreeCell<DisplayWorkflowClassesModel>(new StringConverter<DisplayWorkflowClassesModel>() {
 					@Override
 					public DisplayWorkflowClassesModel fromString(String string) {
 						return null;
@@ -125,6 +125,6 @@ public class WorkflowClassesTreeController {
         treeView.setShowRoot(false);
 	}
 	
-	public SimpleObjectProperty<WorkflowVersion> selectedItem = new SimpleObjectProperty<>();
+	public SimpleObjectProperty<WorkflowVersion> selectedItem = new SimpleObjectProperty<WorkflowVersion>();
 	
 }

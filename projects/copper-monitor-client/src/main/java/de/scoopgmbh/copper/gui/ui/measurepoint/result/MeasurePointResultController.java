@@ -65,7 +65,7 @@ public class MeasurePointResultController implements Initializable, FilterResult
     }
 
 	private void initChart() {
-		axis = new XYChart.Series<>();
+		axis = new XYChart.Series<String, Number>();
 		axis.setName("Measuring points");
 		chart.getData().add(axis);
 		chart.getYAxis().setLabel("average micro secounds"); 

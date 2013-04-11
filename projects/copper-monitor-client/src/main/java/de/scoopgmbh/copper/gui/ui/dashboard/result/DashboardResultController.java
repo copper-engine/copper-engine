@@ -69,7 +69,7 @@ public class DashboardResultController implements Initializable, FilterResultCon
 	@Override
 	public List<DashboardResultModel> applyFilterInBackgroundThread(EmptyFilterModel filter) {
 		List<ProcessingEngineInfo> engines = copperDataProvider.getEngineList();
-		Map<String, WorkflowStateSummary> engineIdTostateSummery = new HashMap<>();
+		Map<String, WorkflowStateSummary> engineIdTostateSummery = new HashMap<String, WorkflowStateSummary>();
 		for (ProcessingEngineInfo processingEngineInfo: engines){
 			engineIdTostateSummery.put(processingEngineInfo.getId(), copperDataProvider.getCopperLoadInfo(processingEngineInfo));
 		}

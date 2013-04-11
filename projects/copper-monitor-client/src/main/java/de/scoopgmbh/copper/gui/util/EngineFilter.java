@@ -20,7 +20,7 @@ import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 
 public class EngineFilter {
 	
-	public final SimpleObjectProperty<ProcessingEngineInfo> engine = new SimpleObjectProperty<>();
+	public final SimpleObjectProperty<ProcessingEngineInfo> engine = new SimpleObjectProperty<ProcessingEngineInfo>();
 
 	public EngineFilter(){
 		

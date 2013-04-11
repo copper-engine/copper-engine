@@ -67,22 +67,22 @@ public class RessourceResultController implements Initializable, FilterResultCon
     }
 
 	private void initChart() {
-		axisSystemCpuLoad = new XYChart.Series<>();
+		axisSystemCpuLoad = new XYChart.Series<String, Number>();
 		axisSystemCpuLoad.setName("SystemCpuLoad");
         cpuChart.getData().add(axisSystemCpuLoad);
-        axisProcessCpuLoad = new XYChart.Series<>();
+        axisProcessCpuLoad = new XYChart.Series<String, Number>();
         axisProcessCpuLoad.setName("ProcessCpuLoad");
         cpuChart.getData().add(axisProcessCpuLoad);
         
-        axisThread = new XYChart.Series<>();
+        axisThread = new XYChart.Series<String, Number>();
         axisThread.setName("Threads count");
         threadChart.getData().add(axisThread);
         
-        axisClasses = new XYChart.Series<>();
+        axisClasses = new XYChart.Series<String, Number>();
         axisClasses.setName("Total loaded classes");
         classesChart.getData().add(axisClasses);
         
-        axisMemory = new XYChart.Series<>();
+        axisMemory = new XYChart.Series<String, Number>();
         axisMemory.setName("Heap memory usage");
         memoryChart.getData().add(axisMemory);
 	}

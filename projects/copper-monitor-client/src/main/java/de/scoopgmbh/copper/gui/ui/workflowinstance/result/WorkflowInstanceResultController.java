@@ -298,7 +298,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
         errorInfos.setCellFactory(new Callback<TableColumn<WorkflowInstanceResultModel,String>, TableCell<WorkflowInstanceResultModel,String>>() {
 			@Override
 			public TableCell<WorkflowInstanceResultModel, String> call(TableColumn<WorkflowInstanceResultModel, String> param) {
-				return new TextFieldTableCell<>(new StringConverter<String>() {
+				return new TextFieldTableCell<WorkflowInstanceResultModel, String>(new StringConverter<String>() {
 					@Override
 					public String fromString(String string) {
 						return string;

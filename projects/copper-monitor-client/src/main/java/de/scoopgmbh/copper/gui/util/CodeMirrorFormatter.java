@@ -25,32 +25,28 @@ public class CodeMirrorFormatter{
 	private final String javascriptjs;
 	private final String sqljs;
 	
-	public CodeMirrorFormatter(){
-		try {
-			try (InputStream input = getClass().getResourceAsStream("/codemirror/lib/codemirror.css")) {
-				codemirrorcss = convertStreamToString(input);
-			}
-			try (InputStream input = getClass().getResourceAsStream("/codemirror/lib/codemirror.js")) {
-				codemirrorjs = convertStreamToString(input);
-			}
-			try (InputStream input = getClass().getResourceAsStream("/codemirror/mode/json/javascript.js")) {
-				javascriptjs = convertStreamToString(input);
-			}
-			try (InputStream input = getClass().getResourceAsStream("/codemirror/mode/xml/xml.js")) {
-				xmlmodejs = convertStreamToString(input);
-			}
-			try (InputStream input = getClass().getResourceAsStream("/codemirror/mode/sql/plsql.js")) {
-				sqljs = convertStreamToString(input);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+	public CodeMirrorFormatter() {
+		codemirrorcss = convertStreamToString("/codemirror/lib/codemirror.css");
+		codemirrorjs = convertStreamToString("/codemirror/lib/codemirror.js");
+		javascriptjs = convertStreamToString("/codemirror/mode/json/javascript.js");
+		xmlmodejs = convertStreamToString("/codemirror/mode/xml/xml.js");
+		sqljs = convertStreamToString("/codemirror/mode/sql/plsql.js");
 	}
 	
-    private static String convertStreamToString(java.io.InputStream is) {
-        @SuppressWarnings("resource")
-		java.util.Scanner s = new java.util.Scanner(is,"UTF-8").useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
+    private String convertStreamToString(String ressourceclasspath) {
+    	InputStream input = null; 
+    	try {
+    		input = getClass().getResourceAsStream(ressourceclasspath);
+    		@SuppressWarnings("resource")
+    		java.util.Scanner s = new java.util.Scanner(input).useDelimiter("\\A");
+    		return s.hasNext() ? s.next() : "";
+    	} finally {
+    		try {
+				input.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+    	}
     }
 	
 	public String format(String code, CodeFormatLanguage language){

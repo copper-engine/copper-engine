@@ -80,7 +80,7 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
         minorVersion.textProperty().bindBidirectional(model.version.versionMinor, new LongStringConverter());
         patchLevel.textProperty().bindBidirectional(model.version.patchlevel, new LongStringConverter());
         
-        ArrayList<EmptySelectionWorkaround> states = new ArrayList<>();
+        ArrayList<EmptySelectionWorkaround> states = new ArrayList<EmptySelectionWorkaround>();
         for (WorkflowInstanceState state: WorkflowInstanceState.values()){
         	states.add(new EmptySelectionWorkaround(state,state.toString()));
     	}	
