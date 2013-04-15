@@ -46,10 +46,10 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
 
-public class RMIForwardCopperDataProvider extends UnicastRemoteObject implements CopperMonitorInterface {
+public class CopperDataProviderMock extends UnicastRemoteObject implements CopperMonitorInterface {
 	private static final long serialVersionUID = -5757718583261293846L;
 	
-	protected RMIForwardCopperDataProvider() throws RemoteException {
+	protected CopperDataProviderMock() throws RemoteException {
 		super();
 	}
 

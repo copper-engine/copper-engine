@@ -9,11 +9,58 @@ repositories {
 dependencies {
 	compile project(':projects:copper-monitor-core')
     testCompile group: 'junit', name: 'junit', version: '4.+'
+   
+    // logging
+	compile 'org.slf4j:slf4j-api:1.6.6'
+	compile 'org.slf4j:slf4j-log4j12:1.6.6'
+	compile 'log4j:log4j:1.2.17'
     
     //Spring remote
 	compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'
 	compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
-	compile group: 'org.apache.geronimo.specs', name: 'geronimo-servlet_2.5_spec', version: '1.2'
+	//compile group: 'org.apache.geronimo.specs', name: 'geronimo-servlet_2.5_spec', version: '1.2'
+	compile group: 'org.springframework', name: 'spring-webmvc', version: '3.2.0.RELEASE'
+	
+
+	
+	//http server
+	compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.0.0.v20130308'
+	compile group: 'org.eclipse.jetty', name: 'jetty-util', version: '9.0.0.v20130308'
+	compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: '9.0.0.v20130308'
+	compile group: 'org.eclipse.jetty.orbit', name: 'javax.servlet', version: '2.5.0.v201103041518'
+}
+
+jar.doFirst {
+    manifest { 
+      def manifestClasspath =configurations.runtime.collect {'libs/'+it.getName() }.join(' ')
+      attributes 'Class-Path': manifestClasspath
+    } 
+}
+
+jar {
+	exclude '**/*.RSA'   //http://www.coderanch.com/t/133070/Security/Jar-File-java-lang-SecurityException
+    exclude '**/*.SF'
+    exclude '**/*.DSA' 
+    webAppDirName = 'WebContent'
+    
+    into('lib'){
+   			 from { configurations.default.collect { it.isDirectory() ? it : it } }
+    }
+    
+    manifest {
+    		attributes 'Main-Class': 'de.scoopgmbh.copper.monitor.server.ServerMain'
+    }
+}
+
+task distZipFile( type: Zip, dependsOn: [jar] ) {
+    baseName 'kslendpoint'
+	from fileTree("build/lib") {
+    	include "**"
+    	exclude "*.war"
+	}
+	from fileTree("deployment") {
+    	include "**"
+	}
 }
 
 mainClassName = "de.scoopgmbh.copper.monitor.server.ServerMain"

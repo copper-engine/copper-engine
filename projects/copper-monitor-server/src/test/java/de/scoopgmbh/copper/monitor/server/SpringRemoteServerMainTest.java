@@ -16,19 +16,20 @@ public class SpringRemoteServerMainTest {
 		new Thread(){
 			@Override
 			public void run() {
-				new SpringRemoteServerMain().start();
+				new SpringRemoteServerMain().start(8080,"localhost");
 			};
 		}.start();
 		Thread.sleep(1000);
 		
 		HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
 		httpInvokerProxyFactoryBean.setServiceInterface(ServerLogin.class);
-		httpInvokerProxyFactoryBean.setServiceUrl("http://localhost/ServerLogin");
+		httpInvokerProxyFactoryBean.setServiceUrl("http://localhost:8080/serverLogin");
 		httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
 		httpInvokerProxyFactoryBean.afterPropertiesSet();
 	    
 	    ServerLogin serverLogin = (ServerLogin)httpInvokerProxyFactoryBean.getObject();
 		assertNotNull(serverLogin);
+		serverLogin.login("", "").getAuditTrailMessage(6);
 //		Registry registry = LocateRegistry.getRegistry("localhost",Registry.REGISTRY_PORT);
 //		ServerLogin serverLogin = (ServerLogin) registry.lookup(ServerLogin.class.getSimpleName());
 //		serverLogin.login("", "");

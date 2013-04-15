@@ -24,7 +24,7 @@ public class ServerLoginImpl implements ServerLogin {
 
 	@Override
 	public CopperMonitorInterface login(String user, String credential) throws RemoteException {
-		return new RMIForwardCopperDataProvider();
+		return (CopperMonitorInterface)new RMIForwardCopperDataProvider("localhost");
 	}
 
 }
