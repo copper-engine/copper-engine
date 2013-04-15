@@ -55,6 +55,7 @@
 		<property name="dialect" ref="dbDialect"/>
 		<property name="batcher" ref="batcher"/>
 		<property name="checkDbConsistencyAtStartup" value="true"/>
+		<property name="monitoringDataCollector" ref="monitoringDataCollector"/>
 	</bean>
 	
 	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.CopperTransactionController" scope="singleton">
