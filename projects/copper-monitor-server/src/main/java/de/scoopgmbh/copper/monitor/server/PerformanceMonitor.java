@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitor.server;
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
+import java.lang.management.OperatingSystemMXBean;
 import java.util.Date;
 
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
@@ -30,14 +31,14 @@ public class PerformanceMonitor {
     
     //http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
     public SystemResourcesInfo getRessourcenInfo(){
-    	com.sun.management.OperatingSystemMXBean operatingSystemMXBean= ((com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean());
+    	OperatingSystemMXBean operatingSystemMXBean= ManagementFactory.getOperatingSystemMXBean();
     	MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
     	java.lang.management.ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
     	ClassLoadingMXBean classLoadingMXBean  = ManagementFactory.getClassLoadingMXBean();
     	return new SystemResourcesInfo(new Date(),
-    			boundValue(operatingSystemMXBean.getSystemCpuLoad()),
-    			operatingSystemMXBean.getFreePhysicalMemorySize(),
-    			boundValue(operatingSystemMXBean.getProcessCpuLoad()),
+    			boundValue(0),
+    			0,
+    			boundValue(0),
     			memoryMXBean.getHeapMemoryUsage().getUsed(),
     			threadMXBean.getThreadCount(),
     			classLoadingMXBean.getTotalLoadedClassCount());
