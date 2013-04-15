@@ -39,6 +39,8 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowSummary;
+import de.scoopgmbh.copper.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.NoMonitoringDataCollector;
 import de.scoopgmbh.copper.persistent.txn.DatabaseTransaction;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
@@ -393,6 +395,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	@Override
 	public void error(Workflow<?> w, Throwable t) {
 		if (logger.isTraceEnabled()) logger.trace("error("+w.getId()+","+t.toString()+")");
+		monitoringDataCollector.submitWorkflowHistory(DBProcessingState.ERROR.toString(), w);
 		try {
 			executeBatchCommand(dialect.createBatchCommand4error(w, t, DBProcessingState.ERROR));
 		} 
@@ -437,6 +440,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	public void finish(final Workflow<?> w) {
 		if (logger.isTraceEnabled()) logger.trace("finish("+w.getId()+")");
 		try {
+			monitoringDataCollector.submitWorkflowHistory(DBProcessingState.FINISHED.toString(), w);;
 			executeBatchCommand(dialect.createBatchCommand4Finish(w));
 		} 
 		catch (Exception e) {
@@ -524,6 +528,11 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 	@Override
 	public StorageInfo getStorageInfo() {
 		return new StorageInfo(getClass().getName(),batcher!=null?batcher.getBatcherInfo():null);
+	}
+	
+	protected MonitoringDataCollector monitoringDataCollector = new NoMonitoringDataCollector();
+	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
+		this.monitoringDataCollector = monitoringDataCollector;
 	}
 
 }

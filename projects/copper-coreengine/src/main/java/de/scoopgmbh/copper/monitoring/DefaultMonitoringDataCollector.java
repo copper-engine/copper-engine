@@ -18,7 +18,7 @@ package de.scoopgmbh.copper.monitoring;
 import java.util.concurrent.TimeUnit;
 
 import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.ProcessingState;
+import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
 import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceHistory;
@@ -80,11 +80,18 @@ public class DefaultMonitoringDataCollector implements MonitoringDataCollector{
 	}
 
 	@Override
-	public void submitWorkflowHistory(final ProcessingState stateName, final String instanceId, final String classname) {
+	public void submitWorkflowHistory(final String message, final Workflow<?> w) {
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringData.addWorkflowInstanceHistorywitdhLimit(new WorkflowInstanceHistory(System.currentTimeMillis(), stateName.toString(), instanceId, classname));
+				String instanceId="";
+				String classname="";
+				if (w!=null){
+					instanceId=w.getId();
+					classname=w.getId();
+				}
+				monitoringData.addWorkflowInstanceHistorywitdhLimit(
+						new WorkflowInstanceHistory(System.currentTimeMillis(), message, instanceId, classname));
 			}
 		});
 	}

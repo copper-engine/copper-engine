@@ -51,12 +51,11 @@ public class PersistentProcessor extends Processor {
 					synchronized (pw) {
 						try {
 							WorkflowAccessor.setProcessingState(pw, ProcessingState.RUNNING);
-							monitoringDataCollector.submitWorkflowHistory(ProcessingState.RUNNING, pw.getId(), pw.getClass().getName());
+							monitoringDataCollector.submitWorkflowHistory(ProcessingState.RUNNING.toString(), pw);
 							engine.getDependencyInjector().inject(pw);
 							pw.__beforeProcess();
 							pw.main();
 							WorkflowAccessor.setProcessingState(pw, ProcessingState.FINISHED);
-							monitoringDataCollector.submitWorkflowHistory(ProcessingState.FINISHED, pw.getId(), pw.getClass().getName());
 							engine.getDbStorage().finish(pw);
 							assert pw.get__stack().isEmpty() : "Stack must be empty";
 						}

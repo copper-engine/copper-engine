@@ -21,14 +21,14 @@ public class WorkflowInstanceHistory implements Serializable{
 	private static final long serialVersionUID = -7316596553420665952L;
 	
 	long timestamp;
-	String stateName;
+	String message;
 	String instanceId;
 	String classname;
 	
-	public WorkflowInstanceHistory(long timestamp, String stateName, String instanceId, String classname) {
+	public WorkflowInstanceHistory(long timestamp, String message, String instanceId, String classname) {
 		super();
 		this.timestamp = timestamp;
-		this.stateName = stateName;
+		this.message = message;
 		this.instanceId = instanceId;
 		this.classname = classname;
 	}
@@ -45,12 +45,12 @@ public class WorkflowInstanceHistory implements Serializable{
 		this.timestamp = timestamp;
 	}
 	
-	public String getStateName() {
-		return stateName;
+	public String getMessage() {
+		return message;
 	}
 
-	public void setStateName(String stateName) {
-		this.stateName = stateName;
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 	public String getInstanceId() {

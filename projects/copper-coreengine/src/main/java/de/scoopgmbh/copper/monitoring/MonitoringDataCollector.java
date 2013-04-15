@@ -18,7 +18,7 @@ package de.scoopgmbh.copper.monitoring;
 import java.util.concurrent.TimeUnit;
 
 import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.ProcessingState;
+import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
 
 /**
@@ -31,5 +31,5 @@ public interface MonitoringDataCollector {
 	public void submitMeasurePoint(String measurePointId, int elementCount, long elapsedTime, TimeUnit timeUnit);
 	public void registerEngine(ProcessingEngine engine);
 	public void registerPool(final PriorityProcessorPool pool);
-	public void submitWorkflowHistory(final ProcessingState stateName, final String instanceId, final String classname);
+	public void submitWorkflowHistory(final String message, final Workflow<?> w);
 }

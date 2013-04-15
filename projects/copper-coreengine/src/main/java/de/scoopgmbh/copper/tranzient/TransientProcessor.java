@@ -48,7 +48,7 @@ class TransientProcessor extends Processor {
 		synchronized (wf) {
 			try {
 				WorkflowAccessor.setProcessingState(wf, ProcessingState.RUNNING);
-				monitoringDataCollector.submitWorkflowHistory(ProcessingState.RUNNING, wf.getId(), wf.getClass().getName());
+				monitoringDataCollector.submitWorkflowHistory(ProcessingState.RUNNING.toString(), wf);
 				
 				wf.__beforeProcess();
 				wf.main();

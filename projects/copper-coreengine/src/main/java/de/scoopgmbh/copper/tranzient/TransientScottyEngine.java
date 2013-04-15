@@ -257,7 +257,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		}
 		else {
 			WorkflowAccessor.setProcessingState(w, ProcessingState.WAITING);
-			monitoringDataCollector.submitWorkflowHistory(ProcessingState.WAITING, w.getId(), w.getClass().getName());
+			monitoringDataCollector.submitWorkflowHistory(ProcessingState.WAITING.toString(), w);
 		}
 	}
 
@@ -265,7 +265,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		final Workflow<?> wf = workflowMap.remove(id);
 		if (wf != null) {
 			WorkflowAccessor.setProcessingState(wf, ProcessingState.FINISHED);
-			monitoringDataCollector.submitWorkflowHistory(ProcessingState.FINISHED, wf.getId(), wf.getClass().getName());
+			monitoringDataCollector.submitWorkflowHistory(ProcessingState.FINISHED.toString(), wf);
 			ticketPoolManager.release(wf);
 			monitoringDataCollector.submitMeasurePoint(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
 		}

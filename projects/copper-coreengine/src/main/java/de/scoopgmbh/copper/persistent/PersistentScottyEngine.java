@@ -64,6 +64,8 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	private boolean notifyProcessorPoolsOnResponse = false;
 	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
 	private final Map<String, List<WaitHook>> waitHookMap = new HashMap<String, List<WaitHook>>();
+	
+	
 
 	/**
 	 * If true, the engine notifies all processor pools about a new reponse available.

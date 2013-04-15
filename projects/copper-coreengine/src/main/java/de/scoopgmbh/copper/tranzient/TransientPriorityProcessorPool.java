@@ -56,7 +56,7 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
 		if (wf == null)
 			throw new NullPointerException();
 		WorkflowAccessor.setProcessingState(wf, ProcessingState.ENQUEUED);
-		monitoringDataCollector.submitWorkflowHistory(ProcessingState.ENQUEUED, wf.getId(), wf.getClass().getName());
+		monitoringDataCollector.submitWorkflowHistory(ProcessingState.ENQUEUED.toString(), wf);
 		synchronized (queue) {
 			queue.add(wf);
 			if (!queue.isSuspended()) {

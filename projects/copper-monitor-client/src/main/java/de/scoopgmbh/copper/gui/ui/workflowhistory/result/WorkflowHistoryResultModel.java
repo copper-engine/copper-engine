@@ -23,13 +23,13 @@ import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceHistory;
 
 public class WorkflowHistoryResultModel {
 	public final SimpleObjectProperty<Date> timestamp;
-	public final SimpleStringProperty  stateName;
+	public final SimpleStringProperty  message;
 	public final SimpleStringProperty instanceId;
 	public final SimpleStringProperty classname;
 
 	public WorkflowHistoryResultModel(WorkflowInstanceHistory workflowInstanceHistory) {
 		this.timestamp = new SimpleObjectProperty<Date>(new Date(workflowInstanceHistory.getTimestamp()));
-		this.stateName = new SimpleStringProperty(workflowInstanceHistory.getStateName());
+		this.message = new SimpleStringProperty(workflowInstanceHistory.getMessage());
 		this.instanceId = new SimpleStringProperty(workflowInstanceHistory.getInstanceId());
 		this.classname = new SimpleStringProperty(workflowInstanceHistory.getClassname());
 	}

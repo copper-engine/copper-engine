@@ -128,7 +128,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 		try {
 			Workflow<Object> wf = createWorkflowFactory(wfname).newInstance();
 			wf.setData(data);
-			if (wf!=null) {monitoringDataCollector.submitWorkflowHistory(ProcessingState.RAW, wf.getId(), wf.getClass().getName());}
+			monitoringDataCollector.submitWorkflowHistory(ProcessingState.RAW.toString(), wf);
 			run(wf);
 		}
 		catch(CopperException e) {
@@ -147,7 +147,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 		try {
 			Workflow<Object> wf = createWorkflowInstance(wfInstanceDescr);
 			run(wf);
-			if (wf!=null) {monitoringDataCollector.submitWorkflowHistory(ProcessingState.RAW, wf.getId(), wf.getClass().getName());}
+			monitoringDataCollector.submitWorkflowHistory(ProcessingState.RAW.toString(), wf);
 		}
 		catch(CopperException e) {
 			throw e;
@@ -183,7 +183,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 			for (WorkflowInstanceDescr<?> wfInsDescr : wfInstanceDescr) {
 				Workflow<Object> wf = createWorkflowInstance(wfInsDescr);
 				wfList.add(wf);
-				if (wf!=null) {monitoringDataCollector.submitWorkflowHistory(ProcessingState.RAW, wf.getId(), wf.getClass().getName());}
+				monitoringDataCollector.submitWorkflowHistory(ProcessingState.RAW.toString(), wf);
 			}
 			run(wfList);
 		}

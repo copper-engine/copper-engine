@@ -93,7 +93,7 @@ public class WorkflowHistoryResultController implements Initializable, FilterRes
 			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowHistoryResultModel, String> p) {
-				return p.getValue().stateName;
+				return p.getValue().message;
 			}
 		});
         
