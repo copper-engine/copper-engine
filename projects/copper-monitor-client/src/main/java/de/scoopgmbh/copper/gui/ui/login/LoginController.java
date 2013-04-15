@@ -88,12 +88,11 @@ public class LoginController implements Initializable, FxmlController {
 		startButton.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override 
 		    public void handle(ActionEvent event) {
-				Registry registry;
 				try {
 					if (serverRadioButton.isSelected()){
 						mainFactory.setGuiCopperDataProvider(serverAdress.getText(), user.getText(), password.getText());
 					} else {
-						registry = LocateRegistry.getRegistry(copperDirektAdressTextField.getText(),Registry.REGISTRY_PORT);
+						Registry registry = LocateRegistry.getRegistry(copperDirektAdressTextField.getText(),Registry.REGISTRY_PORT);
 						CopperMonitorInterface copperMonitor = (CopperMonitorInterface) registry.lookup(CopperMonitorInterface.class.getSimpleName());
 						mainFactory.setGuiCopperDataProvider(copperMonitor,serverAdress.getText());
 					}

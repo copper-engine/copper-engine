@@ -11,6 +11,7 @@ public class ConvertingStringProperty<T> extends SimpleStringProperty{
 	public ConvertingStringProperty(final Property<T> property, final StringConverter<T> converter){
 		this.set(converter.toString(property.getValue()));
 		this.addListener(new ChangeListener<String>() { //TODO check performance impact
+			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				property.setValue(converter.fromString(newValue));
 			}

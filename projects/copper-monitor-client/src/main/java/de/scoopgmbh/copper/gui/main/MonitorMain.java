@@ -54,7 +54,7 @@ public class MonitorMain extends Application {
 //			}
 //		});
 
-		if (monitorServerAdress==null){
+		if (monitorServerAdress!=null){
 			mainFactory.createLoginForm().show();
 			primaryStage.setScene(scene);
 			primaryStage.show();

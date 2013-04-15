@@ -20,14 +20,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
+import java.rmi.RemoteException;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+
+import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
+import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.form.BorderPaneShowFormStrategie;
 import de.scoopgmbh.copper.gui.form.Form;
@@ -37,6 +40,7 @@ import de.scoopgmbh.copper.gui.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.gui.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
+import de.scoopgmbh.copper.monitor.adapter.ServerLogin;
 
 public class ApplicationContext {
 
@@ -134,33 +138,21 @@ public class ApplicationContext {
 	public void setGuiCopperDataProvider(CopperMonitorInterface copperDataProvider, String serverAdress){
 		this.serverAdress.set(serverAdress);
 		this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);
+		getFormFactory().setupGUIStructure();
 	}
 	
 	public void setGuiCopperDataProvider(String serverAdress, String user, String password){
-//		HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-//		httpInvokerProxyFactoryBean.setServiceInterface(ServerLogin.class);
-//		httpInvokerProxyFactoryBean.setServiceUrl("http://localhost/ServerLogin");
-//		httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
-//		httpInvokerProxyFactoryBean.afterPropertiesSet();
-//		
-//	    ServerLogin serverLogin = (ServerLogin)httpInvokerProxyFactoryBean.getObject();
-//		try {
-//			setGuiCopperDataProvider(serverLogin.login("", ""),"");
-//		} catch (RemoteException e1) {
-//			throw new RuntimeException(e1);
-//		}
+		HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+		httpInvokerProxyFactoryBean.setServiceInterface(ServerLogin.class);
+		httpInvokerProxyFactoryBean.setServiceUrl(serverAdress+"/serverLogin");
+		httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+		httpInvokerProxyFactoryBean.afterPropertiesSet();
 		
+	    ServerLogin serverLogin = (ServerLogin)httpInvokerProxyFactoryBean.getObject();
 		try {
-//			Registry registry = LocateRegistry.getRegistry(serverAdress,Registry.REGISTRY_PORT);
-//			ServerLogin serverLogin = (ServerLogin) registry.lookup(ServerLogin.class.getSimpleName());
-//			
-//			setGuiCopperDataProvider(serverLogin.login(user, (password!=null?password.hashCode():"")+""),serverAdress);
-			Registry registry = LocateRegistry.getRegistry(serverAdress,Registry.REGISTRY_PORT);
-//			ServerLogin serverLogin = (ServerLogin) registry.lookup(ServerLogin.class.getSimpleName());
-			setGuiCopperDataProvider((CopperMonitorInterface) registry.lookup(CopperMonitorInterface.class.getSimpleName()),serverAdress);
-			getFormFactory().setupGUIStructure();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+			setGuiCopperDataProvider(serverLogin.login("", ""),"");
+		} catch (RemoteException e1) {
+			throw new RuntimeException(e1);
 		}
 	}
 	

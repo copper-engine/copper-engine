@@ -7,16 +7,16 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="214.0" prefWidth="716.0" xmlns:fx="http://javafx.com/fxml">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="214.0" prefWidth="787.0" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <GridPane layoutX="32.0" layoutY="51.0" prefHeight="119.0" prefWidth="670.0">
+    <GridPane layoutX="14.0" layoutY="51.0" prefHeight="119.0" prefWidth="754.0">
       <children>
-        <RadioButton id="jmxRadioButton" fx:id="copperDirektRadioButton" mnemonicParsing="false" prefWidth="125.0" text="Copper server" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-        <RadioButton fx:id="serverRadioButton" mnemonicParsing="false" prefWidth="342.0" text="Monitoring Server" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-        <TextField fx:id="copperDirektAdressTextField" prefWidth="540.0" promptText="server adress eg.: localhost" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+        <RadioButton id="jmxRadioButton" fx:id="copperDirektRadioButton" mnemonicParsing="false" prefWidth="188.0" text="Copper Server (RMI)" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <RadioButton fx:id="serverRadioButton" mnemonicParsing="false" prefWidth="342.0" text="Monitoring Server (http)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <TextField fx:id="copperDirektAdressTextField" prefWidth="540.0" promptText="server adress e.g. localhost" GridPane.columnIndex="1" GridPane.rowIndex="1" />
         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
           <children>
-            <TextField fx:id="serverAdress" prefWidth="183.0" text="localhost" />
+            <TextField fx:id="serverAdress" prefWidth="210.0" promptText="e.g. http://localhost:8080" text="" />
             <Label text="user" />
             <TextField fx:id="user" prefWidth="112.0" />
             <Label graphicTextGap="4.0" text="password" />
@@ -25,16 +25,16 @@
         </HBox>
       </children>
       <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="227.0" minWidth="10.0" prefWidth="152.0" />
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="545.0" minWidth="10.0" prefWidth="518.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="239.0" minWidth="10.0" prefWidth="210.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="545.0" minWidth="10.0" prefWidth="544.0" />
       </columnConstraints>
       <rowConstraints>
         <RowConstraints maxHeight="81.0" minHeight="10.0" prefHeight="54.0" vgrow="SOMETIMES" />
         <RowConstraints maxHeight="120.0" minHeight="10.0" prefHeight="58.0" vgrow="SOMETIMES" />
       </rowConstraints>
     </GridPane>
-    <Label layoutX="32.0" layoutY="32.0" text="Connection" />
-    <Button id="startbutton" fx:id="startButton" layoutX="645.0" layoutY="173.0" mnemonicParsing="false" text="Start" />
+    <Label layoutX="14.0" layoutY="32.0" text="Connection" />
+    <Button id="startbutton" fx:id="startButton" layoutX="711.0" layoutY="170.0" mnemonicParsing="false" text="Start" />
   </children>
   <effect>
     <DropShadow />
