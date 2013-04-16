@@ -34,11 +34,12 @@ import org.springframework.web.servlet.DispatcherServlet;
 public class SpringRemoteServerMain {
 	
 	static final Logger logger = LoggerFactory.getLogger(SpringRemoteServerMain.class);
+	private Server server;
 	
 	public void start(int port, String host) {
 		logger.info("Starting Copper-Monitor-Server (jetty)");
 
-		Server server = new Server();
+		server = new Server();
 		ServerConnector connector = new ServerConnector(server);
 		connector.setPort(port);
 		connector.setHost(host);
@@ -55,16 +56,21 @@ public class SpringRemoteServerMain {
 		
 		try {
 			server.start();
-			System.in.read();
-			server.stop();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
+
+	private void stop() {
+		try {
+			server.stop();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	
-	public static void main(String[] args) throws Throwable {
+	public static void main(String[] args) {
 		if (!new File(args[0]).exists() || args.length==0){
 			throw new IllegalArgumentException("valid property file loctaion must be passed as argument invalid: "+(args.length>0?new File(args[0]).getAbsolutePath():"nothing"));
 		}
@@ -85,7 +91,16 @@ public class SpringRemoteServerMain {
 		System.setProperty("org.apache.cxf.Logger", "org.apache.cxf.common.logging.Log4jLogger");
 		
 		SpringRemoteServerMain springRemoteServerMain = new SpringRemoteServerMain();
-		springRemoteServerMain.start(port,host);
+		
+		try {
+			springRemoteServerMain.start(port,host);
+			System.in.read();
+			springRemoteServerMain.stop();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

@@ -46,6 +46,9 @@ dependencies {
 	compile files('libs/jfxrt.jar')
 	compile files('libs/ScenicView.jar')
 	compile files('libs/java2html.jar')
+	
+	compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
+	
 	//Spring remote
 	compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'
 	compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'	

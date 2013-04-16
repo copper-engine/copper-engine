@@ -16,8 +16,6 @@
 package de.scoopgmbh.copper.gui.ui.login;
 
 import java.net.URL;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ResourceBundle;
 
 import javafx.event.ActionEvent;
@@ -31,7 +29,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import de.scoopgmbh.copper.gui.context.ApplicationContext;
 import de.scoopgmbh.copper.gui.form.FxmlController;
-import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 
 public class LoginController implements Initializable, FxmlController {
 	private final ApplicationContext mainFactory;
@@ -90,11 +87,9 @@ public class LoginController implements Initializable, FxmlController {
 		    public void handle(ActionEvent event) {
 				try {
 					if (serverRadioButton.isSelected()){
-						mainFactory.setGuiCopperDataProvider(serverAdress.getText(), user.getText(), password.getText());
+						mainFactory.setHttpGuiCopperDataProvider(serverAdress.getText(), user.getText(), password.getText());
 					} else {
-						Registry registry = LocateRegistry.getRegistry(copperDirektAdressTextField.getText(),Registry.REGISTRY_PORT);
-						CopperMonitorInterface copperMonitor = (CopperMonitorInterface) registry.lookup(CopperMonitorInterface.class.getSimpleName());
-						mainFactory.setGuiCopperDataProvider(copperMonitor,serverAdress.getText());
+						mainFactory.setRMIGuiCopperDataProvider(copperDirektAdressTextField.getText());
 					}
 				} catch (Exception e) {
 					throw new RuntimeException(e);

@@ -20,7 +20,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.rmi.AccessException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
@@ -133,6 +137,21 @@ public class ApplicationContext {
     		)
     	);
 	}
+	
+	public void setRMIGuiCopperDataProvider(String serverAdress){
+		try {
+			Registry registry = LocateRegistry.getRegistry(serverAdress,Registry.REGISTRY_PORT);
+			CopperMonitorInterface copperMonitor = (CopperMonitorInterface) registry.lookup(CopperMonitorInterface.class.getSimpleName());
+			setGuiCopperDataProvider(copperMonitor,serverAdress);
+			setGuiCopperDataProvider(copperMonitor,serverAdress);
+		} catch (AccessException e) {
+			throw new RuntimeException(e);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		} catch (NotBoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	GuiCopperDataProvider guiCopperDataProvider;
 	public void setGuiCopperDataProvider(CopperMonitorInterface copperDataProvider, String serverAdress){
@@ -141,7 +160,7 @@ public class ApplicationContext {
 		getFormFactory().setupGUIStructure();
 	}
 	
-	public void setGuiCopperDataProvider(String serverAdress, String user, String password){
+	public void setHttpGuiCopperDataProvider(String serverAdress, String user, String password){
 		HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
 		httpInvokerProxyFactoryBean.setServiceInterface(ServerLogin.class);
 		httpInvokerProxyFactoryBean.setServiceUrl(serverAdress+"/serverLogin");
@@ -150,7 +169,7 @@ public class ApplicationContext {
 		
 	    ServerLogin serverLogin = (ServerLogin)httpInvokerProxyFactoryBean.getObject();
 		try {
-			setGuiCopperDataProvider(serverLogin.login("", ""),"");
+			setGuiCopperDataProvider(serverLogin.login("", ""),serverAdress);
 		} catch (RemoteException e1) {
 			throw new RuntimeException(e1);
 		}

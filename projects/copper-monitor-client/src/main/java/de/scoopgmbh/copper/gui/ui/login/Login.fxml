@@ -34,9 +34,6 @@
       </rowConstraints>
     </GridPane>
     <Label layoutX="14.0" layoutY="32.0" text="Connection" />
-    <Button id="startbutton" fx:id="startButton" layoutX="711.0" layoutY="170.0" mnemonicParsing="false" text="Start" />
+    <Button id="startbutton" fx:id="startButton" layoutX="656.0" layoutY="170.0" mnemonicParsing="false" prefWidth="112.0" text="Start" />
   </children>
-  <effect>
-    <DropShadow />
-  </effect>
 </AnchorPane>
