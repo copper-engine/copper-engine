@@ -74,7 +74,7 @@ public class MonitorMain extends Application {
 	}
 
 	public static void main(final String[] arguments) {
-		System.out.println(Arrays.asList(arguments));
+		System.out.println("Parameter: "+Arrays.asList(arguments));
 		Application.launch(arguments);
 	}
 }

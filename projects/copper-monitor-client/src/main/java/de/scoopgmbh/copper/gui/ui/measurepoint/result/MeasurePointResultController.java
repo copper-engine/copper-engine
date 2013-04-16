@@ -30,11 +30,11 @@ import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Button;
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.form.FxmlController;
+import de.scoopgmbh.copper.gui.form.enginefilter.EngineFilterModelBase;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
-import de.scoopgmbh.copper.gui.util.EngineFilter;
 import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 
-public class MeasurePointResultController implements Initializable, FilterResultController<EngineFilter,MeasurePointData>, FxmlController {
+public class MeasurePointResultController implements Initializable, FilterResultController<EngineFilterModelBase,MeasurePointData>, FxmlController {
 	private final GuiCopperDataProvider copperDataProvider;
 	
 	public MeasurePointResultController(GuiCopperDataProvider copperDataProvider) {
@@ -79,7 +79,7 @@ public class MeasurePointResultController implements Initializable, FilterResult
 	private XYChart.Series<String, Number> axis;
 	
 	@Override
-	public void showFilteredResult(List<MeasurePointData> filteredlist, EngineFilter usedFilter) {
+	public void showFilteredResult(List<MeasurePointData> filteredlist, EngineFilterModelBase usedFilter) {
 		clear();
 		for (MeasurePointData measurePointData: filteredlist){
 			ObservableList<Data<String, Number>> data = axis.getData();
@@ -88,7 +88,7 @@ public class MeasurePointResultController implements Initializable, FilterResult
 	}
 	
 	@Override
-	public List<MeasurePointData> applyFilterInBackgroundThread(EngineFilter filter) {
+	public List<MeasurePointData> applyFilterInBackgroundThread(EngineFilterModelBase filter) {
 		return copperDataProvider.getMeasurePoints(filter);
 	}
 

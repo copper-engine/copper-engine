@@ -39,6 +39,7 @@ import de.scoopgmbh.copper.gui.form.FxmlForm;
 import de.scoopgmbh.copper.gui.form.ShowFormStrategy;
 import de.scoopgmbh.copper.gui.form.TabPaneShowFormStrategie;
 import de.scoopgmbh.copper.gui.form.enginefilter.EngineFilterAbleform;
+import de.scoopgmbh.copper.gui.form.enginefilter.EngineFilterModelBase;
 import de.scoopgmbh.copper.gui.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.gui.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
@@ -52,6 +53,8 @@ import de.scoopgmbh.copper.gui.ui.dashboard.result.DashboardResultController;
 import de.scoopgmbh.copper.gui.ui.dashboard.result.DashboardResultModel;
 import de.scoopgmbh.copper.gui.ui.dashboard.result.engine.ProcessingEngineController;
 import de.scoopgmbh.copper.gui.ui.dashboard.result.pool.ProccessorPoolController;
+import de.scoopgmbh.copper.gui.ui.hotfix.HotfixController;
+import de.scoopgmbh.copper.gui.ui.hotfix.HotfixModel;
 import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterController;
 import de.scoopgmbh.copper.gui.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.gui.ui.load.result.EngineLoadResultController;
@@ -88,7 +91,6 @@ import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceD
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultController;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.gui.util.CodeMirrorFormatter;
-import de.scoopgmbh.copper.gui.util.EngineFilter;
 import de.scoopgmbh.copper.gui.util.MessageKey;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 import de.scoopgmbh.copper.gui.util.WorkflowVersion;
@@ -112,6 +114,7 @@ public class FormContext {
 
 	GuiCopperDataProvider guiCopperDataProvider;
 	private FxmlForm<SettingsController> settingsForSingleton;
+	private FxmlForm<HotfixController> hotfixFormSingleton;
 	private FilterAbleForm<EmptyFilterModel, DashboardResultModel> dasboardFormSingleton;
 	public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSinglton) {
 		this.mainTabPane = new TabPane();
@@ -155,6 +158,12 @@ public class FormContext {
 			@Override
 			public Form<?> createForm() {
 				return createSqlForm();
+			}
+		});
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.hotfix_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createHotfixForm();
 			}
 		});
 		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.settings_title)) {
@@ -365,6 +374,13 @@ public class FormContext {
 		return settingsForSingleton;
 	}
 	
+	public Form<HotfixController> createHotfixForm(){
+		if (hotfixFormSingleton==null){
+			hotfixFormSingleton = new FxmlForm<HotfixController>("",new HotfixController(new HotfixModel(), guiCopperDataProvider), messageProvider,  new TabPaneShowFormStrategie(mainTabPane));
+		}
+		return hotfixFormSingleton;
+	}
+	
 	public FilterAbleForm<SqlFilterModel,SqlResultModel> createSqlForm(){
 		FilterController<SqlFilterModel> fCtrl = new SqlFilterController(codeMirrorFormatterSingelton); 
 		FxmlForm<FilterController<SqlFilterModel>> filterForm = new FxmlForm<FilterController<SqlFilterModel>>(fCtrl, messageProvider);
@@ -415,15 +431,15 @@ public class FormContext {
 		return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine,model,this,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane));
 	}
 	
-	public FilterAbleForm<EngineFilter, MeasurePointData> createMeasurePointForm() {
+	public FilterAbleForm<EngineFilterModelBase, MeasurePointData> createMeasurePointForm() {
 
-		FilterController<EngineFilter> fCtrl = new GenericFilterController<EngineFilter>(new EngineFilter());
-		FxmlForm<FilterController<EngineFilter>> filterForm = new FxmlForm<FilterController<EngineFilter>>(fCtrl, messageProvider);
+		FilterController<EngineFilterModelBase> fCtrl = new GenericFilterController<EngineFilterModelBase>(new EngineFilterModelBase());
+		FxmlForm<FilterController<EngineFilterModelBase>> filterForm = new FxmlForm<FilterController<EngineFilterModelBase>>(fCtrl, messageProvider);
 
-		FilterResultController<EngineFilter, MeasurePointData> resCtrl = new MeasurePointResultController(guiCopperDataProvider);
-		FxmlForm<FilterResultController<EngineFilter, MeasurePointData>> resultForm = new FxmlForm<FilterResultController<EngineFilter, MeasurePointData>>(resCtrl, messageProvider);
+		FilterResultController<EngineFilterModelBase, MeasurePointData> resCtrl = new MeasurePointResultController(guiCopperDataProvider);
+		FxmlForm<FilterResultController<EngineFilterModelBase, MeasurePointData>> resultForm = new FxmlForm<FilterResultController<EngineFilterModelBase, MeasurePointData>>(resCtrl, messageProvider);
 
-		return new EngineFilterAbleform<EngineFilter, MeasurePointData>(messageProvider.getText(MessageKey.measurePoint_title),messageProvider, new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,
+		return new EngineFilterAbleform<EngineFilterModelBase, MeasurePointData>(messageProvider.getText(MessageKey.measurePoint_title),messageProvider, new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,
 				guiCopperDataProvider);
 	}
 	

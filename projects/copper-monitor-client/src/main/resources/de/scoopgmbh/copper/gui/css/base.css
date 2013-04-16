@@ -89,6 +89,10 @@
 	-fx-base: rgb(50, 50, 50);
 }
 
+.copperActionButton{
+	-fx-base: rgb(223,70,64);
+}
+
 .noSelectAnimationMenueItem:focused {
      -fx-background: transparent;
      -fx-background-color: transparent;

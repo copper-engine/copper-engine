@@ -535,4 +535,19 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 		this.monitoringDataCollector = monitoringDataCollector;
 	}
 
+	@Override
+	public List<String[]> executeMonitoringQuery(final String query, final long resultRowLimit) {
+		try {
+			return run(new DatabaseTransaction<List<String[]>>() {
+				@Override
+				public List<String[]> run(Connection con) throws Exception {
+					return dialect.executeMonitoringQuery(query, resultRowLimit,con);
+				}
+			});
+		} catch (Exception e) {
+			logger.error("error",e);
+			return Collections.emptyList();
+		}
+	}
+
 }

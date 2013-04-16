@@ -250,6 +250,38 @@ public abstract class BaseSqlDialect implements DatabaseDialect {
 			JdbcUtils.closeStatement(selectStmt);
 		}
 	}
+	
+	@Override
+	public List<String[]> executeMonitoringQuery(String query, long resultRowLimit, Connection con) {
+		PreparedStatement selectStmt = null;
+		try {
+			selectStmt = con.prepareStatement(getResultLimitingQuery(query,resultRowLimit));
+			selectStmt.setFetchSize(100);
+			
+			ResultSet resultSet = selectStmt.executeQuery();
+			
+			ArrayList<String[]> result = new ArrayList<String[]>();
+			java.sql.ResultSetMetaData rsmd = resultSet.getMetaData();
+			int columnCount = rsmd.getColumnCount();
+			String[] header = new String[columnCount];
+			for (int i=1;i<=columnCount;i++){
+				header[i-1]=rsmd.getColumnLabel(i);
+			}
+			result.add(header);
+			while (resultSet.next()) {
+				String[] row = new String[columnCount];
+				for (int i=1;i<=columnCount;i++){
+					row[i-1]=resultSet.getString(i);
+				}
+				result.add(row);
+			}
+			return result;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			JdbcUtils.closeStatement(selectStmt);
+		}
+	}
 
 
 }

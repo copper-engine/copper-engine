@@ -15,8 +15,8 @@
  */
 package de.scoopgmbh.copper.gui.ui.repository.filter;
 
-import de.scoopgmbh.copper.gui.util.EngineFilter;
+import de.scoopgmbh.copper.gui.form.enginefilter.EngineFilterModelBase;
 
-public class WorkflowRepositoryFilterModel extends EngineFilter{
+public class WorkflowRepositoryFilterModel extends EngineFilterModelBase{
 
 }

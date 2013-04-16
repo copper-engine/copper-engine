@@ -27,6 +27,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import de.scoopgmbh.copper.gui.context.ApplicationContext;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 
@@ -96,8 +98,25 @@ public class LoginController implements Initializable, FxmlController {
 				}
 		    }
 		});
-		
 	}
+    
+    public void addshorstcut(){
+		EventHandler<KeyEvent> eventHandler = new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode()==KeyCode.ENTER){
+					if (!startButton.isDisabled()) {
+						startButton.fire();
+					}
+				}
+			}
+		};
+		user.setOnKeyReleased(eventHandler);
+		password.setOnKeyReleased(eventHandler);
+		serverAdress.setOnKeyReleased(eventHandler);
+		copperDirektAdressTextField.setOnKeyReleased(eventHandler);
+    }
+    
 
 	@Override
 	public URL getFxmlRessource() {

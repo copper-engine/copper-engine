@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.gui.util;
+package de.scoopgmbh.copper.gui.form.enginefilter;
 
 import javafx.beans.property.SimpleObjectProperty;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.ProcessorPoolInfo;
 
-public class EngineFilter {
+public class EnginePoolModel {
 	
-	public final SimpleObjectProperty<ProcessingEngineInfo> engine = new SimpleObjectProperty<ProcessingEngineInfo>();
-
-	public EngineFilter(){
+	public final SimpleObjectProperty<ProcessingEngineInfo> selectedEngine = new SimpleObjectProperty<ProcessingEngineInfo>();
+	public final SimpleObjectProperty<ProcessorPoolInfo> selectedPool = new SimpleObjectProperty<ProcessorPoolInfo>();
+	
+	public EnginePoolModel(){
 		
 	}
 	
-	public EngineFilter(ProcessingEngineInfo engine){
-		this.engine.setValue(engine);
+	public EnginePoolModel(ProcessingEngineInfo engine){
+		this.selectedEngine.setValue(engine);
+		if (!engine.getPools().isEmpty()){
+			this.selectedPool.setValue(engine.getPools().get(0));
+		}
 	}
 }

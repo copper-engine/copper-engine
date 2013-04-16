@@ -114,7 +114,7 @@ public class EngineLoadResultController implements Initializable, FilterResultCo
 
 	@Override
 	public List<WorkflowStateSummary> applyFilterInBackgroundThread(EngineLoadFilterModel filter) {
-		return Arrays.asList(copperDataProvider.getCopperLoadInfo(filter.engine.getValue()));
+		return Arrays.asList(copperDataProvider.getCopperLoadInfo(filter.enginePoolModel.selectedEngine.getValue()));
 	}
 
 	@Override

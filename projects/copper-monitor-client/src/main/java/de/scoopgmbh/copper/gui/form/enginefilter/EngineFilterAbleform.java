@@ -17,11 +17,9 @@ package de.scoopgmbh.copper.gui.form.enginefilter;
 
 import java.util.List;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.Node;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
@@ -31,68 +29,23 @@ import de.scoopgmbh.copper.gui.form.ShowFormStrategy;
 import de.scoopgmbh.copper.gui.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.gui.form.filter.FilterController;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
-import de.scoopgmbh.copper.gui.util.EngineFilter;
 import de.scoopgmbh.copper.gui.util.MessageProvider;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo.EngineTyp;
 
-public class EngineFilterAbleform<F extends EngineFilter, R> extends FilterAbleForm<F, R> {
+public class EngineFilterAbleform<F extends EngineFilterModel, R> extends FilterAbleForm<F, R> {
 
-	private ChoiceBox<ProcessingEngineInfo> choicebox;
+	private Node engineSelectionWidget;
 
 	public EngineFilterAbleform(final String titlePrefix,MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
 			final Form<FilterController<F>> filterForm, Form<FilterResultController<F, R>> resultForm, GuiCopperDataProvider copperDataProvider) {
 		super(messageProvider, showFormStrategie, filterForm, resultForm, copperDataProvider);
-		// TODO Auto-generated constructor stub
 		
-		choicebox = new ChoiceBox<ProcessingEngineInfo>();
-		choicebox.setConverter(new StringConverter<ProcessingEngineInfo>() {
-			@Override
-			public String toString(ProcessingEngineInfo object) {
-				return object.getId()+"("+object.getTyp()+")";
-			}
-			
-			@Override
-			public ProcessingEngineInfo fromString(String string) {
-				return null;
-			}
-		});
-		
-		
-//		filterForm.getController().getFilter().engine
-//		
-//		
-//		bind(choicebox.getSelectionModel().selectedItemProperty());
-		
-		choicebox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ProcessingEngineInfo>() {
-			@Override
-			public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue,
-					ProcessingEngineInfo newValue) {
-				filterForm.getController().getFilter().engine.setValue(newValue);
-			}
-		});
-		
-		
-        filterForm.getController().getFilter().engine.addListener(new ChangeListener<ProcessingEngineInfo>() {
-			@Override
-			public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue,
-					ProcessingEngineInfo newValue) {
-				for (ProcessingEngineInfo processingEngineInfo: choicebox.getItems()){
-					if (processingEngineInfo.getId()!=null && processingEngineInfo.getId().equals(newValue.getId())){
-						choicebox.getSelectionModel().select(processingEngineInfo);
-					}
-				}
-			}
-		});
-		
+
 		List<ProcessingEngineInfo> engineList = copperDataProvider.getEngineList();
-		for (ProcessingEngineInfo engineFilter: engineList){
-			choicebox.getItems().add(engineFilter);
-		}
-		choicebox.getSelectionModel().selectFirst();
-		
+		engineSelectionWidget = new EngineSelectionWidget(filterForm.getController().getFilter().getEngineFilterModel(),engineList).createContent();
 
-		dynamicTitleProperty().bindBidirectional(filterForm.getController().getFilter().engine, new StringConverter<ProcessingEngineInfo>(){
+		dynamicTitleProperty().bindBidirectional(filterForm.getController().getFilter().getEngineFilterModel().selectedEngine, new StringConverter<ProcessingEngineInfo>(){
 			@Override
 			public ProcessingEngineInfo fromString(String string) {
 				return null;
@@ -100,6 +53,9 @@ public class EngineFilterAbleform<F extends EngineFilter, R> extends FilterAbleF
 
 			@Override
 			public String toString(ProcessingEngineInfo object) {
+				if (object==null){
+					return "";
+				}
 				return titlePrefix+": "+object.getId()+"("+(object.getTyp()==EngineTyp.PERSISTENT?"P":"T")+")";
 			}
 		});
@@ -107,8 +63,8 @@ public class EngineFilterAbleform<F extends EngineFilter, R> extends FilterAbleF
 
 	@Override
 	protected void beforFilterHook(HBox filterbox){
-		HBox.setMargin(choicebox, new Insets(0, 0, 0, 5));
-		filterbox.getChildren().add(choicebox);
+		HBox.setMargin(engineSelectionWidget, new Insets(0, 0, 0, 5));
+		filterbox.getChildren().add(engineSelectionWidget);
 		filterbox.getChildren().add(new Separator(Orientation.VERTICAL));
 	}
 	

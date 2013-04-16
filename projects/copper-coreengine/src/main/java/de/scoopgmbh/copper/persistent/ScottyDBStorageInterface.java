@@ -141,4 +141,6 @@ public interface ScottyDBStorageInterface {
 			WorkflowInstanceState state, Integer priority, long resultRowLimit);
 
 	public StorageInfo getStorageInfo();
+
+	public List<String[]> executeMonitoringQuery(String query, long resultRowLimit);
 }

@@ -161,7 +161,7 @@ public class WorkflowSummaryResultController implements Initializable, FilterRes
 	private void openWorkflowInstance() {
 		FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = formcontext.createWorkflowInstanceForm();
 		workflowInstanceForm.getFilter().version.setAllFrom(getSelectedEntry().version);
-		workflowInstanceForm.getFilter().engine.setValue(lastFilteredWithProcessingEngineInfo);
+		workflowInstanceForm.getFilter().enginePoolModel.selectedEngine.setValue(lastFilteredWithProcessingEngineInfo);
 		workflowInstanceForm.show();
 	}
     
@@ -178,7 +178,7 @@ public class WorkflowSummaryResultController implements Initializable, FilterRes
 	private ProcessingEngineInfo lastFilteredWithProcessingEngineInfo;
 	@Override
 	public void showFilteredResult(List<WorkflowSummaryResultModel> filteredResult, WorkflowSummaryFilterModel usedFilter) {
-		lastFilteredWithProcessingEngineInfo = usedFilter.engine.getValue();
+		lastFilteredWithProcessingEngineInfo = usedFilter.enginePoolModel.selectedEngine.getValue();
 		ObservableList<WorkflowSummaryResultModel> content = FXCollections.observableList(new ArrayList<WorkflowSummaryResultModel>());;
 		content.addAll(filteredResult);
 		resultTable.setItems(content);

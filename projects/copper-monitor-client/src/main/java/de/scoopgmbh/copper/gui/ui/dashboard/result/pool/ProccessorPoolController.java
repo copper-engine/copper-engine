@@ -92,6 +92,7 @@ public class ProccessorPoolController implements Initializable, FxmlController {
 				}
 			}
 		});
+		prioButton.getStyleClass().add("copperActionButton");
 		
 		nummerbutton.disableProperty().bind(nummerNew.textProperty().isEqualTo(""));
 		nummerbutton.setOnAction(new EventHandler<ActionEvent>() {
@@ -102,6 +103,7 @@ public class ProccessorPoolController implements Initializable, FxmlController {
 				}
 			}
 		});
+		nummerbutton.getStyleClass().add("copperActionButton");
     }
 	
 	@Override

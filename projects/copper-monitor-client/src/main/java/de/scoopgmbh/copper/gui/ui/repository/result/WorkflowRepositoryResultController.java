@@ -105,7 +105,7 @@ public class WorkflowRepositoryResultController implements Initializable, Filter
 
 	@Override
 	public List<WorkflowVersion> applyFilterInBackgroundThread(WorkflowRepositoryFilterModel filter) {
-		return copperDataProvider.getWorkflowClassesList(filter.engine.get().getId());  
+		return copperDataProvider.getWorkflowClassesList(filter.enginePoolModel.selectedEngine.get().getId());  
 	}
 	
 	@Override

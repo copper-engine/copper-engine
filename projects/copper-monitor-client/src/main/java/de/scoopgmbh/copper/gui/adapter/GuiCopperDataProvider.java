@@ -21,6 +21,8 @@ import java.util.List;
 
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import de.scoopgmbh.copper.gui.form.enginefilter.EngineFilterModelBase;
+import de.scoopgmbh.copper.gui.form.enginefilter.EnginePoolModel;
 import de.scoopgmbh.copper.gui.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.gui.ui.sql.filter.SqlFilterModel;
 import de.scoopgmbh.copper.gui.ui.sql.result.SqlResultModel;
@@ -32,7 +34,6 @@ import de.scoopgmbh.copper.gui.ui.workflowsummary.filter.WorkflowSummaryFilterMo
 import de.scoopgmbh.copper.gui.ui.workflowsummary.result.WorkflowSummaryResultModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
-import de.scoopgmbh.copper.gui.util.EngineFilter;
 import de.scoopgmbh.copper.gui.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
@@ -63,7 +64,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowInstanceResultModel> getWorkflowInstanceList(WorkflowInstanceFilterModel filter){
 		List<WorkflowInstanceInfo> list;
 		try {
-			list = copperDataProvider.getWorkflowInstanceList(getPoolId(filter.engine.getValue()),filter.version.classname.getValue(),
+			list = copperDataProvider.getWorkflowInstanceList(getPoolId(filter.enginePoolModel),filter.version.classname.getValue(),
 					filter.state.getValue(), getFilterReadyInteger(filter.priority.getValue()), maxResultCount.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
@@ -83,8 +84,8 @@ public class GuiCopperDataProvider {
 		}
 	}
 
-	public String getPoolId(ProcessingEngineInfo engine) {
-		return engine.getPools().size()==1?engine.getPools().get(0).getId():null;
+	public String getPoolId(EnginePoolModel enginePoolModel) {
+		return enginePoolModel.selectedPool.get().getId();
 	}
 	
 	public List<AuditTrailResultModel> getAuditTrails(de.scoopgmbh.copper.gui.ui.audittrail.filter.AuditTrailFilterModel  filter){
@@ -105,7 +106,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowSummaryResultModel> getWorkflowSummery(WorkflowSummaryFilterModel filter) {
 		List<WorkflowSummary> summeries;
 		try {
-			summeries = copperDataProvider.getWorkflowSummary(getPoolId(filter.engine.getValue()), filter.version.classname.get());
+			summeries = copperDataProvider.getWorkflowSummary(getPoolId(filter.enginePoolModel), filter.version.classname.get());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -184,9 +185,9 @@ public class GuiCopperDataProvider {
 		}
 	}
 	
-	public List<MeasurePointData> getMeasurePoints(EngineFilter engineFilter) {
+	public List<MeasurePointData> getMeasurePoints(EngineFilterModelBase engineFilter) {
 		try {
-			return copperDataProvider.getMeasurePoints(engineFilter.engine.getValue().getId());
+			return copperDataProvider.getMeasurePoints(engineFilter.enginePoolModel.selectedEngine.getValue().getId());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -236,6 +237,14 @@ public class GuiCopperDataProvider {
 			result.add(new WorkflowHistoryResultModel(workflowInstanceHistory)); 
 		}
 		return result;
+	}
+
+	public void restartAllError(String engineid) {
+		try {
+			copperDataProvider.restartAllErroneousInstances(engineid);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 }

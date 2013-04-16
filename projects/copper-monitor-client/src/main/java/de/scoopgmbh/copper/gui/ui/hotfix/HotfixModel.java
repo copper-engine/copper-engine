@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 SCOOP Software GmbH
+ * Copyright 2002-2012 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.examples.orechstration;
+package de.scoopgmbh.copper.gui.ui.hotfix;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import de.scoopgmbh.copper.gui.form.enginefilter.EnginePoolModel;
 
-public class Main {
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("OrchestrationEngineContext.xml");
-		ctx.registerShutdownHook();
-
-	    System.out.println("qqq"+System.getProperty("java.library.path"));
-	}
+public class HotfixModel extends EnginePoolModel{
+	
 
 }

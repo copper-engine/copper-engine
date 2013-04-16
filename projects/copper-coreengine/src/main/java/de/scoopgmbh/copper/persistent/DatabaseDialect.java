@@ -90,5 +90,7 @@ public interface DatabaseDialect {
 	public abstract List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit, Connection con);
 
+	public abstract List<String[]> executeMonitoringQuery(String query, long resultRowLimit, Connection con);
+
 
 }

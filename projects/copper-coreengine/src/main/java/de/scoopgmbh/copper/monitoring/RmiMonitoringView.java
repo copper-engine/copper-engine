@@ -150,15 +150,14 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 
 	@Override
 	public List<String[]> executeSqlQuery(String query, long resultRowLimit) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		return dbStorage.executeMonitoringQuery(query, resultRowLimit);
 	}
 
 	private static Sigar sigar = new Sigar();
 	@Override
 	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException {
 		//http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
-		java.lang.management.OperatingSystemMXBean operatingSystemMXBean= ManagementFactory.getOperatingSystemMXBean();
+//		java.lang.management.OperatingSystemMXBean operatingSystemMXBean= ManagementFactory.getOperatingSystemMXBean();
 		MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 		java.lang.management.ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 		ClassLoadingMXBean classLoadingMXBean  = ManagementFactory.getClassLoadingMXBean();

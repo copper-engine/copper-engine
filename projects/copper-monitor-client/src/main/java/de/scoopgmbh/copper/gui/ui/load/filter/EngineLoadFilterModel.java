@@ -19,10 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javafx.beans.property.SimpleBooleanProperty;
-import de.scoopgmbh.copper.gui.util.EngineFilter;
+import de.scoopgmbh.copper.gui.form.enginefilter.EngineFilterModelBase;
 import de.scoopgmbh.copper.monitor.adapter.model.WorkflowInstanceState;
 
-public class EngineLoadFilterModel extends EngineFilter {
+public class EngineLoadFilterModel extends EngineFilterModelBase {
 	public final Map<WorkflowInstanceState,SimpleBooleanProperty> stateFilters = new HashMap<WorkflowInstanceState,SimpleBooleanProperty>();
 	
 	public EngineLoadFilterModel(){
@@ -30,4 +30,5 @@ public class EngineLoadFilterModel extends EngineFilter {
 			stateFilters.put(workflowInstanceState,new SimpleBooleanProperty(true));
 		}
 	}
+	
 }

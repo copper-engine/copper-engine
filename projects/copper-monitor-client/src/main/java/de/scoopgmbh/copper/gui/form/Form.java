@@ -16,13 +16,12 @@
 package de.scoopgmbh.copper.gui.form;
 
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.Node;
 
 /**
  *
  * @param <T> target component to display the form
  */
-public abstract class Form<C> {
+public abstract class Form<C> implements Widget {
 
 	private final SimpleStringProperty dynamicTitle;
 	private final ShowFormStrategy<?> showFormStrategie;
@@ -43,9 +42,7 @@ public abstract class Form<C> {
 	public void show(){
 		showFormStrategie.show(this);
 	}
-	
-	public abstract Node createContent();
-	
+
 	public C getController(){
 		return controller;
 	}

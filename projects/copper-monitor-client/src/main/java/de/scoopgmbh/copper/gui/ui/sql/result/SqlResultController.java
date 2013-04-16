@@ -16,7 +16,7 @@
 package de.scoopgmbh.copper.gui.ui.sql.result;
 
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -29,6 +29,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
+
+import com.google.common.base.Strings;
+
 import de.scoopgmbh.copper.gui.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.gui.form.FxmlController;
 import de.scoopgmbh.copper.gui.form.filter.FilterResultController;
@@ -59,10 +62,10 @@ public class SqlResultController implements Initializable, FilterResultControlle
 	public void showFilteredResult(List<SqlResultModel> filteredResult, SqlFilterModel usedFilter) {
 		resultTable.getColumns().clear();
 		
-		
 		if (!filteredResult.isEmpty()){
 			for (int i=0;i<filteredResult.get(0).rows.size();i++){
 				TableColumn<SqlResultModel, String> rowColumn = new TableColumn<SqlResultModel,String>();
+				rowColumn.setText(filteredResult.get(0).rows.get(i).get());
 				final int rowindex=i;
 				rowColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SqlResultModel,String>, ObservableValue<String>>() {
 					@Override
@@ -73,18 +76,19 @@ public class SqlResultController implements Initializable, FilterResultControlle
 				rowColumn.prefWidthProperty().bind(resultTable.widthProperty().add(-2).divide(filteredResult.get(0).rows.size()));
 				resultTable.getColumns().add(rowColumn);
 			}
+			ObservableList<SqlResultModel> content = FXCollections.observableArrayList();
+			content.addAll(filteredResult);
+			content.remove(0);
+			resultTable.setItems(content);
 		}
-		
-		ObservableList<SqlResultModel> content = FXCollections.observableList(new ArrayList<SqlResultModel>());;
-		content.addAll(filteredResult);
-		resultTable.setItems(content);
-//		resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		
 	}
 
 	@Override
 	public List<SqlResultModel> applyFilterInBackgroundThread(SqlFilterModel filter) {
-		return copperDataProvider.executeSqlQuery(filter);
+		if (!Strings.isNullOrEmpty(filter.sqlQuery.get())){
+			return copperDataProvider.executeSqlQuery(filter);
+		}
+		return Collections.emptyList();
 	}
 	
 	@Override

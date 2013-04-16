@@ -15,10 +15,10 @@
  */
 package de.scoopgmbh.copper.gui.ui.workflowsummary.filter;
 
-import de.scoopgmbh.copper.gui.util.EngineFilter;
+import de.scoopgmbh.copper.gui.form.enginefilter.EngineFilterModelBase;
 import de.scoopgmbh.copper.gui.util.WorkflowVersion;
 
-public class WorkflowSummaryFilterModel extends EngineFilter{
+public class WorkflowSummaryFilterModel extends EngineFilterModelBase{
 	public final WorkflowVersion version = new WorkflowVersion();
 
 }

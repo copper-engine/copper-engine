@@ -15,8 +15,8 @@
  */
 package de.scoopgmbh.copper.gui.ui.workflowhistory.filter;
 
-import de.scoopgmbh.copper.gui.util.EngineFilter;
+import de.scoopgmbh.copper.gui.form.enginefilter.EngineFilterModelBase;
 
-public class WorkflowHistoryFilterModel extends EngineFilter{
+public class WorkflowHistoryFilterModel extends EngineFilterModelBase{
 
 }
