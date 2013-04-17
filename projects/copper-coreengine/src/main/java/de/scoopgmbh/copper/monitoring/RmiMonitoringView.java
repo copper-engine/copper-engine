@@ -60,19 +60,12 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 
 	private final MonitoringEventQueue monitoringQueue;
 	private final ScottyDBStorageInterface dbStorage;;
-	private CopperInterfaceSettings copperInterfaceSettings= new CopperInterfaceSettings(false);
+	private final CopperInterfaceSettings copperInterfaceSettings;
 	
-	public CopperInterfaceSettings getCopperInterfaceSettings() {
-		return copperInterfaceSettings;
-	}
-
-//	public void setCopperInterfaceSettings(CopperInterfaceSettings copperInterfaceSettings) {
-//		this.copperInterfaceSettings = copperInterfaceSettings;
-//	}
-
-	public RmiMonitoringView(final MonitoringEventQueue monitoringQueue, ScottyDBStorageInterface dbStorage){
+	public RmiMonitoringView(final MonitoringEventQueue monitoringQueue, ScottyDBStorageInterface dbStorage, CopperInterfaceSettings copperInterfaceSettings){
 		this.monitoringQueue= monitoringQueue;
 		this.dbStorage = dbStorage;
+		this.copperInterfaceSettings = copperInterfaceSettings;
 		
 		try {
 			System.setProperty("java.rmi.server.randomIDs", "true");
@@ -92,6 +85,10 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public RmiMonitoringView(final MonitoringEventQueue monitoringQueue, ScottyDBStorageInterface dbStorage){
+		this(monitoringQueue,dbStorage,new CopperInterfaceSettings(false));
 	}
 
 	@Override
