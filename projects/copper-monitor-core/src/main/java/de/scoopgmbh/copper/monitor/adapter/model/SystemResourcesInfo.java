@@ -97,5 +97,4 @@ public class SystemResourcesInfo implements Serializable{
 		this.heapMemoryUsage = heapMemoryUsage;
 	}
 	
-
 }

@@ -108,5 +108,4 @@ public class ProcessingEngineInfo implements Serializable {
 		return result.toString();
 	}
 	
-	
 }

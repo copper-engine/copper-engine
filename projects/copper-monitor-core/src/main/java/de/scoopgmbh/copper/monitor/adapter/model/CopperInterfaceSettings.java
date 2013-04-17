@@ -19,11 +19,26 @@ import java.io.Serializable;
 
 public class CopperInterfaceSettings implements Serializable {
 	private static final long serialVersionUID = 943485236197137124L;
-	public boolean canExecuteSql;
+	private boolean canExecuteSql;
 	
 	public CopperInterfaceSettings(boolean canExecuteSql) {
 		super();
 		this.canExecuteSql = canExecuteSql;
 	}
+
+	public boolean isCanExecuteSql() {
+		return canExecuteSql;
+	}
+
+	public void setCanExecuteSql(boolean canExecuteSql) {
+		this.canExecuteSql = canExecuteSql;
+	}
+
+	public CopperInterfaceSettings() {
+		super();
+	}
+
+	
+	
 
 }

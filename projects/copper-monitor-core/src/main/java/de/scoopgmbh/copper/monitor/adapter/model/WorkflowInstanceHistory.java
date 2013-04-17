@@ -66,5 +66,4 @@ public class WorkflowInstanceHistory implements Serializable{
 		this.classname = classname;
 	}
 	
-	
 }

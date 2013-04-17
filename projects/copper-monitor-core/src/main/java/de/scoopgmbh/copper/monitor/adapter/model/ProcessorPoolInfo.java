@@ -140,9 +140,6 @@ public class ProcessorPoolInfo implements Serializable {
 		this.memoryQueueSize = memoryQueueSize;
 	}
 
-
-
-
 	@Override
 	public String toString() {
 		return "ProcessorPoolInfo [id=" + id + ", processorPoolTyp=" + processorPoolTyp + ", lowerThreshold=" + lowerThreshold + ", upperThreshold="
@@ -150,9 +147,6 @@ public class ProcessorPoolInfo implements Serializable {
 				+ ", dequeueBulkSize=" + dequeueBulkSize + ", numberOfThreads=" + numberOfThreads + ", threadPriority=" + threadPriority + ", memoryQueueSize="
 				+ memoryQueueSize + "]";
 	}
-
-
-
 
 	public static enum ProcessorPoolTyp{
 		TRANSIENT, PERSISTENT

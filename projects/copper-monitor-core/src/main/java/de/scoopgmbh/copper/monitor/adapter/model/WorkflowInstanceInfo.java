@@ -33,13 +33,10 @@ public class WorkflowInstanceInfo implements Serializable{
     private Date finishTime;
     private Date lastErrorTime;
     private String errorInfos;
-
 	
 	public WorkflowInstanceInfo() {
 	}
 	
-
-
 	public WorkflowInstanceInfo(String id, WorkflowInstanceState state, int priority, String processorPoolId, Date timeout,
 			Date lastActivityTimestamp, long overallLifetimeInMs, Date startTime, Date finishTime, Date lastErrorTime, String errorInfos) {
 		super();
@@ -55,8 +52,6 @@ public class WorkflowInstanceInfo implements Serializable{
 		this.lastErrorTime = lastErrorTime;
 		this.errorInfos = errorInfos;
 	}
-
-
 
 	public String getId() {
 		return id;
@@ -105,79 +100,52 @@ public class WorkflowInstanceInfo implements Serializable{
 				+ ", timeout=" + timeout + "]";
 	}
 
-
-
 	public Date getLastActivityTimestamp() {
 		return lastActivityTimestamp;
 	}
-
-
 
 	public void setLastActivityTimestamp(Date lastActivityTimestamp) {
 		this.lastActivityTimestamp = lastActivityTimestamp;
 	}
 
-
-
 	public long getOverallLifetimeInMs() {
 		return overallLifetimeInMs;
 	}
-
-
 
 	public void setOverallLifetimeInMs(long overallLifetimeInMs) {
 		this.overallLifetimeInMs = overallLifetimeInMs;
 	}
 
-
-
 	public Date getStartTime() {
 		return startTime;
 	}
-
-
 
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
 
-
-
 	public Date getFinishTime() {
 		return finishTime;
 	}
-
-
 
 	public void setFinishTime(Date finishTime) {
 		this.finishTime = finishTime;
 	}
 
-
-
 	public Date getLastErrorTime() {
 		return lastErrorTime;
 	}
-
-
 
 	public void setLastErrorTime(Date lastErrorTime) {
 		this.lastErrorTime = lastErrorTime;
 	}
 
-
-
 	public String getErrorInfos() {
 		return errorInfos;
 	}
 
-
-
 	public void setErrorInfos(String errorInfos) {
 		this.errorInfos = errorInfos;
 	}
-	
-	
-	
 	
 }

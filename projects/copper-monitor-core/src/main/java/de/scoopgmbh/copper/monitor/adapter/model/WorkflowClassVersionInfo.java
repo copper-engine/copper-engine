@@ -36,7 +36,6 @@ public class WorkflowClassVersionInfo implements Serializable{
 		this.patchLevel = patchLevel;
 	}
 	
-	
 	public String getClassname() {
 		return classname;
 	}

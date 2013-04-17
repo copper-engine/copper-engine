@@ -35,7 +35,6 @@ public class MeasurePointData implements Serializable {
 		this.count = count;
 	}
 
-	
 	public MeasurePointData(String measurePointId) {
 		this.measurePointId = measurePointId;
 	}
@@ -87,6 +86,5 @@ public class MeasurePointData implements Serializable {
 		final double avgTimePerExecution = count > 0 ? (double)elapsedTimeMicros/(double)calcCount/1000.0 : 0.0;
 		return String.format("%1$55.55s #elements=%2$6d; avgCount=%3$6d; avgTime/Element=%4$12.5f msec; avgTime/Exec=%5$12.5f msec", measurePointId+DOTS, elementCount, avgElementCount, avgTimePerElement, avgTimePerExecution);
 	}
-	
 
 }

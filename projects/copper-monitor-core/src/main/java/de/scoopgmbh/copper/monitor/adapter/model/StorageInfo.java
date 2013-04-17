@@ -49,9 +49,5 @@ public class StorageInfo implements Serializable{
 		super();
 		batcher= new BatcherInfo();
 	}
-	
-	
-	
-	
 
 }

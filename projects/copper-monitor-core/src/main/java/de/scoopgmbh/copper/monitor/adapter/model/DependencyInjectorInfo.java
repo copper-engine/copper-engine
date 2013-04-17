@@ -34,9 +34,5 @@ public class DependencyInjectorInfo implements Serializable{
 	public void setTyp(DependencyInjectorTyp typ) {
 		this.typ = typ;
 	}
-	
-	
-	
-	
-	
+
 }
