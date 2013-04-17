@@ -41,7 +41,9 @@ public class FormGroup extends FormCreator{
 	public List<ButtonBase> createButtonList(){
 		ArrayList<ButtonBase> result = new ArrayList<ButtonBase>();
 		for (final FormCreator form: forms){
-			result.add(form.createShowFormButton());
+			ButtonBase createShowFormButton = form.createShowFormButton();
+			result.add(createShowFormButton);
+			createShowFormButton.setDisable(!form.isEnabled());
 		}
 		return result;
 	}

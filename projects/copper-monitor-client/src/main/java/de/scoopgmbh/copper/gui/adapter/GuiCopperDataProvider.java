@@ -37,6 +37,7 @@ import de.scoopgmbh.copper.gui.ui.worklowinstancedetail.result.WorkflowInstanceD
 import de.scoopgmbh.copper.gui.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitor.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.adapter.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitor.adapter.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitor.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.adapter.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitor.adapter.model.SystemResourcesInfo;
@@ -242,6 +243,14 @@ public class GuiCopperDataProvider {
 	public void restartAllError(String engineid) {
 		try {
 			copperDataProvider.restartAllErroneousInstances(engineid);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public CopperInterfaceSettings getInterfaceSettings() {
+		try {
+			return copperDataProvider.getSettings();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

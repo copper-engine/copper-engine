@@ -154,12 +154,15 @@ public class FormContext {
 		
 		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.loadGroup_title),createLoadGroup()));
 		
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.sql_title)) {
+		FormCreator sqlformcreator = new FormCreator(messageProvider.getText(MessageKey.sql_title)) {
 			@Override
 			public Form<?> createForm() {
 				return createSqlForm();
 			}
-		});
+		};
+		sqlformcreator.setEnabled(guiCopperDataProvider.getInterfaceSettings().isCanExecuteSql());
+		maingroup.add(sqlformcreator);
+		
 		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.hotfix_title)) {
 			@Override
 			public Form<?> createForm() {
