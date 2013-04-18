@@ -191,21 +191,28 @@ public abstract class BaseSqlDialect implements DatabaseDialect {
 		return nextindex;
 	}
 	
+	protected String createWorkflowInstanceListQuery(){
+		String subselectEXCEPTION = getResultLimitingQuery("SELECT \"EXCEPTION\"  FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID = MASTER.ID ORDER BY ERROR_TS DESC", 1);
+		String subselectERROR_TS = getResultLimitingQuery("SELECT ERROR_TS FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID = MASTER.ID ORDER BY ERROR_TS DESC", 1);
+		String stmt = 
+				"SELECT ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,TIMEOUT,CREATION_TS, ("+subselectEXCEPTION+"), ("+subselectERROR_TS+"), LAST_MOD_TS as FINISHED_TS \n" +
+				"FROM COP_WORKFLOW_INSTANCE as master \n" + 
+				"WHERE\n" + 
+				"	(? is null or PPOOL_ID=?) AND \n" + 
+				"	(? is null or CLASSNAME=?) AND \n" + 
+				"	(? is null or STATE=?) AND \n" + 
+				"	(? is null or PRIORITY=?)";
+		return stmt;
+	}
+	
 	@Override
 	public List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
 			WorkflowInstanceState state, Integer priority, long resultRowLimit,Connection con) {
 		PreparedStatement selectStmt = null;
 		try {
-			String subselectEXCEPTION = getResultLimitingQuery("SELECT \"EXCEPTION\"  FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID = MASTER.ID ORDER BY ERROR_TS DESC", 1);
-			String subselectERROR_TS = getResultLimitingQuery("SELECT ERROR_TS FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID = MASTER.ID ORDER BY ERROR_TS DESC", 1);
-			selectStmt = con.prepareStatement(getResultLimitingQuery(
-					"SELECT ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,TIMEOUT,CREATION_TS, ("+subselectEXCEPTION+"), ("+subselectERROR_TS+"), LAST_MOD_TS \n" +
-					"FROM COP_WORKFLOW_INSTANCE as master \n" + 
-					"WHERE\n" + 
-					"	(? is null or PPOOL_ID=?) AND \n" + 
-					"	(? is null or CLASSNAME=?) AND \n" + 
-					"	(? is null or STATE=?) AND \n" + 
-					"	(? is null or PRIORITY=?)",resultRowLimit));
+			String stmt = getResultLimitingQuery(createWorkflowInstanceListQuery(),resultRowLimit);
+			selectStmt = con.prepareStatement(stmt);
+			
 			int pIdx = 1;
 			pIdx = setFilterParam(selectStmt,poolid,java.sql.Types.VARCHAR,pIdx);
 			pIdx = setFilterParam(selectStmt,classname,java.sql.Types.VARCHAR,pIdx);

@@ -131,8 +131,8 @@ public class OracleDialect extends BaseSqlDialect {
 		this.multiEngineMode = multiEngineMode;
 	}
 
-	public void setRuntimeStatisticsCollector(MonitoringDataCollector runtimeStatisticsCollector) {
-		this.runtimeStatisticsCollector = runtimeStatisticsCollector;
+	public void setMonitoringDataCollector(MonitoringDataCollector monitoringDataCollector) {
+		this.runtimeStatisticsCollector = monitoringDataCollector;
 	}
 
 	public void setWfRepository(WorkflowRepository wfRepository) {
@@ -598,6 +598,19 @@ public class OracleDialect extends BaseSqlDialect {
 							query+ 
 				"			\n)\n" + 
 				"			WHERE rownum <= "+limit;
+	}
+	
+	protected String createWorkflowInstanceListQuery(){
+		return "SELECT ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,TIMEOUT,CREATION_TS,\n" + 
+				"       ERR.\"EXCEPTION\",       ERR.ERROR_TS,  LAST_MOD_TS FINISHED_TS\n" + 
+				"FROM COP_WORKFLOW_INSTANCE  MASTER, (select WORKFLOW_INSTANCE_ID, MAX(ROWID) keep (dense_rank last ORDER BY ERROR_TS) \"RID\" from COP_WORKFLOW_INSTANCE_ERROR GROUP BY WORKFLOW_INSTANCE_ID) ERR_RID, COP_WORKFLOW_INSTANCE_ERROR ERR\n" + 
+				"WHERE\r\n" + 
+				"	(? is null or PPOOL_ID=?) AND \n" + 
+				"	(? is null or CLASSNAME=?) AND \n" + 
+				"	(? is null or STATE=?) AND \n" + 
+				"	(? is null or PRIORITY=?) AND\n" + 
+				"	ERR_RID.WORKFLOW_INSTANCE_ID(+) = MASTER.ID AND\n" + 
+				"	ERR.ROWID(+) = ERR_RID.RID";
 	}
 
 }

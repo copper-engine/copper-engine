@@ -60,6 +60,7 @@ public class MeasurePointResultController implements Initializable, FilterResult
 				clear();
 			}
 		});
+        reset.getStyleClass().add("copperActionButton");
 
         initChart();
     }
