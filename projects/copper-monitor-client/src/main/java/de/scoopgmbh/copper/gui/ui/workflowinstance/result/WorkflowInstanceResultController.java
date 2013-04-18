@@ -311,13 +311,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 				});
 			}
 		});
-        
-        
-        
-        
-        
-        resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        
+
         resultTable.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
@@ -357,6 +351,9 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
         
         resultTable.setContextMenu(contextMenu);
         
+        
+     
+ 
 		detailForm = formcontext.createWorkflowinstanceDetailResultForm(detailPane);
 		detailForm.show();
     }

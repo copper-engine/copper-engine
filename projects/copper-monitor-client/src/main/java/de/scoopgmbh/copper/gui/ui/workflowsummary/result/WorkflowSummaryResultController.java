@@ -119,6 +119,12 @@ public class WorkflowSummaryResultController implements Initializable, FilterRes
         });
         
         
+        aliasColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.2));
+        countColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.075));
+        versionColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.075));
+        workflowClassColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.25));
+        double totalSpaceForStateColumns=0.4;
+        
         for (final WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
         	TableColumn<WorkflowSummaryResultModel, String> tableColumn = new TableColumn<WorkflowSummaryResultModel, String>(workflowInstanceState.toString());
         	tableColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
@@ -129,10 +135,14 @@ public class WorkflowSummaryResultController implements Initializable, FilterRes
             				String.valueOf(p.getValue().workflowStateSummery.getNumberOfWorkflowInstancesWithState().get(workflowInstanceState)));
             	}
             });
+        	tableColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(totalSpaceForStateColumns/WorkflowInstanceState.values().length));
 			resultTable.getColumns().add(tableColumn);
         }
 
-        resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    
+        
+
+
         
         resultTable.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override

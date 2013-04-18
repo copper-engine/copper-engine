@@ -223,6 +223,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		hbox.getChildren().add(interval);
 		hbox.getChildren().add(new Label("ms"));
 		customMenuItem.setContent(hbox);
+		HBox.setMargin(settings, new Insets(0, 5, 0, 0));
 		filterbox.getChildren().add(settings);
 		
 		
