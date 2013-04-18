@@ -41,6 +41,7 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
+import de.scoopgmbh.copper.management.DatabaseDialectMXBean;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
@@ -51,7 +52,7 @@ import de.scoopgmbh.copper.monitoring.StmtStatistic;
  * @author austermann
  *
  */
-public abstract class AbstractSqlDialect implements DatabaseDialect {
+public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractSqlDialect.class);
 
@@ -80,7 +81,12 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	}
 
 	public void setDbBatchingLatencyMSec(int dbBatchingLatencyMSec) {
+		logger.info("setDbBatchingLatencyMSec({})",dbBatchingLatencyMSec);
 		this.dbBatchingLatencyMSec = dbBatchingLatencyMSec;
+	}
+	
+	public int getDbBatchingLatencyMSec() {
+		return dbBatchingLatencyMSec;
 	}
 	
 	/**
@@ -89,7 +95,12 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 	 * @param defaultStaleResponseRemovalTimeout
 	 */
 	public void setDefaultStaleResponseRemovalTimeout(int defaultStaleResponseRemovalTimeout) {
+		logger.info("setDefaultStaleResponseRemovalTimeout({})",defaultStaleResponseRemovalTimeout);
 		this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
+	}
+	
+	public int getDefaultStaleResponseRemovalTimeout() {
+		return defaultStaleResponseRemovalTimeout;
 	}
 
 	public void setSerializer(Serializer serializer) {
@@ -137,7 +148,13 @@ public abstract class AbstractSqlDialect implements DatabaseDialect {
 
 	@Override
 	public void setRemoveWhenFinished(boolean removeWhenFinished) {
+		logger.info("setRemoveWhenFinished({})",removeWhenFinished);
 		this.removeWhenFinished = removeWhenFinished;
+	}
+	
+	@Override
+	public boolean isRemoveWhenFinished() {
+		return removeWhenFinished;
 	}
 
 	@Override

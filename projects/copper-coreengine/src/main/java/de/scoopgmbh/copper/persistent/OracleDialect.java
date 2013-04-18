@@ -40,6 +40,7 @@ import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
+import de.scoopgmbh.copper.management.DatabaseDialectMXBean;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.StmtStatistic;
@@ -50,7 +51,7 @@ import de.scoopgmbh.copper.monitoring.StmtStatistic;
  * @author austermann
  *
  */
-public class OracleDialect implements DatabaseDialect {
+public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(OracleDialect.class);
 
@@ -591,4 +592,16 @@ public class OracleDialect implements DatabaseDialect {
 			}
 		}
 	}
+
+	@Override
+	public int getDbBatchingLatencyMSec() {
+		return dbBatchingLatencyMSec;
+	}
+	
+
+	@Override
+	public String getDialectDescription() {
+		return "Oracle";
+	}
+	
 }

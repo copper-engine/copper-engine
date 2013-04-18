@@ -66,4 +66,9 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
 	}	
 	
 
+	@Override
+	public String getDialectDescription() {
+		return "PostgreSQL";
+	}	
+
 }

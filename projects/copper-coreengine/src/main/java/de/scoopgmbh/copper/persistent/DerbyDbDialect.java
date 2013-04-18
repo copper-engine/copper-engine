@@ -177,6 +177,10 @@ public class DerbyDbDialect extends AbstractSqlDialect {
 		return new DerbyDbNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec);
 	}	
 
+	@Override
+	public String getDialectDescription() {
+		return "DerbyDB";
+	}
 
 
 

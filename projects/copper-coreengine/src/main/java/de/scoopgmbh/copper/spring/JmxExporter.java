@@ -37,6 +37,7 @@ import org.springframework.context.ApplicationContextAware;
 import de.scoopgmbh.copper.management.AuditTrailMXBean;
 import de.scoopgmbh.copper.management.AuditTrailQueryMXBean;
 import de.scoopgmbh.copper.management.BatcherMXBean;
+import de.scoopgmbh.copper.management.DatabaseDialectMXBean;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
 import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
@@ -70,6 +71,7 @@ public class JmxExporter implements ApplicationContextAware {
 		register(mBeanServer, applicationContext.getBeansOfType(StatisticsCollectorMXBean.class), "copper.monitoring.statistics");
 		register(mBeanServer, applicationContext.getBeansOfType(AuditTrailMXBean.class), "copper.db");
 		register(mBeanServer, applicationContext.getBeansOfType(BatcherMXBean.class), "copper.db");
+		register(mBeanServer, applicationContext.getBeansOfType(DatabaseDialectMXBean.class), "copper.db");
 		register(mBeanServer, applicationContext.getBeansOfType(AuditTrailQueryMXBean.class), "copper.audittrail");
 	}
 
