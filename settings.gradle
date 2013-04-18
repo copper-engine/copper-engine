@@ -1,1 +1,7 @@
-include ":projects:copper-coreengine", ":projects:copper-examples:orchestration:orch-engine", ":projects:copper-examples:orchestration:orch-interfaces", ":projects:copper-examples:orchestration:orch-simulators"
+include ":projects:copper-coreengine", 
+":projects:copper-jmx-iface", 
+":projects:copper-examples:orchestration:orch-engine", 
+":projects:copper-examples:orchestration:orch-interfaces", 
+":projects:copper-examples:orchestration:orch-simulators",
+":projects:copper-monitoring:copper-monitoring-server",
+":projects:copper-monitoring:copper-monitoring-client"

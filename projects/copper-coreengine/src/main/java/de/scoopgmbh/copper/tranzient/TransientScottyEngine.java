@@ -36,11 +36,13 @@ import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
+import de.scoopgmbh.copper.common.ProcessorPool;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.common.TicketPoolManager;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
-import de.scoopgmbh.copper.management.WorkflowInfo;
+import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
+import de.scoopgmbh.copper.management.model.WorkflowInfo;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
@@ -310,5 +312,15 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
+	public List<ProcessorPoolMXBean> getProcessorPools() {
+		final List<ProcessorPoolMXBean> result = new ArrayList<ProcessorPoolMXBean>();
+		for (ProcessorPool pp : poolManager.processorPools()) {
+			if (pp instanceof ProcessorPoolMXBean) {
+				result.add((ProcessorPoolMXBean) pp);
+			}
+		}
+		return result;
+	}	
 
 }

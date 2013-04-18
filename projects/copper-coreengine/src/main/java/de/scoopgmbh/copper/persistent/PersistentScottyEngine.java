@@ -42,9 +42,11 @@ import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
+import de.scoopgmbh.copper.common.ProcessorPool;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
-import de.scoopgmbh.copper.management.WorkflowInfo;
+import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
+import de.scoopgmbh.copper.management.model.WorkflowInfo;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 
@@ -398,6 +400,17 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 			List<WaitHook> l = waitHookMap.remove(wf.getId());
 			return l == null ? Collections.<WaitHook>emptyList() : l;
 		}
+	}
+
+	@Override
+	public List<ProcessorPoolMXBean> getProcessorPools() {
+		final List<ProcessorPoolMXBean> result = new ArrayList<ProcessorPoolMXBean>();
+		for (ProcessorPool pp : processorPoolManager.processorPools()) {
+			if (pp instanceof ProcessorPoolMXBean) {
+				result.add((ProcessorPoolMXBean) pp);
+			}
+		}
+		return result;
 	}
 
 }

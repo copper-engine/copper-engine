@@ -17,11 +17,11 @@ package de.scoopgmbh.copper.management;
 
 import java.util.List;
 
+import de.scoopgmbh.copper.management.model.AuditTrailInfo;
 
-public interface ProcessingEngineMXBean {
-	public String getState();
-	public String getEngineId();
-	public List<WorkflowInfo> queryWorkflowInstances();
-	public WorkflowInfo queryWorkflowInstance(String id);
-	public int getNumberOfWorkflowInstances();
+public interface AuditTrailQueryMXBean {
+
+	List<AuditTrailInfo> getAuditTrails(String transactionId, String conversationId, String correlationId, Integer level, int maxResult);
+	
+	byte[] getMessage(long id);
 }

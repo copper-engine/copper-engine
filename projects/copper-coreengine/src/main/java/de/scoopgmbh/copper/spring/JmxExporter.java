@@ -40,6 +40,7 @@ import de.scoopgmbh.copper.management.BatcherMXBean;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
 import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
+import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
 
 
 /**
@@ -63,6 +64,7 @@ public class JmxExporter implements ApplicationContextAware {
 	
 	public void startup() throws MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
 		mBeanServer = ManagementFactory.getPlatformMBeanServer();
+		register(mBeanServer, applicationContext.getBeansOfType(WorkflowRepositoryMXBean.class), "copper.workflowrepo");
 		register(mBeanServer, applicationContext.getBeansOfType(ProcessingEngineMXBean.class), "copper.engine");
 		register(mBeanServer, applicationContext.getBeansOfType(ProcessorPoolMXBean.class), "copper.processorpool");
 		register(mBeanServer, applicationContext.getBeansOfType(StatisticsCollectorMXBean.class), "copper.monitoring.statistics");

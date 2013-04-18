@@ -17,9 +17,9 @@ package de.scoopgmbh.copper.management;
 
 import java.util.List;
 
-public interface AuditTrailQueryMXBean {
+import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
 
-	List<AuditTrailInfo> getAuditTrails(String transactionId, String conversationId, String correlationId, Integer level, int maxResult);
-	
-	byte[] getMessage(long id);
+public interface WorkflowRepositoryMXBean {
+	public String getDescription();
+	public List<WorkflowClassInfo> getWorkflows();
 }

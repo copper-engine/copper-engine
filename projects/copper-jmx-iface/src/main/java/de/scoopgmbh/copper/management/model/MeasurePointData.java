@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.management;
+package de.scoopgmbh.copper.management.model;
 
 import java.beans.ConstructorProperties;
+import java.io.Serializable;
 
-public class MeasurePointData {
+public class MeasurePointData implements Serializable {
+	
+	private static final long serialVersionUID = -3238490302037724442L;
 	
 	private String mpId;
 	private long elementCount = 0L;

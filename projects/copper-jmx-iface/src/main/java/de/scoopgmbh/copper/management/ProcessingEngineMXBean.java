@@ -17,13 +17,15 @@ package de.scoopgmbh.copper.management;
 
 import java.util.List;
 
-public interface StatisticsCollectorMXBean {
-	
-	public void reset();
-	public String print();
-	public String print(String measurePointId);
-	public List<MeasurePointData> queryAll();
-	public MeasurePointData query(String measurePointId);
-	
-	
+import de.scoopgmbh.copper.management.model.WorkflowInfo;
+
+
+public interface ProcessingEngineMXBean {
+	public String getState();
+	public String getEngineId();
+	public List<WorkflowInfo> queryWorkflowInstances();
+	public WorkflowInfo queryWorkflowInstance(String id);
+	public int getNumberOfWorkflowInstances();
+	public List<ProcessorPoolMXBean> getProcessorPools(); 
+	public WorkflowRepositoryMXBean getWorkflowRepository();
 }

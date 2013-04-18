@@ -21,7 +21,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.WorkflowInstanceDescr;
-import de.scoopgmbh.copper.management.WorkflowInfo;
+import de.scoopgmbh.copper.management.model.WorkflowInfo;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 
 import static org.junit.Assert.assertEquals;

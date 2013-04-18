@@ -27,7 +27,9 @@ import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.WorkflowInstanceDescr;
-import de.scoopgmbh.copper.management.WorkflowInfo;
+import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
+import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
+import de.scoopgmbh.copper.management.model.WorkflowInfo;
 import de.scoopgmbh.copper.util.Blocker;
 
 /**
@@ -36,7 +38,7 @@ import de.scoopgmbh.copper.util.Blocker;
  * @author austermann
  *
  */
-public abstract class AbstractProcessingEngine implements ProcessingEngine {
+public abstract class AbstractProcessingEngine implements ProcessingEngine, ProcessingEngineMXBean {
 
 	private IdFactory idFactory = new AtomicLongIdFactory();
 	protected WorkflowRepository wfRepository;
@@ -182,5 +184,10 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine {
 		catch(Exception e) {
 			throw new CopperException("run failed",e);
 		}
+	}
+	
+	@Override
+	public WorkflowRepositoryMXBean getWorkflowRepository() {
+		return (WorkflowRepositoryMXBean) ((this.wfRepository instanceof WorkflowRepositoryMXBean) ? this.wfRepository : null);
 	}
 }

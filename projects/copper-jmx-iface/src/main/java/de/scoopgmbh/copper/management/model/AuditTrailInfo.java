@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.management;
+package de.scoopgmbh.copper.management.model;
+
+import java.io.Serializable;
 
 
-public class AuditTrailInfo {
+public class AuditTrailInfo implements Serializable {
+
+	private static final long serialVersionUID = 5375512941317867872L;
 
 	long id;
 

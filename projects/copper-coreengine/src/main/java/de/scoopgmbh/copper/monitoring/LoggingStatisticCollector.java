@@ -26,6 +26,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
+import de.scoopgmbh.copper.management.model.MeasurePointData;
+
 /**
  * Collects runtime statistics and logs average processing times to the logging system in a 
  * configurable time interval. 
@@ -33,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author austermann
  *
  */
-public class LoggingStatisticCollector implements RuntimeStatisticsCollector {
+public class LoggingStatisticCollector implements RuntimeStatisticsCollector, StatisticsCollectorMXBean {
 	
 	private static final class StatSet {
 		final String mpId;
@@ -203,6 +206,41 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector {
 				ss.reset();
 			}
 		}
+	}
+
+	@Override
+	public List<MeasurePointData> queryAll() {
+		final Map<String, StatSet> localMap = map;
+		final List<StatSet> list = new ArrayList<LoggingStatisticCollector.StatSet>(localMap.values());
+		final List<MeasurePointData> resultList = new ArrayList<MeasurePointData>(list.size());
+		for (final StatSet ss : list) {
+			final MeasurePointData measurePointData = new MeasurePointData();
+			synchronized (ss) {
+				convert(ss, measurePointData);
+			}
+			resultList.add(measurePointData);
+		}
+		return resultList;
+	}
+
+	private void convert(final StatSet ss, final MeasurePointData measurePointData) {
+		measurePointData.setCount(ss.count);
+		measurePointData.setElapsedTimeMicros(ss.elapsedTimeMicros);
+		measurePointData.setElementCount(ss.elementCount);
+		measurePointData.setMpId(ss.mpId);
+	}
+
+	@Override
+	public MeasurePointData query(String measurePointId) {
+		final Map<String, StatSet> localMap = map;
+		final StatSet ss = localMap.get(measurePointId);
+		if (ss == null) 
+			return null;
+		MeasurePointData measurePointData = new MeasurePointData();
+		synchronized (ss) {
+			convert(ss, measurePointData);
+		}
+		return measurePointData;
 	}
 
 	

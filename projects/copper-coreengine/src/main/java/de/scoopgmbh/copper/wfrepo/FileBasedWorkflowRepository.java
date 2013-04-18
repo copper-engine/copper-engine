@@ -52,6 +52,8 @@ import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.WorkflowVersion;
 import de.scoopgmbh.copper.instrument.ClassInfo;
 import de.scoopgmbh.copper.instrument.ScottyFindInterruptableMethodsVisitor;
+import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
+import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
 import de.scoopgmbh.copper.util.FileUtil;
 
 /**
@@ -60,20 +62,22 @@ import de.scoopgmbh.copper.util.FileUtil;
  * @author austermann
  *
  */
-public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
+public class FileBasedWorkflowRepository extends AbstractWorkflowRepository implements WorkflowRepositoryMXBean {
 
 	private static final class VolatileState {
+		final Map<String,Class<?>> wfClassMap;
 		final Map<String,Class<?>> wfMapLatest;
 		final Map<String,Class<?>> wfMapVersioned;
 		final Map<String,List<WorkflowVersion>> wfVersions;
 		final ClassLoader classLoader;
 		final long checksum;
-		VolatileState(Map<String, Class<?>> wfMap, Map<String,Class<?>> wfMapVersioned, Map<String,List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum) {
+		VolatileState(Map<String, Class<?>> wfMap, Map<String,Class<?>> wfMapVersioned, Map<String,List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum, Map<String,Class<?>> wfClassMap) {
 			this.wfMapLatest = wfMap;
 			this.wfMapVersioned = wfMapVersioned;
 			this.classLoader = classLoader;
 			this.checksum = checksum;
 			this.wfVersions = wfVersions;
+			this.wfClassMap = wfClassMap;
 		}
 	}
 
@@ -336,6 +340,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 		final ClassLoader cl = createClassLoader(map, adaptedTargetDir, loadNonWorkflowClasses ? compileTargetDir : adaptedTargetDir, clazzMap);
 		checkConstraints(map);
 		
+		final Map<String,Class<?>> wfClassMap = new HashMap<String, Class<?>>(map);
 		final Map<String,Class<?>> wfMapLatest = new HashMap<String, Class<?>>(map.size());
 		final Map<String,Class<?>> wfMapVersioned = new HashMap<String, Class<?>>(map.size());
 		final Map<String,WorkflowVersion> latest = new HashMap<String, WorkflowVersion>(map.size());
@@ -374,7 +379,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 				logger.trace("wfMapVersioned.key={}, class={}", e.getKey(), e.getValue().getName());
 			}
 		}
-		return new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, checksum);
+		return new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, checksum, wfClassMap);
 	}
 
 	private String createAliasName(final String alias, final WorkflowVersion version) {
@@ -588,6 +593,31 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository {
 
 	protected ClassLoader getClassLoader() {
 		return volatileState.classLoader;
+	}
+
+	@Override
+	public String getDescription() {
+		return "Filebased Repository";
+	}
+
+	@Override
+	public List<WorkflowClassInfo> getWorkflows() {
+		final List<WorkflowClassInfo> resultList = new ArrayList<WorkflowClassInfo>();
+		final VolatileState localVolatileState = volatileState;
+		for (Class<?> wfClass : localVolatileState.wfClassMap.values()) {
+			WorkflowClassInfo wfi = new WorkflowClassInfo();
+			wfi.setClassname(wfClass.getName());
+			wfi.setSourceCode("TODO"); // TODO
+			WorkflowDescription wfDesc = wfClass.getAnnotation(WorkflowDescription.class);
+			if (wfDesc != null) {
+				wfi.setAlias(wfDesc.alias());
+				wfi.setMajorVersion(wfDesc.majorVersion());
+				wfi.setMinorVersion(wfDesc.minorVersion());
+				wfi.setPatchLevel(wfDesc.patchLevelVersion());
+			}
+			resultList.add(wfi);
+		}
+		return resultList;
 	}
 
 }

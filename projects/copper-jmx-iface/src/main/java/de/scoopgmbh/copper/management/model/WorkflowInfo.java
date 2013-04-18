@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.management;
+package de.scoopgmbh.copper.management.model;
 
 import java.beans.ConstructorProperties;
+import java.io.Serializable;
 import java.util.Date;
 
-public class WorkflowInfo {
+public class WorkflowInfo implements Serializable {
+	
+	private static final long serialVersionUID = -659602204078726674L;
 	
 	private String id;
 	private String state;

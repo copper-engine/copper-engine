@@ -33,8 +33,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.util.StringUtils;
 
-import de.scoopgmbh.copper.management.AuditTrailInfo;
 import de.scoopgmbh.copper.management.AuditTrailQueryMXBean;
+import de.scoopgmbh.copper.management.model.AuditTrailInfo;
 
 public class AuditTrailQueryEngine extends JdbcDaoSupport implements AuditTrailQueryMXBean {
 	private static final Logger logger = LoggerFactory.getLogger(AuditTrailQueryEngine.class);

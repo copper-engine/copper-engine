@@ -131,6 +131,8 @@ project(':projects:copper-coreengine') {
         
         
     dependencies {
+		compile project(':projects:copper-jmx-iface')
+    		
 		compile 'aopalliance:aopalliance:1.0'
 		
 		// asm
@@ -270,6 +272,26 @@ project(':projects:copper-examples:orchestration:orch-simulators') {
 	compile project(':projects:copper-examples:orchestration:orch-interfaces')
 	compile 'log4j:log4j:1.2.17'
     compile 'org.slf4j:slf4j-api:1.6.6'
+    }
+}
+
+project(':projects:copper-jmx-iface') {
+    dependencies {
+    }
+}
+
+project(':projects:copper-monitoring:copper-monitoring-server') {
+    dependencies {
+	compile project(':projects:copper-jmx-iface')
+	compile 'log4j:log4j:1.2.17'
+	compile 'org.slf4j:slf4j-api:1.6.6'
+    }
+}
+
+project(':projects:copper-monitoring:copper-monitoring-client') {
+    dependencies {
+	compile 'log4j:log4j:1.2.17'
+	compile 'org.slf4j:slf4j-api:1.6.6'
     }
 }
 
