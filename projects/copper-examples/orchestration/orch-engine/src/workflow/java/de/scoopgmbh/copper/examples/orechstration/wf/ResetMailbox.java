@@ -54,7 +54,6 @@ public class ResetMailbox extends PersistentWorkflow<ResetMailboxData> {
 	@Override
 	public void main() throws InterruptException {
 		logger.info("workflow instance started");
-		waitForAll("endless");
 		if (!checkSecretOK()) {
 			sendSms("Authentication failed");
 		}
