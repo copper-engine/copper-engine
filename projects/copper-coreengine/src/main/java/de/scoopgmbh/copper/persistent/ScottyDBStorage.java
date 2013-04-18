@@ -51,7 +51,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 
 	private Batcher batcher;
 	private long deleteStaleResponsesIntervalMsec = 60L*60L*1000L;
-	private int defaultStaleResponseRemovalTimeout = 60*60*1000;
 
 	private Thread enqueueThread;
 	private ScheduledExecutorService scheduledExecutorService;
@@ -78,15 +77,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 
 	protected  <T> T run(final DatabaseTransaction<T> txn) throws Exception {
 		return transactionController.run(txn);
-	}
-
-	/**
-	 * Sets the default removal timeout for stale responses in the underlying database. A response is stale/timed out when
-	 * there is no workflow instance waiting for it within the specified amount of time. 
-	 * @param defaultStaleResponseRemovalTimeout
-	 */
-	public void setDefaultStaleResponseRemovalTimeout(int defaultStaleResponseRemovalTimeout) {
-		this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
 	}
 
 	public void setBatcher(Batcher batcher) {
@@ -352,10 +342,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 				return null;
 			}
 		});		
-	}
-
-	public int getDefaultStaleResponseRemovalTimeout() {
-		return defaultStaleResponseRemovalTimeout;
 	}
 
 	@Override
