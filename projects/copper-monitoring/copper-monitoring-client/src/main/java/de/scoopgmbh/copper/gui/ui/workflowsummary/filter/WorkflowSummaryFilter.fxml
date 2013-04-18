@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<StackPane fx:id="stackPane" layoutX="0.0" layoutY="0.0" minHeight="40.0" prefHeight="40.0" prefWidth="757.0" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <HBox fx:id="filterPane" alignment="CENTER_LEFT" minHeight="40.0" minWidth="176.0" prefHeight="40.0" prefWidth="553.0" spacing="5.0">
+      <children>
+        <MenuButton fx:id="serachbutton" graphicTextGap="4.0" mnemonicParsing="false" prefWidth="37.0" text="">
+          <items>
+            <CustomMenuItem mnemonicParsing="false" text="Unspecified Action" fx:id="searchMenueItem" />
+          </items>
+        </MenuButton>
+        <Label text="Alias">
+          <labelFor>
+            <TextField id="minorVersion" prefWidth="29.0" />
+          </labelFor>
+        </Label>
+        <TextField id="workflowClass" fx:id="alias" prefWidth="123.0" />
+        <Label text="workflowclass">
+          <labelFor>
+            <TextField fx:id="workflowClass" prefWidth="249.0" HBox.hgrow="ALWAYS" />
+          </labelFor>
+        </Label>
+        <fx:reference source="workflowClass" />
+        <Label text="Version">
+          <labelFor>
+            <TextField fx:id="minorVersion" prefWidth="29.0" />
+          </labelFor>
+        </Label>
+        <TextField fx:id="majorVersion" prefWidth="29.0" promptText="" />
+        <Label labelFor="$minorVersion" text="." />
+        <fx:reference source="minorVersion" />
+        <Label text=".">
+          <labelFor>
+            <TextField id="minorVersion" fx:id="patchLevel" prefWidth="29.0" />
+          </labelFor>
+        </Label>
+        <fx:reference source="patchLevel" />
+      </children>
+      <padding>
+        <Insets left="5.0" right="5.0" />
+      </padding>
+    </HBox>
+  </children>
+</StackPane>

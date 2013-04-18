@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.web.*?>
+
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="266.0" prefWidth="657.0" xmlns:fx="http://javafx.com/fxml">
+  <bottom>
+    <FlowPane alignment="CENTER_LEFT" hgap="5.0" minHeight="25.0" prefHeight="39.0" prefWidth="657.0">
+      <children>
+        <Label text="History">
+          <FlowPane.margin>
+            <Insets left="5.0" />
+          </FlowPane.margin>
+        </Label>
+        <ComboBox fx:id="history" prefWidth="586.0">
+          <items>
+          </items>
+        </ComboBox>
+      </children>
+    </FlowPane>
+  </bottom>
+  <center>
+    <WebView fx:id="sqlEditor" prefHeight="283.0" prefWidth="632.0" />
+  </center>
+</BorderPane>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<HBox alignment="CENTER_LEFT" layoutX="0.0" layoutY="0.0" prefHeight="40.0" prefWidth="811.0" spacing="5.0" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <Label text="state">
+      <HBox.margin>
+        <Insets left="5.0" />
+      </HBox.margin>
+    </Label>
+    <ChoiceBox fx:id="stateChoice" prefWidth="129.0">
+      <items>
+        <FXCollections fx:factory="observableArrayList">
+        </FXCollections>
+      </items>
+    </ChoiceBox>
+    <Label text="priority">
+      <labelFor>
+        <TextField fx:id="priorityField" prefWidth="40.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="priorityField" />
+    <Label text="workflowclass">
+      <labelFor>
+        <TextField fx:id="workflowClass" maxWidth="-1.0" prefWidth="231.0" HBox.hgrow="ALWAYS" />
+      </labelFor>
+    </Label>
+    <fx:reference source="workflowClass" />
+    <Label text="Version">
+      <labelFor>
+        <TextField id="workflowClass" fx:id="majorVersion" prefWidth="33.0" promptText="" />
+      </labelFor>
+    </Label>
+    <fx:reference source="majorVersion" />
+    <Label text=".">
+      <labelFor>
+        <TextField id="workflowClass" fx:id="minorVersion" prefWidth="33.0" />
+      </labelFor>
+    </Label>
+    <fx:reference source="minorVersion" />
+    <Label text=".">
+      <labelFor>
+        <TextField id="workflowClass" fx:id="patchLevel" prefWidth="33.0">
+          <HBox.margin>
+            <Insets right="5.0" />
+          </HBox.margin>
+        </TextField>
+      </labelFor>
+    </Label>
+    <fx:reference source="patchLevel" />
+  </children>
+</HBox>

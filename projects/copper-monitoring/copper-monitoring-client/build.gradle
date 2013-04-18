@@ -1,0 +1,60 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+eclipse {
+    
+    classpath {
+    	defaultOutputDir = file('build')
+	    file {
+	      	//workaround to append javadoc for javafx
+	      	withXml {
+		        def root = it.asNode()
+		        NodeList nodeList = root.getAt(new groovy.xml.QName('classpathentry'));
+		        for ( classpathentry in nodeList ) {
+    				if (classpathentry.attributes().path.contains('jfxrt.jar')){
+				        classpathentry.appendNode('attributes').appendNode('attribute',[name:'javadoc_location', value:'jar:platform:/resource/copper-monitor-client/libs/jfxrt-javadoc.zip!/']);
+    				}
+					if (classpathentry.attributes().path.contains('java2html')){
+    					java.util.Map attributes = classpathentry.attributes();
+    				    attributes.put('sourcepath','libs/java2html-src.zip');
+    				    root.appendNode('classpathentry', attributes);
+    				    root.remove(classpathentry);
+	    			}			
+				}
+	    	}
+    	}
+    }
+    
+} 
+
+sourceSets {
+  main {
+    resources  {
+      srcDir 'src/main/resources'
+      srcDir 'src/main/java' //include fxml files
+    }
+  }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	compile project(':projects:copper-monitoring:copper-monitoring-core')
+	compile files('libs/jfxrt.jar')
+	compile files('libs/ScenicView.jar')
+	compile files('libs/java2html.jar')
+	
+	compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
+	
+	//Spring remote
+	compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'
+	compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'	
+
+
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+mainClassName = "de.scoopgmbh.copper.gui.main.MonitorMain"

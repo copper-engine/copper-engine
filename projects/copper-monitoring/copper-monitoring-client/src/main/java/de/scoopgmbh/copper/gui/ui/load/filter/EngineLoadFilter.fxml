@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<HBox id="Panel" fx:id="pane" alignment="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0" xmlns:fx="http://javafx.com/fxml" />

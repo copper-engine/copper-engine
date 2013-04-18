@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<BorderPane id="mainPane" layoutX="0.0" layoutY="0.0" prefHeight="333.0" prefWidth="430.0" xmlns:fx="http://javafx.com/fxml">
+  <bottom>
+    <TextField fx:id="search" prefWidth="200.0" promptText="search (regular expression)">
+      <BorderPane.margin>
+        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+      </BorderPane.margin>
+    </TextField>
+  </bottom>
+  <center>
+    <TreeView fx:id="workflowView" prefHeight="200.0" prefWidth="200.0">
+      <BorderPane.margin>
+        <Insets left="3.0" right="3.0" top="3.0" />
+      </BorderPane.margin>
+    </TreeView>
+  </center>
+</BorderPane>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="214.0" prefWidth="787.0" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <GridPane layoutX="14.0" layoutY="51.0" prefHeight="119.0" prefWidth="754.0">
+      <children>
+        <RadioButton id="jmxRadioButton" fx:id="copperDirektRadioButton" mnemonicParsing="false" prefWidth="188.0" text="Copper-Server (RMI)" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <RadioButton fx:id="serverRadioButton" mnemonicParsing="false" prefWidth="342.0" text="Monitoring-Server (http)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <TextField fx:id="copperDirektAdressTextField" prefWidth="540.0" promptText="server adress e.g. localhost" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+          <children>
+            <TextField fx:id="serverAdress" prefWidth="210.0" promptText="e.g. http://localhost:8080" text="" />
+            <Label text="user" />
+            <TextField fx:id="user" prefWidth="112.0" />
+            <Label graphicTextGap="4.0" text="password" />
+            <PasswordField fx:id="password" prefWidth="112.0" />
+          </children>
+        </HBox>
+      </children>
+      <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="239.0" minWidth="10.0" prefWidth="210.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="545.0" minWidth="10.0" prefWidth="544.0" />
+      </columnConstraints>
+      <rowConstraints>
+        <RowConstraints maxHeight="81.0" minHeight="10.0" prefHeight="54.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="120.0" minHeight="10.0" prefHeight="58.0" vgrow="SOMETIMES" />
+      </rowConstraints>
+    </GridPane>
+    <Label layoutX="14.0" layoutY="32.0" text="Connection" />
+    <Button id="startbutton" fx:id="startButton" layoutX="656.0" layoutY="170.0" mnemonicParsing="false" prefWidth="112.0" text="Start" />
+  </children>
+</AnchorPane>
