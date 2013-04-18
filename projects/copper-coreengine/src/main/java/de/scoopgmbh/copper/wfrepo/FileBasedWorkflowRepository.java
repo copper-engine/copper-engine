@@ -17,11 +17,13 @@ package de.scoopgmbh.copper.wfrepo;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -69,15 +71,17 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 		final Map<String,Class<?>> wfMapLatest;
 		final Map<String,Class<?>> wfMapVersioned;
 		final Map<String,List<WorkflowVersion>> wfVersions;
+		final Map<String,String> javaSources;
 		final ClassLoader classLoader;
 		final long checksum;
-		VolatileState(Map<String, Class<?>> wfMap, Map<String,Class<?>> wfMapVersioned, Map<String,List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum, Map<String,Class<?>> wfClassMap) {
+		VolatileState(Map<String, Class<?>> wfMap, Map<String,Class<?>> wfMapVersioned, Map<String,List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum, Map<String,Class<?>> wfClassMap, Map<String,String> javaSources) {
 			this.wfMapLatest = wfMap;
 			this.wfMapVersioned = wfMapVersioned;
 			this.classLoader = classLoader;
 			this.checksum = checksum;
 			this.wfVersions = wfVersions;
 			this.wfClassMap = wfClassMap;
+			this.javaSources = javaSources;
 		}
 	}
 
@@ -379,7 +383,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 				logger.trace("wfMapVersioned.key={}, class={}", e.getKey(), e.getValue().getName());
 			}
 		}
-		return new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, checksum, wfClassMap);
+		return new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, checksum, wfClassMap, readJavaFiles(wfClassMap, sourceDirs, additionalSourcesDir));
 	}
 
 	private String createAliasName(final String alias, final WorkflowVersion version) {
@@ -504,6 +508,39 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 			fileManager.close();
 		}
 	}
+	
+	private Map<String,String> readJavaFiles(final Map<String,Class<?>> wfClassMap, List<String> _sourceDirs, File additionalSourcesDir) throws IOException {
+		final List<File> sourceDirs = new ArrayList<File>();
+		for (String dir : _sourceDirs) {
+			sourceDirs.add(new File(dir));
+		}
+		sourceDirs.add(additionalSourcesDir);
+		
+		final Map<String,String> map = new HashMap<String, String>(wfClassMap.size());
+		for (Class<?> wfClass : wfClassMap.values()) {
+			final String classname = wfClass.getName();
+			final String path = classname.replace(".", "/")+".java";
+			for (File sourceDir : sourceDirs) {
+				final File javaFile = new File(sourceDir,path);
+				if (javaFile.exists() && javaFile.isFile() && javaFile.canRead()) {
+					final BufferedReader br = new BufferedReader(new FileReader(javaFile));
+					try {
+						String line = null;
+						StringBuilder sb = new StringBuilder(32*1024);
+						while ((line = br.readLine()) != null) {
+							sb.append(line).append("\n");
+						}
+						map.put(classname, sb.toString());
+					}
+					finally {
+						br.close();
+					}
+				}
+			}
+		}
+
+		return map;
+	}
 
 	private List<File> findFiles(File rootDir, String fileExtension) {
 		List<File> files = new ArrayList<File>();
@@ -550,13 +587,6 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 
 	public void addSourceDir(String dir) {
 		sourceDirs.add(dir);
-	}
-
-	public static void main(String[] args) {
-		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
-		repo.addSourceDir("src/workflow/java");
-		repo.setTargetDir("build/compiled_workflow");
-		repo.start();
 	}
 
 	@Override
@@ -607,7 +637,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 		for (Class<?> wfClass : localVolatileState.wfClassMap.values()) {
 			WorkflowClassInfo wfi = new WorkflowClassInfo();
 			wfi.setClassname(wfClass.getName());
-			wfi.setSourceCode("TODO"); // TODO
+			wfi.setSourceCode(localVolatileState.javaSources.get(wfClass.getName()));
 			WorkflowDescription wfDesc = wfClass.getAnnotation(WorkflowDescription.class);
 			if (wfDesc != null) {
 				wfi.setAlias(wfDesc.alias());

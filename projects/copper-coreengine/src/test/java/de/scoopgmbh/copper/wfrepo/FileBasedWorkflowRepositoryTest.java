@@ -16,20 +16,22 @@
 package de.scoopgmbh.copper.wfrepo;
 
 
+import java.util.List;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.WorkflowFactory;
-
-import static org.junit.Assert.fail;
+import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
 
 public class FileBasedWorkflowRepositoryTest{
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileBasedWorkflowRepositoryTest.class);
 
 	@Test(expected = ClassNotFoundException.class)
-	public void testCreateWorkflowFactory() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+	public void testCreateWorkflowFactory_ClassNotFound() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
 		repo.addSourceDir("src/workflow/java");
 		repo.setTargetDir("build/compiled_workflow");
@@ -44,4 +46,33 @@ public class FileBasedWorkflowRepositoryTest{
 		
 	}
 
+	@Test()
+	public void testCreateWorkflowFactory() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
+		repo.addSourceDir("src/workflow/java");
+		repo.setTargetDir("build/compiled_workflow");
+		repo.start();
+		try {
+			List<WorkflowClassInfo> wfClassInfos = repo.getWorkflows();
+			logger.info("wfClassInfos.size={}",wfClassInfos.size());
+			Assert.assertTrue(wfClassInfos.size() >= 54);
+			boolean checked = false;
+			for (WorkflowClassInfo wfi : wfClassInfos) {
+				if (wfi.getClassname().equals("de.scoopgmbh.copper.test.versioning.VersionTestWorkflow_9_1_1")) {
+					Assert.assertEquals("VersionTestWorkflow", wfi.getAlias());
+					Assert.assertEquals(9L, wfi.getMajorVersion().longValue());
+					Assert.assertEquals(1L, wfi.getMinorVersion().longValue());
+					Assert.assertEquals(1L, wfi.getPatchLevel().longValue());
+					Assert.assertNotNull(wfi.getSourceCode());
+					checked = true;
+					break;
+				}
+			}
+			Assert.assertTrue(checked);
+		}
+		finally {
+			repo.shutdown();
+		}
+		
+	}	
 }
