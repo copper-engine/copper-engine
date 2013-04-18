@@ -280,18 +280,3 @@ project(':projects:copper-jmx-iface') {
     }
 }
 
-project(':projects:copper-monitoring:copper-monitoring-server') {
-    dependencies {
-	compile project(':projects:copper-jmx-iface')
-	compile 'log4j:log4j:1.2.17'
-	compile 'org.slf4j:slf4j-api:1.6.6'
-    }
-}
-
-project(':projects:copper-monitoring:copper-monitoring-client') {
-    dependencies {
-	compile 'log4j:log4j:1.2.17'
-	compile 'org.slf4j:slf4j-api:1.6.6'
-    }
-}
-
