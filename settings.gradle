@@ -2,4 +2,4 @@ include ":projects:copper-coreengine",
 ":projects:copper-jmx-iface", 
 ":projects:copper-examples:orchestration:orch-engine", 
 ":projects:copper-examples:orchestration:orch-interfaces", 
-":projects:copper-examples:orchestration:orch-simulators",
+":projects:copper-examples:orchestration:orch-simulators"
