@@ -281,7 +281,7 @@ project(':projects:copper-jmx-iface') {
 }
 
 project(':projects:copper-monitoring:copper-monitoring-server') {
-	apply plugin: 'application'
+	//apply plugin: 'application'
     dependencies {
 		compile project(':projects:copper-jmx-iface')
 		compile project(':projects:copper-monitoring:copper-monitoring-core')
@@ -296,10 +296,7 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 	    //Spring remote
 		compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'
 		compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
-		//compile group: 'org.apache.geronimo.specs', name: 'geronimo-servlet_2.5_spec', version: '1.2'
 		compile group: 'org.springframework', name: 'spring-webmvc', version: '3.2.0.RELEASE'
-		
-	
 		
 		//http server
 		compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.0.0.v20130308'
@@ -345,9 +342,10 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 }
 
 project(':projects:copper-monitoring:copper-monitoring-client') {
-	apply plugin: 'application'
+	//apply plugin: 'application'
 	
 	eclipse {
+
 	    
 	    classpath {
 	    	defaultOutputDir = file('build')
@@ -374,12 +372,12 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 	} 
 	
 	sourceSets {
-	  main {
-	    resources  {
-	      srcDir 'src/main/resources'
-	      srcDir 'src/main/java' //include fxml files
-	    }
-	  }
+		main {
+		    resources  {
+				srcDir 'src/main/resources'
+				srcDir 'src/main/java' //include fxml files
+		    }
+		}
 	}
 	
 	dependencies {
@@ -393,7 +391,6 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 		//Spring remote
 		compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'
 		compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'	
-	
 	
 	    testCompile group: 'junit', name: 'junit', version: '4.+'
 	}
