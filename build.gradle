@@ -382,10 +382,6 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 	  }
 	}
 	
-	repositories {
-	    mavenCentral()
-	}
-	
 	dependencies {
 		compile project(':projects:copper-monitoring:copper-monitoring-core')
 		compile files('libs/jfxrt.jar')
