@@ -280,6 +280,7 @@ project(':projects:copper-jmx-iface') {
     }
 }
 
+/*
 project(':projects:copper-monitoring:copper-monitoring-server') {
 	//apply plugin: 'application'
     dependencies {
@@ -402,4 +403,4 @@ project(':projects:copper-monitoring:copper-monitoring-core') {
     dependencies {
     	 testCompile group: 'junit', name: 'junit', version: '4.+'
     }
-}
+}*/
