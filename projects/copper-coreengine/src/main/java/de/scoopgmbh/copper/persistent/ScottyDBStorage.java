@@ -32,12 +32,13 @@ import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.Batcher;
+import de.scoopgmbh.copper.management.BatcherMXBean;
+import de.scoopgmbh.copper.management.DatabaseDialectMXBean;
 import de.scoopgmbh.copper.persistent.txn.DatabaseTransaction;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
 /**
- * Oracle implementation of the {@link ScottyDBStorageInterface}.
- * It supports multiple engines (cluster) connected to one database. 
+ * Implementation of the {@link ScottyDBStorageInterface}.
  * 
  * @author austermann
  *
@@ -418,5 +419,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			logger.error("finish failed",e);
 			error(w,e);
 		}
-	}	
+	}
+	
 }

@@ -54,7 +54,7 @@ import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.WorkflowVersion;
 import de.scoopgmbh.copper.instrument.ClassInfo;
 import de.scoopgmbh.copper.instrument.ScottyFindInterruptableMethodsVisitor;
-import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
+import de.scoopgmbh.copper.management.FileBasedWorkflowRepositoryMXBean;
 import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
 import de.scoopgmbh.copper.util.FileUtil;
 
@@ -64,7 +64,7 @@ import de.scoopgmbh.copper.util.FileUtil;
  * @author austermann
  *
  */
-public class FileBasedWorkflowRepository extends AbstractWorkflowRepository implements WorkflowRepositoryMXBean {
+public class FileBasedWorkflowRepository extends AbstractWorkflowRepository implements FileBasedWorkflowRepositoryMXBean {
 
 	private static final class VolatileState {
 		final Map<String,Class<?>> wfClassMap;
@@ -171,7 +171,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 	}
 	
 	/**
-	 * Returns the configures local directory/directories
+	 * Returns the configured local directory/directories
 	 */
 	public List<String> getSourceDirs() {
 		return Collections.unmodifiableList(sourceDirs);

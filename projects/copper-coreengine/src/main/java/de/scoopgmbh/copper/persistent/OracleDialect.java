@@ -47,6 +47,7 @@ import de.scoopgmbh.copper.monitoring.StmtStatistic;
 
 /**
  * Oracle implementation of the {@link DatabaseDialect} interface
+ * It supports multiple engines (cluster) connected to one database. 
  * 
  * @author austermann
  *

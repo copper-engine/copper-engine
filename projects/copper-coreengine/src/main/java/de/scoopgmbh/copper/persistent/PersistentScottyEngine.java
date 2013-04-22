@@ -46,6 +46,7 @@ import de.scoopgmbh.copper.common.ProcessorPool;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
 import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
+import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowInfo;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
@@ -412,5 +413,11 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		}
 		return result;
 	}
+
+	@Override
+	public EngineType getEngineType() {
+		return EngineType.persistent;
+	}
+
 
 }

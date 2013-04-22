@@ -17,12 +17,14 @@ package de.scoopgmbh.copper.management;
 
 import java.util.List;
 
+import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowInfo;
 
 
 public interface ProcessingEngineMXBean {
 	public String getState();
 	public String getEngineId();
+	public EngineType getEngineType();
 	public List<WorkflowInfo> queryWorkflowInstances();
 	public WorkflowInfo queryWorkflowInstance(String id);
 	public int getNumberOfWorkflowInstances();

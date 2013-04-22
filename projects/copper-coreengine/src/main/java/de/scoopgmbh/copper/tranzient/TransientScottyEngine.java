@@ -42,6 +42,7 @@ import de.scoopgmbh.copper.common.TicketPoolManager;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
+import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowInfo;
 import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
 import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
@@ -321,6 +322,11 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public EngineType getEngineType() {
+		return EngineType.tranzient;
 	}	
 
 }

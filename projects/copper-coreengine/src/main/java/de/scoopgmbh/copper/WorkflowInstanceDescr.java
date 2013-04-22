@@ -40,6 +40,11 @@ public class WorkflowInstanceDescr<T> {
 		this.processorPoolId = processorPoolId;
 		this.id = id;
 	}
+	
+	public WorkflowInstanceDescr(String wfName, T data, String id, Integer priority, String processorPoolId, WorkflowVersion workflowVersion) {
+		this(wfName,data,id,priority,processorPoolId);
+		this.workflowVersion = workflowVersion;
+	}	
 
 	public String getWfName() {
 		return wfName;
