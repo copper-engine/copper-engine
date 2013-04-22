@@ -33,20 +33,26 @@ import java.util.Map;
 
 import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
+import de.scoopgmbh.copper.management.FileBasedWorkflowRepositoryMXBean;
+import de.scoopgmbh.copper.management.PersistentPriorityProcessorPoolMXBean;
 import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
 import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
 import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
+import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
 import de.scoopgmbh.copper.monitor.core.adapter.CopperMonitorInterface;
 import de.scoopgmbh.copper.monitor.core.adapter.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitor.core.adapter.model.BatcherInfo;
 import de.scoopgmbh.copper.monitor.core.adapter.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitor.core.adapter.model.DependencyInjectorInfo;
+import de.scoopgmbh.copper.monitor.core.adapter.model.DependencyInjectorInfo.DependencyInjectorTyp;
 import de.scoopgmbh.copper.monitor.core.adapter.model.MeasurePointData;
 import de.scoopgmbh.copper.monitor.core.adapter.model.ProcessingEngineInfo;
+import de.scoopgmbh.copper.monitor.core.adapter.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitor.core.adapter.model.ProcessorPoolInfo;
+import de.scoopgmbh.copper.monitor.core.adapter.model.ProcessorPoolInfo.ProcessorPoolTyp;
 import de.scoopgmbh.copper.monitor.core.adapter.model.StorageInfo;
 import de.scoopgmbh.copper.monitor.core.adapter.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitor.core.adapter.model.WorkflowClassVersionInfo;
@@ -58,6 +64,7 @@ import de.scoopgmbh.copper.monitor.core.adapter.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitor.core.adapter.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitor.core.adapter.model.WorkflowSummary;
 import de.scoopgmbh.copper.monitor.server.persistent.MonitoringDbStorage;
+import de.scoopgmbh.copper.monitor.server.workaround.HistoryCollectorMXBean;
 
 public class RmiMonitoringView implements CopperMonitorInterface{
 	private static final long serialVersionUID = 1829707298427309206L;
@@ -66,14 +73,15 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 	private final CopperInterfaceSettings copperInterfaceSettings;
 	private final StatisticsCollectorMXBean statisticsCollectorMXBean;
 	private final HistoryCollectorMXBean historyCollectorMXBean;
-	private final List<ProcessorPoolMXBean> pools = new ArrayList<ProcessorPoolMXBean>();
-	private final Map<String,ProcessingEngineMXBean> engines = new HashMap<String,ProcessingEngineMXBean>();
+	private final List<ProcessorPoolMXBean> pools;
+	private final Map<String,ProcessingEngineMXBean> engines;
 	
 	public RmiMonitoringView(MonitoringDbStorage dbStorage,
 			CopperInterfaceSettings copperInterfaceSettings, 
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList, 
-			List<ProcessorPoolMXBean> processorPoolMXBean){
+			List<ProcessorPoolMXBean> processorPoolMXBean,
+			HistoryCollectorMXBean historyCollectorMXBean){
 		this.dbStorage = dbStorage;
 		this.copperInterfaceSettings = copperInterfaceSettings;
 		this.statisticsCollectorMXBean = statisticsCollectorMXBean;
@@ -130,7 +138,7 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 
 	@Override
 	public List<WorkflowClassVersionInfo> getWorkflowClassesList(final String engineId) throws RemoteException {
-		WorkflowRepositoryMXBean workflowRepository = monitoringData.getWorkflowRepository(engineId);
+		WorkflowRepositoryMXBean workflowRepository = getWorkflowRepository(engineId);
 		if (workflowRepository!=null){
 			List<WorkflowClassVersionInfo> result = new ArrayList<WorkflowClassVersionInfo>();
 			for (WorkflowClassInfo workflowClassInfo: workflowRepository.getWorkflows()){
@@ -257,29 +265,32 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 
 	@Override
 	public void setBatcherNumThreads(final int numThread, final String engineid) {
-		ProcessingEngineMXBean engine =  engines.get(engineid);
-		if (engine instanceof PersistentProcessingEngineMXBean){
-			??? storage =  ((PersistentProcessingEngineMXBean)engine).getDbStorage();
-//					if (storage instanceof ScottyDBStorage){
-//						((ScottyDBStorage)storage).getBatcher().setNumThreads(numThread);
-//					}
-		}
+//		ProcessingEngineMXBean engine =  engines.get(engineid);
+//		if (engine instanceof PersistentProcessingEngineMXBean){
+//			??? storage =  ((PersistentProcessingEngineMXBean)engine).getDbStorage();
+////					if (storage instanceof ScottyDBStorage){
+////						((ScottyDBStorage)storage).getBatcher().setNumThreads(numThread);
+////					}
+//		}
 
 	}
 
 	@Override
 	public List<WorkflowInstanceHistory> getWorkflowInstanceHistory() {
 		List<WorkflowInstanceHistory> result = new ArrayList<WorkflowInstanceHistory>();
-		for (de.scoopgmbh.copper.management.model.???? jmxmeasurePointData: historyCollectorMXBean.queryAll()){
-			result.add(new WorkflowInstanceHistory(???));
-		}
+//		for (de.scoopgmbh.copper.management.model.???? jmxmeasurePointData: historyCollectorMXBean.queryAll()){
+//			result.add(new WorkflowInstanceHistory(???));
+//		}
 		return result;
 	}
 
 	private ProcessorPoolMXBean getPool(String poolId, String engineid){
-		for (ProcessorPoolMXBean pool: pools){
-			if (pool.getEngine().getEngineId().equals(engineid)){
-				return pool;
+		ProcessingEngineMXBean engine = engines.get(engineid);
+		if (engine!=null){
+			for (ProcessorPoolMXBean pool: engine.getProcessorPools()){
+				if (pool.getId().equals(poolId)){
+					return pool;
+				}
 			}
 		}
 		return null;
@@ -288,29 +299,40 @@ public class RmiMonitoringView implements CopperMonitorInterface{
 	private List<ProcessingEngineInfo> createProcessingEngineInfos(){
 		ArrayList<ProcessingEngineInfo> result = new ArrayList<ProcessingEngineInfo>();
 		for (ProcessingEngineMXBean engine: engines.values()){
-			
 			WorkflowRepositoryInfo workflowRepositoryInfo = new WorkflowRepositoryInfo();
-			workflowRepositoryInfo.setName(engine.getWorkflowRepository().getClassName());
-			workflowRepositoryInfo.setSrcPaths(Arrays.asList(engine.getWorkflowRepository().getSourceLocationDescription()));
+			workflowRepositoryInfo.setName(engine.getWorkflowRepository().getDescription());
+			if (workflowRepositoryInfo instanceof FileBasedWorkflowRepositoryMXBean){
+				workflowRepositoryInfo.setSrcPaths(((FileBasedWorkflowRepositoryMXBean)engine.getWorkflowRepository()).getSourceDirs());
+			}
 			
 			
-			DependencyInjectorInfo dependencyInjectorInfo = new DependencyInjectorInfo(engine.getDependencyInjector().getTyp());
+			DependencyInjectorInfo dependencyInjectorInfo = new DependencyInjectorInfo(DependencyInjectorTyp.UNKNOWN);
 			
 			StorageInfo storageInfo = new StorageInfo();
-			storageInfo.setName(engine.getStorage().getName());
+			storageInfo.setName("UNKNOWN");
 			BatcherInfo batcher= new BatcherInfo();
-			batcher.setName(engine.getStorage().getBatcher().getName());
-			batcher.setNumThreads(engine.getStorage().getBatcher().getNumeThreads());
+			batcher.setName("UNKNOWN");
+			batcher.setNumThreads(0);
 			storageInfo.setBatcher(batcher);
 			
 			List<ProcessorPoolInfo> enginepools = new ArrayList<ProcessorPoolInfo>();
 			for (ProcessorPoolMXBean pool: engine.getProcessorPools()){
-				enginepools.add(//einige getter an der MxBean fehlen
-						new ProcessorPoolInfo(poolId, processorPoolTyp, lowerThreshold, upperThreshold, upperThresholdReachedWaitMSec, emptyQueueWaitMSec, dequeueBulkSize, numberOfThreads, threadPriority, memoryQueueSize));
-				
+				boolean isPersistent = pool instanceof PersistentPriorityProcessorPoolMXBean;
+				enginepools.add(new ProcessorPoolInfo(
+						pool.getId(), 
+						isPersistent?ProcessorPoolTyp.PERSISTENT:ProcessorPoolTyp.TRANSIENT, 
+						isPersistent?((PersistentPriorityProcessorPoolMXBean)pool).getLowerThreshold():0, 
+						isPersistent?((PersistentPriorityProcessorPoolMXBean)pool).getUpperThreshold():0, 
+						isPersistent?((PersistentPriorityProcessorPoolMXBean)pool).getUpperThresholdReachedWaitMSec():0, 
+						isPersistent?((PersistentPriorityProcessorPoolMXBean)pool).getEmptyQueueWaitMSec():0, 
+						isPersistent?((PersistentPriorityProcessorPoolMXBean)pool).getDequeueBulkSize():0, 
+						pool.getThreadPriority(), 
+						pool.getNumberOfThreads(), 
+						pool.getMemoryQueueSize()));
 			}
 			ProcessingEngineInfo engineInfo = new ProcessingEngineInfo(
-					engine.getTyp(), engine.getEngineId(), engine.getWorkflowRepository(), dependencyInjectorInfo, storageInfo, pools);
+					engine.getEngineType()==EngineType.persistent?EngineTyp.PERSISTENT:EngineTyp.TRANSIENT, 
+							engine.getEngineId(), workflowRepositoryInfo, dependencyInjectorInfo, storageInfo, enginepools.toArray(new ProcessorPoolInfo[0]));
 			result.add(engineInfo);
 			
 		}

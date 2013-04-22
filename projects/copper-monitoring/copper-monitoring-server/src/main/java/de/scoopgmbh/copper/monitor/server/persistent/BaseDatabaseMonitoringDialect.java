@@ -36,6 +36,7 @@ import de.scoopgmbh.copper.monitor.core.adapter.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitor.core.adapter.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitor.core.adapter.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitor.core.adapter.model.WorkflowSummary;
+import de.scoopgmbh.copper.monitor.server.workaround.DBProcessingStateWorkaround;
 
 /**
  * Base implementation of the {@link DatabaseMonitoringDialect} for SQL databases
@@ -54,7 +55,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 			while (result.next()) {
 				int status = result.getInt(1);
 				int count = result.getInt(2);
-				numberOfWorkflowInstancesWithState.put(DBProcessingState.fromKey(status).asWorkflowInstanceState(), count);
+				numberOfWorkflowInstancesWithState.put(DBProcessingStateWorkaround.fromKey(status).asWorkflowInstanceState(), count);
 			}
 			return new WorkflowStateSummary(numberOfWorkflowInstancesWithState);
 		} catch (SQLException e) {
@@ -170,7 +171,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 				int status = resultSet.getInt(2);
 				int count = resultSet.getInt(3);
 				
-				summary.getStateSummary().getNumberOfWorkflowInstancesWithState().put(DBProcessingState.fromKey(status).asWorkflowInstanceState(), count);
+				summary.getStateSummary().getNumberOfWorkflowInstancesWithState().put(DBProcessingStateWorkaround.fromKey(status).asWorkflowInstanceState(), count);
 			}
 			return new ArrayList<WorkflowSummary>(classNameToSummary.values());
 		} catch (SQLException e) {
@@ -216,7 +217,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 			int pIdx = 1;
 			pIdx = setFilterParam(selectStmt,poolid,java.sql.Types.VARCHAR,pIdx);
 			pIdx = setFilterParam(selectStmt,classname,java.sql.Types.VARCHAR,pIdx);
-			pIdx = setFilterParam(selectStmt,(state==null?null:DBProcessingState.fromWorkflowInstanceState(state).key),java.sql.Types.INTEGER,pIdx);
+			pIdx = setFilterParam(selectStmt,(state==null?null:DBProcessingStateWorkaround.fromWorkflowInstanceState(state).key()),java.sql.Types.INTEGER,pIdx);
 			pIdx = setFilterParam(selectStmt,priority,java.sql.Types.INTEGER,pIdx);
 			
 			selectStmt.setFetchSize(100);
@@ -229,7 +230,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 			while (resultSet.next()) {
 				WorkflowInstanceInfo workflowInstanceInfo = new WorkflowInstanceInfo();
 				workflowInstanceInfo.setId(resultSet.getString(1));
-				workflowInstanceInfo.setState(DBProcessingState.fromKey(resultSet.getInt(2)).asWorkflowInstanceState() );
+				workflowInstanceInfo.setState(DBProcessingStateWorkaround.fromKey(resultSet.getInt(2)).asWorkflowInstanceState() );
 				workflowInstanceInfo.setPriority(resultSet.getInt(3));
 				workflowInstanceInfo.setLastActivityTimestamp(new Date(resultSet.getTimestamp(4).getTime()));
 				workflowInstanceInfo.setProcessorPoolId(resultSet.getString(5));
