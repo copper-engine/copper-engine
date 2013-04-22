@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2013 SCOOP Software GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.scoopgmbh.copper.monitor.server.persistent;
 
 import java.sql.Connection;
@@ -22,23 +37,8 @@ public class MonitoringDbStorage {
 	private DatabaseMonitoringDialect dialect;
 	private TransactionController transactionController;
 
-	private Batcher batcher;
-	private long deleteStaleResponsesIntervalMsec = 60L*60L*1000L;
-	private int defaultStaleResponseRemovalTimeout = 60*60*1000;
-
-	private Thread enqueueThread;
-	private ScheduledExecutorService scheduledExecutorService;
-	private boolean shutdown = false;
-	private boolean checkDbConsistencyAtStartup = false;
-	
-	private CountDownLatch enqueueThreadTerminated = new CountDownLatch(1);
-
 	public MonitoringDbStorage() {
 
-	}
-
-	public void setCheckDbConsistencyAtStartup(boolean checkDbConsistencyAtStartup) {
-		this.checkDbConsistencyAtStartup = checkDbConsistencyAtStartup;
 	}
 
 	public void setTransactionController(TransactionController transactionController) {
@@ -51,27 +51,6 @@ public class MonitoringDbStorage {
 
 	protected  <T> T run(final DatabaseTransaction<T> txn) throws Exception {
 		return transactionController.run(txn);
-	}
-
-	/**
-	 * Sets the default removal timeout for stale responses in the underlying database. A response is stale/timed out when
-	 * there is no workflow instance waiting for it within the specified amount of time. 
-	 * @param defaultStaleResponseRemovalTimeout
-	 */
-	public void setDefaultStaleResponseRemovalTimeout(int defaultStaleResponseRemovalTimeout) {
-		this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
-	}
-
-	public void setBatcher(Batcher batcher) {
-		this.batcher = batcher;
-	}
-	
-	public Batcher getBatcher() {
-		return this.batcher;
-	}
-
-	public void setDeleteStaleResponsesIntervalMsec(long deleteStaleResponsesIntervalMsec) {
-		this.deleteStaleResponsesIntervalMsec = deleteStaleResponsesIntervalMsec;
 	}
 
 	public WorkflowStateSummary selectTotalWorkflowStateSummary() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 SCOOP Software GmbH
+ * Copyright 2002-2013 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ public class ServerLoginImpl implements ServerLogin {
 
 	@Override
 	public CopperMonitorInterface login(String user, String credential) throws RemoteException {
-		return (CopperMonitorInterface)new RMIForwardCopperDataProvider("localhost");
+		return null;
 	}
 
 }

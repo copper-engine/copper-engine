@@ -280,3 +280,133 @@ project(':projects:copper-jmx-iface') {
     }
 }
 
+project(':projects:copper-monitoring:copper-monitoring-server') {
+	apply plugin: 'application'
+    dependencies {
+		compile project(':projects:copper-jmx-iface')
+		compile project(':projects:copper-monitoring:copper-monitoring-core')
+		compile project(':projects:copper-coreengine')
+	    testCompile group: 'junit', name: 'junit', version: '4.+'
+	   
+	    // logging
+		compile 'org.slf4j:slf4j-api:1.6.6'
+		compile 'org.slf4j:slf4j-log4j12:1.6.6'
+		compile 'log4j:log4j:1.2.17'
+	    
+	    //Spring remote
+		compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'
+		compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+		//compile group: 'org.apache.geronimo.specs', name: 'geronimo-servlet_2.5_spec', version: '1.2'
+		compile group: 'org.springframework', name: 'spring-webmvc', version: '3.2.0.RELEASE'
+		
+	
+		
+		//http server
+		compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.0.0.v20130308'
+		compile group: 'org.eclipse.jetty', name: 'jetty-util', version: '9.0.0.v20130308'
+		compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: '9.0.0.v20130308'
+		compile group: 'org.eclipse.jetty.orbit', name: 'javax.servlet', version: '2.5.0.v201103041518'
+	}
+	
+	jar.doFirst {
+	    manifest { 
+	      def manifestClasspath =configurations.runtime.collect {'libs/'+it.getName() }.join(' ')
+	      attributes 'Class-Path': manifestClasspath
+	    } 
+	}
+	
+	jar {
+		exclude '**/*.RSA'   //http://www.coderanch.com/t/133070/Security/Jar-File-java-lang-SecurityException
+	    exclude '**/*.SF'
+	    exclude '**/*.DSA' 
+	    webAppDirName = 'WebContent'
+	    
+	    into('lib'){
+	   			 from { configurations.default.collect { it.isDirectory() ? it : it } }
+	    }
+	    
+	    manifest {
+	    		attributes 'Main-Class': 'de.scoopgmbh.copper.monitor.server.ServerMain'
+	    }
+	}
+	
+	task distZipFile( type: Zip, dependsOn: [jar] ) {
+	    baseName 'kslendpoint'
+		from fileTree("build/lib") {
+	    	include "**"
+	    	exclude "*.war"
+		}
+		from fileTree("deployment") {
+	    	include "**"
+		}
+	}
+	
+	mainClassName = "de.scoopgmbh.copper.monitor.server.ServerMain"
+}
+
+project(':projects:copper-monitoring:copper-monitoring-client') {
+	apply plugin: 'application'
+	
+	eclipse {
+	    
+	    classpath {
+	    	defaultOutputDir = file('build')
+		    file {
+		      	//workaround to append javadoc for javafx
+		      	withXml {
+			        def root = it.asNode()
+			        NodeList nodeList = root.getAt(new groovy.xml.QName('classpathentry'));
+			        for ( classpathentry in nodeList ) {
+	    				if (classpathentry.attributes().path.contains('jfxrt.jar')){
+					        classpathentry.appendNode('attributes').appendNode('attribute',[name:'javadoc_location', value:'jar:platform:/resource/copper-monitor-client/libs/jfxrt-javadoc.zip!/']);
+	    				}
+						if (classpathentry.attributes().path.contains('java2html')){
+	    					java.util.Map attributes = classpathentry.attributes();
+	    				    attributes.put('sourcepath','libs/java2html-src.zip');
+	    				    root.appendNode('classpathentry', attributes);
+	    				    root.remove(classpathentry);
+		    			}			
+					}
+		    	}
+	    	}
+	    }
+	    
+	} 
+	
+	sourceSets {
+	  main {
+	    resources  {
+	      srcDir 'src/main/resources'
+	      srcDir 'src/main/java' //include fxml files
+	    }
+	  }
+	}
+	
+	repositories {
+	    mavenCentral()
+	}
+	
+	dependencies {
+		compile project(':projects:copper-monitoring:copper-monitoring-core')
+		compile files('libs/jfxrt.jar')
+		compile files('libs/ScenicView.jar')
+		compile files('libs/java2html.jar')
+		
+		compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
+		
+		//Spring remote
+		compile group: 'org.springframework', name: 'spring-web', version: '3.2.0.RELEASE'
+		compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'	
+	
+	
+	    testCompile group: 'junit', name: 'junit', version: '4.+'
+	}
+	
+	mainClassName = "de.scoopgmbh.copper.gui.main.MonitorMain"
+}
+
+project(':projects:copper-monitoring:copper-monitoring-core') {
+    dependencies {
+    	 testCompile group: 'junit', name: 'junit', version: '4.+'
+    }
+}
