@@ -21,7 +21,7 @@ public class DependencyInjectorInfo implements Serializable{
 	private static final long serialVersionUID = -629782420394773711L;
 	
 	public static enum DependencyInjectorTyp{
-		POJO,SPRING
+		POJO,SPRING,UNKNOWN
 	}
 	DependencyInjectorTyp typ ;
 	public DependencyInjectorInfo(DependencyInjectorTyp typ) {
