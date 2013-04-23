@@ -26,20 +26,7 @@ public enum DBProcessingStateWorkaround {
 	ERROR(5);
 	
 	static final DBProcessingStateWorkaround[] states = new DBProcessingStateWorkaround[values().length];
-	static {
-		for (DBProcessingStateWorkaround s : values()) {
-			if (states[s.key()] != null)
-				throw new RuntimeException("Inconsistent key mapping found for "+s);
-			states[s.key()] = s;
-			//check 1 to 1 mapping between DBProcessingState and WorkflowInstanceState
-			WorkflowInstanceState.valueOf(s.name());
-		}
-		//check 1 to 1 mapping between DBProcessingState and WorkflowInstanceState
-		for (WorkflowInstanceState s : WorkflowInstanceState.values()) {
-			DBProcessingStateWorkaround.valueOf(s.name());
-		}
-	}
-	
+
 	final int key;
 	DBProcessingStateWorkaround(int key) {
 		this.key = key;
