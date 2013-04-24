@@ -128,8 +128,8 @@ public class SpringRemoteServerMain {
 		PropertyConfigurator.configure(args[1]);
 		System.setProperty("org.apache.cxf.Logger", "org.apache.cxf.common.logging.Log4jLogger");
 		
-		SpringRemoteServerMain springRemoteServerMain;
-		springRemoteServerMain = new SpringRemoteServerMain(CopperDataProviderMock.copperMonitorInterfaceFactory,port,host);
+		SpringRemoteServerMain springRemoteServerMain;//TODO jmx access
+		springRemoteServerMain = new SpringRemoteServerMain(null,port,host);
 
 		
 		try {
