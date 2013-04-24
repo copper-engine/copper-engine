@@ -328,7 +328,7 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 	}
 	
 	task distZipFile( type: Zip, dependsOn: [jar] ) {
-	    baseName 'kslendpoint'
+	    baseName 'copper-monitor-server'
 		from fileTree("build/lib") {
 	    	include "**"
 	    	exclude "*.war"
