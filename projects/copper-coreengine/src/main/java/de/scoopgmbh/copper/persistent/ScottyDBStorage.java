@@ -34,6 +34,7 @@ import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.management.BatcherMXBean;
 import de.scoopgmbh.copper.management.DatabaseDialectMXBean;
+import de.scoopgmbh.copper.management.ScottyDBStorageMXBean;
 import de.scoopgmbh.copper.persistent.txn.DatabaseTransaction;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
@@ -43,7 +44,7 @@ import de.scoopgmbh.copper.persistent.txn.TransactionController;
  * @author austermann
  *
  */
-public class ScottyDBStorage implements ScottyDBStorageInterface {
+public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorageMXBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScottyDBStorage.class);
 
@@ -419,6 +420,16 @@ public class ScottyDBStorage implements ScottyDBStorageInterface {
 			logger.error("finish failed",e);
 			error(w,e);
 		}
+	}
+
+	@Override
+	public BatcherMXBean getBatcherMXBean() {
+		return (BatcherMXBean) (batcher instanceof BatcherMXBean ? batcher : null);
+	}
+
+	@Override
+	public DatabaseDialectMXBean getDatabaseDialectMXBean() {
+		return (DatabaseDialectMXBean) (dialect instanceof DatabaseDialectMXBean ? dialect : null);
 	}
 	
 }

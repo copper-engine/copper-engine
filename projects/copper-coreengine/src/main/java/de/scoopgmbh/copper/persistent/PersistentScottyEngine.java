@@ -44,6 +44,7 @@ import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.common.AbstractProcessingEngine;
 import de.scoopgmbh.copper.common.ProcessorPool;
 import de.scoopgmbh.copper.common.ProcessorPoolManager;
+import de.scoopgmbh.copper.management.DBStorageMXBean;
 import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
 import de.scoopgmbh.copper.management.model.EngineType;
@@ -62,7 +63,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	private static final Logger logger = LoggerFactory.getLogger(PersistentScottyEngine.class);
 
 	private ScottyDBStorageInterface dbStorage;
-	private ProcessorPoolManager<PersistentProcessorPool> processorPoolManager;
+	private ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager;
 	private DependencyInjector dependencyInjector;
 	private boolean notifyProcessorPoolsOnResponse = false;
 	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
@@ -100,7 +101,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		return dbStorage;
 	}
 
-	public void setProcessorPoolManager(ProcessorPoolManager<PersistentProcessorPool> processorPoolManager) {
+	public void setProcessorPoolManager(ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager) {
 		this.processorPoolManager = processorPoolManager;
 	}
 
@@ -419,5 +420,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		return EngineType.persistent;
 	}
 
+	@Override
+	public DBStorageMXBean getDBStorage() {
+		return (DBStorageMXBean) (dbStorage instanceof DBStorageMXBean ? dbStorage : null);
+	}
 
 }

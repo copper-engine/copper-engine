@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.management.model;
+package de.scoopgmbh.copper.management;
 
-public enum EngineType {
-	persistent, 
-	tranzient /** named tran_z_ient instead of transient, because transient is a java keyword */, 
-	hyprid, 
-	other 
+public interface DBStorageMXBean {
+
 }
