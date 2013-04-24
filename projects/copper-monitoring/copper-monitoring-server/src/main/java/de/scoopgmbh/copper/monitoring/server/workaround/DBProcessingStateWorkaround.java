@@ -15,6 +15,9 @@
  */
 package de.scoopgmbh.copper.monitoring.server.workaround;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public enum DBProcessingStateWorkaround {
@@ -25,7 +28,12 @@ public enum DBProcessingStateWorkaround {
 	INVALID(4), 
 	ERROR(5);
 	
-	static final DBProcessingStateWorkaround[] states = new DBProcessingStateWorkaround[values().length];
+	static final Map<Integer, DBProcessingStateWorkaround> states = new HashMap<Integer, DBProcessingStateWorkaround>();
+	static {
+		for (DBProcessingStateWorkaround state: DBProcessingStateWorkaround.values()) {
+			states.put(state.key(), state);
+		}
+	}
 
 	final int key;
 	DBProcessingStateWorkaround(int key) {
@@ -39,7 +47,7 @@ public enum DBProcessingStateWorkaround {
 	}
 	
 	public static DBProcessingStateWorkaround fromKey(int key) {
-		DBProcessingStateWorkaround state = states[key];
+		DBProcessingStateWorkaround state = states.get(key);
 		if (state == null)
 			throw new IllegalArgumentException("No value for "+key);
 		return state;

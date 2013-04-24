@@ -41,7 +41,7 @@ public class SpringRemoteServerMainTest {
 				FutureTask<Void> futureTask = new FutureTask<Void>(new Runnable() {
 					@Override
 					public void run() {
-						new SpringRemoteServerMain(CopperDataProviderMock.copperMonitorInterfaceFactory,8080,"localhost").start();
+						new SpringRemoteServerMain(CopperDataProviderMock.copperMonitorInterfaceFactory,8087,"localhost").start();
 					}
 				},null);
 				
@@ -63,7 +63,7 @@ public class SpringRemoteServerMainTest {
 		
 		HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
 		httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitorInterface.class);
-		httpInvokerProxyFactoryBean.setServiceUrl("http://localhost:8080/copperMonitorInterface");
+		httpInvokerProxyFactoryBean.setServiceUrl("http://localhost:8087/copperMonitorInterface");
 		httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
 		httpInvokerProxyFactoryBean.afterPropertiesSet();
 	    

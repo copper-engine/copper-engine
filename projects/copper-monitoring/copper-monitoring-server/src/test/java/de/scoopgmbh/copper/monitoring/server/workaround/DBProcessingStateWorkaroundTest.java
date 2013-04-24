@@ -1,9 +1,10 @@
 package de.scoopgmbh.copper.monitoring.server.workaround;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
-import de.scoopgmbh.copper.monitoring.server.workaround.DBProcessingStateWorkaround;
 import de.scoopgmbh.copper.persistent.DBProcessingState;
 
 
@@ -43,5 +44,10 @@ public class DBProcessingStateWorkaroundTest {
 		for (DBProcessingState s : DBProcessingState.values()) {
 			DBProcessingStateWorkaround.valueOf(s.name());
 		}
+	}
+	
+	@Test
+	public void test_fromKey(){
+		assertEquals(DBProcessingStateWorkaround.ENQUEUED, DBProcessingStateWorkaround.fromKey(0));
 	}
 }
