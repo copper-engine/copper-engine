@@ -44,11 +44,11 @@ public class PerformanceMonitor {
     		//part of com.sun.management.OperatingSystemMXBean only available at >= java  1.7
     		Method method = operatingSystemMXBean.getClass().getMethod("getProcessCpuLoad");
     		method.setAccessible(true);
-			processCpuLoad = (double)method.invoke(operatingSystemMXBean);
+			processCpuLoad = (Double)method.invoke(operatingSystemMXBean);
     		Method method2 = operatingSystemMXBean.getClass().getMethod("getSystemCpuLoad");
     		method2.setAccessible(true);
-			systemCpuLoad = (double)method2.invoke(operatingSystemMXBean);
-    		freePhysicalMemorySize = (long)operatingSystemMXBean.getClass().getMethod("getFreePhysicalMemorySize").invoke(operatingSystemMXBean);
+			systemCpuLoad = (Double)method2.invoke(operatingSystemMXBean);
+    		freePhysicalMemorySize = (Long)operatingSystemMXBean.getClass().getMethod("getFreePhysicalMemorySize").invoke(operatingSystemMXBean);
     	} catch (Exception e) {
     		//workaround to support legacy java versions the 
     		//Exception means no support
