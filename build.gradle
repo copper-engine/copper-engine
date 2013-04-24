@@ -404,3 +404,11 @@ project(':projects:copper-monitoring:copper-monitoring-core') {
     }
 }
 
+project(':projects:copper-monitoring:copper-monitoring-example') {
+    dependencies {
+    	 compile project(':projects:copper-monitoring:copper-monitoring-server')
+    	 compile project(':projects:copper-coreengine')
+    }
+}
+
+
