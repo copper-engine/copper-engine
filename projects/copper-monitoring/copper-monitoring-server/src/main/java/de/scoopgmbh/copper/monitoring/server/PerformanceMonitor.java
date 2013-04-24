@@ -54,9 +54,9 @@ public class PerformanceMonitor {
     		//Exception means no support
     	}
     	return new SystemResourcesInfo(new Date(),
-    			boundValue(processCpuLoad),
-    			freePhysicalMemorySize,
     			boundValue(systemCpuLoad),
+    			freePhysicalMemorySize,
+    			boundValue(processCpuLoad),
     			memoryMXBean.getHeapMemoryUsage().getUsed(),
     			threadMXBean.getThreadCount(),
     			classLoadingMXBean.getTotalLoadedClassCount());

@@ -24,7 +24,7 @@ import java.util.Properties;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class SpringRemoteServerMain {
 		logger.info("Starting Copper-Monitor-Server (jetty)");
 
 		server = new Server();
-		ServerConnector connector = new ServerConnector(server);
+		SocketConnector connector = new SocketConnector();
 		connector.setPort(port);
 		connector.setHost(host);
 		server.setConnectors(new Connector[] { connector });
