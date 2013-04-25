@@ -61,9 +61,7 @@ public class RessourceResultController implements Initializable, FilterResultCon
         assert memoryChart != null : "fx:id=\"memoryChart\" was not injected: check your FXML file 'ResourceResult.fxml'.";
         assert threadChart != null : "fx:id=\"threadChart\" was not injected: check your FXML file 'ResourceResult.fxml'.";
 
-        
         initChart();
-
     }
 
 	private void initChart() {
@@ -83,8 +81,12 @@ public class RessourceResultController implements Initializable, FilterResultCon
         classesChart.getData().add(axisClasses);
         
         axisMemory = new XYChart.Series<String, Number>();
-        axisMemory.setName("Heap memory usage");
+        axisMemory.setName("Memory usage");
         memoryChart.getData().add(axisMemory);
+        
+        axisFreeSystemMem= new XYChart.Series<String, Number>();
+        axisFreeSystemMem.setName("Free System Memory");
+        memoryChart.getData().add(axisFreeSystemMem);
 	}
 	
 	@Override
@@ -97,13 +99,13 @@ public class RessourceResultController implements Initializable, FilterResultCon
 	private XYChart.Series<String, Number> axisSystemCpuLoad;
 	private XYChart.Series<String, Number> axisProcessCpuLoad;
 
+	private XYChart.Series<String, Number> axisFreeSystemMem;
 	private XYChart.Series<String, Number> axisThread;
 	private XYChart.Series<String, Number> axisClasses;
 	private XYChart.Series<String, Number> axisMemory;
 	
 	@Override
 	public void showFilteredResult(List<SystemResourcesInfo> filteredlist, ResourceFilterModel usedFilter) {
-		
 		SystemResourcesInfo systemRessourcesInfo = filteredlist.get(0);
 		String date = new SimpleDateFormat("HH:mm:ss").format(systemRessourcesInfo.getTimestamp());
 
@@ -113,6 +115,7 @@ public class RessourceResultController implements Initializable, FilterResultCon
 		updateChart(systemRessourcesInfo.getLiveThreadsCount(),date,axisThread);
 		updateChart(systemRessourcesInfo.getTotalLoadedClassCount(),date,axisClasses);
 		updateChart(systemRessourcesInfo.getHeapMemoryUsage(),date,axisMemory);
+		updateChart(systemRessourcesInfo.getFreePhysicalMemorySize(),date,axisFreeSystemMem);
 	}
 	
 	private void updateChart(Number value,String date, XYChart.Series<String, Number> axis){

@@ -16,7 +16,6 @@
 package de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result;
 
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +45,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
@@ -58,6 +58,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.Workflow
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
+import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class WorkflowInstanceResultController implements Initializable, FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>, FxmlController {
@@ -236,22 +237,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 				return p.getValue().timeout;
 			}
 		});
-        timeoutColumn.setCellFactory(new Callback<TableColumn<WorkflowInstanceResultModel, Date>, TableCell<WorkflowInstanceResultModel, Date>>() {
-            @Override
-            public TableCell<WorkflowInstanceResultModel, Date> call(TableColumn<WorkflowInstanceResultModel, Date> param) {
-                TableCell<WorkflowInstanceResultModel, Date> cell = new TableCell<WorkflowInstanceResultModel, Date>() {
-                	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-                    @Override
-                    public void updateItem(final Date date, boolean empty) {
-                        if (date != null) {
-							setText(simpleDateFormat.format(date));
-                        }
-                    }
-                };
-                return cell;
-            }
-        });
-        
+        TableColumnHelper.setConverterCellFactory(timeoutColumn, new DateStringConverter("dd.MM.yyyy HH:mm:ss"));
         
         lastActivityTimestamp.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
 			@Override
@@ -260,6 +246,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 				return p.getValue().lastActivityTimestamp;
 			}
 		});
+        TableColumnHelper.setConverterCellFactory(lastActivityTimestamp, new DateStringConverter("dd.MM.yyyy HH:mm:ss"));
         overallLifetimeInMs.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(
@@ -274,6 +261,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 				return p.getValue().startTime;
 			}
 		});
+        TableColumnHelper.setConverterCellFactory(startTime, new DateStringConverter("dd.MM.yyyy HH:mm:ss"));
         finishTime.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
 			@Override
 			public ObservableValue<Date> call(
@@ -281,6 +269,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 				return p.getValue().finishTime;
 			}
 		});
+        TableColumnHelper.setConverterCellFactory(finishTime, new DateStringConverter("dd.MM.yyyy HH:mm:ss"));
         lastErrorTime.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, Date>, ObservableValue<Date>>() {
 			@Override
 			public ObservableValue<Date> call(
@@ -288,6 +277,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 				return p.getValue().lastErrorTime;
 			}
 		});
+        TableColumnHelper.setConverterCellFactory(lastErrorTime, new DateStringConverter("dd.MM.yyyy HH:mm:ss"));
         errorInfos.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(
@@ -351,6 +341,20 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
         
         resultTable.setContextMenu(contextMenu);
         
+        
+       
+        
+        idColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.11));
+        prioritynColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.07));
+        processorPoolColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
+        stateColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.07));
+        timeoutColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
+        lastActivityTimestamp.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.11));
+        overallLifetimeInMs.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
+        startTime.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
+        finishTime.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
+        lastErrorTime.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
+        errorInfos.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.1));
         
      
  

@@ -21,6 +21,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.MenuItemBuilder;
+import javafx.scene.control.Tooltip;
 
 public abstract class FormCreator{
 	public abstract Form<?> createForm();
@@ -66,6 +67,15 @@ public abstract class FormCreator{
 	}
 	public void setEnabled(boolean value) {
 		enabled=value;
+	}
+
+	private Tooltip tooltip=null;
+	public void setTooltip(Tooltip tooltip) {
+		this.tooltip = tooltip;
+	}
+
+	public Tooltip getTooltip() {
+		return tooltip;
 	}
 	
 }

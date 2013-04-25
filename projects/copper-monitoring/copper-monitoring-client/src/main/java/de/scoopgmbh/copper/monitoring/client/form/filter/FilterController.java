@@ -18,7 +18,10 @@ package de.scoopgmbh.copper.monitoring.client.form.filter;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 
 public interface FilterController<F> extends FxmlController {
+	public static long DEFAULT_REFRESH_INTERVALL=1000;
+	
 	public F getFilter();
 	public boolean supportsFiltering();
 	//public void executeFilter();
+	public long getDefaultRefreshIntervall();
 }

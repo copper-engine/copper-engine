@@ -64,5 +64,9 @@ public class EngineLoadFilterController implements Initializable, FilterControll
 		return true;
 	}
 	
+	@Override
+	public long getDefaultRefreshIntervall() {
+		return 1500;
+	}
 	
 }

@@ -18,9 +18,12 @@ package de.scoopgmbh.copper.monitoring.client.form;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.scene.Node;
 import javafx.scene.control.ButtonBase;
+import javafx.scene.control.Control;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.SplitPane;
  
 public class FormGroup extends FormCreator{
 	
@@ -38,12 +41,21 @@ public class FormGroup extends FormCreator{
 		return fileMenu;
 	}
 	
-	public List<ButtonBase> createButtonList(){
-		ArrayList<ButtonBase> result = new ArrayList<ButtonBase>();
+	public List<Node> createButtonList(){
+		ArrayList<Node> result = new ArrayList<Node>();
 		for (final FormCreator form: forms){
-			ButtonBase createShowFormButton = form.createShowFormButton();
-			result.add(createShowFormButton);
+			Control createShowFormButton = form.createShowFormButton();
 			createShowFormButton.setDisable(!form.isEnabled());
+			createShowFormButton.setTooltip(form.getTooltip());
+			
+			if (!form.isEnabled()){/*workaround disabled button must be wrapped in split pane to show tooltip https://javafx-jira.kenai.com/browse/RT-28850*/
+				SplitPane wrapper = new SplitPane();
+				wrapper.getItems().add(createShowFormButton);
+				createShowFormButton = wrapper;
+				wrapper.setTooltip(form.getTooltip());
+			}
+			
+			result.add(createShowFormButton);
 		}
 		return result;
 	}

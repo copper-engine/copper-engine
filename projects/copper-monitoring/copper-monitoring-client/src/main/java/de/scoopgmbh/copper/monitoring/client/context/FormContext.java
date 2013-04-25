@@ -20,10 +20,11 @@ import java.util.List;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
-import javafx.scene.control.ButtonBase;
+import javafx.scene.Node;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -72,8 +73,8 @@ import de.scoopgmbh.copper.monitoring.client.ui.systemresource.filter.ResourceFi
 import de.scoopgmbh.copper.monitoring.client.ui.systemresource.filter.ResourceFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.systemresource.result.RessourceResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController;
-import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeForm;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
+import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeForm;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.filter.WorkflowHistoryFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.filter.WorkflowHistoryFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.result.WorkflowHistoryResultController;
@@ -160,7 +161,10 @@ public class FormContext {
 				return createSqlForm();
 			}
 		};
-		sqlformcreator.setEnabled(guiCopperDataProvider.getInterfaceSettings().isCanExecuteSql());
+		if (!guiCopperDataProvider.getInterfaceSettings().isCanExecuteSql()){
+			sqlformcreator.setEnabled(false);
+			sqlformcreator.setTooltip(new Tooltip("disabled in copper"));
+		}
 		maingroup.add(sqlformcreator);
 		
 		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.hotfix_title)) {
@@ -239,7 +243,7 @@ public class FormContext {
 		HBox.setHgrow(buttonBar, Priority.ALWAYS);
 		buttonBar.getStyleClass().setAll("segmented-button-bar");
 
-		List<ButtonBase> buttons = formGroup.createButtonList();
+		List<Node> buttons = formGroup.createButtonList();
 		buttons.get(0).getStyleClass().addAll("first");
 		buttons.get(buttons.size() - 1).getStyleClass().addAll("last", "capsule");
 
@@ -414,7 +418,7 @@ public class FormContext {
 	
 	public FilterAbleForm<EmptyFilterModel,DashboardResultModel> createDashboardForm(){
 		if (dasboardFormSingleton==null){
-			FilterController<EmptyFilterModel> fCtrl = new GenericFilterController<EmptyFilterModel>(); 
+			FilterController<EmptyFilterModel> fCtrl = new GenericFilterController<EmptyFilterModel>(5000); 
 			FxmlForm<FilterController<EmptyFilterModel>> filterForm = new FxmlForm<FilterController<EmptyFilterModel>>(fCtrl, messageProvider);
 			
 			FilterResultController<EmptyFilterModel,DashboardResultModel> resCtrl = new DashboardResultController(guiCopperDataProvider,this);

@@ -58,4 +58,9 @@ public class WorkflowHistoryFilterController implements Initializable, FilterCon
 		return true;
 	}
 	
+	@Override
+	public long getDefaultRefreshIntervall() {
+		return FilterController.DEFAULT_REFRESH_INTERVALL;
+	}
+	
 }

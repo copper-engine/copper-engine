@@ -24,6 +24,7 @@ import java.util.Map;
 
 import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
+import de.scoopgmbh.copper.management.BatcherMXBean;
 import de.scoopgmbh.copper.management.DBStorageMXBean;
 import de.scoopgmbh.copper.management.FileBasedWorkflowRepositoryMXBean;
 import de.scoopgmbh.copper.management.PersistentPriorityProcessorPoolMXBean;
@@ -276,14 +277,15 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 			DependencyInjectorInfo dependencyInjectorInfo = new DependencyInjectorInfo(DependencyInjectorTyp.UNKNOWN);
 			
 			StorageInfo storageInfo = new StorageInfo();
-			storageInfo.setName("UNKNOWN");
 			
 			BatcherInfo batcher= new BatcherInfo();
 			if (engine instanceof PersistentProcessingEngineMXBean){
 				DBStorageMXBean dbStorageTmp = ((PersistentProcessingEngineMXBean)engine).getDBStorage();
+				storageInfo.setDescription(dbStorageTmp.getDescription());
 				if (dbStorageTmp instanceof ScottyDBStorageMXBean ){
-					batcher.setName("UNKNOWN");
-					batcher.setNumThreads(((ScottyDBStorageMXBean)dbStorageTmp).getBatcherMXBean().getNumThreads());
+					BatcherMXBean batcherMXBean = ((ScottyDBStorageMXBean)dbStorageTmp).getBatcherMXBean();
+					batcher.setDescription(batcherMXBean.getDescription());
+					batcher.setNumThreads(batcherMXBean.getNumThreads());
 				}
 			}
 			

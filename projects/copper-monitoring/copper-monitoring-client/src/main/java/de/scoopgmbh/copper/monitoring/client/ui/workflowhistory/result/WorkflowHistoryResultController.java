@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.result;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -34,7 +35,7 @@ import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.filter.WorkflowHistoryFilterModel;
-import de.scoopgmbh.copper.monitoring.client.util.ConvertingStringProperty;
+import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 
 public class WorkflowHistoryResultController implements Initializable, FilterResultController<WorkflowHistoryFilterModel,WorkflowHistoryResultModel>, FxmlController {
 	
@@ -58,10 +59,10 @@ public class WorkflowHistoryResultController implements Initializable, FilterRes
     private TableView<WorkflowHistoryResultModel> resultTable; // Value injected by FXMLLoader
 
     @FXML //  fx:id="stateColumn"
-    private TableColumn<WorkflowHistoryResultModel, String> stateColumn; // Value injected by FXMLLoader
+    private TableColumn<WorkflowHistoryResultModel, String> messageColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="timeColumn"
-    private TableColumn<WorkflowHistoryResultModel, String> timeColumn; // Value injected by FXMLLoader
+    private TableColumn<WorkflowHistoryResultModel, Date> timeColumn; // Value injected by FXMLLoader
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
@@ -69,18 +70,18 @@ public class WorkflowHistoryResultController implements Initializable, FilterRes
         assert classnameColumn != null : "fx:id=\"classnameColumn\" was not injected: check your FXML file 'WorkflowHistoryResult.fxml'.";
         assert idColumn != null : "fx:id=\"idColumn\" was not injected: check your FXML file 'WorkflowHistoryResult.fxml'.";
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowHistoryResult.fxml'.";
-        assert stateColumn != null : "fx:id=\"stateColumn\" was not injected: check your FXML file 'WorkflowHistoryResult.fxml'.";
+        assert messageColumn != null : "fx:id=\"stateColumn\" was not injected: check your FXML file 'WorkflowHistoryResult.fxml'.";
         assert timeColumn != null : "fx:id=\"timeColumn\" was not injected: check your FXML file 'WorkflowHistoryResult.fxml'.";
 
         
-        timeColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowHistoryResultModel, String>, ObservableValue<String>>() {
-     			@SuppressWarnings({ "rawtypes", "unchecked" })
+        timeColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowHistoryResultModel, Date>, ObservableValue<Date>>() {
 				@Override
-     			public ObservableValue<String> call(
-     					CellDataFeatures<WorkflowHistoryResultModel, String> p) {
-     				return new ConvertingStringProperty(p.getValue().timestamp,new DateStringConverter("dd.MM.yyyy HH:mm:ss:SSS"));
+     			public ObservableValue<Date> call(
+     					CellDataFeatures<WorkflowHistoryResultModel, Date> p) {
+     				return p.getValue().timestamp;
      			}
      		});
+        TableColumnHelper.setConverterCellFactory(timeColumn, new DateStringConverter("dd.MM.yyyy HH:mm:ss:SSS"));
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowHistoryResultModel, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(
@@ -89,7 +90,7 @@ public class WorkflowHistoryResultController implements Initializable, FilterRes
 			}
 		});
         
-        stateColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowHistoryResultModel, String>, ObservableValue<String>>() {
+        messageColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowHistoryResultModel, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(
 					CellDataFeatures<WorkflowHistoryResultModel, String> p) {
@@ -108,9 +109,9 @@ public class WorkflowHistoryResultController implements Initializable, FilterRes
 //        resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         
         timeColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.15));
-        idColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.35));
-        stateColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.15));
-        classnameColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.35)); 
+        messageColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.45));
+        idColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.20));
+        classnameColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.20)); 
     }
     
 	@Override

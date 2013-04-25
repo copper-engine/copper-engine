@@ -27,8 +27,6 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 public class ResourceFilterController implements Initializable, FilterController<ResourceFilterModel>, FxmlController {
 	final ResourceFilterModel model= new ResourceFilterModel();
 
-
-
     @FXML //  fx:id="pane"
     private FlowPane pane; // Value injected by FXMLLoader
 
@@ -36,8 +34,6 @@ public class ResourceFilterController implements Initializable, FilterController
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert pane != null : "fx:id=\"pane\" was not injected: check your FXML file 'EngineLoadFilter.fxml'.";
-
-
 	}
 
 	@Override
@@ -55,4 +51,8 @@ public class ResourceFilterController implements Initializable, FilterController
 		return true;
 	}
 	
+	@Override
+	public long getDefaultRefreshIntervall() {
+		return 1500;
+	}
 }

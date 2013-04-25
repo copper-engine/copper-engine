@@ -135,5 +135,10 @@ public class WorkflowSummaryFilterController implements Initializable, FilterCon
 		});
 	}
 	
+	@Override
+	public long getDefaultRefreshIntervall() {
+		return FilterController.DEFAULT_REFRESH_INTERVALL;
+	}
+	
 	
 }

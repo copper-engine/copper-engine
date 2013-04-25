@@ -238,10 +238,12 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		filterService.reset();
 		filterService.start();
 		
+		refreshRateInMs.set(Long.toString(filterForm.getController().getDefaultRefreshIntervall()));
+		
 		return stackPane;
 	}
 	
-	SimpleStringProperty refreshRateInMs = new SimpleStringProperty("1000");
+	SimpleStringProperty refreshRateInMs = new SimpleStringProperty();
 
 	public static class RepeatFilterService<F,R>  extends Service<Void> {
     	private long refreshRate=1000;

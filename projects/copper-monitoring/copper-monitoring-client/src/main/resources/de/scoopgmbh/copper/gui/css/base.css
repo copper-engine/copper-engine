@@ -20,7 +20,7 @@
     -fx-effect: dropshadow(two-pass-box,black,5,.2,0,0);
 }
 
-.segmented-button-bar .button, .segmented-button-bar .menu-button {
+.segmented-button-bar .button, .segmented-button-bar .menu-button, .segmented-button-bar .split-pane .button{
     -fx-background-color:
         -darkest-black,
         -dark-highlight,
@@ -29,6 +29,12 @@
     -fx-background-radius: 0;
     -fx-padding: 0.4em 1.833333em 0.4em 1.833333em;
 }
+
+.segmented-button-bar .split-pane{/*workaround disabled button must bew wrapped in split pane to show tooltip https://javafx-jira.kenai.com/browse/RT-28850*/
+ 	-fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
 
 .segmented-button-bar .menu-button .label {
     -fx-padding: 0em 0.4em 0em 0em; /* 4 6 4 6*/

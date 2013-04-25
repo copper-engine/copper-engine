@@ -25,7 +25,9 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 public class TableColumnHelper {
 	
@@ -34,6 +36,16 @@ public class TableColumnHelper {
 	}
 	public static interface ColumnBooleanAccessor<T>{
 		public Property<Boolean> getProperty(T row);
+	}
+	
+	public static <T, U> void setConverterCellFactory(TableColumn<T, U> column, final StringConverter<U> converter) {
+		column.setCellFactory(new Callback<TableColumn<T, U>, TableCell<T, U>>() {
+			@Override
+			public TableCell<T, U> call(TableColumn<T, U> param) {
+				TextFieldTableCell<T, U> cell = new TextFieldTableCell<T, U>(converter);
+				return cell;
+			}
+		});
 	}
 	
 	/**

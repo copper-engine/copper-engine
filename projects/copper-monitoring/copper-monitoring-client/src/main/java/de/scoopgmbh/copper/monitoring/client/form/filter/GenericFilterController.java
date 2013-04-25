@@ -30,14 +30,19 @@ public class GenericFilterController<T> implements FilterController<T>{
 	}
 	
 	private final T filter;
-	public GenericFilterController(T filter) {
+	private long refereshIntervall;
+	public GenericFilterController(T filter,long refereshIntervall) {
 		super();
 		this.filter = filter;
+		this.refereshIntervall = refereshIntervall;
 	}
 	
-	public GenericFilterController() {
-		super();
-		this.filter = null;
+	public GenericFilterController(T filter) {
+		this(filter,FilterController.DEFAULT_REFRESH_INTERVALL);
+	}
+	
+	public GenericFilterController(long refereshIntervall) {
+		this(null,refereshIntervall);
 	}
 
 	@Override
@@ -54,5 +59,9 @@ public class GenericFilterController<T> implements FilterController<T>{
 	public boolean supportsFiltering() {
 		return filter!=null;
 	}
-
+	
+	@Override
+	public long getDefaultRefreshIntervall() {
+		return refereshIntervall;
+	}
 }

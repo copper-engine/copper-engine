@@ -141,8 +141,8 @@ public class ProcessingEngineController implements Initializable, FxmlController
         	workflowRepositoryPaths.setText(workflowRepositoryPaths.getText()+path+"\n");
         }
         injectorTyp.setText(processingEngineInfo.getDependencyInjectorInfo().getTyp().toString());
-        storageId.setText(processingEngineInfo.getStorageInfo().getName());
-        batcherId.setText(processingEngineInfo.getStorageInfo().getBatcher().getName());
+        storageId.setText(processingEngineInfo.getStorageInfo().getDescription());
+        batcherId.setText(processingEngineInfo.getStorageInfo().getBatcher().getDescription());
         batcherthreadnum.setText(Integer.toString(processingEngineInfo.getStorageInfo().getBatcher().getNumThreads()));
         
         pools.getStyleClass().add("floating");//transparent tabheader

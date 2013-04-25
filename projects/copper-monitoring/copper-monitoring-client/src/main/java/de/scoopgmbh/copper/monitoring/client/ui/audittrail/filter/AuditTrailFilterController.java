@@ -71,6 +71,11 @@ public class AuditTrailFilterController implements Initializable, FilterControll
 	public boolean supportsFiltering() {
 		return true;
 	}
+
+	@Override
+	public long getDefaultRefreshIntervall() {
+		return FilterController.DEFAULT_REFRESH_INTERVALL;
+	}
 	
 	
 }

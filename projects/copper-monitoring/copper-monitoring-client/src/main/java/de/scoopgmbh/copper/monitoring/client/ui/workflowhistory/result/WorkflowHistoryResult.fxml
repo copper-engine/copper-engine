@@ -14,8 +14,8 @@
         <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
           <columns>
             <TableColumn prefWidth="75.0" text="Time" fx:id="timeColumn" />
+            <TableColumn prefWidth="75.0" text="Message" fx:id="messageColumn" />
             <TableColumn prefWidth="75.0" text="Instanceid" fx:id="idColumn" />
-            <TableColumn prefWidth="75.0" text="State" fx:id="stateColumn" />
             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="75.0" text="Workflow" fx:id="classnameColumn" />
           </columns>
         </TableView>

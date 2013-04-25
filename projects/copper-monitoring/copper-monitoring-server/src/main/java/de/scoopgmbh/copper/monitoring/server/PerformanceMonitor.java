@@ -48,7 +48,9 @@ public class PerformanceMonitor {
     		Method method2 = operatingSystemMXBean.getClass().getMethod("getSystemCpuLoad");
     		method2.setAccessible(true);
 			systemCpuLoad = (Double)method2.invoke(operatingSystemMXBean);
-    		freePhysicalMemorySize = (Long)operatingSystemMXBean.getClass().getMethod("getFreePhysicalMemorySize").invoke(operatingSystemMXBean);
+    		Method method3 = operatingSystemMXBean.getClass().getMethod("getFreePhysicalMemorySize");
+    		method3.setAccessible(true);
+			freePhysicalMemorySize = (Long)method3.invoke(operatingSystemMXBean);
     	} catch (Exception e) {
     		//workaround to support legacy java versions the 
     		//Exception means no support

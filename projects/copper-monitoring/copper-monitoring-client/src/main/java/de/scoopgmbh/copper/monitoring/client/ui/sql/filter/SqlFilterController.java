@@ -81,4 +81,9 @@ public class SqlFilterController implements Initializable, FilterController<SqlF
 	public boolean supportsFiltering() {
 		return true;
 	}
+	
+	@Override
+	public long getDefaultRefreshIntervall() {
+		return FilterController.DEFAULT_REFRESH_INTERVALL;
+	}
 }

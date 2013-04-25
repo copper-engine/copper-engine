@@ -123,4 +123,9 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
 		return true;
 	}
 	
+	@Override
+	public long getDefaultRefreshIntervall() {
+		return FilterController.DEFAULT_REFRESH_INTERVALL;
+	}
+	
 }
