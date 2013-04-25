@@ -4,16 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ScottyClassAdapter extends ClassAdapter implements Opcodes {
+public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScottyClassAdapter.class);
 	
@@ -22,7 +20,7 @@ public class ScottyClassAdapter extends ClassAdapter implements Opcodes {
 	private final List<MethodInfo> methodInfos = new ArrayList<MethodInfo>();
 
 	public ScottyClassAdapter(ClassVisitor cv, Set<String> interruptableMethods) {
-		super(cv);
+		super(ASM4,cv);
 		this.interruptableMethods = interruptableMethods;
 	}
 	
@@ -54,7 +52,7 @@ public class ScottyClassAdapter extends ClassAdapter implements Opcodes {
 			String classDesc = Type.getObjectType(currentClassName).getDescriptor();
 			BuildStackInfoAdapter stackInfo = new BuildStackInfoAdapter(classDesc,(access & ACC_STATIC) > 0, name, desc, signature);
 			final ScottyMethodAdapter scotty = new ScottyMethodAdapter(mv, currentClassName, interruptableMethods, stackInfo, name, access, desc);
-			MethodAdapter collectMethodInfo = new MethodAdapter(stackInfo) {
+			MethodVisitor collectMethodInfo = new MethodVisitor(Opcodes.ASM4,stackInfo) {
 				@Override
 				public void visitEnd() {
 					super.visitEnd();

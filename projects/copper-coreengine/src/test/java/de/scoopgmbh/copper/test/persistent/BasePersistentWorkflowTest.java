@@ -15,6 +15,13 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
+
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -24,8 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -46,9 +51,6 @@ import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
-
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeFalse;
 
 @WorkflowDescription(alias="de.scoopgmbh.copper.test.persistent.BasePersistentWorkflowTest", majorVersion=1, minorVersion=2, patchLevelVersion=3)
 public class BasePersistentWorkflowTest {

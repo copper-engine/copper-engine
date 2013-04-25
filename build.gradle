@@ -136,11 +136,11 @@ project(':projects:copper-coreengine') {
 		compile 'aopalliance:aopalliance:1.0'
 		
 		// asm
-		compile 'asm:asm:3.3.1'
-		compile 'asm:asm-commons:3.3.1'
-		compile 'asm:asm-tree:3.3.1'
-		compile 'asm:asm-util:3.3.1'
-		compile 'asm:asm-analysis:3.3.1'
+		compile 'org.ow2.asm:asm:4.1'
+		compile 'org.ow2.asm:asm-commons:4.1'
+		compile 'org.ow2.asm:asm-tree:4.1'
+		compile 'org.ow2.asm:asm-util:4.1'
+		compile 'org.ow2.asm:asm-analysis:4.1'
 
 		// commons
 		compile 'commons-codec:commons-codec:1.4'

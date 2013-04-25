@@ -82,6 +82,7 @@ class BatchInsertIntoAutoTrail {
 			return 20;
 		}
 
+		@SuppressWarnings("resource")
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			if (commands.isEmpty())

@@ -18,11 +18,12 @@ package de.scoopgmbh.copper.instrument;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.commons.EmptyVisitor;
+import org.objectweb.asm.Opcodes;
 
-public class ScottyFindInterruptableMethodsVisitor extends EmptyVisitor {
+public class ScottyFindInterruptableMethodsVisitor extends ClassVisitor implements Opcodes {
 
 	private final Set<String> interruptableMethods = new HashSet<String>();
 	private String method = null;
@@ -30,6 +31,7 @@ public class ScottyFindInterruptableMethodsVisitor extends EmptyVisitor {
 	private String superClassname;
 
 	public ScottyFindInterruptableMethodsVisitor() {
+		super(ASM4);
 	}
 
 	public void reset() {
@@ -65,15 +67,15 @@ public class ScottyFindInterruptableMethodsVisitor extends EmptyVisitor {
 				}
 			}
 		}
-		return super.visitMethod(access, name, desc, signature, exceptions);
-	}
-	
-	@Override
-	public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
-		if ("de/scoopgmbh/copper/InterruptException".equals(type)) {
-			throw new RuntimeException("InterruptException must not be handled!");
-		}
-		super.visitTryCatchBlock(start, end, handler, type);
+		return new MethodVisitor(ASM4, super.visitMethod(access, name, desc, signature, exceptions)) {
+			@Override
+			public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+				if ("de/scoopgmbh/copper/InterruptException".equals(type)) {
+					throw new RuntimeException("InterruptException must not be handled!");
+				}
+				super.visitTryCatchBlock(start, end, handler, type);
+			}			
+		};
 	}
 
 }

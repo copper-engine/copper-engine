@@ -25,18 +25,14 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.StackEntry;
 
-class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
+class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 	
-	static final Logger logger = LoggerFactory.getLogger(ScottyMethodAdapter.class);
 	public static final Set<String> waitMethods;
 	
 	static {
@@ -58,7 +54,7 @@ class ScottyMethodAdapter extends MethodAdapter implements Opcodes {
 	private final MethodInfo info;
 
 	public ScottyMethodAdapter(MethodVisitor mv, String currentClassName, Set<String> interruptableMethods, ByteCodeStackInfo stackInfo, String name, int access, String descriptor) {
-		super(mv);
+		super(ASM4,mv);
 		info = new MethodInfo(currentClassName, name, access, descriptor);
 		this.currentClassName = currentClassName;
 		this.interruptableMethods = interruptableMethods;

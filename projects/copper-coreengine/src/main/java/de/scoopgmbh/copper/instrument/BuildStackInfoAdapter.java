@@ -30,7 +30,6 @@ import java.util.Map;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -45,7 +44,7 @@ import com.sun.org.apache.bcel.internal.classfile.ClassFormatException;
 
 import de.scoopgmbh.copper.instrument.StackInfo.ComputationalCategory;
 
-public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeStackInfo {
+public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, ByteCodeStackInfo {
 	
 	static final Logger logger = LoggerFactory.getLogger(BuildStackInfoAdapter.class);
 	
@@ -60,6 +59,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 	MethodVisitor delegate;
 
 	public BuildStackInfoAdapter(String classType, boolean isStatic, String methodName, String arguments, String extendedArguments) {
+		super(ASM4);
 		int i = 0;
 		Type[] argumentTypes = Type.getArgumentTypes(arguments);
 		currentFrame = new StackInfo();
@@ -521,8 +521,7 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 	}
 
 	@Override
-	public void visitTableSwitchInsn(int arg0, int arg1, Label arg2,
-			Label[] arg3) {
+	public void visitTableSwitchInsn(int arg0, int arg1, Label arg2, Label... arg3) {
 		savePreviousFrame();
 		if (logger.isDebugEnabled()) logger.debug("tableSwitchInsn "+arg0+" "+arg1+" "+arg2+" "+Arrays.asList(arg3));
 		delegate.visitTableSwitchInsn(arg0, arg1, arg2, arg3);
@@ -628,30 +627,26 @@ public class BuildStackInfoAdapter implements MethodVisitor, Opcodes, ByteCodeSt
 		}
 	}
 
-	private static void testClass(File file, final String className) throws IOException,
-			FileNotFoundException {
+	private static void testClass(File file, final String className) throws IOException, FileNotFoundException {
 		ClassReader cr = new ClassReader(new FileInputStream(file));
 		ClassWriter cw = new ClassWriter(0);
 		final String cDesc = Type.getObjectType(className).getDescriptor();
-		ClassVisitor cv =
-		 new ClassAdapter(cw) {
-			
-			
-			 @Override
-			public MethodVisitor visitMethod(int access, String name,
-					String desc, String signature, String[] exceptions) {
-				 if (logger.isDebugEnabled()) logger.debug("=======>"+access+" "+name+" "+desc+" "+signature);
-				  return new BuildStackInfoAdapter(cDesc, (access&Opcodes.ACC_STATIC) > 0, name, desc, signature);
+		ClassVisitor cv = new ClassVisitor(ASM4, cw) {
+
+
+			@Override
+			public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+				if (logger.isDebugEnabled()) logger.debug("=======>"+access+" "+name+" "+desc+" "+signature);
+				return new BuildStackInfoAdapter(cDesc, (access&Opcodes.ACC_STATIC) > 0, name, desc, signature);
 			}
-			 
-			 @Override
-			public void visitInnerClass(String arg0, String arg1, String arg2,
-					int arg3) {
-				 if (logger.isDebugEnabled()) logger.debug("== VISIT INNER =======>"+arg0+" "+arg1+" "+arg2+" "+arg3);
+
+			@Override
+			public void visitInnerClass(String arg0, String arg1, String arg2, int arg3) {
+				if (logger.isDebugEnabled()) logger.debug("== VISIT INNER =======>"+arg0+" "+arg1+" "+arg2+" "+arg3);
 				super.visitInnerClass(arg0, arg1, arg2, arg3);
 			}
-				
-			};
+
+		};
 		cr.accept(cv, 0);
 	}
 
