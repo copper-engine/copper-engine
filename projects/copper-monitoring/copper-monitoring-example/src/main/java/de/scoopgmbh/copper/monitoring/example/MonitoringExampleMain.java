@@ -20,16 +20,21 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
 
+import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.CompressedBase64PostProcessor;
 import de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner;
 import de.scoopgmbh.copper.batcher.impl.BatcherImpl;
 import de.scoopgmbh.copper.common.DefaultProcessorPoolManager;
 import de.scoopgmbh.copper.common.JdkRandomUUIDFactory;
+import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
+import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapter;
 import de.scoopgmbh.copper.monitoring.server.DefaultCopperMonitorInterfaceFactory;
 import de.scoopgmbh.copper.monitoring.server.SpringRemoteServerMain;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
@@ -41,6 +46,7 @@ import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorage;
 import de.scoopgmbh.copper.persistent.txn.CopperTransactionController;
 import de.scoopgmbh.copper.spring.SpringDependencyInjector;
+import de.scoopgmbh.copper.util.PojoDependencyInjector;
 import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
 
 public class MonitoringExampleMain {
@@ -119,6 +125,28 @@ public class MonitoringExampleMain {
 		auditTrail.asynchLog(1, new Date(), "", "", "", "", "", "detail", "Text");
 		
 		
+		PojoDependencyInjector dependyInjector = new PojoDependencyInjector();
+		dependyInjector.setEngine(persistentengine);
+		persistentengine.setDependencyInjector(dependyInjector);
+		dependyInjector.register("billAdapter", new BillAdapter(persistentengine));
+		
+
+		try {
+			cleanDB(datasource_default);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		
+		
+		try {
+			persistentengine.run("BillWorkflow", "");
+		} catch (CopperException e) {
+			throw new RuntimeException(e);
+		}
+		
+
+		
 		
 		List<ProcessingEngineMXBean> engines = new ArrayList<ProcessingEngineMXBean>();
 		engines.add(persistentengine);
@@ -137,6 +165,21 @@ public class MonitoringExampleMain {
 	
 	public static void main(String[] args) {
 		new MonitoringExampleMain().start();
+	}
+	
+	
+	void cleanDB(DataSource ds) throws Exception {
+		new RetryingTransaction(ds) {
+			@Override
+			protected void execute() throws Exception {
+				getConnection().createStatement().execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
+				getConnection().createStatement().execute("DELETE FROM COP_WAIT");
+				getConnection().createStatement().execute("DELETE FROM COP_RESPONSE");
+				getConnection().createStatement().execute("DELETE FROM COP_QUEUE");
+				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE");
+				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
+			}
+		}.run();
 	}
 
 }

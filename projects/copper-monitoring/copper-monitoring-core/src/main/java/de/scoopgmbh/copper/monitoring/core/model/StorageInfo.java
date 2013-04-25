@@ -20,21 +20,13 @@ import java.io.Serializable;
 public class StorageInfo implements Serializable{
 	private static final long serialVersionUID = 8298167440433882270L;
 	
-	String name;
+	String description;
 	BatcherInfo batcher;
 
-	public StorageInfo(String name,BatcherInfo batcher) {
+	public StorageInfo(String description, BatcherInfo batcher) {
 		super();
-		this.name = name;
+		this.description = description;
 		this.batcher = batcher;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public BatcherInfo getBatcher() {
@@ -49,5 +41,15 @@ public class StorageInfo implements Serializable{
 		super();
 		batcher= new BatcherInfo();
 	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	
 
 }

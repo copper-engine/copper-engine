@@ -20,21 +20,21 @@ import java.io.Serializable;
 public class BatcherInfo implements Serializable{
 	private static final long serialVersionUID = 7907179275571625622L;
 	
-	String name;
+	String description;
 	int numThreads;
 	
-	public BatcherInfo(String name, int numThreads) {
+	public BatcherInfo(String description, int numThreads) {
 		super();
-		this.name = name;
+		this.description = description;
 		this.numThreads = numThreads;
 	}
 
-	public String getName() {
-		return name;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public int getNumThreads() {
