@@ -431,5 +431,10 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 	public DatabaseDialectMXBean getDatabaseDialectMXBean() {
 		return (DatabaseDialectMXBean) (dialect instanceof DatabaseDialectMXBean ? dialect : null);
 	}
+
+	@Override
+	public String getDescription() {
+		return "Default RDBMS storage";
+	}
 	
 }

@@ -16,5 +16,5 @@
 package de.scoopgmbh.copper.management;
 
 public interface DBStorageMXBean {
-
+	public String getDescription();
 }

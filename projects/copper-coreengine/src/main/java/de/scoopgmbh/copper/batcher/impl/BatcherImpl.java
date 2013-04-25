@@ -170,4 +170,9 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
 		}
 	}
 
+	@Override
+	public String getDescription() {
+		return "Default COPPER Batcher";
+	}
+
 }
