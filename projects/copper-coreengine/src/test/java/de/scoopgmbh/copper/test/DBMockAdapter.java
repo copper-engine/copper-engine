@@ -91,10 +91,11 @@ public class DBMockAdapter {
 
 	void doNotify(final String param, final String cid) {
 		try {
-			new RetryingTransaction(dataSource) {
+			new RetryingTransaction<Void>(dataSource) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					engine.notify(new Response<String>(cid, param, null), this.getConnection());
+					return null;
 				}
 			}.run();
 		} 

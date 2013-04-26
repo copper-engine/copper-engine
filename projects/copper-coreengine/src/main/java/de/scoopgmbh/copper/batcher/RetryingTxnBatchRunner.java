@@ -45,10 +45,11 @@ public class RetryingTxnBatchRunner<E extends BatchExecutorBase<E,T>, T extends 
 				base.doExec(commands, null);
 			}
 			else {
-				new RetryingTransaction(dataSource) {
+				new RetryingTransaction<Void>(dataSource) {
 					@Override
-					protected void execute() throws Exception {
+					protected Void execute() throws Exception {
 						base.doExec(commands, getConnection());
+						return null;
 					}
 				}.run();
 			}

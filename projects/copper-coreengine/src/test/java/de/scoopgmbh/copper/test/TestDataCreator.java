@@ -106,9 +106,9 @@ public class TestDataCreator {
 		for (int i=0; i<5; i++) {
 			final List<String> ids = new ArrayList<String>(100000);
 			final List<String> cids = new ArrayList<String>(100000);
-			new RetryingTransaction(dataSource) {
+			new RetryingTransaction<Void>(dataSource) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					PreparedStatement stmtBP = getConnection().prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA_S) VALUES (?,2,5,SYSTIMESTAMP,'P#DEFAULT',?)");
 					for (int k=0; k<100; k++) {
 						for (int i=0; i<200; i++) {
@@ -158,6 +158,8 @@ public class TestDataCreator {
 						c.stop(200);
 						stmtRES.clearBatch();
 					}
+					
+					return null;
 				}
 			}.run();
 		}

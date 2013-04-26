@@ -36,10 +36,11 @@ public class CopperTransactionController implements TransactionController {
 	@SuppressWarnings("unchecked")
 	public <T> T run(final DatabaseTransaction<T> txn) throws Exception {
 		final T[] t = (T[]) new Object[1];
-		new RetryingTransaction(dataSource) {
+		new RetryingTransaction<Void>(dataSource) {
 			@Override
-			protected void execute() throws Exception {
+			protected Void execute() throws Exception {
 				t[0] = txn.run(getConnection());
+				return null;
 			}
 		}.run();
 		return t[0];

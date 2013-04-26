@@ -273,10 +273,11 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 	public void synchLog(final AuditTrailEvent event) {
 		if (isEnabled(event.logLevel) ) {
 			try {
-				new RetryingTransaction(dataSource) {
+				new RetryingTransaction<Void>(dataSource) {
 					@Override
-					protected void execute() throws Exception {
+					protected Void execute() throws Exception {
 						doSyncLog(event, getConnection());
+						return null;
 					}
 				}.run();
 			}

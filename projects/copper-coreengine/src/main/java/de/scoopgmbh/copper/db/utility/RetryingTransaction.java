@@ -30,14 +30,14 @@ import org.slf4j.LoggerFactory;
  * @author austermann
  *
  */
-public abstract class RetryingTransaction implements Transaction  {
+public abstract class RetryingTransaction<R> implements Transaction<R>  {
 
     private static final Logger logger = LoggerFactory.getLogger(RetryingTransaction.class);
-    private static final ThreadLocal<RetryingTransaction> currentTransaction = new ThreadLocal<RetryingTransaction>();
+    private static final ThreadLocal<RetryingTransaction<?>> currentTransaction = new ThreadLocal<RetryingTransaction<?>>();
     private static SQLExceptionProcessor defaultSQLExceptionProcessor = new MockSQLExceptionProcessor();
     
 
-    public static RetryingTransaction getCurrent() {
+    public static RetryingTransaction<?> getCurrent() {
         return currentTransaction.get();
     }
 
@@ -86,7 +86,7 @@ public abstract class RetryingTransaction implements Transaction  {
      *    }.run();
      *    </code>
      */
-    protected abstract void execute() throws Exception;
+    protected abstract R execute() throws Exception;
 
     public Connection getConnection() {
         return connection;
@@ -97,12 +97,12 @@ public abstract class RetryingTransaction implements Transaction  {
      * case of exceptions etc.), and automatic retries in case of deadlocks or
      * timeouts.
      */
-    public final void run() throws Exception {
+    public final R run() throws Exception {
         if (getCurrent() != null) {
             if (logger.isDebugEnabled()) logger.debug("Starting new inner transaction "+name);
             connection = getCurrent().connection;
             try {
-                execute();
+                return execute();
             }
             finally {
                 connection = null;
@@ -112,15 +112,21 @@ public abstract class RetryingTransaction implements Transaction  {
         else {
             try {
                 if (logger.isDebugEnabled()) logger.debug("Starting new transaction "+name);
+                R result = null;
                 currentTransaction.set(this);
                 connection = aquireConnection(false);
                 for(int seqNr=1;;seqNr++) {
                     try {
-                        execute();
+                        result = execute();
                         if (modificatory) { 
                             logger.debug("Trying to commit");
                             connection.commit();
-                            if (logger.isDebugEnabled()) logger.debug("Transaction "+name+" commited");
+                            logger.debug("Transaction {} commited", name);
+                        }
+                        else {
+                        	logger.debug("Txn is read only - rolling back");
+                        	connection.rollback();
+                            logger.debug("Transaction {} rolled back", name);
                         }
                         break;
                     }
@@ -163,6 +169,7 @@ public abstract class RetryingTransaction implements Transaction  {
                         throw e;
                     }
                 }
+                return result;
             }
             finally {
                 currentTransaction.remove();
@@ -215,7 +222,7 @@ public abstract class RetryingTransaction implements Transaction  {
         return maxConnectRetries;
     }
     
-    public Transaction setMaxConnectRetries(int maxConnectRetries) {
+    public Transaction<R> setMaxConnectRetries(int maxConnectRetries) {
         if (maxConnectRetries < 0) {
             throw new IllegalArgumentException();
         }

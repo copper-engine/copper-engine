@@ -68,15 +68,16 @@ public class BasePersistentWorkflowTest {
 	}
 
 	void cleanDB(DataSource ds) throws Exception {
-		new RetryingTransaction(ds) {
+		new RetryingTransaction<Void>(ds) {
 			@Override
-			protected void execute() throws Exception {
+			protected Void execute() throws Exception {
 				getConnection().createStatement().execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
 				getConnection().createStatement().execute("DELETE FROM COP_WAIT");
 				getConnection().createStatement().execute("DELETE FROM COP_RESPONSE");
 				getConnection().createStatement().execute("DELETE FROM COP_QUEUE");
 				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE");
 				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
+				return null;
 			}
 		}.run();
 	}
@@ -117,13 +118,16 @@ public class BasePersistentWorkflowTest {
 			}
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 
 	}
 
+	protected void closeContext(final ConfigurableApplicationContext context) {
+		context.close();
+	}
 
 	public void testAsnychResponseLargeData(String dsContext, int dataSize) throws Exception {
 		assumeFalse(skipTests());
@@ -151,7 +155,7 @@ public class BasePersistentWorkflowTest {
 			}
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
@@ -177,12 +181,13 @@ public class BasePersistentWorkflowTest {
 		try {
 			assertEquals(EngineState.STARTED,engine.getEngineState());
 
-			new RetryingTransaction(ds) {
+			new RetryingTransaction<Void>(ds) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					for (int i=0; i<NUMB; i++) {
 						engine.run("de.scoopgmbh.copper.test.persistent.DBMockAdapterUsingPersistentUnitTestWorkflow", null);
 					}
+					return null;
 				}
 			}.run();
 
@@ -194,7 +199,7 @@ public class BasePersistentWorkflowTest {
 			}
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
@@ -222,10 +227,11 @@ public class BasePersistentWorkflowTest {
 				list.add(wf);
 			}
 
-			new RetryingTransaction(ds) {
+			new RetryingTransaction<Void>(ds) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					engine.run(list,getConnection());
+					return null;
 				}
 			}.run();
 
@@ -237,7 +243,7 @@ public class BasePersistentWorkflowTest {
 			}
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
@@ -269,7 +275,7 @@ public class BasePersistentWorkflowTest {
 			}
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
@@ -289,21 +295,22 @@ public class BasePersistentWorkflowTest {
 			engine.run(wfInstanceDescr);
 			Thread.sleep(5000);
 			//check
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
+					return null;
 				}
 			}.run();
 			engine.restart(wfInstanceDescr.getId());
 			Thread.sleep(5000);
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
@@ -312,11 +319,12 @@ public class BasePersistentWorkflowTest {
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
+					return null;
 				}
 			}.run();
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
@@ -335,21 +343,22 @@ public class BasePersistentWorkflowTest {
 			engine.run(wfInstanceDescr);
 			Thread.sleep(5000);
 			//check
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
+					return null;
 				}
 			}.run();
 			engine.restartAll();
 			Thread.sleep(5000);
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
@@ -358,11 +367,12 @@ public class BasePersistentWorkflowTest {
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
+					return null;
 				}
 			}.run();
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
@@ -393,7 +403,7 @@ public class BasePersistentWorkflowTest {
 			}
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
@@ -426,19 +436,20 @@ public class BasePersistentWorkflowTest {
 				assertNull(x.getException());
 			}
 
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select count(*) from cop_workflow_instance");
 					assertTrue(rs.next());
 					int x = rs.getInt(1);
 					assertEquals(NUMB, x);
+					return null;
 				}
 			}.run();
 
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
@@ -470,9 +481,9 @@ public class BasePersistentWorkflowTest {
 				assertNotNull(x.getResult().toString().length() == DATA.length());
 				assertNull(x.getException());
 			}
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from cop_audit_trail_event) order by 1");
 					assertTrue(rs.next());
 					//logger.info("\""+new CompressedBase64PostProcessor().deserialize(rs.getString(1))+"\"");
@@ -480,12 +491,13 @@ public class BasePersistentWorkflowTest {
 					assertTrue(rs.next());
 					assertEquals("foo successfully called", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
 					assertFalse(rs.next());
+					return null;
 				}
 			}.run();
 
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
@@ -500,15 +512,16 @@ public class BasePersistentWorkflowTest {
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		try {
 			DataSource ds = context.getBean(DataSource.class);
-			new RetryingTransaction(ds) {
+			new RetryingTransaction<Void>(ds) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					assertFalse(getConnection().getAutoCommit());
+					return null;
 				}
 			};
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 	}
 
@@ -534,7 +547,7 @@ public class BasePersistentWorkflowTest {
 			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT");
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 	}
 
@@ -550,19 +563,20 @@ public class BasePersistentWorkflowTest {
 			engine.run(wfInstanceDescr, null);
 			Thread.sleep(2500);
 			//check
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
+					return null;
 				}
 			}.run();
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
@@ -582,9 +596,9 @@ public class BasePersistentWorkflowTest {
 			auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(5000), "TEXT", seqNr++));
 			auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT", seqNr++));
 			//check
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select seq_id from cop_audit_trail_event order by seq_id");
 					assertTrue(rs.next());
 					assertEquals(1, rs.getLong(1));
@@ -595,11 +609,12 @@ public class BasePersistentWorkflowTest {
 					assertTrue(rs.next());
 					assertEquals(4, rs.getLong(1));
 					assertFalse(rs.next());
+					return null;
 				}
 			}.run();
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 	}
 
@@ -611,9 +626,9 @@ public class BasePersistentWorkflowTest {
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
 		try {
 			engine.startup();
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					try {
 						Response<?> response = new Response<String>("CID#withEarlyResponse", "TEST", null);
 						engine.notify(response, getConnection());
@@ -634,11 +649,12 @@ public class BasePersistentWorkflowTest {
 						logger.error("testNotifyWithoutEarlyResponseHandling failed",e);
 						throw e;
 					}
+					return null;
 				}
 			}.run();
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());

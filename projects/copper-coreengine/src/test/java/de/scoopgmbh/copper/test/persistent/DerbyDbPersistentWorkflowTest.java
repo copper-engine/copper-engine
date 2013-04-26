@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.context.ConfigurableApplicationContext;
 
 
 public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
@@ -99,6 +100,17 @@ public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
 	@Test
 	public void testNotifyWithoutEarlyResponseHandling() throws Exception {
 		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
+	}
+	
+	@Override
+	protected void closeContext(final ConfigurableApplicationContext context) {
+		try {
+			Thread.sleep(100);
+		} 
+		catch (InterruptedException e) {
+			// ignore
+		}
+		context.close();
 	}
 	
 }

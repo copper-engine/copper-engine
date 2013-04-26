@@ -20,6 +20,6 @@ package de.scoopgmbh.copper.db.utility;
  * @author austermann
  *
  */
-public interface Transaction {
-    public void run() throws Exception;
+public interface Transaction<R> {
+    public R run() throws Exception;
 }

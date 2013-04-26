@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import static org.junit.Assert.assertTrue;
 
@@ -128,5 +129,16 @@ public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersist
 	public void testSpringTxnUnitTestWorkflow() throws Exception {
 		assertTrue("DBMS not available",dbmsAvailable);
 		super.testSpringTxnUnitTestWorkflow(DS_CONTEXT);
+	}	
+	
+	@Override
+	protected void closeContext(final ConfigurableApplicationContext context) {
+		try {
+			Thread.sleep(100);
+		} 
+		catch (InterruptedException e) {
+			// ignore
+		}
+		context.close();
 	}	
 }

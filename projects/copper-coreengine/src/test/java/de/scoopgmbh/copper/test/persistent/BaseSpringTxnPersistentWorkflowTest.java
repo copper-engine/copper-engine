@@ -58,18 +58,19 @@ public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowT
 			assertNull(x.getException());
 
 			//check
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("select count(*) from cop_audit_trail_event");
 					assertTrue(rs.next());
 					int c = rs.getInt(1);
 					assertEquals(7, c);
+					return null;
 				}
 			}.run();
 		}
 		finally {
-			context.close();
+			closeContext(context);
 		}
 		assertEquals(EngineState.STOPPED,engine.getEngineState());
 		assertEquals(0,engine.getNumberOfWorkflowInstances());

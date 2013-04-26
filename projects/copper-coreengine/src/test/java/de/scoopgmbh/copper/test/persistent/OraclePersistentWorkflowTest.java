@@ -145,13 +145,14 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 			assertNull(backChannelQueue.poll());
 
 			// check AuditTrail Log
-			new RetryingTransaction(context.getBean(DataSource.class)) {
+			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
-				protected void execute() throws Exception {
+				protected Void execute() throws Exception {
 					ResultSet rs = getConnection().createStatement().executeQuery("SELECT count(*) FROM COP_AUDIT_TRAIL_EVENT");
 					rs.next();
 					int count = rs.getInt(1);
 					assertEquals(NUMB*6, count);
+					return null;
 				}
 			}.run();
 		}
