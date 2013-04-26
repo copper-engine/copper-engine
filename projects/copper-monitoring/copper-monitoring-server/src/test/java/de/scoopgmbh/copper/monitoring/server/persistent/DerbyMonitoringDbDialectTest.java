@@ -46,15 +46,16 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 public class DerbyMonitoringDbDialectTest {
 
 	void cleanDB(DataSource ds) throws Exception {
-		new RetryingTransaction(ds) {
+		new RetryingTransaction<Void>(ds) {
 			@Override
-			protected void execute() throws Exception {
+			protected Void execute() throws Exception {
 				getConnection().createStatement().execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
 				getConnection().createStatement().execute("DELETE FROM COP_WAIT");
 				getConnection().createStatement().execute("DELETE FROM COP_RESPONSE");
 				getConnection().createStatement().execute("DELETE FROM COP_QUEUE");
 				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE");
 				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
+				return null;
 			}
 		}.run();
 	}
