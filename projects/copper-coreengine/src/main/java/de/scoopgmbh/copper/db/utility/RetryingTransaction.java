@@ -78,10 +78,11 @@ public abstract class RetryingTransaction<R> implements Transaction<R>  {
     /**
      * This function is to be implemented by anonymous inner classes. Usage
      * should look like this: <code>...
-     * new RetryingTransaction("TestTransaction") {
-     *       protected void execute() {
+     * new RetryingTransaction<ReturnType>("TestTransaction") {
+     *       protected ReturnType execute() {
      *             doSomething();
      *             doAnotherThing();
+     *             return ...;
      *       }
      *    }.run();
      *    </code>
