@@ -136,18 +136,13 @@ public class MonitoringExampleMain {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		
-		
-		
+
 		try {
 			persistentengine.run("BillWorkflow", "");
 		} catch (CopperException e) {
 			throw new RuntimeException(e);
 		}
-		
-
-		
-		
+			
 		List<ProcessingEngineMXBean> engines = new ArrayList<ProcessingEngineMXBean>();
 		engines.add(persistentengine);
 		DefaultCopperMonitorInterfaceFactory factory = new DefaultCopperMonitorInterfaceFactory(

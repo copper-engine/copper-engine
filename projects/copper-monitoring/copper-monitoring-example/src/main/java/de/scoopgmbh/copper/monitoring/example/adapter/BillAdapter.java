@@ -55,6 +55,11 @@ public class BillAdapter {
 						engine.notify(new Response<BillableService>(ccorrelationId, new BillableService(new BigDecimal("5")),null));
 						lastServicetime=now;
 					}
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
 				}
 			};
 		};
@@ -75,6 +80,11 @@ public class BillAdapter {
 						}
 						engine.notify(new Response<Bill>(ccorrelationId,new Bill(),null));
 						lastBilltime=now;
+					}
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
 					}
 				}
 			};

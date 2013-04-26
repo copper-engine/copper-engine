@@ -50,7 +50,6 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 	
 	@Override
 	public void main() throws InterruptException {
-		
 		while (true){
 			waitingfor.addAll(billAdapter.takeCorrelationIds());
 			System.err.println(Arrays.toString(waitingfor.toArray(new String[0])));
