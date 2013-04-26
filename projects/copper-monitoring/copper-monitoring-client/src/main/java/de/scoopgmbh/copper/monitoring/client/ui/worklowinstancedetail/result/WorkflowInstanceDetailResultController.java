@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TextArea;
 import javafx.scene.web.WebView;
 import de.java2html.converter.JavaSource2HTMLConverter;
 import de.java2html.javasource.JavaSource;
@@ -45,8 +44,6 @@ public class WorkflowInstanceDetailResultController implements Initializable, Fi
 	}
 
 
-    @FXML //  fx:id="errorInfo"
-    private TextArea errorInfo; // Value injected by FXMLLoader
 
     @FXML //  fx:id="sourceView"
     private WebView sourceView; // Value injected by FXMLLoader
@@ -54,11 +51,8 @@ public class WorkflowInstanceDetailResultController implements Initializable, Fi
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert errorInfo != null : "fx:id=\"errorInfo\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
         assert sourceView != null : "fx:id=\"sourceView\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
-  
-        errorInfo.setStyle("-fx-font: 12px \"Courier New\"");
-    
+
     }
     
 
@@ -70,10 +64,6 @@ public class WorkflowInstanceDetailResultController implements Initializable, Fi
 
 	@Override
 	public void showFilteredResult(List<WorkflowInstanceDetailResultModel> filteredResult, WorkflowInstanceDetailFilterModel usedFilter) {
-		if ( usedFilter.filteredWithworkflowInstanceInfo!=null){
-			errorInfo.setText(usedFilter.filteredWithworkflowInstanceInfo.errorInfos.get());
-		}
-		
 		
 		// Create a reader of the raw input text
 		StringReader stringReader = new StringReader("/** Simple Java2Html Demo */\r\n" + "public static int doThis(String text){ return text.length() + 2; }");

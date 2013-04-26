@@ -16,9 +16,7 @@
 package de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter;
 
 import javafx.beans.property.SimpleStringProperty;
-import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultModel;
 
 public class WorkflowInstanceDetailFilterModel {
 	public SimpleStringProperty workflowInstanceId = new SimpleStringProperty();
-	public WorkflowInstanceResultModel filteredWithworkflowInstanceInfo;
 }

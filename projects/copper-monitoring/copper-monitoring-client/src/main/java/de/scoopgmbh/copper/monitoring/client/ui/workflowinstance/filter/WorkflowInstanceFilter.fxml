@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<HBox alignment="CENTER_LEFT" layoutX="0.0" layoutY="0.0" prefHeight="40.0" prefWidth="811.0" spacing="5.0" xmlns:fx="http://javafx.com/fxml">
+<HBox alignment="CENTER_LEFT" layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="811.0" spacing="3.0" xmlns:fx="http://javafx.com/fxml">
   <children>
     <Label text="state">
       <HBox.margin>
@@ -18,8 +18,7 @@
     </Label>
     <ChoiceBox fx:id="stateChoice" prefWidth="129.0">
       <items>
-        <FXCollections fx:factory="observableArrayList">
-        </FXCollections>
+        <FXCollections fx:factory="observableArrayList" />
       </items>
     </ChoiceBox>
     <Label text="priority">

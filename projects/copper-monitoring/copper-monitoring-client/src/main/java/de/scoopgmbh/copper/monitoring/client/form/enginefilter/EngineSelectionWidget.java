@@ -19,7 +19,6 @@ import java.util.List;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
@@ -28,8 +27,8 @@ import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
 import de.scoopgmbh.copper.monitoring.client.form.Widget;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
-import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 
 public class EngineSelectionWidget implements Widget{
 	private final EnginePoolModel model;
@@ -44,16 +43,13 @@ public class EngineSelectionWidget implements Widget{
 	public Node createContent() {
 		HBox pane = new HBox();
 		pane.setAlignment(Pos.CENTER_LEFT);
-
+		pane.setSpacing(3);
 		final ChoiceBox<ProcessingEngineInfo> engineChoicebox = createEngineChoicebox();
 
 		final ChoiceBox<ProcessorPoolInfo> poolChoicebox = createPoolChoicebox();
 		
-		
 		pane.getChildren().add(engineChoicebox);
 		pane.getChildren().add(poolChoicebox);
-		HBox.setMargin(engineChoicebox, new Insets(3));
-		HBox.setMargin(poolChoicebox, new Insets(3));
 		
 		engineChoicebox.getSelectionModel().selectFirst();
 		return pane;

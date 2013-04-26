@@ -8,9 +8,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<StackPane fx:id="stackPane" layoutX="0.0" layoutY="0.0" minHeight="40.0" prefHeight="40.0" prefWidth="757.0" xmlns:fx="http://javafx.com/fxml">
+<StackPane fx:id="stackPane" layoutX="0.0" layoutY="0.0" minHeight="-1.0" prefHeight="-1.0" prefWidth="757.0" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <HBox fx:id="filterPane" alignment="CENTER_LEFT" minHeight="40.0" minWidth="176.0" prefHeight="40.0" prefWidth="553.0" spacing="5.0">
+    <HBox fx:id="filterPane" alignment="CENTER_LEFT" minHeight="-1.0" minWidth="176.0" prefHeight="-1.0" prefWidth="553.0" spacing="3.0">
       <children>
         <MenuButton fx:id="serachbutton" graphicTextGap="4.0" mnemonicParsing="false" prefWidth="37.0" text="">
           <items>

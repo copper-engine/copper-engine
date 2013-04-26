@@ -302,8 +302,8 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 						isPersistent?((PersistentPriorityProcessorPoolMXBean)pool).getUpperThresholdReachedWaitMSec():0, 
 						isPersistent?((PersistentPriorityProcessorPoolMXBean)pool).getEmptyQueueWaitMSec():0, 
 						isPersistent?((PersistentPriorityProcessorPoolMXBean)pool).getDequeueBulkSize():0, 
-						pool.getThreadPriority(), 
 						pool.getNumberOfThreads(), 
+						pool.getThreadPriority(), 
 						pool.getMemoryQueueSize()));
 			}
 			ProcessingEngineInfo engineInfo = new ProcessingEngineInfo(

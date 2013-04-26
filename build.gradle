@@ -356,7 +356,7 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 			        NodeList nodeList = root.getAt(new groovy.xml.QName('classpathentry'));
 			        for ( classpathentry in nodeList ) {
 	    				if (classpathentry.attributes().path.contains('jfxrt.jar')){
-					        classpathentry.appendNode('attributes').appendNode('attribute',[name:'javadoc_location', value:'jar:platform:/resource/copper-monitor-client/libs/jfxrt-javadoc.zip!/']);
+					        classpathentry.appendNode('attributes').appendNode('attribute',[name:'javadoc_location', value:'jar:platform:/resource/copper-monitoring-client/libs/jfxrt-javadoc.zip!/']);
 	    				}
 						if (classpathentry.attributes().path.contains('java2html')){
 	    					java.util.Map attributes = classpathentry.attributes();

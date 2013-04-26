@@ -11,29 +11,11 @@
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="360.0" prefWidth="529.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <SplitPane dividerPositions="0.4098671726755218" focusTraversable="true" prefHeight="160.0" prefWidth="200.0">
-      <items>
-        <VBox prefHeight="310.0" prefWidth="380.0">
-          <children>
-            <Label text="Error-Information">
-              <VBox.margin>
-                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-              </VBox.margin>
-            </Label>
-            <TextArea fx:id="errorInfo" prefWidth="459.0" wrapText="true" VBox.vgrow="ALWAYS">
-              <VBox.margin>
-                <Insets bottom="3.0" left="3.0" />
-              </VBox.margin>
-            </TextArea>
-          </children>
-        </VBox>
-        <Pane prefHeight="358.0" prefWidth="464.0">
-          <children>
-            <Label layoutX="20.0" layoutY="39.0" text="//stackstrace//variables content//line" />
-            <WebView fx:id="sourceView" layoutX="33.0" layoutY="79.0" prefHeight="217.0" prefWidth="414.0" />
-          </children>
-        </Pane>
-      </items>
-    </SplitPane>
+    <Pane prefHeight="358.0" prefWidth="464.0">
+      <children>
+        <Label layoutX="20.0" layoutY="39.0" text="//stackstrace//variables content//line" />
+        <WebView fx:id="sourceView" layoutX="33.0" layoutY="79.0" prefHeight="217.0" prefWidth="414.0" />
+      </children>
+    </Pane>
   </center>
 </BorderPane>

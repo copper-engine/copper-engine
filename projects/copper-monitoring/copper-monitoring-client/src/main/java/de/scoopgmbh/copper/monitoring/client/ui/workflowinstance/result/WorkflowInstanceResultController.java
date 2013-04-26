@@ -38,6 +38,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -99,7 +100,6 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 		             });
 					filter = new WorkflowInstanceDetailFilterModel();
 					filter.workflowInstanceId.setValue(workflowInstanceResultModel.id.getValue());
-					filter.filteredWithworkflowInstanceInfo=workflowInstanceResultModel;
 					result = detailForm.getController().applyFilterInBackgroundThread(filter);
 					return null;
 				}
@@ -177,6 +177,11 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
     
     @FXML //  fx:id="timeoutColumn"
     private StackPane stackDetailPane;
+   
+    @FXML //  fx:id="errorInfo"
+    private TextArea errorInfo; // Value injected by FXMLLoader
+    
+    
 	private FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm;
 	private DetailLoadService service;
 
@@ -196,7 +201,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
         assert startTime != null : "fx:id=\"startTime\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert stateColumn != null : "fx:id=\"stateColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert timeoutColumn != null : "fx:id=\"timeoutColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
-
+        assert errorInfo != null : "fx:id=\"errorInfo\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
 
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
 			@Override
@@ -360,6 +365,8 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
  
 		detailForm = formcontext.createWorkflowinstanceDetailResultForm(detailPane);
 		detailForm.show();
+		
+		errorInfo.setStyle("-fx-font: 12px \"Courier New\"");
     }
     
     public static String abbreviate(String str, int maxWidth) {
@@ -400,9 +407,8 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 	}
 	
 	private void showDetails(final WorkflowInstanceResultModel workflowInstanceResultModel){
-
+		errorInfo.setText(workflowInstanceResultModel.errorInfos.get());
 		
-
 		if (service==null) {
 			service = new DetailLoadService(workflowInstanceResultModel,stackDetailPane,detailForm);
 		}

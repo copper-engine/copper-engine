@@ -396,8 +396,10 @@ public class FormContext {
 		FxmlForm<FilterResultController<SqlFilterModel,SqlResultModel>> resultForm = 
 				new FxmlForm<FilterResultController<SqlFilterModel,SqlResultModel>>(resCtrl, messageProvider);
 		
-		return new FilterAbleForm<SqlFilterModel,SqlResultModel>(messageProvider,
+		FilterAbleForm<SqlFilterModel, SqlResultModel> filterAbleForm = new FilterAbleForm<SqlFilterModel,SqlResultModel>(messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+		filterAbleForm.useVerticalRightButton();
+		return filterAbleForm;
 	}
 	
 	FilterAbleForm<ResourceFilterModel,SystemResourcesInfo> ressourceFormSingelton=null;

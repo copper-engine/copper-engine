@@ -2,6 +2,7 @@
 
 <?import java.lang.*?>
 <?import java.util.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
@@ -9,7 +10,7 @@
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="333.0" prefWidth="430.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <SplitPane dividerPositions="0.5015105740181269" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+    <SplitPane dividerPositions="0.5015105740181269" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="-1.0">
       <items>
         <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
           <columns>
@@ -26,11 +27,29 @@
             <TableColumn prefWidth="75.0" text="ErrorInfos" fx:id="errorInfos" />
           </columns>
         </TableView>
-        <StackPane fx:id="stackDetailPane" prefHeight="150.0" prefWidth="200.0">
+        <StackPane fx:id="stackDetailPane" prefHeight="150.0" prefWidth="-1.0">
           <children>
-            <BorderPane fx:id="detailPane" prefHeight="85.0" prefWidth="158.0">
+            <BorderPane id="detailPane" prefHeight="85.0" prefWidth="-1.0">
               <center>
-                <Label text="Label" />
+                <SplitPane dividerPositions="0.5" focusTraversable="true" prefHeight="160.0" prefWidth="-1.0">
+                  <items>
+                    <VBox prefHeight="200.0" prefWidth="100.0">
+                      <children>
+                        <Label graphicTextGap="3.0" text="Error-Information">
+                          <VBox.margin>
+                            <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                          </VBox.margin>
+                        </Label>
+                        <TextArea fx:id="errorInfo" prefWidth="200.0" wrapText="true" VBox.vgrow="ALWAYS">
+                          <VBox.margin>
+                            <Insets bottom="3.0" left="3.0" />
+                          </VBox.margin>
+                        </TextArea>
+                      </children>
+                    </VBox>
+                    <BorderPane fx:id="detailPane" prefHeight="200.0" prefWidth="-1.0" />
+                  </items>
+                </SplitPane>
               </center>
             </BorderPane>
           </children>

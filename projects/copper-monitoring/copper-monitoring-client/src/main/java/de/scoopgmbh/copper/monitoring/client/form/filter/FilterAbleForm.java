@@ -46,8 +46,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.converter.IntegerStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
@@ -97,6 +98,11 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		repeatFilterService = new RepeatFilterService<F,R>(resultForm.getController(), filterForm);
 	}
 	
+	boolean verticalRightButton=false;
+	public void useVerticalRightButton(){
+		verticalRightButton=true;
+	}
+	
 	public FilterController<F> getFilterController(){
 		return filterForm.getController();
 	}
@@ -104,46 +110,70 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	public F getFilter(){
 		return filterForm.getController().getFilter();
 	}
-
-	protected void beforFilterHook(HBox filterbox){}
-	
 	
 	@Override
 	public Node createContent() {
-		final StackPane stackPane = new StackPane();
+		final StackPane masterStackPane = new StackPane();
 		filterService.stateProperty().addListener(new ChangeListener<Worker.State>() {
 			ProgressIndicator indicator = ComponentUtil.createProgressIndicator();
 			@Override
 			public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
 				if (newValue==State.RUNNING){
-					stackPane.getChildren().add(indicator);
+					masterStackPane.getChildren().add(indicator);
 				} else {
-					stackPane.getChildren().remove(indicator);
+					masterStackPane.getChildren().remove(indicator);
 				}
 			}
 		});
 		
 		
-		BorderPane borderPane = new BorderPane();
-		stackPane.getChildren().add(borderPane);
+		BorderPane masterBorderPane = new BorderPane();
+		masterStackPane.getChildren().add(masterBorderPane);
 		
-		HBox filterbox = new HBox();
-		filterbox.setAlignment(Pos.CENTER);
-		filterbox.setSpacing(5);
-		
-		beforFilterHook(filterbox);
-		
-		StackPane filterboxStackPane = new StackPane();
-		filterbox.getChildren().add(filterboxStackPane);
-		Node filterContent=null;
+		BorderPane filterBorderPane = new BorderPane();
+		filterBorderPane.setLeft(createLeftFilterPart());
+		Node filterContent=this.createFilterContent();
+		StackPane filterContentStackPane = new StackPane();
+		filterBorderPane.setCenter(filterContentStackPane);
 		if (filterForm.getController().supportsFiltering()){
-			filterContent = filterForm.createContent();
-			HBox.setHgrow(filterboxStackPane, Priority.ALWAYS);
-			filterboxStackPane.getChildren().add(filterContent);
-			filterbox.getChildren().add(new Separator(Orientation.VERTICAL));
+			filterContentStackPane.getChildren().add(filterContent);
+		}
+		Node rightButtons = createRightFilterButtons(filterContent, filterContentStackPane);
+		BorderPane.setMargin(rightButtons, new Insets(0,3,0,3));
+		filterBorderPane.setRight(rightButtons);
+		filterBorderPane.setBottom(new Separator(Orientation.HORIZONTAL));
+
+		masterBorderPane.setTop(filterBorderPane);
+		masterBorderPane.setCenter(resultForm.createContent());
+	
+
+		filterService.reset();
+		filterService.start();
+		refreshRateInMs.set(Long.toString(filterForm.getController().getDefaultRefreshIntervall()));
+		
+		return masterStackPane;
+	}
+	
+	
+	private Node createRightFilterButtons(Node filterContent, Pane progressbarDisplayTarget){
+		Pane buttonsPane;
+		if (verticalRightButton){
+			VBox vbox = new VBox();
+			vbox.setAlignment(Pos.CENTER_LEFT);
+			vbox.setSpacing(3);
+			buttonsPane=vbox;
+		} else {
+			HBox hbox = new HBox();
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setSpacing(3);
+			buttonsPane=hbox;
 		}
 		
+		
+		buttonsPane.getChildren().add(new Separator(Orientation.VERTICAL));
+		
 		final Button refreshButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/refresh.png"))));
+		HBox.setMargin(refreshButton, new Insets(4,0,4,0));
 		refreshButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_refresh)));
 		refreshButton.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override public void handle(ActionEvent e) {
@@ -151,9 +181,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		    	filterService.start();
 		    }
 		});
-		filterbox.getChildren().add(refreshButton);
-		HBox.setMargin(refreshButton, new Insets(5));
-
+		buttonsPane.getChildren().add(refreshButton);
 		
 		final Button clearButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/clear.png"))));
 		clearButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_clear)));
@@ -162,32 +190,22 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		    	resultForm.getController().clear();
 		    }
 		});
-		filterbox.getChildren().add(clearButton);
+		buttonsPane.getChildren().add(clearButton);
 		
 		if (resultForm.getController().canLimitResult()){
 			TextField maxCountTextField = new TextField();
 			maxCountTextField.setPrefWidth(70);
 			maxCountTextField.textProperty().bindBidirectional(copperDataProvider.getMaxResultCount(), new IntegerStringConverter());
 			
-			
 			Label label = new Label("Limit rows:");
 			label.setLabelFor(maxCountTextField);
-			filterbox.getChildren().add(label);
-			filterbox.getChildren().add(maxCountTextField);
+			buttonsPane.getChildren().add(label);
+			buttonsPane.getChildren().add(maxCountTextField);
 		}
 		
-		BorderPane wrapper = new BorderPane();
-		BorderPane.setAlignment(filterbox, Pos.CENTER_LEFT);
-		wrapper.setCenter(filterbox);
-		wrapper.setBottom(new Separator(Orientation.HORIZONTAL));
-		borderPane.setTop(wrapper);
-		borderPane.setCenter(resultForm.createContent());
-		
 		final ProgressIndicator repeatProgressIndicator = new ProgressBar();
-		filterboxStackPane.getChildren().add(repeatProgressIndicator);
+		progressbarDisplayTarget.getChildren().add(repeatProgressIndicator);
 		final ToggleButton toggleButton = new ToggleButton("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/repeat.png"))));
-		HBox.setMargin(toggleButton, new Insets(0, 5, 0, 0));
-		BorderPane.setMargin(refreshButton, new Insets(5));
 		repeatProgressIndicator.setVisible(false);
 		repeatProgressIndicator.setPrefWidth(300);
 		repeatProgressIndicator.progressProperty().bind(repeatFilterService.progressProperty());
@@ -205,9 +223,8 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 				}
 			}
 		});
-	
-		filterbox.getChildren().add(toggleButton);
-	
+		buttonsPane.getChildren().add(toggleButton);
+		
 		
 		MenuButton settings = new MenuButton("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/settings.png"))));
 		settings.setPrefWidth(20);
@@ -223,8 +240,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		hbox.getChildren().add(interval);
 		hbox.getChildren().add(new Label("ms"));
 		customMenuItem.setContent(hbox);
-		HBox.setMargin(settings, new Insets(0, 5, 0, 0));
-		filterbox.getChildren().add(settings);
+		buttonsPane.getChildren().add(settings);
 		
 		
 		refreshButton.disableProperty().bind(toggleButton.selectedProperty());
@@ -233,14 +249,19 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			filterContent.disableProperty().bind(toggleButton.selectedProperty());
 		}
 		settings.disableProperty().bind(toggleButton.selectedProperty());
-		
-		
-		filterService.reset();
-		filterService.start();
-		
-		refreshRateInMs.set(Long.toString(filterForm.getController().getDefaultRefreshIntervall()));
-		
-		return stackPane;
+		return buttonsPane;
+	}
+	
+	private Node createFilterContent(){
+		return filterForm.createContent();
+	}
+
+	
+	/**
+	 * hook for child classes default is empty 
+	 */
+	protected Node createLeftFilterPart(){
+		return new Pane();
 	}
 	
 	SimpleStringProperty refreshRateInMs = new SimpleStringProperty();

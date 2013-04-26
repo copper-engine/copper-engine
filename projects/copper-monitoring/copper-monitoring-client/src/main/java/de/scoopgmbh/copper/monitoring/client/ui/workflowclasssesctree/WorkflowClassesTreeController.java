@@ -94,7 +94,8 @@ public class WorkflowClassesTreeController {
 				classnameItemToAdd.getChildren().add(newitemMajor);
 				majorVersionItemToAdd=newitemMajor;
 			}
-			majorVersionItemToAdd.getChildren().add(new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Minor: "+newWorkflowVersion.versionMinor.getValue().toString()+"\nAlias: "+newWorkflowVersion.alias.get() )));
+			majorVersionItemToAdd.getChildren().add(new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Minor: "+newWorkflowVersion.versionMinor.getValue().toString()+
+					"\nPatchlevel: "+newWorkflowVersion.patchlevel.get()+"\nAlias: "+newWorkflowVersion.alias.get() )));
 		}
 		
 		return result;

@@ -62,10 +62,12 @@ public class EngineFilterAbleform<F extends EngineFilterModel, R> extends Filter
 	}
 
 	@Override
-	protected void beforFilterHook(HBox filterbox){
-		HBox.setMargin(engineSelectionWidget, new Insets(0, 0, 0, 5));
-		filterbox.getChildren().add(engineSelectionWidget);
-		filterbox.getChildren().add(new Separator(Orientation.VERTICAL));
+	protected Node createLeftFilterPart(){
+		HBox pane = new HBox();
+		HBox.setMargin(engineSelectionWidget, new Insets(0, 0, 0, 3));
+		pane.getChildren().add(engineSelectionWidget);
+		pane.getChildren().add(new Separator(Orientation.VERTICAL));
+		return pane;
 	}
 	
 	@Override
