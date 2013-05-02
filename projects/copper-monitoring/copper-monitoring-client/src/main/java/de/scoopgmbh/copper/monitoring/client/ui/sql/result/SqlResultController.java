@@ -33,11 +33,10 @@ import javafx.util.Callback;
 import com.google.common.base.Strings;
 
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.sql.filter.SqlFilterModel;
 
-public class SqlResultController implements Initializable, FilterResultController<SqlFilterModel,SqlResultModel>, FxmlController {
+public class SqlResultController extends FilterResultControllerBase<SqlFilterModel,SqlResultModel> implements Initializable {
 	private final GuiCopperDataProvider copperDataProvider;
 	
 	public SqlResultController(GuiCopperDataProvider copperDataProvider) {
@@ -86,7 +85,7 @@ public class SqlResultController implements Initializable, FilterResultControlle
 	@Override
 	public List<SqlResultModel> applyFilterInBackgroundThread(SqlFilterModel filter) {
 		if (!Strings.isNullOrEmpty(filter.sqlQuery.get())){
-			return copperDataProvider.executeSqlQuery(filter);
+			return copperDataProvider.executeSqlQuery(filter,getMaxResultCount().get());
 		}
 		return Collections.emptyList();
 	}

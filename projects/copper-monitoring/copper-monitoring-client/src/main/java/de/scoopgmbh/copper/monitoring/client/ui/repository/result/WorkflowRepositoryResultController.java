@@ -29,14 +29,13 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.filter.WorkflowRepositoryFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
-public class WorkflowRepositoryResultController implements Initializable, FilterResultController<WorkflowRepositoryFilterModel,WorkflowVersion>, FxmlController {
+public class WorkflowRepositoryResultController extends FilterResultControllerBase<WorkflowRepositoryFilterModel,WorkflowVersion> implements Initializable {
 	
 	private final GuiCopperDataProvider copperDataProvider;
 	private final FormContext formContext;

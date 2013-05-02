@@ -26,8 +26,6 @@ import javafx.scene.paint.Color;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
-
 
 public class AuditralColorMappingTest {
 	

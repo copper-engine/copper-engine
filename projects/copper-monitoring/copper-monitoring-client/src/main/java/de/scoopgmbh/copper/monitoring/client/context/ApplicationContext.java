@@ -28,8 +28,13 @@ import java.rmi.registry.Registry;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
@@ -49,6 +54,7 @@ public class ApplicationContext {
 
 	private static final String SETTINGS_KEY = "settings";
 	private BorderPane mainPane;
+	private StackPane mainStackPane;
 	MessageProvider messageProvider;
 	SettingsModel settingsModelSinglton;
 	
@@ -58,8 +64,10 @@ public class ApplicationContext {
 	}
 	
 	public ApplicationContext() {
+		mainStackPane = new StackPane();
 		mainPane = new BorderPane();
-		mainPane.setId("background");
+		mainPane.setId("background");//important for css
+		mainStackPane.getChildren().add(mainPane);
 		messageProvider = new MessageProvider(ResourceBundle.getBundle("de.scoopgmbh.copper.gui.message"));
 		
 		final Preferences prefs = Preferences.userRoot().node("de.scoopgmbh.coppermonitor");
@@ -156,43 +164,79 @@ public class ApplicationContext {
 	public void setGuiCopperDataProvider(CopperMonitorInterface copperDataProvider, String serverAdress){
 		this.serverAdress.set(serverAdress);
 		this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);
-		getFormFactory().setupGUIStructure();
+		getFormFactorySingelton().setupGUIStructure();
 	}
 	
-	public void setHttpGuiCopperDataProvider(String serverAdress, String user, String password){
-		HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-		httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitorInterface.class);
-		String completeServiceAdress= serverAdress;
-		if (!completeServiceAdress.endsWith("/")){
-			completeServiceAdress= completeServiceAdress+"/";
-		}
-		completeServiceAdress = completeServiceAdress+"copperMonitorInterface";
-		httpInvokerProxyFactoryBean.setServiceUrl(completeServiceAdress);
-		httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
-		httpInvokerProxyFactoryBean.afterPropertiesSet();
-		
-		CopperMonitorInterface copperMonitorInterface = (CopperMonitorInterface)httpInvokerProxyFactoryBean.getObject();
-		try {
-			copperMonitorInterface.doLogin(user, password);
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
-		setGuiCopperDataProvider(copperMonitorInterface,serverAdress);
+	public void setHttpGuiCopperDataProvider(final String serverAdress, final String user, final String password){
+		final ProgressIndicator progressIndicator = new ProgressIndicator();
+		progressIndicator.setMaxSize(300, 300);
+		mainStackPane.getChildren().add(progressIndicator);
+		final Label label = new Label("connecting");
+		label.setWrapText(true);
+		mainStackPane.getChildren().add(label);
+		Thread th = new Thread(){
+			@Override
+			public void run() {
+				try {
+					HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+					httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitorInterface.class);
+					String completeServiceAdress= serverAdress;
+					if (!completeServiceAdress.endsWith("/")){
+						completeServiceAdress= completeServiceAdress+"/";
+					}
+					completeServiceAdress = completeServiceAdress+"copperMonitorInterface";
+					httpInvokerProxyFactoryBean.setServiceUrl(completeServiceAdress);
+					httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+					httpInvokerProxyFactoryBean.afterPropertiesSet();
+					
+					final CopperMonitorInterface copperMonitorInterface = (CopperMonitorInterface)httpInvokerProxyFactoryBean.getObject();
+					try {
+						copperMonitorInterface.doLogin(user, password);
+					} catch (RemoteException e) {
+						throw new RuntimeException(e);
+					}
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							mainStackPane.getChildren().remove(progressIndicator);
+							mainStackPane.getChildren().remove(label);
+							setGuiCopperDataProvider(copperMonitorInterface,serverAdress);
+						}
+					});
+				} catch (final Exception e){
+					e.printStackTrace();
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							mainStackPane.getChildren().remove(progressIndicator);
+							label.setText("Can't Connect: \n"+e.getMessage());
+						}
+					});
+				}
+				
+			}
+		};
+		th.setDaemon(true);
+		th.start();
 	}
 	
-	public FormContext getFormFactory(){
+	FormContext formContext;
+	public FormContext getFormFactorySingelton(){
 		if (guiCopperDataProvider==null){
 			throw new IllegalStateException("guiCopperDataProvider must initialised");
 		}
-		return new FormContext(mainPane,guiCopperDataProvider,messageProvider,settingsModelSinglton);
+		if (formContext==null){
+			formContext = new FormContext(mainPane,guiCopperDataProvider,messageProvider,settingsModelSinglton);
+		}
+		return formContext;
 	}
 	
 	public Form<LoginController> createLoginForm(){
 		return new FxmlForm<LoginController>("login.title", new LoginController(this), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
 	}
 
-	public BorderPane getMainPane() {
-		return mainPane;
+	public Pane getMainPane() {
+		return mainStackPane;
 	}
 
 }

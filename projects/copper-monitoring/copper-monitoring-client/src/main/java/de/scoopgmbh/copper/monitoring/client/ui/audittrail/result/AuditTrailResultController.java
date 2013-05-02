@@ -44,15 +44,14 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 import javafx.util.Callback;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
 
-public class AuditTrailResultController implements Initializable, FilterResultController<AuditTrailFilterModel,AuditTrailResultModel>, FxmlController {
+public class AuditTrailResultController extends FilterResultControllerBase<AuditTrailFilterModel,AuditTrailResultModel> implements Initializable {
 	private final GuiCopperDataProvider copperDataProvider;
 	private final SettingsModel settingsModel;
 	private final CodeMirrorFormatter codeMirrorFormatter;
@@ -377,7 +376,7 @@ public class AuditTrailResultController implements Initializable, FilterResultCo
 
 	@Override
 	public List<AuditTrailResultModel> applyFilterInBackgroundThread(AuditTrailFilterModel filter) {
-		return copperDataProvider.getAuditTrails(filter);
+		return copperDataProvider.getAuditTrails(filter,getMaxResultCount().get());
 	}
 
 	@Override

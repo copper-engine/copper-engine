@@ -31,7 +31,7 @@
           <children>
             <BorderPane id="detailPane" prefHeight="85.0" prefWidth="-1.0">
               <center>
-                <SplitPane dividerPositions="0.5" focusTraversable="true" prefHeight="160.0" prefWidth="-1.0">
+                <SplitPane dividerPositions="0.3779342723004695" focusTraversable="true" prefHeight="160.0" prefWidth="-1.0">
                   <items>
                     <VBox prefHeight="200.0" prefWidth="100.0">
                       <children>

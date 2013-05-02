@@ -20,9 +20,6 @@ import java.util.ResourceBundle;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.scoopgmbh.copper.monitoring.client.util.MessageKey;
-import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
-
 
 public class MessageKeyTest {
 	

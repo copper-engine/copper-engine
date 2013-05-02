@@ -51,7 +51,10 @@ public class MonitorMain extends Application {
 
 		if (!Strings.isNullOrEmpty(monitorServerAdress)){
 			applicationContext.setHttpGuiCopperDataProvider(monitorServerAdress,monitorServerUser,monitorServerPassword);
-		} 
+		} else {
+			applicationContext.createLoginForm().show();
+		}
+	
 
 //		ScenicView.show(scene);
 	}

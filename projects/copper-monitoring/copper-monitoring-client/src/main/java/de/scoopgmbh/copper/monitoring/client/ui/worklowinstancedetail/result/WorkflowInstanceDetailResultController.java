@@ -31,11 +31,10 @@ import de.java2html.javasource.JavaSource;
 import de.java2html.javasource.JavaSourceParser;
 import de.java2html.options.JavaSourceConversionOptions;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 
-public class WorkflowInstanceDetailResultController implements Initializable, FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>, FxmlController {
+public class WorkflowInstanceDetailResultController extends FilterResultControllerBase<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> implements Initializable {
 	GuiCopperDataProvider copperDataProvider;
 
 	public WorkflowInstanceDetailResultController(GuiCopperDataProvider copperDataProvider) {

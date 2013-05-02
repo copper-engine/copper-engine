@@ -32,17 +32,12 @@ import javafx.scene.control.TableView;
 import javafx.util.Callback;
 import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.filter.WorkflowHistoryFilterModel;
 import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 
-public class WorkflowHistoryResultController implements Initializable, FilterResultController<WorkflowHistoryFilterModel,WorkflowHistoryResultModel>, FxmlController {
-	
-	
-	
+public class WorkflowHistoryResultController extends FilterResultControllerBase<WorkflowHistoryFilterModel,WorkflowHistoryResultModel> implements Initializable {
 	private final GuiCopperDataProvider copperDataProvider;
-
 	
 	public WorkflowHistoryResultController(GuiCopperDataProvider copperDataProvider) {
 		super();

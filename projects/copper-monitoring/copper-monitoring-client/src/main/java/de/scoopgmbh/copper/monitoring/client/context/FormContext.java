@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitoring.client.context;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -225,6 +226,14 @@ public class FormContext {
 	public void setupGUIStructure(){
 		mainPane.setCenter(mainTabPane);
 		mainPane.setTop(createToolbar());
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				FilterAbleForm<EmptyFilterModel, DashboardResultModel> dashboardForm = createDashboardForm();
+				dashboardForm.setDynamicTitle(messageProvider.getText(MessageKey.dashboard_title));
+				dashboardForm.show();
+			}
+		});
 	}
 
 	public MenuBar createMenueBar(){
@@ -266,8 +275,6 @@ public class FormContext {
 	}
 	
 	public FilterAbleForm<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> createWorkflowOverviewForm(){
-		//same hacks are needed cause java cant handle generics as expected
-		
 		FilterController<WorkflowSummaryFilterModel> fCtrl = new WorkflowSummaryFilterController(this); 
 		FxmlForm<FilterController<WorkflowSummaryFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowSummaryFilterModel>>(fCtrl, messageProvider);
 		
@@ -294,8 +301,6 @@ public class FormContext {
 	}
 	
 	public FilterAbleForm<WorkflowHistoryFilterModel,WorkflowHistoryResultModel> createWorkflowHistoryForm(){
-		//same hacks are needed cause java cant handle generics as expected
-		
 		FilterController<WorkflowHistoryFilterModel> fCtrl = new WorkflowHistoryFilterController(); 
 		FxmlForm<FilterController<WorkflowHistoryFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowHistoryFilterModel>>(fCtrl, messageProvider);
 		
@@ -308,8 +313,6 @@ public class FormContext {
 	}
 	
 	public FilterAbleForm<WorkflowRepositoryFilterModel,WorkflowVersion> createWorkflowRepositoryForm(){
-		//same hacks are needed cause java cant handle generics as expected
-		
 		FilterController<WorkflowRepositoryFilterModel> fCtrl = new WorkflowRepositoryFilterController(); 
 		FxmlForm<FilterController<WorkflowRepositoryFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowRepositoryFilterModel>>(fCtrl, messageProvider);
 		

@@ -35,13 +35,12 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
-public class EngineLoadResultController implements Initializable, FilterResultController<EngineLoadFilterModel,WorkflowStateSummary>, FxmlController {
+public class EngineLoadResultController extends FilterResultControllerBase<EngineLoadFilterModel,WorkflowStateSummary> implements Initializable {
 	private final GuiCopperDataProvider copperDataProvider;
 	
 	public EngineLoadResultController(GuiCopperDataProvider copperDataProvider) {

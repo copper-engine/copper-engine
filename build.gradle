@@ -341,12 +341,14 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 	mainClassName = "de.scoopgmbh.copper.monitor.server.ServerMain"
 }
 
+import groovy.xml.NamespaceBuilder
 project(':projects:copper-monitoring:copper-monitoring-client') {
-	//apply plugin: 'application'
+	apply plugin: 'application'
+	
+		
+	mainClassName = "de.scoopgmbh.copper.monitoring.client.main.MonitorMain"
 	
 	eclipse {
-
-	    
 	    classpath {
 	    	defaultOutputDir = file('build')
 		    file {
@@ -368,8 +370,11 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 		    	}
 	    	}
 	    }
-	    
 	} 
+	
+	configurations {
+	    jfxant
+	}
 	
 	sourceSets {
 		main {
@@ -381,6 +386,8 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 	}
 	
 	dependencies {
+		jfxant files("libs/ant-javafx.jar")
+	
 		compile project(':projects:copper-monitoring:copper-monitoring-core')
 		compile files('libs/jfxrt.jar')
 		compile files('libs/ScenicView.jar')
@@ -394,8 +401,70 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 	
 	    testCompile group: 'junit', name: 'junit', version: '4.+'
 	}
+
+	def libTempDir = "${buildDir}/deployfxtmp/tmp"
 	
-	mainClassName = "de.scoopgmbh.copper.gui.main.MonitorMain"
+	task copyLibs(type:Copy) {
+	    from { configurations.default.collect { it.isDirectory() ? it : it } }
+	    into libTempDir
+	    exclude "*jfxrt.jar"
+	    exclude "*java2html.jar"
+	}
+	 
+	task('deployfx') {
+		
+	
+	 	dependsOn('jar') 
+	 	dependsOn('copyLibs')
+	 
+	    def antfx = NamespaceBuilder.newInstance(
+	            ant,
+	            'javafx:com.sun.javafx.tools.ant')
+	 
+	    ant.taskdef(
+	            resource: 'com/sun/javafx/tools/ant/antlib.xml',
+	            uri: 'javafx:com.sun.javafx.tools.ant',
+	            classpath: configurations.jfxant.asPath)
+	 
+		doLast{	 
+	    	def appId = 'Copper-Monitor'
+		    antfx.application(
+		                id: appId,
+		                name: 'Copper-Monitor',
+		                mainClass: mainClassName,
+		                fallbackClass: 'com.javafx.main.NoJavaFXFallback')
+		  
+		    antfx.signjar(
+		    			keyStore: "${projectDir}/src/dist/keystore.jks", 
+		    			destdir: libTempDir,
+		    			alias: "scoop",
+		    			storePass: "copper47284",
+		    			keyPass: "copper47284"){
+		    	fileset(dir: libTempDir)
+		    	fileset(dir: "${buildDir}/libs")
+		    }
+	
+	        antfx.deploy(
+	            		outdir: "${buildDir}/deployfx",
+	           			outfile: 'z',
+	           			height: '300',
+	            		width: '500',
+	            		placeholderid: 'blabla',
+	            		placeholderref: 'blabla') {
+	            
+		        antfx.resources(){
+		        	fileset(dir: libTempDir)
+		        }
+	
+		        permissions(elevated: "true", cacheCertificates: "true")
+		    	
+		    	application(refid: appId)
+	        }
+	        
+	        //delete(libTempDir);
+	   }
+    }
+	
 }
 
 project(':projects:copper-monitoring:copper-monitoring-core') {

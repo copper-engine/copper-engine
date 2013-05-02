@@ -45,6 +45,10 @@ public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
 			tab.textProperty().bind(form.dynamicTitleProperty());
 			tab.getContent().setStyle("-fx-background-color: transparent;");;
 			component.getTabs().add(tab);
+		} else {
+			if (!component.getTabs().contains(tab)){
+				component.getTabs().add(tab);
+			}
 		}
 		if (forceTabSizeTocontentesize){
 			if (tab.getContent() instanceof Region){

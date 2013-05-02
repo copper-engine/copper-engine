@@ -28,12 +28,11 @@ import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.systemresource.filter.ResourceFilterModel;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 
-public class RessourceResultController implements Initializable, FilterResultController<ResourceFilterModel,SystemResourcesInfo>, FxmlController {
+public class RessourceResultController extends FilterResultControllerBase<ResourceFilterModel,SystemResourcesInfo> implements Initializable {
 	private final GuiCopperDataProvider copperDataProvider;
 	
 	public RessourceResultController(GuiCopperDataProvider copperDataProvider) {

@@ -49,10 +49,10 @@ import javafx.util.StringConverter;
 import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
@@ -62,9 +62,7 @@ import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class WorkflowInstanceResultController implements Initializable, FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>, FxmlController {
-	
-	
+public class WorkflowInstanceResultController extends FilterResultControllerBase<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> implements Initializable {
 	
 	public static final class DetailLoadService extends Service<Void> {
 		private WorkflowInstanceResultModel workflowInstanceResultModel;
@@ -393,7 +391,7 @@ public class WorkflowInstanceResultController implements Initializable, FilterRe
 
 	@Override
 	public List<WorkflowInstanceResultModel> applyFilterInBackgroundThread(WorkflowInstanceFilterModel filter) {
-		return copperDataProvider.getWorkflowInstanceList(filter);
+		return copperDataProvider.getWorkflowInstanceList(filter, getMaxResultCount().get());
 	}
 	
 	@Override

@@ -38,16 +38,15 @@ import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterModel;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class WorkflowSummaryResultController implements Initializable, FilterResultController<WorkflowSummaryFilterModel,WorkflowSummaryResultModel>, FxmlController {
+public class WorkflowSummaryResultController extends FilterResultControllerBase<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> implements Initializable {
 	GuiCopperDataProvider copperDataProvider;
 
 	private FormContext formcontext;

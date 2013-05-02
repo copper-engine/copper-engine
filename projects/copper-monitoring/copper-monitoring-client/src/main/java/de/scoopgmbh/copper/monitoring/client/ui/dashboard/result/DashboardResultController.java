@@ -27,13 +27,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TabPane;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.EmptyFilterModel;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
-public class DashboardResultController implements Initializable, FilterResultController<EmptyFilterModel,DashboardResultModel>, FxmlController {
+public class DashboardResultController extends FilterResultControllerBase<EmptyFilterModel,DashboardResultModel> implements Initializable{
 	private final GuiCopperDataProvider copperDataProvider;
 	private final FormContext formContext;
 	
