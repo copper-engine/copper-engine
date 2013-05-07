@@ -20,6 +20,7 @@ import java.util.List;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
 import de.scoopgmbh.copper.monitoring.server.workaround.HistoryCollectorMXBean;
 
@@ -29,20 +30,23 @@ public class DefaultCopperMonitorInterfaceFactory implements CopperMonitorInterf
 	private final StatisticsCollectorMXBean statisticsCollectorMXBean;
 	private final HistoryCollectorMXBean historyCollectorMXBean;
 	private final List<ProcessingEngineMXBean> engineList;
+	private final MonitoringDataAccessQueue monitoringDataAccessQueue;
 	
 	public DefaultCopperMonitorInterfaceFactory(MonitoringDbStorage dbStorage, 
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList, 
-			HistoryCollectorMXBean historyCollectorMXBean){
+			HistoryCollectorMXBean historyCollectorMXBean,
+			MonitoringDataAccessQueue monitoringDataAccessQueue){
 		this.dbStorage = dbStorage;
 		this.statisticsCollectorMXBean = statisticsCollectorMXBean;
 		this.historyCollectorMXBean = historyCollectorMXBean;
 		this.engineList=engineList;
+		this.monitoringDataAccessQueue = monitoringDataAccessQueue;
 	}
 
 	@Override
 	public CopperMonitorInterface createCopperMonitorInterface() {
-		return new DefaultCopperMonitorInterface(dbStorage, statisticsCollectorMXBean, engineList, historyCollectorMXBean);
+		return new DefaultCopperMonitorInterface(dbStorage, statisticsCollectorMXBean, engineList, historyCollectorMXBean, monitoringDataAccessQueue);
 	}
 
 }

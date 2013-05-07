@@ -33,11 +33,11 @@ import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 
-public class EngineFilterAbleform<F extends EngineFilterModel, R> extends FilterAbleForm<F, R> {
+public class EngineFilterAbleForm<F extends EngineFilterModel, R> extends FilterAbleForm<F, R> {
 
 	private Node engineSelectionWidget;
 
-	public EngineFilterAbleform(final String titlePrefix,MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
+	public EngineFilterAbleForm(final String titlePrefix,MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
 			final Form<FilterController<F>> filterForm, Form<FilterResultController<F, R>> resultForm, GuiCopperDataProvider copperDataProvider) {
 		super(messageProvider, showFormStrategie, filterForm, resultForm, copperDataProvider);
 		

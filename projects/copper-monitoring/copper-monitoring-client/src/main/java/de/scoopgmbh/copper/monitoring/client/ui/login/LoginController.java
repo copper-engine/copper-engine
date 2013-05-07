@@ -31,15 +31,19 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import de.scoopgmbh.copper.monitoring.client.context.ApplicationContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
 
 public class LoginController implements Initializable, FxmlController {
 	private final ApplicationContext mainFactory;
-	public LoginController(ApplicationContext mainFactory) {
+	private final SettingsModel settingsModelSinglton;
+	public LoginController(ApplicationContext mainFactory, SettingsModel settingsModelSinglton) {
 		super();
 		this.mainFactory=mainFactory;
+		this.settingsModelSinglton=settingsModelSinglton;
 	}
 
-    @FXML //  fx:id="password"
+
+	@FXML //  fx:id="password"
     private PasswordField password; // Value injected by FXMLLoader
 
     @FXML //  fx:id="serverAdress"
@@ -80,6 +84,7 @@ public class LoginController implements Initializable, FxmlController {
 		    public void handle(ActionEvent event) {
 				try {
 					if (serverRadioButton.isSelected()){
+						cleanup();
 						mainFactory.setHttpGuiCopperDataProvider(serverAdress.getText(), user.getText(), password.getText());
 					} 
 				} catch (Exception e) {
@@ -87,7 +92,14 @@ public class LoginController implements Initializable, FxmlController {
 				}
 		    }
 		});
+		
+		serverAdress.textProperty().bindBidirectional(settingsModelSinglton.lastConnectedServer);
+		
 	}
+    
+    private void cleanup(){
+    	serverAdress.textProperty().unbindBidirectional(settingsModelSinglton.lastConnectedServer);
+    }
     
     public void addshorstcut(){
 		EventHandler<KeyEvent> eventHandler = new EventHandler<KeyEvent>() {

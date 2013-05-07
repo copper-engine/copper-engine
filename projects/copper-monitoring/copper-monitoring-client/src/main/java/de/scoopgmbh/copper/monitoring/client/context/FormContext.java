@@ -40,13 +40,17 @@ import de.scoopgmbh.copper.monitoring.client.form.FormGroup;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
 import de.scoopgmbh.copper.monitoring.client.form.TabPaneShowFormStrategie;
-import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterAbleform;
+import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterModelBase;
 import de.scoopgmbh.copper.monitoring.client.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.GenericFilterController;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterController;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterMonitoringResultController;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterMonitoringResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultController;
@@ -134,6 +138,13 @@ public class FormContext {
 		});
 
 		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.workflowGroup_title),createWorkflowGroup()));
+		
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.adapterMonitoring_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createAdapterMonitoringForm();
+			}
+		});
 		
 		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowRepository_title)) {
 			@Override
@@ -282,7 +293,7 @@ public class FormContext {
 		FxmlForm<FilterResultController<WorkflowSummaryFilterModel,WorkflowSummaryResultModel>> resultForm =
 				new FxmlForm<FilterResultController<WorkflowSummaryFilterModel,WorkflowSummaryResultModel>>(resCtrl, messageProvider);
 		
-		return new EngineFilterAbleform<WorkflowSummaryFilterModel,WorkflowSummaryResultModel>(messageProvider.getText(MessageKey.workflowoverview_title),messageProvider,
+		return new EngineFilterAbleForm<WorkflowSummaryFilterModel,WorkflowSummaryResultModel>(messageProvider.getText(MessageKey.workflowoverview_title),messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
@@ -296,7 +307,7 @@ public class FormContext {
 		FxmlForm<FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>> resultForm = 
 				new FxmlForm<FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>>(resCtrl, messageProvider);
 		
-		return new EngineFilterAbleform<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>(messageProvider.getText(MessageKey.workflowInstance_title),messageProvider,
+		return new EngineFilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>(messageProvider.getText(MessageKey.workflowInstance_title),messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
@@ -308,7 +319,7 @@ public class FormContext {
 		FxmlForm<FilterResultController<WorkflowHistoryFilterModel,WorkflowHistoryResultModel>> resultForm = 
 				new FxmlForm<FilterResultController<WorkflowHistoryFilterModel,WorkflowHistoryResultModel>>(resCtrl, messageProvider);
 		
-		return new EngineFilterAbleform<WorkflowHistoryFilterModel,WorkflowHistoryResultModel>(messageProvider.getText(MessageKey.workflowHistory_title),messageProvider,
+		return new EngineFilterAbleForm<WorkflowHistoryFilterModel,WorkflowHistoryResultModel>(messageProvider.getText(MessageKey.workflowHistory_title),messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
@@ -320,7 +331,7 @@ public class FormContext {
 		FxmlForm<FilterResultController<WorkflowRepositoryFilterModel,WorkflowVersion>> resultForm = 
 				new FxmlForm<FilterResultController<WorkflowRepositoryFilterModel,WorkflowVersion>>(resCtrl, messageProvider);
 		
-		return new EngineFilterAbleform<WorkflowRepositoryFilterModel,WorkflowVersion>(messageProvider.getText(MessageKey.workflowRepository_title),messageProvider,
+		return new EngineFilterAbleForm<WorkflowRepositoryFilterModel,WorkflowVersion>(messageProvider.getText(MessageKey.workflowRepository_title),messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 	}
 	
@@ -371,7 +382,7 @@ public class FormContext {
 				new FxmlForm<FilterResultController<EngineLoadFilterModel,WorkflowStateSummary>>(resCtrl, messageProvider);
 		
 		if (engineLoadFormSingelton==null){
-			engineLoadFormSingelton = new EngineFilterAbleform<EngineLoadFilterModel,WorkflowStateSummary>(messageProvider.getText(MessageKey.engineLoad_title),messageProvider,
+			engineLoadFormSingelton = new EngineFilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary>(messageProvider.getText(MessageKey.engineLoad_title),messageProvider,
 					new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 		}
 		return engineLoadFormSingelton;
@@ -451,8 +462,20 @@ public class FormContext {
 		FilterResultController<EngineFilterModelBase, MeasurePointData> resCtrl = new MeasurePointResultController(guiCopperDataProvider);
 		FxmlForm<FilterResultController<EngineFilterModelBase, MeasurePointData>> resultForm = new FxmlForm<FilterResultController<EngineFilterModelBase, MeasurePointData>>(resCtrl, messageProvider);
 
-		return new EngineFilterAbleform<EngineFilterModelBase, MeasurePointData>(messageProvider.getText(MessageKey.measurePoint_title),messageProvider, new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,
+		return new EngineFilterAbleForm<EngineFilterModelBase, MeasurePointData>(messageProvider.getText(MessageKey.measurePoint_title),messageProvider, new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,
 				guiCopperDataProvider);
+	}
+	
+	public FilterAbleForm<AdapterMonitoringFilterModel, AdapterMonitoringResultModel> createAdapterMonitoringForm() {
+
+		FilterController<AdapterMonitoringFilterModel> fCtrl = new AdapterMonitoringFilterController();
+		FxmlForm<FilterController<AdapterMonitoringFilterModel>> filterForm = new FxmlForm<FilterController<AdapterMonitoringFilterModel>>(fCtrl, messageProvider);
+
+		FilterResultController<AdapterMonitoringFilterModel, AdapterMonitoringResultModel> resCtrl = new AdapterMonitoringResultController(guiCopperDataProvider);
+		FxmlForm<FilterResultController<AdapterMonitoringFilterModel, AdapterMonitoringResultModel>> resultForm = new FxmlForm<FilterResultController<AdapterMonitoringFilterModel, AdapterMonitoringResultModel>>(resCtrl, messageProvider);
+		
+		return new FilterAbleForm<AdapterMonitoringFilterModel, AdapterMonitoringResultModel>(messageProvider,
+				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);	
 	}
 	
 }

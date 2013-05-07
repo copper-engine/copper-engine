@@ -30,15 +30,30 @@ import java.util.prefs.Preferences;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+
+import com.google.common.base.Throwables;
 
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
@@ -47,6 +62,7 @@ import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.ui.login.LoginController;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
+import de.scoopgmbh.copper.monitoring.client.util.CSSHelper;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
 
@@ -106,7 +122,8 @@ public class ApplicationContext {
 				settingsModelSinglton = (SettingsModel)object;
 			}
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
+			showWarningMessage("Can't load settings from (Preferences: "+prefs+") use defaults instead",e);
 		} finally {
 			if (is!=null){
 				try {
@@ -198,8 +215,6 @@ public class ApplicationContext {
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
-							mainStackPane.getChildren().remove(progressIndicator);
-							mainStackPane.getChildren().remove(label);
 							setGuiCopperDataProvider(copperMonitorInterface,serverAdress);
 						}
 					});
@@ -208,10 +223,17 @@ public class ApplicationContext {
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
-							mainStackPane.getChildren().remove(progressIndicator);
-							label.setText("Can't Connect: \n"+e.getMessage());
+							showErrorMessage("Can't Connect: \n"+e.getMessage(),e);
 						}
 					});
+				} finally {
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							mainStackPane.getChildren().remove(progressIndicator);
+							mainStackPane.getChildren().remove(label);
+						}
+					});	
 				}
 				
 			}
@@ -232,11 +254,76 @@ public class ApplicationContext {
 	}
 	
 	public Form<LoginController> createLoginForm(){
-		return new FxmlForm<LoginController>("login.title", new LoginController(this), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
+		return new FxmlForm<LoginController>("login.title", new LoginController(this,settingsModelSinglton), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
 	}
 
 	public Pane getMainPane() {
 		return mainStackPane;
+	}
+	
+	
+	public void showMessage(String message, Exception e, Color backColor, ImageView icon){
+		final Pane backShadow = new Pane();
+		backShadow.setStyle("-fx-background-color: "+CSSHelper.toCssColor(backColor)+";");
+		mainStackPane.getChildren().add(backShadow);
+		
+		String blackOrWhiteDependingFromBack ="ladder("+CSSHelper.toCssColor(backColor)+", white 49%, black 50%);";
+		
+		final VBox back = new VBox(3);
+		StackPane.setMargin(back, new Insets(150));
+		back.setStyle("-fx-border-color: "+blackOrWhiteDependingFromBack +"; -fx-border-width: 1px; -fx-padding: 3;");
+		back.setAlignment(Pos.CENTER_RIGHT);
+		final Label label = new Label(message);
+		label.prefWidthProperty().bind(mainStackPane.widthProperty());
+		StackPane.setMargin(back, new Insets(150));
+		label.setStyle("-fx-text-fill: "+blackOrWhiteDependingFromBack +";");
+		label.setWrapText(true);
+		label.setGraphic(icon);
+		back.getChildren().add(label);
+		
+		final TextArea area = new TextArea();
+		area.setPrefRowCount(10);
+		area.setText(Throwables.getStackTraceAsString(e));
+		area.setOpacity(0.4);
+		area.setEditable(false);
+		VBox.setVgrow(area, Priority.ALWAYS);
+		back.getChildren().add(area);
+		
+		ContextMenu menue = new ContextMenu();
+		MenuItem item = new MenuItem("copy to clipboard");
+		item.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				final Clipboard clipboard = Clipboard.getSystemClipboard();
+			    final ClipboardContent content = new ClipboardContent();
+			    content.putString(area.getText());
+			    clipboard.setContent(content);
+			}
+		});
+		menue.getItems().add(item);
+		area.setContextMenu(menue);
+		
+		Button ok = new Button("OK");
+		ok.setPrefWidth(100);
+		ok.setStyle("-fx-base: "+blackOrWhiteDependingFromBack +";");
+		ok.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				mainStackPane.getChildren().remove(back);
+				mainStackPane.getChildren().remove(backShadow);
+			}
+		});
+		back.getChildren().add(ok);
+		
+		mainStackPane.getChildren().add(back);
+	}
+	
+	public void showErrorMessage(String message, Exception e){
+		showMessage(message,e,Color.rgb(255,0,0,0.55), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/error.png").toExternalForm()));
+	}
+	
+	public void showWarningMessage(String message, Exception e){
+		showMessage(message,e,Color.rgb(255,200,90,0.75), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/warning.png").toExternalForm()));
 	}
 
 }

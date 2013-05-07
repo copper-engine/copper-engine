@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+  <center>
+    <SplitPane dividerPositions="0.5" focusTraversable="true" prefHeight="-1.0" prefWidth="648.0">
+      <items>
+        <VBox prefHeight="158.0" prefWidth="162.0" spacing="3.0">
+          <children>
+            <Label prefWidth="178.0" text="Adapter Input">
+              <font>
+                <Font name="System Bold" size="15.0" fx:id="x2" />
+              </font>
+              <VBox.margin>
+                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x1" />
+              </VBox.margin>
+            </Label>
+            <TableView id="resultTable" fx:id="adapterInputTable" prefHeight="-1.0" prefWidth="664.0" VBox.vgrow="ALWAYS">
+              <columns>
+                <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Time" fx:id="timeCol" />
+                <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Adaptercalls" fx:id="callsCol" />
+                <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Parameter" fx:id="parameterCol" />
+              </columns>
+              <VBox.margin>
+                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x1" />
+              </VBox.margin>
+            </TableView>
+          </children>
+        </VBox>
+        <VBox prefHeight="334.0" prefWidth="368.0" spacing="3.0">
+          <children>
+            <Label font="$x2" text="Adapter Output" VBox.margin="$x1" />
+            <TableView id="resultTable" fx:id="adapterOutputNotifyTable" prefHeight="193.0" prefWidth="320.0" VBox.margin="$x1" VBox.vgrow="ALWAYS">
+              <columns>
+                <TableColumn prefWidth="75.0" text="Time" fx:id="timeNotifyCol" />
+                <TableColumn prefWidth="75.0" text="CorrelationId" fx:id="corrolelationIdCol" />
+                <TableColumn prefWidth="75.0" text="Message" fx:id="messageCol" />
+              </columns>
+            </TableView>
+            <Label text="Message">
+              <VBox.margin>
+                <Insets left="3.0" right="3.0" />
+              </VBox.margin>
+            </Label>
+            <TextArea fx:id="mesageDetail" prefWidth="200.0" wrapText="true" VBox.margin="$x1" />
+            <Separator prefWidth="200.0">
+              <VBox.margin>
+                <Insets bottom="3.0" top="3.0" />
+              </VBox.margin>
+            </Separator>
+            <TableView id="resultTable" fx:id="adapterOutputLaunchTable" prefHeight="193.0" prefWidth="320.0" VBox.margin="$x1">
+              <columns>
+                <TableColumn prefWidth="75.0" text="Time" fx:id="timeLaunchCol" />
+                <TableColumn prefWidth="75.0" text="Launch Workflow" fx:id="launchWorkflowCol" />
+              </columns>
+            </TableView>
+          </children>
+        </VBox>
+      </items>
+    </SplitPane>
+  </center>
+</BorderPane>

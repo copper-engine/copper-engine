@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Random;
 
 import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
+import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
@@ -293,6 +294,11 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 	@Override
 	public void doLogin(String user, String credentials) {
 		System.out.println("qqqq"+this);
+	}
+
+	@Override
+	public AdapterHistoryInfo getAdapterHistoryInfos(String adapterId) throws RemoteException {
+		return new AdapterHistoryInfo();
 	}
 	
 }

@@ -37,6 +37,7 @@ import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
 import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
+import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.BatcherInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
@@ -58,6 +59,8 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo.WorkflowRepositorTyp;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
 import de.scoopgmbh.copper.monitoring.server.workaround.HistoryCollectorMXBean;
 
@@ -67,15 +70,19 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 	private final MonitoringDbStorage dbStorage;
 	private final CopperInterfaceSettings copperInterfaceSettings;
 	private final StatisticsCollectorMXBean statisticsCollectorMXBean;
+	@SuppressWarnings("unused")
 	private final HistoryCollectorMXBean historyCollectorMXBean;
 	private final Map<String,ProcessingEngineMXBean> engines;
 	private final PerformanceMonitor performanceMonitor;
+	private final MonitoringDataAccessQueue monitoringDataAccessQueue;
 	
 	public DefaultCopperMonitorInterface(MonitoringDbStorage dbStorage, 
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList,
-			HistoryCollectorMXBean historyCollectorMXBean){
-		this(dbStorage,new CopperInterfaceSettings(), statisticsCollectorMXBean, engineList, historyCollectorMXBean,new PerformanceMonitor());
+			HistoryCollectorMXBean historyCollectorMXBean,
+			MonitoringDataAccessQueue monitoringDataAccessQueue){
+		this(dbStorage,new CopperInterfaceSettings(), statisticsCollectorMXBean, engineList,
+				historyCollectorMXBean,new PerformanceMonitor(),monitoringDataAccessQueue);
 	}
 	
 	public DefaultCopperMonitorInterface(MonitoringDbStorage dbStorage,
@@ -83,12 +90,14 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList,
 			HistoryCollectorMXBean historyCollectorMXBean,
-			PerformanceMonitor performanceMonitor){
+			PerformanceMonitor performanceMonitor,
+			MonitoringDataAccessQueue monitoringDataAccessQueue){
 		this.dbStorage = dbStorage;
 		this.copperInterfaceSettings = copperInterfaceSettings;
 		this.statisticsCollectorMXBean = statisticsCollectorMXBean;
 		this.historyCollectorMXBean = historyCollectorMXBean;
 		this.performanceMonitor = performanceMonitor;
+		this.monitoringDataAccessQueue = monitoringDataAccessQueue;
 		
 		engines = new HashMap<String,ProcessingEngineMXBean>();
 		for (ProcessingEngineMXBean engine: engineList){
@@ -326,6 +335,16 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 	public void doLogin(String user, String credentials) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public AdapterHistoryInfo getAdapterHistoryInfos(String adapterId) throws RemoteException {
+		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<AdapterHistoryInfo>() {
+			@Override
+			public AdapterHistoryInfo call() throws Exception {
+				return new AdapterHistoryInfo(monitoringData.getAdapterCalls(),monitoringData.getAdapterWfLaunches(),monitoringData.getAdapterWfNotifies());
+			}
+		});
 	}
 
 }

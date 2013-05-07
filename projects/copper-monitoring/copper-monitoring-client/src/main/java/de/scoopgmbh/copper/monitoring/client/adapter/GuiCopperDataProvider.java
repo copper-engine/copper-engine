@@ -17,11 +17,14 @@ package de.scoopgmbh.copper.monitoring.client.adapter;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javafx.beans.property.SimpleLongProperty;
 import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterModelBase;
 import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EnginePoolModel;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterMonitoringResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.sql.filter.SqlFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.sql.result.SqlResultModel;
@@ -35,6 +38,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.Wor
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
+import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
@@ -244,6 +248,16 @@ public class GuiCopperDataProvider {
 	public CopperInterfaceSettings getInterfaceSettings() {
 		try {
 			return copperDataProvider.getSettings();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public AdapterMonitoringResultModel getAdapterHistoryInfo(AdapterMonitoringFilterModel filter) {
+		try {
+			AdapterHistoryInfo  adapterHistory = copperDataProvider.getAdapterHistoryInfos(filter.adapterId.get());
+			Collections.reverse(adapterHistory.getAdapterCalls());
+			return new AdapterMonitoringResultModel(adapterHistory);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
