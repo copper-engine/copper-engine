@@ -17,7 +17,6 @@ package de.scoopgmbh.copper.monitoring.example.workflow;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -52,7 +51,6 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 	public void main() throws InterruptException {
 		while (true){
 			waitingfor.addAll(billAdapter.takeCorrelationIds());
-			System.err.println(Arrays.toString(waitingfor.toArray(new String[0])));
 			wait(WaitMode.FIRST,Workflow.NO_TIMEOUT,waitingfor.toArray(new String[0]));
 
 			

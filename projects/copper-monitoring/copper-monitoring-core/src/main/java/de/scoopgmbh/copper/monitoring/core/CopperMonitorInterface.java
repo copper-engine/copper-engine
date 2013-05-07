@@ -20,6 +20,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
@@ -96,6 +97,8 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	public List<WorkflowInstanceHistory> getWorkflowInstanceHistory() throws RemoteException;
 	
 	public void doLogin(String user, String credentials) throws RemoteException;
+
+	public AdapterHistoryInfo getAdapterHistoryInfos(String adapterId) throws RemoteException;
 	
 }
 

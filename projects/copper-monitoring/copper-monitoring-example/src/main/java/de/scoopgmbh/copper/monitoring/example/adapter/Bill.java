@@ -38,5 +38,10 @@ public class Bill implements Serializable{
 	public Bill() {
 		super();
 	}
+
+	@Override
+	public String toString() {
+		return "Bill [totalAmount=" + totalAmount + "]";
+	}
 	
 }

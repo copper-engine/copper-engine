@@ -34,12 +34,16 @@ import de.scoopgmbh.copper.common.JdkRandomUUIDFactory;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
-import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapter;
+import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapterImpl;
 import de.scoopgmbh.copper.monitoring.server.DefaultCopperMonitorInterfaceFactory;
 import de.scoopgmbh.copper.monitoring.server.SpringRemoteServerMain;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
 import de.scoopgmbh.copper.monitoring.server.workaround.HistoryCollectorMXBean;
+import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringAdapterProcessingEngine;
+import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringDependencyInjector;
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 import de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
@@ -109,7 +113,6 @@ public class MonitoringExampleMain {
 		defaultProcessorPoolManager.setEngine(persistentengine);
 		
 		persistentengine.setProcessorPoolManager(defaultProcessorPoolManager);
-		persistentengine.startup();
 		//persistentengine.shutdown();
 		
 		
@@ -126,11 +129,15 @@ public class MonitoringExampleMain {
 		
 		
 		PojoDependencyInjector dependyInjector = new PojoDependencyInjector();
-		dependyInjector.setEngine(persistentengine);
-		persistentengine.setDependencyInjector(dependyInjector);
-		dependyInjector.register("billAdapter", new BillAdapter(persistentengine));
+		final MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue();
+		final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
+		MonitoringDependencyInjector monitoringDependencyInjector= new MonitoringDependencyInjector(dependyInjector, monitoringDataCollector);
+		persistentengine.setDependencyInjector(monitoringDependencyInjector);
+		BillAdapterImpl billAdapterImpl = new BillAdapterImpl();
+		billAdapterImpl.initWithEngine(new MonitoringAdapterProcessingEngine(billAdapterImpl,persistentengine,monitoringDataCollector));
+		dependyInjector.register("billAdapter", billAdapterImpl);
+		persistentengine.startup();
 		
-
 		try {
 			cleanDB(datasource_default);
 		} catch (Exception e) {
@@ -149,7 +156,8 @@ public class MonitoringExampleMain {
 				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect()),
 				runtimeStatisticsCollector,
 				engines,
-				new HistoryCollectorMXBean(){});
+				new HistoryCollectorMXBean(){},
+				monitoringQueue);
 	
 
 		new SpringRemoteServerMain(factory,8080,"localhost").start();

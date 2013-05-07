@@ -39,6 +39,9 @@ public class BillableService implements Serializable{
 		super();
 	}
 
-	
+	@Override
+	public String toString() {
+		return "BillableService [amount=" + amount + "]";
+	}
 	
 }
