@@ -53,7 +53,7 @@ public interface WorkflowPersistencePlugin {
 		public void onWorkflowsSaved(Connection con,
 				Iterable<PersistentWorkflow<?>> workflows) throws SQLException {
 			for (PersistentWorkflow<?> wf : workflows) {
-				wf.doOnSave(PersistenceContext.NULL_CONTEXT);
+				wf.onSave(PersistenceContext.NULL_CONTEXT);
 			}
 		}
 		
@@ -61,7 +61,7 @@ public interface WorkflowPersistencePlugin {
 		public void onWorkflowsLoaded(Connection con,
 				Iterable<PersistentWorkflow<?>> workflows) throws SQLException {
 			for (PersistentWorkflow<?> wf : workflows) {
-				wf.doOnLoad(PersistenceContext.NULL_CONTEXT);
+				wf.onLoad(PersistenceContext.NULL_CONTEXT);
 			}
 		}
 		
@@ -69,7 +69,7 @@ public interface WorkflowPersistencePlugin {
 		public void onWorkflowsDeleted(Connection con,
 				Iterable<PersistentWorkflow<?>> workflows) throws SQLException {
 			for (PersistentWorkflow<?> wf : workflows) {
-				wf.doOnDelete(PersistenceContext.NULL_CONTEXT);
+				wf.onDelete(PersistenceContext.NULL_CONTEXT);
 			}
 		}
 	};
