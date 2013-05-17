@@ -19,8 +19,11 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +44,9 @@ class OracleRegisterCallback {
 
 		private final RegisterCall registerCall;
 		private final Serializer serializer;
+		private final WorkflowPersistencePlugin workflowPersistencePlugin;
 
-		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorageInterface, final long targetTime) {
+		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorageInterface, final long targetTime, final WorkflowPersistencePlugin workflowPersistencePlugin) {
 			super(new CommandCallback<Command>() {
 				@Override
 				public void commandCompleted() {
@@ -56,6 +60,7 @@ class OracleRegisterCallback {
 			},targetTime);
 			this.registerCall = registerCall;
 			this.serializer = serializer;
+			this.workflowPersistencePlugin = workflowPersistencePlugin;
 		}
 
 		@Override
@@ -80,9 +85,16 @@ class OracleRegisterCallback {
 			PreparedStatement insertWaitStmt = con.prepareStatement("INSERT INTO COP_WAIT (CORRELATION_ID,WORKFLOW_INSTANCE_ID,MIN_NUMB_OF_RESP,TIMEOUT_TS,STATE,PRIORITY,PPOOL_ID,WFI_ROWID) VALUES (?,?,?,?,?,?,?,?)");
 			PreparedStatement updateWfiStmt = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, PRIORITY=?, LAST_MOD_TS=?, PPOOL_ID=?, DATA=?, LONG_DATA=?, OBJECT_STATE=?, LONG_OBJECT_STATE=?, CS_WAITMODE=?, MIN_NUMB_OF_RESP=?, NUMB_OF_WAITS=?, TIMEOUT=? WHERE ID=?");
 			try {
+				HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> wfs = new HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>>();
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command)_cmd;
 					RegisterCall rc = cmd.registerCall;
+					ArrayList<PersistentWorkflow<?>> _wfs = wfs.get(cmd.workflowPersistencePlugin);
+					if (_wfs == null) {
+						_wfs = new ArrayList<PersistentWorkflow<?>>();
+						wfs.put(cmd.workflowPersistencePlugin,_wfs);
+					}
+					_wfs.add((PersistentWorkflow<?>)rc.workflow);
 					for (String cid : rc.correlationIds) {
 						insertWaitStmt.setString(1, cid);
 						insertWaitStmt.setString(2, rc.workflow.getId());
@@ -160,6 +172,11 @@ class OracleRegisterCallback {
 						wh.onWait(rc.workflow, con);
 					}
 				}
+				
+				for (Map.Entry<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> en : wfs.entrySet()) {
+					en.getKey().onWorkflowsSaved(con, en.getValue());
+				}
+
 			}
 			finally {
 				JdbcUtils.closeStatement(stmtDelQueue);

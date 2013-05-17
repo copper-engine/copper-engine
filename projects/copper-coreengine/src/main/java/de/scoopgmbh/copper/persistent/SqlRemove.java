@@ -18,7 +18,10 @@ package de.scoopgmbh.copper.persistent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.jdbc.support.JdbcUtils;
 
@@ -33,12 +36,14 @@ class SqlRemove {
 
 		private final PersistentWorkflow<?> wf;
 		private final boolean remove;
+		private final WorkflowPersistencePlugin workflowPersistencePlugin;
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, boolean remove, final long targetTime) {
+		public Command(PersistentWorkflow<?> wf, boolean remove, final long targetTime, final WorkflowPersistencePlugin workflowPersistencePlugin) {
 			super(NullCallback.instance,targetTime);
 			this.wf = wf;
 			this.remove = remove;
+			this.workflowPersistencePlugin = workflowPersistencePlugin;
 		}
 
 		@Override
@@ -62,6 +67,7 @@ class SqlRemove {
 			PreparedStatement stmtDelBP = null;
 			PreparedStatement stmtDelErrors = null;
 			try {
+				HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> wfs = new HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>>();
 				stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
 				stmtDelResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
 				stmtDelWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
@@ -94,6 +100,13 @@ class SqlRemove {
 					stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
 					stmtDelQueue.setInt(3, cmd.wf.oldPrio);
 					stmtDelQueue.addBatch();
+
+					ArrayList<PersistentWorkflow<?>> _wfs = wfs.get(cmd.workflowPersistencePlugin);
+					if (_wfs == null) {
+						_wfs = new ArrayList<PersistentWorkflow<?>>();
+						wfs.put(cmd.workflowPersistencePlugin,_wfs);
+					}
+					_wfs.add(cmd.wf);
 				}
 				if (cidsFound) {
 					stmtDelResponse.executeBatch();
@@ -102,6 +115,11 @@ class SqlRemove {
 				stmtDelBP.executeBatch();
 				stmtDelErrors.executeBatch();
 				stmtDelQueue.executeBatch();
+
+				for (Map.Entry<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> en : wfs.entrySet()) {
+					en.getKey().onWorkflowsSaved(con, en.getValue());
+				}
+
 			}
 			finally {
 				JdbcUtils.closeStatement(stmtDelQueue);

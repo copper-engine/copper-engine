@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
+
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -62,7 +63,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 	protected int defaultStaleResponseRemovalTimeout = 60*60*1000;
 	protected Serializer serializer = new StandardJavaSerializer();
 	protected int dbBatchingLatencyMSec = 50;
-
+	private WorkflowPersistencePlugin workflowPersistencePlugin = WorkflowPersistencePlugin.NULL_PLUGIN;
 	protected String queryUpdateQueueState = getResourceAsString("/sql-query-ready-bpids.sql");
 
 	private StmtStatistic dequeueStmtStatistic;
@@ -110,6 +111,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 	public void setRuntimeStatisticsCollector(RuntimeStatisticsCollector runtimeStatisticsCollector) {
 		this.runtimeStatisticsCollector = runtimeStatisticsCollector;
 	}
+
 
 	private void initStats() {
 		dequeueStmtStatistic = new StmtStatistic("DBStorage.dequeue.fullquery",runtimeStatisticsCollector);
@@ -283,7 +285,10 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 				deleteStmt.executeBatch();
 				queueDeleteStmtStatistic.stop(map.size());
 
-				rv.addAll(map.values());
+				@SuppressWarnings("unchecked")
+				Collection<PersistentWorkflow<?>> workflows = (Collection<PersistentWorkflow<?>>)(Collection)map.values();
+				workflowPersistencePlugin.onWorkflowsLoaded(con, workflows);
+				rv.addAll(workflows);
 			}
 
 			handleInvalidWorkflowInstances(con, invalidWorkflowInstances);
@@ -447,7 +452,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 	@Override
 	@SuppressWarnings({"rawtypes"})
 	public BatchCommand createBatchCommand4Finish(Workflow<?> w) {
-		return new SqlRemove.Command((PersistentWorkflow<?>) w,removeWhenFinished, System.currentTimeMillis()+dbBatchingLatencyMSec);
+		return new SqlRemove.Command((PersistentWorkflow<?>) w,removeWhenFinished, System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin);
 	}
 
 	@Override
@@ -467,7 +472,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 	@SuppressWarnings({"rawtypes"})
 	public BatchCommand createBatchCommand4registerCallback(RegisterCall rc, ScottyDBStorageInterface dbStorageInterface) throws Exception {
 		if (rc == null) throw new NullPointerException();
-		return new SqlRegisterCallback.Command(rc, serializer, dbStorageInterface, System.currentTimeMillis()+dbBatchingLatencyMSec);
+		return new SqlRegisterCallback.Command(rc, serializer, dbStorageInterface, System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin);
 	}
 
 	@Override
@@ -508,6 +513,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 					n = 0;
 				}
 			}
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			List<PersistentWorkflow<?>> uncheckedWfs = (List)wfs;
+			workflowPersistencePlugin.onWorkflowsSaved(con, uncheckedWfs);
 		}
 		finally {
 			JdbcUtils.closeStatement(stmtQueue);
@@ -581,6 +589,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 					idsOfBadWorkflows.add(id);
 				}
 			}
+			
 			return idsOfBadWorkflows;
 		}
 		finally {
@@ -591,5 +600,15 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 	@Override
 	public void shutdown() {
 	}
+
+	public WorkflowPersistencePlugin getWorkflowPersistencePlugin() {
+		return workflowPersistencePlugin;
+	}
+
+	public void setWorkflowPersistencePlugin(
+			WorkflowPersistencePlugin workflowPersistencePlugin) {
+		this.workflowPersistencePlugin = workflowPersistencePlugin;
+	}
+
 
 }

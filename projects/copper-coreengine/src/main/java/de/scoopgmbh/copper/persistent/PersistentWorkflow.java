@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import de.scoopgmbh.copper.Workflow;
 
 
@@ -61,4 +62,25 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 		setData((E) data);
 	}
 	
+	public final void onLoad(PersistenceContext pc) {
+		doOnLoad(pc);
+	}
+	
+	public final void onSave(PersistenceContext pc) {
+		doOnSave(pc);
+	}
+	
+	public final void onDelete(PersistenceContext pc) {
+		doOnDelete(pc);
+	}
+	
+	protected void doOnLoad(PersistenceContext pc) {
+	}
+	
+	protected void doOnSave(PersistenceContext pc) {
+	}
+
+	protected void doOnDelete(PersistenceContext pc) {
+	}
+
 }

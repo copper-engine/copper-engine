@@ -17,7 +17,10 @@ package de.scoopgmbh.copper.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.jdbc.support.JdbcUtils;
 
@@ -32,12 +35,14 @@ class OracleRemove {
 
 		private final PersistentWorkflow<?> wf;
 		private final boolean remove;
+		private final WorkflowPersistencePlugin workflowPersistencePlugin;
 
 		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, boolean remove, final long targetTime) {
+		public Command(PersistentWorkflow<?> wf, boolean remove, final long targetTime, WorkflowPersistencePlugin workflowPersistencePlugin) {
 			super(NullCallback.instance,targetTime);
 			this.wf = wf;
 			this.remove = remove;
+			this.workflowPersistencePlugin = workflowPersistencePlugin;
 		}
 
 		@Override
@@ -68,6 +73,7 @@ class OracleRemove {
 			final PreparedStatement stmtDelErrors = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
 			final PreparedStatement stmtDelBP = ((Command)commands.iterator().next()).remove ? c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?") : c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE="+DBProcessingState.FINISHED.ordinal()+", LAST_MOD_TS=SYSTIMESTAMP WHERE ID=?");
 			try {
+				HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> wfs = new HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>>();
 				boolean cidsFound = false;
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command) _cmd;
@@ -90,6 +96,14 @@ class OracleRemove {
 					stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
 					stmtDelQueue.setInt(3, cmd.wf.oldPrio);
 					stmtDelQueue.addBatch();
+
+					ArrayList<PersistentWorkflow<?>> _wfs = wfs.get(cmd.workflowPersistencePlugin);
+					if (_wfs == null) {
+						_wfs = new ArrayList<PersistentWorkflow<?>>();
+						wfs.put(cmd.workflowPersistencePlugin,_wfs);
+					}
+					_wfs.add(cmd.wf);
+
 				}
 				if (cidsFound) {
 					stmtDelResponse.executeBatch();
@@ -98,6 +112,10 @@ class OracleRemove {
 				stmtDelBP.executeBatch();
 				stmtDelErrors.executeBatch();
 				stmtDelQueue.executeBatch();
+
+				for (Map.Entry<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> en : wfs.entrySet()) {
+					en.getKey().onWorkflowsSaved(c, en.getValue());
+				}
 			}
 			finally {
 				JdbcUtils.closeStatement(stmtDelQueue);

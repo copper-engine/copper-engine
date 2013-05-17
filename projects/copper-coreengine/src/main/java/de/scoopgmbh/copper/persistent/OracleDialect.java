@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
+
 
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.EngineIdProvider;
@@ -66,6 +68,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	private StmtStatistic deleteStaleResponsesStmtStatistic;
 	private StmtStatistic dequeueWait4RespLdrStmtStatistic;
 	private final Map<String, ResponseLoader> responseLoaders = new HashMap<String, ResponseLoader>();
+	private WorkflowPersistencePlugin workflowPersistencePlugin = WorkflowPersistencePlugin.NULL_PLUGIN;
 
 	// mandatory Properties
 	private WorkflowRepository wfRepository = null;
@@ -242,7 +245,10 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 		responseLoader.endTxn();
 		dequeueWait4RespLdrStmtStatistic.stop(map.size());
 
-		rv.addAll(map.values());
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Collection<PersistentWorkflow<?>> workflows = (Collection<PersistentWorkflow<?>>)(Collection)map.values();
+		workflowPersistencePlugin.onWorkflowsLoaded(con, workflows);
+		rv.addAll(workflows);
 
 		dequeueAllStmtStatistic.stop(map.size());
 
@@ -386,6 +392,9 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 					n = 0;
 				}
 			}
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			List<PersistentWorkflow<?>> uncheckedWfs = (List)wfs;
+			workflowPersistencePlugin.onWorkflowsSaved(con, uncheckedWfs);
 		}
 		finally {
 			JdbcUtils.closeStatement(stmt);
@@ -496,7 +505,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	@SuppressWarnings({"rawtypes"})
 	public BatchCommand createBatchCommand4Finish(final Workflow<?> w) {
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		return new OracleRemove.Command(pwf,removeWhenFinished,System.currentTimeMillis()+dbBatchingLatencyMSec);
+		return new OracleRemove.Command(pwf,removeWhenFinished,System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin);
 	}	
 
 	/* (non-Javadoc)
@@ -521,7 +530,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	public BatchCommand createBatchCommand4registerCallback(final RegisterCall rc, final ScottyDBStorageInterface dbStorageInterface) throws Exception {
 		if (rc == null) 
 			throw new NullPointerException();
-		return new OracleRegisterCallback.Command(rc, serializer, dbStorageInterface,System.currentTimeMillis()+dbBatchingLatencyMSec);
+		return new OracleRegisterCallback.Command(rc, serializer, dbStorageInterface,System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin);
 	}	
 
 	/* (non-Javadoc)
@@ -604,5 +613,16 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	public String getDialectDescription() {
 		return "Oracle";
 	}
-	
+
+	public WorkflowPersistencePlugin getWorkflowPersistencePlugin() {
+		return workflowPersistencePlugin;
+	}
+
+	public void setWorkflowPersistencePlugin(
+			WorkflowPersistencePlugin workflowPersistencePlugin) {
+		this.workflowPersistencePlugin = workflowPersistencePlugin;
+	}
+
+
+
 }
