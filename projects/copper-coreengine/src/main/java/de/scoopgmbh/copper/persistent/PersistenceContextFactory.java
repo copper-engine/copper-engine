@@ -19,7 +19,7 @@ import java.sql.SQLException;
 
 
 /**
- * Interface for custom persistence of {@link PersistentWorkflow} members. For every worklow, during saving and loading from and to storage a {@link PersistenceContext} is being created. This context is passed to {@link PersistentWorkflow#doOnLoad(PersistenceContext)}, {@link PersistentWorkflow#doOnSave(PersistenceContext)} and {@link PersistentWorkflow#doOnDelete(PersistenceContext)}.
+ * Interface for custom persistence of {@link PersistentWorkflow} members. For every worklow, during saving and loading from and to storage a {@link PersistenceContext} is being created. This context is passed to {@link PersistentWorkflow#onLoad(PersistenceContext)}, {@link PersistentWorkflow#onSave(PersistenceContext)} and {@link PersistentWorkflow#onDelete(PersistenceContext)}.
  * @author Roland Scheel
  *
  * @param <T>

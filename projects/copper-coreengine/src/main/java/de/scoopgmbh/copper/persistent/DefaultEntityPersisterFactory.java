@@ -27,10 +27,11 @@ import java.util.Collection;
 public interface DefaultEntityPersisterFactory<E, P extends DefaultEntityPersister<E>> {
 	
 	Class<E> getEntityClass();
+	Class<P> getPersisterClass();
 	
 	/**
 	 * Creates a persister. The workers are guaranteed to origin from a preceeding call to {@link #createSelectionWorker()}, {@link #createInsertionWorker()}, {@link #createUpdateWorker()} and {@link #createDeletionWorker()}.  
-	 * @param workflow The workflow that this persister is handed out to in one of the {@link PersistentWorkflow#doOnDelete(PersistenceContext)}, {@link PersistentWorkflow#doOnLoad(PersistenceContext)} and {@link PersistentWorkflow#doOnSave(PersistenceContext)} methods.
+	 * @param workflow The workflow that this persister is handed out to in one of the {@link PersistentWorkflow#onDelete(PersistenceContext)}, {@link PersistentWorkflow#onLoad(PersistenceContext)} and {@link PersistentWorkflow#onSave(PersistenceContext)} methods.
 	 * @param selectionWorker
 	 * @param insertionWorker
 	 * @param updateWorker

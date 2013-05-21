@@ -62,6 +62,14 @@ public class DefaultPersistenceContextFactoryConfiguration {
 		return persisterFactories.get(entityClass);
 	}
 
+	public <T> DefaultEntityPersisterFactory<?,?> getMapper(Class<T> mapperClass) {
+		for (DefaultEntityPersisterFactory<?,?> factory : orderedFactories) {
+			if (mapperClass.isAssignableFrom(factory.getPersisterClass()))
+				return factory;
+		}
+		return null;
+	}
+
 	public List<DefaultEntityPersisterFactory<?,?>> getDependencyOrderedPersisterFactories() {
 		return orderedFactories;
 	}

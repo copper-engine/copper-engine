@@ -18,7 +18,6 @@ package de.scoopgmbh.copper.persistent;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -42,7 +41,7 @@ public final class DefaultPersistenceContextFactory implements PersistenceContex
 	}
 	
 	@SuppressWarnings("rawtypes")
-	HashMap<Class<?>, DefaultPersistenceWorker[]> workers = new HashMap<Class<?>, DefaultPersistenceWorker[]>();  
+	HashMap<DefaultEntityPersisterFactory<?,?>, DefaultPersistenceWorker[]> workers = new HashMap<DefaultEntityPersisterFactory<?,?>, DefaultPersistenceWorker[]>();  
 	@SuppressWarnings("rawtypes")
 	TreeMap<Double, DefaultPersistenceWorker> orderedWorkers = new TreeMap<Double, DefaultPersistenceWorker>();  
 	
@@ -65,29 +64,43 @@ public final class DefaultPersistenceContextFactory implements PersistenceContex
 	}
 
 	private PersistenceContext createPersistenceContext(
-			final PersistentWorkflow<?> workflow) {
+			final PersistentWorkflow<?> wf) {
 		return new PersistenceContext() {
-			Map<Class<?>, DefaultEntityPersister<?>> map = new HashMap<Class<?>, DefaultEntityPersister<?>>();
+			
+			final PersistentWorkflow<?> workflow = wf;
 
-			@SuppressWarnings({ "unchecked", "rawtypes" })
+			@SuppressWarnings({ "unchecked" })
 			@Override
 			public <T> EntityPersister<T> getPersister(Class<T> entityClass) {
-				DefaultEntityPersister persister = (DefaultEntityPersister) map.get(entityClass);
-				if (persister != null)
-					return persister;
 				
-				DefaultEntityPersisterFactory<?, ?> persisterFactory = configuration.getPersisterFactory(entityClass);
+				DefaultEntityPersisterFactory<?, DefaultEntityPersister<T>> persisterFactory = (DefaultEntityPersisterFactory<?, DefaultEntityPersister<T>>) configuration.getPersisterFactory(entityClass);
 				if (persisterFactory == null)
 					throw new RuntimeException("No persister configured for class '"+entityClass.getCanonicalName()+"'");
 				
-				DefaultPersistenceWorker[] workerArray = workers.get(entityClass);
+				return (EntityPersister<T>)createPersister(persisterFactory);
+			}
+
+			@SuppressWarnings({ "unchecked" })
+			@Override
+			public <T> T getMapper(Class<T> mapperInterface) {
+				DefaultEntityPersisterFactory<?, DefaultEntityPersister<?>> persisterFactory = (DefaultEntityPersisterFactory<?, DefaultEntityPersister<?>>) configuration.getMapper(mapperInterface);
+				if (persisterFactory == null)
+					throw new RuntimeException("No mapper configured for interface '"+mapperInterface.getCanonicalName()+"'");
+				
+				return (T)createPersister(persisterFactory);
+			}
+
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			private EntityPersister<?> createPersister(
+					DefaultEntityPersisterFactory<?, ?> persisterFactory) {
+				DefaultPersistenceWorker[] workerArray = workers.get(persisterFactory);
 				if (workerArray == null) {
 					workerArray = new DefaultPersistenceWorker[] {
 								persisterFactory.createSelectionWorker()
 								,persisterFactory.createInsertionWorker()
 								,persisterFactory.createUpdateWorker()
 								,persisterFactory.createDeletionWorker()};
-					workers.put(entityClass, workerArray);
+					workers.put(persisterFactory, workerArray);
 					int precedence = configuration.getDependencyOrderedPersisterFactories().indexOf(persisterFactory)+2;
 					//selection, insertion and updates operate on master entities before child entities
 					//deletions have the reverse order
@@ -96,10 +109,10 @@ public final class DefaultPersistenceContextFactory implements PersistenceContex
 					orderedWorkers.put(3d-1d/precedence, workerArray[2]);
 					orderedWorkers.put(3d+1d/precedence, workerArray[3]);
 				}
-				persister = persisterFactory.createPersister(workflow, workerArray[0], workerArray[1], workerArray[2], workerArray[3]);
-				map.put(entityClass, persister);
+				EntityPersister<?> persister = persisterFactory.createPersister(workflow, workerArray[0], workerArray[1], workerArray[2], workerArray[3]);
 				return persister;
 			}
+
 
 		};
 	}

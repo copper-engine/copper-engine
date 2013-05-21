@@ -169,6 +169,11 @@ public class DefaultPersistenceTest {
 		public Collection<Class<?>> getEntityClassesDependingOn() {
 			return Collections.EMPTY_LIST;
 		}
+
+		@Override
+		public Class<Persister> getPersisterClass() {
+			return Persister.class;
+		}
 		
 	}
 	
@@ -208,6 +213,11 @@ public class DefaultPersistenceTest {
 		@Override
 		public Collection<Class<?>> getEntityClassesDependingOn() {
 			return Arrays.<Class<?>>asList(MasterEntity.class);
+		}
+		
+		@Override
+		public Class<Persister> getPersisterClass() {
+			return Persister.class;
 		}
 		
 	}
@@ -252,17 +262,17 @@ public class DefaultPersistenceTest {
 		}
 		
 		@Override
-		protected void doOnDelete(PersistenceContext pc) {
+		public void onDelete(PersistenceContext pc) {
 			testWork(pc, onDelete);
 		}
 
 		@Override
-		protected void doOnLoad(PersistenceContext pc) {
+		public void onLoad(PersistenceContext pc) {
 			testWork(pc, onLoad);
 		}
 		
 		@Override
-		protected void doOnSave(PersistenceContext pc) {
+		public void onSave(PersistenceContext pc) {
 			testWork(pc, onSave);
 		}
 		
