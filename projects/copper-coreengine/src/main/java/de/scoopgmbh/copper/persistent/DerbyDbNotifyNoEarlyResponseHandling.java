@@ -77,7 +77,7 @@ class DerbyDbNotifyNoEarlyResponseHandling {
 				return;
 
 			final PreparedStatement selectStmt = con.prepareStatement("select count(*) from cop_wait where correlation_id = ?");
-			final PreparedStatement insertStmt = con.prepareStatement("INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA) VALUES (?,?,?,?,?)");
+			final PreparedStatement insertStmt = con.prepareStatement("INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA, RESPONSE_ID) VALUES (?,?,?,?,?,?)");
 			try {
 				final Timestamp now = new Timestamp(System.currentTimeMillis());
 				int counter = 0;
@@ -98,6 +98,7 @@ class DerbyDbNotifyNoEarlyResponseHandling {
 						insertStmt.setString(4, payload);
 						insertStmt.setTimestamp(5, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
 						insertStmt.setString(6, cmd.response.getMetaData());
+						insertStmt.setString(7, cmd.response.getResponseId());
 						insertStmt.addBatch();
 						counter++;
 					}

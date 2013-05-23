@@ -80,6 +80,20 @@ public class MockAdapter {
 			}, overrideDelay, TimeUnit.MILLISECONDS);
 		}
 	}	
+
+	// do some work; delayed response to engine object
+	public void fooWithMultiResponse(final String param, final String cid, final int numbOfResponse) {
+		invokationCounter.incrementAndGet();
+		pool.schedule(new Runnable() {
+			@Override
+			public void run() {
+				for (int i=0; i<numbOfResponse; i++) {
+					engine.notify(new Response<String>(cid, param, null));
+				}
+			}
+		}, delay, TimeUnit.MILLISECONDS);
+	}	
+	
 	// do some work; delayed resonse to engine object
 	public void incrementAsync(final int c, final String cid) {
 		invokationCounter.incrementAndGet();

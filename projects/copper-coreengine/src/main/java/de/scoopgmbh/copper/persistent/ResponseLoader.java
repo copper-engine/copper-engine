@@ -99,7 +99,7 @@ class ResponseLoader extends ConcurrentBatchedWorker {
 		for (PersistentWorkflow<?> wf : list) {
 			map.put(wf.getId(), wf);
 		}
-		PreparedStatement stmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response, r.long_response from (select WORKFLOW_INSTANCE_ID, correlation_id from cop_wait where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w, cop_response r where w.correlation_id = r.correlation_id(+)");
+		PreparedStatement stmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response, r.long_response, w.is_timed_out from (select WORKFLOW_INSTANCE_ID, correlation_id, case when timeout_ts < systimestamp then 1 else 0 end is_timed_out from cop_wait where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w, cop_response r where w.correlation_id = r.correlation_id(+)");
 		try {
 			for (int i=0; i<flushSize; i++) {
 				stmt.setString(i+1, list.size() >= i+1 ? list.get(i).getId() : null);
@@ -112,17 +112,20 @@ class ResponseLoader extends ConcurrentBatchedWorker {
 				String cid = rsResponses.getString(2);
 				String response = rsResponses.getString(3);
 				if (response == null) response = rsResponses.getString(4);
+				boolean isTimedOut = rsResponses.getInt(5) == 1;
 				PersistentWorkflow<?> wf = (PersistentWorkflow<?>) map.get(bpId);
-				Response<?> r;
+				Response<?> r = null;
 				if (response != null) {
 					r = (Response<?>) serializer.deserializeResponse(response);
-					wf.addResponseCorrelationId(cid);
+					wf.addResponseId(r.getResponseId());
 				}
-				else {
+				else if (isTimedOut) {
 					// timeout
 					r = new Response<Object>(cid);
 				}
-				wf.putResponse(r);
+				if (r != null) { 
+					wf.putResponse(r);
+				}
 				wf.addWaitCorrelationId(cid);
 				++n;
 			}

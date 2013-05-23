@@ -38,27 +38,11 @@ public interface EarlyResponseContainer {
 	public void put(final Response<?> response);
 
 	/**
-	 * Gets and removed a response for the provided correlationId if it exists.
+	 * Gets and removes the responses for the provided correlationId if they exists.
 	 * @param correlationId
-	 * @return the response or <code>null</code> if there is no response for the provided correlationId.
+	 * @return the responses or an empty list if there is no response for the provided correlationId.
 	 */
-	public Response<?> get(final String correlationId);
-
-	/**
-	 * Notifies this container about a stale correlationId. Stale in this context means, that a response for
-	 * this correlationId  may be ignored by the container.
-	 * 
-	 * @param correlationId
-	 */
-	public void putStaleCorrelationId(final String correlationId);
-
-	/**
-	 * Notifies this container about some stale correlationIds. Stale in this context means, that a response for
-	 * this correlationId  may be ignored by the container.
-
-	 * @param correlationIds
-	 */
-	public void putStaleCorrelationId(List<String> correlationIds);
+	public List<Response<?>> get(final String correlationId);
 
 	/**
 	 * Startup the container

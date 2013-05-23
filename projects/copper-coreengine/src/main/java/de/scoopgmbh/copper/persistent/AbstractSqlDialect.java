@@ -253,7 +253,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 			dequeueStmtStatistic.stop(map.size());
 
 			if (!map.isEmpty()) {
-				selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id from cop_wait where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w LEFT OUTER JOIN cop_response r ON w.correlation_id = r.correlation_id");
+				selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, w.timeout_ts, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id, timeout_ts from cop_wait where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w LEFT OUTER JOIN cop_response r ON w.correlation_id = r.correlation_id");
 				List<List<String>> ids = splitt(map.keySet(),25); 
 				for (List<String> id : ids) {
 					selectResponsesStmt.clearParameters();
@@ -264,18 +264,21 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 					while (rsResponses.next()) {
 						String bpId = rsResponses.getString(1);
 						String cid = rsResponses.getString(2);
-						String response = rsResponses.getString(3);
+						boolean isTimeout = rsResponses.getTimestamp(3).getTime() <= System.currentTimeMillis();
+						String response = rsResponses.getString(4);
 						PersistentWorkflow<?> wf = (PersistentWorkflow<?>) map.get(bpId);
-						Response<?> r;
+						Response<?> r = null;
 						if (response != null) {
 							r = (Response<?>) serializer.deserializeResponse(response);
-							wf.addResponseCorrelationId(cid);
+							wf.addResponseId(r.getResponseId());
 						}
-						else {
+						else if (isTimeout) {
 							// timeout
 							r = new Response<Object>(cid);
 						}
-						wf.putResponse(r);
+						if (r != null) {
+							wf.putResponse(r);
+						}
 						wf.addWaitCorrelationId(cid);
 					}
 					rsResponses.close();
@@ -328,7 +331,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
 			queryStmt = createUpdateStateStmt(con, max);
 			ResultSet rs = queryStmt.executeQuery();
-			updStmt = con.prepareStatement("update cop_wait set state=1 where WORKFLOW_INSTANCE_ID=?");
+			updStmt = con.prepareStatement("update cop_wait set state=1, timeout_ts=timeout_ts where WORKFLOW_INSTANCE_ID=?");
 			insStmt = con.prepareStatement("INSERT INTO COP_QUEUE (PPOOL_ID, PRIORITY, LAST_MOD_TS, WORKFLOW_INSTANCE_ID) VALUES (?,?,?,?)");
 			while (rs.next()) {
 				rowcount++;

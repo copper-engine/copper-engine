@@ -17,6 +17,8 @@ package de.scoopgmbh.copper;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +52,7 @@ public abstract class Workflow<D> implements Serializable {
 	
 	private transient ProcessingEngine engine;
 	private transient String id = null;
-	private transient Map<String, Response<?>> responseMap = new HashMap<String, Response<?>>();
+	private transient Map<String, List<Response<?>>> responseMap = new HashMap<String, List<Response<?>>>();
 	/**
 	 * for internal use only
 	 */
@@ -77,7 +79,7 @@ public abstract class Workflow<D> implements Serializable {
 	
 	private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
-		responseMap = new HashMap<String, Response<?>>();
+		responseMap = new HashMap<String, List<Response<?>>>();
 	}	
 	
 	/**
@@ -184,21 +186,46 @@ public abstract class Workflow<D> implements Serializable {
 	 */
 	public void putResponse(Response<?> r) {
 		synchronized (responseMap) {
-			responseMap.put(r.getCorrelationId(), r);
+			List<Response<?>> l = responseMap.get(r.getCorrelationId());
+			if (l == null) {
+				l = new ArrayList<Response<?>>();
+				responseMap.put(r.getCorrelationId(), l);
+			}
+			l.add(r);
 		}
 	}
 	
 	/**
-	 * Gets and removes a reponse for the spcified correlation id
+	 * Gets and removes a response for the specified correlation id
 	 * @param correlationId
 	 * @return the response or null, if no response for the specified correlation id is found
 	 */
-	@SuppressWarnings("unchecked")
-	protected <T> Response<T> getAndRemoveResponse(String correlationId) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected <T> Response<T> getAndRemoveResponse(final String correlationId) {
 		synchronized (responseMap) {
-			return (Response<T>) responseMap.remove(correlationId);
+			final List<Response<T>> responseList = (List)responseMap.get(correlationId);
+			if (responseList == null)
+				return null;
+			final Response<T> response = responseList.remove(responseList.size()-1);
+			if (responseList.isEmpty()) {
+				responseMap.remove(correlationId);
+			}
+			return response;
 		}
 	}
+	
+	/**
+	 * Gets and removes all responses for the specified correlation id
+	 * @param correlationId
+	 * @return the list of responses or an empty list, if no response for the specified correlation id is found
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected <T> List<Response<T>> getAndRemoveResponses(final String correlationId) {
+		synchronized (responseMap) {
+			final List rv = responseMap.remove(correlationId);
+			return rv == null ? Collections.emptyList() : rv;
+		}
+	}	
 	
 	/**
 	 * Entry point for this workflow 

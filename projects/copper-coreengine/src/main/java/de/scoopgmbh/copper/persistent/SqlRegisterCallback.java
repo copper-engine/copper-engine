@@ -17,12 +17,14 @@ package de.scoopgmbh.copper.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +81,7 @@ class SqlRegisterCallback {
 			boolean doResponseDeletes = false;
 			PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
 			PreparedStatement deleteWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
-			PreparedStatement deleteResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
+			PreparedStatement deleteResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE RESPONSE_ID=?");
 			PreparedStatement insertWaitStmt = con.prepareStatement("INSERT INTO COP_WAIT (CORRELATION_ID,WORKFLOW_INSTANCE_ID,MIN_NUMB_OF_RESP,TIMEOUT_TS,STATE,PRIORITY,PPOOL_ID) VALUES (?,?,?,?,?,?,?)");
 			PreparedStatement updateWfiStmt = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, PRIORITY=?, LAST_MOD_TS=?, PPOOL_ID=?, DATA=?, OBJECT_STATE=?, CS_WAITMODE=?, MIN_NUMB_OF_RESP=?, NUMB_OF_WAITS=?, TIMEOUT=? WHERE ID=?");
 			HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> wfs = new HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>>();
@@ -122,7 +124,7 @@ class SqlRegisterCallback {
 				stmtDelQueue.setInt(3, ((PersistentWorkflow<?>)rc.workflow).oldPrio);
 				stmtDelQueue.addBatch();
 
-				List<String> cidList = ((PersistentWorkflow<?>)rc.workflow).waitCidList;
+				Set<String> cidList = ((PersistentWorkflow<?>)rc.workflow).waitCidList;
 				if (cidList != null) {
 					for (String cid : cidList) {
 						deleteWait.setString(1, cid);
@@ -130,10 +132,10 @@ class SqlRegisterCallback {
 						doWaitDeletes = true;
 					}
 				}
-				List<String> responseCidList = ((PersistentWorkflow<?>)rc.workflow).responseCidList;
-				if (responseCidList != null) {
-					for (String cid : responseCidList) {
-						deleteResponse.setString(1, cid);
+				List<String> responseIdList = ((PersistentWorkflow<?>)rc.workflow).responseIdList;
+				if (responseIdList != null) {
+					for (String responseId : responseIdList) {
+						deleteResponse.setString(1, responseId);
 						deleteResponse.addBatch();
 						doResponseDeletes = true;
 					}
@@ -158,7 +160,6 @@ class SqlRegisterCallback {
 			for (Map.Entry<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> en : wfs.entrySet()) {
 				en.getKey().onWorkflowsSaved(con, en.getValue());
 			}
-
 		}
 
 		@Override

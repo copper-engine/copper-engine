@@ -34,8 +34,9 @@ public class Response<E> implements Serializable {
 	private final String metaData;
 	private final Integer internalProcessingTimeout;
 	private boolean earlyResponseHandling = true;
+	private String responseId;
 	
-	public Response(String correlationId, E response, Exception exception, boolean isTimeout, String metaData, Integer internalProcessingTimeout) {
+	public Response(String correlationId, E response, Exception exception, boolean isTimeout, String metaData, Integer internalProcessingTimeout, final String responseId) {
 		super();
 		if (internalProcessingTimeout != null && internalProcessingTimeout <= 0) {
 			throw new IllegalArgumentException("internalProcessingTimeout must be null or > 0");
@@ -46,6 +47,7 @@ public class Response<E> implements Serializable {
 		this.timeout = isTimeout;
 		this.metaData = metaData;
 		this.internalProcessingTimeout = internalProcessingTimeout;
+		this.responseId = responseId;
 	}
 
 	/**
@@ -55,7 +57,7 @@ public class Response<E> implements Serializable {
 	 * @param exception
 	 */
 	public Response(String correlationId, E response, Exception exception) {
-		this(correlationId, response, exception, false, null, null);
+		this(correlationId, response, exception, false, null, null, null);
 	}
 
 	/**
@@ -63,7 +65,7 @@ public class Response<E> implements Serializable {
 	 * @param correlationId
 	 */
 	public Response(String correlationId) {
-		this(correlationId, null, null, true, null, null);
+		this(correlationId, null, null, true, null, null, null);
 	}
 	
 	/**
@@ -119,6 +121,17 @@ public class Response<E> implements Serializable {
 	public boolean isEarlyResponseHandling() {
 		return earlyResponseHandling;
 	}
+	
+	public String getResponseId() {
+		return responseId;
+	}
+	
+	public void setResponseId(String responseId) {
+		if (this.responseId != null) {
+			throw new IllegalStateException("responseId already set to value "+this.responseId);
+		}
+		this.responseId = responseId;
+	}
 
 	@Override
 	public String toString() {
@@ -126,8 +139,8 @@ public class Response<E> implements Serializable {
 				+ response + ", exception=" + exception + ", timeout="
 				+ timeout + ", metaData=" + metaData
 				+ ", internalProcessingTimeout=" + internalProcessingTimeout
-				+ ", earlyResponseHandling=" + earlyResponseHandling + "]";
+				+ ", earlyResponseHandling=" + earlyResponseHandling
+				+ ", responseId=" + responseId + "]";
 	}
-
 	
 }

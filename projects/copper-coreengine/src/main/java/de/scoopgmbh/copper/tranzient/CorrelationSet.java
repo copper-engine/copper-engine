@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.tranzient;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import de.scoopgmbh.copper.Workflow;
 class CorrelationSet {
 	
 	private String workflowId;
+	private List<String> correlationIds;
 	private List<String> missingCorrelationIds;
 	private WaitMode mode;
 	private Long timeoutTS;
@@ -37,6 +39,7 @@ class CorrelationSet {
 	public CorrelationSet(Workflow<?> workflow, List<String> missingCorrelationIds, WaitMode mode, Long timeoutTS) {
 		this.workflowId = workflow.getId();
 		this.missingCorrelationIds = new LinkedList<String>(missingCorrelationIds);
+		this.correlationIds = new ArrayList<String>(this.missingCorrelationIds);
 		this.mode = mode;
 		this.timeoutTS = timeoutTS;
 	}
@@ -47,6 +50,7 @@ class CorrelationSet {
 		for (String s : missingCorrelationIds) {
 			this.missingCorrelationIds.add(s);
 		}
+		this.correlationIds = new ArrayList<String>(this.missingCorrelationIds);
 		this.mode = mode;
 		this.timeoutTS = timeoutTS;
 	}
@@ -65,6 +69,10 @@ class CorrelationSet {
 	
 	public Long getTimeoutTS() {
 		return timeoutTS;
+	}
+	
+	public List<String> getCorrelationIds() {
+		return correlationIds;
 	}
 	
 }

@@ -36,17 +36,17 @@ class SqlNotifyNoEarlyResponseHandling {
 	private static final Logger logger = LoggerFactory.getLogger(SqlNotifyNoEarlyResponseHandling.class);
 
 	static final String SQL_MYSQL = 
-			"INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA) "+
+			"INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA, RESPONSE_ID) "+
 					"SELECT D.* FROM "+
 					"(select correlation_id from cop_wait where correlation_id = ?) W, " +
-					"(select ? as correlation_id, ? as response_ts, ? as response, ? as response_timeout, ? as response_meta_data) D " +
+					"(select ? as correlation_id, ? as response_ts, ? as response, ? as response_timeout, ? as response_meta_data, ? as RESPONSE_ID) D " +
 					"WHERE D.correlation_id = W.correlation_id";	
 
 	static final String SQL_POSTGRES = 
-			"INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA) "+
+			"INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA, RESPONSE_ID) "+
 					"SELECT D.* FROM "+
 					"(select correlation_id from cop_wait where correlation_id = ?) W, " +
-					"(select ?::text correlation_id, ?::timestamp response_ts, ?::text response, ?::timestamp as response_timeout, ?::text as response_meta_data) D " +
+					"(select ?::text correlation_id, ?::timestamp response_ts, ?::text response, ?::timestamp as response_timeout, ?::text as response_meta_data, ?::text as RESPONSE_ID) D " +
 					"WHERE D.correlation_id = W.correlation_id";	
 
 	static final class Command extends AbstractBatchCommand<Executor, Command>{
@@ -92,8 +92,6 @@ class SqlNotifyNoEarlyResponseHandling {
 				return;
 			final Command firstCmd = (Command) commands.iterator().next();
 			
-			System.err.println(firstCmd.sql);
-			
 			final PreparedStatement stmt = con.prepareStatement(firstCmd.sql);
 			try {
 				final Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -106,6 +104,7 @@ class SqlNotifyNoEarlyResponseHandling {
 					stmt.setString(4, payload);
 					stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
 					stmt.setString(6, cmd.response.getMetaData());
+					stmt.setString(7, cmd.response.getResponseId());
 					stmt.addBatch();
 				}
 				stmt.executeBatch();

@@ -166,7 +166,7 @@ project(':projects:copper-coreengine') {
 		// Database
 		compile 'c3p0:c3p0:0.9.1.2'
 		compile 'c3p0:c3p0-oracle-thin-extras:0.9.0.2'
-		compile 'mysql:mysql-connector-java:5.1.21'
+		compile 'mysql:mysql-connector-java:5.1.25'
 		compile 'org.apache.derby:derby:10.9.1.0'
 		compile 'postgresql:postgresql:9.1-901.jdbc4'    
 		

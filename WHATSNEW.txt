@@ -1,6 +1,16 @@
+COPPER 2.3
+==========
+- New feature: Extended JMX interface
+- New feature: COPPER now allows for multipe responses for the same correlationId - see new method Workflow.getAndRemoveResponses(..)
+- New feature: Custom persistence - persist application specific data in extra database tables and columns. This enables viewing (and modifying) data with standard SQL
+- New feature: Monitoring GUI (beta)
+- Maintenance: Now using ASM 4.1 
+- Bugfix: Timeout signaled for missing responses in case of WaitMode.FIRST
+- New feature: generic return value for RetryingTransaction
+
 COPPER 2.2
 ==========
-- 
+- internal development release - not published
 
 COPPER 2.1
 ==========

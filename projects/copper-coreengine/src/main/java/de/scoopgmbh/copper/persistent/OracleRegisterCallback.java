@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,7 @@ class OracleRegisterCallback {
 			boolean doResponseDeletes = false;
 			PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
 			PreparedStatement deleteWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
-			PreparedStatement deleteResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
+			PreparedStatement deleteResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE RESPONSE_ID=?");
 			PreparedStatement insertWaitStmt = con.prepareStatement("INSERT INTO COP_WAIT (CORRELATION_ID,WORKFLOW_INSTANCE_ID,MIN_NUMB_OF_RESP,TIMEOUT_TS,STATE,PRIORITY,PPOOL_ID,WFI_ROWID) VALUES (?,?,?,?,?,?,?,?)");
 			PreparedStatement updateWfiStmt = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, PRIORITY=?, LAST_MOD_TS=?, PPOOL_ID=?, DATA=?, LONG_DATA=?, OBJECT_STATE=?, LONG_OBJECT_STATE=?, CS_WAITMODE=?, MIN_NUMB_OF_RESP=?, NUMB_OF_WAITS=?, TIMEOUT=? WHERE ID=?");
 			try {
@@ -140,7 +141,7 @@ class OracleRegisterCallback {
 					stmtDelQueue.setInt(3, ((PersistentWorkflow<?>)rc.workflow).oldPrio);
 					stmtDelQueue.addBatch();
 
-					List<String> cidList = ((PersistentWorkflow<?>)rc.workflow).waitCidList;
+					Set<String> cidList = ((PersistentWorkflow<?>)rc.workflow).waitCidList;
 					if (cidList != null) {
 						for (String cid : cidList) {
 							deleteWait.setString(1, cid);
@@ -148,10 +149,10 @@ class OracleRegisterCallback {
 							doWaitDeletes = true;
 						}
 					}
-					List<String> responseCidList = ((PersistentWorkflow<?>)rc.workflow).responseCidList;
-					if (responseCidList != null) {
-						for (String cid : responseCidList) {
-							deleteResponse.setString(1, cid);
+					List<String> responseIdList = ((PersistentWorkflow<?>)rc.workflow).responseIdList;
+					if (responseIdList != null) {
+						for (String responseId : responseIdList) {
+							deleteResponse.setString(1, responseId);
 							deleteResponse.addBatch();
 							doResponseDeletes = true;
 						}

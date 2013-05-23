@@ -40,15 +40,21 @@ create index IDX_COP_WFID_WFID on COP_WORKFLOW_INSTANCE_ERROR (
 -- COP_RESPONSE
 --
 create table COP_RESPONSE  (
+   RESPONSE_ID			VARCHAR2(128CHAR) 	not null,
    CORRELATION_ID		VARCHAR2(128CHAR) 	not null,
    RESPONSE_TS			TIMESTAMP 			not null,
    RESPONSE				VARCHAR2(4000CHAR),
    LONG_RESPONSE		CLOB,
    RESPONSE_TIMEOUT		TIMESTAMP,
    RESPONSE_META_DATA	VARCHAR2(4000CHAR),
-   constraint PK_COP_RESPONSE primary key (CORRELATION_ID) using index storage (buffer_pool keep)
+   constraint PK_COP_RESPONSE primary key (RESPONSE_ID) using index storage (buffer_pool keep)
 )
 LOB(LONG_RESPONSE) STORE AS SECUREFILE;
+
+create index IDX_COP_RESP_CID on COP_RESPONSE (
+   CORRELATION_ID
+)
+storage (buffer_pool keep);
 
  
 --

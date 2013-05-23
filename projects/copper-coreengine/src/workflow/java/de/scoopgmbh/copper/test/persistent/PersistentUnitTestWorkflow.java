@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.test.persistent;
 
 import java.sql.Connection;
 import java.util.Date;
+import java.util.List;
 
 
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ import static org.junit.Assert.*;
 public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PersistentUnitTestWorkflow.class);
 
 	private transient BackChannelQueue backChannelQueue;
@@ -52,7 +53,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 	public void setDataHolder(DataHolder dataHolder) {
 		this.dataHolder = dataHolder;
 	}
-	
+
 	@AutoWire
 	public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
 		this.backChannelQueue = backChannelQueue;
@@ -62,7 +63,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 	public void setMockAdapter(MockAdapter mockAdapter) {
 		this.mockAdapter = mockAdapter;
 	}
-	
+
 	@AutoWire
 	public void setAuditTrail(AuditTrail auditTrail) {
 		this.auditTrail = auditTrail;
@@ -71,15 +72,19 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 	@Override
 	public void main() throws InterruptException {
 		try {
-			testWaitFirst();
+			//testWaitAllMultiResponseAndTimeout();
 			
+			testWaitFirstMultiResponse();
+
+			testWaitFirst();
+
 			for (int i=0; i<5; i++) {
 				callFoo();
 				assertNotNull(this.getCreationTS());
 			}
-			
-			callFooWithWaitHook();
 
+			callFooWithWaitHook();
+			
 			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", "TEXT");
 			backChannelQueue.enqueue(new WorkflowResult(getData(), null));
 		}
@@ -91,21 +96,25 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
 	private void callFoo() throws InterruptException {
 		String cid = getEngine().createUUID();
-		mockAdapter.foo(getData(), cid);
+		mockAdapter.fooWithMultiResponse(getData(), cid, 3);
 		wait(WaitMode.ALL, 10000, cid);
-		Response<?> res = getAndRemoveResponse(cid);
-		logger.info(res.toString());
-		assertNotNull(res);
-		assertFalse(res.isTimeout());
-		assertEquals(getData(), res.getResponse());
-		assertNull(res.getException());
+		List<Response<Object>> responseList = getAndRemoveResponses(cid);
+		assertNotNull(responseList);
+		assertEquals(3, responseList.size());
+		for (Response<Object> res : responseList) {
+			logger.info(res.toString());
+			assertNotNull(res);
+			assertFalse(res.isTimeout());
+			assertEquals(getData(), res.getResponse());
+			assertNull(res.getException());
+		}
 		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
 	}
-	
+
 	private void callFooWithWaitHook() throws InterruptException {
 		final String cid = getEngine().createUUID();
 		mockAdapter.foo(getData(), cid);
-		
+
 		dataHolder.clear(cid);
 		getEngine().addWaitHook(this.getId(), new WaitHook() {
 			@Override
@@ -126,12 +135,12 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		assertEquals(getData(),res.getResponse());
 		assertNull(res.getException());
 	}
-	
+
 	private void testWaitFirst() throws InterruptException {
 		final String cidEarly = getEngine().createUUID();
 		final String cidLate = getEngine().createUUID();
 		mockAdapter.foo(getData(), cidEarly, 50);
-		
+
 		wait(WaitMode.FIRST, 5000, cidEarly, cidLate);
 
 		Response<?> resEarly = getAndRemoveResponse(cidEarly);
@@ -140,20 +149,74 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		assertFalse(resEarly.isTimeout());
 		assertEquals(getData(),resEarly.getResponse());
 		assertNull(resEarly.getException());
-		
+
 		Response<?> resLate = getAndRemoveResponse(cidLate);
-		assertNotNull(resLate);
-		assertTrue(resLate.isTimeout());
+		assertNull(resLate);
 
 		mockAdapter.foo(getData(), cidLate,  50);
-		
+
 		wait(WaitMode.ALL, 5000, cidLate);
 
 		resEarly = getAndRemoveResponse(cidEarly);
 		assertNull(resEarly);
-		
+
 		resLate = getAndRemoveResponse(cidLate);
 		assertNotNull(resLate);
 		assertFalse(resLate.isTimeout());
+	}	
+	
+	private void testWaitFirstMultiResponse() throws InterruptException {
+		final String cidWithResponse = getEngine().createUUID();
+		final String cidNoResponse = getEngine().createUUID();
+		mockAdapter.fooWithMultiResponse(getData(), cidWithResponse, 2);
+
+		wait(WaitMode.FIRST, 10000, cidWithResponse, cidNoResponse);
+
+		Response<?> response = getAndRemoveResponse(cidWithResponse);
+		assertNotNull(response);
+		assertFalse(response.isTimeout());
+		assertEquals(getData(),response.getResponse());
+		assertNull(response.getException());
+		
+		response = getAndRemoveResponse(cidWithResponse);
+		assertNotNull(response);
+		assertFalse(response.isTimeout());
+		assertEquals(getData(),response.getResponse());
+		assertNull(response.getException());
+		
+		response = getAndRemoveResponse(cidWithResponse);
+		assertNull(response);
+
+		Response<?> timedOutResponse = getAndRemoveResponse(cidNoResponse);
+		assertNull(timedOutResponse);
+	}	
+
+	private void testWaitAllMultiResponseAndTimeout() throws InterruptException {
+		final String cidWithResponse = getEngine().createUUID();
+		final String cidNoResponse = getEngine().createUUID();
+		mockAdapter.fooWithMultiResponse(getData(), cidWithResponse, 2);
+
+		wait(WaitMode.ALL, 200, cidWithResponse, cidNoResponse);
+
+		Response<?> response = getAndRemoveResponse(cidWithResponse);
+		assertNotNull(response);
+		assertFalse(response.isTimeout());
+		assertEquals(getData(),response.getResponse());
+		assertNull(response.getException());
+		
+		response = getAndRemoveResponse(cidWithResponse);
+		assertNotNull(response);
+		assertFalse(response.isTimeout());
+		assertEquals(getData(),response.getResponse());
+		assertNull(response.getException());
+		
+		response = getAndRemoveResponse(cidWithResponse);
+		assertNull(response);
+
+		Response<?> timedOutResponse = getAndRemoveResponse(cidNoResponse);
+		assertNotNull(timedOutResponse);
+		assertTrue(timedOutResponse.isTimeout());
+		assertNull(timedOutResponse.getResponse());
+		assertNull(timedOutResponse.getException());
 	}	
 }

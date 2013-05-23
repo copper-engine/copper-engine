@@ -15,6 +15,13 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.mchange.util.AssertException;
+
+import junit.framework.Assert;
+
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
@@ -110,7 +117,9 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 			if (getAndRemoveResponse(cid2) != null) throw new AssertionError();
 			if (!x1.getResponse().equals("foo")) throw new AssertionError();
 			if (!x2.getResponse().equals("foo")) throw new AssertionError();
+
 			
+			testMultiResponse();
 
 			reply();
 		}
@@ -138,7 +147,6 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 
 	
 	private void execute() throws InterruptException {
-		System.out.println("start of execute()");
 		final String cid = getEngine().createUUID();
 		mockAdapter.foo("foo", cid);
 		wait(WaitMode.ALL, 1000, cid);
@@ -147,7 +155,30 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 		if (!response.getCorrelationId().equals(cid)) throw new AssertionError();
 		if (getAndRemoveResponse(cid) != null) throw new AssertionError();
 		if (!response.getResponse().equals("foo")) throw new AssertionError();
-		System.out.println("end of execute()");
+	}
+	
+	private void testMultiResponse() throws InterruptException {
+		final int SIZE = 5;
+		final String cid1 = getEngine().createUUID();
+		mockAdapter.fooWithMultiResponse("foo", cid1, SIZE);
+		List<Response<Object>> list1 = new ArrayList<Response<Object>>();
+		for (int i=0;i<SIZE;i++) {
+			wait(WaitMode.ALL, 500, cid1);
+			List<Response<Object>> r1 = getAndRemoveResponses(cid1);
+			System.out.println(r1.size());
+			for (Response<Object> r : r1) {
+				if (r.isTimeout()) {
+					throw new AssertionError("Unexpected timeout");
+				}
+			}
+			list1.addAll(r1);
+			if (list1.size() == SIZE) {
+				break;
+			}
+		}
+		if (list1.size() != SIZE) {
+			throw new AssertionError("Expected size 3 but is "+list1.size());
+		}
 	}
 
 }

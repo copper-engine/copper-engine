@@ -112,7 +112,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		}
 		
 		synchronized (correlationMap) {
-			final CorrelationSet cs = correlationMap.remove(response.getCorrelationId());
+			final CorrelationSet cs = correlationMap.get(response.getCorrelationId());
 			if (cs == null) {
 				if (response.isEarlyResponseHandling()) {
 					earlyResponseContainer.put(response);
@@ -128,20 +128,23 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 			if (cs.getTimeoutTS() != null && !response.isTimeout()) timeoutManager.unregisterTimeout(cs.getTimeoutTS(), response.getCorrelationId());
 			wf.putResponse(response);
 
+			boolean doEnqueue = false;
 			if (cs.getMode() == WaitMode.FIRST) {
-				if (!cs.getMissingCorrelationIds().isEmpty()) {
-					if (cs.getTimeoutTS() != null && !response.isTimeout()) timeoutManager.unregisterTimeout(cs.getTimeoutTS(), cs.getMissingCorrelationIds());
-					for (String cid : cs.getMissingCorrelationIds()) {
-						correlationMap.remove(cid);
-					}
-					earlyResponseContainer.putStaleCorrelationId(cs.getMissingCorrelationIds());
+				if (!cs.getMissingCorrelationIds().isEmpty() && cs.getTimeoutTS() != null && !response.isTimeout()) {
+					timeoutManager.unregisterTimeout(cs.getTimeoutTS(), cs.getMissingCorrelationIds());
+				}
+				doEnqueue = true;
+			}
+
+			if (cs.getMissingCorrelationIds().isEmpty()) {
+				doEnqueue = true;
+			}
+			
+			if (doEnqueue) {
+				for (String correlationId : cs.getCorrelationIds()) {
+					correlationMap.remove(correlationId);
 				}
 				enqueue(wf);
-				return;
-			}
-			if (cs.getMissingCorrelationIds().isEmpty()) {
-				enqueue(wf);
-				return;
 			}
 		}
 	}
@@ -239,9 +242,11 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		CorrelationSet cs = new CorrelationSet(w, correlationIds, mode, timeoutMsec > 0 ? System.currentTimeMillis() + timeoutMsec : null);
 		synchronized (correlationMap) {
 			for (String cid : correlationIds) {
-				Response<?> earlyResponse = earlyResponseContainer.get(cid);
-				if (earlyResponse != null) {
-					w.putResponse(earlyResponse);
+				List<Response<?>> earlyResponses = earlyResponseContainer.get(cid);
+				if (earlyResponses != null && !earlyResponses.isEmpty()) {
+					for (Response<?> earlyResponse : earlyResponses) {
+						w.putResponse(earlyResponse);
+					}
 					cs.getMissingCorrelationIds().remove(cid);
 				}
 			}
@@ -249,7 +254,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 				doEnqueue = true;
 			}
 			else {
-				for (String cid : cs.getMissingCorrelationIds()) {
+				for (String cid : cs.getCorrelationIds()) {
 					correlationMap.put(cid, cs);
 				}
 				if (cs.getTimeoutTS() != null) {

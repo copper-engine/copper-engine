@@ -14,7 +14,7 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
-	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     	<property name="driverClass" value="org.postgresql.Driver"/>
     	<property name="jdbcUrl" value="jdbc:postgresql://localhost:5432/postgres"/>
     	<property name="user" value="copper"/>

@@ -18,7 +18,7 @@ BEGIN
 	from (
 		select WORKFLOW_INSTANCE_ID, max(is_timed_out) is_timed_out, min(wfi_rowid) wfi_rowid, min(min_numb_of_responses) min_numb_of_responses, sum(decode(rcid,NULL,0,1)) c, min(ppool_id) ppool_id, min(priority) priority 
 		from (
-			select case when w.timeout_ts < systimestamp then 1 else 0 end is_timed_out, r.correlation_id rcid, w.correlation_id, w.WORKFLOW_INSTANCE_ID, w.wfi_rowid, MIN_NUMB_OF_RESP min_numb_of_responses, w.ppool_id, w.priority from cop_response r, cop_wait w where w.correlation_id = r.correlation_id(+) and w.state=0 and (r.correlation_id is not null or w.timeout_ts < systimestamp)
+			select case when w.timeout_ts < systimestamp then 1 else 0 end is_timed_out, r.correlation_id rcid, w.correlation_id, w.WORKFLOW_INSTANCE_ID, w.wfi_rowid, MIN_NUMB_OF_RESP min_numb_of_responses, w.ppool_id, w.priority from (select unique correlation_id from cop_response) r, cop_wait w where w.correlation_id = r.correlation_id(+) and w.state=0 and (r.correlation_id is not null or w.timeout_ts < systimestamp)
 		) group by WORKFLOW_INSTANCE_ID
 	) 
 	where (c >= min_numb_of_responses or is_timed_out = 1) and rownum <= i_MAX;

@@ -109,6 +109,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	public void notify(Response<?> response) {
 		if (logger.isTraceEnabled()) logger.trace("notify("+response+")");
 		try {
+			if (response.getResponseId() == null) {
+				response.setResponseId(createUUID());
+			}
 			startupBlocker.pass();
 			dbStorage.notify(response,null);
 			if (notifyProcessorPoolsOnResponse) {
@@ -361,7 +364,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
 	@Override
 	public void notify(Response<?> response, Connection c) throws CopperRuntimeException {
-		List<Response<?>> list = new ArrayList<Response<?>>(1);
+		final List<Response<?>> list = new ArrayList<Response<?>>(1);
 		list.add(response);
 		this.notify(list, c);
 	}
@@ -369,6 +372,11 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 	@Override
 	public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException {
 		try  {
+			for (Response<?> r : responses) {
+				if (r.getResponseId() == null) {
+					r.setResponseId(createUUID());
+				}
+			}
 			dbStorage.notify(responses,c);
 		}
 		catch(RuntimeException e) {

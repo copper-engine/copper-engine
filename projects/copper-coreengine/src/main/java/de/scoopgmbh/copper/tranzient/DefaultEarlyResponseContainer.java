@@ -15,6 +15,8 @@
  */
 package de.scoopgmbh.copper.tranzient;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -46,13 +48,9 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 		}
 	}
 	
-	private int lowerBorder4stale = 25000;
-	private int upperBorder4stale = 26000;
-	private LinkedHashSet<String> staleCorrelationIds = new LinkedHashSet<String>(upperBorder4stale);
-	
 	private int lowerBorderResponseMapSize = 25000;
 	private int upperBorderResponseMapSize = 26000;
-	private LinkedHashMap<String,EarlyResponse> responseMap = new LinkedHashMap<String, EarlyResponse>(5000);
+	private LinkedHashMap<String,List<EarlyResponse>> responseMap = new LinkedHashMap<String, List<EarlyResponse>>(5000);
 	
 	private int minHoldBackTime = 30000;
 	private Thread thread;
@@ -70,17 +68,17 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 		if (response == null) 
 			throw new NullPointerException();
 		
-		synchronized (staleCorrelationIds) {
-			if (staleCorrelationIds.contains(response.getCorrelationId())) {
-				if (logger.isDebugEnabled()) logger.debug("Response "+response+" is stale");
-				return;
-			}
-		}
-		
 		synchronized (responseMap) {
-			responseMap.put(response.getCorrelationId(), new EarlyResponse(response,response.getInternalProcessingTimeout() == null ? minHoldBackTime : response.getInternalProcessingTimeout()));
+			List<EarlyResponse> list = responseMap.get(response.getCorrelationId());
+			if (list == null) {
+				list = new ArrayList<DefaultEarlyResponseContainer.EarlyResponse>(3);
+				responseMap.put(response.getCorrelationId(),list);
+			}
+			list.add(new EarlyResponse(response,response.getInternalProcessingTimeout() == null ? minHoldBackTime : response.getInternalProcessingTimeout()));
 			
 			if (responseMap.size() > upperBorderResponseMapSize) {
+				// TODO Hier wird die Größe der Map berücksichtigt, jedoch nicht die Anzahl EarlyResponses (pro Eintrag in der Map können das mehrere sein)
+				// Könnte man noch verbessern
 				Iterator<String> iterator = responseMap.keySet().iterator();
 				while (responseMap.size() > lowerBorderResponseMapSize) {
 					iterator.next();
@@ -95,40 +93,22 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 	 * @see de.scoopgmbh.copper.tranzient.EarlyResponseContainer#get(java.lang.String)
 	 */
 	@Override
-	public Response<?> get(final String correlationId) {
+	public List<Response<?>> get(final String correlationId) {
 		if (correlationId == null)
 			throw new NullPointerException();
 		if (correlationId.length() == 0)
 			throw new IllegalArgumentException();
 
 		synchronized (responseMap) {
-			EarlyResponse er = responseMap.remove(correlationId);
-			if (er != null) {
-				return er.response;
+			List<EarlyResponse> erList = responseMap.remove(correlationId);
+			if (erList == null || erList.isEmpty()) {
+				return Collections.emptyList();
 			}
-			return null;
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see de.scoopgmbh.copper.tranzient.EarlyResponseContainer#putStaleCorrelationId(java.lang.String)
-	 */
-	@Override
-	public void putStaleCorrelationId(final String correlationId) {
-		if (correlationId == null)
-			throw new NullPointerException();
-		if (correlationId.length() == 0)
-			throw new IllegalArgumentException();
-		
-		synchronized (staleCorrelationIds) {
-			staleCorrelationIds.add(correlationId);
-			if (staleCorrelationIds.size() > upperBorder4stale) {
-				Iterator<String> iterator = staleCorrelationIds.iterator();
-				while (staleCorrelationIds.size() > lowerBorder4stale) {
-					iterator.next();
-					iterator.remove();
-				}
+			List<Response<?>> rv = new ArrayList<Response<?>>(erList.size());
+			for (EarlyResponse earlyResponse : erList) {
+				rv.add(earlyResponse.response);
 			}
+			return rv;
 		}
 	}
 	
@@ -142,28 +122,7 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 		thread = new Thread("EarlyResponseManager") {
 			@Override
 			public void run() {
-				logger.info("started");
-				while(!shutdown) {
-					try {
-						synchronized (responseMap) {
-							Iterator<EarlyResponse> iterator = responseMap.values().iterator();
-							while (iterator.hasNext()) {
-								EarlyResponse er = iterator.next();
-								if (er.ts < System.currentTimeMillis()) {
-									iterator.remove();
-								}
-								else {
-									break;
-								}
-							}
-						}
-						sleep(checkInterval);
-					} 
-					catch (InterruptedException e) {
-						// ignore
-					}
-				}
-				logger.info("stopped");
+				doHousekeeping();
 			}
 		};
 		thread.setDaemon(true);
@@ -180,18 +139,6 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 		thread = null;
 	}
 	
-	public void setUpperBorder4stale(final int upperBorder4stale) {
-		if (upperBorder4stale <= lowerBorder4stale)
-			throw new IllegalArgumentException();
-		this.upperBorder4stale = upperBorder4stale;
-	}
-	
-	public void setLowerBorder4stale(final int lowerBorder4stale) {
-		if (lowerBorder4stale <= 0)
-			throw new IllegalArgumentException();
-		this.lowerBorder4stale = lowerBorder4stale;
-	}
-	
 	public void setUpperBorderResponseMapSize(int upperBorderResponseMapSize) {
 		if (upperBorderResponseMapSize <= lowerBorderResponseMapSize)
 			throw new IllegalArgumentException();
@@ -202,14 +149,6 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 		if (lowerBorderResponseMapSize <= 0)
 			throw new IllegalArgumentException();
 		this.lowerBorderResponseMapSize = lowerBorderResponseMapSize;
-	}
-	
-	public int getLowerBorder4stale() {
-		return lowerBorder4stale;
-	}
-	
-	public int getUpperBorder4stale() {
-		return upperBorder4stale;
 	}
 	
 	public int getLowerBorderResponseMapSize() {
@@ -240,25 +179,34 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 		return checkInterval;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.scoopgmbh.copper.tranzient.EarlyResponseContainer#putStaleCorrelationId(java.util.List)
-	 */
-	@Override
-	public void putStaleCorrelationId(List<String> correlationIds) {
-		if (correlationIds == null)
-			throw new NullPointerException();
-		if (correlationIds.size() == 0)
-			return;
-		
-		synchronized (staleCorrelationIds) {
-			staleCorrelationIds.addAll(correlationIds);
-			if (staleCorrelationIds.size() > upperBorder4stale) {
-				Iterator<String> iterator = staleCorrelationIds.iterator();
-				while (staleCorrelationIds.size() > lowerBorder4stale) {
-					iterator.next();
-					iterator.remove();
+	// TODO Früher (vor den ResponseListen) konnte man die Überprüfung abbrechen, sobald man kein weiteres element in der Liste gefunden hat.
+	// Jetzt gibt es eine Map von Listen und man muss immer alles komplett überprüfen - ggf. optimieren
+	private void doHousekeeping() {
+		logger.info("started");
+		while(!shutdown) {
+			try {
+				synchronized (responseMap) {
+					Iterator<List<EarlyResponse>> responseMapIterator = responseMap.values().iterator();
+					while (responseMapIterator.hasNext()) {
+						List<EarlyResponse> erList = responseMapIterator.next();
+						Iterator<EarlyResponse> erListIterator = erList.iterator();
+						while (erListIterator.hasNext()) {
+							EarlyResponse earlyResponse = erListIterator.next();
+							if (earlyResponse.ts < System.currentTimeMillis()) {
+								responseMapIterator.remove();
+							}
+						}
+						if (erList.isEmpty()) {
+							responseMapIterator.remove();
+						}
+					}
 				}
+				Thread.sleep(checkInterval);
+			} 
+			catch (InterruptedException e) {
+				// ignore
 			}
 		}
+		logger.info("stopped");
 	}
 }

@@ -68,7 +68,7 @@ class OracleNotify {
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT) VALUES (?,?,?,?,?,?)");
+			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT, RESPONSE_ID) VALUES (?,?,?,?,?,?,?)");
 			try {
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command)_cmd;
@@ -79,6 +79,7 @@ class OracleNotify {
 					stmt.setString(4, payload.length() > 4000 ? payload : null);
 					stmt.setString(5, cmd.response.getMetaData());
 					stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
+					stmt.setString(7, cmd.response.getResponseId());
 					stmt.addBatch();
 				}
 				stmt.executeBatch();

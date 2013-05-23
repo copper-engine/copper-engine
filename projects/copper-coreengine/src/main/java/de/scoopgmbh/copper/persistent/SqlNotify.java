@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Collection;
 
@@ -66,7 +67,7 @@ class SqlNotify {
 		@Override
 		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
 			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA) VALUES (?,?,?,?,?)");
+			final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA, RESPONSE_ID) VALUES (?,?,?,?,?,?)");
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				Command cmd = (Command)_cmd;
 				stmt.setString(1, cmd.response.getCorrelationId());
@@ -75,6 +76,7 @@ class SqlNotify {
 				stmt.setString(3, payload);
 				stmt.setTimestamp(4, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
 				stmt.setString(5, cmd.response.getMetaData());
+				stmt.setString(6, cmd.response.getResponseId());
 				stmt.addBatch();
 			}
 			stmt.executeBatch();
