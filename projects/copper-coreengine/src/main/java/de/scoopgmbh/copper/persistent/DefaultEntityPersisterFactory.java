@@ -30,23 +30,14 @@ public interface DefaultEntityPersisterFactory<E, P extends DefaultEntityPersist
 	Class<P> getPersisterClass();
 	
 	/**
-	 * Creates a persister. The workers are guaranteed to origin from a preceeding call to {@link #createSelectionWorker()}, {@link #createInsertionWorker()}, {@link #createUpdateWorker()} and {@link #createDeletionWorker()}.  
+	 * Creates a persister. The shared ressources from a preceeding call to {@link #sharedRessources()}.  
 	 * @param workflow The workflow that this persister is handed out to in one of the {@link PersistentWorkflow#onDelete(PersistenceContext)}, {@link PersistentWorkflow#onLoad(PersistenceContext)} and {@link PersistentWorkflow#onSave(PersistenceContext)} methods.
-	 * @param selectionWorker
-	 * @param insertionWorker
-	 * @param updateWorker
-	 * @param deletionWorker
+	 * @param sharedRessources
 	 * @return
 	 */
-	P createPersister(PersistentWorkflow<?> workflow, DefaultPersistenceWorker<E, P> selectionWorker, DefaultPersistenceWorker<E, P> insertionWorker,
-		DefaultPersistenceWorker<E, P> updateWorker,
-		DefaultPersistenceWorker<E, P> deletionWorker
-	);
+	P createPersister(PersistentWorkflow<?> workflow, DefaultPersisterSharedRessources<E, P> sharedRessources);
 	
-	DefaultPersistenceWorker<E, P> createSelectionWorker();
-	DefaultPersistenceWorker<E, P> createInsertionWorker();
-	DefaultPersistenceWorker<E, P> createUpdateWorker();
-	DefaultPersistenceWorker<E, P> createDeletionWorker();
+	DefaultPersisterSharedRessources<E, P> createSharedRessources();
 	
 	/**
 	 * @return the entities that this factorie's assigned entity is depending on. It is guaranteed that the entities this factorier's assigned entity is depending on are inserted first and deleted afterwards.

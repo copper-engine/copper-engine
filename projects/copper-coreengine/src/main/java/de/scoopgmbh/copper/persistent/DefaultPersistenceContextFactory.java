@@ -18,7 +18,10 @@ package de.scoopgmbh.copper.persistent;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
+
+import com.mysql.jdbc.UpdatableResultSet;
 
 /**
  * Default implementation of the {@link PersistenceContextFactory} interface. 
@@ -41,7 +44,7 @@ public final class DefaultPersistenceContextFactory implements PersistenceContex
 	}
 	
 	@SuppressWarnings("rawtypes")
-	HashMap<DefaultEntityPersisterFactory<?,?>, DefaultPersistenceWorker[]> workers = new HashMap<DefaultEntityPersisterFactory<?,?>, DefaultPersistenceWorker[]>();  
+	HashMap<DefaultEntityPersisterFactory<?,?>, DefaultPersisterSharedRessources<?,?>> persisterSharedRessources = new HashMap<DefaultEntityPersisterFactory<?,?>, DefaultPersisterSharedRessources<?,?>>();  
 	@SuppressWarnings("rawtypes")
 	TreeMap<Double, DefaultPersistenceWorker> orderedWorkers = new TreeMap<Double, DefaultPersistenceWorker>();  
 	
@@ -93,23 +96,31 @@ public final class DefaultPersistenceContextFactory implements PersistenceContex
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			private EntityPersister<?> createPersister(
 					DefaultEntityPersisterFactory<?, ?> persisterFactory) {
-				DefaultPersistenceWorker[] workerArray = workers.get(persisterFactory);
-				if (workerArray == null) {
-					workerArray = new DefaultPersistenceWorker[] {
-								persisterFactory.createSelectionWorker()
-								,persisterFactory.createInsertionWorker()
-								,persisterFactory.createUpdateWorker()
-								,persisterFactory.createDeletionWorker()};
-					workers.put(persisterFactory, workerArray);
-					int precedence = configuration.getDependencyOrderedPersisterFactories().indexOf(persisterFactory)+2;
+				DefaultPersisterSharedRessources sharedRessources = persisterSharedRessources.get(persisterFactory);
+				if (sharedRessources == null) {
+					sharedRessources = persisterFactory.createSharedRessources();
+					persisterSharedRessources.put(persisterFactory, sharedRessources);
+					List<DefaultEntityPersisterFactory<?, ?>> orderedPersisterFactory = configuration.getDependencyOrderedPersisterFactories();
+					int numberOfPersisterFactories = orderedPersisterFactory.size();
+					double precedence = orderedPersisterFactory.indexOf(persisterFactory);
 					//selection, insertion and updates operate on master entities before child entities
 					//deletions have the reverse order
-					orderedWorkers.put(1d-1d/precedence, workerArray[0]);
-					orderedWorkers.put(2d-1d/precedence, workerArray[1]);
-					orderedWorkers.put(3d-1d/precedence, workerArray[2]);
-					orderedWorkers.put(3d+1d/precedence, workerArray[3]);
+					int i = 3;
+					//compiler thinks, getWorkers delivery Iterable<Object>, no idea.
+					for (Object obj : sharedRessources.getWorkers()) {
+						DefaultPersistenceWorker<?,?> worker = (DefaultPersistenceWorker<?,?>)obj;
+						double position = precedence+1d/i++;
+						switch (worker.getOperationType()) {
+						case INSERT: break;
+						case UPDATE: position += 1*numberOfPersisterFactories; break;
+						case SELECT: position += 2*numberOfPersisterFactories; break;
+						case DELETE: position = 4*numberOfPersisterFactories-position; break;
+						default: throw new RuntimeException("Unsupported operationType: "+worker.getOperationType());
+						}
+						orderedWorkers.put(position,  worker);
+					}
 				}
-				EntityPersister<?> persister = persisterFactory.createPersister(workflow, workerArray[0], workerArray[1], workerArray[2], workerArray[3]);
+				EntityPersister<?> persister = persisterFactory.createPersister(workflow, sharedRessources);
 				return persister;
 			}
 

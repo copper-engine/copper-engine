@@ -41,6 +41,15 @@ public abstract class DefaultEntityPersister<E> implements EntityPersister<E> {
 		this.deletionWorker = deletionWorker;
 	}
 
+	public DefaultEntityPersister(PersistentWorkflow<?> workflow, DefaultPersisterSimpleCRUDSharedRessources<E, ? extends DefaultEntityPersister<E>> sharedRessources) 
+	{
+		this.workflow = workflow;
+		this.selectionWorker = sharedRessources.selectWorker;
+		this.insertionWorker = sharedRessources.insertWorker;
+		this.updateWorker = sharedRessources.updateWorker;
+		this.deletionWorker = sharedRessources.deleteWorker;
+	}
+
 	public static class EntityAndCallback<E extends PersistentEntity> {
 
 		@SuppressWarnings("rawtypes")

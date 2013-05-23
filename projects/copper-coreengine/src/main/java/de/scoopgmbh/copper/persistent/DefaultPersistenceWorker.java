@@ -31,6 +31,21 @@ import de.scoopgmbh.copper.persistent.EntityPersister.PostSelectedCallback;
  */
 public abstract class DefaultPersistenceWorker<E, P extends EntityPersister<E>> {
 	
+	public static enum OperationType {
+		INSERT,
+		UPDATE,
+		SELECT,
+		DELETE
+	}
+	
+	final OperationType operationType;
+	
+	public DefaultPersistenceWorker(OperationType operationType) {
+		if (operationType == null)
+			throw new NullPointerException("operationType");
+		this.operationType = operationType;
+	}
+	
 	protected abstract void doExec(
 			Connection connection, List<WorkflowAndEntity<E>> theWork) throws SQLException;
 	
@@ -61,4 +76,7 @@ public abstract class DefaultPersistenceWorker<E, P extends EntityPersister<E>> 
 		theWork.clear();
 	}
 
+	public OperationType getOperationType() {
+		return operationType;
+	}
 }

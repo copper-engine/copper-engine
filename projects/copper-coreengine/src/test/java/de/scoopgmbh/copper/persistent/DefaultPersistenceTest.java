@@ -30,6 +30,7 @@ import org.junit.Test;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.persistent.DefaultPersistenceTest.WorkLogEntry.Type;
+import de.scoopgmbh.copper.persistent.DefaultPersistenceWorker.OperationType;
 import de.scoopgmbh.copper.persistent.DefaultPersistenceWorker.WorkflowAndEntity;
 
 public class DefaultPersistenceTest {
@@ -45,13 +46,21 @@ public class DefaultPersistenceTest {
 			this.workLog = workLog;
 		}
 		
-		boolean selectionWorkerCreated = false;
 		@Override
+		public DefaultPersisterSimpleCRUDSharedRessources<E,T> createSharedRessources() {
+			return new DefaultPersisterSimpleCRUDSharedRessources<E,T>(
+					createSelectionWorker(),
+					createInsertionWorker(),
+					createUpdateWorker(),
+					createDeletionWorker());
+		}
+		
+		boolean selectionWorkerCreated = false;
 		public DefaultPersistenceWorker<E,T> createSelectionWorker() {
 			if (selectionWorkerCreated)
 				Assert.fail("more than one selection worker created");
 			selectionWorkerCreated = true;
-			return new DefaultPersistenceWorker<E,T>() {
+			return new DefaultPersistenceWorker<E,T>(OperationType.SELECT) {
 				@Override
 				protected void doExec(
 						Connection connection,
@@ -68,12 +77,11 @@ public class DefaultPersistenceTest {
 		}
 
 		boolean insertionWorkerCreated = false;
-		@Override
 		public DefaultPersistenceWorker<E,T> createInsertionWorker() {
 			if (insertionWorkerCreated)
 				Assert.fail("more than one insertion worker created");
 			insertionWorkerCreated = true;
-			return new DefaultPersistenceWorker<E,T>() {
+			return new DefaultPersistenceWorker<E,T>(OperationType.INSERT) {
 				@Override
 				protected void doExec(
 						Connection connection,
@@ -89,12 +97,11 @@ public class DefaultPersistenceTest {
 		}
 
 		boolean updateWorkerCreated = false;
-		@Override
 		public DefaultPersistenceWorker<E,T> createUpdateWorker() {
 			if (updateWorkerCreated)
 				Assert.fail("more than one update worker created");
 			updateWorkerCreated = true;
-			return new DefaultPersistenceWorker<E,T>() {
+			return new DefaultPersistenceWorker<E,T>(OperationType.UPDATE) {
 				@Override
 				protected void doExec(
 						Connection connection,
@@ -110,12 +117,11 @@ public class DefaultPersistenceTest {
 		}
 
 		boolean deletionWorkerCreated = false;
-		@Override
 		public DefaultPersistenceWorker<E,T> createDeletionWorker() {
 			if (deletionWorkerCreated)
 				Assert.fail("more than one Deletion worker created");
 			deletionWorkerCreated = true;
-			return new DefaultPersistenceWorker<E,T>() {
+			return new DefaultPersistenceWorker<E,T>(OperationType.DELETE) {
 				@Override
 				protected void doExec(
 						Connection connection,
@@ -155,11 +161,8 @@ public class DefaultPersistenceTest {
 		class Persister extends DefaultEntityPersister<MasterEntity> {
 			public Persister(
 					PersistentWorkflow<?> workflow,
-					DefaultPersistenceWorker<MasterEntity, MasterPersisterFactory.Persister> selectWorker,
-					DefaultPersistenceWorker<MasterEntity, MasterPersisterFactory.Persister> insertWorker,
-					DefaultPersistenceWorker<MasterEntity, MasterPersisterFactory.Persister> updateWorker,
-					DefaultPersistenceWorker<MasterEntity, MasterPersisterFactory.Persister> deleteWorker) {
-				super(workflow, selectWorker, insertWorker, updateWorker, deleteWorker);
+					DefaultPersisterSimpleCRUDSharedRessources<MasterEntity, MasterPersisterFactory.Persister> sharedRessources) {
+				super(workflow, sharedRessources);
 			}
 		}
 
@@ -167,17 +170,6 @@ public class DefaultPersistenceTest {
 		public Class<MasterEntity> getEntityClass() {
 			return MasterEntity.class;
 		}
-
-		@Override
-		public Persister createPersister(
-				PersistentWorkflow<?> workflow,
-				DefaultPersistenceWorker<MasterEntity,Persister> selectionWorker,
-				DefaultPersistenceWorker<MasterEntity,Persister> insertionWorker,
-				DefaultPersistenceWorker<MasterEntity,Persister> updateWorker,
-				DefaultPersistenceWorker<MasterEntity,Persister> deletionWorker) {
-			return new Persister(workflow, selectionWorker, insertionWorker, updateWorker, deletionWorker);
-		}
-
 
 		@SuppressWarnings("unchecked")
 		@Override
@@ -188,6 +180,13 @@ public class DefaultPersistenceTest {
 		@Override
 		public Class<Persister> getPersisterClass() {
 			return Persister.class;
+		}
+
+		@Override
+		public Persister createPersister(
+				PersistentWorkflow<?> workflow,
+				DefaultPersisterSharedRessources<MasterEntity, Persister> sharedRessources) {
+			return new Persister(workflow, (DefaultPersisterSimpleCRUDSharedRessources<MasterEntity, Persister>) sharedRessources);
 		}
 		
 	}
@@ -201,11 +200,8 @@ public class DefaultPersistenceTest {
 		class Persister extends DefaultEntityPersister<ChildEntity> {
 			public Persister(
 					PersistentWorkflow<?> workflow,
-					DefaultPersistenceWorker<ChildEntity, ChildPersisterFactory.Persister> selectWorker,
-					DefaultPersistenceWorker<ChildEntity, ChildPersisterFactory.Persister> insertWorker,
-					DefaultPersistenceWorker<ChildEntity, ChildPersisterFactory.Persister> updateWorker,
-					DefaultPersistenceWorker<ChildEntity, ChildPersisterFactory.Persister> deleteWorker) {
-				super(workflow, selectWorker, insertWorker, updateWorker, deleteWorker);
+					DefaultPersisterSimpleCRUDSharedRessources<ChildEntity, ChildPersisterFactory.Persister> sharedRessources) {
+				super(workflow, sharedRessources);
 			}
 		}
 
@@ -213,17 +209,6 @@ public class DefaultPersistenceTest {
 		public Class<ChildEntity> getEntityClass() {
 			return ChildEntity.class;
 		}
-
-		@Override
-		public Persister createPersister(
-				PersistentWorkflow<?> workflow,
-				DefaultPersistenceWorker<ChildEntity,Persister> selectionWorker,
-				DefaultPersistenceWorker<ChildEntity,Persister> insertionWorker,
-				DefaultPersistenceWorker<ChildEntity,Persister> updateWorker,
-				DefaultPersistenceWorker<ChildEntity,Persister> deletionWorker) {
-			return new Persister(workflow, selectionWorker, insertionWorker, updateWorker, deletionWorker);
-		}
-
 
 		@Override
 		public Collection<Class<?>> getEntityClassesDependingOn() {
@@ -235,6 +220,12 @@ public class DefaultPersistenceTest {
 			return Persister.class;
 		}
 		
+		@Override
+		public Persister createPersister(
+				PersistentWorkflow<?> workflow,
+				DefaultPersisterSharedRessources<ChildEntity, Persister> sharedRessources) {
+			return new Persister(workflow, (DefaultPersisterSimpleCRUDSharedRessources<ChildEntity, Persister>) sharedRessources);
+		}
 	}
 	
 	public class MasterCyclePersisterFactory extends MasterPersisterFactory {
@@ -384,12 +375,12 @@ public class DefaultPersistenceTest {
 		Assert.assertEquals(8, work.size());
 		Assert.assertSame(data.selectedChild, data.selectedChildResult);
 		Assert.assertSame(data.selectedMaster, data.selectedMasterResult);
-		assertData(work.get(0),WorkLogEntry.Type.SELECT,data.selectedMaster);
-		assertData(work.get(1),WorkLogEntry.Type.SELECT,data.selectedChild);
-		assertData(work.get(2),WorkLogEntry.Type.INSERT,data.insertedMaster);
-		assertData(work.get(3),WorkLogEntry.Type.INSERT,data.insertedChild);
-		assertData(work.get(4),WorkLogEntry.Type.UPDATE,data.updatedMaster);
-		assertData(work.get(5),WorkLogEntry.Type.UPDATE,data.updatedChild);
+		assertData(work.get(0),WorkLogEntry.Type.INSERT,data.insertedMaster);
+		assertData(work.get(1),WorkLogEntry.Type.INSERT,data.insertedChild);
+		assertData(work.get(2),WorkLogEntry.Type.UPDATE,data.updatedMaster);
+		assertData(work.get(3),WorkLogEntry.Type.UPDATE,data.updatedChild);
+		assertData(work.get(4),WorkLogEntry.Type.SELECT,data.selectedMaster);
+		assertData(work.get(5),WorkLogEntry.Type.SELECT,data.selectedChild);
 		assertData(work.get(6),WorkLogEntry.Type.DELETE,data.deletedChild);
 		assertData(work.get(7),WorkLogEntry.Type.DELETE,data.deletedMaster);
 		
