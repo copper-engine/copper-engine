@@ -264,7 +264,8 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 					while (rsResponses.next()) {
 						String bpId = rsResponses.getString(1);
 						String cid = rsResponses.getString(2);
-						boolean isTimeout = rsResponses.getTimestamp(3).getTime() <= System.currentTimeMillis();
+						final Timestamp timeoutTS = rsResponses.getTimestamp(3);
+						boolean isTimeout = timeoutTS != null ? timeoutTS.getTime() <= System.currentTimeMillis() : false;
 						String response = rsResponses.getString(4);
 						PersistentWorkflow<?> wf = (PersistentWorkflow<?>) map.get(bpId);
 						Response<?> r = null;
