@@ -304,6 +304,7 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 		compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: '8.1.10.v20130312'
 		compile group: 'org.eclipse.jetty.orbit', name: 'javax.servlet', version: '2.5.0.v201103041518'
 		
+		testCompile files('libs/derbyTesting.jar')
 		testCompile 'org.mockito:mockito-all:1.9.5'
 	}
 	
