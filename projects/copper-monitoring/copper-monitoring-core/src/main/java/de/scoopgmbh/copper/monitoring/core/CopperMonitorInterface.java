@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitoring.core;
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Date;
 import java.util.List;
 
 import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
@@ -39,7 +40,7 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname) throws RemoteException;
 
 	public List<WorkflowInstanceInfo> getWorkflowInstanceList(final String poolid, final String classname,
-			final WorkflowInstanceState state, final Integer priority, long resultRowLimit) throws RemoteException;
+			final WorkflowInstanceState state, final Integer priority, Date from, Date to, long resultRowLimit) throws RemoteException;
 
 	public List<AuditTrailInfo> getAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level, long resultRowLimit) throws RemoteException;
 
@@ -74,7 +75,7 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	 * Trigger restart of a workflow instance that is in the error state.
 	 * @param workflowInstanceId
 	 */
-	public void restartErroneousInstance(String workflowInstanceId, String engineid) throws RemoteException;
+	public void restartWorkflowInstance(String workflowInstanceId, String engineid) throws RemoteException;
 
 	/**
 	 * Trigger restart of all workflow instances that are in error state.

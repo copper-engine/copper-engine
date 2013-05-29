@@ -17,9 +17,6 @@ package de.scoopgmbh.copper.monitoring.example.workflow;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
@@ -45,25 +42,14 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 		this.billAdapter = billAdapter;
 	}
 
-	private Set<String> waitingfor = new HashSet<String>(); 
-	
 	@Override
 	public void main() throws InterruptException {
 		while (true){
-			waitingfor.addAll(billAdapter.takeCorrelationIds());
-			wait(WaitMode.FIRST,Workflow.NO_TIMEOUT,waitingfor.toArray(new String[0]));
+			wait(WaitMode.FIRST,Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME,BillAdapter.BILLABLE_SERVICE);
 
 			
-			ArrayList<Response<?>> all = new ArrayList<Response<?>>();
-			Iterator<String> iterator = waitingfor.iterator();
-			while(iterator.hasNext()){
-				String corID = iterator.next();
-				Response<?> response = getAndRemoveResponse(corID);
-				if (response!=null){
-					all.add(response);
-					iterator.remove();
-				}
-			}
+			ArrayList<Response<?>> all = new ArrayList<Response<?>>(getAndRemoveResponses(BillAdapter.BILL_TIME));
+			all.addAll(getAndRemoveResponses(BillAdapter.BILLABLE_SERVICE));
 			
 			for(Response<?> response: all){
 				if (response.getResponse() instanceof BillableService){

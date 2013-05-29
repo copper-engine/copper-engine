@@ -15,12 +15,12 @@
  */
 package de.scoopgmbh.copper.monitoring.example.adapter;
 
-import java.util.Set;
 
 public interface BillAdapter {
+	
+	public static String BILLABLE_SERVICE ="billable_service";
+	public static String BILL_TIME="bill_time";
 
 	public void publishBill(Bill bill);
-
-	public Set<String> takeCorrelationIds();
 
 }

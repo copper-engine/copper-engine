@@ -16,18 +16,11 @@
 package de.scoopgmbh.copper.monitoring.example.adapter;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Response;
 
 public class BillAdapterImpl implements BillAdapter{
-	
-	public static String BILLABLE_SERVICE ="billable_service";
-	public static String BILL_TIME="bilable_service";
 	
 	private ProcessingEngine engine;
 	
@@ -46,14 +39,8 @@ public class BillAdapterImpl implements BillAdapter{
 			public void run() {
 				while(true){
 					long now = System.currentTimeMillis();
-					if (lastServicetime+500<now){
-						String ccorrelationId = createCorrelationId();
-						try {
-							corelationsIds.put(ccorrelationId);
-						} catch (InterruptedException e) {
-							throw new RuntimeException(e);
-						}
-						engine.notify(new Response<BillableService>(ccorrelationId, new BillableService(new BigDecimal("5")),null));
+					if (lastServicetime+700<now){
+						engine.notify(new Response<BillableService>(BILLABLE_SERVICE, new BillableService(new BigDecimal("5")),null));
 						lastServicetime=now;
 					}
 					try {
@@ -73,13 +60,7 @@ public class BillAdapterImpl implements BillAdapter{
 				while(true){
 					long now = System.currentTimeMillis();
 					if (lastBilltime+5000<now){
-						String ccorrelationId = createCorrelationId();
-						try {
-							corelationsIds.put(ccorrelationId);
-						} catch (InterruptedException e) {
-							throw new RuntimeException(e);
-						}
-						engine.notify(new Response<Bill>(ccorrelationId,new Bill(),null));
+						engine.notify(new Response<Bill>(BILL_TIME,new Bill(),null));
 						lastBilltime=now;
 					}
 					try {
@@ -96,29 +77,7 @@ public class BillAdapterImpl implements BillAdapter{
 	
 	@Override
 	public void publishBill(Bill bill){
-		System.out.println(bill.getTotalAmount());
-	}
-
-	ArrayBlockingQueue<String> corelationsIds = new ArrayBlockingQueue<String>(100);
-
-	@Override
-	public Set<String> takeCorrelationIds(){
-		Set<String> result = new HashSet<String>();
-		try {
-			ArrayList<String> elements = new ArrayList<String>(100);
-			elements.add(corelationsIds.take());
-			corelationsIds.drainTo(elements,100);
-			for (String id : elements) {
-				result.add(id);
-			}
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-		return result;
-	}
-	
-	private synchronized String createCorrelationId(){
-		return ""+System.currentTimeMillis()+System.nanoTime();
+		System.out.println("Bill, sum:"+bill.getTotalAmount());
 	}
 
 }
