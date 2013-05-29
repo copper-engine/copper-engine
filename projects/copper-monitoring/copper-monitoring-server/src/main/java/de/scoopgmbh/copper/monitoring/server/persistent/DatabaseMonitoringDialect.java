@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.monitoring.server.persistent;
 
 import java.sql.Connection;
+import java.util.Date;
 import java.util.List;
 
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
@@ -37,7 +38,7 @@ public interface DatabaseMonitoringDialect {
 	public abstract List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname, Connection con);
 
 	public abstract List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
-			WorkflowInstanceState state, Integer priority, long resultRowLimit, Connection con);
+			WorkflowInstanceState state, Integer priority, Date form, Date to, long resultRowLimit, Connection con);
 
 	public abstract List<String[]> executeMonitoringQuery(String query, long resultRowLimit, Connection con);
 

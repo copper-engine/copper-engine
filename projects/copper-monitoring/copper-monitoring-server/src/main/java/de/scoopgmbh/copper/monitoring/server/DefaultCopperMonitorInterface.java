@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitoring.server;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,8 +116,8 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 
 	@Override
 	public List<WorkflowInstanceInfo> getWorkflowInstanceList(final String poolid, final String classname,
-			final WorkflowInstanceState state, final Integer priority, final long resultRowLimit) throws RemoteException {
-		return dbStorage.selectWorkflowInstanceList(poolid,  classname, state, priority, resultRowLimit);
+			final WorkflowInstanceState state, final Integer priority, Date form, Date to, final long resultRowLimit) throws RemoteException {
+		return dbStorage.selectWorkflowInstanceList(poolid,  classname, state, priority, form, to, resultRowLimit);
 	}
 
 	@Override
@@ -176,7 +177,7 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 	}
 
 	@Override
-	public void restartErroneousInstance(final String workflowInstanceId, final String engineid) throws RemoteException {
+	public void restartWorkflowInstance(final String workflowInstanceId, final String engineid) throws RemoteException {
 		if (engines.get(engineid) instanceof PersistentProcessingEngineMXBean) {// TODO why is that not implemented for Transient
 			try {
 				((PersistentProcessingEngineMXBean) engines.get(engineid)).restart(workflowInstanceId);

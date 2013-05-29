@@ -32,6 +32,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
+import de.scoopgmbh.copper.monitoring.client.context.FormBuilder.EngineFormBuilder;
 import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
 import de.scoopgmbh.copper.monitoring.client.form.EmptyShowFormStrategie;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
@@ -86,6 +87,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.result.WorkflowH
 import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.result.WorkflowHistoryResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.BaseWorkflowInstanceListNavigation;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterController;
@@ -107,10 +109,11 @@ import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
 public class FormContext {
-	private final TabPane mainTabPane;
+	final TabPane mainTabPane;
 	private final BorderPane mainPane;
 	private FormGroup formGroup;
-	private final MessageProvider messageProvider;
+	final MessageProvider messageProvider;
+	final GuiCopperDataProvider guiCopperDataProvider;
 	private final SettingsModel settingsModelSinglton;
 	private final CodeMirrorFormatter codeMirrorFormatterSingelton = new CodeMirrorFormatter();
 
@@ -118,7 +121,6 @@ public class FormContext {
 		return mainTabPane;
 	}
 
-	GuiCopperDataProvider guiCopperDataProvider;
 	private FxmlForm<SettingsController> settingsForSingleton;
 	private FxmlForm<HotfixController> hotfixFormSingleton;
 	private FilterAbleForm<EmptyFilterModel, DashboardResultModel> dasboardFormSingleton;
@@ -196,7 +198,7 @@ public class FormContext {
 	
 	public ArrayList<FormCreator> createWorkflowGroup() {
 		ArrayList<FormCreator> workflowgroup = new ArrayList<FormCreator>();
-		workflowgroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowoverview_title)) {
+		workflowgroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowOverview_title)) {
 			@Override
 			public Form<?> createForm() {
 				return createWorkflowOverviewForm();
@@ -205,7 +207,7 @@ public class FormContext {
 		workflowgroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowInstance_title)) {
 			@Override
 			public Form<?> createForm() {
-				return createWorkflowInstanceForm();
+				return createWorkflowInstanceListForm();
 			}
 		});
 		return workflowgroup;
@@ -240,9 +242,12 @@ public class FormContext {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				FilterAbleForm<EmptyFilterModel, DashboardResultModel> dashboardForm = createDashboardForm();
-				dashboardForm.setDynamicTitle(messageProvider.getText(MessageKey.dashboard_title));
-				dashboardForm.show();
+				new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
+					@Override
+					public Form<?> createForm() {
+						return createDashboardForm();
+					}
+				}.show();
 			}
 		});
 	}
@@ -286,77 +291,56 @@ public class FormContext {
 	}
 	
 	public FilterAbleForm<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> createWorkflowOverviewForm(){
-		FilterController<WorkflowSummaryFilterModel> fCtrl = new WorkflowSummaryFilterController(this); 
-		FxmlForm<FilterController<WorkflowSummaryFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowSummaryFilterModel>>(fCtrl, messageProvider);
-		
-		FilterResultController<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> resCtrl = new WorkflowSummaryResultController(guiCopperDataProvider,this);
-		FxmlForm<FilterResultController<WorkflowSummaryFilterModel,WorkflowSummaryResultModel>> resultForm =
-				new FxmlForm<FilterResultController<WorkflowSummaryFilterModel,WorkflowSummaryResultModel>>(resCtrl, messageProvider);
-		
-		return new EngineFilterAbleForm<WorkflowSummaryFilterModel,WorkflowSummaryResultModel>(messageProvider.getText(MessageKey.workflowoverview_title),messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+		return new EngineFormBuilder<WorkflowSummaryFilterModel,WorkflowSummaryResultModel,WorkflowSummaryFilterController,WorkflowSummaryResultController>(
+				new WorkflowSummaryFilterController(this),
+				new WorkflowSummaryResultController(guiCopperDataProvider,this),
+				this
+			).build();
 	}
 	
-	public FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> createWorkflowInstanceForm(){
-		//same hacks are needed cause java cant handle generics as expected
-		
-		FilterController<WorkflowInstanceFilterModel> fCtrl = new WorkflowInstanceFilterController(); 
-		FxmlForm<FilterController<WorkflowInstanceFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowInstanceFilterModel>>(fCtrl, messageProvider);
-		
-		FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> resCtrl = new WorkflowInstanceResultController(guiCopperDataProvider,this);
-		FxmlForm<FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>> resultForm = 
-				new FxmlForm<FilterResultController<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>>(resCtrl, messageProvider);
-		
-		return new EngineFilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel>(messageProvider.getText(MessageKey.workflowInstance_title),messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+	public FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> createWorkflowInstanceListForm(){
+		return new EngineFormBuilder<WorkflowInstanceFilterModel,WorkflowInstanceResultModel,WorkflowInstanceFilterController,WorkflowInstanceResultController>(
+					new WorkflowInstanceFilterController(),
+					new WorkflowInstanceResultController(guiCopperDataProvider,new BaseWorkflowInstanceListNavigation(this)),
+					this
+				).build();
 	}
 	
+
 	public FilterAbleForm<WorkflowHistoryFilterModel,WorkflowHistoryResultModel> createWorkflowHistoryForm(){
-		FilterController<WorkflowHistoryFilterModel> fCtrl = new WorkflowHistoryFilterController(); 
-		FxmlForm<FilterController<WorkflowHistoryFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowHistoryFilterModel>>(fCtrl, messageProvider);
-		
-		FilterResultController<WorkflowHistoryFilterModel,WorkflowHistoryResultModel> resCtrl = new WorkflowHistoryResultController(guiCopperDataProvider);
-		FxmlForm<FilterResultController<WorkflowHistoryFilterModel,WorkflowHistoryResultModel>> resultForm = 
-				new FxmlForm<FilterResultController<WorkflowHistoryFilterModel,WorkflowHistoryResultModel>>(resCtrl, messageProvider);
-		
-		return new EngineFilterAbleForm<WorkflowHistoryFilterModel,WorkflowHistoryResultModel>(messageProvider.getText(MessageKey.workflowHistory_title),messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+		return new EngineFormBuilder<WorkflowHistoryFilterModel,WorkflowHistoryResultModel,WorkflowHistoryFilterController,WorkflowHistoryResultController>(
+				new WorkflowHistoryFilterController(),
+				new WorkflowHistoryResultController(guiCopperDataProvider),
+				this
+			).build();
 	}
 	
 	public FilterAbleForm<WorkflowRepositoryFilterModel,WorkflowVersion> createWorkflowRepositoryForm(){
-		FilterController<WorkflowRepositoryFilterModel> fCtrl = new WorkflowRepositoryFilterController(); 
-		FxmlForm<FilterController<WorkflowRepositoryFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowRepositoryFilterModel>>(fCtrl, messageProvider);
-		
-		FilterResultController<WorkflowRepositoryFilterModel,WorkflowVersion> resCtrl = new WorkflowRepositoryResultController(guiCopperDataProvider,this);
-		FxmlForm<FilterResultController<WorkflowRepositoryFilterModel,WorkflowVersion>> resultForm = 
-				new FxmlForm<FilterResultController<WorkflowRepositoryFilterModel,WorkflowVersion>>(resCtrl, messageProvider);
-		
-		return new EngineFilterAbleForm<WorkflowRepositoryFilterModel,WorkflowVersion>(messageProvider.getText(MessageKey.workflowRepository_title),messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+		return new EngineFormBuilder<WorkflowRepositoryFilterModel,WorkflowVersion,WorkflowRepositoryFilterController,WorkflowRepositoryResultController>(
+				new WorkflowRepositoryFilterController(),
+				new WorkflowRepositoryResultController(guiCopperDataProvider,this),
+				this
+			).build();
 	}
 	
 	public FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> createAudittrailForm(){
-		FilterController<AuditTrailFilterModel> fCtrl = new AuditTrailFilterController(); 
-		FxmlForm<FilterController<AuditTrailFilterModel>> filterForm = new FxmlForm<FilterController<AuditTrailFilterModel>>(fCtrl, messageProvider);
-		
-		FilterResultController<AuditTrailFilterModel,AuditTrailResultModel> resCtrl = new AuditTrailResultController(guiCopperDataProvider, settingsModelSinglton, codeMirrorFormatterSingelton);
-		FxmlForm<FilterResultController<AuditTrailFilterModel,AuditTrailResultModel>> resultForm = 
-				new FxmlForm<FilterResultController<AuditTrailFilterModel,AuditTrailResultModel>>(resCtrl, messageProvider);
-		
-		return new FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel>(messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+		return new FormBuilder<AuditTrailFilterModel,AuditTrailResultModel,AuditTrailFilterController,AuditTrailResultController>(
+				new AuditTrailFilterController(),
+				new AuditTrailResultController(guiCopperDataProvider, settingsModelSinglton, codeMirrorFormatterSingelton),
+				this
+			).build();
 	}
 	
-	public FilterAbleForm<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId){
-		FilterController<WorkflowInstanceDetailFilterModel> fCtrl = new WorkflowInstanceDetailFilterController(workflowInstanceId); 
+	public EngineFilterAbleForm<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId, ProcessingEngineInfo engineInfo){
+		FilterController<WorkflowInstanceDetailFilterModel> fCtrl = new WorkflowInstanceDetailFilterController(new WorkflowInstanceDetailFilterModel(workflowInstanceId,engineInfo)); 
 		
 		FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>>(fCtrl, messageProvider);
 		
 		FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm = createWorkflowinstanceDetailResultForm(new EmptyShowFormStrategie());
 		
-		FilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> filterAbleForm = new FilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>(messageProvider,
+		EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> filterAbleForm = new EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>(messageProvider,
 				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
-		filterAbleForm.dynamicTitleProperty().bind(new SimpleStringProperty("Details Id:").concat(fCtrl.getFilter().workflowInstanceId));
+		filterAbleForm.displayedTitleProperty().bind(new SimpleStringProperty("Details Id:").concat(fCtrl.getFilter().workflowInstanceId));
 		return filterAbleForm;
 	}
 	
@@ -382,7 +366,7 @@ public class FormContext {
 				new FxmlForm<FilterResultController<EngineLoadFilterModel,WorkflowStateSummary>>(resCtrl, messageProvider);
 		
 		if (engineLoadFormSingelton==null){
-			engineLoadFormSingelton = new EngineFilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary>(messageProvider.getText(MessageKey.engineLoad_title),messageProvider,
+			engineLoadFormSingelton = new EngineFilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary>(messageProvider,
 					new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
 		}
 		return engineLoadFormSingelton;
@@ -403,45 +387,34 @@ public class FormContext {
 	}
 	
 	public FilterAbleForm<SqlFilterModel,SqlResultModel> createSqlForm(){
-		FilterController<SqlFilterModel> fCtrl = new SqlFilterController(codeMirrorFormatterSingelton); 
-		FxmlForm<FilterController<SqlFilterModel>> filterForm = new FxmlForm<FilterController<SqlFilterModel>>(fCtrl, messageProvider);
-		
-		FilterResultController<SqlFilterModel,SqlResultModel> resCtrl = new SqlResultController(guiCopperDataProvider);
-		FxmlForm<FilterResultController<SqlFilterModel,SqlResultModel>> resultForm = 
-				new FxmlForm<FilterResultController<SqlFilterModel,SqlResultModel>>(resCtrl, messageProvider);
-		
-		FilterAbleForm<SqlFilterModel, SqlResultModel> filterAbleForm = new FilterAbleForm<SqlFilterModel,SqlResultModel>(messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+		FilterAbleForm<SqlFilterModel, SqlResultModel> filterAbleForm = new FormBuilder<SqlFilterModel,SqlResultModel,SqlFilterController,SqlResultController>(
+				new SqlFilterController(codeMirrorFormatterSingelton),
+				new SqlResultController(guiCopperDataProvider),
+				this
+			).build();
 		filterAbleForm.useVerticalRightButton();
 		return filterAbleForm;
 	}
 	
 	FilterAbleForm<ResourceFilterModel,SystemResourcesInfo> ressourceFormSingelton=null;
 	public FilterAbleForm<ResourceFilterModel,SystemResourcesInfo> createRessourceForm(){
-		FilterController<ResourceFilterModel> fCtrl = new ResourceFilterController(); 
-		FxmlForm<FilterController<ResourceFilterModel>> filterForm = new FxmlForm<FilterController<ResourceFilterModel>>(fCtrl, messageProvider);
-		
-		FilterResultController<ResourceFilterModel,SystemResourcesInfo> resCtrl = new RessourceResultController(guiCopperDataProvider);
-		FxmlForm<FilterResultController<ResourceFilterModel,SystemResourcesInfo>> resultForm = 
-				new FxmlForm<FilterResultController<ResourceFilterModel,SystemResourcesInfo>>(resCtrl, messageProvider);
-		
 		if (ressourceFormSingelton==null){
-			ressourceFormSingelton=new FilterAbleForm<ResourceFilterModel,SystemResourcesInfo>(messageProvider,
-					new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+			ressourceFormSingelton=new FormBuilder<ResourceFilterModel,SystemResourcesInfo,ResourceFilterController,RessourceResultController>(
+					new ResourceFilterController(),
+					new RessourceResultController(guiCopperDataProvider),
+					this
+				).build();
 		}
 		return ressourceFormSingelton; 
 	}
 	
 	public FilterAbleForm<EmptyFilterModel,DashboardResultModel> createDashboardForm(){
 		if (dasboardFormSingleton==null){
-			FilterController<EmptyFilterModel> fCtrl = new GenericFilterController<EmptyFilterModel>(5000); 
-			FxmlForm<FilterController<EmptyFilterModel>> filterForm = new FxmlForm<FilterController<EmptyFilterModel>>(fCtrl, messageProvider);
-			
-			FilterResultController<EmptyFilterModel,DashboardResultModel> resCtrl = new DashboardResultController(guiCopperDataProvider,this);
-			FxmlForm<FilterResultController<EmptyFilterModel,DashboardResultModel>> resultForm = new FxmlForm<FilterResultController<EmptyFilterModel,DashboardResultModel>>(resCtrl, messageProvider);
-			
-			dasboardFormSingleton = new FilterAbleForm<EmptyFilterModel,DashboardResultModel>(messageProvider,
-					new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+			dasboardFormSingleton = new FormBuilder<EmptyFilterModel,DashboardResultModel,GenericFilterController<EmptyFilterModel>,DashboardResultController>(
+					new GenericFilterController<EmptyFilterModel>(5000),
+					new DashboardResultController(guiCopperDataProvider,this),
+					this
+				).build();
 		}
 		return dasboardFormSingleton;
 	}
@@ -455,27 +428,19 @@ public class FormContext {
 	}
 	
 	public FilterAbleForm<EngineFilterModelBase, MeasurePointData> createMeasurePointForm() {
-
-		FilterController<EngineFilterModelBase> fCtrl = new GenericFilterController<EngineFilterModelBase>(new EngineFilterModelBase());
-		FxmlForm<FilterController<EngineFilterModelBase>> filterForm = new FxmlForm<FilterController<EngineFilterModelBase>>(fCtrl, messageProvider);
-
-		FilterResultController<EngineFilterModelBase, MeasurePointData> resCtrl = new MeasurePointResultController(guiCopperDataProvider);
-		FxmlForm<FilterResultController<EngineFilterModelBase, MeasurePointData>> resultForm = new FxmlForm<FilterResultController<EngineFilterModelBase, MeasurePointData>>(resCtrl, messageProvider);
-
-		return new EngineFilterAbleForm<EngineFilterModelBase, MeasurePointData>(messageProvider.getText(MessageKey.measurePoint_title),messageProvider, new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,
-				guiCopperDataProvider);
+		return new FormBuilder<EngineFilterModelBase, MeasurePointData, GenericFilterController<EngineFilterModelBase>,MeasurePointResultController>(
+				new GenericFilterController<EngineFilterModelBase>(new EngineFilterModelBase()),
+				new MeasurePointResultController(guiCopperDataProvider),
+				this
+			).build();
 	}
 	
 	public FilterAbleForm<AdapterMonitoringFilterModel, AdapterMonitoringResultModel> createAdapterMonitoringForm() {
-
-		FilterController<AdapterMonitoringFilterModel> fCtrl = new AdapterMonitoringFilterController();
-		FxmlForm<FilterController<AdapterMonitoringFilterModel>> filterForm = new FxmlForm<FilterController<AdapterMonitoringFilterModel>>(fCtrl, messageProvider);
-
-		FilterResultController<AdapterMonitoringFilterModel, AdapterMonitoringResultModel> resCtrl = new AdapterMonitoringResultController(guiCopperDataProvider);
-		FxmlForm<FilterResultController<AdapterMonitoringFilterModel, AdapterMonitoringResultModel>> resultForm = new FxmlForm<FilterResultController<AdapterMonitoringFilterModel, AdapterMonitoringResultModel>>(resCtrl, messageProvider);
-		
-		return new FilterAbleForm<AdapterMonitoringFilterModel, AdapterMonitoringResultModel>(messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);	
+		return new FormBuilder<AdapterMonitoringFilterModel, AdapterMonitoringResultModel, AdapterMonitoringFilterController,AdapterMonitoringResultController>(
+				new AdapterMonitoringFilterController(),
+				new AdapterMonitoringResultController(guiCopperDataProvider),
+				this
+			).build();
 	}
 	
 }

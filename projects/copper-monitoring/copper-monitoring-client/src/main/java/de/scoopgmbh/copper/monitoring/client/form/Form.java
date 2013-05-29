@@ -23,20 +23,26 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public abstract class Form<C> implements Widget {
 
-	private final SimpleStringProperty dynamicTitle;
+	private final SimpleStringProperty displayTitle;
+	protected SimpleStringProperty staticTitle;
 	private final ShowFormStrategy<?> showFormStrategie;
 	protected final C controller;
 	
 
-	public Form(String dynamicTitle, ShowFormStrategy<?> showFormStrategie, C controller) {
+	public Form(String staticTitle, ShowFormStrategy<?> showFormStrategie, C controller) {
 		super();
-		this.dynamicTitle = new SimpleStringProperty(dynamicTitle);
+		this.staticTitle = new SimpleStringProperty(staticTitle);
+		this.displayTitle = new SimpleStringProperty(staticTitle);
 		this.showFormStrategie = showFormStrategie;
 		this.controller = controller;
 	}
 
-	public SimpleStringProperty dynamicTitleProperty(){
-		return dynamicTitle;
+	public SimpleStringProperty displayedTitleProperty(){
+		return displayTitle;
+	}
+	
+	public SimpleStringProperty staticTitleProperty(){
+		return staticTitle;
 	}
 	
 	public void show(){
@@ -47,8 +53,8 @@ public abstract class Form<C> implements Widget {
 		return controller;
 	}
 
-	public void setDynamicTitle(String staticTitle) {
-		dynamicTitleProperty().setValue(staticTitle);
+	public void setStaticTitle(String staticTitle) {
+		this.staticTitle.set(staticTitle);
 	}
 	
 }

@@ -33,7 +33,8 @@ public abstract class FormCreator{
 	
 	private Form<?> createFormInternal(){
 		Form<?> form = createForm();
-		form.setDynamicTitle(staticTitle);
+		form.displayedTitleProperty().set(staticTitle);
+		form.setStaticTitle(staticTitle);
 		return form;
 	}
 	
@@ -59,6 +60,10 @@ public abstract class FormCreator{
 			}
 		});
 		return button;
+	}
+	
+	public void show(){
+		createFormInternal().show();
 	}
 
 	boolean enabled=true;

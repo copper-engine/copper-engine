@@ -40,8 +40,10 @@ public class OracleMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 				"FROM COP_WORKFLOW_INSTANCE  MASTER, (select WORKFLOW_INSTANCE_ID, MAX(ROWID) keep (dense_rank last ORDER BY ERROR_TS) \"RID\" from COP_WORKFLOW_INSTANCE_ERROR GROUP BY WORKFLOW_INSTANCE_ID) ERR_RID, COP_WORKFLOW_INSTANCE_ERROR ERR\n" + 
 				"WHERE\r\n" + 
 				"	(? is null or PPOOL_ID=?) AND \n" + 
-				"	(? is null or CLASSNAME=?) AND \n" + 
+				"	(? is null or CLASSNAME like ?) AND \n" + 
 				"	(? is null or STATE=?) AND \n" + 
+				"	(? is null or CREATION_TS>=?) AND \n" + 
+				"	(? is null or CREATION_TS<=?) AND \n" + 
 				"	(? is null or PRIORITY=?) AND\n" + 
 				"	ERR_RID.WORKFLOW_INSTANCE_ID(+) = MASTER.ID AND\n" + 
 				"	ERR.ROWID(+) = ERR_RID.RID";

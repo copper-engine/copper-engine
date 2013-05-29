@@ -149,10 +149,10 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 					"select CLASSNAME, STATE, count(*) from COP_WORKFLOW_INSTANCE \n" + 
 					"WHERE\n" + 
 					"	(? is null or PPOOL_ID=?) AND \n" + 
-					"	(? is null or CLASSNAME=?) GROUP BY CLASSNAME,STATE");
+					"	(? is null or CLASSNAME like ?) GROUP BY CLASSNAME,STATE");
 			int pIdx = 1;
 			pIdx = setFilterParam(selectStmt,poolid,java.sql.Types.VARCHAR,pIdx);
-			pIdx = setFilterParam(selectStmt,classname,java.sql.Types.VARCHAR,pIdx);
+			pIdx = setFilterParam(selectStmt,"%"+classname+"%",java.sql.Types.VARCHAR,pIdx);
 			
 			selectStmt.setFetchSize(100);
 			ResultSet resultSet = selectStmt.executeQuery();
@@ -183,7 +183,8 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 	}
 	
 	private int setFilterParam(PreparedStatement stmt, Object value, int sqltype, int nextindex) throws SQLException{
-		if (value != null) {
+		boolean isEmptyString = (value instanceof String && ((String)value).isEmpty());
+		if (value != null && !isEmptyString) {
 			stmt.setObject(nextindex++, value, sqltype);
 			stmt.setObject(nextindex++, value, sqltype);
 		} else {
@@ -201,15 +202,17 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 				"FROM COP_WORKFLOW_INSTANCE as master \n" + 
 				"WHERE\n" + 
 				"	(? is null or PPOOL_ID=?) AND \n" + 
-				"	(? is null or CLASSNAME=?) AND \n" + 
+				"	(? is null or CLASSNAME like ?) AND \n" + 
 				"	(? is null or STATE=?) AND \n" + 
+				"	(? is null or CREATION_TS>=?) AND \n" + 
+				"	(? is null or CREATION_TS<=?) AND \n" + 
 				"	(? is null or PRIORITY=?)";
 		return stmt;
 	}
 	
 	@Override
 	public List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
-			WorkflowInstanceState state, Integer priority, long resultRowLimit,Connection con) {
+			WorkflowInstanceState state, Integer priority, Date from, Date to, long resultRowLimit,Connection con) {
 		PreparedStatement selectStmt = null;
 		try {
 			String stmt = getResultLimitingQuery(createWorkflowInstanceListQuery(),resultRowLimit);
@@ -217,8 +220,10 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 			
 			int pIdx = 1;
 			pIdx = setFilterParam(selectStmt,poolid,java.sql.Types.VARCHAR,pIdx);
-			pIdx = setFilterParam(selectStmt,classname,java.sql.Types.VARCHAR,pIdx);
+			pIdx = setFilterParam(selectStmt,"%"+classname+"%",java.sql.Types.VARCHAR,pIdx);
 			pIdx = setFilterParam(selectStmt,(state==null?null:DBProcessingStateWorkaround.fromWorkflowInstanceState(state).key()),java.sql.Types.INTEGER,pIdx);
+			pIdx = setFilterParam(selectStmt,from,java.sql.Types.DATE,pIdx);
+			pIdx = setFilterParam(selectStmt,to,java.sql.Types.DATE,pIdx);
 			pIdx = setFilterParam(selectStmt,priority,java.sql.Types.INTEGER,pIdx);
 			
 			selectStmt.setFetchSize(100);

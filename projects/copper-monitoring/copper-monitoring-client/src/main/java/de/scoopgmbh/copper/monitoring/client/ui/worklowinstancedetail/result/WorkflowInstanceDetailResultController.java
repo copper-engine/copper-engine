@@ -23,8 +23,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.web.WebView;
 import de.java2html.converter.JavaSource2HTMLConverter;
 import de.java2html.javasource.JavaSource;
@@ -47,14 +50,17 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
     @FXML //  fx:id="sourceView"
     private WebView sourceView; // Value injected by FXMLLoader
 
+    @FXML //  fx:id="sourceView"
+    private Button restart; // Value injected by FXMLLoader
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert sourceView != null : "fx:id=\"sourceView\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
-
+        assert restart != null;
+        
+        restart.getStyleClass().add("copperActionButton");
+        restart.setDisable(true);
     }
-    
-
 	
 	@Override
 	public URL getFxmlRessource() {
@@ -62,8 +68,15 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 	}
 
 	@Override
-	public void showFilteredResult(List<WorkflowInstanceDetailResultModel> filteredResult, WorkflowInstanceDetailFilterModel usedFilter) {
-		
+	public void showFilteredResult(List<WorkflowInstanceDetailResultModel> filteredResult, final WorkflowInstanceDetailFilterModel usedFilter) {
+		restart.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				copperDataProvider.restartInstance(usedFilter.workflowInstanceId.get(), usedFilter.enginePoolModel.selectedEngine.get().getId());
+			}
+		});
+		restart.setDisable(false);
+		 
 		// Create a reader of the raw input text
 		StringReader stringReader = new StringReader("/** Simple Java2Html Demo */\r\n" + "public static int doThis(String text){ return text.length() + 2; }");
 
@@ -99,6 +112,6 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 
 	@Override
 	public void clear() {
-		//TODO
+		restart.setDisable(true);
 	}
 }

@@ -32,7 +32,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import javafx.util.converter.LongStringConverter;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
@@ -51,12 +50,6 @@ public class WorkflowSummaryFilterController implements Initializable, FilterCon
 		model.version.setAllFrom(workflowVersion);
 	}
 	
-    @FXML //  fx:id="majorVersion"
-    private TextField majorVersion; // Value injected by FXMLLoader
-
-    @FXML //  fx:id="minorVersion"
-    private TextField minorVersion; // Value injected by FXMLLoader
-
     @FXML //  fx:id="searchMenueItem"
     private CustomMenuItem searchMenueItem; // Value injected by FXMLLoader
 
@@ -66,12 +59,6 @@ public class WorkflowSummaryFilterController implements Initializable, FilterCon
     @FXML //  fx:id="workflowClass"
     private TextField workflowClass; // Value injected by FXMLLoader
     
-    @FXML //  fx:id="patchLevel"
-    private TextField patchLevel; // Value injected by FXMLLoader
-    
-    @FXML //  fx:id="alias"
-    private TextField alias; // Value injected by FXMLLoader
-   
     @FXML
     private StackPane stackPane;
     
@@ -80,21 +67,13 @@ public class WorkflowSummaryFilterController implements Initializable, FilterCon
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert majorVersion != null : "fx:id=\"majorVersion\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
-        assert minorVersion != null : "fx:id=\"minorVersion\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert searchMenueItem != null : "fx:id=\"searchMenueItem\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert serachbutton != null : "fx:id=\"serachbutton\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
-        assert patchLevel != null : "fx:id=\"patchLevel\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
-        assert alias != null : "fx:id=\"alias\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert stackPane != null : "fx:id=\"stackPane\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert filterPane !=null;
         
         workflowClass.textProperty().bindBidirectional(model.version.classname );
-        majorVersion.textProperty().bindBidirectional(model.version.versionMajor, new LongStringConverter());
-        minorVersion.textProperty().bindBidirectional(model.version.versionMinor, new LongStringConverter());
-        patchLevel.textProperty().bindBidirectional(model.version.patchlevel, new LongStringConverter());
-        alias.textProperty().bindBidirectional(model.version.alias);
         
         searchMenueItem.setContent(formFactory.createWorkflowClassesTreeForm(this).createContent());
         serachbutton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/search.png"))));

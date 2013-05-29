@@ -62,8 +62,8 @@ public class GuiCopperDataProvider {
 	public List<WorkflowInstanceResultModel> getWorkflowInstanceList(WorkflowInstanceFilterModel filter, int maxResultCount){
 		List<WorkflowInstanceInfo> list;
 		try {
-			list = copperDataProvider.getWorkflowInstanceList(getPoolId(filter.enginePoolModel),filter.version.classname.getValue(),
-					filter.state.getValue(), getFilterReadyInteger(filter.priority.getValue()), maxResultCount);
+			list = copperDataProvider.getWorkflowInstanceList(getPoolId(filter.enginePoolModel),filter.version.classname.get(),
+					filter.state.get(), getFilterReadyInteger(filter.priority.get()),filter.from.get(),filter.to.get(), maxResultCount);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -258,6 +258,14 @@ public class GuiCopperDataProvider {
 			AdapterHistoryInfo  adapterHistory = copperDataProvider.getAdapterHistoryInfos(filter.adapterId.get());
 			Collections.reverse(adapterHistory.getAdapterCalls());
 			return new AdapterMonitoringResultModel(adapterHistory);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void restartInstance(final String workflowInstanceId, String engineid) {
+		try {
+			copperDataProvider.restartWorkflowInstance(workflowInstanceId, engineid);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

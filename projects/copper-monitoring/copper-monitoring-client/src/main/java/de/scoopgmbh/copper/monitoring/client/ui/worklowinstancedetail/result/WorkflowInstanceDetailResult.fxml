@@ -10,11 +10,21 @@
 <?import javafx.scene.web.*?>
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="360.0" prefWidth="529.0" xmlns:fx="http://javafx.com/fxml">
+  <bottom>
+    <HBox prefHeight="-1.0" prefWidth="529.0" spacing="3.0">
+      <children>
+        <Button fx:id="restart" mnemonicParsing="false" text="restart instance" />
+      </children>
+      <BorderPane.margin>
+        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+      </BorderPane.margin>
+    </HBox>
+  </bottom>
   <center>
     <Pane prefHeight="358.0" prefWidth="464.0">
       <children>
-        <Label layoutX="20.0" layoutY="39.0" text="//stackstrace//variables content//line" />
-        <WebView fx:id="sourceView" layoutX="33.0" layoutY="79.0" prefHeight="217.0" prefWidth="414.0" />
+        <Label layoutX="97.0" layoutY="143.0" text="TODO  //stackstrace//variables content//line" />
+        <WebView fx:id="sourceView" layoutX="14.0" layoutY="131.0" prefHeight="70.0" prefWidth="117.0" visible="false" />
       </children>
     </Pane>
   </center>

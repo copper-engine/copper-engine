@@ -16,7 +16,10 @@
 package de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter;
 
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
@@ -27,13 +30,45 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
-import javafx.util.converter.LongStringConverter;
+import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class WorkflowInstanceFilterController implements Initializable, FilterController<WorkflowInstanceFilterModel>, FxmlController {
+	private static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
+
 	WorkflowInstanceFilterModel model = new WorkflowInstanceFilterModel();
+
+	private final class DateValidation implements ChangeListener<String> {
+		private final TextField field;
+		
+		public DateValidation(TextField field) {
+			super();
+			this.field = field;
+		}
+
+		@Override
+		public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+			boolean parsed=true;
+			if (newValue!=null && !newValue.isEmpty()) {
+				try {
+					new SimpleDateFormat(DATE_TIME_FORMAT).parse(newValue);
+				} catch (ParseException e) {
+					parsed=false;
+				}
+			}
+			if (!parsed){
+				if (!field.getStyleClass().contains("error")){
+					field.getStyleClass().add("error");
+					System.out.println("set error");
+				}
+			} else {
+				System.out.println("remove error");
+				field.getStyleClass().remove("error");
+			}
+		}
+	}
 
 	public class EmptySelectionWorkaround{
 		public WorkflowInstanceState value;
@@ -46,13 +81,6 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
 		
 	}
 
-
-    @FXML //  fx:id="majorVersion"
-    private TextField majorVersion; // Value injected by FXMLLoader
-
-    @FXML //  fx:id="minorVersion"
-    private TextField minorVersion; // Value injected by FXMLLoader
-
     @FXML //  fx:id="priorityField"
     private TextField priorityField; // Value injected by FXMLLoader
 
@@ -62,24 +90,35 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
     @FXML //  fx:id="workflowClass"
     private TextField workflowClass; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="patchLevel"
-    private TextField patchLevel; // Value injected by FXMLLoader
+    @FXML //  fx:id="from"
+    private TextField from; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="to"
+    private TextField to; // Value injected by FXMLLoader
+
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert majorVersion != null : "fx:id=\"majorVersion\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
-        assert minorVersion != null : "fx:id=\"minorVersion\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
+        assert from != null : "fx:id=\"from\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
         assert priorityField != null : "fx:id=\"priorityField\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
         assert stateChoice != null : "fx:id=\"stateChoice\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
+        assert to != null : "fx:id=\"to\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
-        assert patchLevel != null : "fx:id=\"patchLevel\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
+
         
         priorityField.textProperty().bindBidirectional(model.priority);
         workflowClass.textProperty().bindBidirectional(model.version.classname);
-        majorVersion.textProperty().bindBidirectional(model.version.versionMajor, new LongStringConverter());
-        minorVersion.textProperty().bindBidirectional(model.version.versionMinor, new LongStringConverter());
-        patchLevel.textProperty().bindBidirectional(model.version.patchlevel, new LongStringConverter());
         
+        from.textProperty().bindBidirectional(model.from, new DateStringConverter(DATE_TIME_FORMAT));
+        to.textProperty().bindBidirectional(model.to, new DateStringConverter(DATE_TIME_FORMAT));
+        from.textProperty().addListener(new DateValidation(from));
+        to.textProperty().addListener(new DateValidation(to));
+        model.from.addListener(new ChangeListener<Date>() {
+			@Override
+			public void changed(ObservableValue<? extends Date> observable, Date oldValue, Date newValue) {
+				System.out.println(newValue);
+			}
+		});
         ArrayList<EmptySelectionWorkaround> states = new ArrayList<EmptySelectionWorkaround>();
         for (WorkflowInstanceState state: WorkflowInstanceState.values()){
         	states.add(new EmptySelectionWorkaround(state,state.toString()));
@@ -107,7 +146,7 @@ public class WorkflowInstanceFilterController implements Initializable, FilterCo
         stateChoice.getSelectionModel().select(emptyItem);
 
 	}
-
+    
 	@Override
 	public WorkflowInstanceFilterModel getFilter() {
 		return model;

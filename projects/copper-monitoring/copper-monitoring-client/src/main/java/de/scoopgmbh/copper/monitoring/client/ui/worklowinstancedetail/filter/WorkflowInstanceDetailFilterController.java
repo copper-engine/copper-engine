@@ -27,12 +27,10 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 public class WorkflowInstanceDetailFilterController implements Initializable, FilterController<WorkflowInstanceDetailFilterModel>, FxmlController {
 	private WorkflowInstanceDetailFilterModel model;
 
-	public WorkflowInstanceDetailFilterController(String workflowInstanceId) {
+	public WorkflowInstanceDetailFilterController(WorkflowInstanceDetailFilterModel model) {
 		super();
-		model = new WorkflowInstanceDetailFilterModel();
-		model.workflowInstanceId.setValue(workflowInstanceId);
+		this.model = model;
 	}
-	
 	
 	public void setFilter(String workflowInstanceId){
 		model.workflowInstanceId.setValue(workflowInstanceId);

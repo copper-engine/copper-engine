@@ -140,7 +140,7 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 
 	@Override
 	public List<WorkflowInstanceInfo> getWorkflowInstanceList(String poolid, String classname,
-			WorkflowInstanceState state, Integer priority, long resultRowLimit) throws RemoteException {
+			WorkflowInstanceState state, Integer priority, Date form, Date to, long resultRowLimit) throws RemoteException {
 		ArrayList<WorkflowInstanceInfo> result = new ArrayList<WorkflowInstanceInfo>();
 		WorkflowInstanceInfo workflowInfo = new WorkflowInstanceInfo();
 		workflowInfo.setId("1");
@@ -224,7 +224,7 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 	}
 
 	@Override
-	public void restartErroneousInstance(String workflowInstanceId, String engineid) throws RemoteException {
+	public void restartWorkflowInstance(String workflowInstanceId, String engineid) throws RemoteException {
 		// TODO Auto-generated method stub
 		
 	}

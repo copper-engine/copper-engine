@@ -19,20 +19,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
+import org.apache.derbyTesting.junit.JDBC;
 import org.junit.Before;
 import org.junit.Test;
 
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.batcher.impl.BatcherImpl;
-import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
@@ -44,21 +43,6 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 
 public class DerbyMonitoringDbDialectTest {
-
-	void cleanDB(DataSource ds) throws Exception {
-		new RetryingTransaction<Void>(ds) {
-			@Override
-			protected Void execute() throws Exception {
-				getConnection().createStatement().execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
-				getConnection().createStatement().execute("DELETE FROM COP_WAIT");
-				getConnection().createStatement().execute("DELETE FROM COP_RESPONSE");
-				getConnection().createStatement().execute("DELETE FROM COP_QUEUE");
-				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE");
-				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
-				return null;
-			}
-		}.run();
-	}
 	
 	EmbeddedConnectionPoolDataSource40 datasource_default;
 	private DerbyMonitoringDbDialect derbyMonitoringDbDialect;
@@ -68,18 +52,27 @@ public class DerbyMonitoringDbDialectTest {
 		datasource_default = new EmbeddedConnectionPoolDataSource40();
 		datasource_default.setDatabaseName("./build/copperExampleDB;create=true");
 		
-
 		derbyMonitoringDbDialect = new DerbyMonitoringDbDialect();
 		derbyDbDialect = new DerbyDbDialect();
 		derbyDbDialect.setDataSource(datasource_default);
 		derbyDbDialect.startup();
+
+		Connection connection = null;
 		try {
-			this.cleanDB(datasource_default);
-			DerbyDbDialect.checkAndCreateSchema(datasource_default);//cleandb
+			connection = datasource_default.getConnection();
+			connection.setAutoCommit(false);
+			JDBC.dropSchema(connection.getMetaData(), "APP"); // APP = default schema   http://svn.apache.org/viewvc/db/derby/code/trunk/java/testing/org/apache/derbyTesting/junit/JDBC.java?view=markup
+			DerbyDbDialect.checkAndCreateSchema(datasource_default); 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		} finally {
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
 		}
-		
+
 	}
 	
 	@Test
@@ -201,8 +194,39 @@ public class DerbyMonitoringDbDialectTest {
 		}
 		
 		try {
-			List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, 1000, datasource_default.getConnection());
+			List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, null, null, 1000, datasource_default.getConnection());
 			assertEquals(3, selectInstances.size());
+//			assertEquals(2,selectSummary.get(0).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	
+	@Test
+	public void test_selectWorkflowinstance_timeframe() throws SQLException, Exception{
+		{
+			DummyPersistentWorkflow1 wf = new DummyPersistentWorkflow1("id1", "P#DEFAULT", "1", 1);
+			derbyDbDialect.insert(wf, datasource_default.getConnection());
+		}
+		{
+			DummyPersistentWorkflow1 wf = new DummyPersistentWorkflow1("id2", "P#DEFAULT", "2", 1);
+			derbyDbDialect.insert(wf, datasource_default.getConnection());
+		}
+		{
+			DummyPersistentWorkflow2 wf = new DummyPersistentWorkflow2("id3", "P#DEFAULT", "3", 1);
+			derbyDbDialect.insert(wf, datasource_default.getConnection());
+		}
+		
+		try {
+			{
+				List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, new Date(1), null, 1000, datasource_default.getConnection());
+				assertEquals(3, selectInstances.size());
+			}
+			{
+				List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, null, new Date(System.currentTimeMillis()+10000), 1000, datasource_default.getConnection());
+				assertEquals(3, selectInstances.size());
+			}
 //			assertEquals(2,selectSummary.get(0).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
 		} catch (SQLException e) {
 			throw new RuntimeException(e);

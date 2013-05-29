@@ -17,12 +17,16 @@ package de.scoopgmbh.copper.monitoring.client.form.enginefilter;
 
 import java.util.List;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
-import javafx.util.StringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
@@ -37,7 +41,7 @@ public class EngineFilterAbleForm<F extends EngineFilterModel, R> extends Filter
 
 	private Node engineSelectionWidget;
 
-	public EngineFilterAbleForm(final String titlePrefix,MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
+	public EngineFilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
 			final Form<FilterController<F>> filterForm, Form<FilterResultController<F, R>> resultForm, GuiCopperDataProvider copperDataProvider) {
 		super(messageProvider, showFormStrategie, filterForm, resultForm, copperDataProvider);
 		
@@ -45,34 +49,48 @@ public class EngineFilterAbleForm<F extends EngineFilterModel, R> extends Filter
 		List<ProcessingEngineInfo> engineList = copperDataProvider.getEngineList();
 		engineSelectionWidget = new EngineSelectionWidget(filterForm.getController().getFilter().getEngineFilterModel(),engineList).createContent();
 
-		dynamicTitleProperty().bindBidirectional(filterForm.getController().getFilter().getEngineFilterModel().selectedEngine, new StringConverter<ProcessingEngineInfo>(){
+		createTitle(filterForm.getController().getFilter().getEngineFilterModel().selectedEngine.get());
+		filterForm.getController().getFilter().getEngineFilterModel().selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
 			@Override
-			public ProcessingEngineInfo fromString(String string) {
-				return null;
-			}
-
-			@Override
-			public String toString(ProcessingEngineInfo object) {
-				if (object==null){
-					return "";
+			public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue, ProcessingEngineInfo newValue) {
+				if (newValue!=null){
+					createTitle(newValue);
 				}
-				return titlePrefix+": "+object.getId()+"("+(object.getTyp()==EngineTyp.PERSISTENT?"P":"T")+")";
 			}
 		});
+		staticTitleProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if (newValue!=null){
+					createTitle(filterForm.getController().getFilter().getEngineFilterModel().selectedEngine.get());
+				}
+			}
+		});
+	}
+	
+	private void createTitle(ProcessingEngineInfo engine) {
+		displayedTitleProperty().set(staticTitleProperty().get()+": "+engine.getId()+"("+(engine.getTyp()==EngineTyp.PERSISTENT?"P":"T")+")");
 	}
 
 	@Override
 	protected Node createLeftFilterPart(){
-		HBox pane = new HBox();
+		MenuButton engineButtton = new MenuButton("Engine");
+		engineButtton.setPrefWidth(20);
+		CustomMenuItem customMenuItem = new CustomMenuItem();
+		engineButtton.getItems().add(customMenuItem);
+		customMenuItem.getStyleClass().setAll("noSelectAnimationMenueItem","menu-item");
+		HBox hbox = new HBox(3);
+		hbox.setAlignment(Pos.CENTER_LEFT);
 		HBox.setMargin(engineSelectionWidget, new Insets(0, 0, 0, 3));
-		pane.getChildren().add(engineSelectionWidget);
+		hbox.getChildren().add(engineSelectionWidget);
+		customMenuItem.setContent(hbox);
+		
+		HBox pane = new HBox();
+		pane.setAlignment(Pos.CENTER_LEFT);
+		engineButtton.setPrefWidth(100);
+		pane.getChildren().add(engineButtton);
 		pane.getChildren().add(new Separator(Orientation.VERTICAL));
 		return pane;
-	}
-	
-	@Override
-	public void setDynamicTitle(String staticTitle) {
-		//do nothing
 	}
 
 }

@@ -21,19 +21,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
@@ -48,90 +44,24 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
-import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
-import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
-import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class WorkflowInstanceResultController extends FilterResultControllerBase<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> implements Initializable {
 	
-	public static final class DetailLoadService extends Service<Void> {
-		private WorkflowInstanceResultModel workflowInstanceResultModel;
-		private StackPane stackDetailPane;
-		private FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm;
-
-		public DetailLoadService(WorkflowInstanceResultModel workflowInstanceResultModel,StackPane stackDetailPane, FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm) {
-			this.workflowInstanceResultModel = workflowInstanceResultModel;
-			this.stackDetailPane = stackDetailPane;
-			this.detailForm = detailForm;
-		}
-		
-		public WorkflowInstanceResultModel getWorkflowInstanceResultModel() {
-			return workflowInstanceResultModel;
-		}
-
-		public void setWorkflowInstanceResultModel(WorkflowInstanceResultModel workflowInstanceResultModel) {
-			this.workflowInstanceResultModel = workflowInstanceResultModel;
-		}
-
-		@Override
-		protected Task<Void> createTask() {
-			return new Task<Void>() {
-				final ProgressIndicator indicator = ComponentUtil.createProgressIndicator();
-				private WorkflowInstanceDetailFilterModel filter;
-				private List<WorkflowInstanceDetailResultModel> result;
-				@Override
-				protected Void call() throws Exception {
-					Platform.runLater(new Runnable() {
-		                 @Override public void run() {
-		                	 stackDetailPane.getChildren().add(indicator);
-		                 }
-		             });
-					filter = new WorkflowInstanceDetailFilterModel();
-					filter.workflowInstanceId.setValue(workflowInstanceResultModel.id.getValue());
-					result = detailForm.getController().applyFilterInBackgroundThread(filter);
-					return null;
-				}
-				
-				@Override 
-				protected void succeeded() {
-					detailForm.getController().showFilteredResult(result, filter);
-					stackDetailPane.getChildren().remove(indicator);
-					if (getException()!=null){
-						throw new RuntimeException(this.getException());
-					}
-					super.succeeded();
-				}
-				
-				@Override 
-				protected void failed() {
-					stackDetailPane.getChildren().remove(indicator);
-					if (getException()!=null){
-						throw new RuntimeException(this.getException());
-					}
-					super.failed();
-				}
-				
-			};
-		}
-	}
-
 	private final GuiCopperDataProvider copperDataProvider;
-	private final FormContext formcontext;
+	private final WorkflowInstanceListNavigation navigation;
 	
-	public WorkflowInstanceResultController(GuiCopperDataProvider copperDataProvider, FormContext formcontext) {
+	public WorkflowInstanceResultController(GuiCopperDataProvider copperDataProvider, WorkflowInstanceListNavigation navigation) {
 		super();
 		this.copperDataProvider = copperDataProvider;
-		this.formcontext = formcontext;
+		this.navigation = navigation;
 	}
 
     @FXML //  fx:id="idColumn"
@@ -310,7 +240,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 			public void handle(MouseEvent mouseEvent) {
 				if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
 		            if(mouseEvent.getClickCount() == 2 && !resultTable.getSelectionModel().isEmpty()){
-		            	formcontext.createWorkflowInstanceDetailForm(resultTable.getSelectionModel().getSelectedItem().id.getValue()).show();
+		            	navigation.navigateToIntsanceDetail(resultTable.getSelectionModel().getSelectedItem().id.get(),usedFilter.enginePoolModel.selectedEngine.get());
 		            }
 		            if(mouseEvent.getClickCount() == 1 && !resultTable.getSelectionModel().isEmpty()){
 		            	showDetails(resultTable.getSelectionModel().getSelectedItem());
@@ -325,7 +255,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
         detailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				formcontext.createWorkflowInstanceDetailForm(resultTable.getSelectionModel().getSelectedItem().id.getValue()).show();
+				navigation.navigateToIntsanceDetail(resultTable.getSelectionModel().getSelectedItem().id.get(),usedFilter.enginePoolModel.selectedEngine.get());
 			}
 		});
         detailMenuItem.disableProperty().bind(resultTable.getSelectionModel().selectedItemProperty().isNull());
@@ -334,9 +264,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
         audittrailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> audittrailForm = formcontext.createAudittrailForm();
-				audittrailForm.getFilter().workflowInstanceId.set(resultTable.getSelectionModel().getSelectedItem().id.getValue());
-				audittrailForm.show();
+				navigation.navigateToAudittrail(resultTable.getSelectionModel().getSelectedItem().id.get());
 			}
 		});
         audittrailMenuItem.disableProperty().bind(resultTable.getSelectionModel().selectedItemProperty().isNull());
@@ -361,7 +289,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
         
      
  
-		detailForm = formcontext.createWorkflowinstanceDetailResultForm(detailPane);
+		detailForm = navigation.createWorkflowinstanceDetailResultForm(detailPane);
 		detailForm.show();
 		
 		errorInfo.setStyle("-fx-font: 12px \"Courier New\"");
@@ -387,8 +315,10 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 		ObservableList<WorkflowInstanceResultModel> content = FXCollections.observableList(new ArrayList<WorkflowInstanceResultModel>());;
 		content.addAll(filteredResult);
 		resultTable.setItems(content);
+		this.usedFilter=usedFilter;
 	}
-
+	WorkflowInstanceFilterModel usedFilter;
+	
 	@Override
 	public List<WorkflowInstanceResultModel> applyFilterInBackgroundThread(WorkflowInstanceFilterModel filter) {
 		return copperDataProvider.getWorkflowInstanceList(filter, getMaxResultCount().get());
@@ -402,13 +332,15 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 	@Override
 	public void clear() {
 		resultTable.getItems().clear();
+		errorInfo.clear();
+		detailForm.getController().clear();
 	}
 	
 	private void showDetails(final WorkflowInstanceResultModel workflowInstanceResultModel){
 		errorInfo.setText(workflowInstanceResultModel.errorInfos.get());
 		
 		if (service==null) {
-			service = new DetailLoadService(workflowInstanceResultModel,stackDetailPane,detailForm);
+			service = new DetailLoadService(usedFilter,workflowInstanceResultModel,stackDetailPane,detailForm);
 		}
 		
 		if (!service.isRunning()){

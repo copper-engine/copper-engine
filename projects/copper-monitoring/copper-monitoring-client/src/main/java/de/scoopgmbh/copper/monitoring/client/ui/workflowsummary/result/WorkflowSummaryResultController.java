@@ -56,14 +56,8 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 		this.formcontext = formcontext;
 	}
 
-    @FXML //  fx:id="aliasColumn"
-    private TableColumn<WorkflowSummaryResultModel, String> aliasColumn; // Value injected by FXMLLoader
-
     @FXML //  fx:id="countColumn"
     private TableColumn<WorkflowSummaryResultModel, String> countColumn; // Value injected by FXMLLoader
-
-    @FXML //  fx:id="majorVersionColumn"
-    private TableColumn<WorkflowSummaryResultModel, String> versionColumn; // Value injected by FXMLLoader
 
     @FXML //  fx:id="resultTable"
     private TableView<WorkflowSummaryResultModel> resultTable; // Value injected by FXMLLoader
@@ -76,9 +70,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert aliasColumn != null : "fx:id=\"aliasColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert countColumn != null : "fx:id=\"countColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
-        assert versionColumn != null : "fx:id=\"versionColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert workflowClassColumn != null : "fx:id=\"workflowClassColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
 
@@ -90,25 +82,6 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 			}
 		});
         
-        versionColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					final CellDataFeatures<WorkflowSummaryResultModel, String> p) {
-				return new SimpleStringProperty(
-						p.getValue().version.versionMajor.getValue()+"."+
-						p.getValue().version.versionMinor.getValue()+"."+
-						p.getValue().version.patchlevel.getValue()); 
-			}
-		});
-        
-        aliasColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<WorkflowSummaryResultModel, String> p) {
-				return p.getValue().version.alias;
-			}
-		});
-        
         countColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
         	@Override
 			public ObservableValue<String> call(
@@ -116,12 +89,9 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
         		return p.getValue().totalcount;
         	}
         });
-        
-        
-        aliasColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.2));
+       
         countColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.075));
-        versionColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.075));
-        workflowClassColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.25));
+        workflowClassColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.525));
         double totalSpaceForStateColumns=0.4;
         
         for (final WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
@@ -168,7 +138,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
     }
     
 	private void openWorkflowInstance() {
-		FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = formcontext.createWorkflowInstanceForm();
+		FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = formcontext.createWorkflowInstanceListForm();
 		workflowInstanceForm.getFilter().version.setAllFrom(getSelectedEntry().version);
 		workflowInstanceForm.getFilter().enginePoolModel.selectedEngine.setValue(lastFilteredWithProcessingEngineInfo);
 		workflowInstanceForm.show();

@@ -42,7 +42,7 @@ public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
 	public void show(Form<?> form){
 		if (tab.getContent()==null){
 			tab.setContent(form.createContent());
-			tab.textProperty().bind(form.dynamicTitleProperty());
+			tab.textProperty().bind(form.displayedTitleProperty());
 			tab.getContent().setStyle("-fx-background-color: transparent;");;
 			component.getTabs().add(tab);
 		} else {

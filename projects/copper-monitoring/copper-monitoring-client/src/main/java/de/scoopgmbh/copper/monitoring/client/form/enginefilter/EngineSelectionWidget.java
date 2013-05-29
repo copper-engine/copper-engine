@@ -22,6 +22,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
@@ -47,8 +48,9 @@ public class EngineSelectionWidget implements Widget{
 		final ChoiceBox<ProcessingEngineInfo> engineChoicebox = createEngineChoicebox();
 
 		final ChoiceBox<ProcessorPoolInfo> poolChoicebox = createPoolChoicebox();
-		
+		pane.getChildren().add(new Label("Engine"));
 		pane.getChildren().add(engineChoicebox);
+		pane.getChildren().add(new Label("Pool"));
 		pane.getChildren().add(poolChoicebox);
 		
 		engineChoicebox.getSelectionModel().selectFirst();

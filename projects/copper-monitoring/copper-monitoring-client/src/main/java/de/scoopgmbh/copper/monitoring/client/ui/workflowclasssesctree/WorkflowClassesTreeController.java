@@ -21,11 +21,20 @@ import java.util.List;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
@@ -33,7 +42,7 @@ import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 public class WorkflowClassesTreeController {
 	private final TreeView<DisplayWorkflowClassesModel> treeView;
 	
-	public WorkflowClassesTreeController(TreeView<DisplayWorkflowClassesModel> treeView) {
+	public WorkflowClassesTreeController(final TreeView<DisplayWorkflowClassesModel> treeView) {
 		super();
 		this.treeView = treeView;
 		
@@ -49,6 +58,22 @@ public class WorkflowClassesTreeController {
 				}
 			}
 		});
+		
+		final ContextMenu contextMenu = new ContextMenu();
+		final MenuItem copy = new MenuItem("copy");
+		copy.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
+		copy.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				final Clipboard clipboard = Clipboard.getSystemClipboard();
+			    final ClipboardContent content = new ClipboardContent();
+			    content.putString(treeView.getSelectionModel().getSelectedItem().getValue().displayname);
+			    clipboard.setContent(content);
+			}
+		});
+		copy.disableProperty().bind(treeView.getSelectionModel().selectedItemProperty().isNull());
+		contextMenu.getItems().add(copy);
+		treeView.setContextMenu(contextMenu);
 	}
 	
 	public static class DisplayWorkflowClassesModel{
@@ -83,7 +108,6 @@ public class WorkflowClassesTreeController {
 					}
 				}
 			}
-			
 			if (classnameItemToAdd==null){
 				classnameItemToAdd = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.classname.get()));
 				result.add(classnameItemToAdd);

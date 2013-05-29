@@ -8,16 +8,16 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<FlowPane alignment="CENTER" hgap="5.0" layoutX="0.0" layoutY="0.0" minHeight="-1.0" prefHeight="-1.0" prefWidth="846.0" xmlns:fx="http://javafx.com/fxml">
+<HBox alignment="CENTER_LEFT" layoutX="0.0" layoutY="0.0" minHeight="-1.0" prefHeight="-1.0" prefWidth="846.0" spacing="3.0" xmlns:fx="http://javafx.com/fxml">
   <children>
     <Label text="workflowInstanceId">
       <labelFor>
         <TextField fx:id="workflowClass" prefWidth="146.0" />
       </labelFor>
     </Label>
-    <TextField id="minorVersion" fx:id="workflowInstanceIdTextfield" prefWidth="71.0" />
+    <TextField id="minorVersion" fx:id="workflowInstanceIdTextfield" prefWidth="351.0" HBox.hgrow="ALWAYS" />
   </children>
   <padding>
-    <Insets />
+    <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
   </padding>
-</FlowPane>
+</HBox>

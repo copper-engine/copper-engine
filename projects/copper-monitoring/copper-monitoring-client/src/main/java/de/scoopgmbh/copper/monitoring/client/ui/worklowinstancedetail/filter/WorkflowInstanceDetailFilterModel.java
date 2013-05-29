@@ -16,7 +16,15 @@
 package de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter;
 
 import javafx.beans.property.SimpleStringProperty;
+import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterModelBase;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
-public class WorkflowInstanceDetailFilterModel {
+public class WorkflowInstanceDetailFilterModel extends EngineFilterModelBase{
 	public SimpleStringProperty workflowInstanceId = new SimpleStringProperty();
+	
+	public WorkflowInstanceDetailFilterModel(String workflowInstanceId, ProcessingEngineInfo engine){
+		this.workflowInstanceId.set(workflowInstanceId);
+		enginePoolModel.selectedEngine.set(engine);
+	}
+	
 }

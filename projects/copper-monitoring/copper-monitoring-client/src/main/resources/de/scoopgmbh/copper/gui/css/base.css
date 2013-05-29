@@ -75,11 +75,6 @@
     -fx-effect: innershadow(two-pass-box , rgba(0,0,0,0.6) , 4, 0.0 , 0 , 0);
 }
 
-/*
-.button, .toggle-button, .menu-button, .choice-box {
-	-fx-base: rgb(50, 50, 50);
-}*/
-
 .copperActionButton{
 	-fx-base: rgb(223,70,64);
 }
@@ -97,6 +92,10 @@
     -fx-padding: 0;
 }
 
+
+.error{/*-fx-control-inner-background*/
+	-fx-control-inner-background: derive(red,20%);
+}
 
 
 /*from modena css*/
