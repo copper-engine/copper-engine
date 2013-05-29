@@ -152,7 +152,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 					"	(? is null or CLASSNAME like ?) GROUP BY CLASSNAME,STATE");
 			int pIdx = 1;
 			pIdx = setFilterParam(selectStmt,poolid,java.sql.Types.VARCHAR,pIdx);
-			pIdx = setFilterParam(selectStmt,"%"+classname+"%",java.sql.Types.VARCHAR,pIdx);
+			pIdx = setFilterParam(selectStmt,classname==null?null:"%"+classname+"%",java.sql.Types.VARCHAR,pIdx);
 			
 			selectStmt.setFetchSize(100);
 			ResultSet resultSet = selectStmt.executeQuery();
@@ -220,7 +220,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 			
 			int pIdx = 1;
 			pIdx = setFilterParam(selectStmt,poolid,java.sql.Types.VARCHAR,pIdx);
-			pIdx = setFilterParam(selectStmt,"%"+classname+"%",java.sql.Types.VARCHAR,pIdx);
+			pIdx = setFilterParam(selectStmt,classname==null?null:"%"+classname+"%",java.sql.Types.VARCHAR,pIdx);
 			pIdx = setFilterParam(selectStmt,(state==null?null:DBProcessingStateWorkaround.fromWorkflowInstanceState(state).key()),java.sql.Types.INTEGER,pIdx);
 			pIdx = setFilterParam(selectStmt,from,java.sql.Types.DATE,pIdx);
 			pIdx = setFilterParam(selectStmt,to,java.sql.Types.DATE,pIdx);
