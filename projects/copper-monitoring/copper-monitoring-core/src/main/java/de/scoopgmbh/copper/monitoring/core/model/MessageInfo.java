@@ -16,35 +16,35 @@
 package de.scoopgmbh.copper.monitoring.core.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
-public class WorkflowInstanceHistory implements Serializable{
+public class MessageInfo implements Serializable{
 	private static final long serialVersionUID = -7316596553420665952L;
 	
-	long timestamp;
+	Date timeout;
+	Date timestamp;
 	String message;
-	String instanceId;
-	String classname;
+	String correlationId;
 	
-	public WorkflowInstanceHistory(long timestamp, String message, String instanceId, String classname) {
+	public MessageInfo(Date timeout, String message, String correlationId) {
 		super();
-		this.timestamp = timestamp;
+		this.timeout = timeout;
 		this.message = message;
-		this.instanceId = instanceId;
-		this.classname = classname;
+		this.correlationId = correlationId;
 	}
 	
-	public WorkflowInstanceHistory() {
+	public MessageInfo() {
 		super();
 	}
 
-	public long getTimestamp() {
-		return timestamp;
+	public Date getTimeout() {
+		return timeout;
 	}
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
+	public void setTimeout(Date timeout) {
+		this.timeout = timeout;
 	}
-	
+
 	public String getMessage() {
 		return message;
 	}
@@ -53,17 +53,23 @@ public class WorkflowInstanceHistory implements Serializable{
 		this.message = message;
 	}
 
-	public String getInstanceId() {
-		return instanceId;
+	public String getCorrelationId() {
+		return correlationId;
 	}
-	public void setInstanceId(String instanceId) {
-		this.instanceId = instanceId;
+
+	public void setCorrelationId(String correlationId) {
+		this.correlationId = correlationId;
 	}
-	public String getClassname() {
-		return classname;
+
+	public Date getTimestamp() {
+		return timestamp;
 	}
-	public void setClassname(String classname) {
-		this.classname = classname;
+
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
 	}
+	
+	
+	
 	
 }

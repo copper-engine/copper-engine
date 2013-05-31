@@ -45,7 +45,7 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 	@Override
 	public void main() throws InterruptException {
 		while (true){
-			wait(WaitMode.FIRST,Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME,BillAdapter.BILLABLE_SERVICE);
+			wait(WaitMode.ALL,Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME,BillAdapter.BILLABLE_SERVICE);
 
 			
 			ArrayList<Response<?>> all = new ArrayList<Response<?>>(getAndRemoveResponses(BillAdapter.BILL_TIME));

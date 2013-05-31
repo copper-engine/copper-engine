@@ -48,6 +48,7 @@ import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 import de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorage;
+import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
 import de.scoopgmbh.copper.persistent.txn.CopperTransactionController;
 import de.scoopgmbh.copper.spring.SpringDependencyInjector;
 import de.scoopgmbh.copper.util.PojoDependencyInjector;
@@ -78,6 +79,7 @@ public class MonitoringExampleMain {
 		dbDialect.setDataSource(datasource_default);
 		dbDialect.startup();
 		dbDialect.setRuntimeStatisticsCollector(runtimeStatisticsCollector);
+		dbDialect.setDbBatchingLatencyMSec(0);
 		
 		BatcherImpl batcher = new BatcherImpl(3);
 		batcher.setStatisticsCollector(runtimeStatisticsCollector);
@@ -153,11 +155,12 @@ public class MonitoringExampleMain {
 		List<ProcessingEngineMXBean> engines = new ArrayList<ProcessingEngineMXBean>();
 		engines.add(persistentengine);
 		DefaultCopperMonitorInterfaceFactory factory = new DefaultCopperMonitorInterfaceFactory(
-				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect()),
+				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect(new StandardJavaSerializer())),
 				runtimeStatisticsCollector,
 				engines,
 				new HistoryCollectorMXBean(){},
-				monitoringQueue);
+				monitoringQueue, 
+				true);
 	
 
 		new SpringRemoteServerMain(factory,8080,"localhost").start();

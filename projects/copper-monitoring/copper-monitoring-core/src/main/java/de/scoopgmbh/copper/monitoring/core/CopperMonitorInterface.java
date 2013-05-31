@@ -25,10 +25,10 @@ import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
+import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceHistory;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
@@ -95,7 +95,7 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	public void setBatcherNumThreads(int numThread, String engineid) throws RemoteException;
 	
 	
-	public List<WorkflowInstanceHistory> getWorkflowInstanceHistory() throws RemoteException;
+	public List<MessageInfo> getMessageList(final boolean ignoreProcessed, long resultRowLimit) throws RemoteException;
 	
 	public void doLogin(String user, String credentials) throws RemoteException;
 
