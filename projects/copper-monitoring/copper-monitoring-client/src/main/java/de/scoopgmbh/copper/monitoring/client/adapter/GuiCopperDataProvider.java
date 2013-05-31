@@ -26,10 +26,10 @@ import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EnginePoolModel;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterMonitoringResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
+import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.message.result.MessageResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.sql.filter.SqlFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.sql.result.SqlResultModel;
-import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.filter.WorkflowHistoryFilterModel;
-import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.result.WorkflowHistoryResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterModel;
@@ -42,10 +42,10 @@ import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
+import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceHistory;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
@@ -185,7 +185,7 @@ public class GuiCopperDataProvider {
 	
 	public List<MeasurePointData> getMeasurePoints(EngineFilterModelBase engineFilter) {
 		try {
-			return copperDataProvider.getMeasurePoints(engineFilter.enginePoolModel.selectedEngine.getValue().getId());
+			return copperDataProvider.getMeasurePoints(engineFilter.enginePoolModel.selectedEngine.get().getId());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -223,16 +223,16 @@ public class GuiCopperDataProvider {
 		}	
 	}
 
-	public List<WorkflowHistoryResultModel> getWorkflowInstanceHistory(WorkflowHistoryFilterModel filter) {
-		List<WorkflowInstanceHistory> list;
+	public List<MessageResultModel> getMessageList(MessageFilterModel filter, final int maxResultCount) {
+		List<MessageInfo> list;
 		try {
-			list = copperDataProvider.getWorkflowInstanceHistory();
+			list = copperDataProvider.getMessageList(filter.ignoreProcessed.get(), maxResultCount);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
-		ArrayList<WorkflowHistoryResultModel> result = new ArrayList<WorkflowHistoryResultModel>();
-		for (WorkflowInstanceHistory workflowInstanceHistory: list){
-			result.add(new WorkflowHistoryResultModel(workflowInstanceHistory)); 
+		ArrayList<MessageResultModel> result = new ArrayList<MessageResultModel>();
+		for (MessageInfo message: list){
+			result.add(new MessageResultModel(message)); 
 		}
 		return result;
 	}

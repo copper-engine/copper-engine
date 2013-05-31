@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.monitoring.server.persistent;
 
 import de.scoopgmbh.copper.persistent.DatabaseDialect;
+import de.scoopgmbh.copper.persistent.Serializer;
 
 /**
  * MySQL implementation of the {@link DatabaseDialect} interface.
@@ -25,6 +26,11 @@ import de.scoopgmbh.copper.persistent.DatabaseDialect;
  */
 public class MySqlMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 	
+	public MySqlMonitoringDbDialect(Serializer serializer) {
+		super(serializer);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public String getResultLimitingQuery(String query, long limit) {
 		return query+ " LIMIT "+limit;

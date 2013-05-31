@@ -15,9 +15,16 @@
  */
 package de.scoopgmbh.copper.monitoring.server.persistent;
 
+import de.scoopgmbh.copper.persistent.Serializer;
+
 
 public class PostgreMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 	
+	public PostgreMonitoringDbDialect(Serializer serializer) {
+		super(serializer);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public String getResultLimitingQuery(String query, long limit) {
 		return query+ " LIMIT "+limit;

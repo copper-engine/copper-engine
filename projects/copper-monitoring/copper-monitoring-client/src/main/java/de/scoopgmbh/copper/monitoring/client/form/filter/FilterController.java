@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.monitoring.client.form.filter;
 
+import javafx.beans.property.ListProperty;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 
 public interface FilterController<F> extends FxmlController {
@@ -24,4 +25,10 @@ public interface FilterController<F> extends FxmlController {
 	public boolean supportsFiltering();
 	//public void executeFilter();
 	public long getDefaultRefreshIntervall();
+	
+	public ListProperty<ActionsWithFilterForm> getActionsWithFilterForm();
+	
+	public static interface ActionsWithFilterForm{
+		public void run(FilterAbleForm<?,?> filterForm);
+	}
 }

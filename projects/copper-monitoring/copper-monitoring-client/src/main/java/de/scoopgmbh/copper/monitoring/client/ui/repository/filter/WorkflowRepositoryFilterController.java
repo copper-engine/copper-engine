@@ -20,10 +20,11 @@ import java.util.ResourceBundle;
 
 import javafx.fxml.Initializable;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class WorkflowRepositoryFilterController implements Initializable, FilterController<WorkflowRepositoryFilterModel>, FxmlController {
+public class WorkflowRepositoryFilterController extends BaseFilterController<WorkflowRepositoryFilterModel> implements Initializable, FxmlController {
 	WorkflowRepositoryFilterModel model = new WorkflowRepositoryFilterModel();
 
 	public class EmptySelectionWorkaround{

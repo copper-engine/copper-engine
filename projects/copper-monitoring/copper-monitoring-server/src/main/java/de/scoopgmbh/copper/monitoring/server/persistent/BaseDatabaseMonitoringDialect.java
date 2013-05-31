@@ -27,22 +27,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
+import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 import de.scoopgmbh.copper.monitoring.server.workaround.DBProcessingStateWorkaround;
+import de.scoopgmbh.copper.persistent.Serializer;
 
 /**
  * Base implementation of the {@link DatabaseMonitoringDialect} for SQL databases
  * 
  */
 public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitoringDialect {
+	
+	private static final Logger logger = LoggerFactory.getLogger(BaseDatabaseMonitoringDialect.class);
+	Serializer serializer;
+	
+	public BaseDatabaseMonitoringDialect(Serializer serializer) {
+		super();
+		this.serializer = serializer;
+	}
 
 	@Override
 	public WorkflowStateSummary selectTotalWorkflowStateSummary(Connection con){
@@ -291,11 +304,64 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 			}
 			return result;
 		} catch (SQLException e) {
+			logger.warn("",e);
+			ArrayList<String[]> result = new ArrayList<String[]>();
+			result.add(new String[]{"Error"});
+			result.add(new String[]{e.getMessage()});
+			return result;
+		} finally {
+			JdbcUtils.closeStatement(selectStmt);
+		}
+	}
+	
+	@Override
+	public List<MessageInfo> selectMessages(boolean ignoreProcessed, long resultRowLimit, Connection con) {
+		PreparedStatement selectStmt = null;
+		try {
+			selectStmt = con.prepareStatement(getResultLimitingQuery(
+					getSelectMessagesQuery(ignoreProcessed),resultRowLimit));
+
+			selectStmt.setFetchSize(100);
+			
+			ResultSet resultSet = selectStmt.executeQuery();
+			
+			ArrayList<MessageInfo> logs = new ArrayList<MessageInfo>();
+			while (resultSet.next()) {
+				MessageInfo messageInfo = new MessageInfo();
+				messageInfo.setCorrelationId(resultSet.getString(1));
+				
+				
+
+				String response = resultSet.getString(2);
+				if (response == null) response = resultSet.getString(3);
+				if (response != null) {
+					try {
+						Response<?> responseObject = (Response<?>)serializer.deserializeResponse(response);
+						messageInfo.setMessage(responseObject.toString());
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
+				
+				
+				
+				messageInfo.setTimestamp(resultSet.getTimestamp(4)!=null?new Date(resultSet.getTimestamp(4).getTime()):null);
+				messageInfo.setTimeout(resultSet.getTimestamp(5)!=null?new Date(resultSet.getTimestamp(5).getTime()):null);
+				logs.add(messageInfo);
+			}
+			return logs;
+		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
 			JdbcUtils.closeStatement(selectStmt);
 		}
 	}
+
+	protected String getSelectMessagesQuery(boolean ignoreProcessed) {
+		return "SELECT CORRELATION_ID, r.response, r.response, RESPONSE_TS, RESPONSE_TIMEOUT FROM COP_RESPONSE r "
+				+(!ignoreProcessed?"":"WHERE not exists(select * from cop_wait w where r.CORRELATION_ID=w.CORRELATION_ID)");
+	}
+
 
 
 }

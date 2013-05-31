@@ -38,13 +38,17 @@ import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
 import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
+import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
+import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
+import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.BatcherInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo.DependencyInjectorTyp;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
+import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
@@ -52,7 +56,6 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo.ProcessorPool
 import de.scoopgmbh.copper.monitoring.core.model.StorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceHistory;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
@@ -81,8 +84,9 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList,
 			HistoryCollectorMXBean historyCollectorMXBean,
-			MonitoringDataAccessQueue monitoringDataAccessQueue){
-		this(dbStorage,new CopperInterfaceSettings(), statisticsCollectorMXBean, engineList,
+			MonitoringDataAccessQueue monitoringDataAccessQueue,
+			boolean enableSql){
+		this(dbStorage,new CopperInterfaceSettings(enableSql), statisticsCollectorMXBean, engineList,
 				historyCollectorMXBean,new PerformanceMonitor(),monitoringDataAccessQueue);
 	}
 	
@@ -106,8 +110,6 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 		}
 	}
 	
-	
-
 	@Override
 	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname)
 			throws RemoteException {
@@ -253,10 +255,8 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 	}
 
 	@Override
-	public List<WorkflowInstanceHistory> getWorkflowInstanceHistory() {
-		List<WorkflowInstanceHistory> result = new ArrayList<WorkflowInstanceHistory>();
-		result.add(new WorkflowInstanceHistory(System.currentTimeMillis(),"UNKOWN","UNKOWN","UNKOWN"));
-		return result;
+	public List<MessageInfo> getMessageList(final boolean ignoreProcceded,long resultRowLimit) {
+		return dbStorage.selectMessages(ignoreProcceded,resultRowLimit);
 	}
 
 	private ProcessorPoolMXBean getPool(String poolId, String engineid){
@@ -339,11 +339,29 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 	}
 
 	@Override
-	public AdapterHistoryInfo getAdapterHistoryInfos(String adapterId) throws RemoteException {
+	public AdapterHistoryInfo getAdapterHistoryInfos(final String adapterId) throws RemoteException {
 		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<AdapterHistoryInfo>() {
 			@Override
 			public AdapterHistoryInfo call() throws Exception {
-				return new AdapterHistoryInfo(monitoringData.getAdapterCalls(),monitoringData.getAdapterWfLaunches(),monitoringData.getAdapterWfNotifies());
+				final List<AdapterCallInfo> adapterCalls = new ArrayList<AdapterCallInfo>();
+			    for (AdapterCallInfo adapterCallInfo: monitoringData.getAdapterCalls()){
+			    	if (adapterId==null || adapterId.isEmpty() || adapterId.equals(adapterCallInfo.getAdapterName())){
+			    		adapterCalls.add(adapterCallInfo);
+			    	}
+			    }
+				final List<AdapterWfLaunchInfo> adapterWfLaunches = new ArrayList<AdapterWfLaunchInfo>();
+			    for (AdapterWfLaunchInfo adapterWfLaunchInfo: monitoringData.getAdapterWfLaunches()){
+			    	if (adapterId==null || adapterId.isEmpty() ||  adapterId.equals(adapterWfLaunchInfo.getAdapterName())){
+			    		adapterWfLaunches.add(adapterWfLaunchInfo);
+			    	}
+			    }
+				final List<AdapterWfNotifyInfo> adapterWfNotifies = new ArrayList<AdapterWfNotifyInfo>();
+			    for (AdapterWfNotifyInfo adapterWfNotifyInfo: monitoringData.getAdapterWfNotifies()){
+			    	if (adapterId==null || adapterId.isEmpty() || adapterId.equals(adapterWfNotifyInfo.getAdapterName())){
+			    		adapterWfNotifies.add(adapterWfNotifyInfo);
+			    	}
+			    }
+				return new AdapterHistoryInfo(adapterCalls,adapterWfLaunches,adapterWfNotifies);
 			}
 		});
 	}

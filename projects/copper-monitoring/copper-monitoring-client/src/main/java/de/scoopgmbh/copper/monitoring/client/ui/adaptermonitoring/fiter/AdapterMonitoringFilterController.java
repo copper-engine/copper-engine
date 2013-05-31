@@ -22,9 +22,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 
-public class AdapterMonitoringFilterController implements Initializable, FilterController<AdapterMonitoringFilterModel>, FxmlController {
+public class AdapterMonitoringFilterController extends BaseFilterController<AdapterMonitoringFilterModel> implements Initializable, FxmlController {
 	private final AdapterMonitoringFilterModel model= new AdapterMonitoringFilterModel();
 
 	public AdapterMonitoringFilterController() {
@@ -62,5 +63,5 @@ public class AdapterMonitoringFilterController implements Initializable, FilterC
 	public long getDefaultRefreshIntervall() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
 	}
-	
+
 }

@@ -34,10 +34,11 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
-public class WorkflowSummaryFilterController implements Initializable, FilterController<WorkflowSummaryFilterModel>, FxmlController {
+public class WorkflowSummaryFilterController extends BaseFilterController<WorkflowSummaryFilterModel> implements Initializable, FxmlController {
 	private final WorkflowSummaryFilterModel model= new WorkflowSummaryFilterModel();
 	private final FormContext formFactory;
 

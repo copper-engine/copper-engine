@@ -21,6 +21,7 @@ import java.util.List;
 
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
@@ -41,5 +42,9 @@ public interface DatabaseMonitoringDialect {
 			WorkflowInstanceState state, Integer priority, Date form, Date to, long resultRowLimit, Connection con);
 
 	public abstract List<String[]> executeMonitoringQuery(String query, long resultRowLimit, Connection con);
+
+	public abstract List<MessageInfo> selectMessages(boolean ignoreProcessed, long resultRowLimit, Connection con);
+	
+	
 
 }

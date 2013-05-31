@@ -19,6 +19,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo.DependencyInjectorTyp;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
+import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
@@ -39,7 +41,6 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo.ProcessorPool
 import de.scoopgmbh.copper.monitoring.core.model.StorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceHistory;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaDataInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
@@ -285,9 +286,8 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 
 
 	@Override
-	public List<WorkflowInstanceHistory> getWorkflowInstanceHistory() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<MessageInfo> getMessageList(boolean ignoreproceeded ,long resultRowLimit) {
+		return Collections.emptyList();
 	}
 
 

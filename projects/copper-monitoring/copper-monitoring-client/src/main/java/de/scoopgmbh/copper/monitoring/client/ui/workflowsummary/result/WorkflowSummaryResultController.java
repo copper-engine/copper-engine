@@ -35,6 +35,7 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.util.Callback;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
@@ -64,8 +65,9 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 
     @FXML //  fx:id="workflowClass"
     private TableColumn<WorkflowSummaryResultModel, String> workflowClassColumn; // Value injected by FXMLLoader
-    
-    
+
+    @FXML //  fx:id="borderPane"
+    private BorderPane borderPane; // Value injected by FXMLLoader
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
@@ -73,7 +75,10 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
         assert countColumn != null : "fx:id=\"countColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert workflowClassColumn != null : "fx:id=\"workflowClassColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
-
+        assert borderPane != null;
+        
+        borderPane.setBottom(createTabelControlls(resultTable));
+        		
         workflowClassColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(

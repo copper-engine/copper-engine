@@ -21,6 +21,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
@@ -44,21 +45,27 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.IntegerStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.MessageKey;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 import de.scoopgmbh.copper.monitoring.client.util.NumerOnlyTextField;
 
 /**
+ * A Form with a filter form and a result form
  * @param <F> FilterModel
  * @param <R> ResultModel
  */
@@ -86,7 +93,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	            	ResultFilterPair<F, R> result = (ResultFilterPair<F,R>)t.getSource().getValue();
 					resultForm.getController().showFilteredResult(result.result, result.usedFilter);
 				} catch (Exception e){
-					e.printStackTrace(); //Future swollows Exceptions
+					e.printStackTrace(); //Future swallows Exceptions
 					if (e instanceof RuntimeException){
 						throw (RuntimeException)e;
 					} else {
@@ -96,6 +103,16 @@ public class FilterAbleForm<F,R> extends Form<Object>{
             }
         });
 		repeatFilterService = new RepeatFilterService<F,R>(resultForm.getController(), filterForm);
+		
+		filterForm.getController().getActionsWithFilterForm().addListener(new ListChangeListener<ActionsWithFilterForm>() {
+			@Override
+			public void onChanged(javafx.collections.ListChangeListener.Change<? extends ActionsWithFilterForm> c) {
+				c.next();
+				for (ActionsWithFilterForm actionsWithFilterForm: c.getAddedSubList()){
+					actionsWithFilterForm.run(FilterAbleForm.this);
+				}
+			}
+		});
 	}
 	
 	boolean verticalRightButton=false;
@@ -113,7 +130,18 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	
 	@Override
 	public Node createContent() {
+		
 		final StackPane masterStackPane = new StackPane();
+		masterStackPane.setOnKeyReleased(new EventHandler<javafx.scene.input.KeyEvent>() {
+			@Override
+			public void handle(javafx.scene.input.KeyEvent event) {
+				KeyCodeCombination keyCombination = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHORTCUT_DOWN);
+				if (keyCombination.match(event)){
+					refresh();
+				}
+			}
+		});
+		
 		filterService.stateProperty().addListener(new ChangeListener<Worker.State>() {
 			ProgressIndicator indicator = ComponentUtil.createProgressIndicator();
 			@Override
@@ -155,23 +183,25 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		return masterStackPane;
 	}
 	
-	
 	private Node createRightFilterButtons(Node filterContent, Node leftFilterPart, Pane progressbarDisplayTarget){
 		Pane buttonsPane;
 		if (verticalRightButton){
 			VBox vbox = new VBox();
-			vbox.setAlignment(Pos.CENTER_LEFT);
+			vbox.setAlignment(Pos.TOP_LEFT);
 			vbox.setSpacing(3);
-			buttonsPane=vbox;
+			Region spacer = new Region();
+			VBox.setMargin(spacer, new Insets(1.5));
+			vbox.getChildren().add(spacer);
+			buttonsPane=vbox;;
 		} else {
 			HBox hbox = new HBox();
 			hbox.setAlignment(Pos.CENTER);
 			hbox.setSpacing(3);
 			buttonsPane=hbox;
+			buttonsPane.getChildren().add(new Separator(Orientation.VERTICAL));
 		}
 		
 		
-		buttonsPane.getChildren().add(new Separator(Orientation.VERTICAL));
 	
 		final Button clearButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/clear.png"))));
 		clearButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_clear)));
@@ -185,7 +215,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		if (resultForm.getController().canLimitResult()){
 			TextField maxCountTextField = new TextField();
 			maxCountTextField.setPrefWidth(70);
-			maxCountTextField.textProperty().bindBidirectional(resultForm.getController().getMaxResultCount(), new IntegerStringConverter());
+			maxCountTextField.textProperty().bindBidirectional(resultForm.getController().maxResultCountProperty(), new IntegerStringConverter());
 			
 			Label label = new Label("Limit rows:");
 			label.setLabelFor(maxCountTextField);
@@ -197,9 +227,9 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		HBox.setMargin(refreshButton, new Insets(4,0,4,0));
 		refreshButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_refresh)));
 		refreshButton.setOnAction(new EventHandler<ActionEvent>() {
-		    @Override public void handle(ActionEvent e) {
-		    	filterService.reset();
-		    	filterService.start();
+		    @Override
+		    public void handle(ActionEvent e) {
+		    	refresh();
 		    }
 		});
 		buttonsPane.getChildren().add(refreshButton);
@@ -258,6 +288,11 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			return new Pane();
 		}
 		return content;
+	}
+	
+	public void refresh() {
+		filterService.reset();
+    	filterService.start();
 	}
 
 	

@@ -28,6 +28,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.BorderPane;
 import javafx.util.Callback;
 
 import com.google.common.base.Strings;
@@ -44,12 +45,19 @@ public class SqlResultController extends FilterResultControllerBase<SqlFilterMod
 		this.copperDataProvider = copperDataProvider;
 	}
 
+    @FXML //  fx:id="borderPane"
+    private BorderPane borderPane; // Value injected by FXMLLoader
+
     @FXML //  fx:id="resultTable"
     private TableView<SqlResultModel> resultTable; // Value injected by FXMLLoader
 
+
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
+        assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'SqlResult.fxml'.";
+        assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'SqlResult.fxml'.";
+
+        borderPane.setBottom(createTabelControlls(resultTable));
     }
 	
 	@Override
@@ -85,7 +93,7 @@ public class SqlResultController extends FilterResultControllerBase<SqlFilterMod
 	@Override
 	public List<SqlResultModel> applyFilterInBackgroundThread(SqlFilterModel filter) {
 		if (!Strings.isNullOrEmpty(filter.sqlQuery.get())){
-			return copperDataProvider.executeSqlQuery(filter,getMaxResultCount().get());
+			return copperDataProvider.executeSqlQuery(filter,maxResultCountProperty().get());
 		}
 		return Collections.emptyList();
 	}

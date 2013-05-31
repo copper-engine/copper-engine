@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.monitoring.server.persistent;
 
 import de.scoopgmbh.copper.persistent.DatabaseDialect;
+import de.scoopgmbh.copper.persistent.Serializer;
 
 /**
  * Oracle implementation of the {@link DatabaseDialect} interface
@@ -24,6 +25,11 @@ import de.scoopgmbh.copper.persistent.DatabaseDialect;
  *
  */
 public class OracleMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
+
+	public OracleMonitoringDbDialect(Serializer serializer) {
+		super(serializer);
+		// TODO Auto-generated constructor stub
+	}
 
 	@Override
 	public String getResultLimitingQuery(String query, long limit) {
@@ -48,5 +54,12 @@ public class OracleMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 				"	ERR_RID.WORKFLOW_INSTANCE_ID(+) = MASTER.ID AND\n" + 
 				"	ERR.ROWID(+) = ERR_RID.RID";
 	}
+	
+	@Override
+	protected String getSelectMessagesQuery(boolean ignoreProcceded) {
+		return "SELECT CORRELATION_ID, r.response, r.long_response, RESPONSE_TS, RESPONSE_TIMEOUT FROM COP_RESPONSE r "
+				+(!ignoreProcceded?"":"WHERE not exists(select * from cop_wait w where r.CORRELATION_ID=w.CORRELATION_ID)");
+	}
+
 
 }

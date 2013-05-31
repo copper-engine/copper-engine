@@ -25,10 +25,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class EngineLoadFilterController implements Initializable, FilterController<EngineLoadFilterModel>, FxmlController {
+public class EngineLoadFilterController extends BaseFilterController<EngineLoadFilterModel> implements Initializable, FxmlController {
 	final EngineLoadFilterModel model= new EngineLoadFilterModel();
 
 

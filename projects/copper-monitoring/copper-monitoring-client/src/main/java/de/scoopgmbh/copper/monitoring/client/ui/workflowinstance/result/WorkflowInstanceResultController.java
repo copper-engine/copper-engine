@@ -109,6 +109,10 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
     @FXML //  fx:id="errorInfo"
     private TextArea errorInfo; // Value injected by FXMLLoader
     
+
+    @FXML //  fx:id="tableBorderPane"
+    private BorderPane tableBorderPane; // Value injected by FXMLLoader
+
     
 	private FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm;
 	private DetailLoadService service;
@@ -130,7 +134,9 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
         assert stateColumn != null : "fx:id=\"stateColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert timeoutColumn != null : "fx:id=\"timeoutColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert errorInfo != null : "fx:id=\"errorInfo\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
-
+        assert tableBorderPane != null;
+        tableBorderPane.setBottom(createTabelControlls(resultTable));
+        
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(
@@ -321,7 +327,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 	
 	@Override
 	public List<WorkflowInstanceResultModel> applyFilterInBackgroundThread(WorkflowInstanceFilterModel filter) {
-		return copperDataProvider.getWorkflowInstanceList(filter, getMaxResultCount().get());
+		return copperDataProvider.getWorkflowInstanceList(filter, maxResultCountProperty().get());
 	}
 	
 	@Override

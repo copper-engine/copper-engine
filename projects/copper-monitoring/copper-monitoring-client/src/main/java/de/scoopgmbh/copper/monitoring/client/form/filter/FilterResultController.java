@@ -34,5 +34,5 @@ public interface FilterResultController<F,R> extends FxmlController{
 	public List<R> applyFilterInBackgroundThread(F filter);
 	public boolean canLimitResult();
 	public void clear();
-	public SimpleObjectProperty<Integer> getMaxResultCount();
+	public SimpleObjectProperty<Integer> maxResultCountProperty();
 }

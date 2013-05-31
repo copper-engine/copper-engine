@@ -66,6 +66,10 @@ import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterCont
 import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.load.result.EngineLoadResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.measurepoint.result.MeasurePointResultController;
+import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterController;
+import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.message.result.MessageResultController;
+import de.scoopgmbh.copper.monitoring.client.ui.message.result.MessageResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.filter.WorkflowRepositoryFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.filter.WorkflowRepositoryFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.result.WorkflowRepositoryResultController;
@@ -81,10 +85,6 @@ import de.scoopgmbh.copper.monitoring.client.ui.systemresource.result.RessourceR
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeForm;
-import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.filter.WorkflowHistoryFilterController;
-import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.filter.WorkflowHistoryFilterModel;
-import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.result.WorkflowHistoryResultController;
-import de.scoopgmbh.copper.monitoring.client.ui.workflowhistory.result.WorkflowHistoryResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.BaseWorkflowInstanceListNavigation;
@@ -307,10 +307,10 @@ public class FormContext {
 	}
 	
 
-	public FilterAbleForm<WorkflowHistoryFilterModel,WorkflowHistoryResultModel> createWorkflowHistoryForm(){
-		return new EngineFormBuilder<WorkflowHistoryFilterModel,WorkflowHistoryResultModel,WorkflowHistoryFilterController,WorkflowHistoryResultController>(
-				new WorkflowHistoryFilterController(),
-				new WorkflowHistoryResultController(guiCopperDataProvider),
+	public FilterAbleForm<MessageFilterModel,MessageResultModel> createWorkflowHistoryForm(){
+		return new EngineFormBuilder<MessageFilterModel,MessageResultModel,MessageFilterController,MessageResultController>(
+				new MessageFilterController(),
+				new MessageResultController(guiCopperDataProvider),
 				this
 			).build();
 	}
@@ -428,7 +428,7 @@ public class FormContext {
 	}
 	
 	public FilterAbleForm<EngineFilterModelBase, MeasurePointData> createMeasurePointForm() {
-		return new FormBuilder<EngineFilterModelBase, MeasurePointData, GenericFilterController<EngineFilterModelBase>,MeasurePointResultController>(
+		return new EngineFormBuilder<EngineFilterModelBase, MeasurePointData, GenericFilterController<EngineFilterModelBase>,MeasurePointResultController>(
 				new GenericFilterController<EngineFilterModelBase>(new EngineFilterModelBase()),
 				new MeasurePointResultController(guiCopperDataProvider),
 				this

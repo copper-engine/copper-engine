@@ -22,9 +22,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.FlowPane;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 
-public class ResourceFilterController implements Initializable, FilterController<ResourceFilterModel>, FxmlController {
+public class ResourceFilterController extends BaseFilterController<ResourceFilterModel> implements Initializable, FxmlController {
 	final ResourceFilterModel model= new ResourceFilterModel();
 
     @FXML //  fx:id="pane"

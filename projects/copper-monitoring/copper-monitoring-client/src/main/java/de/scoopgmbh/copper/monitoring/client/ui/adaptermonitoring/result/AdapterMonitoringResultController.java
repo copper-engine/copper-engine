@@ -198,6 +198,9 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 	@Override
 	public void clear() {
 		adapterInputTable.getItems().clear();
+		adapterOutputLaunchTable.getItems().clear();
+		adapterOutputNotifyTable.getItems().clear();
+		mesageDetail.clear();
 	}
 
 }

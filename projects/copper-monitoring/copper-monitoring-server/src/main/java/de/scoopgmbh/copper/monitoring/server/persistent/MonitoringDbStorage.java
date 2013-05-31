@@ -21,6 +21,7 @@ import java.util.List;
 
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
@@ -114,6 +115,19 @@ public class MonitoringDbStorage {
 				@Override
 				public List<String[]> run(Connection con) throws Exception {
 					return dialect.executeMonitoringQuery(query, resultRowLimit,con);
+				}
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public List<MessageInfo> selectMessages(final boolean ignoreProcessed, final long resultRowLimit) {
+		try {
+			return run(new DatabaseTransaction<List<MessageInfo>>() {
+				@Override
+				public List<MessageInfo> run(Connection con) throws Exception {
+					return dialect.selectMessages(ignoreProcessed,resultRowLimit,con);
 				}
 			});
 		} catch (Exception e) {

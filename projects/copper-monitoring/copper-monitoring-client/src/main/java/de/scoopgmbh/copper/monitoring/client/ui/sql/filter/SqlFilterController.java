@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitoring.client.ui.sql.filter;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -25,11 +26,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.web.WebView;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
 
-public class SqlFilterController implements Initializable, FilterController<SqlFilterModel>, FxmlController {
+public class SqlFilterController extends BaseFilterController<SqlFilterModel> implements Initializable, FxmlController {
 	private final SqlFilterModel model = new SqlFilterModel();
 	private final CodeMirrorFormatter codeMirrorFormatter;
 
@@ -49,6 +51,13 @@ public class SqlFilterController implements Initializable, FilterController<SqlF
         assert history != null : "fx:id=\"history\" was not injected: check your FXML file 'SqlFilter.fxml'.";
         assert sqlEditor != null : "fx:id=\"sqlEditor\" was not injected: check your FXML file 'SqlFilter.fxml'.";
 
+        history.getItems().add("SELECT * FROM COP_WORKFLOW_INSTANCE");
+        history.getItems().add("SELECT * FROM COP_WORKFLOW_INSTANCE_ERROR");
+        history.getItems().add("SELECT * FROM COP_RESPONSE");
+        history.getItems().add("SELECT * FROM COP_WAIT");
+        history.getItems().add("SELECT * FROM COP_QUEUE");
+        history.getItems().add("SELECT * FROM COP_AUDIT_TRAIL_EVENT");
+        
         sqlEditor.getEngine().loadContent(codeMirrorFormatter.format("", CodeFormatLanguage.SQL));
         sqlEditor.setOnKeyTyped(new EventHandler<Event>() {
 			@Override
@@ -57,14 +66,19 @@ public class SqlFilterController implements Initializable, FilterController<SqlF
 				model.sqlQuery.setValue( query);
 				if (!query.isEmpty()){
 					history.getItems().add(query);
-					if (history.getItems().size()>10){
+					if (history.getItems().size()>15){
 						history.getItems().remove(0);
 					}
 				}
 			}
+		}); 
+        
+        history.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				sqlEditor.getEngine().executeScript("editor.setValue('"+history.getSelectionModel().getSelectedItem()+"');");
+			}
 		});
-        
-        
 	}
 
 	@Override

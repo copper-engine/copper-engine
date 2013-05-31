@@ -18,7 +18,7 @@ package de.scoopgmbh.copper.monitoring.client.form.filter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class GenericFilterController<T> implements FilterController<T>{
+public class GenericFilterController<T> extends BaseFilterController<T>{
 	
 	public static final URL EMPTY_DUMMY_URL;
 	static{

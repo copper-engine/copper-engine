@@ -22,9 +22,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 
-public class WorkflowInstanceDetailFilterController implements Initializable, FilterController<WorkflowInstanceDetailFilterModel>, FxmlController {
+public class WorkflowInstanceDetailFilterController  extends BaseFilterController<WorkflowInstanceDetailFilterModel> implements Initializable, FxmlController {
 	private WorkflowInstanceDetailFilterModel model;
 
 	public WorkflowInstanceDetailFilterController(WorkflowInstanceDetailFilterModel model) {

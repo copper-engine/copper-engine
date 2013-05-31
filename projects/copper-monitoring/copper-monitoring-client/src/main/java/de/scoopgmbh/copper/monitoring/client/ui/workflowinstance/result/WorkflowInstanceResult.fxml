@@ -12,21 +12,25 @@
   <center>
     <SplitPane dividerPositions="0.5015105740181269" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="-1.0">
       <items>
-        <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
-          <columns>
-            <TableColumn prefWidth="75.0" text="Workflowid" fx:id="idColumn" />
-            <TableColumn prefWidth="75.0" text="State" fx:id="stateColumn" />
-            <TableColumn prefWidth="75.0" text="Priority" fx:id="prioritynColumn" />
-            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="75.0" text="ProcessorPool" fx:id="processorPoolColumn" />
-            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="75.0" text="Timeout" fx:id="timeoutColumn" />
-            <TableColumn prefWidth="75.0" text="LastActivity" fx:id="lastActivityTimestamp" />
-            <TableColumn prefWidth="75.0" text="OverallLifetimeInMs" fx:id="overallLifetimeInMs" />
-            <TableColumn prefWidth="75.0" text="StartTime" fx:id="startTime" />
-            <TableColumn prefWidth="75.0" text="FinishTime" fx:id="finishTime" />
-            <TableColumn prefWidth="75.0" text="LastErrorTime" fx:id="lastErrorTime" />
-            <TableColumn prefWidth="75.0" text="ErrorInfos" fx:id="errorInfos" />
-          </columns>
-        </TableView>
+        <BorderPane fx:id="tableBorderPane" prefHeight="200.0" prefWidth="200.0">
+          <center>
+            <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
+              <columns>
+                <TableColumn prefWidth="75.0" text="Workflowid" fx:id="idColumn" />
+                <TableColumn prefWidth="75.0" text="State" fx:id="stateColumn" />
+                <TableColumn prefWidth="75.0" text="Priority" fx:id="prioritynColumn" />
+                <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="75.0" text="ProcessorPool" fx:id="processorPoolColumn" />
+                <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="75.0" text="Timeout" fx:id="timeoutColumn" />
+                <TableColumn prefWidth="75.0" text="LastActivity" fx:id="lastActivityTimestamp" />
+                <TableColumn prefWidth="75.0" text="OverallLifetimeInMs" fx:id="overallLifetimeInMs" />
+                <TableColumn prefWidth="75.0" text="StartTime" fx:id="startTime" />
+                <TableColumn prefWidth="75.0" text="FinishTime" fx:id="finishTime" />
+                <TableColumn prefWidth="75.0" text="LastErrorTime" fx:id="lastErrorTime" />
+                <TableColumn prefWidth="75.0" text="ErrorInfos" fx:id="errorInfos" />
+              </columns>
+            </TableView>
+          </center>
+        </BorderPane>
         <StackPane fx:id="stackDetailPane" prefHeight="150.0" prefWidth="-1.0">
           <children>
             <BorderPane id="detailPane" prefHeight="85.0" prefWidth="-1.0">

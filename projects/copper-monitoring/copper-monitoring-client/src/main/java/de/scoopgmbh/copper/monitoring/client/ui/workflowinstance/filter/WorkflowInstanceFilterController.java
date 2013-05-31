@@ -32,10 +32,11 @@ import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
 import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class WorkflowInstanceFilterController implements Initializable, FilterController<WorkflowInstanceFilterModel>, FxmlController {
+public class WorkflowInstanceFilterController extends BaseFilterController<WorkflowInstanceFilterModel> implements Initializable, FxmlController {
 	private static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
 	WorkflowInstanceFilterModel model = new WorkflowInstanceFilterModel();

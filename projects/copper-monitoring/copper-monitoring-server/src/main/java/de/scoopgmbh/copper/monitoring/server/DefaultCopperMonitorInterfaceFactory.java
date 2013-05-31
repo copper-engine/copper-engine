@@ -31,22 +31,25 @@ public class DefaultCopperMonitorInterfaceFactory implements CopperMonitorInterf
 	private final HistoryCollectorMXBean historyCollectorMXBean;
 	private final List<ProcessingEngineMXBean> engineList;
 	private final MonitoringDataAccessQueue monitoringDataAccessQueue;
+	private final boolean enableSql;
 	
 	public DefaultCopperMonitorInterfaceFactory(MonitoringDbStorage dbStorage, 
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList, 
 			HistoryCollectorMXBean historyCollectorMXBean,
-			MonitoringDataAccessQueue monitoringDataAccessQueue){
+			MonitoringDataAccessQueue monitoringDataAccessQueue,
+			boolean enableSql){
 		this.dbStorage = dbStorage;
 		this.statisticsCollectorMXBean = statisticsCollectorMXBean;
 		this.historyCollectorMXBean = historyCollectorMXBean;
 		this.engineList=engineList;
 		this.monitoringDataAccessQueue = monitoringDataAccessQueue;
+		this.enableSql = enableSql;
 	}
 
 	@Override
 	public CopperMonitorInterface createCopperMonitorInterface() {
-		return new DefaultCopperMonitorInterface(dbStorage, statisticsCollectorMXBean, engineList, historyCollectorMXBean, monitoringDataAccessQueue);
+		return new DefaultCopperMonitorInterface(dbStorage, statisticsCollectorMXBean, engineList, historyCollectorMXBean, monitoringDataAccessQueue,enableSql);
 	}
 
 }
