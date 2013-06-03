@@ -27,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.junit.Assert;
-
 /**
  * copied/modified from Derby derbyTesting.jar cause derbyTesting.jar is too fat
  */
@@ -64,7 +62,7 @@ public class DerbyCleanDbUtil {
 	 */
 	public static void dropSchema(DatabaseMetaData dmd, String schema) throws SQLException {
 		Connection conn = dmd.getConnection();
-		Assert.assertFalse(conn.getAutoCommit());
+		assert !conn.getAutoCommit();
 		Statement s = dmd.getConnection().createStatement();
 
 		// Functions - not supported by JDBC meta data until JDBC 4
@@ -221,12 +219,10 @@ public class DerbyCleanDbUtil {
 
 		// Execute them as a complete batch, hoping they will all succeed.
 		s.clearBatch();
-		int batchCount = 0;
 		for (Iterator<String> i = ddl.iterator(); i.hasNext();) {
 			Object sql = i.next();
 			if (sql != null) {
 				s.addBatch(sql.toString());
-				batchCount++;
 			}
 		}
 
@@ -234,13 +230,9 @@ public class DerbyCleanDbUtil {
 		boolean hadError;
 		try {
 			results = s.executeBatch();
-			Assert.assertNotNull(results);
-			Assert.assertEquals("Incorrect result length from executeBatch", batchCount, results.length);
 			hadError = false;
 		} catch (BatchUpdateException batchException) {
 			results = batchException.getUpdateCounts();
-			Assert.assertNotNull(results);
-			Assert.assertTrue("Too many results in BatchUpdateException", results.length <= batchCount);
 			hadError = true;
 		}
 
@@ -254,7 +246,7 @@ public class DerbyCleanDbUtil {
 				didDrop = true;
 				ddl.set(i, null);
 			} else
-				Assert.fail("Negative executeBatch status");
+				throw new RuntimeException("Negative executeBatch status");
 		}
 		s.clearBatch();
 		if (didDrop) {
