@@ -15,16 +15,25 @@
  */
 package de.scoopgmbh.copper.monitoring.client.form.filter;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
@@ -48,7 +57,12 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 	}
 	
 	
-	public HBox createTabelControlls(final TableView<?> tableView){
+	public <M> HBox createTabelControlls(final TableView<M> tableView){
+		tableView.setContextMenu(new ContextMenu());
+		
+		
+		final CheckBox regExp = new CheckBox("RegExp");
+		
 		HBox pane= new HBox();
 		BorderPane.setMargin(pane,new Insets(3));
 		pane.setSpacing(3);
@@ -61,28 +75,57 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 			}
 		});
 		pane.getChildren().add(copy);
+		Button copyCell = new Button("copy cell");
+		copyCell.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				copyTableCell(tableView);
+			}
+		});
+		pane.getChildren().add(copyCell);
 		pane.getChildren().add(new Label("Search"));
 		final TextField textField = new TextField();
 		textField.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (newValue!=null && newValue.length()>1){
-					serachInTable(tableView, newValue);
+					serachInTable(tableView, newValue,regExp.isSelected());
 				}
 			}
 		});
 		textField.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				serachInTable(tableView,textField.getText());
+				serachInTable(tableView,textField.getText(),regExp.isSelected());
 			}
 		});
-		HBox.setHgrow(textField,Priority.SOMETIMES);
+		HBox.setHgrow(textField,Priority.ALWAYS);
+		final Label count = new Label();
+		tableView.itemsProperty().addListener(new ChangeListener<ObservableList<M>>() {
+			@Override
+			public void changed(ObservableValue<? extends ObservableList<M>> observable, ObservableList<M> oldValue,
+					ObservableList<M> newValue) {
+				if (newValue!=null){
+					count.setText("count: "+String.valueOf(newValue.size()));
+				}
+			}
+		});
 		pane.getChildren().add(textField);
+		pane.getChildren().add(regExp);
+		pane.getChildren().add(new Separator(Orientation.VERTICAL));
+		pane.getChildren().add(count);
+		
+		
 		return pane;
 	}
 	
-	private void serachInTable(final TableView<?> tableView, String newValue) {
+	private void serachInTable(final TableView<?> tableView, String newValue, boolean useRegex) {
+		try {
+			Pattern.compile(newValue);
+		} catch (PatternSyntaxException e) {
+			e.printStackTrace();
+			return;
+		}
 		int selectedRow= tableView.getSelectionModel().getSelectedIndex();
 		int toSelectedRow= tableView.getSelectionModel().getSelectedIndex();
 		for (int row=0; row<tableView.getItems().size();row++){
@@ -90,12 +133,11 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 			int rowIndex=(row+1+selectedRow)%tableView.getItems().size();
 			for (int column=0; column<tableView.getColumns().size();column++){
 				 Object cell = tableView.getColumns().get(column).getCellData(rowIndex);
-				 if (cell!=null && cell.toString()!=null && cell.toString().contains(newValue)){
+				 if (cell!=null && cell.toString()!=null){
 					 rowString+=cell.toString();
-					
 				 }
 			}
-			if (rowString.contains(newValue)){
+			if (useRegex?rowString.matches(newValue):rowString.contains(newValue)){
 				toSelectedRow=rowIndex;
 				break;
 			}
@@ -105,6 +147,7 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 			@Override
 			public void run() {
 				tableView.getSelectionModel().select(rowfinal);
+				tableView.getFocusModel().focus(rowfinal);
 				tableView.scrollTo(rowfinal);
 			}
 		});
@@ -117,6 +160,17 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 				 Object cell = tableView.getColumns().get(column).getCellData(row);
 				 clipboardString.append(cell+"\t");
 			}
+		}
+        final ClipboardContent content = new ClipboardContent();
+        content.putString(clipboardString.toString());
+        Clipboard.getSystemClipboard().setContent(content);
+	}
+	
+	private void copyTableCell(final TableView<?> tableView) {
+		StringBuilder clipboardString = new StringBuilder();
+		for (TablePosition<?, ?> tablePosition: tableView.getSelectionModel().getSelectedCells()){
+			 Object cell = tableView.getColumns().get(tablePosition.getColumn()).getCellData(tablePosition.getRow());
+			 clipboardString.append(cell+"\t");
 		}
         final ClipboardContent content = new ClipboardContent();
         content.putString(clipboardString.toString());

@@ -40,6 +40,7 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
+import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.persistent.StandardJavaSerializer;

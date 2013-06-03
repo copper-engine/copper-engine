@@ -86,6 +86,8 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
         axisFreeSystemMem= new XYChart.Series<String, Number>();
         axisFreeSystemMem.setName("Free System Memory");
         memoryChart.getData().add(axisFreeSystemMem);
+        
+//        memoryChart.sett
 	}
 	
 	@Override
@@ -113,8 +115,8 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
 		
 		updateChart(systemRessourcesInfo.getLiveThreadsCount(),date,axisThread);
 		updateChart(systemRessourcesInfo.getTotalLoadedClassCount(),date,axisClasses);
-		updateChart(systemRessourcesInfo.getHeapMemoryUsage(),date,axisMemory);
-		updateChart(systemRessourcesInfo.getFreePhysicalMemorySize(),date,axisFreeSystemMem);
+		updateChart(systemRessourcesInfo.getHeapMemoryUsage()/1000000,date,axisMemory);
+		updateChart(systemRessourcesInfo.getFreePhysicalMemorySize()/1000000,date,axisFreeSystemMem);
 	}
 	
 	private void updateChart(Number value,String date, XYChart.Series<String, Number> axis){

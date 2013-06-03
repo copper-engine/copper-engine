@@ -14,7 +14,7 @@
  * either express or implied. See the License for the specific 
  * language governing permissions and limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.server.persistent;
+package de.scoopgmbh.copper.monitoring.server.util;
 
 import java.sql.BatchUpdateException;
 import java.sql.Connection;

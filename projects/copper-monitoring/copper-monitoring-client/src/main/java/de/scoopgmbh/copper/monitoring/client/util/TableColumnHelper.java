@@ -19,6 +19,7 @@ import javafx.beans.property.Property;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
@@ -26,6 +27,7 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
@@ -43,6 +45,17 @@ public class TableColumnHelper {
 			@Override
 			public TableCell<T, U> call(TableColumn<T, U> param) {
 				TextFieldTableCell<T, U> cell = new TextFieldTableCell<T, U>(converter);
+				return cell;
+			}
+		});
+	}
+	
+	public static <T, U> void setTextOverrunCellFactory(TableColumn<T, U> column, final OverrunStyle overrunStyle) {
+		column.setCellFactory(new Callback<TableColumn<T, U>, TableCell<T, U>>() {
+			@Override
+			public TableCell<T, U> call(TableColumn<T, U> param) {
+				TextFieldTableCell<T, U> cell = new TextFieldTableCell<T, U>();
+				cell.setTextOverrun(overrunStyle);
 				return cell;
 			}
 		});

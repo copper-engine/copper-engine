@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.management.BatcherMXBean;
 import de.scoopgmbh.copper.management.DBStorageMXBean;
@@ -66,7 +65,6 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
-import de.scoopgmbh.copper.monitoring.server.workaround.HistoryCollectorMXBean;
 
 public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 	private static final long serialVersionUID = 1829707298427309206L;
@@ -74,35 +72,34 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 	private final MonitoringDbStorage dbStorage;
 	private final CopperInterfaceSettings copperInterfaceSettings;
 	private final StatisticsCollectorMXBean statisticsCollectorMXBean;
-	@SuppressWarnings("unused")
-	private final HistoryCollectorMXBean historyCollectorMXBean;
 	private final Map<String,ProcessingEngineMXBean> engines;
 	private final PerformanceMonitor performanceMonitor;
 	private final MonitoringDataAccessQueue monitoringDataAccessQueue;
+	private final MessagePostProcessor messagePostProcessor;
 	
 	public DefaultCopperMonitorInterface(MonitoringDbStorage dbStorage, 
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList,
-			HistoryCollectorMXBean historyCollectorMXBean,
 			MonitoringDataAccessQueue monitoringDataAccessQueue,
-			boolean enableSql){
-		this(dbStorage,new CopperInterfaceSettings(enableSql), statisticsCollectorMXBean, engineList,
-				historyCollectorMXBean,new PerformanceMonitor(),monitoringDataAccessQueue);
+			boolean enableSql,
+			MessagePostProcessor messagePostProcessor){
+		this(dbStorage,new CopperInterfaceSettings(enableSql), statisticsCollectorMXBean, engineList
+			,new PerformanceMonitor(),monitoringDataAccessQueue, messagePostProcessor);
 	}
 	
 	public DefaultCopperMonitorInterface(MonitoringDbStorage dbStorage,
 			CopperInterfaceSettings copperInterfaceSettings, 
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList,
-			HistoryCollectorMXBean historyCollectorMXBean,
 			PerformanceMonitor performanceMonitor,
-			MonitoringDataAccessQueue monitoringDataAccessQueue){
+			MonitoringDataAccessQueue monitoringDataAccessQueue,
+			MessagePostProcessor messagePostProcessor){
 		this.dbStorage = dbStorage;
 		this.copperInterfaceSettings = copperInterfaceSettings;
 		this.statisticsCollectorMXBean = statisticsCollectorMXBean;
-		this.historyCollectorMXBean = historyCollectorMXBean;
 		this.performanceMonitor = performanceMonitor;
 		this.monitoringDataAccessQueue = monitoringDataAccessQueue;
+		this.messagePostProcessor = messagePostProcessor;
 		
 		engines = new HashMap<String,ProcessingEngineMXBean>();
 		for (ProcessingEngineMXBean engine: engineList){
@@ -228,14 +225,8 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 		return result;
 	}
 	
-	MessagePostProcessor messagePostProcessor = new DummyPostProcessor();
-
 	public MessagePostProcessor getMessagePostProcessor() {
 		return messagePostProcessor;
-	}
-
-	public void setAuditrailMessagePostProcessor(MessagePostProcessor messagePostProcessor) {
-		this.messagePostProcessor = messagePostProcessor;
 	}
 	
 	@Override

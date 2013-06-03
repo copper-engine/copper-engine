@@ -25,10 +25,12 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.BorderPane;
 import javafx.util.Callback;
 import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
@@ -81,20 +83,50 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
     @FXML //  fx:id="timeNotifyCol"
     private TableColumn<AdapterNotifyRowModel, Date> timeNotifyCol; // Value injected by FXMLLoader
 
+    @FXML //  fx:id="adapterNameLaunchOut"
+    private TableColumn<AdapterLaunchRowModel, String> adapterNameLaunchOut; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="adapterNameCorOut"
+    private TableColumn<AdapterNotifyRowModel, String> adapterNameCorOut; // Value injected by FXMLLoader
+    
+    @FXML //  fx:id="adapterNameCorOut"
+    private TableColumn<AdapterCallRowModel, String> adapterNameIn; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="callBorderPane"
+    private BorderPane launchBorderPane; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="inputBorderPane"
+    private BorderPane inputBorderPane; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="notifyBorderPane"
+    private BorderPane notifyBorderPane; // Value injected by FXMLLoader
+
+
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert adapterInputTable != null : "fx:id=\"adapterInputTable\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+        assert adapterNameCorOut != null : "fx:id=\"adapterNameCorOut\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+        assert adapterNameIn != null : "fx:id=\"adapterNameIn\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+        assert adapterNameLaunchOut != null : "fx:id=\"adapterNameLaunchOut\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert adapterOutputLaunchTable != null : "fx:id=\"adapterOutputLaunchTable\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert adapterOutputNotifyTable != null : "fx:id=\"adapterOutputNotifyTable\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
-        assert launchWorkflowCol != null : "fx:id=\"aunchWorkflowCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+        assert launchBorderPane != null : "fx:id=\"callBorderPane\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert callsCol != null : "fx:id=\"callsCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert corrolelationIdCol != null : "fx:id=\"corrolelationIdCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+        assert inputBorderPane != null : "fx:id=\"inputBorderPane\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+        assert launchWorkflowCol != null : "fx:id=\"launchWorkflowCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert mesageDetail != null : "fx:id=\"mesageDetail\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert messageCol != null : "fx:id=\"messageCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+        assert notifyBorderPane != null : "fx:id=\"notifyBorderPane\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert parameterCol != null : "fx:id=\"parameterCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert timeCol != null : "fx:id=\"timeCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert timeLaunchCol != null : "fx:id=\"timeLaunchCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert timeNotifyCol != null : "fx:id=\"timeNotifyCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+
+
+        launchBorderPane.setBottom(createTabelControlls(adapterOutputLaunchTable));
+        inputBorderPane.setBottom(createTabelControlls(adapterInputTable));
+  		notifyBorderPane.setBottom(createTabelControlls(adapterOutputNotifyTable));
 
         
         callsCol.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<AdapterCallRowModel,String>, ObservableValue<String>>() {
@@ -164,6 +196,31 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 				}
 			}
 		});
+        
+        
+        adapterNameCorOut.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<AdapterNotifyRowModel,String>, ObservableValue<String>>() {
+ 			@Override
+ 			public ObservableValue<String> call(CellDataFeatures<AdapterNotifyRowModel, String> param) {
+ 				return param.getValue().name;
+ 			}
+ 		});
+        TableColumnHelper.setTextOverrunCellFactory(adapterNameCorOut,OverrunStyle.LEADING_ELLIPSIS);
+        adapterNameLaunchOut.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<AdapterLaunchRowModel,String>, ObservableValue<String>>() {
+ 			@Override
+ 			public ObservableValue<String> call(CellDataFeatures<AdapterLaunchRowModel, String> param) {
+ 				return param.getValue().name;
+ 			}
+ 		});
+        TableColumnHelper.setTextOverrunCellFactory(adapterNameLaunchOut,OverrunStyle.LEADING_ELLIPSIS);
+        adapterNameIn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<AdapterCallRowModel,String>, ObservableValue<String>>() {
+ 			@Override
+ 			public ObservableValue<String> call(CellDataFeatures<AdapterCallRowModel, String> param) {
+ 				return param.getValue().name;
+ 			}
+ 		});
+        TableColumnHelper.setTextOverrunCellFactory(adapterNameIn,OverrunStyle.LEADING_ELLIPSIS);
+        
+        
         
         adapterInputTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         adapterOutputLaunchTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

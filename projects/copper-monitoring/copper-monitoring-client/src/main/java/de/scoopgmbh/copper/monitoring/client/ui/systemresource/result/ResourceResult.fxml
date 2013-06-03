@@ -34,7 +34,7 @@
             </CategoryAxis>
           </xAxis>
           <yAxis>
-            <NumberAxis id="numberAxis" side="LEFT" />
+            <NumberAxis id="numberAxis" label="MB" side="LEFT" />
           </yAxis>
         </AreaChart>
         <AreaChart fx:id="threadChart" title="Threads" GridPane.columnIndex="1" GridPane.rowIndex="0">

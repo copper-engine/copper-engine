@@ -25,10 +25,12 @@ public class AdapterCallRowModel {
 	public final SimpleStringProperty method;
 	public final SimpleStringProperty parameter;
 	public final SimpleObjectProperty<Date> timestamp;
+	public final SimpleStringProperty name;
 	
 	public AdapterCallRowModel(AdapterCallInfo adapterCall){
 		method= new SimpleStringProperty(adapterCall.getMethod());
 		parameter= new SimpleStringProperty(adapterCall.getParameter());
 		timestamp= new SimpleObjectProperty<Date>(adapterCall.getTimestamp());
+		name= new SimpleStringProperty(adapterCall.getAdapterName());
 	};
 }

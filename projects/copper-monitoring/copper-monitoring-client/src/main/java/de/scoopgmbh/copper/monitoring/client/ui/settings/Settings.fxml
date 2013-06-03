@@ -16,7 +16,7 @@
           <content>
             <BorderPane prefHeight="200.0" prefWidth="881.0">
               <center>
-                <SplitPane dividerPositions="0.5534351145038168" focusTraversable="true" orientation="VERTICAL" prefHeight="521.0" prefWidth="871.0">
+                <SplitPane dividerPositions="0.7557251908396947" focusTraversable="true" orientation="VERTICAL" prefHeight="521.0" prefWidth="871.0">
                   <items>
                     <BorderPane prefHeight="200.0" prefWidth="200.0">
                       <bottom>

@@ -28,6 +28,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.web.WebView;
 import de.java2html.converter.JavaSource2HTMLConverter;
 import de.java2html.javasource.JavaSource;
@@ -53,10 +54,17 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
     @FXML //  fx:id="sourceView"
     private Button restart; // Value injected by FXMLLoader
 
+
+    @FXML //  fx:id="titleText"
+    private TextField titleText; // Value injected by FXMLLoader
+
+
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
+        assert restart != null : "fx:id=\"restart\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
         assert sourceView != null : "fx:id=\"sourceView\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
-        assert restart != null;
+        assert titleText != null : "fx:id=\"titleText\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
+
         
         restart.getStyleClass().add("copperActionButton");
         restart.setDisable(true);
@@ -96,7 +104,10 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		
+		titleText.setText(usedFilter.workflowInstanceId.get());
 
+		
 		sourceView.getEngine().loadContent(writer.toString());
 	}
 
