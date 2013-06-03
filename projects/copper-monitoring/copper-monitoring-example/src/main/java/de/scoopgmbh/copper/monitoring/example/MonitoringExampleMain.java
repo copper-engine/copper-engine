@@ -15,9 +15,9 @@
  */
 package de.scoopgmbh.copper.monitoring.example;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -31,7 +31,6 @@ import de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner;
 import de.scoopgmbh.copper.batcher.impl.BatcherImpl;
 import de.scoopgmbh.copper.common.DefaultProcessorPoolManager;
 import de.scoopgmbh.copper.common.JdkRandomUUIDFactory;
-import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapterImpl;
@@ -41,7 +40,7 @@ import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueu
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
-import de.scoopgmbh.copper.monitoring.server.workaround.HistoryCollectorMXBean;
+import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
 import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringAdapterProcessingEngine;
 import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringDependencyInjector;
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
@@ -58,9 +57,15 @@ public class MonitoringExampleMain {
 	
 	
 	public MonitoringExampleMain start(){
-		
 		EmbeddedConnectionPoolDataSource40 datasource_default = new EmbeddedConnectionPoolDataSource40();
 		datasource_default.setDatabaseName("./build/copperExampleDB;create=true");
+		
+		try {
+			cleanDB(datasource_default);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
 		
 	
 		FileBasedWorkflowRepository wfRepository = new FileBasedWorkflowRepository();
@@ -127,7 +132,6 @@ public class MonitoringExampleMain {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		auditTrail.asynchLog(1, new Date(), "", "", "", "", "", "detail", "Text");
 		
 		
 		PojoDependencyInjector dependyInjector = new PojoDependencyInjector();
@@ -138,14 +142,9 @@ public class MonitoringExampleMain {
 		BillAdapterImpl billAdapterImpl = new BillAdapterImpl();
 		billAdapterImpl.initWithEngine(new MonitoringAdapterProcessingEngine(billAdapterImpl,persistentengine,monitoringDataCollector));
 		dependyInjector.register("billAdapter", billAdapterImpl);
+		dependyInjector.register("auditTrail", auditTrail);
 		persistentengine.startup();
 		
-		try {
-			cleanDB(datasource_default);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
 		try {
 			persistentengine.run("BillWorkflow", "");
 		} catch (CopperException e) {
@@ -158,9 +157,9 @@ public class MonitoringExampleMain {
 				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect(new StandardJavaSerializer())),
 				runtimeStatisticsCollector,
 				engines,
-				new HistoryCollectorMXBean(){},
 				monitoringQueue, 
-				true);
+				true,
+				new CompressedBase64PostProcessor());
 	
 
 		new SpringRemoteServerMain(factory,8080,"localhost").start();
@@ -175,18 +174,16 @@ public class MonitoringExampleMain {
 	
 	
 	void cleanDB(DataSource ds) throws Exception {
-		new RetryingTransaction<Void>(ds) {
-			@Override
-			protected Void execute() throws Exception {
-				getConnection().createStatement().execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
-				getConnection().createStatement().execute("DELETE FROM COP_WAIT");
-				getConnection().createStatement().execute("DELETE FROM COP_RESPONSE");
-				getConnection().createStatement().execute("DELETE FROM COP_QUEUE");
-				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE");
-				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
-				return null;
+		Connection connection=null;
+		try {
+			connection = ds.getConnection();
+			connection.setAutoCommit(false);
+			DerbyCleanDbUtil.dropSchema(connection.getMetaData(), "APP");
+		} finally {
+			if (connection!=null){
+				connection.close();
 			}
-		}.run();
+		}
 	}
 
 }

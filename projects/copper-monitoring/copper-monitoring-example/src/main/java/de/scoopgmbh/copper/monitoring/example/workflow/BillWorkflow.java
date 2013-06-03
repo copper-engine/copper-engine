@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.monitoring.example.workflow;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
@@ -24,6 +25,7 @@ import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowDescription;
+import de.scoopgmbh.copper.audit.AuditTrail;
 import de.scoopgmbh.copper.monitoring.example.adapter.Bill;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapter;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillableService;
@@ -34,6 +36,7 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 	private static final long serialVersionUID = 1L;
 
 	private transient BillAdapter billAdapter;
+	private transient AuditTrail auditTrail;
 	
 	private ArrayList<BillableService> billableServices= new ArrayList<BillableService>();
 
@@ -41,12 +44,18 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 	public void setBillAdapter(BillAdapter billAdapter) {
 		this.billAdapter = billAdapter;
 	}
+	
+	@AutoWire
+	public void setAuditTrail(AuditTrail auditTrail) {
+		this.auditTrail = auditTrail;
+	}
 
 	@Override
 	public void main() throws InterruptException {
 		while (true){
+			auditTrail.asynchLog(2, new Date(), "", "", "", "", "", "wait for Data", "Text");
 			wait(WaitMode.ALL,Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME,BillAdapter.BILLABLE_SERVICE);
-
+			auditTrail.asynchLog(1, new Date(), "", "", "", "", "", "data found", "Text");
 			
 			ArrayList<Response<?>> all = new ArrayList<Response<?>>(getAndRemoveResponses(BillAdapter.BILL_TIME));
 			all.addAll(getAndRemoveResponses(BillAdapter.BILLABLE_SERVICE));
