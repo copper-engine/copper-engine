@@ -114,7 +114,6 @@ public class BatchingAuditTrailTest {
 		try {
 			Statement stmt = con.createStatement();
 			stmt.execute("DELETE FROM COP_AUDIT_TRAIL_EVENT_EXTENDED");
-			stmt.close();
 			
 			ExtendedAutitTrailEvent e = new ExtendedAutitTrailEvent(1, new Date(), "conversationId", "context", "instanceId", "correlationId", "transactionId", "message", "messageType", "TEST", 4711, new Timestamp(System.currentTimeMillis()));
 			batchingAuditTrail.doSyncLog(e , con);
@@ -135,6 +134,7 @@ public class BatchingAuditTrailTest {
 			
 			assertFalse(rs.next());
 			rs.close();
+			stmt.close();
 
 		}
 		finally {
