@@ -146,12 +146,33 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 
 	@Override
 	public List<Workflow<?>> dequeue(final String ppoolId, final int max) throws Exception {
-		return run(new DatabaseTransaction<List<Workflow<?>>>() {
-			@Override
-			public List<Workflow<?>> run(Connection con) throws Exception {
-				return dialect.dequeue(ppoolId, max, con);
+		while (true) {
+			List<Workflow<?>> ret = run(new DatabaseTransaction<List<Workflow<?>>>() {
+				@Override
+				public List<Workflow<?>> run(Connection con) throws Exception {
+					return dialect.dequeue(ppoolId, max, con);
+				}
+			});
+			if (!ret.isEmpty())
+				return ret;
+			waitForEnqueue();
+		}
+	}
+
+	final int waitForEnqueueMSec = 500; 
+	Object enqueueSignal = new Object();
+	private void waitForEnqueue() {
+		synchronized (enqueueSignal) {
+			try {
+				enqueueSignal.wait(waitForEnqueueMSec);
+			} catch (InterruptedException e) {
 			}
-		});
+		}
+	}
+	private void signalEnqueue() {
+		synchronized (enqueueSignal) {
+			enqueueSignal.notify();
+		}
 	}
 
 	protected List<List<String>> splitt(Collection<String> keySet, int n) {
@@ -305,6 +326,9 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 			catch(Exception e) {
 				logger.error("updateQueueState failed",e);
 			}
+			if (x > 0) {
+				signalEnqueue();
+			}
 			if (x == 0) {
 				sleepTime = Math.max(10, Math.min(2*sleepTime,sleepTimeMaxIdle));
 			}
@@ -317,7 +341,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 				try {
 					Thread.sleep(sleepTime);
 				} catch (InterruptedException e) {
-					/* Ignore */
 				}
 			}
 		}
