@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
-import com.mysql.jdbc.UpdatableResultSet;
-
 /**
  * Default implementation of the {@link PersistenceContextFactory} interface. 
  * @author Roland Scheel
@@ -43,7 +41,6 @@ public final class DefaultPersistenceContextFactory implements PersistenceContex
 		this.connection = con;
 	}
 	
-	@SuppressWarnings("rawtypes")
 	HashMap<DefaultEntityPersisterFactory<?,?>, DefaultPersisterSharedRessources<?,?>> persisterSharedRessources = new HashMap<DefaultEntityPersisterFactory<?,?>, DefaultPersisterSharedRessources<?,?>>();  
 	@SuppressWarnings("rawtypes")
 	TreeMap<Double, DefaultPersistenceWorker> orderedWorkers = new TreeMap<Double, DefaultPersistenceWorker>();  
@@ -106,7 +103,7 @@ public final class DefaultPersistenceContextFactory implements PersistenceContex
 					//selection, insertion and updates operate on master entities before child entities
 					//deletions have the reverse order
 					int i = 3;
-					//compiler thinks, getWorkers delivery Iterable<Object>, no idea.
+					//compiler thinks, getWorkers() delivers Iterable<Object>, no idea.
 					for (Object obj : sharedRessources.getWorkers()) {
 						DefaultPersistenceWorker<?,?> worker = (DefaultPersistenceWorker<?,?>)obj;
 						double position = precedence+1d/i++;

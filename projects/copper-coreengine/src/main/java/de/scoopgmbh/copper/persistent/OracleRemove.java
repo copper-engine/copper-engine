@@ -24,10 +24,11 @@ import java.util.Map;
 
 import org.springframework.jdbc.support.JdbcUtils;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
+import de.scoopgmbh.copper.batcher.AcknowledgeCallbackWrapper;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.NullCallback;
 
 class OracleRemove {
 
@@ -37,9 +38,8 @@ class OracleRemove {
 		private final boolean remove;
 		private final WorkflowPersistencePlugin workflowPersistencePlugin;
 
-		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, boolean remove, final long targetTime, WorkflowPersistencePlugin workflowPersistencePlugin) {
-			super(NullCallback.instance,targetTime);
+		public Command(PersistentWorkflow<?> wf, boolean remove, final long targetTime, WorkflowPersistencePlugin workflowPersistencePlugin, Acknowledge ack) {
+			super(new AcknowledgeCallbackWrapper<Command>(ack),targetTime);
 			this.wf = wf;
 			this.remove = remove;
 			this.workflowPersistencePlugin = workflowPersistencePlugin;
@@ -77,6 +77,9 @@ class OracleRemove {
 				boolean cidsFound = false;
 				for (BatchCommand<Executor, Command> _cmd : commands) {
 					Command cmd = (Command) _cmd;
+					PersistentWorkflow<?> persistentWorkflow = (PersistentWorkflow<?>)cmd.wf;
+					persistentWorkflow.flushCheckpointAcknowledges();
+
 					if (cmd.wf.waitCidList != null) {
 						for (String cid : cmd.wf.waitCidList) {
 							stmtDelResponse.setString(1, cid);

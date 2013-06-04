@@ -15,14 +15,15 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
+import static org.junit.Assert.assertTrue;
+
 import javax.sql.DataSource;
 
-import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import static org.junit.Assert.assertTrue;
+import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 
 
 public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersistentWorkflowTest {

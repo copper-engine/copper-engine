@@ -15,8 +15,10 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
-import java.util.concurrent.TimeUnit;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -26,9 +28,6 @@ import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class SubWorkflowTransientEngineTest{
 	

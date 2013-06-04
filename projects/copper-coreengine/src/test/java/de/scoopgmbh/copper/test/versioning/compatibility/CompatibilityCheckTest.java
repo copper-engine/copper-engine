@@ -15,6 +15,9 @@
  */
 package de.scoopgmbh.copper.test.versioning.compatibility;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -29,9 +32,6 @@ import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.persistent.SerializedWorkflow;
 import de.scoopgmbh.copper.persistent.Serializer;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class CompatibilityCheckTest {
 	

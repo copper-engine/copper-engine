@@ -25,10 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
+import de.scoopgmbh.copper.batcher.AcknowledgeCallbackWrapper;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.NullCallback;
 
 class OracleSetToError {
 
@@ -38,17 +39,15 @@ class OracleSetToError {
 		private final Throwable error;
 		private final DBProcessingState dbProcessingState;
 
-		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, Throwable error, final long targetTime) {
-			super(NullCallback.instance,targetTime);
+		public Command(PersistentWorkflow<?> wf, Throwable error, final long targetTime, Acknowledge ack) {
+			super(new AcknowledgeCallbackWrapper<Command>(ack),targetTime);
 			this.wf = wf;
 			this.error = error;
 			this.dbProcessingState = DBProcessingState.ERROR;
 		}
 
-		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, Throwable error, final long targetTime, DBProcessingState dbProcessingState) {
-			super(NullCallback.instance,targetTime);
+		public Command(PersistentWorkflow<?> wf, Throwable error, final long targetTime, DBProcessingState dbProcessingState, Acknowledge ack) {
+			super(new AcknowledgeCallbackWrapper<Command>(ack),targetTime);
 			this.wf = wf;
 			this.error = error;
 			this.dbProcessingState = dbProcessingState;

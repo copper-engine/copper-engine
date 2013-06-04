@@ -22,10 +22,11 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Collection;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
+import de.scoopgmbh.copper.batcher.AcknowledgeCallbackWrapper;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.NullCallback;
 
 class SqlSetToError {
 
@@ -35,9 +36,8 @@ class SqlSetToError {
 		private final Throwable error;
 		private final DBProcessingState dbProcessingState;
 
-		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, Throwable error, DBProcessingState dbProcessingState, final long targetTime) {
-			super(NullCallback.instance,targetTime);
+		public Command(PersistentWorkflow<?> wf, Throwable error, DBProcessingState dbProcessingState, final long targetTime, Acknowledge ack) {
+			super(new AcknowledgeCallbackWrapper<Command>(ack),targetTime);
 			this.wf = wf;
 			this.error = error;
 			this.dbProcessingState = dbProcessingState;

@@ -21,7 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
+import de.scoopgmbh.copper.Acknowledge;
+import de.scoopgmbh.copper.Acknowledge.DefaultAcknowledge;
+import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.Workflow;
 
 
@@ -45,7 +47,8 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 	transient String rowid;
 	transient String oldProcessorPoolId;
 	transient int oldPrio;
-	
+	transient ArrayList<Acknowledge.DefaultAcknowledge> checkpointAcknowledges = null; 
+
 	void addWaitCorrelationId(final String cid) {
 		if (waitCidList == null) waitCidList = new HashSet<String>();
 		waitCidList.add(cid);
@@ -73,5 +76,32 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 	public void onDelete(PersistenceContext pc) {
 	}
 	
+	@Override
+	protected Acknowledge createCheckpointAcknowledge() {
+		return new Acknowledge.DefaultAcknowledge();
+	}
+	
+	@Override
+	protected void registerCheckpointAcknowledge(Acknowledge ack) {
+		if (ack instanceof Acknowledge.DefaultAcknowledge) {
+			if (checkpointAcknowledges == null)
+				checkpointAcknowledges = new ArrayList<Acknowledge.DefaultAcknowledge>();
+			checkpointAcknowledges.add((DefaultAcknowledge) ack);
+		}
+	}
+	
+	public boolean flushCheckpointAcknowledges() {
+		if (checkpointAcknowledges == null)
+			return true;
+		for (Acknowledge.DefaultAcknowledge ack : checkpointAcknowledges) {
+			try {
+				ack.waitForAcknowledge();
+			} catch (CopperRuntimeException ce) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 
 }

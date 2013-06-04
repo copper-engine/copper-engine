@@ -15,6 +15,11 @@
  */
 package de.scoopgmbh.copper.audit;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -34,8 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.audit.BatchingAuditTrail.Property2ColumnMapping;
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
-
-import static org.junit.Assert.*;
 
 public class BatchingAuditTrailTest {
 	

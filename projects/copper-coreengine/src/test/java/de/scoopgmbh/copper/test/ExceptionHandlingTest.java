@@ -15,6 +15,9 @@
  */
 package de.scoopgmbh.copper.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -23,9 +26,6 @@ import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.management.model.WorkflowInfo;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class ExceptionHandlingTest {
 

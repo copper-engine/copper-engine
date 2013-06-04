@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.DependencyInjector;
 import de.scoopgmbh.copper.EngineState;
@@ -100,7 +101,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	}
 
 	@Override
-	public void notify(Response<?> response) {
+	public void notify(Response<?> response, Acknowledge ack) {
 		logger.debug("notify({})", response);
 		if (response == null) throw new NullPointerException();
 		
@@ -147,6 +148,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 				enqueue(wf);
 			}
 		}
+		ack.onSuccess();
 	}
 
 	@Override

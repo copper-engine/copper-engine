@@ -30,7 +30,7 @@ public abstract class AbstractBatchCommand<E extends BatchExecutor<E,T>, T exten
 	long targetTime;
 
 	public AbstractBatchCommand(CommandCallback<T> callback) {
-		this(callback, System.currentTimeMillis()+1000);
+		this(callback, System.currentTimeMillis());
 	}
 
 	public AbstractBatchCommand(CommandCallback<T> callback, long targetTime) {

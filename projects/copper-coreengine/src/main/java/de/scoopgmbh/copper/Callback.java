@@ -27,8 +27,29 @@ package de.scoopgmbh.copper;
  * @param <E>
  */
 public interface Callback<E> {
+
 	public String getCorrelationId();
+
+	/**
+	 * This method is unsafe, the control may be returned to the caller irrespectively whether the ntification has been safely delivered.
+	 * Use {@link Callback#notify(Object, Acknowledge)} instead
+	 * @param response
+	 */
+	@Deprecated
 	public void notify(E response);
+
+	/**
+	 * This method is unsafe, the control may be returned to the caller irrespectively whether the ntification has been safely delivered.
+	 * Use {@link Callback#notify(Exception, Acknowledge)} instead
+	 * @param response
+	 */
+	@Deprecated
 	public void notify(Exception exception);
+
+	public void notify(E response, Acknowledge ack);
+
+	public void notify(Exception exception, Acknowledge ack);
+
 	public Response<E> getResponse(Workflow<?> wf);
+
 }

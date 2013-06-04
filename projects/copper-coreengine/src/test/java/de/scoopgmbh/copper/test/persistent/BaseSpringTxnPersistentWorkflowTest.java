@@ -15,6 +15,12 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
+
 import java.sql.ResultSet;
 import java.util.concurrent.TimeUnit;
 
@@ -28,12 +34,6 @@ import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
 
 
 public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowTest {

@@ -25,6 +25,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Response;
 
@@ -93,7 +94,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 				for (String cid : expiredCorrelationIds) {
 					@SuppressWarnings("rawtypes")
 					Response<?> r = new Response(cid);
-					engine.notify(r);
+					engine.notify(r, new Acknowledge.BestEffortAcknowledge());
 				}
 				
 				synchronized (slots) {

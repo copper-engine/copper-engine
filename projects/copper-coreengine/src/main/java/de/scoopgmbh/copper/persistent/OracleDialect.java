@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
-
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.EngineIdProvider;
 import de.scoopgmbh.copper.Response;
@@ -81,7 +81,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	private Serializer serializer = new StandardJavaSerializer();
 	private boolean removeWhenFinished = true;
 	private int defaultStaleResponseRemovalTimeout = 60*60*1000;
-	private int dbBatchingLatencyMSec = 50;
+	private int dbBatchingLatencyMSec = 0;
 
 	public OracleDialect() {
 		initStmtStats();
@@ -233,7 +233,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 				}
 				catch(Exception e) {
 					logger.error("decoding of '"+id+"' failed: "+e.toString(),e);
-					invalidWorkflowInstances.add(new OracleSetToError.Command(new DummyPersistentWorkflow(id, ppoolId, rowid, prio),e,System.currentTimeMillis()+dbBatchingLatencyMSec,DBProcessingState.INVALID));
+					invalidWorkflowInstances.add(new OracleSetToError.Command(new DummyPersistentWorkflow(id, ppoolId, rowid, prio),e,System.currentTimeMillis()+dbBatchingLatencyMSec,DBProcessingState.INVALID, new Acknowledge.BestEffortAcknowledge()));
 				}
 			}
 		}
@@ -493,7 +493,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 			return;
 		List<BatchCommand> cmds = new ArrayList<BatchCommand>(responses.size());
 		for (Response<?> r : responses) {
-			cmds.add(createBatchCommand4Notify(r));
+			cmds.add(createBatchCommand4Notify(r, new Acknowledge.BestEffortAcknowledge()));
 		}
 		cmds.get(0).executor().doExec(cmds, con);
 	}
@@ -503,9 +503,9 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	 */
 	@Override
 	@SuppressWarnings({"rawtypes"})
-	public BatchCommand createBatchCommand4Finish(final Workflow<?> w) {
+	public BatchCommand createBatchCommand4Finish(final Workflow<?> w, final Acknowledge callback) {
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		return new OracleRemove.Command(pwf,removeWhenFinished,System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin);
+		return new OracleRemove.Command(pwf,removeWhenFinished,System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin, callback);
 	}	
 
 	/* (non-Javadoc)
@@ -513,13 +513,13 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	 */
 	@Override
 	@SuppressWarnings({"rawtypes"})
-	public BatchCommand createBatchCommand4Notify(final Response<?> response) throws Exception {
+	public BatchCommand createBatchCommand4Notify(final Response<?> response, final Acknowledge callback) throws Exception {
 		if (response == null)
 			throw new NullPointerException();
 		if (response.isEarlyResponseHandling())
-			return new OracleNotify.Command(response, serializer, defaultStaleResponseRemovalTimeout,System.currentTimeMillis()+dbBatchingLatencyMSec);
+			return new OracleNotify.Command(response, serializer, defaultStaleResponseRemovalTimeout,System.currentTimeMillis()+dbBatchingLatencyMSec, callback);
 		else
-			return new OracleNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout,System.currentTimeMillis()+dbBatchingLatencyMSec);
+			return new OracleNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout,System.currentTimeMillis()+dbBatchingLatencyMSec, callback);
 	}
 
 	/* (non-Javadoc)
@@ -527,10 +527,10 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	 */
 	@Override
 	@SuppressWarnings({"rawtypes"})
-	public BatchCommand createBatchCommand4registerCallback(final RegisterCall rc, final ScottyDBStorageInterface dbStorageInterface) throws Exception {
+	public BatchCommand createBatchCommand4registerCallback(final RegisterCall rc, final ScottyDBStorageInterface dbStorageInterface, final Acknowledge callback) throws Exception {
 		if (rc == null) 
 			throw new NullPointerException();
-		return new OracleRegisterCallback.Command(rc, serializer, dbStorageInterface,System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin);
+		return new OracleRegisterCallback.Command(rc, serializer, dbStorageInterface,System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin, callback);
 	}	
 
 	/* (non-Javadoc)
@@ -538,13 +538,13 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	 */
 	@Override
 	@SuppressWarnings({"rawtypes"})
-	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState) {
+	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState, final Acknowledge callback) {
 		final PersistentWorkflow<?> pwf = (PersistentWorkflow<?>) w;
-		return new OracleSetToError.Command(pwf,t,System.currentTimeMillis()+dbBatchingLatencyMSec);
+		return new OracleSetToError.Command(pwf,t,System.currentTimeMillis()+dbBatchingLatencyMSec, callback);
 	}
 
 	public void error(Workflow<?> w, Throwable t, Connection con) throws Exception {
-		runSingleBatchCommand(con, createBatchCommand4error(w, t, DBProcessingState.ERROR));
+		runSingleBatchCommand(con, createBatchCommand4error(w, t, DBProcessingState.ERROR, new Acknowledge.BestEffortAcknowledge()));
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})

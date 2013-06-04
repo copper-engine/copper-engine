@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.test.versioning.compatibility;
 import java.sql.Connection;
 import java.util.List;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.EngineState;
@@ -110,6 +111,11 @@ public class TestEngine implements PersistentProcessingEngine {
 
 	@Override
 	public void notify(List<Response<?>> responses, Connection c)
+			throws CopperRuntimeException {
+	}
+
+	@Override
+	public void notify(Response<?> response, Acknowledge ack)
 			throws CopperRuntimeException {
 	}
 

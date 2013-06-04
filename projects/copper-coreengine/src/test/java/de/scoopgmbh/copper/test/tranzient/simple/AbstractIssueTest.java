@@ -15,6 +15,10 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -23,10 +27,6 @@ import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.test.TestResponseReceiver;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class AbstractIssueTest {
 	

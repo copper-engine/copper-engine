@@ -15,14 +15,14 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
+import static org.junit.Assert.assertTrue;
+
 import javax.sql.DataSource;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import static org.junit.Assert.assertTrue;
 
 
 public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {

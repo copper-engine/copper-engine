@@ -16,11 +16,11 @@
 package de.scoopgmbh.copper.instrument;
 
 
-import org.junit.Test;
-import org.objectweb.asm.Type;
-
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
+
+import org.junit.Test;
+import org.objectweb.asm.Type;
 
 public class BuildStackInfoAdapterTest{
 

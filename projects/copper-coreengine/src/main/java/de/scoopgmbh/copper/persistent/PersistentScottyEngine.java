@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.DependencyInjector;
@@ -105,15 +106,16 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 		this.processorPoolManager = processorPoolManager;
 	}
 
+
 	@Override
-	public void notify(Response<?> response) {
+	public void notify(Response<?> response, Acknowledge ack) {
 		if (logger.isTraceEnabled()) logger.trace("notify("+response+")");
 		try {
 			if (response.getResponseId() == null) {
 				response.setResponseId(createUUID());
 			}
 			startupBlocker.pass();
-			dbStorage.notify(response,null);
+			dbStorage.notify(response,ack);
 			if (notifyProcessorPoolsOnResponse) {
 				for (PersistentProcessorPool ppp : processorPoolManager.processorPools()) {
 					ppp.doNotify();

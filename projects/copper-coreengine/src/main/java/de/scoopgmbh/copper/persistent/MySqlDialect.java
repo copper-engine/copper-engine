@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -54,14 +55,14 @@ public class MySqlDialect extends AbstractSqlDialect {
 	
 	@SuppressWarnings("rawtypes")
 	@Override
-	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t,DBProcessingState dbProcessingState) {
-		return new SqlSetToError.Command((PersistentWorkflow<?>) w, t, dbProcessingState, System.currentTimeMillis()+dbBatchingLatencyMSec);
+	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t,DBProcessingState dbProcessingState, Acknowledge ack) {
+		return new SqlSetToError.Command((PersistentWorkflow<?>) w, t, dbProcessingState, System.currentTimeMillis()+dbBatchingLatencyMSec, ack);
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response) throws Exception {
-		return new SqlNotifyNoEarlyResponseHandling.Command(response, serializer, SqlNotifyNoEarlyResponseHandling.SQL_MYSQL, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec);
+	public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response, Acknowledge ack) throws Exception {
+		return new SqlNotifyNoEarlyResponseHandling.Command(response, serializer, SqlNotifyNoEarlyResponseHandling.SQL_MYSQL, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec, ack);
 	}	
 	
 

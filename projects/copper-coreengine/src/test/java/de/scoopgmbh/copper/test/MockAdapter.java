@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Callback;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Response;
@@ -35,6 +36,7 @@ public class MockAdapter {
 	private int delay=100;
 	private ProcessingEngine engine;
 	private AtomicInteger invokationCounter = new AtomicInteger(0);
+	private static final Acknowledge bestEffortAck = new Acknowledge.BestEffortAcknowledge(); 
 
 	public void setEngine(ProcessingEngine engine) {
 		this.engine = engine;
@@ -48,13 +50,13 @@ public class MockAdapter {
 	public void foo(final String param, final Callback<String> cb) {
 		invokationCounter.incrementAndGet();
 		if (delay <= 0) {
-			cb.notify(param);
+			cb.notify(param, bestEffortAck);
 		}
 		else {
 			pool.schedule(new Runnable() {
 				@Override
 				public void run() {
-					cb.notify(param);
+					cb.notify(param, bestEffortAck);
 				}
 			}, delay, TimeUnit.MILLISECONDS);
 		}
@@ -69,13 +71,13 @@ public class MockAdapter {
 	public void foo(final String param, final String cid, int overrideDelay) {
 		invokationCounter.incrementAndGet();
 		if (overrideDelay <= 0) {
-			engine.notify(new Response<String>(cid, param, null));
+			engine.notify(new Response<String>(cid, param, null), bestEffortAck);
 		}
 		else {
 			pool.schedule(new Runnable() {
 				@Override
 				public void run() {
-					engine.notify(new Response<String>(cid, param, null));
+					engine.notify(new Response<String>(cid, param, null), bestEffortAck);
 				}
 			}, overrideDelay, TimeUnit.MILLISECONDS);
 		}
@@ -88,7 +90,7 @@ public class MockAdapter {
 			@Override
 			public void run() {
 				for (int i=0; i<numbOfResponse; i++) {
-					engine.notify(new Response<String>(cid, param, null));
+					engine.notify(new Response<String>(cid, param, null), bestEffortAck);
 				}
 			}
 		}, delay, TimeUnit.MILLISECONDS);
@@ -98,13 +100,13 @@ public class MockAdapter {
 	public void incrementAsync(final int c, final String cid) {
 		invokationCounter.incrementAndGet();
 		if (delay <= 0) {
-			engine.notify(new Response<Integer>(cid, c+1, null));
+			engine.notify(new Response<Integer>(cid, c+1, null), bestEffortAck);
 		}
 		else {
 			pool.schedule(new Runnable() {
 				@Override
 				public void run() {
-					engine.notify(new Response<Integer>(cid, c+1, null));
+					engine.notify(new Response<Integer>(cid, c+1, null), bestEffortAck);
 				}
 			}, delay, TimeUnit.MILLISECONDS);
 		}
@@ -113,7 +115,7 @@ public class MockAdapter {
 	// do some work; t once resonse to engine object	
 	public void incrementSync(final int c, final String cid) {
 		invokationCounter.incrementAndGet();
-		engine.notify(new Response<Integer>(cid, c+1, null));
+		engine.notify(new Response<Integer>(cid, c+1, null), bestEffortAck);
 	}
 
 	public synchronized void shutdown() {

@@ -30,6 +30,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -87,8 +88,8 @@ public class DerbyDbDialect extends AbstractSqlDialect {
 	
 	@SuppressWarnings("rawtypes")
 	@Override
-	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState) {
-		return new DerbyDbSetToError.Command((PersistentWorkflow<?>) w,t,dbProcessingState);
+	public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState, Acknowledge ack) {
+		return new DerbyDbSetToError.Command((PersistentWorkflow<?>) w,t,dbProcessingState, ack);
 	}
 		
 
@@ -173,8 +174,8 @@ public class DerbyDbDialect extends AbstractSqlDialect {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response) throws Exception {
-		return new DerbyDbNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec);
+	public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response, Acknowledge ack) throws Exception {
+		return new DerbyDbNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec, ack);
 	}	
 
 	@Override

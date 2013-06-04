@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
@@ -47,16 +48,18 @@ class OracleRegisterCallback {
 		private final Serializer serializer;
 		private final WorkflowPersistencePlugin workflowPersistencePlugin;
 
-		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorageInterface, final long targetTime, final WorkflowPersistencePlugin workflowPersistencePlugin) {
+		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorageInterface, final long targetTime, final WorkflowPersistencePlugin workflowPersistencePlugin, final Acknowledge ack) {
 			super(new CommandCallback<Command>() {
 				@Override
 				public void commandCompleted() {
+					ack.onSuccess();
 				}
 				@SuppressWarnings("unchecked")
 				@Override
 				public void unhandledException(Exception e) {
+					ack.onException(e);
 					logger.error("Execution of batch entry in a single txn failed.",e);
-					dbStorageInterface.error((PersistentWorkflow<Serializable>)registerCall.workflow, e);
+					dbStorageInterface.error((PersistentWorkflow<Serializable>)registerCall.workflow, e, new Acknowledge.BestEffortAcknowledge());
 				}
 			},targetTime);
 			this.registerCall = registerCall;
@@ -95,7 +98,9 @@ class OracleRegisterCallback {
 						_wfs = new ArrayList<PersistentWorkflow<?>>();
 						wfs.put(cmd.workflowPersistencePlugin,_wfs);
 					}
-					_wfs.add((PersistentWorkflow<?>)rc.workflow);
+					PersistentWorkflow<?> persistentWorkflow = (PersistentWorkflow<?>)rc.workflow;
+					persistentWorkflow.flushCheckpointAcknowledges();
+					_wfs.add(persistentWorkflow);
 					for (String cid : rc.correlationIds) {
 						insertWaitStmt.setString(1, cid);
 						insertWaitStmt.setString(2, rc.workflow.getId());

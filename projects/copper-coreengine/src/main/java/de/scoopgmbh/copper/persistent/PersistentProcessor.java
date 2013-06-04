@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.persistent;
 
 import java.util.Queue;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
@@ -53,7 +54,7 @@ public class PersistentProcessor extends Processor {
 							pw.__beforeProcess();
 							pw.main();
 							WorkflowAccessor.setProcessingState(pw, ProcessingState.FINISHED);
-							engine.getDbStorage().finish(pw);
+							engine.getDbStorage().finish(pw, new Acknowledge.BestEffortAcknowledge());
 							assert pw.get__stack().isEmpty() : "Stack must be empty";
 						}
 						catch(InterruptException e) {
@@ -63,7 +64,7 @@ public class PersistentProcessor extends Processor {
 							engine.unregister(pw);
 						}
 						if (pw.registerCall != null) {
-							engine.getDbStorage().registerCallback(pw.registerCall);
+							engine.getDbStorage().registerCallback(pw.registerCall, new Acknowledge.BestEffortAcknowledge());
 						}
 					}
 					return null;
@@ -79,7 +80,7 @@ public class PersistentProcessor extends Processor {
 	protected void handleError(PersistentWorkflow<?> wf, Exception exception) {
 		logger.error("Storing error information for workflow instance...");
 		try {
-			engine.getDbStorage().error(wf, exception);
+			engine.getDbStorage().error(wf, exception, new Acknowledge.BestEffortAcknowledge());
 		}
 		catch(Exception e) {
 			logger.error("FATAL ERROR: Unable to store error information",e);

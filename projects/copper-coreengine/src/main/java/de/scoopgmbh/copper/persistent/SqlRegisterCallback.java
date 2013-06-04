@@ -17,7 +17,6 @@ package de.scoopgmbh.copper.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +28,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.WaitHook;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
@@ -47,15 +46,17 @@ class SqlRegisterCallback {
 		private final Serializer serializer;
 		private final WorkflowPersistencePlugin workflowPersistencePlugin;
 
-		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorage, final long targetTime, final WorkflowPersistencePlugin workflowPersistencePlugin) {
+		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorage, final long targetTime, final WorkflowPersistencePlugin workflowPersistencePlugin, final Acknowledge ack) {
 			super(new CommandCallback<Command>() {
 				@Override
 				public void commandCompleted() {
+					ack.onSuccess();
 				}
 				@Override
 				public void unhandledException(Exception e) {
+					ack.onException(e);
 					logger.error("Execution of batch entry in a single txn failed.",e);
-					dbStorage.error(registerCall.workflow, e);
+					dbStorage.error(registerCall.workflow, e, new Acknowledge.BestEffortAcknowledge());
 				}
 			},targetTime);
 			this.registerCall = registerCall;
@@ -88,12 +89,14 @@ class SqlRegisterCallback {
 			for (BatchCommand<Executor, Command> _cmd : commands) {
 				Command cmd = (Command)_cmd;
 				RegisterCall rc = cmd.registerCall;
+				PersistentWorkflow<?> persistentWorkflow = (PersistentWorkflow<?>)rc.workflow;
+				persistentWorkflow.flushCheckpointAcknowledges();
 				ArrayList<PersistentWorkflow<?>> _wfs = wfs.get(cmd.workflowPersistencePlugin);
 				if (_wfs == null) {
 					_wfs = new ArrayList<PersistentWorkflow<?>>();
 					wfs.put(cmd.workflowPersistencePlugin,_wfs);
 				}
-				_wfs.add((PersistentWorkflow<?>)rc.workflow);
+				_wfs.add(persistentWorkflow);
 				for (String cid : rc.correlationIds) {
 					insertWaitStmt.setString(1, cid);
 					insertWaitStmt.setString(2, rc.workflow.getId());

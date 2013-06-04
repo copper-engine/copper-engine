@@ -15,8 +15,12 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
-import java.util.Date;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +34,6 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.test.DBMockAdapter;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
-
-import static org.junit.Assert.*;
 
 public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 

@@ -17,10 +17,11 @@ package de.scoopgmbh.copper.test.persistent;
 
 import javax.sql.DataSource;
 
-import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 
 
 public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {

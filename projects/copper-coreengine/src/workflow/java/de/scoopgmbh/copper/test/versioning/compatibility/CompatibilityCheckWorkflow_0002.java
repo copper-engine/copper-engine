@@ -15,8 +15,9 @@
  */
 package de.scoopgmbh.copper.test.versioning.compatibility;
 
-import java.io.Serializable;
+import static org.junit.Assert.assertNull;
 
+import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,6 @@ import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
-
-import static org.junit.Assert.assertNull;
 
 /**
  * Compatible change example 0002

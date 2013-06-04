@@ -25,11 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
+import de.scoopgmbh.copper.batcher.AcknowledgeCallbackWrapper;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.NullCallback;
 
 class SqlNotifyNoEarlyResponseHandling {
 	
@@ -56,9 +57,8 @@ class SqlNotifyNoEarlyResponseHandling {
 		final String sql;
 		final int defaultStaleResponseRemovalTimeout;
 
-		@SuppressWarnings("unchecked")
-		public Command(Response<?> response, Serializer serializer, String sql, int defaultStaleResponseRemovalTimeout, final long targetTime) {
-			super(NullCallback.instance,targetTime);
+		public Command(Response<?> response, Serializer serializer, String sql, int defaultStaleResponseRemovalTimeout, final long targetTime, Acknowledge ack) {
+			super(new AcknowledgeCallbackWrapper<Command>(ack),targetTime);
 			this.response = response;
 			this.serializer = serializer;
 			this.sql = sql;

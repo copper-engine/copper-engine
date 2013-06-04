@@ -22,10 +22,11 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Collection;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
+import de.scoopgmbh.copper.batcher.AcknowledgeCallbackWrapper;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.NullCallback;
 
 class DerbyDbSetToError {
 
@@ -35,9 +36,8 @@ class DerbyDbSetToError {
 		private final Throwable error;
 		private final DBProcessingState dbProcessingState;
 
-		@SuppressWarnings("unchecked")
-		public Command(PersistentWorkflow<?> wf, Throwable error, final DBProcessingState dbProcessingState) {
-			super(NullCallback.instance,250);
+		public Command(PersistentWorkflow<?> wf, Throwable error, final DBProcessingState dbProcessingState, Acknowledge ack) {
+			super(new AcknowledgeCallbackWrapper<Command>(ack),250);
 			this.wf = wf;
 			this.error = error;
 			this.dbProcessingState = dbProcessingState;

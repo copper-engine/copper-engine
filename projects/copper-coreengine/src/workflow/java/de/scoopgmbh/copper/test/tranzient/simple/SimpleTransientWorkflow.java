@@ -15,12 +15,10 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.mchange.util.AssertException;
-
-import junit.framework.Assert;
 
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
@@ -29,8 +27,6 @@ import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.test.MockAdapter;
 import de.scoopgmbh.copper.test.TestResponseReceiver;
-
-import static org.junit.Assert.fail;
 
 public class SimpleTransientWorkflow extends Workflow<String> {
 

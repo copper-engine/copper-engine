@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.persistent;
 import java.sql.Connection;
 import java.util.List;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 
@@ -31,14 +32,14 @@ import de.scoopgmbh.copper.Workflow;
 public interface ScottyDBStorageInterface {
 
 	/**
-	 * Inserts a new workflow to the underlying database.
+	 * Inserts a new workflow to the underlying database. The implementation may execute the inserts outside the callers context. The completion will be signalled through the Acknowledge object.
 	 */
-	public void insert(final Workflow<?> wf) throws Exception;
+	public void insert(final Workflow<?> wf, Acknowledge ack) throws Exception;
 
 	/**
-	 * Inserts a list of new workflows to the underlying database.
+	 * Inserts a list of new workflows to the underlying database. The implementation may execute the inserts outside the callers context. The completion will be signalled through the Acknowledge object. 
 	 */
-	public void insert(final List<Workflow<?>> wfs) throws Exception;
+	public void insert(final List<Workflow<?>> wfs, Acknowledge ack) throws Exception;
 
 	/**
 	 * Inserts a new workflow to the underlying database using the provided connection.
@@ -55,7 +56,7 @@ public interface ScottyDBStorageInterface {
 	/**
 	 * Marks a workflow instance as finished or removes it from the underlying database. 
 	 */
-	public void finish(final Workflow<?> w);
+	public void finish(final Workflow<?> w, final Acknowledge callback);
 
 	/**
 	 * Dequeues up to <code>max</code> Workflow instances for the specified processor pool from the database.
@@ -68,13 +69,13 @@ public interface ScottyDBStorageInterface {
 	/**
 	 * Asynchronous service to add a {@link Response} to the database.
 	 */
-	public void notify(final Response<?> response, final Object callback)
+	public void notify(final Response<?> response, final Acknowledge ack)
 			throws Exception;
 
 	/**
 	 * Asynchronous service to add a list of {@link Response}s to the database.
 	 */
-	public void notify(final List<Response<?>> response) throws Exception;
+	public void notify(final List<Response<?>> response, final Acknowledge ack) throws Exception;
 
 	/**
 	 * Synchronous service to add a list of {@link Response}s to the database using a provided database connection.
@@ -87,7 +88,7 @@ public interface ScottyDBStorageInterface {
 	 * Writes a workflow instance that is waiting for one or more asynchronous response back to
 	 * database.  
 	 */
-	public void registerCallback(final RegisterCall rc) throws Exception;
+	public void registerCallback(final RegisterCall rc, final Acknowledge callback) throws Exception;
 
 	/**
 	 * Startup the service
@@ -103,7 +104,7 @@ public interface ScottyDBStorageInterface {
 	 * Marks a workflow instance as failed in the database. It may me triggered again later when the
 	 * error cause has been solved using the <code>restart</code> method. 
 	 */
-	public void error(final Workflow<?> w, Throwable t);
+	public void error(final Workflow<?> w, Throwable t, final Acknowledge callback);
 	
 	/**
 	 * Triggers the restart of a failed workflow instance.

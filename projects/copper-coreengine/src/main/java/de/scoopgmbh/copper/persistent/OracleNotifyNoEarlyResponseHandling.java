@@ -20,11 +20,12 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Collection;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
+import de.scoopgmbh.copper.batcher.AcknowledgeCallbackWrapper;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.NullCallback;
 
 class OracleNotifyNoEarlyResponseHandling {
 	
@@ -41,9 +42,8 @@ class OracleNotifyNoEarlyResponseHandling {
 		final Serializer serializer;
 		final int defaultStaleResponseRemovalTimeout;
 
-		@SuppressWarnings("unchecked")
-		public Command(Response<?> response, Serializer serializer, int defaultStaleResponseRemovalTimeout, final long targetTime) {
-			super(NullCallback.instance,targetTime);
+		public Command(Response<?> response, Serializer serializer, int defaultStaleResponseRemovalTimeout, final long targetTime, Acknowledge ack) {
+			super(new AcknowledgeCallbackWrapper<Command>(ack),targetTime);
 			this.response = response;
 			this.serializer = serializer;
 			this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;

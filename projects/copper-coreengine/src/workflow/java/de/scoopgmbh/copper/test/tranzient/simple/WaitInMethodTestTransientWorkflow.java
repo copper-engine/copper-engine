@@ -52,7 +52,7 @@ public class WaitInMethodTestTransientWorkflow extends Workflow<AsyncResponseRec
 		getData().setResponse(Integer.valueOf(response));
 		
 		Response<Object> response = new Response<Object>("4711",null,exception);
-		getEngine().notify(response );
+		notify(response);
 		
 	}
 	

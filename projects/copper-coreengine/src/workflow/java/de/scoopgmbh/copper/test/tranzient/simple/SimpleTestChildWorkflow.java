@@ -41,7 +41,7 @@ public class SimpleTestChildWorkflow extends PersistentWorkflow<String> {
 		logger.info("sending response to caller...");
 		// send back response to caller
 		Response<String> response = new Response<String>(this.getId(), responseSB.toString(), null); 
-		getEngine().notify(response);
+		notify(response);
 
 		logger.info("finished");
 	}

@@ -18,12 +18,14 @@ package de.scoopgmbh.copper.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.EngineIdProvider;
 import de.scoopgmbh.copper.EngineIdProviderBean;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
+import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.WorkflowFactory;
 import de.scoopgmbh.copper.WorkflowInstanceDescr;
@@ -190,4 +192,12 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
 	public WorkflowRepositoryMXBean getWorkflowRepository() {
 		return (WorkflowRepositoryMXBean) ((this.wfRepository instanceof WorkflowRepositoryMXBean) ? this.wfRepository : null);
 	}
+	
+	@Override
+	@Deprecated
+	public final void notify(Response<?> response) throws CopperRuntimeException {
+		Acknowledge.BestEffortAcknowledge ack = new Acknowledge.BestEffortAcknowledge(); 
+		notify(response, ack);
+	}
+
 }

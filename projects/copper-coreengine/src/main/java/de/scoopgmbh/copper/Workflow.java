@@ -240,7 +240,15 @@ public abstract class Workflow<D> implements Serializable {
 	protected final void resubmit() throws InterruptException {
 		final String cid = engine.createUUID();
 		engine.registerCallbacks(this, WaitMode.ALL, 0, cid);
-		engine.notify(new Response<Object>(cid,null,null));
+		Acknowledge ack = createCheckpointAcknowledge();
+		engine.notify(new Response<Object>(cid,null,null), ack);
+		registerCheckpointAcknowledge(ack);
+	}
+	
+	protected final <T> void notify(Response<T> response) {
+		Acknowledge ack = createCheckpointAcknowledge();
+		engine.notify(response, ack);
+		registerCheckpointAcknowledge(ack);		
 	}
 	
 	/**
@@ -300,6 +308,13 @@ public abstract class Workflow<D> implements Serializable {
 	
 	void setCreationTS(Date creationTS) {
 		this.creationTS = creationTS;
+	}
+	
+	protected Acknowledge createCheckpointAcknowledge() {
+		return new Acknowledge.BestEffortAcknowledge();
+	}
+	
+	protected void registerCheckpointAcknowledge(Acknowledge ack) {
 	}
 	
 }

@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
-
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -62,7 +62,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 	private boolean removeWhenFinished = true;
 	protected int defaultStaleResponseRemovalTimeout = 60*60*1000;
 	protected Serializer serializer = new StandardJavaSerializer();
-	protected int dbBatchingLatencyMSec = 50;
+	protected int dbBatchingLatencyMSec = 0;
 	private WorkflowPersistencePlugin workflowPersistencePlugin = WorkflowPersistencePlugin.NULL_PLUGIN;
 	protected String queryUpdateQueueState = getResourceAsString("/sql-query-ready-bpids.sql");
 
@@ -246,7 +246,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 				}
 				catch(Exception e) {
 					logger.error("decoding of '"+id+"' failed: "+e.toString(),e);
-					invalidWorkflowInstances.add(createBatchCommand4error(new DummyPersistentWorkflow(id, ppoolId, null, prio),e,DBProcessingState.INVALID));
+					invalidWorkflowInstances.add(createBatchCommand4error(new DummyPersistentWorkflow(id, ppoolId, null, prio),e,DBProcessingState.INVALID, new Acknowledge.BestEffortAcknowledge()));
 				}
 			}
 			dequeueStmt.close();
@@ -448,35 +448,35 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 			return;
 		List<BatchCommand> cmds = new ArrayList<BatchCommand>(responses.size());
 		for (Response<?> r : responses) {
-			cmds.add(createBatchCommand4Notify(r));
+			cmds.add(createBatchCommand4Notify(r, new Acknowledge.BestEffortAcknowledge()));
 		}
 		cmds.get(0).executor().doExec(cmds, con);
 	}
 
 	@Override
 	@SuppressWarnings({"rawtypes"})
-	public BatchCommand createBatchCommand4Finish(Workflow<?> w) {
-		return new SqlRemove.Command((PersistentWorkflow<?>) w,removeWhenFinished, System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin);
+	public BatchCommand createBatchCommand4Finish(Workflow<?> w, Acknowledge ack) {
+		return new SqlRemove.Command((PersistentWorkflow<?>) w,removeWhenFinished, System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin, ack);
 	}
 
 	@Override
 	@SuppressWarnings({"rawtypes"})
-	public BatchCommand createBatchCommand4Notify(Response<?> response) throws Exception {
+	public BatchCommand createBatchCommand4Notify(Response<?> response, Acknowledge ack) throws Exception {
 		if (response == null) throw new NullPointerException();
 		if (response.isEarlyResponseHandling())
-			return new SqlNotify.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec);
+			return new SqlNotify.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis()+dbBatchingLatencyMSec, ack);
 		else
-			return createBatchCommand4NotifyNoEarlyResponseHandling(response);
+			return createBatchCommand4NotifyNoEarlyResponseHandling(response, ack);
 	}
 	
 	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response) throws Exception;
+	public abstract BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response, Acknowledge ack) throws Exception;
 
 	@Override
 	@SuppressWarnings({"rawtypes"})
-	public BatchCommand createBatchCommand4registerCallback(RegisterCall rc, ScottyDBStorageInterface dbStorageInterface) throws Exception {
+	public BatchCommand createBatchCommand4registerCallback(RegisterCall rc, ScottyDBStorageInterface dbStorageInterface, Acknowledge ack) throws Exception {
 		if (rc == null) throw new NullPointerException();
-		return new SqlRegisterCallback.Command(rc, serializer, dbStorageInterface, System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin);
+		return new SqlRegisterCallback.Command(rc, serializer, dbStorageInterface, System.currentTimeMillis()+dbBatchingLatencyMSec, workflowPersistencePlugin, ack);
 	}
 
 	@Override
@@ -556,7 +556,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
 	@Override
 	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState);
+	public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState, Acknowledge ack);
 
 	protected abstract PreparedStatement createUpdateStateStmt(final Connection c, final int max) throws SQLException;
 

@@ -15,11 +15,12 @@
  */
 package de.scoopgmbh.copper.common;
 
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
 
 public class DefaultTicketPoolManagerTest {
 

@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -44,16 +45,16 @@ public interface DatabaseDialect {
 	public abstract void notify(List<Response<?>> responses, Connection c) throws Exception;
 
 	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4Finish(final Workflow<?> w);
+	public abstract BatchCommand createBatchCommand4Finish(final Workflow<?> w, final Acknowledge callback);
 
 	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4Notify(final Response<?> response) throws Exception;
+	public abstract BatchCommand createBatchCommand4Notify(final Response<?> response, final Acknowledge callback) throws Exception;
 
 	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4registerCallback(final RegisterCall rc, final ScottyDBStorageInterface dbStorageInterface) throws Exception;
+	public abstract BatchCommand createBatchCommand4registerCallback(final RegisterCall rc, final ScottyDBStorageInterface dbStorageInterface, final Acknowledge callback) throws Exception;
 
 	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState);
+	public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState, final Acknowledge callback);
 	
 	/**
 	 * If true (default), finished workflow instances are removed from the database.

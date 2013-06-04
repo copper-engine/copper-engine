@@ -15,8 +15,11 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
-import java.io.Serializable;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +31,6 @@ import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
 import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class TimingOutPersistentUnitTestWorkflow extends PersistentWorkflow<Serializable> {
 

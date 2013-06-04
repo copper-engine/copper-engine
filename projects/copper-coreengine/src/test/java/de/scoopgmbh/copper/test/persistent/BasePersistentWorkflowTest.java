@@ -95,7 +95,7 @@ public class BasePersistentWorkflowTest {
 	public void testAsnychResponse(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testAsnychResponse");
-		final int NUMB = 20;
+		final int NUMB = 1;
 		final String DATA = createTestData(50);
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));

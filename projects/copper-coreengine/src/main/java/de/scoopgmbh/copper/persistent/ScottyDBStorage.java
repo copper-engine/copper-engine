@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -106,29 +107,41 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.ScottyDBStorageInterface#insert(de.scoopgmbh.copper.Workflow)
 	 */
-	public void insert(final Workflow<?> wf) throws Exception {
+	public void insert(final Workflow<?> wf, final Acknowledge ack) throws Exception {
 		logger.trace("insert({})",wf);
-		run(new DatabaseTransaction<Void>() {
-			@Override
-			public Void run(Connection con) throws Exception {
-				dialect.insert(wf, con);
-				return null;
-			}
-		});
+		try {
+			run(new DatabaseTransaction<Void>() {
+				@Override
+				public Void run(Connection con) throws Exception {
+					dialect.insert(wf, con);
+					return null;
+				}
+			});
+			ack.onSuccess();
+		} catch (Exception e) {
+			ack.onException(e);
+			throw e;
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.ScottyDBStorageInterface#insert(java.util.List)
 	 */
-	public void insert(final List<Workflow<?>> wfs) throws Exception {
+	public void insert(final List<Workflow<?>> wfs, final Acknowledge ack) throws Exception {
 		logger.trace("insert(wfs.size={})",wfs.size());
-		run(new DatabaseTransaction<Void>() {
-			@Override
-			public Void run(Connection con) throws Exception {
-				dialect.insert(wfs, con);
-				return null;
-			}
-		});
+		try {
+			run(new DatabaseTransaction<Void>() {
+				@Override
+				public Void run(Connection con) throws Exception {
+					dialect.insert(wfs, con);
+					return null;
+				}
+			});
+			ack.onSuccess();
+		} catch (Exception e) {
+			ack.onException(e);
+			throw e;
+		}
 	}
 
 	@Override
@@ -163,9 +176,9 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.ScottyDBStorageInterface#notify(java.util.List)
 	 */
-	public void notify(final List<Response<?>> response) throws Exception {
+	public void notify(final List<Response<?>> response, Acknowledge ack) throws Exception {
 		for (Response<?> r : response)
-			notify(r,null);
+			notify(r,ack);
 	}
 
 
@@ -274,7 +287,11 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 
 	private void updateQueueState() {
 		final int max = 5000;
+		final int lowTraffic = 100;
 		logger.info("started");
+		int sleepTime = 0;
+		int sleepTimeMaxIdle = 2000;
+		int sleepTimeMaxLowTraffic = 1000;
 		while(!shutdown) {
 			int x=0;
 			try {
@@ -289,19 +306,18 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 				logger.error("updateQueueState failed",e);
 			}
 			if (x == 0) {
-				try {
-					Thread.sleep(2000);
-				} 
-				catch (InterruptedException e) {
-					//ignore
-				}
+				sleepTime = Math.max(10, Math.min(2*sleepTime,sleepTimeMaxIdle));
 			}
-			else if (x < max) {
+			else if (x < lowTraffic) {
+				sleepTime = Math.max(10, Math.min(2*sleepTime,sleepTimeMaxLowTraffic));
+			} else {
+				sleepTime = 0;
+			}
+			if (sleepTime > 0) {
 				try {
-					Thread.sleep(1000);
-				} 
-				catch (InterruptedException e) {
-					//ignore
+					Thread.sleep(sleepTime);
+				} catch (InterruptedException e) {
+					/* Ignore */
 				}
 			}
 		}
@@ -312,7 +328,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 	@Override
 	public void insert(Workflow<?> wf, Connection con) throws Exception {
 		if (con == null)
-			insert(wf);
+			insert(wf, new Acknowledge.BestEffortAcknowledge());
 		else
 			dialect.insert(wf, con);
 	}
@@ -320,7 +336,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 	@Override
 	public void insert(List<Workflow<?>> wfs, Connection con) throws Exception {
 		if (con == null)
-			insert(wfs);
+			insert(wfs, new Acknowledge.BestEffortAcknowledge());
 		else
 			dialect.insert(wfs, con);
 	}
@@ -353,13 +369,19 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 
 	@SuppressWarnings({"rawtypes", "unchecked"}) 
 	private void runSingleBatchCommand(final BatchCommand cmd) throws Exception {
-		run(new DatabaseTransaction<Void>() {
-			@Override
-			public Void run(Connection con) throws Exception {
-				cmd.executor().doExec(Collections.singletonList(cmd), con);
-				return null;
-			}
-		});
+		try {
+			run(new DatabaseTransaction<Void>() {
+				@Override
+				public Void run(Connection con) throws Exception {
+					cmd.executor().doExec(Collections.singletonList(cmd), con);
+					return null;
+				}
+			});
+			cmd.callback().commandCompleted();
+		} catch (Exception e) {
+			cmd.callback().unhandledException(e);
+			throw e;
+		}
 	}
 
 	@Override
@@ -368,10 +390,10 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 	}		
 
 	@Override
-	public void error(Workflow<?> w, Throwable t) {
+	public void error(Workflow<?> w, Throwable t, final Acknowledge callback) {
 		if (logger.isTraceEnabled()) logger.trace("error("+w.getId()+","+t.toString()+")");
 		try {
-			executeBatchCommand(dialect.createBatchCommand4error(w, t, DBProcessingState.ERROR));
+			executeBatchCommand(dialect.createBatchCommand4error(w, t, DBProcessingState.ERROR, callback));
 		} 
 		catch (Exception e) {
 			logger.error("error failed",e);
@@ -391,34 +413,34 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.ScottyDBStorageInterface#registerCallback(de.scoopgmbh.copper.persistent.RegisterCall)
 	 */
-	public void registerCallback(final RegisterCall rc) throws Exception {
+	public void registerCallback(final RegisterCall rc, final Acknowledge callback) throws Exception {
 		if (logger.isTraceEnabled()) logger.trace("registerCallback("+rc+")");
 		if (rc == null) 
 			throw new NullPointerException();
-		executeBatchCommand(dialect.createBatchCommand4registerCallback(rc, this));
+		executeBatchCommand(dialect.createBatchCommand4registerCallback(rc, this, callback));
 	}	
 
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.ScottyDBStorageInterface#notify(de.scoopgmbh.copper.Response, java.lang.Object)
 	 */
-	public void notify(final Response<?> response, final Object callback) throws Exception {
+	public void notify(final Response<?> response, final Acknowledge callback) throws Exception {
 		if (logger.isTraceEnabled()) logger.trace("notify("+response+")");
 		if (response == null)
 			throw new NullPointerException();
-		executeBatchCommand(dialect.createBatchCommand4Notify(response));
+		executeBatchCommand(dialect.createBatchCommand4Notify(response, callback));
 	}	
 
 	/* (non-Javadoc)
 	 * @see de.scoopgmbh.copper.persistent.ScottyDBStorageInterface#finish(de.scoopgmbh.copper.Workflow)
 	 */
-	public void finish(final Workflow<?> w) {
+	public void finish(final Workflow<?> w, final Acknowledge callback) {
 		if (logger.isTraceEnabled()) logger.trace("finish("+w.getId()+")");
 		try {
-			executeBatchCommand(dialect.createBatchCommand4Finish(w));
+			executeBatchCommand(dialect.createBatchCommand4Finish(w, callback));
 		} 
 		catch (Exception e) {
 			logger.error("finish failed",e);
-			error(w,e);
+			error(w,e,callback);
 		}
 	}
 

@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.examples.orechstration.adapter;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.network.mobile.services.AsyncNetworkServiceResponseReceiver;
@@ -60,7 +61,9 @@ public class NetworkServiceAdapterImpl implements NetworkServiceAdapter, AsyncNe
 	public void resetMailboxResponse(String correlationId, boolean success, int returnCode) {
 		ResetMailboxResponse payload = new ResetMailboxResponse(success, returnCode);
 		Response<ResetMailboxResponse> response = new Response<ResetMailboxResponse>(correlationId, payload, null);
-		engine.notify(response);
+		Acknowledge.DefaultAcknowledge ack = new Acknowledge.DefaultAcknowledge(); 
+		engine.notify(response, ack);
+		ack.waitForAcknowledge();
 	}
 
 	@Override
