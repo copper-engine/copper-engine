@@ -100,6 +100,12 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 	private void callFoo() throws InterruptException {
 		String cid = getEngine().createUUID();
 		mockAdapter.fooWithMultiResponse(getData(), cid, 3);
+		//for we expect that 3 response will be returned in one step, we have to ensurce that the adapter has sent the notifications. 50msec should be enough.
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			//ignore
+		}
 		wait(WaitMode.ALL, 10000, cid);
 		List<Response<Object>> responseList = getAndRemoveResponses(cid);
 		assertNotNull(responseList);
