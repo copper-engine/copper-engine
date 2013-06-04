@@ -187,12 +187,6 @@ public class BasePersistentWorkflowTest {
 	}
 
 	protected ConfigurableApplicationContext createContext(String dsContext) {
-		try {
-			EmbeddedConnectionPoolDataSource40 c = 	new org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40();
-			c.setDatabaseName(";shutdown=true");
-			c.getConnection();
-		} catch (SQLException e) {
-		}
 		Thread.interrupted();
 		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "/CopperTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml"});
 		return context;
