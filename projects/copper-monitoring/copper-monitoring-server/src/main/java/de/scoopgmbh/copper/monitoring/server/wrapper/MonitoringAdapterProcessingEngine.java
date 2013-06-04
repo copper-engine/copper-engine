@@ -116,6 +116,7 @@ public class MonitoringAdapterProcessingEngine implements ProcessingEngine{
 	@Override
 	public void notify(Response<?> response, Acknowledge ack)
 			throws CopperRuntimeException {
+		monitoringDataCollector.submitAdapterWfNotify(response.getCorrelationId(), response.getResponse(),adapter);
 		processingEngine.notify(response, ack);
 	}
 
