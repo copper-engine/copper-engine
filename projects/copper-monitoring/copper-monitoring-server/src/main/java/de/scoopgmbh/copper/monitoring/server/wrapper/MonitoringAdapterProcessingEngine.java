@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.monitoring.server.wrapper;
 
 import java.util.List;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.EngineState;
@@ -110,6 +111,12 @@ public class MonitoringAdapterProcessingEngine implements ProcessingEngine{
 	@Override
 	public void addWaitHook(String wfInstanceId, WaitHook waitHook) {
 		processingEngine.addWaitHook(wfInstanceId, waitHook);
+	}
+
+	@Override
+	public void notify(Response<?> response, Acknowledge ack)
+			throws CopperRuntimeException {
+		processingEngine.notify(response, ack);
 	}
 
 	
