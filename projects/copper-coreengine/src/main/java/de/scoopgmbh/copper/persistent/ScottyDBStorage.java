@@ -153,20 +153,18 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 					return dialect.dequeue(ppoolId, max, con);
 				}
 			});
-			if (!ret.isEmpty())
+			if (!ret.isEmpty()) {
 				return ret;
+			}
 			waitForEnqueue();
 		}
 	}
 
 	final int waitForEnqueueMSec = 500; 
 	Object enqueueSignal = new Object();
-	private void waitForEnqueue() {
+	private void waitForEnqueue()  throws InterruptedException {
 		synchronized (enqueueSignal) {
-			try {
-				enqueueSignal.wait(waitForEnqueueMSec);
-			} catch (InterruptedException e) {
-			}
+			enqueueSignal.wait(waitForEnqueueMSec);
 		}
 	}
 	private void signalEnqueue() {
