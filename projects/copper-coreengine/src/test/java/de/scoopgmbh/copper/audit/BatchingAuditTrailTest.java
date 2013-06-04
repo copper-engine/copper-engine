@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -76,7 +77,9 @@ public class BatchingAuditTrailTest {
 
 		Connection con = ds.getConnection();
 		try {
-			con.createStatement().execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
+			Statement stmt = con.createStatement();
+			stmt.execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
+			stmt.close();
 
 			AuditTrailEvent e = new AuditTrailEvent(1, new Date(), "conversationId", "context", "instanceId", "correlationId", "transactionId", "message", "messageType", null);
 			batchingAuditTrail.doSyncLog(e , con);
@@ -109,7 +112,9 @@ public class BatchingAuditTrailTest {
 		
 		final Connection con = ds.getConnection();
 		try {
-			con.createStatement().execute("DELETE FROM COP_AUDIT_TRAIL_EVENT_EXTENDED");
+			Statement stmt = con.createStatement();
+			stmt.execute("DELETE FROM COP_AUDIT_TRAIL_EVENT_EXTENDED");
+			stmt.close();
 			
 			ExtendedAutitTrailEvent e = new ExtendedAutitTrailEvent(1, new Date(), "conversationId", "context", "instanceId", "correlationId", "transactionId", "message", "messageType", "TEST", 4711, new Timestamp(System.currentTimeMillis()));
 			batchingAuditTrail.doSyncLog(e , con);
@@ -119,7 +124,7 @@ public class BatchingAuditTrailTest {
 			batchingAuditTrail.doSyncLog(e2 , con);
 			con.commit();
 
-			ResultSet rs = con.createStatement().executeQuery("SELECT * FROM COP_AUDIT_TRAIL_EVENT_EXTENDED ORDER BY SEQ_ID ASC");
+			ResultSet rs = stmt.executeQuery("SELECT * FROM COP_AUDIT_TRAIL_EVENT_EXTENDED ORDER BY SEQ_ID ASC");
 			assertTrue(rs.next());
 			assertEquals("conversationId", rs.getString("CONVERSATION_ID"));
 			assertEquals("TEST", rs.getString("CUSTOM_VARCHAR"));
@@ -129,6 +134,8 @@ public class BatchingAuditTrailTest {
 			assertNull(rs.getString("CUSTOM_VARCHAR"));
 			
 			assertFalse(rs.next());
+			rs.close();
+
 		}
 		finally {
 			con.close();
@@ -152,7 +159,9 @@ public class BatchingAuditTrailTest {
 		final String sqlStmt = sql.toString();
 		final Connection c = ds.getConnection();
 		try {
-			c.createStatement().execute(sqlStmt);
+			Statement stmt = c.createStatement();
+			stmt.execute(sqlStmt);
+			stmt.close();
 		}
 		catch(SQLException e) {
 			logger.debug("creation of table failed",e);

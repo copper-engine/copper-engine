@@ -312,7 +312,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 		logger.info("started");
 		int sleepTime = 0;
 		int sleepTimeMaxIdle = 2000;
-		int sleepTimeMaxLowTraffic = 1000;
+		int sleepTimeMaxLowTraffic = 500;
 		while(!shutdown) {
 			int x=0;
 			try {
@@ -330,10 +330,10 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 				signalEnqueue();
 			}
 			if (x == 0) {
-				sleepTime = Math.max(10, Math.min(2*sleepTime,sleepTimeMaxIdle));
+				sleepTime = Math.max(10, Math.min(3*sleepTime/2,sleepTimeMaxIdle));
 			}
 			else if (x < lowTraffic) {
-				sleepTime = Math.max(10, Math.min(2*sleepTime,sleepTimeMaxLowTraffic));
+				sleepTime = Math.max(10, Math.min(11*sleepTime/10,sleepTimeMaxLowTraffic));
 			} else {
 				sleepTime = 0;
 			}

@@ -73,21 +73,25 @@ public class DerbyCleanDbUtil {
 		psf.setString(2, schema);
 		ResultSet rs = psf.executeQuery();
 		dropUsingDMD(s, rs, schema, "ALIAS", "FUNCTION");
+		rs.close();
 
 		// Procedures
 		rs = dmd.getProcedures((String) null, schema, (String) null);
 
 		dropUsingDMD(s, rs, schema, "PROCEDURE_NAME", "PROCEDURE");
+		rs.close();
 
 		// Views
 		rs = dmd.getTables((String) null, schema, (String) null, GET_TABLES_VIEW);
 
 		dropUsingDMD(s, rs, schema, "TABLE_NAME", "VIEW");
+		rs.close();
 
 		// Tables
 		rs = dmd.getTables((String) null, schema, (String) null, GET_TABLES_TABLE);
 
 		dropUsingDMD(s, rs, schema, "TABLE_NAME", "TABLE");
+		rs.close();
 
 		// At this point there may be tables left due to
 		// foreign key constraints leading to a dependency loop.
@@ -120,18 +124,21 @@ public class DerbyCleanDbUtil {
 		// Tables (again)
 		rs = dmd.getTables((String) null, schema, (String) null, GET_TABLES_TABLE);
 		dropUsingDMD(s, rs, schema, "TABLE_NAME", "TABLE");
+		rs.close();
 
 		// drop UDTs
 		psf.setString(1, "A");
 		psf.setString(2, schema);
 		rs = psf.executeQuery();
 		dropUsingDMD(s, rs, schema, "ALIAS", "TYPE");
+		rs.close();
 
 		// drop aggregates
 		psf.setString(1, "G");
 		psf.setString(2, schema);
 		rs = psf.executeQuery();
 		dropUsingDMD(s, rs, schema, "ALIAS", "DERBY AGGREGATE");
+		rs.close();
 		psf.close();
 
 		// Synonyms - need work around for DERBY-1790 where
@@ -139,6 +146,7 @@ public class DerbyCleanDbUtil {
 		rs = dmd.getTables((String) null, schema, (String) null, GET_TABLES_SYNONYM);
 
 		dropUsingDMD(s, rs, schema, "TABLE_NAME", "SYNONYM");
+		rs.close();
 
 		// sequences
 		if (sysSequencesExists(conn)) {
@@ -147,6 +155,7 @@ public class DerbyCleanDbUtil {
 			psf.setString(1, schema);
 			rs = psf.executeQuery();
 			dropUsingDMD(s, rs, schema, "SEQUENCENAME", "SEQUENCE");
+			rs.close();
 			psf.close();
 		}
 

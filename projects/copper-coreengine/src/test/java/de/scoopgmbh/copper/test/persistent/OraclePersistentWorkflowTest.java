@@ -155,6 +155,7 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 					rs.next();
 					int count = rs.getInt(1);
 					assertEquals(NUMB*6, count);
+					rs.close();
 					return null;
 				}
 			}.run();

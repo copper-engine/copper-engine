@@ -2,8 +2,6 @@ package de.scoopgmbh.copper;
 
 import java.lang.reflect.InvocationTargetException;
 
-import de.scoopgmbh.copper.Acknowledge.BestEffortAcknowledge;
-
 /**
  * Utiltiy class to signal detached execution states. In most cases {@link BestEffortAcknowledge.waitForAcknowledge} can be employed to obtain a safe result on the caller side. 
  * @author rscheel

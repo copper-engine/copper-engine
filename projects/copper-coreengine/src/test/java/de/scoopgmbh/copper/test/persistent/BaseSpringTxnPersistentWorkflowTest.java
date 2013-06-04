@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
@@ -61,10 +62,13 @@ public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowT
 			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
 				protected Void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("select count(*) from cop_audit_trail_event");
+					Statement stmt = getConnection().createStatement();
+					ResultSet rs = stmt.executeQuery("select count(*) from cop_audit_trail_event");
 					assertTrue(rs.next());
 					int c = rs.getInt(1);
 					assertEquals(7, c);
+					rs.close();
+					stmt.close();
 					return null;
 				}
 			}.run();

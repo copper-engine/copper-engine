@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -114,7 +115,10 @@ public class DerbyDbDialect extends AbstractSqlDialect {
 						sb.deleteCharAt(sb.length()-1);
 						logger.info("Executing: "+sb.toString());
 						String sql = sb.toString();
-						Statement stmt = c.createStatement();
+						Statement stmt = c.createStatement(
+								ResultSet.TYPE_SCROLL_INSENSITIVE,
+								ResultSet.CONCUR_UPDATABLE,
+								ResultSet.CLOSE_CURSORS_AT_COMMIT);
 						try {
 							stmt.execute(sql);
 						}
@@ -141,7 +145,10 @@ public class DerbyDbDialect extends AbstractSqlDialect {
 	}
 
 	private static boolean tablesExist(Connection c) throws SQLException {
-		final Statement stmt = c.createStatement();
+		final Statement stmt = c.createStatement(
+				ResultSet.TYPE_SCROLL_INSENSITIVE,
+				ResultSet.CONCUR_READ_ONLY,
+				ResultSet.CLOSE_CURSORS_AT_COMMIT);
 		try {
 			stmt.execute("SELECT count(*) FROM COP_WORKFLOW_INSTANCE");
 			return true;

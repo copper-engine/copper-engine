@@ -68,6 +68,7 @@ public class MonitoringAdapterProcessingEngine implements ProcessingEngine{
 	}
 
 	@Override
+	@Deprecated
 	public void notify(Response<?> response) throws CopperRuntimeException {
 		monitoringDataCollector.submitAdapterWfNotify(response.getCorrelationId(), response.getResponse(),adapter);
 		processingEngine.notify(response);

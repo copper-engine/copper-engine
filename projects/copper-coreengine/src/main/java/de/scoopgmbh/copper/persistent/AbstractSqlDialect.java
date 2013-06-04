@@ -249,6 +249,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 					invalidWorkflowInstances.add(createBatchCommand4error(new DummyPersistentWorkflow(id, ppoolId, null, prio),e,DBProcessingState.INVALID, new Acknowledge.BestEffortAcknowledge()));
 				}
 			}
+			rs.close();
 			dequeueStmt.close();
 			dequeueStmtStatistic.stop(map.size());
 
@@ -350,6 +351,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 				insStmt.setString(4, bpId);
 				insStmt.addBatch();
 			}
+			rs.close();
 			if (rowcount > 0) {
 				insStmt.executeBatch();
 				updStmt.executeBatch();
@@ -593,6 +595,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 					idsOfBadWorkflows.add(id);
 				}
 			}
+			rs.close();
 			
 			return idsOfBadWorkflows;
 		}

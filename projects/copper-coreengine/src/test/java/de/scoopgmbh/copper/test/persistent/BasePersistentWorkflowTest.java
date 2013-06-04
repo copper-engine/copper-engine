@@ -23,7 +23,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
+import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -71,15 +76,34 @@ public class BasePersistentWorkflowTest {
 		new RetryingTransaction<Void>(ds) {
 			@Override
 			protected Void execute() throws Exception {
-				getConnection().createStatement().execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
-				getConnection().createStatement().execute("DELETE FROM COP_WAIT");
-				getConnection().createStatement().execute("DELETE FROM COP_RESPONSE");
-				getConnection().createStatement().execute("DELETE FROM COP_QUEUE");
-				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE");
-				getConnection().createStatement().execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
+				Statement stmt = createStatement(getConnection());
+				stmt.execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
+				stmt.close();
+				stmt = createStatement(getConnection());
+				stmt.execute("DELETE FROM COP_WAIT");
+				stmt.close();
+				stmt = createStatement(getConnection());
+				stmt.execute("DELETE FROM COP_RESPONSE");
+				stmt.close();
+				stmt = createStatement(getConnection());
+				stmt.execute("DELETE FROM COP_QUEUE");
+				stmt.close();
+				stmt = createStatement(getConnection());
+				stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE");
+				stmt.close();
+				stmt = createStatement(getConnection());
+				stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
+				stmt.close();
 				return null;
 			}
 		}.run();
+	}
+	
+	private Statement createStatement(Connection con) throws SQLException {
+		return con.createStatement(
+		ResultSet.TYPE_SCROLL_INSENSITIVE,
+		ResultSet.CONCUR_READ_ONLY,
+		ResultSet.CLOSE_CURSORS_AT_COMMIT);
 	}
 
 	final String createTestData(int length) {
@@ -163,6 +187,13 @@ public class BasePersistentWorkflowTest {
 	}
 
 	protected ConfigurableApplicationContext createContext(String dsContext) {
+		try {
+			EmbeddedConnectionPoolDataSource40 c = 	new org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40();
+			c.setDatabaseName(";shutdown=true");
+			c.getConnection();
+		} catch (SQLException e) {
+		}
+		Thread.interrupted();
 		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "/CopperTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml"});
 		return context;
 	}
@@ -298,11 +329,14 @@ public class BasePersistentWorkflowTest {
 			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
 				protected Void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
+					Statement stmt = createStatement(getConnection());
+					ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
+					rs.close();
+					stmt.close();
 					return null;
 				}
 			}.run();
@@ -311,7 +345,8 @@ public class BasePersistentWorkflowTest {
 			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
 				protected Void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
+					Statement stmt = createStatement(getConnection());
+					ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
@@ -319,6 +354,8 @@ public class BasePersistentWorkflowTest {
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
+					rs.close();
+					stmt.close();
 					return null;
 				}
 			}.run();
@@ -346,11 +383,14 @@ public class BasePersistentWorkflowTest {
 			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
 				protected Void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
+					Statement stmt = createStatement(getConnection());
+					ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
+					rs.close();
+					stmt.close();
 					return null;
 				}
 			}.run();
@@ -359,7 +399,8 @@ public class BasePersistentWorkflowTest {
 			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
 				protected Void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
+					Statement stmt = createStatement(getConnection());
+					ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
@@ -367,6 +408,8 @@ public class BasePersistentWorkflowTest {
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
+					rs.close();
+					stmt.close();
 					return null;
 				}
 			}.run();
@@ -439,10 +482,13 @@ public class BasePersistentWorkflowTest {
 			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
 				protected Void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("select count(*) from cop_workflow_instance");
+					Statement stmt = createStatement(getConnection());
+					ResultSet rs = stmt.executeQuery("select count(*) from cop_workflow_instance");
 					assertTrue(rs.next());
 					int x = rs.getInt(1);
 					assertEquals(NUMB, x);
+					rs.close();
+					stmt.close();
 					return null;
 				}
 			}.run();
@@ -484,13 +530,16 @@ public class BasePersistentWorkflowTest {
 			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
 				protected Void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from cop_audit_trail_event) order by 1");
+					Statement stmt = createStatement(getConnection());
+					ResultSet rs = stmt.executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from cop_audit_trail_event) order by 1");
 					assertTrue(rs.next());
 					//logger.info("\""+new CompressedBase64PostProcessor().deserialize(rs.getString(1))+"\"");
 					assertEquals("finished", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
 					assertTrue(rs.next());
 					assertEquals("foo successfully called", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
 					assertFalse(rs.next());
+					rs.close();
+					stmt.close();
 					return null;
 				}
 			}.run();
@@ -566,11 +615,14 @@ public class BasePersistentWorkflowTest {
 			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
 				protected Void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_workflow_instance_error");
+					Statement stmt = createStatement(getConnection());
+					ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
 					assertTrue(rs.next());
 					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
 					assertNotNull(rs.getString("EXCEPTION"));
 					assertFalse(rs.next());
+					rs.close();
+					stmt.close();
 					return null;
 				}
 			}.run();
@@ -599,7 +651,8 @@ public class BasePersistentWorkflowTest {
 			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
 				protected Void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("select seq_id from cop_audit_trail_event order by seq_id");
+					Statement stmt = createStatement(getConnection());
+					ResultSet rs = stmt.executeQuery("select seq_id from cop_audit_trail_event order by seq_id");
 					assertTrue(rs.next());
 					assertEquals(1, rs.getLong(1));
 					assertTrue(rs.next());
@@ -609,6 +662,8 @@ public class BasePersistentWorkflowTest {
 					assertTrue(rs.next());
 					assertEquals(4, rs.getLong(1));
 					assertFalse(rs.next());
+					rs.close();
+					stmt.close();
 					return null;
 				}
 			}.run();
@@ -632,7 +687,8 @@ public class BasePersistentWorkflowTest {
 					try {
 						Response<?> response = new Response<String>("CID#withEarlyResponse", "TEST", null);
 						engine.notify(response, getConnection());
-						ResultSet rs = getConnection().createStatement().executeQuery("select * from cop_response");
+						Statement stmt = createStatement(getConnection());
+						ResultSet rs = stmt.executeQuery("select * from cop_response");
 						assertTrue(rs.next());
 						assertEquals(response.getCorrelationId(), rs.getString("CORRELATION_ID"));
 						assertFalse(rs.next());
@@ -641,8 +697,10 @@ public class BasePersistentWorkflowTest {
 						response = new Response<String>("CID#withoutEarlyResponse", "TEST", null);
 						response.setEarlyResponseHandling(false);
 						engine.notify(response, getConnection());
-						rs = getConnection().createStatement().executeQuery("select * from cop_response");
+						rs = stmt.executeQuery("select * from cop_response");
 						assertFalse(rs.next());
+						rs.close();
+						stmt.close();
 						getConnection().rollback();
 					}
 					catch(Exception e) {

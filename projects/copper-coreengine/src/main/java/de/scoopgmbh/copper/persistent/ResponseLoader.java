@@ -129,6 +129,7 @@ class ResponseLoader extends ConcurrentBatchedWorker {
 				wf.addWaitCorrelationId(cid);
 				++n;
 			}
+			rsResponses.close();
 			statResponse.stop(n);
 		}
 		finally {
