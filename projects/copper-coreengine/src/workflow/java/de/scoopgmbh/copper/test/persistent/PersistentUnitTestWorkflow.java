@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -100,15 +101,14 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 	private void callFoo() throws InterruptException {
 		String cid = getEngine().createUUID();
 		mockAdapter.fooWithMultiResponse(getData(), cid, 3);
-		//for we expect that 3 response will be returned in one step, we have to ensurce that the adapter has sent the notifications. 50msec should be enough.
-		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
-			//ignore
+		List<Response<Object>> responseList = new ArrayList<Response<Object>>();
+		long waitUntil = System.currentTimeMillis()+20000;
+		while (responseList.size() < 3 && System.currentTimeMillis() < waitUntil) {
+			wait(WaitMode.ALL, 10000, cid);
+			List<Response<Object>> tmpResponses = getAndRemoveResponses(cid); 
+			assertNotNull(tmpResponses);
+			responseList.addAll(tmpResponses);
 		}
-		wait(WaitMode.ALL, 10000, cid);
-		List<Response<Object>> responseList = getAndRemoveResponses(cid);
-		assertNotNull(responseList);
 		assertEquals(3, responseList.size());
 		for (Response<Object> res : responseList) {
 			logger.info(res.toString());
