@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
+import org.apache.shiro.SecurityUtils;
+
+import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
@@ -49,7 +51,7 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo.Workflow
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 
-public class CopperDataProviderMock extends UnicastRemoteObject implements CopperMonitorInterface {
+public class CopperDataProviderMock extends UnicastRemoteObject implements CopperMonitoringService {
 	private static final long serialVersionUID = -5757718583261293846L;
 	
 	protected CopperDataProviderMock() throws RemoteException {
@@ -57,14 +59,11 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 	}
 	
 	
-	public static CopperMonitorInterfaceFactory copperMonitorInterfaceFactory =  new CopperMonitorInterfaceFactory() {
-		@Override
-		public CopperMonitorInterface createCopperMonitorInterface() {
-			try {
-				return new CopperDataProviderMock();
-			} catch (RemoteException e) {
-				throw new RuntimeException(e);
-			}
+	public static CopperMonitoringService createSecurityWarppedMock() {
+		try {
+			return CopperMonitorServiceSecurityProxy.wrapWithSecurity(new CopperDataProviderMock());
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
 		}
 	};
 
@@ -200,6 +199,7 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 
 	@Override
 	public CopperInterfaceSettings getSettings() throws RemoteException {
+		System.out.println(SecurityUtils.getSubject().isAuthenticated());
 		return new CopperInterfaceSettings(true);
 	}
 
@@ -288,12 +288,6 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 	@Override
 	public List<MessageInfo> getMessageList(boolean ignoreproceeded ,long resultRowLimit) {
 		return Collections.emptyList();
-	}
-
-
-	@Override
-	public void doLogin(String user, String credentials) {
-		System.out.println("qqqq"+this);
 	}
 
 	@Override

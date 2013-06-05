@@ -36,7 +36,7 @@ import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
 import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
 import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
-import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
+import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
@@ -66,7 +66,7 @@ import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueu
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
 
-public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
+public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	private static final long serialVersionUID = 1829707298427309206L;
 
 	private final MonitoringDbStorage dbStorage;
@@ -77,7 +77,9 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 	private final MonitoringDataAccessQueue monitoringDataAccessQueue;
 	private final MessagePostProcessor messagePostProcessor;
 	
-	public DefaultCopperMonitorInterface(MonitoringDbStorage dbStorage, 
+
+		
+	public DefaultCopperMonitoringService(MonitoringDbStorage dbStorage, 
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList,
 			MonitoringDataAccessQueue monitoringDataAccessQueue,
@@ -87,7 +89,7 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 			,new PerformanceMonitor(),monitoringDataAccessQueue, messagePostProcessor);
 	}
 	
-	public DefaultCopperMonitorInterface(MonitoringDbStorage dbStorage,
+	public DefaultCopperMonitoringService(MonitoringDbStorage dbStorage,
 			CopperInterfaceSettings copperInterfaceSettings, 
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList,
@@ -167,7 +169,10 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 
 	@Override
 	public List<String[]> executeSqlQuery(String query, long resultRowLimit) throws RemoteException {
-		return dbStorage.executeMonitoringQuery(query, resultRowLimit);
+		if (copperInterfaceSettings.isCanExecuteSql()){
+			return dbStorage.executeMonitoringQuery(query, resultRowLimit);
+		}
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -321,12 +326,6 @@ public class DefaultCopperMonitorInterface implements CopperMonitorInterface{
 			return engines.get(engineId).getWorkflowRepository();
 		}
 		return null; 
-	}
-
-	@Override
-	public void doLogin(String user, String credentials) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

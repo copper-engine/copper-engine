@@ -37,7 +37,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.result.WorkflowS
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
-import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
+import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
@@ -52,9 +52,9 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 
 public class GuiCopperDataProvider {
 	
-	private final CopperMonitorInterface copperDataProvider;
+	private final CopperMonitoringService copperDataProvider;
 	
-	public GuiCopperDataProvider(final CopperMonitorInterface copperDataProvider) {
+	public GuiCopperDataProvider(final CopperMonitoringService copperDataProvider) {
 		super();
 		this.copperDataProvider=copperDataProvider;
 	}

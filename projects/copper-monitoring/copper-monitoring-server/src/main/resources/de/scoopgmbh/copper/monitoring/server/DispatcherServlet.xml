@@ -10,20 +10,22 @@
 	<bean id="defaultHandlerMapping" class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping" />
 
 	<!-- SpringHTTP Service Exposure -->
-	<!-- bean name="copperMonitorInterface" class="de.scoopgmbh.copper.monitoring.server.CopperDataProviderMock" scope="prototype" factory-method="de.scoopgmbh.copper.monitoring.server.SpringRemoteServerMain.createSpringBeanWorkaround"/-->
-    <bean id="copperMonitorInterface" factory-bean="parentWorkaround" factory-method="createSpringBeanWorkaround" scope="prototype"/>
+    <bean id="copperMonitoringService" factory-bean="parentWorkaround" factory-method="createSpringBeanWorkaround" scope="prototype"/>
 
+ 	<bean id="secureRemoteInvocationExecutor" factory-bean="parentWorkaround" factory-method="createSecureRemoteInvocationExecutor" scope="prototype"/>
 
-	<bean name="performanceMonitorInterceptor" class="org.springframework.aop.interceptor.PerformanceMonitorInterceptor" />
+	<bean id="loginService" factory-bean="parentWorkaround" factory-method="createLoginService" scope="prototype"/>
 	
-	<bean name="/copperMonitorInterface" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter" scope="prototype">
-		<property name="service" ref="copperMonitorInterface" />
-		<property name="serviceInterface" value="de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface" />
-		<property name="interceptors">
-			<list>
-				<ref bean="performanceMonitorInterceptor"/>
-			</list>
-		</property>
+	<bean name="/copperMonitoringService" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter" scope="prototype">
+		<property name="service" ref="copperMonitoringService" />
+		<property name="serviceInterface" value="de.scoopgmbh.copper.monitoring.core.CopperMonitoringService" />
+		<property name="remoteInvocationExecutor" ref="secureRemoteInvocationExecutor"/><!-- Bean programmatic injected from server -->
 	</bean>
+	
+	<bean name="/loginService" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter" scope="prototype">
+		<property name="service" ref="loginService" />
+		<property name="serviceInterface" value="de.scoopgmbh.copper.monitoring.core.LoginService" />
+	</bean>
+
 
 </beans>

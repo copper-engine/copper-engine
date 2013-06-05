@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.apache.shiro.spring.remoting.SecureRemoteInvocationExecutor;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -34,21 +35,24 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
+import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
+import de.scoopgmbh.copper.monitoring.core.LoginService;
 
-public class SpringRemoteServerMain {
+public class SpringRemotingServer {
 	
-	static final Logger logger = LoggerFactory.getLogger(SpringRemoteServerMain.class);
+	static final Logger logger = LoggerFactory.getLogger(SpringRemotingServer.class);
 	private Server server;
-	private final CopperMonitorInterfaceFactory copperMonitorInterfaceFactory;
+	private final CopperMonitoringService copperMonitoringService;
 	private final int port;
 	private final String host; 
+	private final DefaultLoginService loginService;
 	
-	public SpringRemoteServerMain(CopperMonitorInterfaceFactory copperMonitorInterfaceFactory, int port, String host) {
+	public SpringRemotingServer(CopperMonitoringService copperMonitoringService, int port, String host, DefaultLoginService loginService) {
 		super();
-		this.copperMonitorInterfaceFactory = copperMonitorInterfaceFactory;
+		this.copperMonitoringService = copperMonitoringService;
 		this.port = port;
 		this.host = host;
+		this.loginService = loginService;
 	}
 
 	public void start() {
@@ -62,9 +66,6 @@ public class SpringRemoteServerMain {
 
 		ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
 		
-//		org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger.getRootLogger();
-//		rootLogger.setLevel(Level.ALL);
-
 
 		//prepare injecting bean to spring
 		XmlWebApplicationContext webApplicationContext = new XmlWebApplicationContext(){
@@ -82,8 +83,9 @@ public class SpringRemoteServerMain {
 		DispatcherServlet dispatcherServlet = new DispatcherServlet(webApplicationContext);
 		ServletHolder servletHolder = new ServletHolder(dispatcherServlet);
 		servletContextHandler.addServlet(servletHolder, "/*");
-		server.setHandler(servletContextHandler);
 		
+		server.setHandler(servletContextHandler);
+	
 		try {
 			server.start();
 		} catch (Exception e) {
@@ -95,8 +97,22 @@ public class SpringRemoteServerMain {
 	/**inject bean to spring context ( called from spring )
 	 */
 	@SuppressWarnings("unused")
-	private CopperMonitorInterface createSpringBeanWorkaround(){
-		return copperMonitorInterfaceFactory.createCopperMonitorInterface();
+	private CopperMonitoringService createSpringBeanWorkaround(){
+		return copperMonitoringService;
+	}
+	
+	@SuppressWarnings("unused")
+	private LoginService createLoginService(){
+		return loginService;
+	}
+	
+	/**inject bean to spring context ( called from spring )
+	 */
+	@SuppressWarnings("unused")
+	private SecureRemoteInvocationExecutor createSecureRemoteInvocationExecutor(){
+		final SecureRemoteInvocationExecutor secureRemoteInvocationExecutor = new SecureRemoteInvocationExecutor();
+		secureRemoteInvocationExecutor.setSecurityManager(loginService.getSecurityManager());
+		return secureRemoteInvocationExecutor;
 	}
 
 	private void stop() {
@@ -128,8 +144,8 @@ public class SpringRemoteServerMain {
 		PropertyConfigurator.configure(args[1]);
 		System.setProperty("org.apache.cxf.Logger", "org.apache.cxf.common.logging.Log4jLogger");
 		
-		SpringRemoteServerMain springRemoteServerMain;//TODO jmx access
-		springRemoteServerMain = new SpringRemoteServerMain(null,port,host);
+		
+		SpringRemotingServer springRemoteServerMain = new SpringRemotingServer(null,port,host,null);
 
 		
 		try {
@@ -141,6 +157,10 @@ public class SpringRemoteServerMain {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public boolean isRunning() {
+		return server.isRunning();
 	}
 	
 

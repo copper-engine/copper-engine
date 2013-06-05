@@ -1,3 +1,4 @@
+package de.scoopgmbh.copper.monitoring.server.util;
 /*
  * Copyright 2002-2013 SCOOP Software GmbH
  *
@@ -13,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.server.util;
 
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * copied/modified from Derby derbyTesting.jar cause derbyTesting.jar is too fat
+ * copied/modified from Derby derbyTesting.jar cause including derbyTesting.jar is too fat
  */
 public class DerbyCleanDbUtil {
 
@@ -46,6 +46,7 @@ public class DerbyCleanDbUtil {
 
 
 	/**
+	 * APP is default schema
 	 * Drop a database schema by dropping all objects in it and then executing DROP SCHEMA. If the schema is APP it is cleaned but DROP
 	 * SCHEMA is not executed.
 	 * 
@@ -61,7 +62,9 @@ public class DerbyCleanDbUtil {
 	 */
 	public static void dropSchema(DatabaseMetaData dmd, String schema) throws SQLException {
 		Connection conn = dmd.getConnection();
-		assert !conn.getAutoCommit();
+		if (conn.getAutoCommit()){
+			throw new IllegalArgumentException();
+		}
 		Statement s = dmd.getConnection().createStatement();
 
 		// Functions - not supported by JDBC meta data until JDBC 4

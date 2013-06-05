@@ -20,11 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.rmi.AccessException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
@@ -50,6 +46,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import org.apache.shiro.spring.remoting.SecureRemoteInvocationFactory;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
@@ -64,7 +61,8 @@ import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.monitoring.client.util.CSSHelper;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
-import de.scoopgmbh.copper.monitoring.core.CopperMonitorInterface;
+import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
+import de.scoopgmbh.copper.monitoring.core.LoginService;
 
 public class ApplicationContext {
 
@@ -162,29 +160,14 @@ public class ApplicationContext {
     	);
 	}
 	
-	public void setRMIGuiCopperDataProvider(String serverAdress){
-		try {
-			Registry registry = LocateRegistry.getRegistry(serverAdress,Registry.REGISTRY_PORT);
-			CopperMonitorInterface copperMonitor = (CopperMonitorInterface) registry.lookup(CopperMonitorInterface.class.getSimpleName());
-			setGuiCopperDataProvider(copperMonitor,serverAdress);
-			setGuiCopperDataProvider(copperMonitor,serverAdress);
-		} catch (AccessException e) {
-			throw new RuntimeException(e);
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		} catch (NotBoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	GuiCopperDataProvider guiCopperDataProvider;
-	public void setGuiCopperDataProvider(CopperMonitorInterface copperDataProvider, String serverAdress){
+	public void setGuiCopperDataProvider(CopperMonitoringService copperDataProvider, String serverAdress, String sessionId){
 		this.serverAdress.set(serverAdress);
 		this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);
 		getFormFactorySingelton().setupGUIStructure();
 	}
 	
-	public void setHttpGuiCopperDataProvider(final String serverAdress, final String user, final String password){
+	public void setHttpGuiCopperDataProvider(final String serverAdressParam, final String user, final String password){
 		final ProgressIndicator progressIndicator = new ProgressIndicator();
 		progressIndicator.setMaxSize(300, 300);
 		mainStackPane.getChildren().add(progressIndicator);
@@ -195,27 +178,44 @@ public class ApplicationContext {
 			@Override
 			public void run() {
 				try {
-					HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-					httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitorInterface.class);
-					String completeServiceAdress= serverAdress;
-					if (!completeServiceAdress.endsWith("/")){
-						completeServiceAdress= completeServiceAdress+"/";
+					String serverAdress=serverAdressParam;
+					if (!serverAdress.endsWith("/")){
+						serverAdress= serverAdress+"/";
 					}
-					completeServiceAdress = completeServiceAdress+"copperMonitorInterface";
-					httpInvokerProxyFactoryBean.setServiceUrl(completeServiceAdress);
-					httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
-					httpInvokerProxyFactoryBean.afterPropertiesSet();
+					final CopperMonitoringService copperMonitoringService;
 					
-					final CopperMonitorInterface copperMonitorInterface = (CopperMonitorInterface)httpInvokerProxyFactoryBean.getObject();
+					final LoginService loginService;
+					{
+						HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+						httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
+						httpInvokerProxyFactoryBean.setServiceInterface(LoginService.class);
+						httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "loginService");
+						httpInvokerProxyFactoryBean.afterPropertiesSet();
+						loginService = (LoginService) httpInvokerProxyFactoryBean.getObject();
+					}
+					
+					final String sessionId;
 					try {
-						copperMonitorInterface.doLogin(user, password);
+						sessionId = loginService.doLogin(user, password);
 					} catch (RemoteException e) {
 						throw new RuntimeException(e);
 					}
+					
+					{
+						HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+						httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
+						httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
+						httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory(sessionId));
+						httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+						httpInvokerProxyFactoryBean.afterPropertiesSet();
+						copperMonitoringService = (CopperMonitoringService) httpInvokerProxyFactoryBean.getObject();
+					}
+					
+					final String serverAdressFinal= serverAdress;
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
-							setGuiCopperDataProvider(copperMonitorInterface,serverAdress);
+							setGuiCopperDataProvider(copperMonitoringService,serverAdressFinal, sessionId);
 						}
 					});
 				} catch (final Exception e){
