@@ -173,6 +173,18 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 		}
 	}
 
+	Object queueStateSignal = new Object();
+	private void waitForQueueState(int waitTime)  throws InterruptedException {
+		synchronized (queueStateSignal) {
+			queueStateSignal.wait(waitTime);
+		}
+	}
+	private void signalQueueState() {
+		synchronized (queueStateSignal) {
+			queueStateSignal.notify();
+		}
+	}
+
 	protected List<List<String>> splitt(Collection<String> keySet, int n) {
 		if (keySet.isEmpty()) 
 			return Collections.emptyList();
@@ -337,7 +349,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 			}
 			if (sleepTime > 0) {
 				try {
-					Thread.sleep(sleepTime);
+					waitForQueueState(sleepTime);
 				} catch (InterruptedException e) {
 				}
 			}
@@ -448,7 +460,18 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 		if (logger.isTraceEnabled()) logger.trace("notify("+response+")");
 		if (response == null)
 			throw new NullPointerException();
-		executeBatchCommand(dialect.createBatchCommand4Notify(response, callback));
+		Acknowledge notify = new Acknowledge() {
+			@Override
+			public void onSuccess() {
+				signalQueueState();
+				callback.onSuccess();
+			}
+			@Override
+			public void onException(Throwable t) {
+				callback.onException(t);
+			}
+		};
+		executeBatchCommand(dialect.createBatchCommand4Notify(response, notify));
 	}	
 
 	/* (non-Javadoc)
