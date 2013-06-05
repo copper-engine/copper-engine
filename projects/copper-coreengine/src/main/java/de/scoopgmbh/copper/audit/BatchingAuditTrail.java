@@ -22,8 +22,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -37,7 +35,6 @@ import org.springframework.jdbc.support.JdbcUtils;
 import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.CommandCallback;
-import de.scoopgmbh.copper.db.utility.RetryingTransaction;
 import de.scoopgmbh.copper.management.AuditTrailMXBean;
 
 /**
@@ -78,7 +75,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 	}
 
 	private Batcher batcher;
-	@Deprecated
+	//TODO: Move datasource to SpringTxnAudit trail, then do not explore the database type, set it as an parameter (isOracle)
 	private DataSource dataSource;
 	private int level = 5;
 	private MessagePostProcessor messagePostProcessor = new DummyPostProcessor();
@@ -87,6 +84,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 	private List<Property2ColumnMapping> mapping;
 
 	private final List<Method> propertyGetters = new ArrayList<Method>();
+	//TODO: do not explore the database type, set it as an parameter (isOracle)
 	private boolean isOracle;
 	private String sqlStmt;
 	
@@ -94,6 +92,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 		mapping = createDefaultMapping();
 		auditTrailEventClass = AuditTrailEvent.class;
 	}
+	
 
 	public static List<Property2ColumnMapping> createDefaultMapping() {
 		List<Property2ColumnMapping> mapping = new ArrayList<BatchingAuditTrail.Property2ColumnMapping>();
@@ -117,7 +116,6 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 		this.batcher = batcher;
 	}
 
-	@Deprecated
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
@@ -147,8 +145,14 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 	
 	public void startup() throws Exception {
 		logger.info("Starting up...");
+		final Connection con = dataSource.getConnection();
+		try {
+			isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
+		}
+		finally {
+			JdbcUtils.closeConnection(con);
+		}
 		sqlStmt = createSqlStmt();
-		
 	}
 
 	private String createSqlStmt() throws IntrospectionException {
@@ -280,7 +284,6 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 		}
 	}
 	
-	@Deprecated
 	protected DataSource getDataSource() {
 		return dataSource;
 	}
