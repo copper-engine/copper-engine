@@ -35,7 +35,7 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 
-public interface CopperMonitorInterface extends Remote, Serializable {
+public interface CopperMonitoringService extends Remote, Serializable {
 
 	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname) throws RemoteException;
 
@@ -97,8 +97,6 @@ public interface CopperMonitorInterface extends Remote, Serializable {
 	
 	public List<MessageInfo> getMessageList(final boolean ignoreProcessed, long resultRowLimit) throws RemoteException;
 	
-	public void doLogin(String user, String credentials) throws RemoteException;
-
 	public AdapterHistoryInfo getAdapterHistoryInfos(String adapterId) throws RemoteException;
 	
 }

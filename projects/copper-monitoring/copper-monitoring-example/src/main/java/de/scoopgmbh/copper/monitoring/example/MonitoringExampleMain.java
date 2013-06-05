@@ -23,6 +23,9 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.shiro.realm.SimpleAccountRealm;
 
 import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
@@ -33,9 +36,12 @@ import de.scoopgmbh.copper.common.DefaultProcessorPoolManager;
 import de.scoopgmbh.copper.common.JdkRandomUUIDFactory;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
+import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapterImpl;
-import de.scoopgmbh.copper.monitoring.server.DefaultCopperMonitorInterfaceFactory;
-import de.scoopgmbh.copper.monitoring.server.SpringRemoteServerMain;
+import de.scoopgmbh.copper.monitoring.server.CopperMonitorServiceSecurityProxy;
+import de.scoopgmbh.copper.monitoring.server.DefaultCopperMonitoringService;
+import de.scoopgmbh.copper.monitoring.server.DefaultLoginService;
+import de.scoopgmbh.copper.monitoring.server.SpringRemotingServer;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
@@ -57,6 +63,8 @@ public class MonitoringExampleMain {
 	
 	
 	public MonitoringExampleMain start(){
+		LogManager.getRootLogger().setLevel(Level.INFO);
+		
 		EmbeddedConnectionPoolDataSource40 datasource_default = new EmbeddedConnectionPoolDataSource40();
 		datasource_default.setDatabaseName("./build/copperExampleDB;create=true");
 		
@@ -153,7 +161,9 @@ public class MonitoringExampleMain {
 			
 		List<ProcessingEngineMXBean> engines = new ArrayList<ProcessingEngineMXBean>();
 		engines.add(persistentengine);
-		DefaultCopperMonitorInterfaceFactory factory = new DefaultCopperMonitorInterfaceFactory(
+		
+		
+		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
 				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect(new StandardJavaSerializer())),
 				runtimeStatisticsCollector,
 				engines,
@@ -162,7 +172,9 @@ public class MonitoringExampleMain {
 				new CompressedBase64PostProcessor());
 	
 
-		new SpringRemoteServerMain(factory,8080,"localhost").start();
+		final SimpleAccountRealm realm = new SimpleAccountRealm();
+		realm.addAccount("user1", "pass1");
+		new SpringRemotingServer(CopperMonitorServiceSecurityProxy.wrapWithSecurity(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm)).start();
 		
 		return this;
 		
