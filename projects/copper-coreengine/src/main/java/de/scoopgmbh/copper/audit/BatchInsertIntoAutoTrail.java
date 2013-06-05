@@ -44,13 +44,8 @@ class BatchInsertIntoAutoTrail {
 		final String sqlStmt;
 		final List<Method> propertyGetters;
 
-		@SuppressWarnings("unchecked")
-		public Command(AuditTrailEvent data, boolean isOracle, String sqlStmt, List<Method> propertyGetters) {
-			this(data, isOracle, sqlStmt, propertyGetters, NullCallback.instance);
-		}
-
-		public Command(AuditTrailEvent data, boolean isOracle, String sqlStmt, List<Method> propertyGetters, CommandCallback<Command> callback) {
-			super(callback,250);
+		public Command(AuditTrailEvent data, boolean isOracle, String sqlStmt, List<Method> propertyGetters, CommandCallback<Command> callback, int timeout) {
+			super(callback,System.currentTimeMillis()+timeout);
 			if (data == null) throw new NullPointerException();
 			if (sqlStmt == null) throw new NullPointerException();
 			if (propertyGetters == null) throw new NullPointerException();

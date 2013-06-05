@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.support.JdbcUtils;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.CommandCallback;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
@@ -77,6 +78,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 	}
 
 	private Batcher batcher;
+	@Deprecated
 	private DataSource dataSource;
 	private int level = 5;
 	private MessagePostProcessor messagePostProcessor = new DummyPostProcessor();
@@ -115,6 +117,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 		this.batcher = batcher;
 	}
 
+	@Deprecated
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
@@ -144,14 +147,6 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 	
 	public void startup() throws Exception {
 		logger.info("Starting up...");
-		final Connection con = dataSource.getConnection();
-		try {
-			isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
-		}
-		finally {
-			JdbcUtils.closeConnection(con);
-		}
-		
 		sqlStmt = createSqlStmt();
 		
 	}
@@ -230,66 +225,62 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 
 	@Override
 	public void asynchLog(AuditTrailEvent e) {
-		if ( isEnabled(e.logLevel) ) {
-			e.setMessage(messagePostProcessor.serialize(e.message));
-			CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
+		doLog(e, new Acknowledge.BestEffortAcknowledge(), false);
+	}
+
+	private boolean doLog(AuditTrailEvent e, final Acknowledge ack, boolean immediate) {
+		CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
 				@Override
 				public void commandCompleted() {
+					ack.onSuccess();
 				}
 				@Override
 				public void unhandledException(Exception e) {
+					ack.onException(e);
 				}
 			};
-			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(e, isOracle, sqlStmt, propertyGetters, callback));
-		}		
+		return doLog(e,immediate,callback);
+	}
+
+	private boolean doLog(AuditTrailEvent e, boolean immediate, CommandCallback<BatchInsertIntoAutoTrail.Command> callback) {
+		if ( isEnabled(e.logLevel) ) {
+			e.setMessage(messagePostProcessor.serialize(e.message));
+			batcher.submitBatchCommand(createBatchCommand(e, immediate, callback));
+			return true;
+		}
+		return false;
+	}
+
+	BatchInsertIntoAutoTrail.Command createBatchCommand(AuditTrailEvent e, boolean immediate,
+			CommandCallback<BatchInsertIntoAutoTrail.Command> callback) {
+		return new BatchInsertIntoAutoTrail.Command(e, isOracle, sqlStmt, propertyGetters, callback, immediate?0:250);
 	}
 
 	@Override
 	public void asynchLog(final AuditTrailEvent e, final AuditTrailCallback cb) {
-		if ( isEnabled(e.logLevel) ) {
-			e.setMessage(messagePostProcessor.serialize(e.message));
-			CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
-				@Override
-				public void commandCompleted() {
-					cb.done();
-				}
-				@Override
-				public void unhandledException(Exception e) {
-					cb.error(e);
-				}
-			};
-			batcher.submitBatchCommand(new BatchInsertIntoAutoTrail.Command(e, isOracle, sqlStmt, propertyGetters, callback));
-		}		
+		CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
+			@Override
+			public void commandCompleted() {
+				cb.done();
+			}
+			@Override
+			public void unhandledException(Exception e) {
+				cb.error(e);
+			}
+		};
+		doLog(e, false, callback);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void doSyncLog(AuditTrailEvent e, Connection con) throws Exception {
-		e.setMessage(messagePostProcessor.serialize(e.message));
-		BatchInsertIntoAutoTrail.Command cmd = new BatchInsertIntoAutoTrail.Command(e, isOracle, sqlStmt, propertyGetters);
-		cmd.executor().doExec((Collection)Collections.singletonList(cmd), con);
-	}
 
 	@Override
 	public void synchLog(final AuditTrailEvent event) {
-		if (isEnabled(event.logLevel) ) {
-			try {
-				new RetryingTransaction<Void>(dataSource) {
-					@Override
-					protected Void execute() throws Exception {
-						doSyncLog(event, getConnection());
-						return null;
-					}
-				}.run();
-			}
-			catch(RuntimeException e) {
-				throw e;
-			}
-			catch(Exception e) {
-				throw new RuntimeException("synchLog failed",e);
-			}
+		Acknowledge.DefaultAcknowledge ack = new Acknowledge.DefaultAcknowledge();
+		if (doLog(event, ack, true)) {
+			ack.waitForAcknowledge();
 		}
 	}
 	
+	@Deprecated
 	protected DataSource getDataSource() {
 		return dataSource;
 	}
