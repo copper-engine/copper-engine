@@ -118,7 +118,7 @@ public class BasePersistentWorkflowTest {
 	public void testAsnychResponse(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testAsnychResponse");
-		final int NUMB = 1;
+		final int NUMB = 20;
 		final String DATA = createTestData(50);
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
@@ -156,7 +156,7 @@ public class BasePersistentWorkflowTest {
 	public void testAsnychResponseLargeData(String dsContext, int dataSize) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testAsnychResponse");
-		final int NUMB = 1;
+		final int NUMB = 20;
 		final String DATA = createTestData(dataSize);
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
@@ -197,7 +197,7 @@ public class BasePersistentWorkflowTest {
 	public void testWithConnection(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testWithConnection");
-		final int NUMB = 1;
+		final int NUMB = 20;
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		final DataSource ds = context.getBean(DataSource.class);
 		cleanDB(ds);
@@ -237,7 +237,7 @@ public class BasePersistentWorkflowTest {
 	public void testWithConnectionBulkInsert(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testWithConnectionBulkInsert");
-		final int NUMB = 1;
+		final int NUMB = 20;
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		final DataSource ds = context.getBean(DataSource.class);
 		cleanDB(ds);
@@ -282,7 +282,7 @@ public class BasePersistentWorkflowTest {
 	public void testTimeouts(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testTimeouts");
-		final int NUMB = 1;
+		final int NUMB = 20;
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
@@ -423,7 +423,7 @@ public class BasePersistentWorkflowTest {
 	public void testParentChildWorkflow(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testParentChildWorkflow");
-		final int NUMB = 1;
+		final int NUMB = 20;
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
@@ -454,7 +454,7 @@ public class BasePersistentWorkflowTest {
 	public void testErrorKeepWorkflowInstanceInDB(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testErrorKeepWorkflowInstanceInDB");
-		final int NUMB = 1;
+		final int NUMB = 20;
 		final String DATA = createTestData(50);
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
@@ -505,7 +505,7 @@ public class BasePersistentWorkflowTest {
 	public void testCompressedAuditTrail(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testCompressedAuditTrail");
-		final int NUMB = 1;
+		final int NUMB = 20;
 		final String DATA = createTestData(50);
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		context.getBean(BatchingAuditTrail.class).setMessagePostProcessor(new CompressedBase64PostProcessor());
