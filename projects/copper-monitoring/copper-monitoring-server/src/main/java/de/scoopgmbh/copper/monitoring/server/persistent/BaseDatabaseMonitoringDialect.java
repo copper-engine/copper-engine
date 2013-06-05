@@ -71,6 +71,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 				int count = result.getInt(2);
 				numberOfWorkflowInstancesWithState.put(DBProcessingStateWorkaround.fromKey(status).asWorkflowInstanceState(), count);
 			}
+			result.close();
 			return new WorkflowStateSummary(numberOfWorkflowInstancesWithState);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -118,6 +119,8 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 				auditTrailInfo.setMessageType(resultSet.getString(9));
 				logs.add(auditTrailInfo);
 			}
+			resultSet.close();
+
 			return logs;
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -140,6 +143,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 					return messagePostProcessor.deserialize(message.getSubString(1, (int) message.length()));
 			    } 
 			}
+			result.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -187,6 +191,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 				
 				summary.getStateSummary().getNumberOfWorkflowInstancesWithState().put(DBProcessingStateWorkaround.fromKey(status).asWorkflowInstanceState(), count);
 			}
+			resultSet.close();
 			return new ArrayList<WorkflowSummary>(classNameToSummary.values());
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -270,6 +275,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 					
 				instances.add(workflowInstanceInfo);
 			}
+			resultSet.close();
 			return instances;
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -302,6 +308,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 				}
 				result.add(row);
 			}
+			resultSet.close();
 			return result;
 		} catch (SQLException e) {
 			logger.warn("",e);
@@ -349,6 +356,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 				messageInfo.setTimeout(resultSet.getTimestamp(5)!=null?new Date(resultSet.getTimestamp(5).getTime()):null);
 				logs.add(messageInfo);
 			}
+			resultSet.close();
 			return logs;
 		} catch (SQLException e) {
 			throw new RuntimeException(e);

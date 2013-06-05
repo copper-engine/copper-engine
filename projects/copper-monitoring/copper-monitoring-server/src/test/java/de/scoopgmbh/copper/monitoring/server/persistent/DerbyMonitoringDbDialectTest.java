@@ -32,6 +32,7 @@ import org.junit.Test;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
+import de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner;
 import de.scoopgmbh.copper.batcher.impl.BatcherImpl;
 import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
@@ -97,6 +98,11 @@ public class DerbyMonitoringDbDialectTest {
 	public void test_selectAudittrail() throws SQLException, Exception{
 
 		BatcherImpl batcher = new BatcherImpl(3);
+		@SuppressWarnings("rawtypes")
+		RetryingTxnBatchRunner<?,?> batchRunner = new RetryingTxnBatchRunner();
+		batchRunner.setDataSource(datasource_default);
+		batcher.setBatchRunner(batchRunner);
+		batcher.startup();
 		BatchingAuditTrail auditTrail = new BatchingAuditTrail();
 		auditTrail.setBatcher(batcher);
 		auditTrail.setDataSource(datasource_default);
@@ -117,6 +123,7 @@ public class DerbyMonitoringDbDialectTest {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
+		batcher.shutdown();
 	}
 	
 	@Transformed
