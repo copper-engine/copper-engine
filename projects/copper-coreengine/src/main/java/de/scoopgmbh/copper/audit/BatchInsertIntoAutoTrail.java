@@ -33,7 +33,6 @@ import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.CommandCallback;
-import de.scoopgmbh.copper.batcher.NullCallback;
 
 class BatchInsertIntoAutoTrail {
 
