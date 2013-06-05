@@ -294,19 +294,15 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 		compile 'log4j:log4j:1.2.17'
 	    
 	    //Spring remote
-		compile group: 'org.springframework', name: 'spring-web', version: '3.2.2.RELEASE'
+		compile group: 'org.springframework', name: 'spring-web', version: '3.1.2.RELEASE'
 		compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
-		compile group: 'org.springframework', name: 'spring-webmvc', version: '3.2.2.RELEASE'
+		compile group: 'org.springframework', name: 'spring-webmvc', version: '3.1.2.RELEASE'
 		
 		//http server
 		compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '8.1.10.v20130312'
 		compile group: 'org.eclipse.jetty', name: 'jetty-util', version: '8.1.10.v20130312'
 		compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: '8.1.10.v20130312'
 		compile group: 'org.eclipse.jetty.orbit', name: 'javax.servlet', version: '2.5.0.v201103041518'
-		
-		compile 'org.apache.shiro:shiro-web:1.2.2'
-		compile 'org.apache.shiro:shiro-core:1.2.2'
-		compile 'org.apache.shiro:shiro-spring:1.2.2'
 		
 		testCompile 'org.mockito:mockito-all:1.9.5'
 	}
