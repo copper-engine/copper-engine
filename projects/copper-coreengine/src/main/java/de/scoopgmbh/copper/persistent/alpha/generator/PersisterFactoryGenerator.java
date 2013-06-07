@@ -376,8 +376,8 @@ public class PersisterFactoryGenerator {
 	
 	public void generatePersisterFactory(GenerationDescription desc, Writer output) throws UnsupportedEncodingException, IOException {
 		
-		String sourcePackageName = TEMPLATEPersisterFactory.class.getPackage().getName();
-		String source = "/"+sourcePackageName.replace('.','/')+'/'+TEMPLATEPersisterFactory.class.getSimpleName()+"._java";
+		String sourcePackageName = getClass().getPackage().getName();
+		String source = "/"+sourcePackageName.replace('.','/')+"/TEMPLATEPersisterFactory._java";
 		InputStream i = getClass().getResourceAsStream(source);
 		String template = readFully(i).toString();
 		template = template.replaceAll("TEMPLATE", desc.getEntitySimpleName());
@@ -435,7 +435,7 @@ public class PersisterFactoryGenerator {
 
 	public void generateSqlCreateTable(GenerationDescription desc, Writer output) throws UnsupportedEncodingException, IOException {
 
-		String sourcePackageName = TEMPLATEPersisterFactory.class.getPackage().getName();
+		String sourcePackageName = getClass().getName();
 		String source = "/"+sourcePackageName.replace('.','/')+"/TEMPLATE.sql";
 		InputStream i = getClass().getResourceAsStream(source);
 		String template = readFully(i).toString();
