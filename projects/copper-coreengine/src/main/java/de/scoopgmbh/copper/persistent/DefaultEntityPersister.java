@@ -21,7 +21,7 @@ package de.scoopgmbh.copper.persistent;
  *
  * @param <E> The entity class this persister handles
  */
-public abstract class DefaultEntityPersister<E> implements EntityPersister<E> {
+public class DefaultEntityPersister<E> implements EntityPersister<E> {
 
 	final PersistentWorkflow<?> workflow;
 	final DefaultPersistenceWorker<E, ? extends EntityPersister<E>> selectionWorker;

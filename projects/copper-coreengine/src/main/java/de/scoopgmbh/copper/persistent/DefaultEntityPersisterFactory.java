@@ -27,7 +27,12 @@ import java.util.Collection;
 public interface DefaultEntityPersisterFactory<E, P extends DefaultEntityPersister<E>> {
 	
 	Class<E> getEntityClass();
-	Class<P> getPersisterClass();
+	
+	/**
+	 * Needed to be able to return the created persister as a mapper (sed {@link PersistenceContext#getMapper(Class)}
+	 * @return
+	 */
+	Class<?> getPersisterClass();
 	
 	/**
 	 * Creates a persister. The shared ressources from a preceeding call to {@link #sharedRessources()}.  

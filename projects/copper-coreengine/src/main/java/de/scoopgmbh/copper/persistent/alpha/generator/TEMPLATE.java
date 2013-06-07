@@ -13,27 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.persistent;
+package de.scoopgmbh.copper.persistent.alpha.generator;
 
-import java.io.Serializable;
+import de.scoopgmbh.copper.persistent.PersistentEntity;
 
-/**
- * Base class for persistent entities that will be used by the default entity sql code generator.
- * @author Roland Scheel
- *
- */
-public class PersistentEntity implements Serializable {
-
+public class TEMPLATE extends PersistentEntity {
+	
 	private static final long serialVersionUID = 1L;
 
-	String entityId;		
+	transient String name;
+	transient int    intValue;
 
-	public void setEntityId(String entityId) {
-		this.entityId = entityId;
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public int getIntValue() {
+		return intValue;
+	}
+	public void setIntValue(int intValue) {
+		this.intValue = intValue;
 	}
 	
-	public String getEntityId() {
-		return entityId;
-	}
-	
+
 }
+
+

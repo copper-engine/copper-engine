@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.persistent;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import de.scoopgmbh.copper.persistent.EntityPersister.PostSelectedCallback;
@@ -49,7 +50,7 @@ public abstract class DefaultPersistenceWorker<E, P extends EntityPersister<E>> 
 	protected abstract void doExec(
 			Connection connection, List<WorkflowAndEntity<E>> theWork) throws SQLException;
 	
-	protected static class WorkflowAndEntity<E> {
+	public static class WorkflowAndEntity<E> {
 		public WorkflowAndEntity(final PersistentWorkflow<?> workflow,final E entity, final PostSelectedCallback<E> callback) {
 			this.workflow = workflow;
 			this.entity   = entity;
@@ -72,7 +73,7 @@ public abstract class DefaultPersistenceWorker<E, P extends EntityPersister<E>> 
 
 	public void flush(Connection connection) throws SQLException {
 		if (!theWork.isEmpty())
-			doExec(connection, theWork);
+			doExec(connection, Collections.unmodifiableList(theWork));
 		theWork.clear();
 	}
 

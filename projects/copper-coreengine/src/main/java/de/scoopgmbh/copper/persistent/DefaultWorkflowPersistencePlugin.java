@@ -34,7 +34,7 @@ public class DefaultWorkflowPersistencePlugin implements WorkflowPersistencePlug
 
 	@Override
 	public void onWorkflowsLoaded(Connection con,
-			Iterable<PersistentWorkflow<?>> workflows) throws SQLException {
+			Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
 		PersistenceContextFactory<?> ctxFactory = createPersistenceContextFactory(con);
 		for (PersistentWorkflow<?> wf : workflows) {
 			PersistenceContext pctx = ctxFactory.createPersistenceContextForLoading(wf);
@@ -45,7 +45,7 @@ public class DefaultWorkflowPersistencePlugin implements WorkflowPersistencePlug
 
 	@Override
 	public void onWorkflowsSaved(Connection con,
-			Iterable<PersistentWorkflow<?>> workflows) throws SQLException {
+			Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
 		PersistenceContextFactory<?> ctxFactory = createPersistenceContextFactory(con);
 		for (PersistentWorkflow<?> wf : workflows) {
 			PersistenceContext pctx = ctxFactory.createPersistenceContextForSaving(wf);
@@ -56,7 +56,7 @@ public class DefaultWorkflowPersistencePlugin implements WorkflowPersistencePlug
 
 	@Override
 	public void onWorkflowsDeleted(Connection con,
-			Iterable<PersistentWorkflow<?>> workflows) throws SQLException {
+			Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
 		PersistenceContextFactory<?> ctxFactory = createPersistenceContextFactory(con);
 		for (PersistentWorkflow<?> wf : workflows) {
 			PersistenceContext pctx = ctxFactory.createPersistenceContextForDeletion(wf);

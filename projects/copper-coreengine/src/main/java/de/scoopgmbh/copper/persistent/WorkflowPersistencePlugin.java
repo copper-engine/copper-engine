@@ -31,7 +31,7 @@ public interface WorkflowPersistencePlugin {
 	 * @param workflows The workflows that are being loaded
 	 * @throws SQLException Implementations may pass SQL Exception to be handled by the database dialect
 	 */
-	void onWorkflowsLoaded(Connection con, Iterable<PersistentWorkflow<?>> workflows) throws SQLException;
+	void onWorkflowsLoaded(Connection con, Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException;
 
 	/**
 	 * Implementations have to call {@link PersistentWorkflow#onLoad(PersistenceContext)} for every workflow passed.
@@ -39,19 +39,19 @@ public interface WorkflowPersistencePlugin {
 	 * @param workflows The workflows that are being loaded
 	 * @throws SQLException Implementations may pass SQL Exception to be handled by the database dialect
 	 */
-	void onWorkflowsSaved(Connection con, Iterable<PersistentWorkflow<?>> workflows) throws SQLException;
+	void onWorkflowsSaved(Connection con, Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException;
 
 	/**
 	 * Implementations have to call {@link PersistentWorkflow#onDelete(PersistenceContext)} for every workflow passed.
 	 * @param con The database connection the load operation is bound to.
 	 * @throws SQLException Implementations may pass SQL Exception to be handled by the database dialect
 	 */
-	void onWorkflowsDeleted(Connection con, Iterable<PersistentWorkflow<?>> workflows) throws SQLException;
+	void onWorkflowsDeleted(Connection con, Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException;
 	
 	final WorkflowPersistencePlugin NULL_PLUGIN = new WorkflowPersistencePlugin() {
 		@Override
 		public void onWorkflowsSaved(Connection con,
-				Iterable<PersistentWorkflow<?>> workflows) throws SQLException {
+				Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
 			for (PersistentWorkflow<?> wf : workflows) {
 				wf.onSave(PersistenceContext.NULL_CONTEXT);
 			}
@@ -59,7 +59,7 @@ public interface WorkflowPersistencePlugin {
 		
 		@Override
 		public void onWorkflowsLoaded(Connection con,
-				Iterable<PersistentWorkflow<?>> workflows) throws SQLException {
+				Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
 			for (PersistentWorkflow<?> wf : workflows) {
 				wf.onLoad(PersistenceContext.NULL_CONTEXT);
 			}
@@ -67,7 +67,7 @@ public interface WorkflowPersistencePlugin {
 		
 		@Override
 		public void onWorkflowsDeleted(Connection con,
-				Iterable<PersistentWorkflow<?>> workflows) throws SQLException {
+				Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
 			for (PersistentWorkflow<?> wf : workflows) {
 				wf.onDelete(PersistenceContext.NULL_CONTEXT);
 			}
