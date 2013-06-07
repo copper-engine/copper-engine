@@ -38,6 +38,7 @@ import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapterImpl;
+import de.scoopgmbh.copper.monitoring.example.util.SingleProzessInstanceUtil;
 import de.scoopgmbh.copper.monitoring.server.CopperMonitorServiceSecurityProxy;
 import de.scoopgmbh.copper.monitoring.server.DefaultCopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.server.DefaultLoginService;
@@ -55,7 +56,6 @@ import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorage;
 import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
 import de.scoopgmbh.copper.persistent.txn.CopperTransactionController;
-import de.scoopgmbh.copper.spring.SpringDependencyInjector;
 import de.scoopgmbh.copper.util.PojoDependencyInjector;
 import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
 
@@ -117,7 +117,6 @@ public class MonitoringExampleMain {
 		PersistentPriorityProcessorPool persistentPriorityProcessorPool = new PersistentPriorityProcessorPool("P#DEFAULT",txnController);
 		
 		PersistentScottyEngine persistentengine = new PersistentScottyEngine();
-		persistentengine.setDependencyInjector(new SpringDependencyInjector());		
 		persistentengine.setIdFactory(new JdkRandomUUIDFactory());
 		persistentengine.setDbStorage(persistentdbStorage);
 		persistentengine.setWfRepository(wfRepository);
@@ -146,11 +145,12 @@ public class MonitoringExampleMain {
 		final MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue();
 		final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
 		MonitoringDependencyInjector monitoringDependencyInjector= new MonitoringDependencyInjector(dependyInjector, monitoringDataCollector);
-		persistentengine.setDependencyInjector(monitoringDependencyInjector);
 		BillAdapterImpl billAdapterImpl = new BillAdapterImpl();
 		billAdapterImpl.initWithEngine(new MonitoringAdapterProcessingEngine(billAdapterImpl,persistentengine,monitoringDataCollector));
 		dependyInjector.register("billAdapter", billAdapterImpl);
 		dependyInjector.register("auditTrail", auditTrail);
+		
+		persistentengine.setDependencyInjector(monitoringDependencyInjector);
 		persistentengine.startup();
 		
 		try {
@@ -174,13 +174,14 @@ public class MonitoringExampleMain {
 
 		final SimpleAccountRealm realm = new SimpleAccountRealm();
 		realm.addAccount("user1", "pass1");
-		new SpringRemotingServer(CopperMonitorServiceSecurityProxy.wrapWithSecurity(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm)).start();
+		new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm)).start();
 		
 		return this;
 		
 	}
 	
 	public static void main(String[] args) {
+		SingleProzessInstanceUtil.enforceSingleProzessInstance();
 		new MonitoringExampleMain().start();
 	}
 	
