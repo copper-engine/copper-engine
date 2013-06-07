@@ -80,7 +80,7 @@ public class SqlResultController extends FilterResultControllerBase<SqlFilterMod
 						return param.getValue().rows.get(rowindex);
 					}
 				});//-2 for the border
-				rowColumn.prefWidthProperty().bind(resultTable.widthProperty().add(-2).divide(filteredResult.get(0).rows.size()));
+				rowColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).divide(filteredResult.get(0).rows.size()));
 				resultTable.getColumns().add(rowColumn);
 			}
 			ObservableList<SqlResultModel> content = FXCollections.observableArrayList();

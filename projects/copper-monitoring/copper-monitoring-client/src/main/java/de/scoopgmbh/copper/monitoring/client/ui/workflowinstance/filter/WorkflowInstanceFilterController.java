@@ -19,7 +19,6 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
@@ -62,10 +61,8 @@ public class WorkflowInstanceFilterController extends BaseFilterController<Workf
 			if (!parsed){
 				if (!field.getStyleClass().contains("error")){
 					field.getStyleClass().add("error");
-					System.out.println("set error");
 				}
 			} else {
-				System.out.println("remove error");
 				field.getStyleClass().remove("error");
 			}
 		}
@@ -114,12 +111,6 @@ public class WorkflowInstanceFilterController extends BaseFilterController<Workf
         to.textProperty().bindBidirectional(model.to, new DateStringConverter(DATE_TIME_FORMAT));
         from.textProperty().addListener(new DateValidation(from));
         to.textProperty().addListener(new DateValidation(to));
-        model.from.addListener(new ChangeListener<Date>() {
-			@Override
-			public void changed(ObservableValue<? extends Date> observable, Date oldValue, Date newValue) {
-				System.out.println(newValue);
-			}
-		});
         ArrayList<EmptySelectionWorkaround> states = new ArrayList<EmptySelectionWorkaround>();
         for (WorkflowInstanceState state: WorkflowInstanceState.values()){
         	states.add(new EmptySelectionWorkaround(state,state.toString()));

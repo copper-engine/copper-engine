@@ -24,15 +24,19 @@ import java.util.Properties;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.shiro.spring.remoting.SecureRemoteInvocationExecutor;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.web.context.support.XmlWebApplicationContext;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
@@ -65,26 +69,43 @@ public class SpringRemotingServer {
 		server.setConnectors(new Connector[] { connector });
 
 		ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
+	
+		//Servlet adress is defined with the bean name
+		//try to avoid xml config (dont sacrifice type safety)
+		GenericWebApplicationContext genericWebApplicationContext = new GenericWebApplicationContext();
+		genericWebApplicationContext.registerBeanDefinition("/loginService",
+				BeanDefinitionBuilder.genericBeanDefinition(HttpInvokerServiceExporter.class).
+				addPropertyValue("service", loginService).
+				addPropertyValue("serviceInterface", LoginService.class.getName()).
+				getBeanDefinition());
+		genericWebApplicationContext.registerBeanDefinition("/copperMonitoringService",
+				BeanDefinitionBuilder.genericBeanDefinition(HttpInvokerServiceExporter.class).
+				addPropertyValue("service", copperMonitoringService).
+				addPropertyValue("serviceInterface", CopperMonitoringService.class.getName()).
+				addPropertyValue("remoteInvocationExecutor", createSecureRemoteInvocationExecutor()).
+				getBeanDefinition());
+		genericWebApplicationContext.refresh();
 		
-
-		//prepare injecting bean to spring
-		XmlWebApplicationContext webApplicationContext = new XmlWebApplicationContext(){
-			@Override
-			protected String[] getDefaultConfigLocations() {
-				return new String[]{"classpath:/de/scoopgmbh/copper/monitoring/server/DispatcherServlet.xml"};
-			}
-		};
-		DefaultListableBeanFactory parentBeanFactory = new DefaultListableBeanFactory();
-		parentBeanFactory.registerSingleton("parentWorkaround", this);
-		GenericApplicationContext parentContext = new GenericApplicationContext(parentBeanFactory);
-		parentContext.refresh();
-		webApplicationContext.setParent(parentContext);
-		
-		DispatcherServlet dispatcherServlet = new DispatcherServlet(webApplicationContext);
+		DispatcherServlet dispatcherServlet = new DispatcherServlet(genericWebApplicationContext);
 		ServletHolder servletHolder = new ServletHolder(dispatcherServlet);
 		servletContextHandler.addServlet(servletHolder, "/*");
 		
-		server.setHandler(servletContextHandler);
+//		FilterHolder filterHolder = new FilterHolder();
+//		GzipFilter filter = new GzipFilter();
+//		filterHolder.setFilter(filter);
+//		EnumSet<DispatcherType> types = EnumSet.allOf(DispatcherType.class);
+//		servletContextHandler.addFilter(filterHolder, "/**", types);
+		
+		HandlerCollection handlers = new HandlerCollection();
+		final RequestLogHandler requestLogHandler = new RequestLogHandler();
+		NCSARequestLog requestLog = new NCSARequestLog();
+		requestLog.setAppend(true);
+		requestLog.setExtended(true);
+		requestLog.setLogLatency(true);
+		requestLogHandler.setRequestLog(requestLog);
+		handlers.setHandlers(new Handler[] {servletContextHandler, requestLogHandler});
+		server.setHandler(handlers);
+		
 	
 		try {
 			server.start();
@@ -93,22 +114,6 @@ public class SpringRemotingServer {
 		}
 	}
 	
-	
-	/**inject bean to spring context ( called from spring )
-	 */
-	@SuppressWarnings("unused")
-	private CopperMonitoringService createSpringBeanWorkaround(){
-		return copperMonitoringService;
-	}
-	
-	@SuppressWarnings("unused")
-	private LoginService createLoginService(){
-		return loginService;
-	}
-	
-	/**inject bean to spring context ( called from spring )
-	 */
-	@SuppressWarnings("unused")
 	private SecureRemoteInvocationExecutor createSecureRemoteInvocationExecutor(){
 		final SecureRemoteInvocationExecutor secureRemoteInvocationExecutor = new SecureRemoteInvocationExecutor();
 		secureRemoteInvocationExecutor.setSecurityManager(loginService.getSecurityManager());
@@ -122,7 +127,6 @@ public class SpringRemotingServer {
 			throw new RuntimeException(e);
 		}
 	}
-
 	
 	public static void main(String[] args) {
 		if (!new File(args[0]).exists() || args.length==0){
@@ -146,8 +150,6 @@ public class SpringRemotingServer {
 		
 		
 		SpringRemotingServer springRemoteServerMain = new SpringRemotingServer(null,port,host,null);
-
-		
 		try {
 			springRemoteServerMain.start();
 			System.in.read();
@@ -162,8 +164,5 @@ public class SpringRemotingServer {
 	public boolean isRunning() {
 		return server.isRunning();
 	}
-	
-
-
 
 }

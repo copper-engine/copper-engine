@@ -220,7 +220,7 @@ public class SettingsController implements Initializable, FxmlController {
 			@Override
 			public void handle(ActionEvent event) {
 				AuditralColorMapping newItem = new AuditralColorMapping();
-				newItem.color.setValue(Color.rgb(240, 40, 40));
+				newItem.color.setValue(Color.rgb(255, 128, 128));
 				colorTable.getItems().add(newItem);
 			}
 		});
@@ -257,6 +257,7 @@ public class SettingsController implements Initializable, FxmlController {
 					conversionidDetail.textProperty().bindBidirectional(newValue.conversationIdRegEx);
 					messageTypDetail.textProperty().bindBidirectional(newValue.messageTypeRegEx);
 					idDetail.textProperty().bindBidirectional(newValue.idRegEx);
+					colorDetail.fireEvent(new ActionEvent());//javafx bug workaround else color chooser wont update http://javafx-jira.kenai.com/browse/RT-26633
 				} 
 			}
 		});

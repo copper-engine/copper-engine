@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.shiro.SecurityUtils;
-
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
@@ -61,7 +59,7 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 	
 	public static CopperMonitoringService createSecurityWarppedMock() {
 		try {
-			return CopperMonitorServiceSecurityProxy.wrapWithSecurity(new CopperDataProviderMock());
+			return CopperMonitorServiceSecurityProxy.secure(new CopperDataProviderMock());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -199,7 +197,6 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 
 	@Override
 	public CopperInterfaceSettings getSettings() throws RemoteException {
-		System.out.println(SecurityUtils.getSubject().isAuthenticated());
 		return new CopperInterfaceSettings(true);
 	}
 

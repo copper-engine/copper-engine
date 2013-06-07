@@ -193,10 +193,11 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 					AdapterNotifyRowModel newValue) {
 				if (newValue!=null){
 					mesageDetail.setText(newValue.message.get());
+				} else {
+					mesageDetail.setText("");
 				}
 			}
 		});
-        
         
         adapterNameCorOut.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<AdapterNotifyRowModel,String>, ObservableValue<String>>() {
  			@Override

@@ -281,17 +281,17 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
         
        
         
-        idColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.11));
-        prioritynColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.07));
-        processorPoolColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
-        stateColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.07));
-        timeoutColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
-        lastActivityTimestamp.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.11));
-        overallLifetimeInMs.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
-        startTime.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
-        finishTime.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
-        lastErrorTime.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.09));
-        errorInfos.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.1));
+        idColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.11));
+        prioritynColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.07));
+        processorPoolColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.09));
+        stateColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.07));
+        timeoutColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.09));
+        lastActivityTimestamp.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.11));
+        overallLifetimeInMs.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.09));
+        startTime.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.09));
+        finishTime.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.09));
+        lastErrorTime.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.09));
+        errorInfos.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.1));
         
      
  

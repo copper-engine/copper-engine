@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitoring.client.ui.sql.filter;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -57,25 +58,33 @@ public class SqlFilterController extends BaseFilterController<SqlFilterModel> im
         history.getItems().add("SELECT * FROM COP_WAIT");
         history.getItems().add("SELECT * FROM COP_QUEUE");
         history.getItems().add("SELECT * FROM COP_AUDIT_TRAIL_EVENT");
+        history.getItems().add("SELECT * FROM COP_ENGINE");
+        final int fixSize=history.getItems().size();
         
         sqlEditor.getEngine().loadContent(codeMirrorFormatter.format("", CodeFormatLanguage.SQL));
-        sqlEditor.setOnKeyTyped(new EventHandler<Event>() {
+        sqlEditor.setOnKeyReleased(new EventHandler<Event>() {
 			@Override
 			public void handle(Event event) {
-				String query = (String )sqlEditor.getEngine().executeScript("editor.getValue();");
-				model.sqlQuery.setValue( query);
-				if (!query.isEmpty()){
-					history.getItems().add(query);
-					if (history.getItems().size()>15){
-						history.getItems().remove(0);
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						String query = (String )sqlEditor.getEngine().executeScript("editor.getValue();");
+						model.sqlQuery.setValue( query);
+						if (!query.isEmpty()){
+							history.getItems().add(query);
+							if (history.getItems().size()>fixSize+10){
+								history.getItems().remove(fixSize);
+							}
+						}
 					}
-				}
+				});
 			}
 		}); 
         
         history.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
+				model.sqlQuery.setValue(history.getSelectionModel().getSelectedItem());
 				sqlEditor.getEngine().executeScript("editor.setValue('"+history.getSelectionModel().getSelectedItem()+"');");
 			}
 		});

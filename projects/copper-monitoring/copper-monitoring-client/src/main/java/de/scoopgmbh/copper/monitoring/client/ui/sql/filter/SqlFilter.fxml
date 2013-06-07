@@ -14,7 +14,7 @@
   <bottom>
     <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0" BorderPane.alignment="CENTER">
       <children>
-        <Label text="History" />
+        <Label style="" text="History" />
         <ComboBox fx:id="history" prefWidth="500.0" HBox.hgrow="SOMETIMES">
           <items>
             <FXCollections fx:factory="observableArrayList" />
@@ -27,6 +27,14 @@
     </HBox>
   </bottom>
   <center>
-    <WebView fx:id="sqlEditor" prefHeight="283.0" prefWidth="632.0" />
+    <BorderPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: Gainsboro;&#10;-fx-border-width: 1;">
+      <center>
+        <WebView fx:id="sqlEditor" prefHeight="283.0" prefWidth="632.0" style="">
+        </WebView>
+      </center>
+    </BorderPane>
+    <BorderPane.margin>
+        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+    </BorderPane.margin>
   </center>
 </BorderPane>

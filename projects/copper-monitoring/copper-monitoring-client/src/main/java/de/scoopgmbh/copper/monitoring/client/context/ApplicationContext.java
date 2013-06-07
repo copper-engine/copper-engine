@@ -34,7 +34,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -60,6 +59,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.login.LoginController;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.monitoring.client.util.CSSHelper;
+import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.LoginService;
@@ -88,7 +88,7 @@ public class ApplicationContext {
 		
 		SettingsModel defaultSettings = new SettingsModel();
 		AuditralColorMapping newItem = new AuditralColorMapping();
-		newItem.color.setValue(Color.rgb(240, 40, 40));
+		newItem.color.setValue(Color.rgb(255, 128, 128));
 		newItem.loglevelRegEx.setValue("1");
 		defaultSettings.auditralColorMappings.add(newItem);
 		byte[] defaultModelbytes;
@@ -164,86 +164,77 @@ public class ApplicationContext {
 	public void setGuiCopperDataProvider(CopperMonitoringService copperDataProvider, String serverAdress, String sessionId){
 		this.serverAdress.set(serverAdress);
 		this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);
-		getFormFactorySingelton().setupGUIStructure();
+		getFormContextSingelton().setupGUIStructure();
 	}
 	
 	public void setHttpGuiCopperDataProvider(final String serverAdressParam, final String user, final String password){
-		final ProgressIndicator progressIndicator = new ProgressIndicator();
-		progressIndicator.setMaxSize(300, 300);
-		mainStackPane.getChildren().add(progressIndicator);
-		final Label label = new Label("connecting");
-		label.setWrapText(true);
-		mainStackPane.getChildren().add(label);
-		Thread th = new Thread(){
+		ComponentUtil.executeWithProgressDialogInBackground(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					String serverAdress=serverAdressParam;
-					if (!serverAdress.endsWith("/")){
-						serverAdress= serverAdress+"/";
-					}
-					final CopperMonitoringService copperMonitoringService;
-					
-					final LoginService loginService;
-					{
-						HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-						httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
-						httpInvokerProxyFactoryBean.setServiceInterface(LoginService.class);
-						httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "loginService");
-						httpInvokerProxyFactoryBean.afterPropertiesSet();
-						loginService = (LoginService) httpInvokerProxyFactoryBean.getObject();
-					}
-					
-					final String sessionId;
-					try {
-						sessionId = loginService.doLogin(user, password);
-					} catch (RemoteException e) {
-						throw new RuntimeException(e);
-					}
-					
-					{
-						HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-						httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
-						httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
-						httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory(sessionId));
-						httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
-						httpInvokerProxyFactoryBean.afterPropertiesSet();
-						copperMonitoringService = (CopperMonitoringService) httpInvokerProxyFactoryBean.getObject();
-					}
-					
-					final String serverAdressFinal= serverAdress;
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							setGuiCopperDataProvider(copperMonitoringService,serverAdressFinal, sessionId);
-						}
-					});
+					connect(serverAdressParam,user,password);
 				} catch (final Exception e){
 					e.printStackTrace();
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							showErrorMessage("Can't Connect: \n"+e.getMessage(),e);
-						}
-					});
-				} finally {
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							mainStackPane.getChildren().remove(progressIndicator);
-							mainStackPane.getChildren().remove(label);
-						}
-					});	
+					showErrorMessage("Can't Connect: \n"+e.getMessage(),e);
 				}
-				
 			}
-		};
-		th.setDaemon(true);
-		th.start();
+		}, mainStackPane, "connecting");
+	}
+		
+
+	private void connect(final String serverAdressParam, final String user, final String password) {
+		String serverAdress = serverAdressParam;
+		if (!serverAdress.endsWith("/")) {
+			serverAdress = serverAdress + "/";
+		}
+
+		final LoginService loginService;
+		{
+			HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+			httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
+			httpInvokerProxyFactoryBean.setServiceInterface(LoginService.class);
+			httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "loginService");
+			httpInvokerProxyFactoryBean.afterPropertiesSet();
+			loginService = (LoginService) httpInvokerProxyFactoryBean.getObject();
+		}
+
+		final String sessionId;
+		try {
+			sessionId = loginService.doLogin(user, password);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+
+		if (sessionId == null) {
+			showWarningMessage("Invalid user/password", null, new Runnable() {
+				@Override
+				public void run() {
+					createLoginForm().show();
+				}
+			});
+		} else {
+			HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+			httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
+			httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
+			httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory(sessionId));
+			httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+			httpInvokerProxyFactoryBean.afterPropertiesSet();
+			final CopperMonitoringService copperMonitoringService = (CopperMonitoringService) httpInvokerProxyFactoryBean.getObject();
+
+			final String serverAdressFinal = serverAdress;
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					setGuiCopperDataProvider(copperMonitoringService, serverAdressFinal, sessionId);
+				}
+			});
+		}
+
 	}
 	
 	FormContext formContext;
-	public FormContext getFormFactorySingelton(){
+	private FxmlForm<LoginController> fxmlForm;
+	public FormContext getFormContextSingelton(){
 		if (guiCopperDataProvider==null){
 			throw new IllegalStateException("guiCopperDataProvider must initialised");
 		}
@@ -254,7 +245,10 @@ public class ApplicationContext {
 	}
 	
 	public Form<LoginController> createLoginForm(){
-		return new FxmlForm<LoginController>("login.title", new LoginController(this,settingsModelSinglton), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
+		if (fxmlForm==null){
+			fxmlForm = new FxmlForm<LoginController>("login.title", new LoginController(this,settingsModelSinglton), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
+		}
+		return fxmlForm;
 	}
 
 	public Pane getMainPane() {
@@ -262,68 +256,85 @@ public class ApplicationContext {
 	}
 	
 	
-	public void showMessage(String message, Exception e, Color backColor, ImageView icon){
-		final Pane backShadow = new Pane();
-		backShadow.setStyle("-fx-background-color: "+CSSHelper.toCssColor(backColor)+";");
-		mainStackPane.getChildren().add(backShadow);
-		
-		String blackOrWhiteDependingFromBack ="ladder("+CSSHelper.toCssColor(backColor)+", white 49%, black 50%);";
-		
-		final VBox back = new VBox(3);
-		StackPane.setMargin(back, new Insets(150));
-		back.setStyle("-fx-border-color: "+blackOrWhiteDependingFromBack +"; -fx-border-width: 1px; -fx-padding: 3;");
-		back.setAlignment(Pos.CENTER_RIGHT);
-		final Label label = new Label(message);
-		label.prefWidthProperty().bind(mainStackPane.widthProperty());
-		StackPane.setMargin(back, new Insets(150));
-		label.setStyle("-fx-text-fill: "+blackOrWhiteDependingFromBack +";");
-		label.setWrapText(true);
-		label.setGraphic(icon);
-		back.getChildren().add(label);
-		
-		final TextArea area = new TextArea();
-		area.setPrefRowCount(10);
-		area.setText(Throwables.getStackTraceAsString(e));
-		area.setOpacity(0.4);
-		area.setEditable(false);
-		VBox.setVgrow(area, Priority.ALWAYS);
-		back.getChildren().add(area);
-		
-		ContextMenu menue = new ContextMenu();
-		MenuItem item = new MenuItem("copy to clipboard");
-		item.setOnAction(new EventHandler<ActionEvent>() {
+	public void showMessage(final String message, final Exception e, final Color backColor, final ImageView icon, final Runnable okOnAction){
+		Platform.runLater(new Runnable() {
 			@Override
-			public void handle(ActionEvent event) {
-				final Clipboard clipboard = Clipboard.getSystemClipboard();
-			    final ClipboardContent content = new ClipboardContent();
-			    content.putString(area.getText());
-			    clipboard.setContent(content);
+			public void run() {
+				final Pane backShadow = new Pane();
+				backShadow.setStyle("-fx-background-color: "+CSSHelper.toCssColor(backColor)+";");
+				mainStackPane.getChildren().add(backShadow);
+				
+				String blackOrWhiteDependingFromBack ="ladder("+CSSHelper.toCssColor(backColor)+", white 49%, black 50%);";
+				
+				final VBox back = new VBox(3);
+				StackPane.setMargin(back, new Insets(150));
+				back.setStyle("-fx-border-color: "+blackOrWhiteDependingFromBack +"; -fx-border-width: 1px; -fx-padding: 3;");
+				back.setAlignment(Pos.CENTER_RIGHT);
+				final Label label = new Label(message);
+				label.prefWidthProperty().bind(mainStackPane.widthProperty());
+				StackPane.setMargin(back, new Insets(150));
+				label.setStyle("-fx-text-fill: "+blackOrWhiteDependingFromBack +";");
+				label.setWrapText(true);
+				label.setGraphic(icon);
+				back.getChildren().add(label);
+				
+				final TextArea area = new TextArea();
+				area.setPrefRowCount(10);
+				if (e!=null){
+					area.setText(Throwables.getStackTraceAsString(e));
+				}
+				area.setOpacity(0.4);
+				area.setEditable(false);
+				VBox.setVgrow(area, Priority.ALWAYS);
+				back.getChildren().add(area);
+				
+				ContextMenu menue = new ContextMenu();
+				MenuItem item = new MenuItem("copy to clipboard");
+				item.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent event) {
+						final Clipboard clipboard = Clipboard.getSystemClipboard();
+					    final ClipboardContent content = new ClipboardContent();
+					    content.putString(area.getText());
+					    clipboard.setContent(content);
+					}
+				});
+				menue.getItems().add(item);
+				area.setContextMenu(menue);
+				
+				Button ok = new Button("OK");
+				ok.setPrefWidth(100);
+				ok.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent event) {
+						mainStackPane.getChildren().remove(back);
+						mainStackPane.getChildren().remove(backShadow);
+						if (okOnAction!=null){
+							okOnAction.run();
+						}
+					}
+				});
+				back.getChildren().add(ok);
+				
+				mainStackPane.getChildren().add(back);
 			}
 		});
-		menue.getItems().add(item);
-		area.setContextMenu(menue);
-		
-		Button ok = new Button("OK");
-		ok.setPrefWidth(100);
-		ok.setStyle("-fx-base: "+blackOrWhiteDependingFromBack +";");
-		ok.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				mainStackPane.getChildren().remove(back);
-				mainStackPane.getChildren().remove(backShadow);
-			}
-		});
-		back.getChildren().add(ok);
-		
-		mainStackPane.getChildren().add(back);
 	}
 	
 	public void showErrorMessage(String message, Exception e){
-		showMessage(message,e,Color.rgb(255,0,0,0.55), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/error.png").toExternalForm()));
+		showErrorMessage(message,e,null);
+	}
+	
+	public void showErrorMessage(String message, Exception e, Runnable okOnACtion){
+		showMessage(message,e,Color.rgb(255,0,0,0.55), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/error.png").toExternalForm()),okOnACtion);
+	}
+	
+	public void showWarningMessage(String message, Exception e, Runnable okOnACtion){
+		showMessage(message,e,Color.rgb(255,200,90,0.75), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/warning.png").toExternalForm()),okOnACtion);
 	}
 	
 	public void showWarningMessage(String message, Exception e){
-		showMessage(message,e,Color.rgb(255,200,90,0.75), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/warning.png").toExternalForm()));
+		showWarningMessage(message,e,null);
 	}
 
 }

@@ -113,10 +113,10 @@ public class MessageResultController extends FilterResultControllerBase<MessageF
 
 //        resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         
-        timeColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.15));
-        timeout.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.15));
-        messageColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.45));
-        idColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.25));
+        timeColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.15));
+        timeout.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.15));
+        messageColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.45));
+        idColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.25));
 
     }
     

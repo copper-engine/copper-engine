@@ -32,6 +32,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
@@ -93,6 +94,14 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 				}
 			}
 		});
+		regExp.selectedProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				if (newValue!=null){
+					serachInTable(tableView,textField.getText(),newValue);
+				}
+			}
+		});
 		textField.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -100,7 +109,7 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 			}
 		});
 		HBox.setHgrow(textField,Priority.ALWAYS);
-		final Label count = new Label();
+		final Label count = new Label("count: 0");
 		tableView.itemsProperty().addListener(new ChangeListener<ObservableList<M>>() {
 			@Override
 			public void changed(ObservableValue<? extends ObservableList<M>> observable, ObservableList<M> oldValue,
@@ -115,11 +124,12 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 		pane.getChildren().add(new Separator(Orientation.VERTICAL));
 		pane.getChildren().add(count);
 		
-		
+		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		return pane;
 	}
 	
 	private void serachInTable(final TableView<?> tableView, String newValue, boolean useRegex) {
+		tableView.getSelectionModel().clearSelection();
 		try {
 			Pattern.compile(newValue);
 		} catch (PatternSyntaxException e) {
@@ -160,6 +170,7 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 				 Object cell = tableView.getColumns().get(column).getCellData(row);
 				 clipboardString.append(cell+"\t");
 			}
+			clipboardString.append("\n");
 		}
         final ClipboardContent content = new ClipboardContent();
         content.putString(clipboardString.toString());

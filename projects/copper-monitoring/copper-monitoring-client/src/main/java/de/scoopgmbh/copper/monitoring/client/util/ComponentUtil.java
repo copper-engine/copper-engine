@@ -15,7 +15,10 @@
  */
 package de.scoopgmbh.copper.monitoring.client.util;
 
+import javafx.application.Platform;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.StackPane;
 
 public class ComponentUtil {
 	
@@ -26,6 +29,39 @@ public class ComponentUtil {
 					"-fx-padding: 5em 5em 5em 5em;");
 
 		return indicator;
+	}
+	
+	
+	public static void executeWithProgressDialogInBackground(final Runnable runnable, final StackPane target, final String text){
+		Thread th = new Thread(){
+			@Override
+			public void run() {
+				final ProgressIndicator progressIndicator = new ProgressIndicator();
+				final Label label = new Label(text);
+				try {
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							progressIndicator.setMaxSize(300, 300);
+							target.getChildren().add(progressIndicator);
+							label.setWrapText(true);
+							target.getChildren().add(label);
+						}
+					});
+					runnable.run();
+				} finally {
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							target.getChildren().remove(progressIndicator);
+							target.getChildren().remove(label);
+						}
+					});	
+				}
+			}
+		};
+		th.setDaemon(true);
+		th.start();
 	}
 
 }
