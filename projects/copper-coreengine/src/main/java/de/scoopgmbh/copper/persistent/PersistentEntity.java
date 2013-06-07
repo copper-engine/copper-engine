@@ -22,7 +22,7 @@ import java.io.Serializable;
  * @author Roland Scheel
  *
  */
-public class PersistentEntity implements Serializable {
+public class PersistentEntity implements Serializable, Cloneable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -34,6 +34,15 @@ public class PersistentEntity implements Serializable {
 	
 	public String getEntityId() {
 		return entityId;
+	}
+	
+	@Override
+	public PersistentEntity clone() {
+		try {
+			return (PersistentEntity)super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 }

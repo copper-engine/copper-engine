@@ -71,7 +71,7 @@ public final class DefaultPersistenceContextFactory implements PersistenceContex
 
 			@SuppressWarnings({ "unchecked" })
 			@Override
-			public <T> EntityPersister<T> getPersister(Class<T> entityClass) {
+			public <T> EntityPersister<T> getPersister(Class<? extends T> entityClass) {
 				
 				DefaultEntityPersisterFactory<?, DefaultEntityPersister<T>> persisterFactory = (DefaultEntityPersisterFactory<?, DefaultEntityPersister<T>>) configuration.getPersisterFactory(entityClass);
 				if (persisterFactory == null)

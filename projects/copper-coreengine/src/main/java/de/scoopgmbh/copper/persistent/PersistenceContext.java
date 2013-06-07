@@ -26,14 +26,14 @@ public interface PersistenceContext {
 	 * @param entity The entity class to look up the persister for
 	 * @return the persister
 	 */
-	<T> EntityPersister<T> getPersister(Class<T> entityClass);
+	<T> EntityPersister<T> getPersister(Class<? extends T> entityClass);
 	
 	<T> T getMapper(Class<T> mapperInterface);
 	
 	PersistenceContext NULL_CONTEXT = new PersistenceContext() {
 		
 		@Override
-		public <T> EntityPersister<T> getPersister(Class<T> entityClass) {
+		public <T> EntityPersister<T> getPersister(Class<? extends T> entityClass) {
 			throw new RuntimeException("You did not configure a WorkflowPersistencePlugin.");
 		}
 
