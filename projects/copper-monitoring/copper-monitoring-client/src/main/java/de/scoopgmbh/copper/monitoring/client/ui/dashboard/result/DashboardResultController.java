@@ -26,7 +26,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TabPane;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
@@ -34,12 +33,12 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
 public class DashboardResultController extends FilterResultControllerBase<EmptyFilterModel,DashboardResultModel> implements Initializable{
 	private final GuiCopperDataProvider copperDataProvider;
-	private final FormContext formContext;
+	private final DashboardPartsFactory dashboardPartsFactory;
 	
-	public DashboardResultController(GuiCopperDataProvider copperDataProvider, FormContext formContext) {
+	public DashboardResultController(GuiCopperDataProvider copperDataProvider, DashboardPartsFactory dashboardPartsFactory) {
 		super();
 		this.copperDataProvider = copperDataProvider;
-		this.formContext = formContext;
+		this.dashboardPartsFactory = dashboardPartsFactory;
 	}
 
     @FXML //  fx:id="engines"
@@ -61,7 +60,7 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 		DashboardResultModel dashboardResultModel = filteredlist.get(0);
 		engines.getTabs().clear();
 		for (ProcessingEngineInfo processingEngineInfo: dashboardResultModel.engines){
-			formContext.createEngineForm(engines,processingEngineInfo,dashboardResultModel).show();
+			dashboardPartsFactory.createEngineForm(engines,processingEngineInfo,dashboardResultModel).show();
 		}
 	}
 

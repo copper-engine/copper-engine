@@ -18,7 +18,6 @@ package de.scoopgmbh.copper.monitoring.client.context;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
-import de.scoopgmbh.copper.monitoring.client.form.TabPaneShowFormStrategie;
 import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
@@ -50,7 +49,7 @@ public class FormBuilder<FM,RM, F extends FilterController<FM> ,R extends Filter
 	}
 	
 	public FormBuilder(F filterController, R resultController, FormContext formContext){
-		this(filterController,resultController,formContext.messageProvider,formContext.guiCopperDataProvider,new TabPaneShowFormStrategie(formContext.mainTabPane));
+		this(filterController,resultController,formContext.messageProvider,formContext.guiCopperDataProvider,formContext.getDefaultShowFormStrategy());
 	}
 	
 	public FilterAbleForm<FM,RM> build(){

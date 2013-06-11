@@ -22,6 +22,7 @@ import java.util.Date;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 
 public class MonitoringDataCollector{
 	
@@ -54,6 +55,22 @@ public class MonitoringDataCollector{
 			@Override
 			public void run() {
 				monitoringData.addAdapterWfNotifyWitdhLimit(new AdapterWfNotifyInfo(correlationId, message!=null?message.toString():"null", new Date(), adapter.getClass().getName()));
+			}
+		});
+	}
+	
+	public void measureTimePeriod(String measurePointId, Runnable action) {
+		final MeasurePointData measurePointData = new MeasurePointData(measurePointId);
+		measurePointData.setElementCount(1);
+		measurePointData.setCount(1);
+		measurePointData.setTime(new Date());
+		long timestart=System.nanoTime();
+		action.run();
+		measurePointData.setElapsedTimeMicros((System.nanoTime()-timestart)/1000);
+		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+			@Override
+			public void run() {
+				monitoringData.addMeasurePointWitdhLimit(measurePointData);
 			}
 		});
 	}

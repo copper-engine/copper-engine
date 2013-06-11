@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+  <center>
+    <AreaChart fx:id="areaChart">
+      <xAxis>
+        <CategoryAxis fx:id="categoryAxis" side="BOTTOM">
+          <categories>
+            <FXCollections fx:factory="observableArrayList" />
+          </categories>
+        </CategoryAxis>
+      </xAxis>
+      <yAxis>
+        <NumberAxis fx:id="numberAxis" label="micro secounds" side="LEFT" />
+      </yAxis>
+    </AreaChart>
+  </center>
+</BorderPane>

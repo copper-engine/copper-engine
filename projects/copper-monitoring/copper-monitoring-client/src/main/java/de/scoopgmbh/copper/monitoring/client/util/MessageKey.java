@@ -35,7 +35,8 @@ public enum MessageKey {
 	workflowGroup_title("workflowGroup.title"),
 	workflowRepository_title("workflowRepository.title"),
 	hotfix_title("hotfix.title"), 
-	adapterMonitoring_title("adapterMonitoring.title"), ;
+	adapterMonitoring_title("adapterMonitoring.title"), 
+	customMeasurePoint_title("customMeasurePoint.title");
 			 
     private final String value;
     MessageKey(String v) {

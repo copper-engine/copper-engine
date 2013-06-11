@@ -45,7 +45,7 @@
       </Rectangle>
       <Label layoutX="378.0" layoutY="91.0" prefHeight="19.951171875" text="ENQUEUED" />
       <TextField id="row" fx:id="state_ENQUEUED" editable="false" layoutX="386.0" layoutY="111.0" opacity="0.75" prefHeight="22.0" prefWidth="62.0" />
-      <TabPane id="polls" fx:id="pools" layoutX="60.0" layoutY="149.0" prefHeight="240.0" prefWidth="289.0" side="BOTTOM" style="-fx-background-color: rgba(0,0,0,0);" styleClass="copperpool-tab-pane" tabClosingPolicy="UNAVAILABLE" />
+      <TabPane fx:id="pools" layoutX="60.0" layoutY="149.0" prefHeight="240.0" prefWidth="289.0" side="BOTTOM" style="-fx-background-color: rgba(0,0,0,0);" styleClass="copperpool-tab-pane" tabClosingPolicy="UNAVAILABLE" />
       <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x1" height="115.951171875" layoutX="716.0" layoutY="72.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="200.0" />
       <Label layoutX="728.0" layoutY="77.0" text="AdapterInjector" textFill="WHITE" />
       <Label layoutX="720.0" layoutY="270.0" text="desc" textFill="WHITE" />
@@ -74,7 +74,7 @@
       <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="55.0" layoutX="368.0" layoutY="321.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0" />
       <Label layoutX="389.0" layoutY="326.0" prefHeight="19.951171875" text="ERROR" />
       <TextField id="row" fx:id="state_ERROR" editable="false" layoutX="383.0" layoutY="346.0" opacity="0.75" prefHeight="22.0" prefWidth="62.0" />
-      <TextField id="id" fx:id="batcherNewNum" editable="true" layoutX="556.0" layoutY="262.0" opacity="1.0" prefHeight="22.0" prefWidth="64.0" />
+      <TextField fx:id="batcherNewNum" editable="true" layoutX="556.0" layoutY="262.0" opacity="1.0" prefHeight="22.0" prefWidth="64.0" />
       <Button fx:id="batcherNumSet" layoutX="626.0" layoutY="262.0" minHeight="13.0" minWidth="35.0" mnemonicParsing="false" prefHeight="21.999900000002526" prefWidth="46.0" text="set">
         <font>
           <Font size="13.0" />

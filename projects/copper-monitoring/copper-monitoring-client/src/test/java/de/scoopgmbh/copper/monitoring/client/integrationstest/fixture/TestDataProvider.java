@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.server;
+package de.scoopgmbh.copper.monitoring.client.integrationstest.fixture;
 
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,22 +48,12 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo.Workflow
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 
-public class CopperDataProviderMock extends UnicastRemoteObject implements CopperMonitoringService {
-	private static final long serialVersionUID = -5757718583261293846L;
-	
-	protected CopperDataProviderMock() throws RemoteException {
+public class TestDataProvider implements CopperMonitoringService {
+	private static final long serialVersionUID = -509088135898037190L;
+
+	protected TestDataProvider() {
 		super();
 	}
-	
-	
-	public static CopperMonitoringService createSecurityWarppedMock() {
-		try {
-			return CopperMonitorServiceSecurityProxy.secure(new CopperDataProviderMock());
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
-	};
-
 
 	@Override
 	public String getAuditTrailMessage(long id) throws RemoteException {
@@ -209,7 +198,7 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 	
 	@Override
 	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException {
-		return new PerformanceMonitor().getRessourcenInfo();
+		return new SystemResourcesInfo(new Date(),0,0,0,0,0,0);
 	}
 
 	@Override
@@ -254,31 +243,28 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 		return result;
 	}
 
-
+	public int numberOfThreads;
 	@Override
 	public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads) {
-		// TODO Auto-generated method stub
-		
+		this.numberOfThreads=numberOfThreads;
 	}
 
-
+	public int threadPriority;
 	@Override
 	public void setThreadPriority(String engineid, String processorPoolId, int threadPriority) {
-		// TODO Auto-generated method stub
-		
+		this.threadPriority = threadPriority;
 	}
 
 
 	@Override
 	public void resetMeasurePoints() {
 		// TODO Auto-generated method stub
-		
 	}
-
+	
+	public int numerOfThreadsBatcher;
 	@Override
 	public void setBatcherNumThreads(int numThread, String engineid) {
-		// TODO Auto-generated method stub
-		
+		this.numerOfThreadsBatcher = numThread;
 	}
 
 
@@ -292,18 +278,15 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 		return new AdapterHistoryInfo();
 	}
 
-
 	@Override
-	public List<MeasurePointData> getMonitoringMeasurePoints(String measurePoint,long limit) {
+	public List<MeasurePointData> getMonitoringMeasurePoints(String measurePoint,long limit) throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-
 	@Override
-	public List<String> getMonitoringMeasurePointIds() {
+	public List<String> getMonitoringMeasurePointIds() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 }

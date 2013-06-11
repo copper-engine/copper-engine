@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -352,6 +353,39 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			    	}
 			    }
 				return new AdapterHistoryInfo(adapterCalls,adapterWfLaunches,adapterWfNotifies);
+			}
+		});
+	}
+
+	@Override
+	public List<MeasurePointData> getMonitoringMeasurePoints(final String measurePoint, final long limit) throws RemoteException {
+		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<MeasurePointData>>(){
+			@Override
+			public List<MeasurePointData> call() throws Exception {
+				ArrayList<MeasurePointData> result = new ArrayList<MeasurePointData>();
+				for (MeasurePointData measurePointData: monitoringData.getMeasurePoints()){
+					if (measurePoint==null || measurePoint.isEmpty() || measurePoint.equals(measurePointData.getMeasurePointId())){
+						result.add(measurePointData);
+					}
+					if (result.size()>=limit){
+						break;
+					}
+				}
+				return result;
+			}
+		});
+	}
+
+	@Override
+	public List<String> getMonitoringMeasurePointIds() throws RemoteException {
+		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<String>>(){
+			@Override
+			public List<String> call() throws Exception {
+				HashSet<String> ids = new HashSet<String>();
+				for (MeasurePointData measurePointData : monitoringData.getMeasurePoints()){
+					ids.add(measurePointData.getMeasurePointId());
+				}
+				return new ArrayList<String>(ids);
 			}
 		});
 	}

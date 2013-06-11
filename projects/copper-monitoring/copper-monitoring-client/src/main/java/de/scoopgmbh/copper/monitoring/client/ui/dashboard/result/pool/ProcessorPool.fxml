@@ -19,7 +19,7 @@
     <TextField fx:id="id" editable="false" layoutX="27.0" layoutY="34.0" opacity="0.75" prefHeight="22.0" prefWidth="94.0" promptText="" />
     <Label layoutX="134.0" layoutY="36.0" text="typ" textFill="WHITE" />
     <TextField fx:id="typ" editable="false" layoutX="159.0" layoutY="34.0" opacity="0.75" prefHeight="22.0" prefWidth="82.0" />
-    <Button id="numemrbutton" fx:id="nummerbutton" alignment="TOP_CENTER" layoutX="193.0" layoutY="98.0" minHeight="19.951171875" mnemonicParsing="false" prefHeight="22.000099999997474" prefWidth="51.0" text="set">
+    <Button fx:id="nummerbutton" alignment="TOP_CENTER" layoutX="193.0" layoutY="98.0" minHeight="19.951171875" mnemonicParsing="false" prefHeight="22.000099999997474" prefWidth="51.0" text="set">
       <font>
         <Font size="13.0" fx:id="x1" />
       </font>

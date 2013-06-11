@@ -21,6 +21,7 @@ import java.util.List;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 
 /**
  *	Contains the data for monitoring.
@@ -30,19 +31,22 @@ public class MonitoringData {
 	private List<AdapterCallInfo> adapterCalls= new LinkedList<AdapterCallInfo>();
 	private List<AdapterWfNotifyInfo> adapterWfNotifies= new LinkedList<AdapterWfNotifyInfo>();
 	private List<AdapterWfLaunchInfo> adapterWfLaunches= new LinkedList<AdapterWfLaunchInfo>();
+	private List<MeasurePointData> measurePoints= new LinkedList<MeasurePointData>();
 	private final long adapterCallsLimit;
 	private final long adapterWfNotifiesLimit;
 	private final long adapterWfLaunchesLimit;
+	private final long measurePointLimit;
 	
-	public MonitoringData(long adapterCallsLimit,long adapterWfNotifiesLimit, long adapterWfLaunchesLimit) {
+	public MonitoringData(long adapterCallsLimit,long adapterWfNotifiesLimit, long adapterWfLaunchesLimit, long measurePointLimit) {
 		super();
 		this.adapterCallsLimit=adapterCallsLimit;
 		this.adapterWfNotifiesLimit=adapterWfNotifiesLimit;
 		this.adapterWfLaunchesLimit=adapterWfLaunchesLimit;
+		this.measurePointLimit = measurePointLimit;
 	}
 	
 	public MonitoringData() {
-		this(1000,1000,1000);
+		this(1000,1000,1000,10000);
 	}
 	
 	public void addAdapterCallsWitdhLimit(AdapterCallInfo adapterCall){
@@ -65,6 +69,13 @@ public class MonitoringData {
 		}
 		adapterWfLaunches.add(adapterWfLaunch);
 	}
+	
+	public void addMeasurePointWitdhLimit(MeasurePointData measurePoint){
+		if(measurePoints.size()>=measurePointLimit){
+			measurePoints.remove(0);
+		}
+		measurePoints.add(measurePoint);
+	}
 
 	public List<AdapterCallInfo> getAdapterCalls() {
 		return adapterCalls;
@@ -78,7 +89,9 @@ public class MonitoringData {
 		return adapterWfLaunches;
 	}
 
-	
+	public List<MeasurePointData> getMeasurePoints() {
+		return measurePoints;
+	}
 
 	
 

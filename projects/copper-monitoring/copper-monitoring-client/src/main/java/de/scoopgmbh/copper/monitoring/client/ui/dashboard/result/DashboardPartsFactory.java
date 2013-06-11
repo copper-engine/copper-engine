@@ -13,24 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.server.monitoring;
+package de.scoopgmbh.copper.monitoring.client.ui.dashboard.result;
 
-import static org.junit.Assert.assertEquals;
+import javafx.scene.control.TabPane;
+import de.scoopgmbh.copper.monitoring.client.form.Form;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
-import org.junit.Test;
-
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
-
-
-public class MonitoringDataTest {
-	
-	@Test
-	public void test_addAdapterWflaunchWitdhLimit(){
-		MonitoringData monitoringData = new MonitoringData(10,10,10,10);
-		for (int i=0;i<20;i++){
-			monitoringData.addAdapterWflaunchWitdhLimit(new AdapterWfLaunchInfo());
-		}
-		assertEquals(10, monitoringData.getAdapterWfLaunches().size());
-	}
-
+public interface DashboardPartsFactory {
+	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model);
 }

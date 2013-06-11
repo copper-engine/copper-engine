@@ -1,0 +1,34 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion" xmlns:ext="urn:concordion-extensions:2010">
+	<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	</head>
+    <body>
+    	<h1>Dashboard</h1>
+    	<h2>Introduction</h2>
+    	<p>Dashboard shows the configuration of copper. 
+    	The dashboard view supports adjustment of processorpool threadpool size, threadpool priority and the batcher threadpool size</p>
+    	<h2>Example</h2>
+    	<div class="example">
+    		<p>
+    			If the engine have 2 pools the gui displays <span concordion:assertEquals="getPoolsTabsCount()">2</span> pooltabs.
+        	</p>
+            <p>
+            	For the input: <span concordion:set="#size">7</span> copper will set pool size to: <span concordion:assertEquals="setPoolSize(#size)">7</span>
+        	</p>
+        	<p>
+            	For the input: <span concordion:set="#size">3</span> copper will set pool priority to: <span concordion:assertEquals="setPriority(#size)">3</span>
+        	</p>
+        	<p>
+            	For the input: <span concordion:set="#size">9</span> copper will set batcher pool to: <span concordion:assertEquals="setBatcherPoolSize(#size)">9</span>
+        	</p>
+        </div>
+        <h2>Screenshot</h2>
+        <div class="example">
+            <p style="display: inline-block;">
+            	<!--Vorher selektiert (row: <span concordion:set="#row">2</span>, col:<span concordion:set="#col">2</span>)
+	            <span concordion:execute="select(#col,#row)"/-->
+                <div ext:screenshot=""/>
+            </p> 
+        </div>
+    </body>
+</html>

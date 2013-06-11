@@ -56,6 +56,10 @@ import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilt
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
+import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterController;
+import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.result.CustomMeasurePointResultController;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardPartsFactory;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
@@ -108,18 +112,14 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
-public class FormContext {
-	final TabPane mainTabPane;
-	private final BorderPane mainPane;
-	private FormGroup formGroup;
-	final MessageProvider messageProvider;
-	final GuiCopperDataProvider guiCopperDataProvider;
-	private final SettingsModel settingsModelSinglton;
-	private final CodeMirrorFormatter codeMirrorFormatterSingelton = new CodeMirrorFormatter();
-
-	public TabPane getMainTabPane() {
-		return mainTabPane;
-	}
+public class FormContext implements DashboardPartsFactory{
+	protected final TabPane mainTabPane;
+	protected final BorderPane mainPane;
+	protected final FormGroup formGroup;
+	protected final MessageProvider messageProvider;
+	protected final GuiCopperDataProvider guiCopperDataProvider;
+	protected final SettingsModel settingsModelSinglton;
+	protected final CodeMirrorFormatter codeMirrorFormatterSingelton = new CodeMirrorFormatter();
 
 	private FxmlForm<SettingsController> settingsForSingleton;
 	private FxmlForm<HotfixController> hotfixFormSingleton;
@@ -231,6 +231,12 @@ public class FormContext {
 			@Override
 			public Form<?> createForm() {
 				return createMeasurePointForm();
+			}
+		});
+		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.customMeasurePoint_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createCustomMeasurePointForm();
 			}
 		});
 		return loadgroup;
@@ -423,6 +429,7 @@ public class FormContext {
 		return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine,pool,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
 	}
 	
+	@Override
 	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model){
 		return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine,model,this,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane));
 	}
@@ -439,6 +446,18 @@ public class FormContext {
 		return new FormBuilder<AdapterMonitoringFilterModel, AdapterMonitoringResultModel, AdapterMonitoringFilterController,AdapterMonitoringResultController>(
 				new AdapterMonitoringFilterController(),
 				new AdapterMonitoringResultController(guiCopperDataProvider),
+				this
+			).build();
+	}
+
+	protected ShowFormStrategy<?> getDefaultShowFormStrategy() {
+		return new TabPaneShowFormStrategie(mainTabPane);
+	}
+	
+	public FilterAbleForm<CustomMeasurePointFilterModel, MeasurePointData> createCustomMeasurePointForm() {
+		return new FormBuilder<CustomMeasurePointFilterModel, MeasurePointData, CustomMeasurePointFilterController,CustomMeasurePointResultController>(
+				new CustomMeasurePointFilterController(guiCopperDataProvider),
+				new CustomMeasurePointResultController(guiCopperDataProvider),
 				this
 			).build();
 	}

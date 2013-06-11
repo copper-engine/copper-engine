@@ -13,24 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.server.monitoring;
+package de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter;
 
-import static org.junit.Assert.assertEquals;
+import javafx.beans.property.SimpleStringProperty;
 
-import org.junit.Test;
-
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
-
-
-public class MonitoringDataTest {
+public class CustomMeasurePointFilterModel {
+	public final SimpleStringProperty measurePointId = new SimpleStringProperty();
 	
-	@Test
-	public void test_addAdapterWflaunchWitdhLimit(){
-		MonitoringData monitoringData = new MonitoringData(10,10,10,10);
-		for (int i=0;i<20;i++){
-			monitoringData.addAdapterWflaunchWitdhLimit(new AdapterWfLaunchInfo());
-		}
-		assertEquals(10, monitoringData.getAdapterWfLaunches().size());
-	}
-
 }
