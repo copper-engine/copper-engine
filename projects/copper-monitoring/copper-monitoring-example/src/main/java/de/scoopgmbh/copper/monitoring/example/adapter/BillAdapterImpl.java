@@ -19,18 +19,19 @@ import java.math.BigDecimal;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Response;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
 public class BillAdapterImpl implements BillAdapter{
 	
 	private ProcessingEngine engine;
-	
+	private final MonitoringDataCollector monitoringDataCollector;
 	
 	long lastBilltime=System.currentTimeMillis();
 	long lastServicetime=System.currentTimeMillis();
 	
-	public BillAdapterImpl(){
+	public BillAdapterImpl(MonitoringDataCollector monitoringDataCollector){
+		this.monitoringDataCollector = monitoringDataCollector;
 	}
-	
 	
 	public void initWithEngine(ProcessingEngine enginepar){
 		this.engine = enginepar;
@@ -76,8 +77,13 @@ public class BillAdapterImpl implements BillAdapter{
 	}
 	
 	@Override
-	public void publishBill(Bill bill){
-		System.out.println("Bill, sum:"+bill.getTotalAmount());
+	public void publishBill(final Bill bill){
+		monitoringDataCollector.measureTimePeriod("publishBill", new Runnable() {
+			@Override
+			public void run() {
+				System.out.println("Bill, sum:"+bill.getTotalAmount());
+			}
+		});
 	}
 
 }

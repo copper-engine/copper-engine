@@ -145,7 +145,7 @@ public class MonitoringExampleMain {
 		final MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue();
 		final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
 		MonitoringDependencyInjector monitoringDependencyInjector= new MonitoringDependencyInjector(dependyInjector, monitoringDataCollector);
-		BillAdapterImpl billAdapterImpl = new BillAdapterImpl();
+		BillAdapterImpl billAdapterImpl = new BillAdapterImpl(monitoringDataCollector);
 		billAdapterImpl.initWithEngine(new MonitoringAdapterProcessingEngine(billAdapterImpl,persistentengine,monitoringDataCollector));
 		dependyInjector.register("billAdapter", billAdapterImpl);
 		dependyInjector.register("auditTrail", auditTrail);

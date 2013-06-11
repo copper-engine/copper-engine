@@ -99,5 +99,8 @@ public interface CopperMonitoringService extends Remote, Serializable {
 	
 	public AdapterHistoryInfo getAdapterHistoryInfos(String adapterId) throws RemoteException;
 	
+	public List<MeasurePointData> getMonitoringMeasurePoints(String measurePoint, final long limit) throws RemoteException;
+	
+	public List<String> getMonitoringMeasurePointIds() throws RemoteException;
 }
 

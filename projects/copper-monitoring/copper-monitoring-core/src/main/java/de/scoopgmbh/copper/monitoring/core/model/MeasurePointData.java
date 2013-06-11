@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.monitoring.core.model;
 
 import java.beans.ConstructorProperties;
 import java.io.Serializable;
+import java.util.Date;
 
 public class MeasurePointData implements Serializable {
 	private static final long serialVersionUID = -2755509084700249664L;
@@ -25,6 +26,8 @@ public class MeasurePointData implements Serializable {
 	private long elementCount = 0L;
 	private long elapsedTimeMicros = 0L;
 	private long count = 0L;
+	private Date time;
+	
 	
 	@ConstructorProperties({"mpId", "elementCount", "elapsedTimeMicros", "count"})
 	public MeasurePointData(String measurePointId, long elementCount, long elapsedTimeMicros, long count) {
@@ -86,5 +89,16 @@ public class MeasurePointData implements Serializable {
 		final double avgTimePerExecution = count > 0 ? (double)elapsedTimeMicros/(double)calcCount/1000.0 : 0.0;
 		return String.format("%1$55.55s #elements=%2$6d; avgCount=%3$6d; avgTime/Element=%4$12.5f msec; avgTime/Exec=%5$12.5f msec", measurePointId+DOTS, elementCount, avgElementCount, avgTimePerElement, avgTimePerExecution);
 	}
+	
+
+	public Date getTime() {
+		return time;
+	}
+
+	public void setTime(Date time) {
+		this.time = time;
+	}
+	
+
 
 }
