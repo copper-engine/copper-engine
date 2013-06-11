@@ -37,6 +37,12 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
     
     dependencies {
         testCompile 'junit:junit:4.11'
+    	testCompile 'org.mockito:mockito-all:1.9.5'
+    	
+    	// logging
+		compile 'org.slf4j:slf4j-api:1.6.6'
+		compile 'org.slf4j:slf4j-log4j12:1.6.6'
+		compile 'log4j:log4j:1.2.17'
     }
 
     jar {
@@ -145,11 +151,6 @@ project(':projects:copper-coreengine') {
 		// commons
 		compile 'commons-codec:commons-codec:1.4'
 		compile 'commons-logging:commons-logging:1.1.1'
-		
-		// logging
-		compile 'org.slf4j:slf4j-api:1.6.6'
-		compile 'org.slf4j:slf4j-log4j12:1.6.6'
-		compile 'log4j:log4j:1.2.17'
 		 
 		// Spring
 		compile 'org.springframework:spring-aop:3.1.2.RELEASE'
@@ -286,12 +287,6 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 		compile project(':projects:copper-jmx-iface')
 		compile project(':projects:copper-monitoring:copper-monitoring-core')
 		compile project(':projects:copper-coreengine')
-	    testCompile group: 'junit', name: 'junit', version: '4.+'
-	   
-	    // logging
-		compile 'org.slf4j:slf4j-api:1.6.6'
-		compile 'org.slf4j:slf4j-log4j12:1.6.6'
-		compile 'log4j:log4j:1.2.17'
 	    
 	    //Spring remote
 		compile group: 'org.springframework', name: 'spring-web', version: '3.1.2.RELEASE'
@@ -299,12 +294,11 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 		compile group: 'org.springframework', name: 'spring-webmvc', version: '3.1.2.RELEASE'
 		
 		//http server
-		compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '8.1.10.v20130312'
-		compile group: 'org.eclipse.jetty', name: 'jetty-util', version: '8.1.10.v20130312'
-		compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: '8.1.10.v20130312'
-		compile group: 'org.eclipse.jetty.orbit', name: 'javax.servlet', version: '2.5.0.v201103041518'
+		compile 'org.eclipse.jetty:jetty-server:8.1.10.v20130312'
+		compile 'org.eclipse.jetty:jetty-servlets:8.1.10.v20130312'
+		compile 'org.eclipse.jetty:jetty-util:8.1.10.v20130312'
+		compile 'org.eclipse.jetty:jetty-webapp:8.1.10.v20130312'		
 		
-		testCompile 'org.mockito:mockito-all:1.9.5'
 	}
 	
 	jar.doFirst {
@@ -367,6 +361,24 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 	    				    attributes.put('sourcepath','libs/java2html-src.zip');
 	    				    root.appendNode('classpathentry', attributes);
 	    				    root.remove(classpathentry);
+		    			}
+		    			if (classpathentry.attributes().path.contains('Jemmy3AWTInput-0.9.3-SNAPSHOT')){
+	    					java.util.Map attributes = classpathentry.attributes();
+	    				    attributes.put('sourcepath','libs/Jemmy3AWTInput-0.9.3-SNAPSHOT-sources.jar');
+	    				    root.appendNode('classpathentry', attributes);
+	    				    root.remove(classpathentry);
+		    			}
+		    			if (classpathentry.attributes().path.contains('Jemmy3Core-0.9.3-SNAPSHOT')){
+	    					java.util.Map attributes = classpathentry.attributes();
+	    				    attributes.put('sourcepath','libs/Jemmy3Core-0.9.3-SNAPSHOT-sources.jar');
+	    				    root.appendNode('classpathentry', attributes);
+	    				    root.remove(classpathentry);
+		    			}
+		    			if (classpathentry.attributes().path.contains('JemmyFX-0.9.3-SNAPSHOT')){
+	    					java.util.Map attributes = classpathentry.attributes();
+	    				    attributes.put('sourcepath','libs/JemmyFX-0.9.3-SNAPSHOT-sources.jar');
+	    				    root.appendNode('classpathentry', attributes);
+	    				    root.remove(classpathentry);
 		    			}			
 					}
 		    	}
@@ -401,10 +413,11 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 		compile group: 'org.springframework', name: 'spring-web', version: '3.1.2.RELEASE'
 		compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'	
 		
-		// logging
-		compile 'org.slf4j:slf4j-simple:1.7.5'
-		
-	    testCompile group: 'junit', name: 'junit', version: '4.+'
+		testCompile files("libs/Jemmy3AWTInput-0.9.3-SNAPSHOT.jar")
+		testCompile files("libs/Jemmy3Core-0.9.3-SNAPSHOT.jar")
+		testCompile files("libs/JemmyFX-0.9.3-SNAPSHOT.jar")
+	    testCompile 'org.concordion:concordion:1.4.3' 
+	    testCompile 'org.concordion:concordion-extensions:1.1.0'
 	}
 
 	def libTempDir = "${buildDir}/deployfxtmp/tmp"
@@ -474,8 +487,6 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 
 project(':projects:copper-monitoring:copper-monitoring-core') {
     dependencies {
-    	 testCompile 'junit:junit:4.11'
-    	 
     	 compile 'org.apache.shiro:shiro-core:1.2.2'
 		 compile 'org.apache.shiro:shiro-spring:1.2.2'
     }
