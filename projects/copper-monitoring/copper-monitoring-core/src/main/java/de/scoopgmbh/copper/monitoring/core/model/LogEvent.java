@@ -9,6 +9,7 @@ public class LogEvent implements Serializable{
 	private Date time;
 	private String message;
 	private String level;
+	private String locationInformation;
 	public Date getTime() {
 		return time;
 	}
@@ -27,15 +28,23 @@ public class LogEvent implements Serializable{
 	public void setLevel(String level) {
 		this.level = level;
 	}
-	public LogEvent(Date time, String message, String level) {
+	public LogEvent(Date time, String message, String locationInformation, String level) {
 		super();
 		this.time = time;
 		this.message = message;
 		this.level = level;
+		this.locationInformation = locationInformation;
 	}
 	public LogEvent() {
 		super();
 	}
+	public String getLocationInformation() {
+		return locationInformation;
+	}
+	public void setLocationInformation(String locationInformation) {
+		this.locationInformation = locationInformation;
+	}
+	
 	
 	
 }
