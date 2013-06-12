@@ -15,6 +15,12 @@
  */
 package de.scoopgmbh.copper.monitoring.server;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +29,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+
+import org.apache.log4j.Appender;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.helpers.Loader;
 
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.management.BatcherMXBean;
@@ -47,6 +60,8 @@ import de.scoopgmbh.copper.monitoring.core.model.BatcherInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo.DependencyInjectorTyp;
+import de.scoopgmbh.copper.monitoring.core.model.LogData;
+import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
@@ -65,6 +80,8 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLogDataProvider;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
 
 public class DefaultCopperMonitoringService implements CopperMonitoringService{
@@ -389,5 +406,83 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			}
 		});
 	}
+
+	@Override
+	public LogData getLogData() throws RemoteException {
+		String propertylocation=System.getProperty("log4j.configuration");
+		if (propertylocation==null){
+			propertylocation="log4j.properties";
+		}
+		InputStream input=null;
+		String config="";
+		try {
+			final URL resource = Loader.getResource(propertylocation);
+			if (resource!=null){
+				try {
+					input = resource.openStream();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			if (input==null){
+				try {
+					input=new FileInputStream(propertylocation);
+				} catch (FileNotFoundException e) {
+					//ignore
+				}
+			}
+			if (input!=null){
+				config = convertStreamToString(input);
+			}
+		} finally {
+			if (input!=null){
+				try {
+					input.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		final List<LogEvent> logEvents = monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<LogEvent>>() {
+			@Override
+			public List<LogEvent> call() throws Exception {
+				return monitoringData.getLogEvents();
+			}
+		});
+		if (logEvents.isEmpty()){
+			logEvents.add(new LogEvent(new Date(),"No logs found probably missing: "+MonitoringDataCollector.class.getName(),"ERROR"));
+		}
+		return new LogData(logEvents, config);
+	}
+	
+	public static String convertStreamToString(java.io.InputStream is) {
+	    @SuppressWarnings("resource")
+		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+	    return s.hasNext() ? s.next() : "";
+	}
+
+	@Override
+	public void updateLogConfig(String config) throws RemoteException {
+		Properties props = new Properties();
+		StringReader reader = null;
+		try {
+			reader = new StringReader(config);
+			try {
+				props.load(reader);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		} finally {
+			reader.close();
+		}
+		Appender appender = LogManager.getRootLogger().getAppender(MonitoringLogDataProvider.APPENDER_NAME);
+		LogManager.resetConfiguration();
+		PropertyConfigurator.configure(props);
+		if (appender!=null){
+			Logger rootLogger = Logger.getRootLogger();
+			rootLogger.addAppender(appender);
+		}
+	}
+
 
 }

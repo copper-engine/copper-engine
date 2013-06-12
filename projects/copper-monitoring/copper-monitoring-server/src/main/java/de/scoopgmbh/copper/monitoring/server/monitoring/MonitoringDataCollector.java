@@ -18,10 +18,12 @@ package de.scoopgmbh.copper.monitoring.server.monitoring;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.Callable;
 
 import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
+import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 
 public class MonitoringDataCollector{
@@ -59,18 +61,43 @@ public class MonitoringDataCollector{
 		});
 	}
 	
-	public void measureTimePeriod(String measurePointId, Runnable action) {
+	public <T> T measureTimePeriod(String measurePointId, Callable<T> action) {
 		final MeasurePointData measurePointData = new MeasurePointData(measurePointId);
 		measurePointData.setElementCount(1);
 		measurePointData.setCount(1);
 		measurePointData.setTime(new Date());
 		long timestart=System.nanoTime();
-		action.run();
+		T result;
+		try {
+			result = action.call();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 		measurePointData.setElapsedTimeMicros((System.nanoTime()-timestart)/1000);
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
 				monitoringData.addMeasurePointWitdhLimit(measurePointData);
+			}
+		});
+		return result;
+	}
+	
+	public void measureTimePeriod(String measurePointId, final Runnable action) {
+		measureTimePeriod(measurePointId, new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				action.run();
+				return null;
+			}
+		});
+	}
+
+	public void submitLogEvent(final Date date, final String level, final String message) {
+		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+			@Override
+			public void run() {
+				monitoringData.addLogEventWitdhLimit(new LogEvent(date,message,level));
 			}
 		});
 	}

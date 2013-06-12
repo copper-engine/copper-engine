@@ -13,24 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.server.monitoring;
-
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
-import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringData.LimitedList;
+package de.scoopgmbh.copper.monitoring.client.ui.logs.filter;
 
 
-public class MonitoringDataTest {
-	
-	@Test
-	public void test_imitedList(){
-		LimitedList<Object> limitedList = new LimitedList<Object> (10);
-		for (int i=0;i<20;i++){
-			limitedList.addWitdhLimit(new Object());
-		}
-		assertEquals(10, limitedList.getList().size());
-	}
+public class LogsFilterModel {
 
 }

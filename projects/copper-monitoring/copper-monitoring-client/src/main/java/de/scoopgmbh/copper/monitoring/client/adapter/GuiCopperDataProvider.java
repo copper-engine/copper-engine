@@ -27,6 +27,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterM
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterMonitoringResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.logs.result.LogsResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.message.result.MessageResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.sql.filter.SqlFilterModel;
@@ -283,6 +284,22 @@ public class GuiCopperDataProvider {
 	public List<String> getMonitoringMeasurePointIds() {
 		try {
 			return copperDataProvider.getMonitoringMeasurePointIds();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public LogsResultModel getLogData() {
+		try {
+			return new LogsResultModel(copperDataProvider.getLogData());
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void updateLogConfig(String config){
+		try {
+			copperDataProvider.updateLogConfig(config);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

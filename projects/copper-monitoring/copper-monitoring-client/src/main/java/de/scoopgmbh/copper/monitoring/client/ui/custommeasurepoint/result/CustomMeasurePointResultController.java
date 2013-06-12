@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.result;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +28,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.AreaChart;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
+import javafx.util.StringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterModel;
@@ -46,10 +47,10 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 	}
 
     @FXML //  fx:id="areaChart"
-    private AreaChart<String, Number> areaChart; // Value injected by FXMLLoader
+    private AreaChart<Long, Number> areaChart; // Value injected by FXMLLoader
 
     @FXML //  fx:id="categoryAxis"
-    private CategoryAxis categoryAxis; // Value injected by FXMLLoader
+    private NumberAxis timeAxis; // Value injected by FXMLLoader
 
     @FXML //  fx:id="numberAxis"
     private NumberAxis numberAxis; // Value injected by FXMLLoader
@@ -57,7 +58,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert areaChart != null : "fx:id=\"areaChart\" was not injected: check your FXML file 'EngineLoadResult.fxml'.";
-        assert categoryAxis != null : "fx:id=\"categoryAxis\" was not injected: check your FXML file 'EngineLoadResult.fxml'.";
+        assert timeAxis != null : "fx:id=\"categoryAxis\" was not injected: check your FXML file 'EngineLoadResult.fxml'.";
         assert numberAxis != null : "fx:id=\"numberAxis\" was not injected: check your FXML file 'EngineLoadResult.fxml'.";
         maxResultCountProperty().set(100);
     }
@@ -80,19 +81,36 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 			group.add(measurePointData);
 		}
 		
-		
+		long min=Long.MAX_VALUE;
+		long max=Long.MIN_VALUE;
 		areaChart.getData().clear();
 		for (List<MeasurePointData> group: groups.values()){
-			Series<String, Number> axis = new Series<String, Number>();
+			Series<Long, Number> axis = new Series<Long, Number>();
 			axis.setName(group.get(0).getMeasurePointId());
-			ObservableList<Data<String, Number>> data = axis.getData();
+			ObservableList<Data<Long, Number>> data = axis.getData();
 			for (MeasurePointData measurePointData: group){
-				String date = new SimpleDateFormat("HH:mm:ss:SSS").format(measurePointData.getTime());
-				data.add(new XYChart.Data<String, Number>(date, measurePointData.getElapsedTimeMicros()));
+				min = Math.min(min, measurePointData.getTime().getTime());
+				max = Math.max(max, measurePointData.getTime().getTime());
+				data.add(new XYChart.Data<Long, Number>(measurePointData.getTime().getTime(), measurePointData.getElapsedTimeMicros()));
 			}
 			areaChart.getData().add(axis);
 		}
-		
+		timeAxis.setAutoRanging(false);
+		timeAxis.setTickUnit((max-min)/20);
+		timeAxis.setLowerBound(min);
+		timeAxis.setUpperBound(max);
+		timeAxis.setTickLabelFormatter(new StringConverter<Number>() {
+			private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy\nHH:mm:ss,SSS");
+			@Override
+			public String toString(Number object) {
+				return format.format(new Date(object.longValue()));
+			}
+			
+			@Override
+			public Number fromString(String string) {
+				return null;
+			}
+		});
 	}
 
 	@Override

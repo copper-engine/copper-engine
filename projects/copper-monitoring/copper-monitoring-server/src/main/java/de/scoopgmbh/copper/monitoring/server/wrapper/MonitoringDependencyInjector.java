@@ -16,7 +16,9 @@
 package de.scoopgmbh.copper.monitoring.server.wrapper;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 
 import de.scoopgmbh.copper.AbstractDependencyInjector;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
@@ -65,10 +67,14 @@ public class MonitoringDependencyInjector extends AbstractDependencyInjector{
 		}
 
 		@Override
-		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 			monitoringDataCollector.submitAdapterCalls(method, args, adapter);
-			Object result = method.invoke(this.adapter, args);
-			return result;
+			return monitoringDataCollector.<Object>measureTimePeriod(adapter.getClass()+"#"+method.getName(), new Callable<Object>() {
+				@Override
+				public Object call() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+					return method.invoke(adapter, args);
+				}
+			});
 		}
 	}
 

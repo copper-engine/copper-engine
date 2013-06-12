@@ -22,8 +22,13 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.TextFieldListCell;
+import javafx.util.Callback;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
@@ -40,7 +45,7 @@ public class CustomMeasurePointFilterController extends BaseFilterController<Cus
 	}
 
 	@FXML //  fx:id="measurePointChoice"
-    private ChoiceBox<String> measurePointChoice; // Value injected by FXMLLoader
+    private ComboBox<String> measurePointIdComboBox; // Value injected by FXMLLoader
 
     @FXML //  fx:id="measurePointText"
     private TextField measurePointText; // Value injected by FXMLLoader
@@ -48,19 +53,28 @@ public class CustomMeasurePointFilterController extends BaseFilterController<Cus
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert measurePointChoice != null : "fx:id=\"measurePointChoice\" was not injected: check your FXML file 'CustomMeasurePointFilter.fxml'.";
+        assert measurePointIdComboBox != null : "fx:id=\"measurePointChoice\" was not injected: check your FXML file 'CustomMeasurePointFilter.fxml'.";
         assert measurePointText != null : "fx:id=\"measurePointText\" was not injected: check your FXML file 'CustomMeasurePointFilter.fxml'.";
 
         model.measurePointId.bind(measurePointText.textProperty());
        
-        measurePointChoice.getItems().clear();
-        measurePointChoice.getItems().addAll(copperDataProvider.getMonitoringMeasurePointIds());
-        measurePointChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+        measurePointIdComboBox.getItems().clear();
+        measurePointIdComboBox.getItems().addAll(copperDataProvider.getMonitoringMeasurePointIds());
+        measurePointIdComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (newValue!=null){
 					measurePointText.setText(newValue);
 				}
+			}
+		});
+        measurePointIdComboBox.setStyle("-fx-text-overrun leading-ellipsis;");
+        measurePointIdComboBox.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+			@Override
+			public ListCell<String> call(ListView<String> param) {
+				final TextFieldListCell<String> textFieldListCell = new TextFieldListCell<>();
+				textFieldListCell.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
+				return textFieldListCell;
 			}
 		});
 	}

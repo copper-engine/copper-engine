@@ -69,6 +69,10 @@ import de.scoopgmbh.copper.monitoring.client.ui.hotfix.HotfixModel;
 import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.load.result.EngineLoadResultController;
+import de.scoopgmbh.copper.monitoring.client.ui.logs.filter.LogsFilterController;
+import de.scoopgmbh.copper.monitoring.client.ui.logs.filter.LogsFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.logs.result.LogsResultController;
+import de.scoopgmbh.copper.monitoring.client.ui.logs.result.LogsResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.measurepoint.result.MeasurePointResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterModel;
@@ -160,12 +164,7 @@ public class FormContext implements DashboardPartsFactory{
 				return createWorkflowHistoryForm();
 			}
 		});
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.audittrail_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createAudittrailForm();
-			}
-		});
+		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.logsGroup_title),createLogGroup()));
 		
 		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.loadGroup_title),createLoadGroup()));
 		
@@ -194,6 +193,23 @@ public class FormContext implements DashboardPartsFactory{
 			}
 		});
 		formGroup = new FormGroup("",maingroup);
+	}
+	
+	public ArrayList<FormCreator> createLogGroup() {
+		ArrayList<FormCreator> loggroup = new ArrayList<FormCreator>();
+		loggroup.add(new FormCreator(messageProvider.getText(MessageKey.audittrail_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createAudittrailForm();
+			}
+		});
+		loggroup.add(new FormCreator(messageProvider.getText(MessageKey.logs_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createLogsForm();
+			}
+		});
+		return loggroup;
 	}
 	
 	public ArrayList<FormCreator> createWorkflowGroup() {
@@ -458,6 +474,14 @@ public class FormContext implements DashboardPartsFactory{
 		return new FormBuilder<CustomMeasurePointFilterModel, MeasurePointData, CustomMeasurePointFilterController,CustomMeasurePointResultController>(
 				new CustomMeasurePointFilterController(guiCopperDataProvider),
 				new CustomMeasurePointResultController(guiCopperDataProvider),
+				this
+			).build();
+	}
+	
+	public FilterAbleForm<LogsFilterModel, LogsResultModel> createLogsForm() {
+		return new FormBuilder<LogsFilterModel, LogsResultModel, LogsFilterController,LogsResultController>(
+				new LogsFilterController(),
+				new LogsResultController(guiCopperDataProvider),
 				this
 			).build();
 	}

@@ -189,12 +189,15 @@ public class ApplicationContext {
 		}
 
 		final LoginService loginService;
+		final CommonsHttpInvokerRequestExecutor httpInvokerRequestExecutor = new CommonsHttpInvokerRequestExecutor();
+		httpInvokerRequestExecutor.setConnectTimeout(1000*60);
 		{
 			HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
 			httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
 			httpInvokerProxyFactoryBean.setServiceInterface(LoginService.class);
 			httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "loginService");
 			httpInvokerProxyFactoryBean.afterPropertiesSet();
+			httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
 			loginService = (LoginService) httpInvokerProxyFactoryBean.getObject();
 		}
 
@@ -217,7 +220,7 @@ public class ApplicationContext {
 			httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
 			httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
 			httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory(sessionId));
-			httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+			httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
 			httpInvokerProxyFactoryBean.afterPropertiesSet();
 			final CopperMonitoringService copperMonitoringService = (CopperMonitoringService) httpInvokerProxyFactoryBean.getObject();
 

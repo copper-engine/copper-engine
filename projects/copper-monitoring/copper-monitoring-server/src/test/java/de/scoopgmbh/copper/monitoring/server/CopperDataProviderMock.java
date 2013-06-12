@@ -32,6 +32,7 @@ import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo.DependencyInjectorTyp;
+import de.scoopgmbh.copper.monitoring.core.model.LogData;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
@@ -304,6 +305,20 @@ public class CopperDataProviderMock extends UnicastRemoteObject implements Coppe
 	public List<String> getMonitoringMeasurePointIds() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public LogData getLogData() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void updateLogConfig(String config) throws RemoteException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

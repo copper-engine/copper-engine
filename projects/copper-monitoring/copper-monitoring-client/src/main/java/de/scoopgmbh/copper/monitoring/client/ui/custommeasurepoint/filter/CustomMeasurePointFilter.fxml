@@ -13,7 +13,7 @@
   <children>
     <Label prefHeight="25.9998779296875" text="Measurepoint" />
     <TextField fx:id="measurePointText" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-    <ChoiceBox fx:id="measurePointChoice">
+    <ComboBox fx:id="measurePointIdComboBox" prefWidth="265.0" HBox.hgrow="NEVER">
       <items>
         <FXCollections fx:factory="observableArrayList">
           <String fx:value="Item 1" />
@@ -21,7 +21,7 @@
           <String fx:value="Item 3" />
         </FXCollections>
       </items>
-    </ChoiceBox>
+    </ComboBox>
   </children>
   <padding>
     <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
