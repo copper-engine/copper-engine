@@ -68,11 +68,10 @@ public class CustomMeasurePointFilterController extends BaseFilterController<Cus
 				}
 			}
 		});
-        measurePointIdComboBox.setStyle("-fx-text-overrun leading-ellipsis;");
         measurePointIdComboBox.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
 			@Override
 			public ListCell<String> call(ListView<String> param) {
-				final TextFieldListCell<String> textFieldListCell = new TextFieldListCell<>();
+				final TextFieldListCell<String> textFieldListCell = new TextFieldListCell<String>();
 				textFieldListCell.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
 				return textFieldListCell;
 			}
