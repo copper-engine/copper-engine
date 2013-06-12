@@ -48,6 +48,7 @@ import org.concordion.ext.ScreenshotTaker;
 import org.concordion.internal.ConcordionBuilder;
 import org.jemmy.fx.SceneDock;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -64,8 +65,7 @@ public abstract class IntegrationtestBase {
 
 	private static boolean firstTest=true;
 	
-	
-	
+
 	@BeforeClass
 	public static void basicSetUp() {
 		System.out.println(firstTest);
@@ -79,6 +79,7 @@ public abstract class IntegrationtestBase {
 	
 	@Before
 	public void before(){
+		Assume.assumeTrue( Desktop.isDesktopSupported() );
 		new Thread(){
     		@Override
     		public void run() {
