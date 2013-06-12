@@ -13,32 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.integrationstest.fixture;
+package de.scoopgmbh.copper.monitoring.client.integrationstest.workflowsummary;
+
 
 import javafx.scene.layout.BorderPane;
+import de.scoopgmbh.copper.monitoring.client.integrationstest.fixture.IntegrationtestBase;
+import de.scoopgmbh.copper.monitoring.client.integrationstest.fixture.TestFormContext;
 
-import org.jemmy.fx.SceneDock;
 
-/** Basic testcase for Concordion */
-public abstract class IntegrationtestBase {
+
+public class WorkflowSummary extends IntegrationtestBase{
 	
-	public abstract void initGui(BorderPane pane, TestFormContext testFormContext);
-	protected SceneDock scene;
-	protected TestDataProvider testDataProvider;
+	@Override
+	public void initGui(BorderPane pane, TestFormContext testFormContext) {
+		testFormContext.createWorkflowOverviewForm().show();
 
-	
-	public void setScene(SceneDock scene) {
-		this.scene = scene;
 	}
 
-	public void setTestDataProvider(TestDataProvider testDataProvider) {
-		this.testDataProvider = testDataProvider;
-	}
-
-	public IntegrationtestBase() {
-		super();
-	}
-
-	
-	
 }

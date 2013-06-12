@@ -23,6 +23,7 @@
                       <columns>
                         <TableColumn prefWidth="75.0" text="Time" fx:id="timeColumn" />
                         <TableColumn prefWidth="75.0" text="Level" fx:id="loglevelColumn" />
+                        <TableColumn prefWidth="75.0" text="Location" fx:id="locationColumn" />
                         <TableColumn prefWidth="75.0" text="Message" fx:id="messageColumn" />
                       </columns>
                     </TableView>

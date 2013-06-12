@@ -79,7 +79,7 @@ public class SqlResultController extends FilterResultControllerBase<SqlFilterMod
 					public ObservableValue<String> call(CellDataFeatures<SqlResultModel, String> param) {
 						return param.getValue().rows.get(rowindex);
 					}
-				});//-2 for the border
+				});//-3 for the border
 				rowColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).divide(filteredResult.get(0).rows.size()));
 				resultTable.getColumns().add(rowColumn);
 			}

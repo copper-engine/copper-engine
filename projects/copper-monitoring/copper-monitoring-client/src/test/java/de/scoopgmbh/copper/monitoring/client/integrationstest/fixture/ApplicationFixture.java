@@ -24,7 +24,8 @@ import javafx.stage.Stage;
 public class ApplicationFixture extends Application {
 
 	private static BorderPane pane;
-
+	private static Stage stage;
+	
 	@Override
 	public void start(final Stage stage) { 
 		pane = new BorderPane();
@@ -37,6 +38,8 @@ public class ApplicationFixture extends Application {
 	    
 	    stage.setScene(scene);
 	    stage.show();
+	    
+	    ApplicationFixture.stage = stage;
 	}
 	
 	public static BorderPane getPane(){
@@ -46,4 +49,10 @@ public class ApplicationFixture extends Application {
 	public static void launchWorkaround(){
 		Application.launch(new String[]{});
 	}
+
+	public static Stage getStage() {
+		return stage;
+	}
+
+	
 }

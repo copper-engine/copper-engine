@@ -17,20 +17,72 @@ package de.scoopgmbh.copper.monitoring.server.monitoring;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
-import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringData.LimitedList;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringData.LimitedBuffer;
 
 
 public class MonitoringDataTest {
 	
 	@Test
 	public void test_imitedList(){
-		LimitedList<Object> limitedList = new LimitedList<Object> (10);
+		LimitedBuffer<Object> limitedList = new LimitedBuffer<Object> (10);
 		for (int i=0;i<20;i++){
 			limitedList.addWitdhLimit(new Object());
 		}
-		assertEquals(10, limitedList.getList().size());
+		assertEquals(10, limitedList.createList().size());
 	}
+	
+	@Test
+	public void test_less_added_than_limit(){
+		LimitedBuffer<String> limitedList = new LimitedBuffer<String> (10);
+		for (int i=0;i<3;i++){
+			limitedList.addWitdhLimit(""+i);
+		}
+		assertEquals(3, limitedList.createList().size());
+		assertEquals("0", limitedList.createList().get(0));
+		assertEquals("1", limitedList.createList().get(1));
+		assertEquals("2", limitedList.createList().get(2));
+	}
+	
+	@Test
+	public void test_more_added_than_limit(){
+		LimitedBuffer<String> limitedList = new LimitedBuffer<String> (3);
+		for (int i=0;i<5;i++){
+			limitedList.addWitdhLimit(""+i);
+		}
+		assertEquals(3, limitedList.createList().size());
+		assertEquals("2", limitedList.createList().get(0));
+		assertEquals("3", limitedList.createList().get(1));
+		assertEquals("4", limitedList.createList().get(2));
+	}
+	
+	
+	@Ignore
+	@Test
+	public void test_performanceBuffer(){
+		ArrayList<Long> chronometries = new ArrayList<Long>();
+		
+		for (int u=0;u<100;u++){
+			long start = System.currentTimeMillis();
+			LimitedBuffer<Object> limitedList = new LimitedBuffer<Object> (1000);
+			for (int i=0;i<2000000;i++){
+				limitedList.addWitdhLimit(new Object());
+			}
+			chronometries.add(System.currentTimeMillis()-start);
+		}
+		
+		long sum=0;
+		for (long chronometry: chronometries){
+			sum+=chronometry;
+		}
+		System.out.println(sum/chronometries.size());
+			
+//		assertEquals(10, limitedList.getList().size());
+	}
+	
 
 }

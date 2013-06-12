@@ -24,7 +24,6 @@ import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.mgt.DefaultSecurityManager;
-import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -36,17 +35,10 @@ public class DefaultLoginService implements LoginService{
 	private static final long serialVersionUID = 8412747004504683148L;
 	static final Logger logger = LoggerFactory.getLogger(SpringRemotingServer.class);
 	
-	private final Realm realm;
-	private final  DefaultSecurityManager securityManager;
 	public DefaultLoginService(Realm realm) {
 		super();
-		this.realm = realm;
-		securityManager = new DefaultSecurityManager(realm);
-//		securityManager.setSessionManager(new DefaultSessionManager());
-		SecurityUtils.setSecurityManager(securityManager);
+		SecurityUtils.setSecurityManager(new DefaultSecurityManager(realm));
 	}
-
-
 
 	@Override
 	public String doLogin(String username, String password) throws RemoteException {
@@ -86,12 +78,6 @@ public class DefaultLoginService implements LoginService{
 		} else {
 			return currentUser.getSession(false).getId().toString();
 		}
-	}
-
-
-
-	public SecurityManager getSecurityManager() {
-		return securityManager;
 	}
 	
 //	private void removeConcurrentSessions(Subject currentUser) throws InvalidSessionException, CacheException {

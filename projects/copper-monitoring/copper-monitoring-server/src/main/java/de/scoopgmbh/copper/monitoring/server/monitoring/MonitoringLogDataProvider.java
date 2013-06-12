@@ -33,7 +33,7 @@ public class MonitoringLogDataProvider extends AppenderSkeleton{
 
 	@Override
 	protected void append(LoggingEvent event) {
-		monitoringDataCollector.submitLogEvent(new Date(event.getTimeStamp()),event.getLevel().toString(),event.getRenderedMessage());
+		monitoringDataCollector.submitLogEvent(new Date(event.getTimeStamp()),event.getLevel().toString(),event.getLocationInformation().fullInfo,event.getRenderedMessage());
 	}
 
 }

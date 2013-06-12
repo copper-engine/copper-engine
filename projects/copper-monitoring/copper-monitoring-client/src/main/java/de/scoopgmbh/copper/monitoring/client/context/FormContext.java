@@ -95,7 +95,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowCl
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeForm;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
-import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.BaseWorkflowInstanceListNavigation;
+import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceListNavigation;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterController;
@@ -116,7 +116,7 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
-public class FormContext implements DashboardPartsFactory{
+public class FormContext implements DashboardPartsFactory, WorkflowInstanceListNavigation{
 	protected final TabPane mainTabPane;
 	protected final BorderPane mainPane;
 	protected final FormGroup formGroup;
@@ -323,7 +323,7 @@ public class FormContext implements DashboardPartsFactory{
 	public FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> createWorkflowInstanceListForm(){
 		return new EngineFormBuilder<WorkflowInstanceFilterModel,WorkflowInstanceResultModel,WorkflowInstanceFilterController,WorkflowInstanceResultController>(
 					new WorkflowInstanceFilterController(),
-					new WorkflowInstanceResultController(guiCopperDataProvider,new BaseWorkflowInstanceListNavigation(this)),
+					new WorkflowInstanceResultController(guiCopperDataProvider,this),
 					this
 				).build();
 	}
@@ -484,6 +484,18 @@ public class FormContext implements DashboardPartsFactory{
 				new LogsResultController(guiCopperDataProvider),
 				this
 			).build();
+	}
+
+	@Override
+	public void navigateToAudittrail(String workflowInstanceId) {
+		FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> audittrailForm = createAudittrailForm();
+		audittrailForm.getFilter().workflowInstanceId.set(workflowInstanceId);
+		audittrailForm.show();
+	}
+
+	@Override
+	public void navigateToIntsanceDetail(String workflowInstanceId, ProcessingEngineInfo engine) {
+		createWorkflowInstanceDetailForm(workflowInstanceId,engine).show();
 	}
 	
 }

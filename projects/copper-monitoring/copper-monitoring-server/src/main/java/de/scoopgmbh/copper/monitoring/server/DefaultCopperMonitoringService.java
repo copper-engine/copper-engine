@@ -450,7 +450,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			}
 		});
 		if (logEvents.isEmpty()){
-			logEvents.add(new LogEvent(new Date(),"No logs found probably missing: "+MonitoringDataCollector.class.getName(),"ERROR"));
+			logEvents.add(new LogEvent(new Date(),"No logs found probably missing: "+MonitoringDataCollector.class.getName(),"","ERROR"));
 		}
 		return new LogData(logEvents, config);
 	}

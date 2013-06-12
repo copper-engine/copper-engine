@@ -52,7 +52,7 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 public class TestDataProvider implements CopperMonitoringService {
 	private static final long serialVersionUID = -509088135898037190L;
 
-	protected TestDataProvider() {
+	public TestDataProvider() {
 		super();
 	}
 
@@ -114,14 +114,9 @@ public class TestDataProvider implements CopperMonitoringService {
 		
 		ArrayList<WorkflowSummary> result = new ArrayList<WorkflowSummary>();
 		WorkflowSummary workflowSummery = new WorkflowSummary("",10,
-				new WorkflowClassVersionInfo("blubclass1","alias",0L,+(long)(Math.random()*100),0L),
+				new WorkflowClassVersionInfo("WorkflowClass1","alias",0L,+(long)(Math.random()*100),0L),
 				new WorkflowStateSummary(map));
 		result.add(workflowSummery);
-		
-		WorkflowSummary inputcopy = new WorkflowSummary("",10,
-				new WorkflowClassVersionInfo(classname,"alias",0L,+(long)(Math.random()*100),0L),
-				new WorkflowStateSummary(map));
-		result.add(inputcopy);
 		
 		return result;
 	}

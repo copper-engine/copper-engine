@@ -15,7 +15,7 @@
  */
 package de.scoopgmbh.copper.monitoring.server.monitoring;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
@@ -30,39 +30,56 @@ import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
  */
 public class MonitoringData {
 	
-	public static class LimitedList<T>{
-		public long limit;
+	public static class LimitedBuffer<T>{
+		private int limit;
+		private Object[] content; 
+		private int cursur;
 		
-		public LimitedList(long limit) {
+		public LimitedBuffer(int limit) {
 			super();
 			this.limit = limit;
+
+			cursur=0;
+			content = new Object[limit];
 		}
-		private List<T> list= new LinkedList<T>();
+		//private ArrayDeque<T> test; slightly less performant 
 		public void addWitdhLimit(T value){
-			if(list.size()>=limit){
-				list.remove(0);
+			content[cursur]=value; 
+			cursur++;
+			if (cursur>=limit){
+				cursur=0;
 			}
-			list.add(value);
 		}
-		public List<T> getList() {
-			return list;
+
+		public List<T> createList() {
+			ArrayList<T> result = new ArrayList<>();
+			for (int i=0;i<limit;i++){
+				int x = (i+cursur) % limit;
+				@SuppressWarnings("unchecked")
+				final T value = (T)content[x];
+				if (value!=null){
+					result.add(value);
+				}
+			}
+			
+			return result;
 		}
 		
 	}
 	
-	private final LimitedList<AdapterCallInfo> adapterCalls;
-	private final LimitedList<AdapterWfNotifyInfo> adapterWfNotifies;
-	private final LimitedList<AdapterWfLaunchInfo> adapterWfLaunches;
-	private final LimitedList<MeasurePointData> measurePoints;
-	private final LimitedList<LogEvent> logEvents;
+	private final LimitedBuffer<AdapterCallInfo> adapterCalls;
+	private final LimitedBuffer<AdapterWfNotifyInfo> adapterWfNotifies;
+	private final LimitedBuffer<AdapterWfLaunchInfo> adapterWfLaunches;
+	private final LimitedBuffer<MeasurePointData> measurePoints;
+	private final LimitedBuffer<LogEvent> logEvents;
 	
-	public MonitoringData(long adapterCallsLimit,long adapterWfNotifiesLimit, long adapterWfLaunchesLimit, long measurePointLimit, long logEventsLimit) {
+	public MonitoringData(int adapterCallsLimit,int adapterWfNotifiesLimit, int adapterWfLaunchesLimit, int measurePointLimit, int logEventsLimit) {
 		super();
-		adapterCalls = new LimitedList<AdapterCallInfo>(adapterCallsLimit);
-		adapterWfNotifies = new LimitedList<AdapterWfNotifyInfo>(adapterWfNotifiesLimit);
-		adapterWfLaunches = new LimitedList<AdapterWfLaunchInfo>(adapterWfLaunchesLimit);
-		measurePoints = new LimitedList<MeasurePointData>(measurePointLimit);
-		logEvents = new LimitedList<LogEvent>(logEventsLimit);
+		adapterCalls = new LimitedBuffer<AdapterCallInfo>(adapterCallsLimit);
+		adapterWfNotifies = new LimitedBuffer<AdapterWfNotifyInfo>(adapterWfNotifiesLimit);
+		adapterWfLaunches = new LimitedBuffer<AdapterWfLaunchInfo>(adapterWfLaunchesLimit);
+		measurePoints = new LimitedBuffer<MeasurePointData>(measurePointLimit);
+		logEvents = new LimitedBuffer<LogEvent>(logEventsLimit);
 	}
 	
 	public MonitoringData() {
@@ -90,23 +107,23 @@ public class MonitoringData {
 	}
 
 	public List<AdapterCallInfo> getAdapterCalls() {
-		return adapterCalls.getList();
+		return adapterCalls.createList();
 	}
 
 	public List<AdapterWfNotifyInfo> getAdapterWfNotifies() {
-		return adapterWfNotifies.getList();
+		return adapterWfNotifies.createList();
 	}
 
 	public List<AdapterWfLaunchInfo> getAdapterWfLaunches() {
-		return adapterWfLaunches.getList();
+		return adapterWfLaunches.createList();
 	}
 
 	public List<MeasurePointData> getMeasurePoints() {
-		return measurePoints.getList();
+		return measurePoints.createList();
 	}
 	
 	public List<LogEvent> getLogEvents() {
-		return logEvents.getList();
+		return logEvents.createList();
 	}
 
 	

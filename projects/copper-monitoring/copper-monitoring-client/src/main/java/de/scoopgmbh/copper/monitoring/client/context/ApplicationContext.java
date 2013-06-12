@@ -45,6 +45,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.shiro.spring.remoting.SecureRemoteInvocationFactory;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
@@ -190,7 +192,8 @@ public class ApplicationContext {
 
 		final LoginService loginService;
 		final CommonsHttpInvokerRequestExecutor httpInvokerRequestExecutor = new CommonsHttpInvokerRequestExecutor();
-		httpInvokerRequestExecutor.setConnectTimeout(1000*60);
+		DefaultHttpMethodRetryHandler retryHandler = new DefaultHttpMethodRetryHandler(10, false);
+		httpInvokerRequestExecutor.getHttpClient().getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
 		{
 			HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
 			httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");

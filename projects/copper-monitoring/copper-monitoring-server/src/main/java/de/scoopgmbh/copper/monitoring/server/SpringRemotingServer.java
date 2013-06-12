@@ -116,7 +116,6 @@ public class SpringRemotingServer {
 	
 	private SecureRemoteInvocationExecutor createSecureRemoteInvocationExecutor(){
 		final SecureRemoteInvocationExecutor secureRemoteInvocationExecutor = new SecureRemoteInvocationExecutor();
-		secureRemoteInvocationExecutor.setSecurityManager(loginService.getSecurityManager());
 		return secureRemoteInvocationExecutor;
 	}
 

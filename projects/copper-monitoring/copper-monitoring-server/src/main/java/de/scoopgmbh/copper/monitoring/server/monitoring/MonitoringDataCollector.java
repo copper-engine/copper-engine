@@ -93,11 +93,11 @@ public class MonitoringDataCollector{
 		});
 	}
 
-	public void submitLogEvent(final Date date, final String level, final String message) {
+	public void submitLogEvent(final Date date, final String level, final String locationInformation,final String message) {
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringData.addLogEventWitdhLimit(new LogEvent(date,message,level));
+				monitoringData.addLogEventWitdhLimit(new LogEvent(date,message,locationInformation,level));
 			}
 		});
 	}

@@ -27,6 +27,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
@@ -86,6 +87,9 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
     
     @FXML 
     private Button updateConfig;
+    
+    @FXML 
+    private TableColumn<LogsRowModel, String> locationColumn;
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
@@ -101,6 +105,7 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
         assert searchField != null : "fx:id=\"searchField\" was not injected: check your FXML file 'LogsResult.fxml'.";
         assert tableBorderPane != null ;
         assert updateConfig != null ;
+        assert locationColumn != null ;
 
         loglevelColumn.setCellValueFactory(new Callback<CellDataFeatures<LogsRowModel, String>, ObservableValue<String>>() {
 			@Override
@@ -122,6 +127,14 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 		});
         TableColumnHelper.setConverterCellFactory(timeColumn, new DateStringConverter("dd.MM.yyyy HH:mm:ss,SSS"));
         
+        locationColumn.setCellValueFactory(new Callback<CellDataFeatures<LogsRowModel, String>, ObservableValue<String>>() {
+			@Override
+			public ObservableValue<String> call(
+					CellDataFeatures<LogsRowModel, String> p) {
+				return p.getValue().locationInformation;
+			}
+		});
+        TableColumnHelper.setTextOverrunCellFactory(locationColumn, OverrunStyle.LEADING_ELLIPSIS);
         
         messageColumn.setCellValueFactory(new Callback<CellDataFeatures<LogsRowModel, String>, ObservableValue<String>>() {
 			@Override
@@ -154,7 +167,8 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 		
 		timeColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.15));
         loglevelColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.05));
-        messageColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.79));
+        locationColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.05));
+        messageColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.73));
         
         updateConfig.getStyleClass().add("copperActionButton");
         updateConfig.disableProperty().bind(logConfig.textProperty().isNull().or(logConfig.textProperty().isEqualTo("")));
@@ -164,6 +178,9 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 				copperDataProvider.updateLogConfig(logConfig.getText());
 			}
 		});
+        
+        resultTextarea.setStyle("-fx-font: 12px \"Courier New\"");
+        resultTextarea.setWrapText(false);
     }
 
 	@Override
@@ -184,6 +201,8 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 		textresult.append("Level");
 		textresult.append("\t");
 		textresult.append("message");
+		textresult.append("\t");
+		textresult.append("Location");
 		textresult.append("\n");
 		
 		for (LogsRowModel row: resultModel.logs){
@@ -192,6 +211,8 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 			textresult.append(row.level.get());
 			textresult.append("\t");
 			textresult.append(row.message.get());
+			textresult.append("\t|||||||||||||||||||||||||");
+			textresult.append(row.locationInformation.get());
 			textresult.append("\n");
 		}
 		resultTextarea.setText(textresult.toString());
