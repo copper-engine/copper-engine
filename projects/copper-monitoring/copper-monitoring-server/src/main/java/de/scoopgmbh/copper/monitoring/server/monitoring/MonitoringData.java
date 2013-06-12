@@ -52,7 +52,7 @@ public class MonitoringData {
 		}
 
 		public List<T> createList() {
-			ArrayList<T> result = new ArrayList<>();
+			ArrayList<T> result = new ArrayList<T>();
 			for (int i=0;i<limit;i++){
 				int x = (i+cursur) % limit;
 				@SuppressWarnings("unchecked")
