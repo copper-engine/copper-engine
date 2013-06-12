@@ -45,6 +45,7 @@ import de.scoopgmbh.copper.monitoring.server.DefaultLoginService;
 import de.scoopgmbh.copper.monitoring.server.SpringRemotingServer;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLogDataProvider;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
 import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
@@ -152,6 +153,8 @@ public class MonitoringExampleMain {
 		
 		persistentengine.setDependencyInjector(monitoringDependencyInjector);
 		persistentengine.startup();
+		
+		new MonitoringLogDataProvider(monitoringDataCollector);
 		
 		try {
 			persistentengine.run("BillWorkflow", "");

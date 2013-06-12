@@ -24,6 +24,7 @@ import java.util.List;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
+import de.scoopgmbh.copper.monitoring.core.model.LogData;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
@@ -102,5 +103,9 @@ public interface CopperMonitoringService extends Remote, Serializable {
 	public List<MeasurePointData> getMonitoringMeasurePoints(String measurePoint, final long limit) throws RemoteException;
 	
 	public List<String> getMonitoringMeasurePointIds() throws RemoteException;
+	
+	public LogData getLogData() throws RemoteException;
+
+	public void updateLogConfig(String config) throws RemoteException;
 }
 
