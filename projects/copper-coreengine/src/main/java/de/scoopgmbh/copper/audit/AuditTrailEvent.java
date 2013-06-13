@@ -34,7 +34,7 @@ public class AuditTrailEvent implements Serializable {
 	Long sequenceId;
 
 	public AuditTrailEvent(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType) {
-		this(logLevel, occurrence, conversationId, context, instanceId, conversationId, transactionId, message, messageType, null);
+		this(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType, null);
 	}
 	
 	public AuditTrailEvent(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType, Long sequenceId) {
