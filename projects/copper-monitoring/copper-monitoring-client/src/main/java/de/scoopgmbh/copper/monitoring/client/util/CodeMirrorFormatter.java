@@ -24,13 +24,15 @@ public class CodeMirrorFormatter{
 	private final String xmlmodejs;
 	private final String javascriptjs;
 	private final String sqljs;
+	private final String java;
 	
 	public CodeMirrorFormatter() {
 		codemirrorcss = convertStreamToString("/codemirror/lib/codemirror.css");
 		codemirrorjs = convertStreamToString("/codemirror/lib/codemirror.js");
-		javascriptjs = convertStreamToString("/codemirror/mode/json/javascript.js");
-		xmlmodejs = convertStreamToString("/codemirror/mode/xml/xml.js");
-		sqljs = convertStreamToString("/codemirror/mode/sql/plsql.js");
+		javascriptjs = convertStreamToString("/codemirror/mode/javascript.js");
+		xmlmodejs = convertStreamToString("/codemirror/mode/xml.js");
+		sqljs = convertStreamToString("/codemirror/mode/plsql.js");
+		java = convertStreamToString("/codemirror/mode/clike.js");
 	}
 	
     private String convertStreamToString(String ressourceclasspath) {
@@ -49,34 +51,50 @@ public class CodeMirrorFormatter{
     	}
     }
 	
-	public String format(String code, CodeFormatLanguage language){
+	public String format(String code, CodeFormatLanguage language, boolean ediable){
+		String ediableString =""+ediable;
 		String mode = xmlmodejs;
 		String modeScript= "<script>\n" + 
 				"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n" + 
 				"        mode: {name: \"xml\", alignCDATA: true},\n" + 
+				"        readOnly: "+ediableString+",\n" + 
 				"        lineNumbers: true\n" + 
 				"      });\n" + 
 				"    </script>";
 		if (language==CodeFormatLanguage.JAVASCRIPT){
 			mode=javascriptjs;
 			modeScript=
-					"    <script>\r\n" + 
-					"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\r\n" + 
-					"        lineNumbers: true,\r\n" + 
-					"        matchBrackets: true,\r\n" + 
-					"        extraKeys: {\"Enter\": \"newlineAndIndentContinueComment\"}\r\n" + 
-					"      });\r\n" + 
+					"    <script>\n" + 
+					"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n" + 
+					"        lineNumbers: true,\n" + 
+					"        matchBrackets: true,\n" + 
+					"        readOnly: "+ediableString+",\n" + 
+					"        extraKeys: {\"Enter\": \"newlineAndIndentContinueComment\"}\n" + 
+					"      });\n" + 
+					"    </script>";
+		}
+		if (language==CodeFormatLanguage.JAVA){
+			mode=java;
+			modeScript=
+					"    <script>\n" + 
+					"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n" + 
+					"        lineNumbers: true,\n" + 
+					"        matchBrackets: true,\n" + 
+					"        readOnly: "+ediableString+",\n" + 
+					"        mode: \"text/x-java\"\n" + 
+					"      });\n" + 
 					"    </script>";
 		}
 		if (language==CodeFormatLanguage.SQL){
 			mode=sqljs;
 			modeScript=
-					"    <script>\r\n" + 
-					"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\r\n" + 
-					"        lineNumbers: true,\r\n" + 
-					"        indentUnit: 4,\r\n" + 
-					"        mode: \"text/x-plsql\"\r\n" + 
-					"      });\r\n" + 
+					"    <script>\n" + 
+					"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n" + 
+					"        lineNumbers: true,\n" + 
+					"        indentUnit: 4,\n" + 
+					"        readOnly: "+ediableString+",\n" + 
+					"        mode: \"text/x-plsql\"\n" + 
+					"      });\n" + 
 					"    </script>";
 		}
 				
@@ -99,7 +117,7 @@ public class CodeMirrorFormatter{
 	}
 	
 	public static enum CodeFormatLanguage{
-		JAVASCRIPT,XML,SQL;
+		JAVASCRIPT,XML,SQL,JAVA;
 	}
 	
 }

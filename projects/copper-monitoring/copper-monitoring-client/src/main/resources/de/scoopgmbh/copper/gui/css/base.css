@@ -97,6 +97,10 @@
 	-fx-control-inner-background: derive(red,20%);
 }
 
+.consoleFont {
+	-fx-font: 12px "Courier New";
+}
+
 
 /*from modena css*/
 .root {

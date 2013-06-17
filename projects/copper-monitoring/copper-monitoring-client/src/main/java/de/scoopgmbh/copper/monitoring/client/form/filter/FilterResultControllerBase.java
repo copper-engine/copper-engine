@@ -32,8 +32,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Separator;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -59,8 +61,20 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 	
 	
 	public <M> HBox createTabelControlls(final TableView<M> tableView){
-		tableView.setContextMenu(new ContextMenu());
-		
+		if (tableView.getContextMenu()==null){
+			tableView.setContextMenu(new ContextMenu());
+		}
+		final MenuItem copyMenuItem = new MenuItem("copy table");
+		final MenuItem copyCellMenuItem = new MenuItem("copy cell");
+		fillContextMenu(tableView, copyMenuItem,copyCellMenuItem);
+		tableView.contextMenuProperty().addListener(new ChangeListener<ContextMenu>() {
+			@Override
+			public void changed(ObservableValue<? extends ContextMenu> observable, ContextMenu oldValue, ContextMenu newValue) {
+				if (newValue!=null){
+					fillContextMenu(tableView, copyMenuItem,copyCellMenuItem);
+				}
+			}
+		});
 		
 		final CheckBox regExp = new CheckBox("RegExp");
 		
@@ -75,6 +89,7 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 				copyTable(tableView);
 			}
 		});
+		copyMenuItem.setOnAction(copy.getOnAction());
 		pane.getChildren().add(copy);
 		Button copyCell = new Button("copy cell");
 		copyCell.setOnAction(new EventHandler<ActionEvent>() {
@@ -83,6 +98,7 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 				copyTableCell(tableView);
 			}
 		});
+		copyCellMenuItem.setOnAction(copyCell.getOnAction());
 		pane.getChildren().add(copyCell);
 		pane.getChildren().add(new Label("Search"));
 		final TextField textField = new TextField();
@@ -126,6 +142,13 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 		
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		return pane;
+	}
+
+
+	private <M> void fillContextMenu(final TableView<M> tableView, final MenuItem copyMenuItem, MenuItem copyCellMenuItem) {
+		tableView.getContextMenu().getItems().add(new SeparatorMenuItem());
+		tableView.getContextMenu().getItems().add(copyMenuItem);
+		tableView.getContextMenu().getItems().add(copyCellMenuItem);
 	}
 	
 	private void serachInTable(final TableView<?> tableView, String newValue, boolean useRegex) {
@@ -181,7 +204,7 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 		StringBuilder clipboardString = new StringBuilder();
 		for (TablePosition<?, ?> tablePosition: tableView.getSelectionModel().getSelectedCells()){
 			 Object cell = tableView.getColumns().get(tablePosition.getColumn()).getCellData(tablePosition.getRow());
-			 clipboardString.append(cell+"\t");
+			 clipboardString.append(cell);
 		}
         final ClipboardContent content = new ClipboardContent();
         content.putString(clipboardString.toString());

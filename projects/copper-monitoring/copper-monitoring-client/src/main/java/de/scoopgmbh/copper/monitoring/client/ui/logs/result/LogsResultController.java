@@ -28,21 +28,26 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.OverrunStyle;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.logs.filter.LogsFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.logs.result.LogsResultModel.LogsRowModel;
+import de.scoopgmbh.copper.monitoring.client.util.CSSHelper;
 import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 
 public class LogsResultController extends FilterResultControllerBase<LogsFilterModel,LogsResultModel> implements Initializable {
@@ -106,6 +111,26 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
         assert tableBorderPane != null ;
         assert updateConfig != null ;
         assert locationColumn != null ;
+        
+        resultTable.setRowFactory(new Callback<TableView<LogsRowModel>, TableRow<LogsRowModel>>() {
+			@Override
+			public TableRow<LogsRowModel> call(TableView<LogsRowModel> param) {
+				return new TableRow<LogsRowModel>(){
+					@Override
+					protected void updateItem(LogsRowModel item, boolean empty) {
+						if (item!=null ){
+							if ("ERROR".equals(item.level.get())){
+								this.setStyle("-fx-control-inner-background: "+CSSHelper.toCssColor(Color.rgb(255, 128, 128))+";");
+							} else  {
+								this.setStyle("");
+							}
+							
+						}
+						super.updateItem(item, empty);
+					}
+				};
+			}
+		});
 
         loglevelColumn.setCellValueFactory(new Callback<CellDataFeatures<LogsRowModel, String>, ObservableValue<String>>() {
 			@Override
@@ -141,6 +166,14 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 			public ObservableValue<String> call(
 					CellDataFeatures<LogsRowModel, String> p) {
 				return p.getValue().message;
+			}
+		});
+        messageColumn.setCellFactory(new Callback<TableColumn<LogsRowModel,String>, TableCell<LogsRowModel,String>>() {
+			@Override
+			public TableCell<LogsRowModel, String> call(TableColumn<LogsRowModel, String> param) {
+				final TextFieldTableCell<LogsRowModel, String> textFieldTableCell = new TextFieldTableCell<LogsRowModel, String>();
+				textFieldTableCell.getStyleClass().add("consoleFont");
+				return textFieldTableCell;
 			}
 		});
         
@@ -179,7 +212,7 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 			}
 		});
         
-        resultTextarea.setStyle("-fx-font: 12px \"Courier New\"");
+        resultTextarea.getStyleClass().add("consoleFont");
         resultTextarea.setWrapText(false);
     }
 

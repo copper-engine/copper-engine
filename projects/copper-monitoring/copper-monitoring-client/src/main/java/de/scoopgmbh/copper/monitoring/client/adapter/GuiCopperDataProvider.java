@@ -47,7 +47,7 @@ import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
@@ -118,14 +118,14 @@ public class GuiCopperDataProvider {
 	}
 	
 	public List<WorkflowVersion> getWorkflowClassesList(final String engineId){
-		List<WorkflowClassVersionInfo> list;
+		List<WorkflowClassMetaData> list;
 		try {
 			list = copperDataProvider.getWorkflowClassesList(engineId);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 		ArrayList<WorkflowVersion> result = new ArrayList<WorkflowVersion>();
-		for (WorkflowClassVersionInfo workflowClassesInfo: list){
+		for (WorkflowClassMetaData workflowClassesInfo: list){
 			result.add(new WorkflowVersion(workflowClassesInfo));
 		}
 		return result;
@@ -133,7 +133,7 @@ public class GuiCopperDataProvider {
 
 	public WorkflowInstanceDetailResultModel getWorkflowDetails(WorkflowInstanceDetailFilterModel filter ) {
 		try {
-			return new WorkflowInstanceDetailResultModel(copperDataProvider.getWorkflowInstanceDetails(filter.workflowInstanceId.getValue()));
+			return new WorkflowInstanceDetailResultModel(copperDataProvider.getWorkflowInstanceDetails(filter.workflowInstanceId.getValue(),filter.getEngineFilterModel().selectedEngine.get().getId()));
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

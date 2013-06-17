@@ -20,7 +20,7 @@ import java.util.List;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.scene.control.ProgressIndicator;
+import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
@@ -53,7 +53,7 @@ public final class DetailLoadService extends Service<Void> {
 	@Override
 	protected Task<Void> createTask() {
 		return new Task<Void>() {
-			final ProgressIndicator indicator = ComponentUtil.createProgressIndicator();
+			final Node indicator = ComponentUtil.createProgressIndicator();
 			private WorkflowInstanceDetailFilterModel filter;
 			private List<WorkflowInstanceDetailResultModel> result;
 			@Override

@@ -40,9 +40,9 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo.ProcessorPoolTyp;
 import de.scoopgmbh.copper.monitoring.core.model.StorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaDataInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo.WorkflowRepositorTyp;
@@ -114,7 +114,7 @@ public class TestDataProvider implements CopperMonitoringService {
 		
 		ArrayList<WorkflowSummary> result = new ArrayList<WorkflowSummary>();
 		WorkflowSummary workflowSummery = new WorkflowSummary("",10,
-				new WorkflowClassVersionInfo("WorkflowClass1","alias",0L,+(long)(Math.random()*100),0L),
+				new WorkflowClassMetaData("WorkflowClass1","alias",0L,+(long)(Math.random()*100),0L,""),
 				new WorkflowStateSummary(map));
 		result.add(workflowSummery);
 		
@@ -161,23 +161,22 @@ public class TestDataProvider implements CopperMonitoringService {
 	}
 
 	@Override
-	public List<WorkflowClassVersionInfo> getWorkflowClassesList(final String engineId) throws RemoteException {
-		ArrayList<WorkflowClassVersionInfo> result = new ArrayList<WorkflowClassVersionInfo>();
-		result.add(new WorkflowClassVersionInfo("blubclass1","alias",0L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassVersionInfo("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassVersionInfo("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassVersionInfo("blubclass2","alias",1L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassVersionInfo("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassVersionInfo("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassVersionInfo("blubclass2","alias",2L,+(long)(Math.random()*100),0L));
-		result.add(new WorkflowClassVersionInfo("blubclass3","alias",3L,+(long)(Math.random()*100),0L));
+	public List<WorkflowClassMetaData> getWorkflowClassesList(final String engineId) throws RemoteException {
+		ArrayList<WorkflowClassMetaData> result = new ArrayList<WorkflowClassMetaData>();
+		result.add(new WorkflowClassMetaData("blubclass1","alias",0L,+(long)(Math.random()*100),0L,""));
+		result.add(new WorkflowClassMetaData("blubclass2","alias",1L,+(long)(Math.random()*100),0L,""));
+		result.add(new WorkflowClassMetaData("blubclass2","alias",1L,+(long)(Math.random()*100),0L,""));
+		result.add(new WorkflowClassMetaData("blubclass2","alias",1L,+(long)(Math.random()*100),0L,""));
+		result.add(new WorkflowClassMetaData("blubclass2","alias",2L,+(long)(Math.random()*100),0L,""));
+		result.add(new WorkflowClassMetaData("blubclass2","alias",2L,+(long)(Math.random()*100),0L,""));
+		result.add(new WorkflowClassMetaData("blubclass2","alias",2L,+(long)(Math.random()*100),0L,""));
+		result.add(new WorkflowClassMetaData("blubclass3","alias",3L,+(long)(Math.random()*100),0L,""));
 		return result;
 	}
 
 	@Override
-	public WorkflowInstanceMetaDataInfo getWorkflowInstanceDetails(String workflowInstanceId) {
-		// TODO Auto-generated method stub
-		return new WorkflowInstanceMetaDataInfo();
+	public WorkflowInstanceMetaData getWorkflowInstanceDetails(String workflowInstanceId, String engineid) {
+		return new WorkflowInstanceMetaData(new WorkflowClassMetaData("blubclass1","alias",0L,+(long)(Math.random()*100),0L,""));
 	}
 
 	@Override

@@ -356,12 +356,6 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 	    				if (classpathentry.attributes().path.contains('jfxrt.jar')){
 					        classpathentry.appendNode('attributes').appendNode('attribute',[name:'javadoc_location', value:'jar:platform:/resource/copper-monitoring-client/libs/jfxrt-javadoc.zip!/']);
 	    				}
-						if (classpathentry.attributes().path.contains('java2html')){
-	    					java.util.Map attributes = classpathentry.attributes();
-	    				    attributes.put('sourcepath','libs/java2html-src.zip');
-	    				    root.appendNode('classpathentry', attributes);
-	    				    root.remove(classpathentry);
-		    			}
 		    			if (classpathentry.attributes().path.contains('Jemmy3AWTInput-0.9.3-SNAPSHOT')){
 	    					java.util.Map attributes = classpathentry.attributes();
 	    				    attributes.put('sourcepath','libs/Jemmy3AWTInput-0.9.3-SNAPSHOT-sources.jar');
@@ -405,7 +399,6 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 		compile project(':projects:copper-monitoring:copper-monitoring-core')
 		compile files('libs/jfxrt.jar')
 		compile files('libs/ScenicView.jar')
-		compile files('libs/java2html.jar')
 		
 		compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
 		

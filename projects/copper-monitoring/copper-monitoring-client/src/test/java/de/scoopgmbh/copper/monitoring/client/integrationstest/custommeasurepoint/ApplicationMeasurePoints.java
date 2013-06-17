@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.ui.dashboard.result;
+package de.scoopgmbh.copper.monitoring.client.integrationstest.custommeasurepoint;
 
-import javafx.scene.control.TabPane;
-import de.scoopgmbh.copper.monitoring.client.form.Form;
-import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
-import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
-public interface DashboardPartsFactory {
-	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model);
+import javafx.scene.layout.BorderPane;
+import de.scoopgmbh.copper.monitoring.client.integrationstest.fixture.IntegrationtestBase;
+import de.scoopgmbh.copper.monitoring.client.integrationstest.fixture.TestFormContext;
+
+
+
+public class ApplicationMeasurePoints extends IntegrationtestBase{
+	
+	@Override
+	public void initGui(BorderPane pane, TestFormContext testFormContext) {
+		testFormContext.createMessageForm().show();
+	}
+
 }

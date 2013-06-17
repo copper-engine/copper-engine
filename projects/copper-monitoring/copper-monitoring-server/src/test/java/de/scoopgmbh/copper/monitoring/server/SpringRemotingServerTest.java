@@ -28,6 +28,7 @@ import org.apache.shiro.realm.SimpleAccountRealm;
 import org.apache.shiro.spring.remoting.SecureRemoteInvocationFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
@@ -55,7 +56,7 @@ public class SpringRemotingServerTest {
 					public void run() {
 						final SimpleAccountRealm realm = new SimpleAccountRealm();
 						realm.addAccount("user1", "pass1");
-						springRemotingServer = new SpringRemotingServer(CopperDataProviderMock.createSecurityWarppedMock(),8087,"localhost", new DefaultLoginService(realm));
+						springRemotingServer = new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(Mockito.mock(CopperMonitoringService.class))  ,8087,"localhost", new DefaultLoginService(realm));
 						springRemotingServer.start();
 					}
 				},null);

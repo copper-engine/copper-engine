@@ -45,8 +45,11 @@ import javafx.util.StringConverter;
 import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
+import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
@@ -56,9 +59,9 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 public class WorkflowInstanceResultController extends FilterResultControllerBase<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> implements Initializable {
 	
 	private final GuiCopperDataProvider copperDataProvider;
-	private final WorkflowInstanceListNavigation navigation;
+	private final WorkflowInstanceDependencyFactory navigation;
 	
-	public WorkflowInstanceResultController(GuiCopperDataProvider copperDataProvider, WorkflowInstanceListNavigation navigation) {
+	public WorkflowInstanceResultController(GuiCopperDataProvider copperDataProvider, WorkflowInstanceDependencyFactory navigation) {
 		super();
 		this.copperDataProvider = copperDataProvider;
 		this.navigation = navigation;
@@ -246,7 +249,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 			public void handle(MouseEvent mouseEvent) {
 				if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
 		            if(mouseEvent.getClickCount() == 2 && !resultTable.getSelectionModel().isEmpty()){
-		            	navigation.navigateToIntsanceDetail(resultTable.getSelectionModel().getSelectedItem().id.get(),usedFilter.enginePoolModel.selectedEngine.get());
+		            	navigation.createWorkflowInstanceDetailForm(resultTable.getSelectionModel().getSelectedItem().id.get(),usedFilter.enginePoolModel.selectedEngine.get()).show();
 		            }
 		            if(mouseEvent.getClickCount() == 1 && !resultTable.getSelectionModel().isEmpty()){
 		            	showDetails(resultTable.getSelectionModel().getSelectedItem());
@@ -261,7 +264,8 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
         detailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				navigation.navigateToIntsanceDetail(resultTable.getSelectionModel().getSelectedItem().id.get(),usedFilter.enginePoolModel.selectedEngine.get());
+				navigation.createWorkflowInstanceDetailForm(resultTable.getSelectionModel().getSelectedItem().id.get(),usedFilter.enginePoolModel.selectedEngine.get()).show();
+
 			}
 		});
         detailMenuItem.disableProperty().bind(resultTable.getSelectionModel().selectedItemProperty().isNull());
@@ -270,7 +274,9 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
         audittrailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				navigation.navigateToAudittrail(resultTable.getSelectionModel().getSelectedItem().id.get());
+				FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> audittrailForm = navigation.createAudittrailForm();
+				audittrailForm.getFilter().workflowInstanceId.set(resultTable.getSelectionModel().getSelectedItem().id.get());
+				audittrailForm.show();
 			}
 		});
         audittrailMenuItem.disableProperty().bind(resultTable.getSelectionModel().selectedItemProperty().isNull());
@@ -298,7 +304,8 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 		detailForm = navigation.createWorkflowinstanceDetailResultForm(detailPane);
 		detailForm.show();
 		
-		errorInfo.setStyle("-fx-font: 12px \"Courier New\"");
+		errorInfo.getStyleClass().add("consoleFont");
+		errorInfo.setWrapText(false);
     }
     
     public static String abbreviate(String str, int maxWidth) {
@@ -343,16 +350,20 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 	}
 	
 	private void showDetails(final WorkflowInstanceResultModel workflowInstanceResultModel){
-		errorInfo.setText(workflowInstanceResultModel.errorInfos.get());
-		
-		if (service==null) {
-			service = new DetailLoadService(usedFilter,workflowInstanceResultModel,stackDetailPane,detailForm);
-		}
-		
-		if (!service.isRunning()){
-			service.reset();
-			service.setWorkflowInstanceResultModel(workflowInstanceResultModel);
-			service.start();
+		if (workflowInstanceResultModel!=null){
+			errorInfo.setText(workflowInstanceResultModel.errorInfos.get());
+			
+			if (service==null) {
+				service = new DetailLoadService(usedFilter,workflowInstanceResultModel,stackDetailPane,detailForm);
+			}
+			
+			if (!service.isRunning()){
+				service.reset();
+				service.setWorkflowInstanceResultModel(workflowInstanceResultModel);
+				service.start();
+			}
+		} else {
+			errorInfo.clear();
 		}
 	}
 

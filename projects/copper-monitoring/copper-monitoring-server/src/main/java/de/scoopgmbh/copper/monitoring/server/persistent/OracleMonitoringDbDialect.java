@@ -50,6 +50,7 @@ public class OracleMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 				"	(? is null or STATE=?) AND \n" + 
 				"	(? is null or CREATION_TS>=?) AND \n" + 
 				"	(? is null or CREATION_TS<=?) AND \n" + 
+				"	(? is null or ID<=?) AND \n" +
 				"	(? is null or PRIORITY=?) AND\n" + 
 				"	ERR_RID.WORKFLOW_INSTANCE_ID(+) = MASTER.ID AND\n" + 
 				"	ERR.ROWID(+) = ERR_RID.RID";

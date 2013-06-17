@@ -59,7 +59,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResu
 import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.result.CustomMeasurePointResultController;
-import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardPartsFactory;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardDependencyFactory;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
@@ -80,6 +80,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.message.result.MessageResultCont
 import de.scoopgmbh.copper.monitoring.client.ui.message.result.MessageResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.filter.WorkflowRepositoryFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.filter.WorkflowRepositoryFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.repository.result.WorkflowRepositoryDependencyFactory;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.result.WorkflowRepositoryResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsController;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
@@ -95,7 +96,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowCl
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeForm;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
-import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceListNavigation;
+import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceDependencyFactory;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterController;
@@ -116,7 +117,7 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
-public class FormContext implements DashboardPartsFactory, WorkflowInstanceListNavigation{
+public class FormContext implements DashboardDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory{
 	protected final TabPane mainTabPane;
 	protected final BorderPane mainPane;
 	protected final FormGroup formGroup;
@@ -158,10 +159,10 @@ public class FormContext implements DashboardPartsFactory, WorkflowInstanceListN
 				return createWorkflowRepositoryForm();
 			}
 		});
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowHistory_title)) {
+		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.message_title)) {
 			@Override
 			public Form<?> createForm() {
-				return createWorkflowHistoryForm();
+				return createMessageForm();
 			}
 		});
 		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.logsGroup_title),createLogGroup()));
@@ -307,6 +308,7 @@ public class FormContext implements DashboardPartsFactory, WorkflowInstanceListN
 				filterController, workflowView,guiCopperDataProvider);
 	}
 
+	@Override
 	public WorkflowClassesTreeController createWorkflowClassesTreeController(TreeView<DisplayWorkflowClassesModel> workflowView) {
 		WorkflowClassesTreeController workflowClassesTreeController = new WorkflowClassesTreeController(workflowView);
 		return workflowClassesTreeController;
@@ -329,7 +331,7 @@ public class FormContext implements DashboardPartsFactory, WorkflowInstanceListN
 	}
 	
 
-	public FilterAbleForm<MessageFilterModel,MessageResultModel> createWorkflowHistoryForm(){
+	public FilterAbleForm<MessageFilterModel,MessageResultModel> createMessageForm(){
 		return new EngineFormBuilder<MessageFilterModel,MessageResultModel,MessageFilterController,MessageResultController>(
 				new MessageFilterController(),
 				new MessageResultController(guiCopperDataProvider),
@@ -340,11 +342,12 @@ public class FormContext implements DashboardPartsFactory, WorkflowInstanceListN
 	public FilterAbleForm<WorkflowRepositoryFilterModel,WorkflowVersion> createWorkflowRepositoryForm(){
 		return new EngineFormBuilder<WorkflowRepositoryFilterModel,WorkflowVersion,WorkflowRepositoryFilterController,WorkflowRepositoryResultController>(
 				new WorkflowRepositoryFilterController(),
-				new WorkflowRepositoryResultController(guiCopperDataProvider,this),
+				new WorkflowRepositoryResultController(guiCopperDataProvider,this,codeMirrorFormatterSingelton),
 				this
 			).build();
 	}
 	
+	@Override
 	public FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> createAudittrailForm(){
 		return new FormBuilder<AuditTrailFilterModel,AuditTrailResultModel,AuditTrailFilterController,AuditTrailResultController>(
 				new AuditTrailFilterController(),
@@ -353,6 +356,7 @@ public class FormContext implements DashboardPartsFactory, WorkflowInstanceListN
 			).build();
 	}
 	
+	@Override
 	public EngineFilterAbleForm<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId, ProcessingEngineInfo engineInfo){
 		FilterController<WorkflowInstanceDetailFilterModel> fCtrl = new WorkflowInstanceDetailFilterController(new WorkflowInstanceDetailFilterModel(workflowInstanceId,engineInfo)); 
 		
@@ -367,7 +371,7 @@ public class FormContext implements DashboardPartsFactory, WorkflowInstanceListN
 	}
 	
 	public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(ShowFormStrategy<?> showFormStrategy) {
-		FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> resCtrl = new WorkflowInstanceDetailResultController(guiCopperDataProvider);
+		FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> resCtrl = new WorkflowInstanceDetailResultController(guiCopperDataProvider, codeMirrorFormatterSingelton);
 		FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> resultForm = 
 				new FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>>("workflowInstanceDetail.title",
 				resCtrl, messageProvider, showFormStrategy );
@@ -484,18 +488,6 @@ public class FormContext implements DashboardPartsFactory, WorkflowInstanceListN
 				new LogsResultController(guiCopperDataProvider),
 				this
 			).build();
-	}
-
-	@Override
-	public void navigateToAudittrail(String workflowInstanceId) {
-		FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> audittrailForm = createAudittrailForm();
-		audittrailForm.getFilter().workflowInstanceId.set(workflowInstanceId);
-		audittrailForm.show();
-	}
-
-	@Override
-	public void navigateToIntsanceDetail(String workflowInstanceId, ProcessingEngineInfo engine) {
-		createWorkflowInstanceDetailForm(workflowInstanceId,engine).show();
 	}
 	
 }

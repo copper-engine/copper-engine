@@ -15,9 +15,7 @@
  */
 package de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result;
 
-import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -30,20 +28,20 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.web.WebView;
-import de.java2html.converter.JavaSource2HTMLConverter;
-import de.java2html.javasource.JavaSource;
-import de.java2html.javasource.JavaSourceParser;
-import de.java2html.options.JavaSourceConversionOptions;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
+import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
+import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
 
 public class WorkflowInstanceDetailResultController extends FilterResultControllerBase<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> implements Initializable {
-	GuiCopperDataProvider copperDataProvider;
+	private final GuiCopperDataProvider copperDataProvider;
+	private final CodeMirrorFormatter codeMirrorFormatter;
 
-	public WorkflowInstanceDetailResultController(GuiCopperDataProvider copperDataProvider) {
+	public WorkflowInstanceDetailResultController(GuiCopperDataProvider copperDataProvider, CodeMirrorFormatter codeMirrorFormatter) {
 		super();
 		this.copperDataProvider = copperDataProvider;
+		this.codeMirrorFormatter = codeMirrorFormatter;
 	}
 
 
@@ -88,27 +86,12 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 		// Create a reader of the raw input text
 		StringReader stringReader = new StringReader("/** Simple Java2Html Demo */\r\n" + "public static int doThis(String text){ return text.length() + 2; }");
 
-		// Parse the raw text to a JavaSource object
-		JavaSource source = null;
-		try {
-			source = new JavaSourceParser().parse(stringReader);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 
-		// Create a converter and write the JavaSource object as Html
-		JavaSource2HTMLConverter converter = new JavaSource2HTMLConverter();
-		StringWriter writer = new StringWriter();
-		try {
-			converter.convert(source, JavaSourceConversionOptions.getDefault(), writer);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		
 		titleText.setText(usedFilter.workflowInstanceId.get());
 
 		
-		sourceView.getEngine().loadContent(writer.toString());
+		final WorkflowInstanceDetailResultModel workflowInstanceDetailResultModel = filteredResult.get(0);
+		sourceView.getEngine().loadContent(codeMirrorFormatter.format(workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowClassMetaData().getSource(), CodeFormatLanguage.JAVA, false));
 	}
 
 	@Override

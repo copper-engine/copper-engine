@@ -29,12 +29,12 @@ import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
 
+import org.concordion.api.Resource;
 import org.concordion.api.ResultSummary;
+import org.concordion.api.extension.ConcordionExtender;
 import org.concordion.api.extension.ConcordionExtension;
-import org.concordion.api.extension.Extension;
 import org.concordion.ext.ScreenshotExtension;
 import org.concordion.ext.ScreenshotTaker;
-import org.concordion.internal.ConcordionBuilder;
 import org.jemmy.fx.SceneDock;
 import org.mockito.Mockito;
 
@@ -95,9 +95,14 @@ public class IntegrationTestMain {
 			throw new RuntimeException(e);
 		}
 		
+		ConcordionExtension screenshotExtension = new ScreenshotExtension().setScreenshotTaker(camera).setScreenshotOnAssertionSuccess(false)
+				.setScreenshotOnThrowable(false).setMaxWidth(400);
 		
-		ConcordionBuilder concordionBuilder = new ConcordionBuilder();
-		extension.addTo(concordionBuilder);
+		BreadcrumbCssRemovedConcordionBuilder concordionBuilder = new BreadcrumbCssRemovedConcordionBuilder();
+		concordionBuilder.withEmbeddedCSS("");
+		screenshotExtension.addTo(concordionBuilder);
+		new BootsrapCssExtension().addTo(concordionBuilder);
+		new StaticRessourceExtension().addTo(concordionBuilder);
 		
 		for (final IntegrationtestBase integrationtestBase: tests){
 			ResultSummary resultSummary;
@@ -159,7 +164,7 @@ public class IntegrationTestMain {
 	public static BorderPaneShowFormStrategie getShowFormStrategy(){
 		return new BorderPaneShowFormStrategie(ApplicationFixture.getPane());
 	}
-
+	
 	void afterAll(final File summeryFile){
 		runInGuithreadAndWait(new Runnable() {
 			@Override
@@ -176,6 +181,7 @@ public class IntegrationTestMain {
 				} catch (MalformedURLException e) {
 					throw new RuntimeException(e);
 				}
+				webView.setStyle("-fx-font-smoothing-type: gray;");
 				borderPane.setCenter(webView);
 				final Button button = new Button("open report folder");
 				button.setOnAction(new EventHandler<ActionEvent>() {
@@ -273,10 +279,6 @@ public class IntegrationTestMain {
 
 	};
 
-	@Extension
-	public ConcordionExtension extension = new ScreenshotExtension().setScreenshotTaker(camera).setScreenshotOnAssertionSuccess(false)
-			.setScreenshotOnThrowable(false).setMaxWidth(400);
-
 	protected SceneDock scene;
 
 	public static void deleteReportFolder(File folder) {
@@ -333,5 +335,42 @@ public class IntegrationTestMain {
 			throw new RuntimeException(e);
 		}
         return newTextFile;
+        
+        
+	}
+	
+	
+	public class BootsrapCssExtension implements ConcordionExtension {
+	    @Override
+	    public void addTo(ConcordionExtender concordionExtender) {
+	    	concordionExtender.withLinkedJavaScript(
+	    			"/de/scoopgmbh/copper/monitoring/client/integrationstest/css/jquery-1.10.1.js",
+	    			new Resource("/de/scoopgmbh/copper/monitoring/client/integrationstest/css/jquery-1.10.1.js"));
+	    	
+	        concordionExtender.withLinkedCSS("/de/scoopgmbh/copper/monitoring/client/integrationstest/css/bootstrap.css",
+	            new Resource("/de/scoopgmbh/copper/monitoring/client/integrationstest/css/bootstrap.css"));
+	        concordionExtender.withLinkedJavaScript(
+	        		"/de/scoopgmbh/copper/monitoring/client/integrationstest/css/bootstrap.js",
+	        		new Resource("/de/scoopgmbh/copper/monitoring/client/integrationstest/css/bootstrap.js"));
+	        
+	        concordionExtender.withLinkedJavaScript(
+	        		"/de/scoopgmbh/copper/monitoring/client/integrationstest/css/codemirror.js",
+	        		new Resource("/de/scoopgmbh/copper/monitoring/client/integrationstest/css/codemirror.js"));
+	        concordionExtender.withLinkedCSS("/de/scoopgmbh/copper/monitoring/client/integrationstest/css/codemirror.css",
+		            new Resource("/de/scoopgmbh/copper/monitoring/client/integrationstest/css/codemirror.css"));
+	        concordionExtender.withLinkedJavaScript(
+	        		"/de/scoopgmbh/copper/monitoring/client/integrationstest/css/clike.js",
+	        		new Resource("/de/scoopgmbh/copper/monitoring/client/integrationstest/css/clike.js"));
+
+	        concordionExtender.withLinkedCSS("/de/scoopgmbh/copper/monitoring/client/integrationstest/css/base.css",
+	        		new Resource("/de/scoopgmbh/copper/monitoring/client/integrationstest/css/base.css"));
+	    }
+	}
+	
+	public class StaticRessourceExtension implements ConcordionExtension {
+	    @Override
+	    public void addTo(ConcordionExtender concordionExtender) {
+	 	       
+	    }
 	}
 }

@@ -17,7 +17,7 @@ package de.scoopgmbh.copper.monitoring.client.util;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 
 public class WorkflowVersion {
 	public final SimpleStringProperty classname = new SimpleStringProperty(); 
@@ -25,25 +25,28 @@ public class WorkflowVersion {
 	public final SimpleObjectProperty<Long> versionMajor = new SimpleObjectProperty<Long>(); 
 	public final SimpleObjectProperty<Long> versionMinor = new SimpleObjectProperty<Long>(); 
 	public final SimpleObjectProperty<Long> patchlevel = new SimpleObjectProperty<Long>(); 
+	public final SimpleStringProperty source = new SimpleStringProperty(); 
 	
 	public WorkflowVersion(){
 
 	} 
 	
-	public WorkflowVersion(String classname, String alias, long versionMajor,long versionMinor, long patchlevel){
+	public WorkflowVersion(String classname, String alias, long versionMajor,long versionMinor, long patchlevel, String source){
 		this.classname.setValue(classname);
 		this.alias.setValue(alias);
 		this.versionMajor.setValue(versionMajor);
 		this.versionMinor.setValue(versionMinor);
 		this.patchlevel.setValue(patchlevel);
+		this.source.setValue(source);
 	}
 	
-	public WorkflowVersion(WorkflowClassVersionInfo workflowClassesInfo){
-		this.classname.setValue(workflowClassesInfo.getClassname());
-		this.alias.setValue(workflowClassesInfo.getAlias());
-		this.versionMajor.setValue(workflowClassesInfo.getMajorVersion());
-		this.versionMinor.setValue(workflowClassesInfo.getMinorVersion());
-		this.patchlevel.setValue(workflowClassesInfo.getPatchLevel());
+	public WorkflowVersion(WorkflowClassMetaData workflowClassesInfo){
+		this.classname.set(workflowClassesInfo.getClassname());
+		this.alias.set(workflowClassesInfo.getAlias());
+		this.versionMajor.set(workflowClassesInfo.getMajorVersion());
+		this.versionMinor.set(workflowClassesInfo.getMinorVersion());
+		this.patchlevel.set(workflowClassesInfo.getPatchLevel());
+		this.source.set(workflowClassesInfo.getSource());
 	}
 	
 	public void setAllFrom(WorkflowVersion workflowVersion){
@@ -53,8 +56,14 @@ public class WorkflowVersion {
 		patchlevel.set(workflowVersion.patchlevel.get());
 	}
 	
-	public WorkflowClassVersionInfo convert(){
-		return new WorkflowClassVersionInfo(classname.getValue(),alias.getValue(),versionMajor.getValue(),versionMinor.getValue(),patchlevel.getValue());
+	public WorkflowClassMetaData convert(){
+		return new WorkflowClassMetaData(
+				classname.get(),
+				alias.get(),
+				versionMajor.get(),
+				versionMinor.get(),
+				patchlevel.get(),
+				source.get());
 	}
 	
 	

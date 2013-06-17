@@ -16,19 +16,27 @@
 package de.scoopgmbh.copper.monitoring.client.util;
 
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
 public class ComponentUtil {
 	
-	public static ProgressIndicator createProgressIndicator(){
+	public static Node createProgressIndicator(){
 		ProgressIndicator indicator = new ProgressIndicator();
+		indicator.setPrefHeight(350);
+		indicator.setPrefWidth(350);
+		indicator.setMaxHeight(350);
+		indicator.setMaxWidth(350);
 		
-		indicator.setStyle("-fx-background-color: rgba(230,230,230,0.7);" +
-					"-fx-padding: 5em 5em 5em 5em;");
-
-		return indicator;
+		BorderPane borderPane = new BorderPane();
+		BorderPane.setMargin(indicator, new Insets(5));
+		borderPane.setCenter(indicator);
+		borderPane.setStyle("-fx-background-color: rgba(230,230,230,0.7);");
+		return borderPane;
 	}
 	
 	
@@ -36,13 +44,12 @@ public class ComponentUtil {
 		Thread th = new Thread(){
 			@Override
 			public void run() {
-				final ProgressIndicator progressIndicator = new ProgressIndicator();
+				final Node progressIndicator = createProgressIndicator();
 				final Label label = new Label(text);
 				try {
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
-							progressIndicator.setMaxSize(300, 300);
 							target.getChildren().add(progressIndicator);
 							label.setWrapText(true);
 							target.getChildren().add(label);

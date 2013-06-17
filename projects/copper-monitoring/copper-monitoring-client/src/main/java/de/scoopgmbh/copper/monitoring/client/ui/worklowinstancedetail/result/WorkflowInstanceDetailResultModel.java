@@ -15,14 +15,17 @@
  */
 package de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result;
 
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaDataInfo;
+import javafx.beans.property.SimpleObjectProperty;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaData;
 
 
 
 public class WorkflowInstanceDetailResultModel {
 	
-	public WorkflowInstanceDetailResultModel(WorkflowInstanceMetaDataInfo data){
-
+	public SimpleObjectProperty<WorkflowInstanceMetaData> workflowClassMetaData;
+	
+	public WorkflowInstanceDetailResultModel(WorkflowInstanceMetaData data){
+		workflowClassMetaData = new SimpleObjectProperty<WorkflowInstanceMetaData>(data);
 	}
 	
 	

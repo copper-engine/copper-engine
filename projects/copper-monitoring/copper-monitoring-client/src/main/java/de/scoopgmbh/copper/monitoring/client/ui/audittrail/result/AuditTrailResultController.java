@@ -31,7 +31,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableRow;
@@ -142,6 +141,8 @@ public class AuditTrailResultController extends FilterResultControllerBase<Audit
 											(int)(255*auditralColorMapping.color.getValue().getGreen())+","+
 											(int)(255*auditralColorMapping.color.getValue().getBlue())+");");
 
+								} else {
+									this.setStyle("");
 								}
 							}
 						}
@@ -150,43 +151,6 @@ public class AuditTrailResultController extends FilterResultControllerBase<Audit
 				};
 			}
 		});
-//   
-        //strange that this is necessary but else column not colored text is white(not visible)
-		for (TableColumn<AuditTrailResultModel, ?> columnddummy : resultTable.getColumns()) {
-			@SuppressWarnings("unchecked")
-			TableColumn<AuditTrailResultModel, String> column = (TableColumn<AuditTrailResultModel, String>) columnddummy;
-			column.setCellFactory(new Callback<TableColumn<AuditTrailResultModel, String>, TableCell<AuditTrailResultModel, String>>() {
-				@Override
-				public TableCell<AuditTrailResultModel, String> call(TableColumn<AuditTrailResultModel, String> param) {
-					TableCell<AuditTrailResultModel, String> tableCell = new TableCell<AuditTrailResultModel, String>() {
-						@Override
-						public void updateItem(String item, boolean empty) {
-							super.updateItem(item, empty);
-					        setText(empty ? null : (getItem() == null ? "" : getItem().toString()));
-					        setGraphic(null);
-					            
-							AuditTrailResultModel rowitem = (AuditTrailResultModel) getTableRow().getItem();
-//							this.setTextFill(Color.BLACK);
-							if (rowitem != null) {
-								for (int i = 0; i < settingsModel.auditralColorMappings.size(); i++) {
-									AuditralColorMapping auditralColorMapping = settingsModel.auditralColorMappings.get(i);
-									if (auditralColorMapping.match(rowitem)) {
-										this.setStyle(
-//											   "    -fx-background-color: -fx-table-cell-border-color, -fx-control-inner-background;\r\n" + 
-											   "	-fx-control-inner-background: rgb("
-												+ (int) (200 * auditralColorMapping.color.getValue().getRed()) + ","
-												+ (int) (200 * auditralColorMapping.color.getValue().getGreen()) + ","
-												+ (int) (200 * auditralColorMapping.color.getValue().getBlue())+");");
-									}
-								}
-							}
-
-						}
-					};
-					return tableCell;
-				}
-			});
-        }
         
 
         loglevelColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
@@ -286,7 +250,7 @@ public class AuditTrailResultController extends FilterResultControllerBase<Audit
 				if (newValue.messageType.getValue()!=null && newValue.messageType.getValue().toLowerCase().equals("json")){
 					mode=CodeFormatLanguage.JAVASCRIPT;
 				}
-				String formatedMessage = codeMirrorFormatter.format(message, mode);
+				String formatedMessage = codeMirrorFormatter.format(message, mode,true);
 				
 				htmlMessageView.getEngine().loadContent(formatedMessage);
 				textMessageView.setText(message);

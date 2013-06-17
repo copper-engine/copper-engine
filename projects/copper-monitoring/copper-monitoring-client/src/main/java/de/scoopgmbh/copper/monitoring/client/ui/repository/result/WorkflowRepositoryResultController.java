@@ -27,24 +27,28 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.web.WebView;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.filter.WorkflowRepositoryFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
+import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
+import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
 public class WorkflowRepositoryResultController extends FilterResultControllerBase<WorkflowRepositoryFilterModel,WorkflowVersion> implements Initializable {
 	
 	private final GuiCopperDataProvider copperDataProvider;
-	private final FormContext formContext;
+	private final WorkflowRepositoryDependencyFactory workflowRepositoryDependencyFactory;
+	private final CodeMirrorFormatter codeMirrorFormatter;
 	private WorkflowClassesTreeController workflowClassesTreeController;
 	
-	public WorkflowRepositoryResultController(GuiCopperDataProvider copperDataProvider, FormContext formContext) {
+	public WorkflowRepositoryResultController(GuiCopperDataProvider copperDataProvider, WorkflowRepositoryDependencyFactory workflowRepositoryDependencyFactory, CodeMirrorFormatter codeMirrorFormatter) {
 		super();
 		this.copperDataProvider = copperDataProvider;
-		this.formContext = formContext;
+		this.workflowRepositoryDependencyFactory = workflowRepositoryDependencyFactory;
+		this.codeMirrorFormatter = codeMirrorFormatter;
 	}
 
 
@@ -54,13 +58,23 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
     @FXML //  fx:id="workflowView"
     private TreeView<DisplayWorkflowClassesModel> workflowView; // Value injected by FXMLLoader
 
+    @FXML //  fx:id="sourceView"
+    private WebView sourceView; // Value injected by FXMLLoader
+
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert search != null : "fx:id=\"search\" was not injected: check your FXML file 'WorkflowRepositoryResult.fxml'.";
+        assert sourceView != null : "fx:id=\"sourceView\" was not injected: check your FXML file 'WorkflowRepositoryResult.fxml'.";
         assert workflowView != null : "fx:id=\"workflowView\" was not injected: check your FXML file 'WorkflowRepositoryResult.fxml'.";
 
-        workflowClassesTreeController = formContext.createWorkflowClassesTreeController(workflowView);
+        workflowClassesTreeController = workflowRepositoryDependencyFactory.createWorkflowClassesTreeController(workflowView);
+        workflowClassesTreeController.selectedItem.addListener(new ChangeListener<WorkflowVersion>() {
+			@Override
+			public void changed(ObservableValue<? extends WorkflowVersion> observable, WorkflowVersion oldValue, WorkflowVersion newValue) {
+				sourceView.getEngine().loadContent(codeMirrorFormatter.format(newValue.source.get(), CodeFormatLanguage.JAVA,true));
+			}
+		});
         
         search.textProperty().addListener(new ChangeListener<String>() {
 			@Override

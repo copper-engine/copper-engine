@@ -61,7 +61,7 @@ public class SqlFilterController extends BaseFilterController<SqlFilterModel> im
         history.getItems().add("SELECT * FROM COP_ENGINE");
         final int fixSize=history.getItems().size();
         
-        sqlEditor.getEngine().loadContent(codeMirrorFormatter.format("", CodeFormatLanguage.SQL));
+        sqlEditor.getEngine().loadContent(codeMirrorFormatter.format("", CodeFormatLanguage.SQL,false));
         sqlEditor.setOnKeyReleased(new EventHandler<Event>() {
 			@Override
 			public void handle(Event event) {

@@ -205,7 +205,7 @@ public class DerbyMonitoringDbDialectTest {
 		}
 		
 		try {
-			List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, null, null, 1000, datasource_default.getConnection());
+			List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, null, null,null, 1000, datasource_default.getConnection());
 			assertEquals(3, selectInstances.size());
 //			assertEquals(2,selectSummary.get(0).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
 		} catch (SQLException e) {
@@ -231,11 +231,11 @@ public class DerbyMonitoringDbDialectTest {
 		
 		try {
 			{
-				List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, new Date(1), null, 1000, datasource_default.getConnection());
+				List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, new Date(1), null, null, 1000, datasource_default.getConnection());
 				assertEquals(3, selectInstances.size());
 			}
 			{
-				List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, null, new Date(System.currentTimeMillis()+10000), 1000, datasource_default.getConnection());
+				List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, null, new Date(System.currentTimeMillis()+10000), null, 1000, datasource_default.getConnection());
 				assertEquals(3, selectInstances.size());
 			}
 //			assertEquals(2,selectSummary.get(0).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));

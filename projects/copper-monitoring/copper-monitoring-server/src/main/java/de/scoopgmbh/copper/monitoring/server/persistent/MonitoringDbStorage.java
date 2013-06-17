@@ -96,12 +96,12 @@ public class MonitoringDbStorage {
 	}
 
 	public List<WorkflowInstanceInfo> selectWorkflowInstanceList(final String poolid, final String classname,
-			final WorkflowInstanceState state, final Integer priority, final Date from, final Date to, final long resultRowLimit) {
+			final WorkflowInstanceState state, final Integer priority, final Date from, final Date to, final String instanceId, final long resultRowLimit) {
 		try {
 			return run(new DatabaseTransaction<List<WorkflowInstanceInfo>>() {
 				@Override
 				public List<WorkflowInstanceInfo> run(Connection con) throws Exception {
-					return dialect.selectWorkflowInstanceList(poolid, classname, state, priority, from, to, resultRowLimit,con);
+					return dialect.selectWorkflowInstanceList(poolid, classname, state, priority, from, to, instanceId, resultRowLimit,con);
 				}
 			});
 		} catch (Exception e) {

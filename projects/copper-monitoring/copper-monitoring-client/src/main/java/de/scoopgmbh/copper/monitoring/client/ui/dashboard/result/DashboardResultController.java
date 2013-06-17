@@ -33,9 +33,9 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
 public class DashboardResultController extends FilterResultControllerBase<EmptyFilterModel,DashboardResultModel> implements Initializable{
 	private final GuiCopperDataProvider copperDataProvider;
-	private final DashboardPartsFactory dashboardPartsFactory;
+	private final DashboardDependencyFactory dashboardPartsFactory;
 	
-	public DashboardResultController(GuiCopperDataProvider copperDataProvider, DashboardPartsFactory dashboardPartsFactory) {
+	public DashboardResultController(GuiCopperDataProvider copperDataProvider, DashboardDependencyFactory dashboardPartsFactory) {
 		super();
 		this.copperDataProvider = copperDataProvider;
 		this.dashboardPartsFactory = dashboardPartsFactory;

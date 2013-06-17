@@ -143,7 +143,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		});
 		
 		filterService.stateProperty().addListener(new ChangeListener<Worker.State>() {
-			ProgressIndicator indicator = ComponentUtil.createProgressIndicator();
+			Node indicator = ComponentUtil.createProgressIndicator();
 			@Override
 			public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
 				if (newValue==State.RUNNING){
@@ -342,7 +342,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 									try {
 										filterResultController.showFilteredResult(result, filterForm.getController().getFilter());
 									} catch (Exception e) {
-										e.printStackTrace(); // Future swollows Exceptions
+										e.printStackTrace(); // Future swallows Exceptions
 										if (e instanceof RuntimeException) {
 											throw (RuntimeException) e;
 										} else {

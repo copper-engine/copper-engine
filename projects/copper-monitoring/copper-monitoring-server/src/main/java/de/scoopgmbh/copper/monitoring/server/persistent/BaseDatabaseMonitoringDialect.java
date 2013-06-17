@@ -35,7 +35,7 @@ import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
@@ -180,7 +180,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 				WorkflowSummary summary = classNameToSummary.get(instanceClassname);
 				if (summary==null){
 					summary= new WorkflowSummary();
-					summary.setClassDescription(new WorkflowClassVersionInfo(instanceClassname, "", 1L, 1L, 1L));
+					summary.setClassDescription(new WorkflowClassMetaData(instanceClassname, "", 1L, 1L, 1L,""));
 					summary.setStateSummary(new WorkflowStateSummary(new HashMap<WorkflowInstanceState, Integer>()));
 					classNameToSummary.put(instanceClassname, summary);
 					for (WorkflowInstanceState s : WorkflowInstanceState.values())
@@ -216,7 +216,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 		String subselectEXCEPTION = getResultLimitingQuery("SELECT \"EXCEPTION\"  FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID = MASTER.ID ORDER BY ERROR_TS DESC", 1);
 		String subselectERROR_TS = getResultLimitingQuery("SELECT ERROR_TS FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID = MASTER.ID ORDER BY ERROR_TS DESC", 1);
 		String stmt = 
-				"SELECT ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,TIMEOUT,CREATION_TS, ("+subselectEXCEPTION+"), ("+subselectERROR_TS+"), LAST_MOD_TS as FINISHED_TS \n" +
+				"SELECT ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,TIMEOUT,CREATION_TS, ("+subselectEXCEPTION+"), ("+subselectERROR_TS+"), LAST_MOD_TS as FINISHED_TS, CLASSNAME \n" +
 				"FROM COP_WORKFLOW_INSTANCE as master \n" + 
 				"WHERE\n" + 
 				"	(? is null or PPOOL_ID=?) AND \n" + 
@@ -224,13 +224,14 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 				"	(? is null or STATE=?) AND \n" + 
 				"	(? is null or CREATION_TS>=?) AND \n" + 
 				"	(? is null or CREATION_TS<=?) AND \n" + 
+				"	(? is null or ID<=?) AND \n" + 
 				"	(? is null or PRIORITY=?)";
 		return stmt;
 	}
 	
 	@Override
 	public List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
-			WorkflowInstanceState state, Integer priority, Date from, Date to, long resultRowLimit,Connection con) {
+			WorkflowInstanceState state, Integer priority, Date from, Date to, String instanceId, long resultRowLimit, Connection con) {
 		PreparedStatement selectStmt = null;
 		try {
 			String stmt = getResultLimitingQuery(createWorkflowInstanceListQuery(),resultRowLimit);
@@ -242,6 +243,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 			pIdx = setFilterParam(selectStmt,(state==null?null:DBProcessingStateWorkaround.fromWorkflowInstanceState(state).key()),java.sql.Types.INTEGER,pIdx);
 			pIdx = setFilterParam(selectStmt,from,java.sql.Types.DATE,pIdx);
 			pIdx = setFilterParam(selectStmt,to,java.sql.Types.DATE,pIdx);
+			pIdx = setFilterParam(selectStmt,instanceId,java.sql.Types.VARCHAR,pIdx);
 			pIdx = setFilterParam(selectStmt,priority,java.sql.Types.INTEGER,pIdx);
 			
 			selectStmt.setFetchSize(100);
@@ -272,7 +274,8 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 					workflowInstanceInfo.setFinishTime(lastMod);
 				}
 				workflowInstanceInfo.setOverallLifetimeInMs(System.currentTimeMillis()-workflowInstanceInfo.getStartTime().getTime());
-					
+				workflowInstanceInfo.setClassname(resultSet.getString(11));
+				
 				instances.add(workflowInstanceInfo);
 			}
 			resultSet.close();

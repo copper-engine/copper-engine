@@ -70,9 +70,9 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo.ProcessorPoolTyp;
 import de.scoopgmbh.copper.monitoring.core.model.StorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaDataInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo.WorkflowRepositorTyp;
@@ -135,8 +135,8 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 
 	@Override
 	public List<WorkflowInstanceInfo> getWorkflowInstanceList(final String poolid, final String classname,
-			final WorkflowInstanceState state, final Integer priority, Date form, Date to, final long resultRowLimit) throws RemoteException {
-		return dbStorage.selectWorkflowInstanceList(poolid,  classname, state, priority, form, to, resultRowLimit);
+			final WorkflowInstanceState state, final Integer priority, Date from, Date to, final long resultRowLimit) throws RemoteException {
+		return dbStorage.selectWorkflowInstanceList(poolid, classname, state, priority, from, to, null, resultRowLimit);
 	}
 
 	@Override
@@ -151,17 +151,18 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	}
 
 	@Override
-	public List<WorkflowClassVersionInfo> getWorkflowClassesList(final String engineId) throws RemoteException {
+	public List<WorkflowClassMetaData> getWorkflowClassesList(final String engineId) throws RemoteException {
 		WorkflowRepositoryMXBean workflowRepository = getWorkflowRepository(engineId);
 		if (workflowRepository!=null){
-			List<WorkflowClassVersionInfo> result = new ArrayList<WorkflowClassVersionInfo>();
+			List<WorkflowClassMetaData> result = new ArrayList<WorkflowClassMetaData>();
 			for (WorkflowClassInfo workflowClassInfo: workflowRepository.getWorkflows()){
-				result.add(new WorkflowClassVersionInfo(
+				result.add(new WorkflowClassMetaData(
 						workflowClassInfo.getClassname(), 
 						workflowClassInfo.getAlias(),
 						workflowClassInfo.getMajorVersion(), 
 						workflowClassInfo.getMinorVersion(), 
-						workflowClassInfo.getPatchLevel()));
+						workflowClassInfo.getPatchLevel(),
+						workflowClassInfo.getSourceCode()));
 			}
 			return result;
 		} else {
@@ -170,9 +171,18 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	}
 
 	@Override
-	public WorkflowInstanceMetaDataInfo getWorkflowInstanceDetails(String workflowInstanceId) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+	public WorkflowInstanceMetaData getWorkflowInstanceDetails(String workflowInstanceId, String engineId) throws RemoteException {
+		List<WorkflowClassMetaData> classList = getWorkflowClassesList(engineId);
+		String classname = dbStorage.selectWorkflowInstanceList(null, null, null, null, null, null, workflowInstanceId, 1).get(0).getClassname();
+		
+		WorkflowClassMetaData workflowClassMetaData= null;
+		for (WorkflowClassMetaData workflowClassMetaDataI: classList){
+			if (classname.equals(workflowClassMetaDataI.getClassname())){
+				workflowClassMetaData=workflowClassMetaDataI;
+			}
+		}
+		
+		return new WorkflowInstanceMetaData(workflowClassMetaData);
 	}
 
 	@Override

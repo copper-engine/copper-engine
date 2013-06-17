@@ -39,7 +39,7 @@ public interface DatabaseMonitoringDialect {
 	public abstract List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname, Connection con);
 
 	public abstract List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
-			WorkflowInstanceState state, Integer priority, Date form, Date to, long resultRowLimit, Connection con);
+			WorkflowInstanceState state, Integer priority, Date form, Date to, String instanceId, long resultRowLimit, Connection con);
 
 	public abstract List<String[]> executeMonitoringQuery(String query, long resultRowLimit, Connection con);
 

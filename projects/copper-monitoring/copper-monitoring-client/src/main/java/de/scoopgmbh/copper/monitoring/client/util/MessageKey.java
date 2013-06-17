@@ -31,7 +31,7 @@ public enum MessageKey {
 	loadGroup_title("loadGroup.title"),
 	dashboard_title("dashboard.title"),
 	measurePoint_title("measurePoint.title"),
-	workflowHistory_title("workflowHistory.title"),
+	message_title("message.title"),
 	workflowGroup_title("workflowGroup.title"),
 	workflowRepository_title("workflowRepository.title"),
 	hotfix_title("hotfix.title"), 

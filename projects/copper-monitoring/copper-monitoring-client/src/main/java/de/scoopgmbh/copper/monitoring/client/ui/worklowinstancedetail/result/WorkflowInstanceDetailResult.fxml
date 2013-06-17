@@ -21,12 +21,11 @@
     </HBox>
   </bottom>
   <center>
-    <Pane prefHeight="358.0" prefWidth="464.0">
-      <children>
-        <Label layoutX="97.0" layoutY="143.0" text="TODO  //stackstrace//variables content//line" />
-        <WebView fx:id="sourceView" layoutX="14.0" layoutY="131.0" prefHeight="70.0" prefWidth="117.0" visible="false" />
-      </children>
-    </Pane>
+    <WebView fx:id="sourceView" prefHeight="70.0" prefWidth="117.0" visible="true">
+      <BorderPane.margin>
+        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+      </BorderPane.margin>
+    </WebView>
   </center>
   <top>
     <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0">
