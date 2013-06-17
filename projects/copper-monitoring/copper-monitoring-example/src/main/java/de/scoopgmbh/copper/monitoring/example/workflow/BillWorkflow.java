@@ -60,6 +60,10 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 			ArrayList<Response<?>> all = new ArrayList<Response<?>>(getAndRemoveResponses(BillAdapter.BILL_TIME));
 			all.addAll(getAndRemoveResponses(BillAdapter.BILLABLE_SERVICE));
 			
+			Response<String> rsponse = new Response<String>("cor","message",null);
+			rsponse.getResponse();
+			
+			
 			for(Response<?> response: all){
 				if (response.getResponse() instanceof BillableService){
 					billableServices.add(((BillableService)response.getResponse()));

@@ -79,7 +79,7 @@ public class MonitoringExampleMain {
 	
 		FileBasedWorkflowRepository wfRepository = new FileBasedWorkflowRepository();
 		wfRepository.setTargetDir("build/classes/test");
-		wfRepository.setSourceDirs(Arrays.asList("src/main/java/de/scoopgmbh/copper/monitoring/example/workflow"));
+		wfRepository.setSourceDirs(Arrays.asList("src/main/java"));
 		wfRepository.start();
 		//wfRepository.shutdown
 		
