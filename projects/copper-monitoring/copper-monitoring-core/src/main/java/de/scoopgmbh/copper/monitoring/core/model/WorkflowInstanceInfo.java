@@ -33,12 +33,13 @@ public class WorkflowInstanceInfo implements Serializable{
     private Date finishTime;
     private Date lastErrorTime;
     private String errorInfos;
+    private String classname;
 	
 	public WorkflowInstanceInfo() {
 	}
 	
 	public WorkflowInstanceInfo(String id, WorkflowInstanceState state, int priority, String processorPoolId, Date timeout,
-			Date lastActivityTimestamp, long overallLifetimeInMs, Date startTime, Date finishTime, Date lastErrorTime, String errorInfos) {
+			Date lastActivityTimestamp, long overallLifetimeInMs, Date startTime, Date finishTime, Date lastErrorTime, String errorInfos, String classname) {
 		super();
 		this.id = id;
 		this.state = state;
@@ -51,6 +52,7 @@ public class WorkflowInstanceInfo implements Serializable{
 		this.finishTime = finishTime;
 		this.lastErrorTime = lastErrorTime;
 		this.errorInfos = errorInfos;
+		this.classname = classname;
 	}
 
 	public String getId() {
@@ -147,5 +149,15 @@ public class WorkflowInstanceInfo implements Serializable{
 	public void setErrorInfos(String errorInfos) {
 		this.errorInfos = errorInfos;
 	}
+
+	public String getClassname() {
+		return classname;
+	}
+
+	public void setClassname(String classname) {
+		this.classname = classname;
+	}
+	
+	
 	
 }
