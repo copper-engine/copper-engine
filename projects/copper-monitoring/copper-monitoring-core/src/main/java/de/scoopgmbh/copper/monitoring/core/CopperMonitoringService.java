@@ -29,9 +29,9 @@ import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassVersionInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaDataInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
@@ -47,9 +47,9 @@ public interface CopperMonitoringService extends Remote, Serializable {
 
 	public String getAuditTrailMessage(long id) throws RemoteException;
 	
-	public List<WorkflowClassVersionInfo> getWorkflowClassesList(final String engineId) throws RemoteException;
+	public List<WorkflowClassMetaData> getWorkflowClassesList(final String engineId) throws RemoteException;
 	
-	public WorkflowInstanceMetaDataInfo getWorkflowInstanceDetails(String workflowInstanceId)  throws RemoteException;
+	public WorkflowInstanceMetaData getWorkflowInstanceDetails(String workflowInstanceId, String engineId)  throws RemoteException;
 
 	public WorkflowStateSummary getAggregatedWorkflowStateSummary(String engineid) throws RemoteException;
 	
