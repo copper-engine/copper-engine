@@ -24,11 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.spring.SpringDependencyInjector;
-
 public abstract class AbstractDependencyInjector implements DependencyInjector {
 	
-	private static final Logger logger = LoggerFactory.getLogger(SpringDependencyInjector.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractDependencyInjector.class);
 
 	private ProcessingEngine engine;
 	
