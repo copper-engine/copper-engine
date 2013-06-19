@@ -27,6 +27,7 @@ public class MeasurePointData implements Serializable {
 	private long elapsedTimeMicros = 0L;
 	private long count = 0L;
 	private Date time;
+	private SystemResourcesInfo systemResourcesInfo;
 	
 	
 	@ConstructorProperties({"mpId", "elementCount", "elapsedTimeMicros", "count"})
@@ -98,6 +99,15 @@ public class MeasurePointData implements Serializable {
 	public void setTime(Date time) {
 		this.time = time;
 	}
+
+	public SystemResourcesInfo getSystemResourcesInfo() {
+		return systemResourcesInfo;
+	}
+
+	public void setSystemResourcesInfo(SystemResourcesInfo systemResourcesInfo) {
+		this.systemResourcesInfo = systemResourcesInfo;
+	}
+	
 	
 
 

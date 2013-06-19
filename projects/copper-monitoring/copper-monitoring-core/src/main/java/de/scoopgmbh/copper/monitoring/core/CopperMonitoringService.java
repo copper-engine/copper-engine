@@ -105,6 +105,8 @@ public interface CopperMonitoringService extends Remote, Serializable {
 	public List<String> getMonitoringMeasurePointIds() throws RemoteException;
 	
 	public LogData getLogData() throws RemoteException;
+	
+	public void clearLogData() throws RemoteException;
 
 	public void updateLogConfig(String config) throws RemoteException;
 }
