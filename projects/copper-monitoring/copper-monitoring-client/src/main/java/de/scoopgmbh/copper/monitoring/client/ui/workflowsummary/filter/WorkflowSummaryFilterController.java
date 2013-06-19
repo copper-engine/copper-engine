@@ -18,9 +18,6 @@ package de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javafx.animation.FadeTransition;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CustomMenuItem;
@@ -30,12 +27,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.util.Duration;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
+import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
 public class WorkflowSummaryFilterController extends BaseFilterController<WorkflowSummaryFilterModel> implements Initializable, FxmlController {
@@ -98,21 +94,7 @@ public class WorkflowSummaryFilterController extends BaseFilterController<Workfl
 	}
 	
 	public void startValueSetAnimation() {
-		final javafx.scene.shape.Rectangle rectangle = new javafx.scene.shape.Rectangle();
-		rectangle.widthProperty().bind(filterPane.widthProperty());
-		rectangle.heightProperty().bind(filterPane.heightProperty());
-		rectangle.setFill(Color.RED);
-		stackPane.getChildren().add(rectangle);
-		FadeTransition ft = new FadeTransition(Duration.millis(400), rectangle);
-		ft.setFromValue(1.0);
-		ft.setToValue(0.2);
-		ft.play();
-		ft.setOnFinished(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				stackPane.getChildren().remove(rectangle);
-			}
-		});
+		ComponentUtil.startValueSetAnimation(stackPane);
 	}
 	
 	@Override

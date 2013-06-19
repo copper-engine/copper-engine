@@ -15,13 +15,20 @@
  */
 package de.scoopgmbh.copper.monitoring.client.util;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.effect.BoxBlur;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 public class ComponentUtil {
 	
@@ -37,6 +44,37 @@ public class ComponentUtil {
 		borderPane.setCenter(indicator);
 		borderPane.setStyle("-fx-background-color: rgba(230,230,230,0.7);");
 		return borderPane;
+	}
+	
+	public static void startValueSetAnimation(final Pane parent) {
+		final javafx.scene.shape.Rectangle rectangle = new javafx.scene.shape.Rectangle();
+		Insets margin = BorderPane.getMargin(parent);
+		if (margin==null){
+			margin= new Insets(0);
+		}
+		rectangle.widthProperty().bind(parent.widthProperty().subtract(margin.getLeft()+margin.getRight()));
+		rectangle.heightProperty().bind(parent.heightProperty().subtract(margin.getTop()+margin.getBottom()));
+		rectangle.setFill(Color.RED);
+		parent.getChildren().add(rectangle);
+		
+        BoxBlur bb = new BoxBlur();
+        bb.setWidth(5);
+        bb.setHeight(5);
+        bb.setIterations(3);
+        rectangle.setEffect(bb);
+        
+		FadeTransition ft = new FadeTransition(Duration.millis(200), rectangle);
+		ft.setFromValue(0.2);
+		ft.setToValue(0.8);
+		ft.setCycleCount(2);
+		ft.setAutoReverse(true);
+		ft.play();
+		ft.setOnFinished(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				parent.getChildren().remove(rectangle);
+			}
+		});
 	}
 	
 	

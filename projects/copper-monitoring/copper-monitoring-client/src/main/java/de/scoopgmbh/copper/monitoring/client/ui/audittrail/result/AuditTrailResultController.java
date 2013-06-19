@@ -47,6 +47,7 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerB
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
+import de.scoopgmbh.copper.monitoring.client.util.CSSHelper;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
 
@@ -136,10 +137,9 @@ public class AuditTrailResultController extends FilterResultControllerBase<Audit
 							for (int i=0;i<settingsModel.auditralColorMappings.size();i++){
 								AuditralColorMapping auditralColorMapping = settingsModel.auditralColorMappings.get(i);
 								if (auditralColorMapping.match(item)){
-									this.setStyle("-fx-control-inner-background: rgb("+
-											(int)(255*auditralColorMapping.color.getValue().getRed())+","+
-											(int)(255*auditralColorMapping.color.getValue().getGreen())+","+
-											(int)(255*auditralColorMapping.color.getValue().getBlue())+");");
+									this.setStyle(
+											"-fx-control-inner-background: "+CSSHelper.toCssColor(auditralColorMapping.color.get())+";"
+												  );
 
 								} else {
 									this.setStyle("");

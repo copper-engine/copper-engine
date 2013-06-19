@@ -38,6 +38,24 @@ public class LogsResultModel {
 			level = new SimpleStringProperty(logEvent.getLevel());
 			locationInformation = new SimpleStringProperty(logEvent.getLocationInformation());
 		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			fillString(builder);
+			return builder.toString();
+		}
+		
+		public void fillString(StringBuilder builder) {
+			builder.append(time.get());
+			builder.append("\t");
+			builder.append(level.get());
+			builder.append("\t");
+			builder.append(String.format("%-100s", message.get()));
+			builder.append("\t|");
+			builder.append(locationInformation.get());
+			builder.append("\n");
+		}
 	}
 	
 	public final SimpleStringProperty config;
@@ -51,7 +69,5 @@ public class LogsResultModel {
 			logs.add(new LogsRowModel(logEvent));
 		}
 	}
-	
-	
 	
 }

@@ -31,11 +31,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.log4j.Appender;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.helpers.Loader;
+import org.apache.log4j.xml.DOMConfigurator;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.management.BatcherMXBean;
@@ -80,7 +89,6 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
-import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLogDataProvider;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
 
@@ -205,7 +213,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 
 	@Override
 	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException {
-		return performanceMonitor.getRessourcenInfo();
+		return performanceMonitor.createRessourcenInfo();
 	}
 
 	@Override
@@ -390,7 +398,9 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			@Override
 			public List<MeasurePointData> call() throws Exception {
 				ArrayList<MeasurePointData> result = new ArrayList<MeasurePointData>();
-				for (MeasurePointData measurePointData: monitoringData.getMeasurePoints()){
+				final List<MeasurePointData> measurePoints = monitoringData.getMeasurePoints();
+				Collections.reverse(measurePoints);
+				for (MeasurePointData measurePointData: measurePoints){
 					if (measurePoint==null || measurePoint.isEmpty() || measurePoint.equals(measurePointData.getMeasurePointId())){
 						result.add(measurePointData);
 					}
@@ -424,35 +434,40 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			propertylocation="log4j.properties";
 		}
 		InputStream input=null;
+		
 		String config="";
-		try {
-			final URL resource = Loader.getResource(propertylocation);
-			if (resource!=null){
-				try {
-					input = resource.openStream();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
+		if (logProperty == null) {
+			try {
+				final URL resource = Loader.getResource(propertylocation);
+				if (resource != null) {
+					try {
+						input = resource.openStream();
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
 				}
-			}
-			if (input==null){
-				try {
-					input=new FileInputStream(propertylocation);
-				} catch (FileNotFoundException e) {
-					//ignore
+				if (input == null) {
+					try {
+						input = new FileInputStream(propertylocation);
+					} catch (FileNotFoundException e) {
+						// ignore
+					}
 				}
-			}
-			if (input!=null){
-				config = convertStreamToString(input);
-			}
-		} finally {
-			if (input!=null){
-				try {
-					input.close();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
+				if (input != null) {
+					logProperty = convertStreamToString(input);
+				}
+			} finally {
+				if (input != null) {
+					try {
+						input.close();
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
 				}
 			}
 		}
+		config=logProperty;
+		
 		final List<LogEvent> logEvents = monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<LogEvent>>() {
 			@Override
 			public List<LogEvent> call() throws Exception {
@@ -460,7 +475,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			}
 		});
 		if (logEvents.isEmpty()){
-			logEvents.add(new LogEvent(new Date(),"No logs found probably missing: "+MonitoringDataCollector.class.getName(),"","ERROR"));
+			logEvents.add(new LogEvent(new Date(),"No logs found probably missing: "+MonitoringLogDataProvider.class.getName(),"","ERROR"));
 		}
 		return new LogData(logEvents, config);
 	}
@@ -487,12 +502,49 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 		}
 		Appender appender = LogManager.getRootLogger().getAppender(MonitoringLogDataProvider.APPENDER_NAME);
 		LogManager.resetConfiguration();
-		PropertyConfigurator.configure(props);
+		logProperty=config;
+		if (isXml(config)){
+			try {
+				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+				Document doc = dBuilder.parse(new InputSource(new StringReader(config)));
+				DOMConfigurator.configure(doc.getDocumentElement());
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			PropertyConfigurator.configure(props);
+		}
 		if (appender!=null){
 			Logger rootLogger = Logger.getRootLogger();
 			rootLogger.addAppender(appender);
 		}
 	}
+	
+	String logProperty;
+	public boolean isXml(String text) {
+		try {
+			XMLReader parser = XMLReaderFactory.createXMLReader();
+			parser.setContentHandler(new DefaultHandler());
+			InputSource source = new InputSource(new StringReader(text));
+			parser.parse(source);
+			return true;
+		} catch (Exception ioe) {
+			return false;
+		}
+	}
+
+	@Override
+	public void clearLogData() throws RemoteException {
+		monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				monitoringData.clearLogEvents();
+				return null;
+			}
+		});
+	}
+
 
 
 }

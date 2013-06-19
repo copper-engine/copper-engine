@@ -27,6 +27,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
@@ -35,6 +36,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowCl
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
+import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
 public class WorkflowRepositoryResultController extends FilterResultControllerBase<WorkflowRepositoryFilterModel,WorkflowVersion> implements Initializable {
@@ -51,6 +53,8 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
 		this.codeMirrorFormatter = codeMirrorFormatter;
 	}
 
+    @FXML //  fx:id="detailStackPane"
+    private StackPane detailStackPane; // Value injected by FXMLLoader
 
     @FXML //  fx:id="search"
     private TextField search; // Value injected by FXMLLoader
@@ -64,7 +68,8 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert search != null : "fx:id=\"search\" was not injected: check your FXML file 'WorkflowRepositoryResult.fxml'.";
+    	assert detailStackPane != null : "fx:id=\"detailStackPane\" was not injected: check your FXML file 'WorkflowRepositoryResult.fxml'.";
+    	assert search != null : "fx:id=\"search\" was not injected: check your FXML file 'WorkflowRepositoryResult.fxml'.";
         assert sourceView != null : "fx:id=\"sourceView\" was not injected: check your FXML file 'WorkflowRepositoryResult.fxml'.";
         assert workflowView != null : "fx:id=\"workflowView\" was not injected: check your FXML file 'WorkflowRepositoryResult.fxml'.";
 
@@ -73,6 +78,7 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
 			@Override
 			public void changed(ObservableValue<? extends WorkflowVersion> observable, WorkflowVersion oldValue, WorkflowVersion newValue) {
 				sourceView.getEngine().loadContent(codeMirrorFormatter.format(newValue.source.get(), CodeFormatLanguage.JAVA,true));
+				ComponentUtil.startValueSetAnimation(detailStackPane);
 			}
 		});
         

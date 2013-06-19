@@ -3,23 +3,52 @@
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.collections.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="405.0" prefWidth="477.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <AreaChart fx:id="areaChart">
-      <xAxis>
-        <NumberAxis fx:id="timeAxis" side="BOTTOM">
-          
-        </NumberAxis>
-      </xAxis>
-      <yAxis>
-        <NumberAxis fx:id="numberAxis" label="micro secounds" side="LEFT" />
-      </yAxis>
-    </AreaChart>
+    <SplitPane dividerPositions="0.5682382133995038, 0.7866004962779156" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+      <items>
+        <AreaChart id="areaChart" fx:id="measurePointsChart">
+          <xAxis>
+            <NumberAxis fx:id="timeAxis" side="BOTTOM" />
+          </xAxis>
+          <yAxis>
+            <NumberAxis fx:id="numberAxis" label="micro secounds" side="LEFT" />
+          </yAxis>
+        </AreaChart>
+        <AreaChart id="areaChart" fx:id="ressourceChart" minHeight="75.0" prefHeight="75.0" prefWidth="475.0">
+          <xAxis>
+            <NumberAxis id="timeAxis" fx:id="timeResAxis" side="BOTTOM" />
+          </xAxis>
+          <yAxis>
+            <NumberAxis id="numberAxis" label="\%" side="LEFT" />
+          </yAxis>
+        </AreaChart>
+        <BorderPane prefHeight="200.0" prefWidth="200.0">
+          <center>
+            <TextArea fx:id="logText" prefWidth="200.0" wrapText="true" />
+          </center>
+          <top>
+            <HBox alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="469.0" spacing="3.0" BorderPane.alignment="CENTER_LEFT">
+              <children>
+                <Label id="measurePointLable" prefWidth="-1.0" text="Logging for measurepoint" />
+                <TextField fx:id="measurePointField" editable="false" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                <Label id="measurePointLable" prefWidth="-1.0" text="Timerange (ms)" />
+                <TextField fx:id="timeRange" prefWidth="111.0" />
+              </children>
+              <BorderPane.margin>
+                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+              </BorderPane.margin>
+            </HBox>
+          </top>
+        </BorderPane>
+      </items>
+    </SplitPane>
   </center>
 </BorderPane>

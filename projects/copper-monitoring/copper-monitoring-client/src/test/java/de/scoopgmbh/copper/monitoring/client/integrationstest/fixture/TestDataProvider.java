@@ -296,4 +296,10 @@ public class TestDataProvider implements CopperMonitoringService {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void clearLogData() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
 }

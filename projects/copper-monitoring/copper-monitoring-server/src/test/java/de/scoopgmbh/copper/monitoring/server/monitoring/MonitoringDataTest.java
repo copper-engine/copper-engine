@@ -60,6 +60,16 @@ public class MonitoringDataTest {
 		assertEquals("4", limitedList.createList().get(2));
 	}
 	
+	@Test
+	public void test_clear(){
+		LimitedBuffer<String> limitedList = new LimitedBuffer<String> (3);
+		for (int i=0;i<2;i++){
+			limitedList.addWitdhLimit(""+i);
+		}
+		limitedList.clear();
+		assertEquals(0, limitedList.createList().size());
+	}
+	
 	
 	@Ignore
 	@Test

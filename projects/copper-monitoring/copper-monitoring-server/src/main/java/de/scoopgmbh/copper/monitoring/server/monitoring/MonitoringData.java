@@ -65,6 +65,13 @@ public class MonitoringData {
 			return result;
 		}
 		
+		public void clear(){
+			cursur=0;
+			for (int i=0;i<limit;i++){
+				content[i]=null;
+			}
+		}
+		
 	}
 	
 	private final LimitedBuffer<AdapterCallInfo> adapterCalls;
@@ -83,7 +90,7 @@ public class MonitoringData {
 	}
 	
 	public MonitoringData() {
-		this(1000,1000,1000,5000,1000);
+		this(1000,1000,1000,5000,2000);
 	}
 	
 	public void addAdapterCallsWitdhLimit(AdapterCallInfo adapterCall){
@@ -124,6 +131,10 @@ public class MonitoringData {
 	
 	public List<LogEvent> getLogEvents() {
 		return logEvents.createList();
+	}
+	
+	public void clearLogEvents(){
+		logEvents.clear();
 	}
 
 	

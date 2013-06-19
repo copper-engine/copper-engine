@@ -22,6 +22,6 @@ public class PerformanceMonitorTest {
 
 	@Test
 	public void test_noexception(){
-		new PerformanceMonitor().getRessourcenInfo();
+		new PerformanceMonitor().createRessourcenInfo();
 	}
 }

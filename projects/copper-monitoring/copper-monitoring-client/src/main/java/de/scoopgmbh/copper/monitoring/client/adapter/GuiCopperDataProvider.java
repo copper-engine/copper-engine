@@ -304,5 +304,13 @@ public class GuiCopperDataProvider {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public void clearLogData() {
+		try {
+			copperDataProvider.clearLogData();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	
 }

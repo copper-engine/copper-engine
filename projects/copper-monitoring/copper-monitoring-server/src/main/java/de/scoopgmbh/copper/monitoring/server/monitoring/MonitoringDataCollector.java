@@ -25,13 +25,21 @@ import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
 import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
+import de.scoopgmbh.copper.monitoring.server.PerformanceMonitor;
 
 public class MonitoringDataCollector{
 	
 	private final MonitoringDataAccessQueue monitoringQueue;
+	private final PerformanceMonitor performanceMonitor;
 	
 	public MonitoringDataCollector(final MonitoringDataAccessQueue monitoringQueue){
+		this(monitoringQueue, new PerformanceMonitor());
+	}
+
+	
+	public MonitoringDataCollector(final MonitoringDataAccessQueue monitoringQueue, PerformanceMonitor performanceMonitor){
 		this.monitoringQueue = monitoringQueue; 
+		this.performanceMonitor = performanceMonitor;
 	}
 
 	public void submitAdapterCalls(final Method method, final Object[] args, final Object adapter) {
@@ -77,6 +85,7 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
+				measurePointData.setSystemResourcesInfo(performanceMonitor.createRessourcenInfo());
 				monitoringData.addMeasurePointWitdhLimit(measurePointData);
 			}
 		});

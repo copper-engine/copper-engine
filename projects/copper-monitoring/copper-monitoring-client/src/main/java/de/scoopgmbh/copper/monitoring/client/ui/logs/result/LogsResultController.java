@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -94,6 +95,9 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
     private Button updateConfig;
     
     @FXML 
+    private Button clearLogs;
+    
+    @FXML 
     private TableColumn<LogsRowModel, String> locationColumn;
 
 
@@ -111,6 +115,7 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
         assert tableBorderPane != null ;
         assert updateConfig != null ;
         assert locationColumn != null ;
+        assert clearLogs != null ;
         
         resultTable.setRowFactory(new Callback<TableView<LogsRowModel>, TableRow<LogsRowModel>>() {
 			@Override
@@ -204,13 +209,28 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
         messageColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.73));
         
         updateConfig.getStyleClass().add("copperActionButton");
-        updateConfig.disableProperty().bind(logConfig.textProperty().isNull().or(logConfig.textProperty().isEqualTo("")));
         updateConfig.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				copperDataProvider.updateLogConfig(logConfig.getText());
 			}
 		});
+        logConfig.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				updateConfig.setDisable(false);
+			}
+		});
+        
+        clearLogs.getStyleClass().add("copperActionButton");
+        clearLogs.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				copperDataProvider.clearLogData();
+			}
+		});
+        
+        
         
         resultTextarea.getStyleClass().add("consoleFont");
         resultTextarea.setWrapText(false);
@@ -220,7 +240,7 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 	public URL getFxmlRessource() {
 		return getClass().getResource("LogsResult.fxml");
 	}
-
+	
 	@Override
 	public void showFilteredResult(List<LogsResultModel> filteredResult, LogsFilterModel usedFilter) {
 		LogsResultModel resultModel = filteredResult.get(0);
@@ -239,18 +259,12 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 		textresult.append("\n");
 		
 		for (LogsRowModel row: resultModel.logs){
-			textresult.append(row.time.get());
-			textresult.append("\t");
-			textresult.append(row.level.get());
-			textresult.append("\t");
-			textresult.append(row.message.get());
-			textresult.append("\t|||||||||||||||||||||||||");
-			textresult.append(row.locationInformation.get());
-			textresult.append("\n");
+			row.fillString(textresult);
 		}
 		resultTextarea.setText(textresult.toString());
 		
 		logConfig.setText(resultModel.config.get());
+		updateConfig.setDisable(true);
 	}
 
 	@Override
