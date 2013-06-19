@@ -1,5 +1,5 @@
 include ":projects:copper-coreengine", 
-":projects:copper-jmx-iface", 
+":projects:copper-jmx-interface", 
 ":projects:copper-examples:orchestration:orch-engine", 
 ":projects:copper-examples:orchestration:orch-interfaces", 
 ":projects:copper-examples:orchestration:orch-simulators",

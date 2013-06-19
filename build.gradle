@@ -137,7 +137,7 @@ project(':projects:copper-coreengine') {
         
         
     dependencies {
-		compile project(':projects:copper-jmx-iface')
+		compile project(':projects:copper-jmx-interface')
     		
 		compile 'aopalliance:aopalliance:1.0'
 		
@@ -276,7 +276,7 @@ project(':projects:copper-examples:orchestration:orch-simulators') {
     }
 }
 
-project(':projects:copper-jmx-iface') {
+project(':projects:copper-jmx-interface') {
     dependencies {
     }
 }
@@ -284,7 +284,7 @@ project(':projects:copper-jmx-iface') {
 project(':projects:copper-monitoring:copper-monitoring-server') {
 	//apply plugin: 'application'
     dependencies {
-		compile project(':projects:copper-jmx-iface')
+		compile project(':projects:copper-jmx-interface')
 		compile project(':projects:copper-monitoring:copper-monitoring-core')
 		compile project(':projects:copper-coreengine')
 	    
