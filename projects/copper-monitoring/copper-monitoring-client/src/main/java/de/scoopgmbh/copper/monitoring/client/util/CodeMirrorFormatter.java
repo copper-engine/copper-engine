@@ -44,7 +44,9 @@ public class CodeMirrorFormatter{
     		return s.hasNext() ? s.next() : "";
     	} finally {
     		try {
-				input.close();
+    			if (input!=null){
+    				input.close();
+    			}
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}

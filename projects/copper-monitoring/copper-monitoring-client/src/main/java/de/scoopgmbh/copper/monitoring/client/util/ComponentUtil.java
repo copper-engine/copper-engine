@@ -54,7 +54,7 @@ public class ComponentUtil {
 		}
 		rectangle.widthProperty().bind(parent.widthProperty().subtract(margin.getLeft()+margin.getRight()));
 		rectangle.heightProperty().bind(parent.heightProperty().subtract(margin.getTop()+margin.getBottom()));
-		rectangle.setFill(Color.RED);
+		rectangle.setFill(Color.BLUE);
 		parent.getChildren().add(rectangle);
 		
         BoxBlur bb = new BoxBlur();
@@ -63,7 +63,7 @@ public class ComponentUtil {
         bb.setIterations(3);
         rectangle.setEffect(bb);
         
-		FadeTransition ft = new FadeTransition(Duration.millis(200), rectangle);
+		FadeTransition ft = new FadeTransition(Duration.millis(250), rectangle);
 		ft.setFromValue(0.2);
 		ft.setToValue(0.8);
 		ft.setCycleCount(2);

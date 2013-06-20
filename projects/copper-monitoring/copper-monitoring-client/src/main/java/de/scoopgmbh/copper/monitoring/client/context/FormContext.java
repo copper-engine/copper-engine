@@ -365,7 +365,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm = createWorkflowinstanceDetailResultForm(new EmptyShowFormStrategie());
 		
 		EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> filterAbleForm = new EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>(messageProvider,
-				new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+				getDefaultShowFormStrategy(), filterForm, resultForm,guiCopperDataProvider);
 		filterAbleForm.displayedTitleProperty().bind(new SimpleStringProperty("Details Id:").concat(fCtrl.getFilter().workflowInstanceId));
 		return filterAbleForm;
 	}
@@ -393,21 +393,21 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		
 		if (engineLoadFormSingelton==null){
 			engineLoadFormSingelton = new EngineFilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary>(messageProvider,
-					new TabPaneShowFormStrategie(mainTabPane), filterForm, resultForm,guiCopperDataProvider);
+					getDefaultShowFormStrategy(), filterForm, resultForm,guiCopperDataProvider);
 		}
 		return engineLoadFormSingelton;
 	}
 	
 	public Form<SettingsController> createSettingsForm(){
 		if (settingsForSingleton==null){
-			settingsForSingleton = new FxmlForm<SettingsController>("",new SettingsController(settingsModelSinglton), messageProvider,  new TabPaneShowFormStrategie(mainTabPane));
+			settingsForSingleton = new FxmlForm<SettingsController>("",new SettingsController(settingsModelSinglton), messageProvider,  getDefaultShowFormStrategy());
 		}
 		return settingsForSingleton;
 	}
 	
 	public Form<HotfixController> createHotfixForm(){
 		if (hotfixFormSingleton==null){
-			hotfixFormSingleton = new FxmlForm<HotfixController>("",new HotfixController(new HotfixModel(), guiCopperDataProvider), messageProvider,  new TabPaneShowFormStrategie(mainTabPane));
+			hotfixFormSingleton = new FxmlForm<HotfixController>("",new HotfixController(new HotfixModel(), guiCopperDataProvider), messageProvider, getDefaultShowFormStrategy());
 		}
 		return hotfixFormSingleton;
 	}

@@ -15,7 +15,6 @@
  */
 package de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result;
 
-import java.io.StringReader;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -83,10 +82,6 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 		});
 		restart.setDisable(false);
 		 
-		// Create a reader of the raw input text
-		StringReader stringReader = new StringReader("/** Simple Java2Html Demo */\r\n" + "public static int doThis(String text){ return text.length() + 2; }");
-
-
 		titleText.setText(usedFilter.workflowInstanceId.get());
 
 		

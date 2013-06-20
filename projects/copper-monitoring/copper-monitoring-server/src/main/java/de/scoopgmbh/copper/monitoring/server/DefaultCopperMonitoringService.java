@@ -498,7 +498,9 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 				throw new RuntimeException(e);
 			}
 		} finally {
-			reader.close();
+			if (reader!=null){
+				reader.close();
+			}
 		}
 		Appender appender = LogManager.getRootLogger().getAppender(MonitoringLogDataProvider.APPENDER_NAME);
 		LogManager.resetConfiguration();

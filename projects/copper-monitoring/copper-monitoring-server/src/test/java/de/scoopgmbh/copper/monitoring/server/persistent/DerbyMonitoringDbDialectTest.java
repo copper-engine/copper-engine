@@ -72,7 +72,9 @@ public class DerbyMonitoringDbDialectTest {
 			throw new RuntimeException(e);
 		} finally {
 			try {
-				connection.close();
+				if (connection!=null){
+					connection.close();
+				}
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
 			}
