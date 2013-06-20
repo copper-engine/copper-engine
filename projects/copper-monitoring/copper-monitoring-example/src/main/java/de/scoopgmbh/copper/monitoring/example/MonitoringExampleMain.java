@@ -165,7 +165,6 @@ public class MonitoringExampleMain {
 		List<ProcessingEngineMXBean> engines = new ArrayList<ProcessingEngineMXBean>();
 		engines.add(persistentengine);
 		
-		
 		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
 				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect(new StandardJavaSerializer())),
 				runtimeStatisticsCollector,
@@ -174,20 +173,17 @@ public class MonitoringExampleMain {
 				true,
 				new CompressedBase64PostProcessor());
 	
-
 		final SimpleAccountRealm realm = new SimpleAccountRealm();
 		realm.addAccount("user1", "pass1");
 		new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm)).start();
 		
 		return this;
-		
 	}
 	
 	public static void main(String[] args) {
 		SingleProzessInstanceUtil.enforceSingleProzessInstance();
 		new MonitoringExampleMain().start();
 	}
-	
 	
 	void cleanDB(DataSource ds) throws Exception {
 		Connection connection=null;
