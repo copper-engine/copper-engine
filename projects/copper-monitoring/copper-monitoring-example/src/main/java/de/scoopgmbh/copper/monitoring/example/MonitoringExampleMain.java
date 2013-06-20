@@ -36,18 +36,12 @@ import de.scoopgmbh.copper.common.DefaultProcessorPoolManager;
 import de.scoopgmbh.copper.common.JdkRandomUUIDFactory;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
-import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapterImpl;
 import de.scoopgmbh.copper.monitoring.example.util.SingleProzessInstanceUtil;
-import de.scoopgmbh.copper.monitoring.server.CopperMonitorServiceSecurityProxy;
-import de.scoopgmbh.copper.monitoring.server.DefaultCopperMonitoringService;
-import de.scoopgmbh.copper.monitoring.server.DefaultLoginService;
 import de.scoopgmbh.copper.monitoring.server.SpringRemotingServer;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
-import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLogDataProvider;
-import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
-import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLog4jDataProvider;
 import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
 import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringAdapterProcessingEngine;
 import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringDependencyInjector;
@@ -55,7 +49,6 @@ import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 import de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorage;
-import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
 import de.scoopgmbh.copper.persistent.txn.CopperTransactionController;
 import de.scoopgmbh.copper.util.PojoDependencyInjector;
 import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
@@ -154,7 +147,7 @@ public class MonitoringExampleMain {
 		persistentengine.setDependencyInjector(monitoringDependencyInjector);
 		persistentengine.startup();
 		
-		new MonitoringLogDataProvider(monitoringDataCollector);
+		new MonitoringLog4jDataProvider(monitoringDataCollector);
 		
 		try {
 			persistentengine.run("BillWorkflow", "");
@@ -165,17 +158,11 @@ public class MonitoringExampleMain {
 		List<ProcessingEngineMXBean> engines = new ArrayList<ProcessingEngineMXBean>();
 		engines.add(persistentengine);
 		
-		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
-				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect(new StandardJavaSerializer())),
-				runtimeStatisticsCollector,
-				engines,
-				monitoringQueue, 
-				true,
-				new CompressedBase64PostProcessor());
-	
+
 		final SimpleAccountRealm realm = new SimpleAccountRealm();
 		realm.addAccount("user1", "pass1");
-		new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm)).start();
+		
+		SpringRemotingServer.createWithDefaults(engines,  monitoringQueue,  realm, runtimeStatisticsCollector, txnController).start();
 		
 		return this;
 	}
