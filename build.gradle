@@ -16,11 +16,11 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
 
     apply plugin: 'java'
     compileJava.options.encoding = 'utf-8'
-    compileJava.sourceCompatibility = '1.6'
-    compileJava.targetCompatibility = '1.6'
+    compileJava.sourceCompatibility = JavaVersion.VERSION_1_6
+    compileJava.targetCompatibility = JavaVersion.VERSION_1_6
     compileTestJava.options.encoding = 'utf-8'
-    compileTestJava.sourceCompatibility = '1.6'
-    compileTestJava.targetCompatibility = '1.6'
+    compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_6
+    compileTestJava.targetCompatibility = JavaVersion.VERSION_1_6
 
     /*
     *  apply eclipse plugin only for 'deepest' subprojects
@@ -190,6 +190,7 @@ project(':projects:copper-examples:orchestration:orch-engine') {
     
     dependencies {
 	compile project(':projects:copper-coreengine')
+	compile project(':projects:copper-monitoring:copper-monitoring-server')
 	compile project(':projects:copper-examples:orchestration:orch-interfaces')
 	compile 'log4j:log4j:1.2.17'
     }
@@ -391,6 +392,15 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 				srcDir 'src/main/java' //include fxml files
 		    }
 		}
+		docGenerator {
+	        java {
+	            srcDir 'src/docGenerator/java'
+	        }
+	        resources {
+	            srcDir 'src/docGenerator/resources'
+	        }
+	        compileClasspath += sourceSets.main.runtimeClasspath
+	    }
 	}
 	
 	dependencies {

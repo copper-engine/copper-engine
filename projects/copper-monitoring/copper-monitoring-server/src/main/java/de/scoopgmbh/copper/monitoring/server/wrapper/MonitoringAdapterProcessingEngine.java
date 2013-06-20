@@ -38,13 +38,21 @@ public class MonitoringAdapterProcessingEngine implements ProcessingEngine{
 	
 	private final ProcessingEngine processingEngine;
 	private final MonitoringDataCollector monitoringDataCollector;
-	private final Object adapter;
+	private Object adapter;
+	
+	public MonitoringAdapterProcessingEngine(ProcessingEngine processingEngine, MonitoringDataCollector monitoringDataCollector) {
+		this(new Object(),processingEngine,monitoringDataCollector);
+	}
 	
 	public MonitoringAdapterProcessingEngine(Object adapter,ProcessingEngine processingEngine, MonitoringDataCollector monitoringDataCollector) {
 		super();
 		this.adapter = adapter;
 		this.processingEngine = processingEngine;
 		this.monitoringDataCollector = monitoringDataCollector;
+	}
+	
+	public void setAdapter(Object adapter){
+		this.adapter = adapter;
 	}
 
 	@Override

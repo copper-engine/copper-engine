@@ -92,9 +92,7 @@
 			<bean class = "de.scoopgmbh.copper.common.JdkRandomUUIDFactory"></bean>
 		</property>
 		<property name="processorPoolManager" ref="persistent.PPManager"/>
-		<property name="dependencyInjector">
-			<bean class="de.scoopgmbh.copper.spring.SpringDependencyInjector"></bean>
-		</property>
+		<property name="dependencyInjector" ref="monitoringDependencyInjector"/>
 		<property name="dbStorage" ref="persistent.dbStorage"/>
 		<property name="wfRepository" ref="wfRepository"/>
     	<property name="statisticsCollector" ref="statisticsCollector"/>
@@ -107,18 +105,76 @@
 			<bean class="de.scoopgmbh.copper.audit.CompressedBase64PostProcessor"/>
 		</property>
 	</bean>
+	
+	<bean id="dependencyInjector" class="de.scoopgmbh.copper.spring.SpringDependencyInjector">
+	</bean>
+	
+	<bean id="monitoringDataAccessQueue" class="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue">
+	</bean>
+	
+	<bean id="monitoringDataCollector" class="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector">
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue"><ref bean="monitoringDataAccessQueue"/></constructor-arg>
+	</bean>
+	
+	<bean id="monitoringDependencyInjector" class="de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringDependencyInjector">
+		<constructor-arg type="de.scoopgmbh.copper.AbstractDependencyInjector"><ref bean="dependencyInjector"/></constructor-arg>
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
+	</bean>
+	
+	<bean id="monitoringLog4jDataProvider" class="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLog4jDataProvider"  lazy-init="false">
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
+	</bean>
+	
+	<bean id="springRemotingServer" class="de.scoopgmbh.copper.monitoring.server.SpringRemotingServer" factory-method="createWithDefaults" init-method="start">
+		<constructor-arg type="java.util.List">
+			<list>
+           		<ref bean="persistent.engine"/>
+       		</list>
+		</constructor-arg>
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue"><ref bean="monitoringDataAccessQueue"/></constructor-arg>
+		<constructor-arg type="org.apache.shiro.realm.Realm"><ref bean="realm"/></constructor-arg>
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.LoggingStatisticCollector"><ref bean="statisticsCollector"/></constructor-arg>
+		<constructor-arg type="de.scoopgmbh.copper.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
+	</bean>
+	
+	<bean id="realm" class="org.apache.shiro.realm.SimpleAccountRealm">
+	</bean>
+	
+	<bean id="addUser" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <property name="targetObject"><ref bean="realm"/></property>
+	    <property name="targetMethod"><value>addAccount</value></property>
+		<property name="arguments">
+			<list>
+		       <value>user1</value>
+		       <value>pass1</value>
+			</list>
+		</property>
+	</bean>
+
 		
 	<bean class="de.scoopgmbh.copper.spring.JmxExporter" init-method="startup" destroy-method="shutdown"/>    
 
 
 	<beans:bean id="networkServiceAdapter" class="de.scoopgmbh.copper.examples.orechstration.adapter.NetworkServiceAdapterImpl">
-		<beans:property name="engine" ref="persistent.engine"/>
+		<property name="engine">	
+			<bean class="de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringAdapterProcessingEngine">
+				<constructor-arg type="de.scoopgmbh.copper.ProcessingEngine"><ref bean="persistent.engine"/></constructor-arg>
+				<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
+				<beans:property name="adapter" ref="networkServiceAdapter"/>
+			</bean>
+		</property>
 		<beans:property name="callbachURI" value="http://localhost:9090/asyncNetworkServiceResponseReceiver?wsdl"/>
 		<beans:property name="networkServiceProvider" ref="networkServiceProvider"/>
 	</beans:bean>
 	
 	<beans:bean id="OrchestrationInputAdapter" class="de.scoopgmbh.copper.examples.orechstration.adapter.OrchestrationInputAdapter">
-		<beans:property name="engine" ref="persistent.engine"/>
+		<property name="engine">	
+			<bean class="de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringAdapterProcessingEngine">
+				<constructor-arg type="de.scoopgmbh.copper.ProcessingEngine"><ref bean="persistent.engine"/></constructor-arg>
+				<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
+				<beans:property name="adapter" ref="OrchestrationInputAdapter"/>
+			</bean>
+		</property>
 	</beans:bean>
 
 	<jaxws:client id="customerService" serviceClass="de.scoopgmbh.customerservice.CustomerService" address="http://localhost:9092/CustomerService?wsdl" wsdlLocation="classpath:wsdl/CustomerService.wsdl">

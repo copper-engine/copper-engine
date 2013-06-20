@@ -19,9 +19,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.remoting.SecureRemoteInvocationExecutor;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -39,8 +41,16 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import de.scoopgmbh.copper.audit.CompressedBase64PostProcessor;
+import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
+import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.LoginService;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
+import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
+import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
+import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
+import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
 public class SpringRemotingServer {
 	
@@ -50,6 +60,19 @@ public class SpringRemotingServer {
 	private final int port;
 	private final String host; 
 	private final DefaultLoginService loginService;
+	
+	public static SpringRemotingServer createWithDefaults(List<ProcessingEngineMXBean> engines, MonitoringDataAccessQueue monitoringQueue, Realm realm, LoggingStatisticCollector runtimeStatisticsCollector, TransactionController transactionController){
+		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
+				new MonitoringDbStorage(transactionController,new DerbyMonitoringDbDialect(new StandardJavaSerializer())),
+				runtimeStatisticsCollector,
+				engines,
+				monitoringQueue, 
+				true,
+				new CompressedBase64PostProcessor());
+	
+		return new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm));
+	}
+	
 	
 	public SpringRemotingServer(CopperMonitoringService copperMonitoringService, int port, String host, DefaultLoginService loginService) {
 		super();

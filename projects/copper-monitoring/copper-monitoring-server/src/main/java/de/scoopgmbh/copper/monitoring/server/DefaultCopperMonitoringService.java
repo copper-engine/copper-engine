@@ -89,7 +89,7 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
-import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLogDataProvider;
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLog4jDataProvider;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
 
 public class DefaultCopperMonitoringService implements CopperMonitoringService{
@@ -475,7 +475,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			}
 		});
 		if (logEvents.isEmpty()){
-			logEvents.add(new LogEvent(new Date(),"No logs found probably missing: "+MonitoringLogDataProvider.class.getName(),"","ERROR"));
+			logEvents.add(new LogEvent(new Date(),"No logs found probably missing: "+MonitoringLog4jDataProvider.class.getName(),"","ERROR"));
 		}
 		return new LogData(logEvents, config);
 	}
@@ -502,7 +502,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 				reader.close();
 			}
 		}
-		Appender appender = LogManager.getRootLogger().getAppender(MonitoringLogDataProvider.APPENDER_NAME);
+		Appender appender = LogManager.getRootLogger().getAppender(MonitoringLog4jDataProvider.APPENDER_NAME);
 		LogManager.resetConfiguration();
 		logProperty=config;
 		if (isXml(config)){
