@@ -15,59 +15,38 @@
  */
 package de.scoopgmbh.copper.monitoring.server.persistent;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
-import org.junit.Before;
-import org.junit.Test;
 
-import de.scoopgmbh.copper.InterruptException;
-import de.scoopgmbh.copper.Response;
-import de.scoopgmbh.copper.audit.BatchingAuditTrail;
-import de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner;
-import de.scoopgmbh.copper.batcher.impl.BatcherImpl;
-import de.scoopgmbh.copper.instrument.Transformed;
-import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
-import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
-import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
 
 
-public class DerbyMonitoringDbDialectTest {
-	
-	EmbeddedConnectionPoolDataSource40 datasource_default;
-	private DerbyMonitoringDbDialect derbyMonitoringDbDialect;
-	private DerbyDbDialect derbyDbDialect;
-	@Before
-	public void setUp(){
-		datasource_default = new EmbeddedConnectionPoolDataSource40();
-		datasource_default.setDatabaseName("./build/copperExampleDB;create=true");
+public class DerbyMonitoringDbDialectTest extends MonitoringDbDialectTestBase{
+
+	@Override
+	void intit() {
+		EmbeddedConnectionPoolDataSource40 datasource = new EmbeddedConnectionPoolDataSource40();
+		datasource.setDatabaseName("./build/copperExampleDB;create=true");
+		this.datasource=datasource;
 		
-		derbyMonitoringDbDialect = new DerbyMonitoringDbDialect(new StandardJavaSerializer());
-		derbyDbDialect = new DerbyDbDialect();
-		derbyDbDialect.setDataSource(datasource_default);
-		derbyDbDialect.startup();
+		DerbyMonitoringDbDialect derbyMonitoringDbDialect = new DerbyMonitoringDbDialect(new StandardJavaSerializer());
+		this.monitoringDbDialect = derbyMonitoringDbDialect;
+		
+		DerbyDbDialect databaseDialect = new DerbyDbDialect();
+		databaseDialect.setDataSource(datasource);
+		databaseDialect.startup();
+		this.databaseDialect = databaseDialect;
 
 		Connection connection = null;
 		try {
-			connection = datasource_default.getConnection();
+			connection = datasource.getConnection();
 			connection.setAutoCommit(false);
 			DerbyCleanDbUtil.dropSchema(connection.getMetaData(), "APP"); // APP = default schema
-			DerbyDbDialect.checkAndCreateSchema(datasource_default); 
+			DerbyDbDialect.checkAndCreateSchema(datasource); 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -79,191 +58,8 @@ public class DerbyMonitoringDbDialectTest {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+	
 
-	}
-	
-	@Test
-	public void test_selectTotalWorkflowSummary() throws SQLException, Exception{
-		DummyPersistentWorkflow1 wf = new DummyPersistentWorkflow1("id", "ppoolId", "1", 1);
-		derbyDbDialect.insert(wf, datasource_default.getConnection());
-		
-		try {
-			WorkflowStateSummary selectedWorkflowStateSummary = derbyMonitoringDbDialect.selectTotalWorkflowStateSummary(datasource_default.getConnection());
-			assertTrue(selectedWorkflowStateSummary.getNumberOfWorkflowInstancesWithState().size()>0);
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		
-	}
-	
-	@Test
-	public void test_selectAudittrail() throws SQLException, Exception{
-
-		BatcherImpl batcher = new BatcherImpl(3);
-		@SuppressWarnings("rawtypes")
-		RetryingTxnBatchRunner<?,?> batchRunner = new RetryingTxnBatchRunner();
-		batchRunner.setDataSource(datasource_default);
-		batcher.setBatchRunner(batchRunner);
-		batcher.startup();
-		BatchingAuditTrail auditTrail = new BatchingAuditTrail();
-		auditTrail.setBatcher(batcher);
-		auditTrail.setDataSource(datasource_default);
-//		auditTrail.setMessagePostProcessor(new CompressedBase64PostProcessor());
-		try {
-			auditTrail.startup();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		Date occurrence = new Date();
-		auditTrail.synchLog(1, occurrence, "", "", "", "", "", "detail", "Text");
-		
-		try {
-			List<AuditTrailInfo> selectAuditTrails = derbyMonitoringDbDialect.selectAuditTrails(null, null, null, null, 3, datasource_default.getConnection());
-			assertEquals(1, selectAuditTrails.size());
-			assertEquals(occurrence.getTime(),selectAuditTrails.get(0).getOccurrence().getTime());
-			assertEquals(1,selectAuditTrails.get(0).getLoglevel());
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		batcher.shutdown();
-	}
-	
-	@Transformed
-	public static class DummyPersistentWorkflow1 extends PersistentWorkflow<Serializable> {
-
-		private static final long serialVersionUID = 7047352707643389609L;
-		
-		public DummyPersistentWorkflow1(String id, String ppoolId, String rowid, int prio) {
-			if (id == null) throw new NullPointerException();
-			if (ppoolId == null) throw new NullPointerException();
-			setId(id);
-			setProcessorPoolId(ppoolId);
-			setPriority(prio);
-		}
-
-		@Override
-		public void main() throws InterruptException {
-		}
-	}
-	
-	@Transformed
-	public static class DummyPersistentWorkflow2 extends PersistentWorkflow<Serializable> {
-
-		private static final long serialVersionUID = 7047352707643389609L;
-		
-		public DummyPersistentWorkflow2(String id, String ppoolId, String rowid, int prio) {
-			if (id == null) throw new NullPointerException();
-			if (ppoolId == null) throw new NullPointerException();
-			setId(id);
-			setProcessorPoolId(ppoolId);
-			setPriority(prio);
-		}
-
-		@Override
-		public void main() throws InterruptException {
-		}
-	}
-	
-	@Test
-	public void test_selectWorkflowSummary() throws SQLException, Exception{
-		{
-			DummyPersistentWorkflow1 wf = new DummyPersistentWorkflow1("id1", "P#DEFAULT", "1", 1);
-			derbyDbDialect.insert(wf, datasource_default.getConnection());
-		}
-		{
-			DummyPersistentWorkflow1 wf = new DummyPersistentWorkflow1("id2", "P#DEFAULT", "2", 1);
-			derbyDbDialect.insert(wf, datasource_default.getConnection());
-		}
-		{
-			DummyPersistentWorkflow2 wf = new DummyPersistentWorkflow2("id3", "P#DEFAULT", "3", 1);
-			derbyDbDialect.insert(wf, datasource_default.getConnection());
-		}
-		
-		try {
-			List<WorkflowSummary> selectSummary = derbyMonitoringDbDialect.selectWorkflowStateSummary(null, null, datasource_default.getConnection());
-			assertEquals(2, selectSummary.size());
-			assertEquals(1,selectSummary.get(0).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
-			assertEquals(2,selectSummary.get(1).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		
-	}
-
-	
-	@Test
-	public void test_selectWorkflowinstance() throws SQLException, Exception{
-		{
-			DummyPersistentWorkflow1 wf = new DummyPersistentWorkflow1("id1", "P#DEFAULT", "1", 1);
-			derbyDbDialect.insert(wf, datasource_default.getConnection());
-		}
-		{
-			DummyPersistentWorkflow1 wf = new DummyPersistentWorkflow1("id2", "P#DEFAULT", "2", 1);
-			derbyDbDialect.insert(wf, datasource_default.getConnection());
-		}
-		{
-			DummyPersistentWorkflow2 wf = new DummyPersistentWorkflow2("id3", "P#DEFAULT", "3", 1);
-			derbyDbDialect.insert(wf, datasource_default.getConnection());
-		}
-		
-		try {
-			List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, null, null,null, 1000, datasource_default.getConnection());
-			assertEquals(3, selectInstances.size());
-//			assertEquals(2,selectSummary.get(0).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	
-	@Test
-	public void test_selectWorkflowinstance_timeframe() throws SQLException, Exception{
-		{
-			DummyPersistentWorkflow1 wf = new DummyPersistentWorkflow1("id1", "P#DEFAULT", "1", 1);
-			derbyDbDialect.insert(wf, datasource_default.getConnection());
-		}
-		{
-			DummyPersistentWorkflow1 wf = new DummyPersistentWorkflow1("id2", "P#DEFAULT", "2", 1);
-			derbyDbDialect.insert(wf, datasource_default.getConnection());
-		}
-		{
-			DummyPersistentWorkflow2 wf = new DummyPersistentWorkflow2("id3", "P#DEFAULT", "3", 1);
-			derbyDbDialect.insert(wf, datasource_default.getConnection());
-		}
-		
-		try {
-			{
-				List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, new Date(1), null, null, 1000, datasource_default.getConnection());
-				assertEquals(3, selectInstances.size());
-			}
-			{
-				List<WorkflowInstanceInfo> selectInstances = derbyMonitoringDbDialect.selectWorkflowInstanceList(null, null, null, null, null, new Date(System.currentTimeMillis()+10000), null, 1000, datasource_default.getConnection());
-				assertEquals(3, selectInstances.size());
-			}
-//			assertEquals(2,selectSummary.get(0).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	
-	@Test
-	public void test_selectMessages() throws SQLException, Exception{
-		final Response<String> response = new Response<String>("test123");
-		response.setResponseId("5456465");
-		List<Response<?>> list = new ArrayList<Response<?>>();
-		list.add(response);
-		derbyDbDialect.notify(list, datasource_default.getConnection());
-		
-		try {
-			List<MessageInfo> messages = derbyMonitoringDbDialect.selectMessages(false, 1000, datasource_default.getConnection());
-			assertEquals(1, messages.size());
-			
-			List<MessageInfo> messages2 = derbyMonitoringDbDialect.selectMessages(true, 1000, datasource_default.getConnection());
-			assertEquals(1, messages2.size());
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
 	
 }

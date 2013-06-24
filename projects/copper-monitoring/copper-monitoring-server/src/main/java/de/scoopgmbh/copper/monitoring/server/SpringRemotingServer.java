@@ -49,6 +49,7 @@ import de.scoopgmbh.copper.monitoring.core.LoginService;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
+import de.scoopgmbh.copper.monitoring.server.persistent.OracleMonitoringDbDialect;
 import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
@@ -73,6 +74,17 @@ public class SpringRemotingServer {
 		return new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm));
 	}
 	
+	public static SpringRemotingServer createWithDefaultsForOracle(List<ProcessingEngineMXBean> engines, MonitoringDataAccessQueue monitoringQueue, Realm realm, LoggingStatisticCollector runtimeStatisticsCollector, TransactionController transactionController){
+		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
+				new MonitoringDbStorage(transactionController,new OracleMonitoringDbDialect(new StandardJavaSerializer())),
+				runtimeStatisticsCollector,
+				engines,
+				monitoringQueue, 
+				true,
+				new CompressedBase64PostProcessor());
+	
+		return new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm));
+	}
 	
 	public SpringRemotingServer(CopperMonitoringService copperMonitoringService, int port, String host, DefaultLoginService loginService) {
 		super();

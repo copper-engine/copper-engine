@@ -384,4 +384,21 @@ public class TestDataProvider implements CopperMonitoringService {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String getDatabaseMonitoringHtmlReport() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException {
+		return "";
+	}
 }

@@ -38,7 +38,8 @@ public enum MessageKey {
 	adapterMonitoring_title("adapterMonitoring.title"), 
 	customMeasurePoint_title("customMeasurePoint.title"), 
 	logsGroup_title("logsGroup.title"), 
-	logs_title("logs.title");
+	logs_title("logs.title"), 
+	databaseMonitoring_title("databaseMonitoring.title");
 			 
     private final String value;
     MessageKey(String v) {

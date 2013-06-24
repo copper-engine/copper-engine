@@ -64,6 +64,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResult
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
+import de.scoopgmbh.copper.monitoring.client.ui.databasemonitor.result.DatabaseMonitorResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.hotfix.HotfixController;
 import de.scoopgmbh.copper.monitoring.client.ui.hotfix.HotfixModel;
 import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterController;
@@ -101,6 +102,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.Workflow
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.result.WorkflowSummaryDependencyFactory;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.result.WorkflowSummaryResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.result.WorkflowSummaryResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterController;
@@ -117,7 +119,7 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
-public class FormContext implements DashboardDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory{
+public class FormContext implements DashboardDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory, WorkflowSummaryDependencyFactory{
 	protected final TabPane mainTabPane;
 	protected final BorderPane mainPane;
 	protected final FormGroup formGroup;
@@ -256,6 +258,12 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 				return createCustomMeasurePointForm();
 			}
 		});
+		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.databaseMonitoring_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createDatabaseMonitoringForm();
+			}
+		});
 		return loadgroup;
 	}
 	
@@ -323,11 +331,13 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	}
 	
 	public FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> createWorkflowInstanceListForm(){
-		return new EngineFormBuilder<WorkflowInstanceFilterModel,WorkflowInstanceResultModel,WorkflowInstanceFilterController,WorkflowInstanceResultController>(
+		final EngineFilterAbleForm<WorkflowInstanceFilterModel, WorkflowInstanceResultModel> form = new EngineFormBuilder<WorkflowInstanceFilterModel,WorkflowInstanceResultModel,WorkflowInstanceFilterController,WorkflowInstanceResultController>(
 					new WorkflowInstanceFilterController(),
 					new WorkflowInstanceResultController(guiCopperDataProvider,this),
 					this
 				).build();
+		form.setStaticTitle(messageProvider.getText(MessageKey.workflowOverview_title));
+		return form;
 	}
 	
 
@@ -486,6 +496,14 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		return new FormBuilder<LogsFilterModel, LogsResultModel, LogsFilterController,LogsResultController>(
 				new LogsFilterController(),
 				new LogsResultController(guiCopperDataProvider),
+				this
+			).build();
+	}
+	
+	public FilterAbleForm<EmptyFilterModel, String> createDatabaseMonitoringForm() {
+		return new FormBuilder<EmptyFilterModel, String, GenericFilterController<EmptyFilterModel>,DatabaseMonitorResultController>(
+				new GenericFilterController<EmptyFilterModel>(null),
+				new DatabaseMonitorResultController(guiCopperDataProvider),
 				this
 			).build();
 	}

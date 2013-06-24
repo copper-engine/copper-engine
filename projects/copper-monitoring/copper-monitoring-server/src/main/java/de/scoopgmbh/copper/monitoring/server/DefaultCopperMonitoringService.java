@@ -547,6 +547,21 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 		});
 	}
 
+	@Override
+	public String getDatabaseMonitoringHtmlReport() throws RemoteException {
+		return dbStorage.getDatabaseMonitoringHtmlReport();
+	}
+
+	@Override
+	public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException {
+		return dbStorage.getDatabaseMonitoringHtmlDetailReport(sqlid);
+	}
+
+	@Override
+	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException {
+		return dbStorage.getRecommendationsReport(sqlid);
+	}
+
 
 
 }

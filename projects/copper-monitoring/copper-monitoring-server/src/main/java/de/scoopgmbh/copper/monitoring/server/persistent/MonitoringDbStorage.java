@@ -134,4 +134,43 @@ public class MonitoringDbStorage {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public String getDatabaseMonitoringHtmlReport(){
+		try {
+			return run(new DatabaseTransaction<String>() {
+				@Override
+				public String run(Connection con) throws Exception {
+					return dialect.selectDatabaseMonitoringHtmlReport(con);
+				}
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public String getDatabaseMonitoringHtmlDetailReport(final String sqlid){
+		try {
+			return run(new DatabaseTransaction<String>() {
+				@Override
+				public String run(Connection con) throws Exception {
+					return dialect.selectDatabaseMonitoringHtmlDetailReport(sqlid,con);
+				}
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public String getRecommendationsReport(final String sqlid) {
+		try {
+			return run(new DatabaseTransaction<String>() {
+				@Override
+				public String run(Connection con) throws Exception {
+					return dialect.getRecommendationsReport(sqlid, con);
+				}
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

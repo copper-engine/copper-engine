@@ -38,7 +38,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Callback;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
@@ -50,11 +49,11 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 public class WorkflowSummaryResultController extends FilterResultControllerBase<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> implements Initializable {
 	GuiCopperDataProvider copperDataProvider;
 
-	private FormContext formcontext;
-	public WorkflowSummaryResultController(GuiCopperDataProvider copperDataProvider,FormContext formcontext) {
+	private WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory;
+	public WorkflowSummaryResultController(GuiCopperDataProvider copperDataProvider,WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory) {
 		super();
 		this.copperDataProvider = copperDataProvider;
-		this.formcontext = formcontext;
+		this.workflowSummaryDependencyFactory = workflowSummaryDependencyFactory;
 	}
 
     @FXML //  fx:id="countColumn"
@@ -129,7 +128,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 			}
 		});
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem detailMenuItem = new MenuItem("Details");
+        MenuItem detailMenuItem = new MenuItem("Instancelist");
         detailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -143,7 +142,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
     }
     
 	private void openWorkflowInstance() {
-		FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = formcontext.createWorkflowInstanceListForm();
+		FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = workflowSummaryDependencyFactory.createWorkflowInstanceListForm();
 		workflowInstanceForm.getFilter().version.setAllFrom(getSelectedEntry().version);
 		workflowInstanceForm.getFilter().enginePoolModel.selectedEngine.setValue(lastFilteredWithProcessingEngineInfo);
 		workflowInstanceForm.show();

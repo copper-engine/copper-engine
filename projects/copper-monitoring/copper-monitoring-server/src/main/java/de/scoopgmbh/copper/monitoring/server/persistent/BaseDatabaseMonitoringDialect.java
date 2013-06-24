@@ -203,8 +203,13 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 	private int setFilterParam(PreparedStatement stmt, Object value, int sqltype, int nextindex) throws SQLException{
 		boolean isEmptyString = (value instanceof String && ((String)value).isEmpty());
 		if (value != null && !isEmptyString) {
-			stmt.setObject(nextindex++, value, sqltype);
-			stmt.setObject(nextindex++, value, sqltype);
+			if (value instanceof Date && sqltype == Types.DATE) {
+				stmt.setObject(nextindex++, new java.sql.Timestamp(((Date)value).getTime()), Types.TIMESTAMP);
+				stmt.setObject(nextindex++, new java.sql.Timestamp(((Date)value).getTime()), Types.TIMESTAMP);
+			} else {
+				stmt.setObject(nextindex++, value, sqltype);
+				stmt.setObject(nextindex++, value, sqltype);
+			}
 		} else {
 			stmt.setNull(nextindex++, sqltype);
 			stmt.setNull(nextindex++, sqltype);				
@@ -241,6 +246,8 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 			pIdx = setFilterParam(selectStmt,poolid,java.sql.Types.VARCHAR,pIdx);
 			pIdx = setFilterParam(selectStmt,classname==null?null:"%"+classname+"%",java.sql.Types.VARCHAR,pIdx);
 			pIdx = setFilterParam(selectStmt,(state==null?null:DBProcessingStateWorkaround.fromWorkflowInstanceState(state).key()),java.sql.Types.INTEGER,pIdx);
+//			pIdx = setFilterParam(selectStmt,from!=null?new java.sql.Date(from.getTime()):null,java.sql.Types.DATE,pIdx);
+//			pIdx = setFilterParam(selectStmt,to!=null?new java.sql.Date(to.getTime()):null,java.sql.Types.DATE,pIdx);
 			pIdx = setFilterParam(selectStmt,from,java.sql.Types.DATE,pIdx);
 			pIdx = setFilterParam(selectStmt,to,java.sql.Types.DATE,pIdx);
 			pIdx = setFilterParam(selectStmt,instanceId,java.sql.Types.VARCHAR,pIdx);
@@ -264,7 +271,9 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 				workflowInstanceInfo.setStartTime(new Date(resultSet.getTimestamp(7).getTime()));
 				if (exceptionIsClob) {
 					Clob errorinfo =  resultSet.getClob(8);
-					workflowInstanceInfo.setErrorInfos(errorinfo.getSubString(1, (int)errorinfo.length()));
+					if (errorinfo!=null){
+						workflowInstanceInfo.setErrorInfos(errorinfo.getSubString(1, (int)errorinfo.length()));
+					}
 				} else {
 					workflowInstanceInfo.setErrorInfos(resultSet.getString(8));
 				}
@@ -372,7 +381,22 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 		return "SELECT CORRELATION_ID, r.response, r.response, RESPONSE_TS, RESPONSE_TIMEOUT FROM COP_RESPONSE r "
 				+(!ignoreProcessed?"":"WHERE not exists(select * from cop_wait w where r.CORRELATION_ID=w.CORRELATION_ID)");
 	}
+	
+	@Override
+	public String selectDatabaseMonitoringHtmlReport(Connection con) {
+		return "<html><body>not supported for "+this.getClass().getName()+"</body></html>";
+	}
 
+	@Override
+	public String selectDatabaseMonitoringHtmlDetailReport(String sqlid, Connection con) {
+		return "<html><body>not supported for "+this.getClass().getName()+"</body></html>";
+	}
+
+
+	@Override
+	public String getRecommendationsReport(String sqlid, Connection con) {
+		return "not supported for "+this.getClass().getName();
+	}
 
 
 }

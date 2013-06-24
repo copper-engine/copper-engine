@@ -45,6 +45,9 @@ public interface DatabaseMonitoringDialect {
 
 	public abstract List<MessageInfo> selectMessages(boolean ignoreProcessed, long resultRowLimit, Connection con);
 	
+	public String selectDatabaseMonitoringHtmlReport(Connection con);
 	
-
+	public String selectDatabaseMonitoringHtmlDetailReport(String sqlid, Connection con);
+	
+	public String getRecommendationsReport(String sqlid, Connection con);
 }

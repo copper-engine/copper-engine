@@ -313,4 +313,28 @@ public class GuiCopperDataProvider {
 		}
 	}
 	
+	public String getDatabaseMonitoringHtmlReport() {
+		try {
+			return copperDataProvider.getDatabaseMonitoringHtmlReport();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public String getDatabaseMonitoringHtmlDetailReport(String sqlid)  {
+		try {
+			return copperDataProvider.getDatabaseMonitoringHtmlDetailReport(sqlid);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public String getDatabaseMonitoringRecommendationsReport(String sqlid)  {
+		try {
+			return copperDataProvider.getDatabaseMonitoringRecommendationsReport(sqlid);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 }

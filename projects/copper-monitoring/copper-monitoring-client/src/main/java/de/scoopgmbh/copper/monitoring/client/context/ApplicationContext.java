@@ -194,6 +194,7 @@ public class ApplicationContext {
 		final CommonsHttpInvokerRequestExecutor httpInvokerRequestExecutor = new CommonsHttpInvokerRequestExecutor();
 		DefaultHttpMethodRetryHandler retryHandler = new DefaultHttpMethodRetryHandler(10, false);
 		httpInvokerRequestExecutor.getHttpClient().getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
+		httpInvokerRequestExecutor.getHttpClient().getParams().setSoTimeout(1000*60*5);
 		{
 			HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
 			httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");

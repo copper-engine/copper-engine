@@ -36,7 +36,6 @@ public class DerbyMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 		return query +" FETCH FIRST "+limit+" ROWS ONLY";
 	}
 
-
 }
 	
 
