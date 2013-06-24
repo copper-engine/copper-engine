@@ -109,5 +109,11 @@ public interface CopperMonitoringService extends Remote, Serializable {
 	public void clearLogData() throws RemoteException;
 
 	public void updateLogConfig(String config) throws RemoteException;
+	
+	public String getDatabaseMonitoringHtmlReport() throws RemoteException;
+	
+	public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException;
+	
+	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException;
 }
 
