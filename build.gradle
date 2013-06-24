@@ -302,6 +302,8 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 		
 		compile 'com.google.guava:guava:14.0.1'
 		
+		compile fileTree(dir: project(':projects:copper-coreengine').projectDir.toString()+'/3rdPartyLibs', include: '*.jar')	
+		
 	}
 	
 	jar.doFirst {
