@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.jdbc.support.JdbcUtils;
 
@@ -32,6 +33,7 @@ import de.scoopgmbh.copper.persistent.OracleDialect;
 import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
 
 
+@Ignore
 public class OracleMonitoringDbDialectTest extends MonitoringDbDialectTestBase{
 
 	@Override
@@ -40,7 +42,7 @@ public class OracleMonitoringDbDialectTest extends MonitoringDbDialectTestBase{
 		ComboPooledDataSource datasource_oracle = new ComboPooledDataSource();
 		try {
 			datasource_oracle.setDriverClass("oracle.jdbc.OracleDriver");
-			datasource_oracle.setJdbcUrl("jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g");
+			datasource_oracle.setJdbcUrl("jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:HM");
 			datasource_oracle.setMinPoolSize(1);
 			datasource_oracle.setMaxPoolSize(8);
 			datasource_oracle.setConnectionTesterClassName("de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester");
