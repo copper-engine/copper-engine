@@ -291,7 +291,7 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 	    //Spring remote
 		compile 'org.springframework:spring-web:3.1.2.RELEASE'
 		compile 'commons-httpclient:commons-httpclient:3.1'
-		compile 'org.springframework:pring-webmvc:3.1.2.RELEASE'
+		compile 'org.springframework:spring-webmvc:3.1.2.RELEASE'
 		
 		//http server
 		compile 'org.eclipse.jetty:jetty-server:8.1.10.v20130312'
@@ -416,8 +416,8 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 		compile 'com.google.guava:guava:14.0.1'
 		
 		//Spring remote
-		compile group: 'org.springframework', name: 'spring-web', version: '3.1.2.RELEASE'
-		compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'	
+		compile 'org.springframework:spring-web:3.1.2.RELEASE'
+		compile 'commons-httpclient:commons-httpclient:3.1'	
 		
 		testCompile files("libs/Jemmy3AWTInput-0.9.3-SNAPSHOT.jar")
 		testCompile files("libs/Jemmy3Core-0.9.3-SNAPSHOT.jar")
