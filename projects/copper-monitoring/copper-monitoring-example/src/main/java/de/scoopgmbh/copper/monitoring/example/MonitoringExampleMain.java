@@ -134,8 +134,8 @@ public class MonitoringExampleMain {
 		runtimeStatisticsCollector.start();
 		//statisticsCollector.shutdown();
 		
-//		DatabaseData databaseData = setupDerbyDatabase(wfRepository,runtimeStatisticsCollector);
-		DatabaseData databaseData = setupOracleDatabase(wfRepository,runtimeStatisticsCollector);
+		DatabaseData databaseData = setupDerbyDatabase(wfRepository,runtimeStatisticsCollector);
+//		DatabaseData databaseData = setupOracleDatabase(wfRepository,runtimeStatisticsCollector);
 
 		
 		BatcherImpl batcher = new BatcherImpl(3);
@@ -213,7 +213,7 @@ public class MonitoringExampleMain {
 		final SimpleAccountRealm realm = new SimpleAccountRealm();
 		realm.addAccount("user1", "pass1");
 		
-		SpringRemotingServer.createWithDefaultsForOracle(engines,  monitoringQueue,  realm, runtimeStatisticsCollector, txnController).start();
+		SpringRemotingServer.createWithDefaults(engines,  monitoringQueue,  realm, runtimeStatisticsCollector, txnController).start();
 		
 		return this;
 	}
