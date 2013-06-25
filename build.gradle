@@ -505,4 +505,8 @@ project(':projects:copper-monitoring:copper-monitoring-example') {
     }
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.5'
+}
+
 
