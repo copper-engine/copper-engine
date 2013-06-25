@@ -26,7 +26,7 @@ public class ApplicationMeasurePoints extends IntegrationtestBase{
 	
 	@Override
 	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createMessageForm().show();
+		testFormContext.createCustomMeasurePointForm().show();
 	}
 
 	@Override

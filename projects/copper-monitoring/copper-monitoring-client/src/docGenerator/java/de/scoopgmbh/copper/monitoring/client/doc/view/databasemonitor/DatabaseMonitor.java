@@ -13,15 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.server;
-
-import org.junit.Test;
+package de.scoopgmbh.copper.monitoring.client.doc.view.databasemonitor;
 
 
-public class PerformanceMonitorTest {
+import javafx.scene.layout.BorderPane;
+import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.IntegrationtestBase;
+import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.TestFormContext;
 
-	@Test
-	public void test_noexception(){
-		new PerformanceMonitor().createRessourcenInfo();
+
+
+public class DatabaseMonitor extends IntegrationtestBase{
+	
+	@Override
+	public void initGui(BorderPane pane, TestFormContext testFormContext) {
+		testFormContext.createDatabaseMonitoringForm().show();
 	}
+
+	@Override
+	public String getTitle() {
+		return "Database Monitoring";
+	}
+
 }

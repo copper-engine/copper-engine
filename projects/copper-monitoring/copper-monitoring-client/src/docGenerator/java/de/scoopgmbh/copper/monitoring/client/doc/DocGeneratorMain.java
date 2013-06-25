@@ -38,6 +38,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -51,7 +52,6 @@ import org.concordion.api.extension.ConcordionExtension;
 import org.concordion.ext.ScreenshotExtension;
 import org.concordion.ext.ScreenshotTaker;
 import org.jemmy.fx.SceneDock;
-import org.mockito.Mockito;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -64,13 +64,14 @@ import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.IntegrationtestBas
 import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.TestDataProvider;
 import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.TestFormContext;
 import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
+import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 
 public class DocGeneratorMain {
 	
-	private static final int SHORT_WAIT_TIME = 100;
-
+	public static final int SHORT_WAIT_TIME = 100;
+	public static final int LONG_WAIT_TIME = SHORT_WAIT_TIME*10;
 	
 	public static void main(String[] args) {
 		new DocGeneratorMain().run();
@@ -86,7 +87,7 @@ public class DocGeneratorMain {
     		}
     	}.start();
     	try {
-    		Thread.sleep(100);
+    		Thread.sleep(SHORT_WAIT_TIME);
     	} catch (InterruptedException e) {
     		throw new RuntimeException(e);
     	}
@@ -148,16 +149,23 @@ public class DocGeneratorMain {
     	runInGuithreadAndWait(new Runnable() {
 			@Override
 			public void run() {
+				SettingsModel defaultSettings = new SettingsModel();
+				AuditralColorMapping newItem = new AuditralColorMapping();
+				newItem.color.setValue(Color.rgb(255, 128, 128));
+				newItem.loglevelRegEx.setValue("1");
+				defaultSettings.auditralColorMappings.add(newItem);
+				
+				
 				TestFormContext testFormContext = new TestFormContext(
 						ApplicationFixture.getPane(),
 						guiCopperDataProvider, 
 						new MessageProvider(ResourceBundle.getBundle("de.scoopgmbh.copper.gui.message")), 
-						Mockito.mock(SettingsModel.class));
+						defaultSettings);
 				integrationtestBase.initGui(ApplicationFixture.getPane(),testFormContext);
 			}
 		});	
     	try {
-			Thread.sleep(SHORT_WAIT_TIME); //wait for Background worker
+			Thread.sleep(integrationtestBase.getWaitForInitGuiMs()); //wait for Background worker
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}

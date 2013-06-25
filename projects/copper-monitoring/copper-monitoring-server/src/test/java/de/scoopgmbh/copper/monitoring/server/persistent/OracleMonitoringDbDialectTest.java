@@ -65,10 +65,7 @@ public class OracleMonitoringDbDialectTest extends MonitoringDbDialectTestBase{
 		
 		OracleMonitoringDbDialect derbyMonitoringDbDialect = new OracleMonitoringDbDialect(new StandardJavaSerializer());
 		this.monitoringDbDialect = derbyMonitoringDbDialect;
-		
-	
 	}
-	
 	
 	@Test
 	public void getRecommendationsReport(){

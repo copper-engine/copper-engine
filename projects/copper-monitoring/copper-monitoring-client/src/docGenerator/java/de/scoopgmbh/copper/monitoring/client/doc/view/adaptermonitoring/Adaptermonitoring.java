@@ -25,7 +25,7 @@ public class Adaptermonitoring extends de.scoopgmbh.copper.monitoring.client.doc
 	
 	@Override
 	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createMessageForm().show();
+		testFormContext.createAdapterMonitoringForm().show();
 	}
 
 	@Override

@@ -25,7 +25,7 @@ import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
 import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
-import de.scoopgmbh.copper.monitoring.server.PerformanceMonitor;
+import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
 
 public class MonitoringDataCollector{
 	

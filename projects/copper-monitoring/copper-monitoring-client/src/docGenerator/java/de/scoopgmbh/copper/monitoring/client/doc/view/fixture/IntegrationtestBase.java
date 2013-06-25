@@ -19,6 +19,8 @@ import javafx.scene.layout.BorderPane;
 
 import org.jemmy.fx.SceneDock;
 
+import de.scoopgmbh.copper.monitoring.client.doc.DocGeneratorMain;
+
 /** Basic testcase for Concordion */
 public abstract class IntegrationtestBase {
 	
@@ -40,6 +42,10 @@ public abstract class IntegrationtestBase {
 
 	public IntegrationtestBase() {
 		super();
+	}
+	
+	public long getWaitForInitGuiMs(){
+		return DocGeneratorMain.LONG_WAIT_TIME;
 	}
 
 	

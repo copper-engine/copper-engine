@@ -15,13 +15,21 @@
  */
 package de.scoopgmbh.copper.monitoring.client.doc.view.fixture;
 
-import javafx.scene.Parent;
+import org.jemmy.fx.SceneDock;
+import org.jemmy.fx.control.LabeledDock;
+
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 
 public class FilterAbleFormFixture {
 	
-	private final Parent parent;
+	private final SceneDock scene;
 	
-	public FilterAbleFormFixture(Parent parent){
-		this.parent = parent;
+	public FilterAbleFormFixture(SceneDock scene){
+		this.scene = scene;
+	}
+	
+	public void refresh(){
+		LabeledDock refButton = new LabeledDock(scene.asParent(),FilterAbleForm.REFRESH_BUTTON_ID);
+		refButton.mouse().click();
 	}
 }

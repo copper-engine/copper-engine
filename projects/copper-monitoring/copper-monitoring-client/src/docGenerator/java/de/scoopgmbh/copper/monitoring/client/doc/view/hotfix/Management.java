@@ -26,7 +26,7 @@ public class Management extends IntegrationtestBase{
 	
 	@Override
 	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createMessageForm().show();
+		testFormContext.createHotfixForm().show();
 	}
 
 	@Override

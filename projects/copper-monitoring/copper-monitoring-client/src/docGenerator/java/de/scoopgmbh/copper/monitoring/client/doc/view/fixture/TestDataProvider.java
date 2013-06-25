@@ -26,7 +26,10 @@ import java.util.Map;
 import java.util.Random;
 
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
+import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
+import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
+import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
@@ -49,6 +52,7 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo.WorkflowRepositorTyp;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
+import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
 
 public class TestDataProvider implements CopperMonitoringService {
 	private static final long serialVersionUID = -509088135898037190L;
@@ -109,8 +113,10 @@ public class TestDataProvider implements CopperMonitoringService {
 	@Override
 	public List<WorkflowSummary> getWorkflowSummary(String poolid, String classname) throws RemoteException {	
 		Map<WorkflowInstanceState,Integer> map = new HashMap<WorkflowInstanceState,Integer>();
+		int counter=0;
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-			map.put(workflowInstanceState, (int)(Math.random()*100));
+			map.put(workflowInstanceState, counter*10+((int)(Math.random()*10)));
+			counter++;
 		}
 		
 		ArrayList<WorkflowSummary> result = new ArrayList<WorkflowSummary>();
@@ -271,14 +277,16 @@ public class TestDataProvider implements CopperMonitoringService {
 	
 	@Override
 	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException {
-		return new SystemResourcesInfo(new Date(),0,0,0,0,0,0);
+		return new PerformanceMonitor().createRessourcenInfo();
 	}
 
 	@Override
 	public WorkflowStateSummary getAggregatedWorkflowStateSummary(String engineid) throws RemoteException {
 		Map<WorkflowInstanceState,Integer> map = new HashMap<WorkflowInstanceState,Integer>();
+		int counter=0;
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-			map.put(workflowInstanceState, (int)(Math.random()*100));
+			map.put(workflowInstanceState, counter*10+((int)(Math.random()*10)));
+			counter++;
 		}
 		return new WorkflowStateSummary(map);
 	}
@@ -311,7 +319,7 @@ public class TestDataProvider implements CopperMonitoringService {
 	public List<MeasurePointData> getMeasurePoints(String engineid) {
 		ArrayList<MeasurePointData> result = new ArrayList<MeasurePointData>();
 		for (int i=0;i<20;i++){
-			result.add(new MeasurePointData("point dhajsgdjahdgsdjasdgjasgdhjgfhjsgfjshd"+i,10,i+(int)(10000*Math.random()),10));
+			result.add(new MeasurePointData(getClass().getName()+"#"+i,10,i+(int)(10000*Math.random()),10));
 		}
 		return result;
 	}
@@ -343,24 +351,34 @@ public class TestDataProvider implements CopperMonitoringService {
 
 	@Override
 	public List<MessageInfo> getMessageList(boolean ignoreproceeded ,long resultRowLimit) {
-		return Collections.emptyList();
+		return Arrays.asList(new MessageInfo(new Date(),"message","correlationid"));
 	}
 
 	@Override
 	public AdapterHistoryInfo getAdapterHistoryInfos(String adapterId) throws RemoteException {
-		return new AdapterHistoryInfo();
+		final AdapterHistoryInfo adapterHistoryInfo = new AdapterHistoryInfo();
+		adapterHistoryInfo.setAdapterCalls(new ArrayList<AdapterCallInfo>());
+		adapterHistoryInfo.setAdapterWfLaunches(new ArrayList<AdapterWfLaunchInfo>());
+		adapterHistoryInfo.setAdapterWfNotifies(new ArrayList<AdapterWfNotifyInfo>());
+		return adapterHistoryInfo;
 	}
 
 	@Override
 	public List<MeasurePointData> getMonitoringMeasurePoints(String measurePoint,long limit) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<MeasurePointData> list = new ArrayList<MeasurePointData>();
+		for (int i=0;i<20;i++){
+			final MeasurePointData measurepoint = new MeasurePointData("Measurepoint");
+			measurepoint.setElapsedTimeMicros((long) (Math.random()*50));
+			measurepoint.setSystemResourcesInfo(new PerformanceMonitor().createRessourcenInfo());
+			measurepoint.setTime(new Date(i));
+			list.add(measurepoint);
+		}
+		return list;
 	}
 
 	@Override
 	public List<String> getMonitoringMeasurePointIds() throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -387,8 +405,806 @@ public class TestDataProvider implements CopperMonitoringService {
 
 	@Override
 	public String getDatabaseMonitoringHtmlReport() throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		return "<html>\r\n" + 
+				"  <head>\r\n" + 
+				"    <title> SQL Monitor List </title>\r\n" + 
+				"    <style type=\"text/css\"> \r\n" + 
+				"         body, table, input, select, textarea\r\n" + 
+				"         {font:normal normal 8pt Verdana,Arial;text-decoration:none;\r\n" + 
+				"          color:#000000;}\r\n" + 
+				"         .s8 {font-size:8pt;color:#006699}\r\n" + 
+				"         .s9 {font-size:10pt;color:#006699}\r\n" + 
+				"         .s10 {font-size:14pt;color:#006699;}\r\n" + 
+				"         .s16 {border-width : 1px; border-color : #CCCC99;\r\n" + 
+				"              border-style: solid; color:#006699;font-size:8pt; \r\n" + 
+				"              background-color:#CCCC99; }\r\n" + 
+				"        .s17 {border-width : 1px; border-color : #CCCC99;\r\n" + 
+				"              border-style: solid; font-size:8pt; \r\n" + 
+				"              background-color:#E8E8E6; empty-cells: show }\r\n" + 
+				"        .s17a {border-width : 1px; border-color : #BDCCC3;\r\n" + 
+				"              border-style: solid; font-size:8pt; \r\n" + 
+				"              background-color:#F5F5F5; empty-cells: show}\r\n" + 
+				"        .s17b {border-width : 1px; border-color : #BDCCC3;\r\n" + 
+				"               border-style: solid; font-size:8pt; \r\n" + 
+				"               background-color:#F1F5DD; empty-cells: show}\r\n" + 
+				"        .s27 {border-width : 1px; border-color : #CCCC99; \r\n" + 
+				"              border-style: solid;}\r\n" + 
+				"\r\n" + 
+				"        .graph {\r\n" + 
+				"          border: solid 0px ; empty-cells: show\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .bar {\r\n" + 
+				"          border-left: solid 0px;\r\n" + 
+				"          padding-right: 0.5em;\r\n" + 
+				"          font-size:1pt;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .sql {border-width : 1px; border-color : #CCCC99;\r\n" + 
+				"              border-style: solid; font-size:8pt; \r\n" + 
+				"              background-color:#E8E8E6;\r\n" + 
+				"              empty-cells: show; text-align: left }\r\n" + 
+				"\r\n" + 
+				"        .nodisp { font-size: 1% ; height: 10px; color:#F2F2F2 }\r\n" + 
+				"        \r\n" + 
+				"        .bar div { \r\n" + 
+				"          text-align: center;\r\n" + 
+				"          float: left;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .executing { \r\n" + 
+				"          background-color: #7CFF44;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .error { \r\n" + 
+				"          background-color: red;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_Cpu { \r\n" + 
+				"          border-top: solid 3px #1EC162;\r\n" + 
+				"          background-color: #19A352;\r\n" + 
+				"          color: #19A352;\r\n" + 
+				"          border-bottom: solid 3px #0E5D2F;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_cpu_time { \r\n" + 
+				"          border-top: solid 3px #1EC162;\r\n" + 
+				"          background-color: #19A352;\r\n" + 
+				"          color: #19A352;\r\n" + 
+				"          border-bottom: solid 3px #0E5D2F;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_duration { \r\n" + 
+				"          border-top: solid 3px #A2C8E4;\r\n" + 
+				"          background-color: #8CADC5;\r\n" + 
+				"          color: #8CADC5;\r\n" + 
+				"          border-bottom: solid 3px #617888;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_executing_time { \r\n" + 
+				"          border-top: solid 3px #A2C8E4;\r\n" + 
+				"          background-color: #8CADC5;\r\n" + 
+				"          color: #8CADC5;\r\n" + 
+				"          border-bottom: solid 3px #617888;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .div_queuing_time {\r\n" + 
+				"          border-top: solid 3px #C5FFB7;\r\n" + 
+				"          background-color: #86FF86;\r\n" + 
+				"          color: #86FF86;\r\n" + 
+				"          border-bottom: solid 3px #74DD74;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        } \r\n" + 
+				"\r\n" + 
+				"        .div_read_reqs { \r\n" + 
+				"          border-top: solid 3px #FFC846;\r\n" + 
+				"          background-color: #DDAD3D;\r\n" + 
+				"          color: #DDAD3D;\r\n" + 
+				"          border-bottom: solid 3px #B99133;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .div_write_reqs { \r\n" + 
+				"          border-top: solid 3px #F76838;\r\n" + 
+				"          background-color: #BC4F2B;\r\n" + 
+				"          color: #BC4F2B;\r\n" + 
+				"          border-bottom: solid 3px #9C4223;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .div_read_bytes { \r\n" + 
+				"          border-top: solid 3px #FFC846;\r\n" + 
+				"          background-color: #DDAD3D;\r\n" + 
+				"          color: #DDAD3D;\r\n" + 
+				"          border-bottom: solid 3px #B99133;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .div_write_bytes { \r\n" + 
+				"          border-top: solid 3px #F76838;\r\n" + 
+				"          background-color: #BC4F2B;\r\n" + 
+				"          color: #BC4F2B;\r\n" + 
+				"          border-bottom: solid 3px #9C4223;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .div_buffer_gets { \r\n" + 
+				"          border-top: solid 3px #FFAB9A;\r\n" + 
+				"          background-color: #D89182;\r\n" + 
+				"          color: #D89182;\r\n" + 
+				"          border-bottom: solid 3px #BC7E72;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_sql_cpu_time { \r\n" + 
+				"          border-top: solid 3px #1EC162;\r\n" + 
+				"          background-color: #19A352;\r\n" + 
+				"          color: #19A352;\r\n" + 
+				"          border-bottom: solid 3px #0E5D2F;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"       .div_UserIO { \r\n" + 
+				"          border-top: solid 3px #49A1FF;\r\n" + 
+				"          background-color: #3C85D2;\r\n" + 
+				"          color: #3C85D2;\r\n" + 
+				"          border-bottom: solid 3px #28588B;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_application_wait_time { \r\n" + 
+				"          border-top: solid 3px #C8C6FF;\r\n" + 
+				"          background-color: #B5B3E7;\r\n" + 
+				"          color: #B5B3E7;\r\n" + 
+				"          border-bottom: solid 3px #7C7B9E;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"       .div_user_io_wait_time { \r\n" + 
+				"          border-top: solid 3px #FF8C6C;\r\n" + 
+				"          background-color: #E27C60;\r\n" + 
+				"          color: #E27C60;\r\n" + 
+				"          border-bottom: solid 3px #B1614B;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"       .div_SystemIO { \r\n" + 
+				"          border-top: solid 3px #49A1FF;\r\n" + 
+				"          background-color: #3C85D2;\r\n" + 
+				"          color: #3C85D2;\r\n" + 
+				"          border-bottom: solid 3px #28588B;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_Concurrency { \r\n" + 
+				"          border-top: solid 3px #E81B1F;\r\n" + 
+				"          background-color: #BE1619;\r\n" + 
+				"          color: #BE1619;\r\n" + 
+				"          border-bottom: solid 3px #760E10;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_concurrency_wait_time { \r\n" + 
+				"          border-top: solid 3px #E81B1F;\r\n" + 
+				"          background-color: #BE1619;\r\n" + 
+				"          color: #BE1619;\r\n" + 
+				"          border-bottom: solid 3px #760E10;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_cluster_wait_time { \r\n" + 
+				"          border-top: solid 3px #D43B61;\r\n" + 
+				"          background-color: #8B2740;\r\n" + 
+				"          color: #8B2740;\r\n" + 
+				"          border-bottom: solid 3px #5A1929;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_plsql_exec_time { \r\n" + 
+				"          border-top: solid 3px #EDD957;\r\n" + 
+				"          background-color: #B1A241;\r\n" + 
+				"          color: #B1A241;\r\n" + 
+				"          border-bottom: solid 3px #8B7F33;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .div_java_exec_time { \r\n" + 
+				"          border-top: solid 3px #B40FEB;\r\n" + 
+				"          background-color: #8E0CB9;\r\n" + 
+				"          color: #8E0CB9;\r\n" + 
+				"          border-bottom: solid 3px #6A098B;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .div_other_wait_time { \r\n" + 
+				"          border-top: solid 3px #4AFDEB;\r\n" + 
+				"          background-color: #41DECD;\r\n" + 
+				"          color: #41DECD;\r\n" + 
+				"          border-bottom: solid 3px #2B9389;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .div_disk_reads { \r\n" + 
+				"          border-top: solid 3px #FFC846;\r\n" + 
+				"          background-color: #DDAD3D;\r\n" + 
+				"          color: #DDAD3D;\r\n" + 
+				"          border-bottom: solid 3px #B99133;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .div_direct_writes { \r\n" + 
+				"          border-top: solid 3px #F76838;\r\n" + 
+				"          background-color: #BC4F2B;\r\n" + 
+				"          color: #BC4F2B;\r\n" + 
+				"          border-bottom: solid 3px #9C4223;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .div_user_fetch_count { \r\n" + 
+				"          border-top: solid 3px #DFFF6C;\r\n" + 
+				"          background-color: #CAE762;\r\n" + 
+				"          color: #CAE762;\r\n" + 
+				"          border-bottom: solid 3px #9EB44C;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .div_Other { \r\n" + 
+				"          border-top: solid 3px #4AFDEB;\r\n" + 
+				"          background-color: #41DECD;\r\n" + 
+				"          color: #41DECD;\r\n" + 
+				"          border-bottom: solid 3px #2B9389;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .progress_Disp { \r\n" + 
+				"          border-top: solid 3px #F59582;\r\n" + 
+				"          background-color: #E08877;\r\n" + 
+				"          text-align: center;\r\n" + 
+				"          border-bottom: solid 3px #B46D5F;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"          height: 13px;\r\n" + 
+				"          float:left;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .progress_Nodisp { \r\n" + 
+				"          border-top: solid 3px #F59582;\r\n" + 
+				"          background-color: #E08877;\r\n" + 
+				"          color: #E08877;\r\n" + 
+				"          border-bottom: solid 3px #B46D5F;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"          font-size: 1% ; color:#F2F2F2\r\n" + 
+				"          height: 13px; \r\n" + 
+				"          float:left;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        .pxtype_QC { \r\n" + 
+				"          border-top: solid 2px #FAA589;\r\n" + 
+				"          background-color: #E2967C;\r\n" + 
+				"          border-bottom: solid 2px #BC7C67;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .pxtype_S1 { \r\n" + 
+				"          border-top: solid 2px #88F3B8;\r\n" + 
+				"          background-color: #79D8A4;\r\n" + 
+				"          border-bottom: solid 2px #60AC82;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .pxtype_S2 { \r\n" + 
+				"          border-top: solid 2px #9DF5FB;\r\n" + 
+				"          background-color: #87D2D7;\r\n" + 
+				"          border-bottom: solid 2px #70AEB2;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .pxtype_Instance { \r\n" + 
+				"          border: solid 1px #FFFFFF;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        .active_period { \r\n" + 
+				"          border-top: solid 3px #A2C8E4;\r\n" + 
+				"          background-color: #8CADC5;\r\n" + 
+				"          color: #8CADC5;\r\n" + 
+				"          border-bottom: solid 3px #617888;\r\n" + 
+				"          cursor: default;\r\n" + 
+				"        }      \r\n" + 
+				"\r\n" + 
+				"        a.info span {\r\n" + 
+				"          display: none;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        a.info:hover {\r\n" + 
+				"          position: relative;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"        a.info:hover span {\r\n" + 
+				"          display: block;\r\n" + 
+				"          position: absolute;\r\n" + 
+				"          border: thin solid black;\r\n" + 
+				"          background-color: #FFFF99;\r\n" + 
+				"        }\r\n" + 
+				"\r\n" + 
+				"       </style>\r\n" + 
+				"  </head>\r\n" + 
+				"  <body bgcolor=\"#FFFFFF\">\r\n" + 
+				"    <h1 align=\"center\">SQL Monitoring List</h1>\r\n" + 
+				"    <br/>\r\n" + 
+				"    <br/>\r\n" + 
+				"    <table class=\"s17\" border=\"1\" ora_borderstyle=\"headeronly\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"      <tr class=\"s16\">\r\n" + 
+				"        <th>\r\n" + 
+				"           Status\r\n" + 
+				"         </th>\r\n" + 
+				"        <th width=\"120\">\r\n" + 
+				"           Duration\r\n" + 
+				"         </th>\r\n" + 
+				"        <th>\r\n" + 
+				"           SQL Id\r\n" + 
+				"         </th>\r\n" + 
+				"        <th>\r\n" + 
+				"           User\r\n" + 
+				"         </th>\r\n" + 
+				"        <th>\r\n" + 
+				"           Dop\r\n" + 
+				"         </th>\r\n" + 
+				"        <th width=\"120\">\r\n" + 
+				"           DB Time\r\n" + 
+				"         </th>\r\n" + 
+				"        <th width=\"120\">\r\n" + 
+				"           IOs\r\n" + 
+				"         </th>\r\n" + 
+				"        <th>\r\n" + 
+				"           Start\r\n" + 
+				"         </th>\r\n" + 
+				"        <th>\r\n" + 
+				"           End\r\n" + 
+				"         </th>\r\n" + 
+				"        <th width=\"30%\">\r\n" + 
+				"           SQL Text\r\n" + 
+				"         </th>\r\n" + 
+				"      </tr>\r\n" + 
+				"      <tr width=\"100%\">\r\n" + 
+				"        <td>\r\n" + 
+				"          <a>DONE (ALL ROWS)</a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\">0.00s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        7gujagv9a2a34\r\n" + 
+				"                        <span>Exec_id:16777219</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        COPPER2\r\n" + 
+				"                        <span>\r\n" + 
+				"                            UId:77\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Sid:7:7562\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Mod/Act:JDBC Thin Client/-\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Prg:JDBC Thin Client\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Svc:SYS$USERS\r\n" + 
+				"                            <br/>\r\n" + 
+				"            </span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\"/>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\">0s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\"/>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 15:10:16</td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 15:10:16</td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        SELECT /*+ MONITOR */  * FROM DUAL\r\n" + 
+				"                        <span>SELECT /*+ MONITOR */  * FROM DUAL</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"      </tr>\r\n" + 
+				"      <tr width=\"100%\">\r\n" + 
+				"        <td>\r\n" + 
+				"          <a>DONE (ALL ROWS)</a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\">0.00s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        7gujagv9a2a34\r\n" + 
+				"                        <span>Exec_id:16777218</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        COPPER2\r\n" + 
+				"                        <span>\r\n" + 
+				"                            UId:77\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Sid:4:177\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Mod/Act:JDBC Thin Client/-\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Prg:JDBC Thin Client\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Svc:SYS$USERS\r\n" + 
+				"                            <br/>\r\n" + 
+				"            </span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\"/>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\">0s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\"/>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 15:09:56</td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 15:09:56</td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        SELECT /*+ MONITOR */  * FROM DUAL\r\n" + 
+				"                        <span>SELECT /*+ MONITOR */  * FROM DUAL</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"      </tr>\r\n" + 
+				"      <tr width=\"100%\">\r\n" + 
+				"        <td>\r\n" + 
+				"          <a>DONE (ALL ROWS)</a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\">0.00s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        7gujagv9a2a34\r\n" + 
+				"                        <span>Exec_id:16777217</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        COPPER2\r\n" + 
+				"                        <span>\r\n" + 
+				"                            UId:77\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Sid:40:110\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Mod/Act:JDBC Thin Client/-\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Prg:JDBC Thin Client\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Svc:SYS$USERS\r\n" + 
+				"                            <br/>\r\n" + 
+				"            </span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\"/>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\">0s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\"/>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 15:09:38</td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 15:09:38</td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        SELECT /*+ MONITOR */  * FROM DUAL\r\n" + 
+				"                        <span>SELECT /*+ MONITOR */  * FROM DUAL</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"      </tr>\r\n" + 
+				"      <tr width=\"100%\">\r\n" + 
+				"        <td>\r\n" + 
+				"          <a>DONE (ALL ROWS)</a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\">0.00s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        7gujagv9a2a34\r\n" + 
+				"                        <span>Exec_id:16777216</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        COPPER2\r\n" + 
+				"                        <span>\r\n" + 
+				"                            UId:77\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Sid:223:9163\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Mod/Act:JDBC Thin Client/-\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Prg:JDBC Thin Client\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Svc:SYS$USERS\r\n" + 
+				"                            <br/>\r\n" + 
+				"            </span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\"/>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\">0s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td align=\"left\"/>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 15:09:26</td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 15:09:26</td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        SELECT /*+ MONITOR */  * FROM DUAL\r\n" + 
+				"                        <span>SELECT /*+ MONITOR */  * FROM DUAL</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"      </tr>\r\n" + 
+				"      <tr width=\"100%\">\r\n" + 
+				"        <td>\r\n" + 
+				"          <a>DONE (ALL ROWS)</a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td style=\"          width:40%        \">\r\n" + 
+				"                <table class=\"graph\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"                  <tbody>\r\n" + 
+				"                    <tr>\r\n" + 
+				"                      <td class=\"bar\">\r\n" + 
+				"                        <div class=\"div_duration\" style=\"                     width:100%                   \" title=\"duration - 10s\">\r\n" + 
+				"                          <P class=\"nodisp\">.</P>\r\n" + 
+				"                        </div>\r\n" + 
+				"                      </td>\r\n" + 
+				"                    </tr>\r\n" + 
+				"                  </tbody>\r\n" + 
+				"                </table>\r\n" + 
+				"              </td>\r\n" + 
+				"              <td align=\"left\">10s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        1rtwsxvw83x7s\r\n" + 
+				"                        <span>Exec_id:16777216</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        HUBMANAGER\r\n" + 
+				"                        <span>\r\n" + 
+				"                            UId:72\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Sid:99:1\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Prg:ORACLE.EXE (J007)\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Svc:SYS$USERS\r\n" + 
+				"                            <br/>\r\n" + 
+				"            </span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\"/>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td style=\"          width:37%        \">\r\n" + 
+				"                <table class=\"graph\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"                  <tbody>\r\n" + 
+				"                    <tr>\r\n" + 
+				"                      <td class=\"bar\">\r\n" + 
+				"                        <div class=\"div_cpu_time\" style=\"                     width:99%                   \" title=\"Cpu - 9.48s (99%)\">\r\n" + 
+				"                          <P class=\"nodisp\">.</P>\r\n" + 
+				"                        </div>\r\n" + 
+				"                      </td>\r\n" + 
+				"                    </tr>\r\n" + 
+				"                  </tbody>\r\n" + 
+				"                </table>\r\n" + 
+				"              </td>\r\n" + 
+				"              <td align=\"left\">10s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td style=\"          width:22%        \">\r\n" + 
+				"                <table class=\"graph\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"                  <tbody>\r\n" + 
+				"                    <tr>\r\n" + 
+				"                      <td class=\"bar\">\r\n" + 
+				"                        <div class=\"div_read_reqs\" style=\"                     width:100%                   \" title=\"Read Requests: 109 = 3MB\">\r\n" + 
+				"                          <P class=\"nodisp\">.</P>\r\n" + 
+				"                        </div>\r\n" + 
+				"                      </td>\r\n" + 
+				"                    </tr>\r\n" + 
+				"                  </tbody>\r\n" + 
+				"                </table>\r\n" + 
+				"              </td>\r\n" + 
+				"              <td align=\"left\">109</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 09:44:10</td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 09:44:20</td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        SELECT I.COLUMN_NAME, HISTTAB.TABLE_NAME FROM USER_IND_COLUMNS I, USER_TAB_COLUM...\r\n" + 
+				"                        <span>SELECT I.COLUMN_NAME, HISTTAB.TABLE_NAME FROM USER_IND_COLUMNS I, USER_TAB_COLUMNS T, USER_TABLES HISTTAB WHERE INDEX_NAME IN ( SELECT INDEX_NAME FROM USER_IND_COLUMNS WHERE INDEX_NAME IN ( SELECT INDEX_NAME FROM USER_CONSTRAINTS WHERE CONSTRAINT_TYPE = &apos;P&apos;) GROUP BY INDEX_NAME HAVING COUNT(1) = 1 ) AND T.COLUMN_NAME = I.COLUMN_NAME AND T.TABLE_NAME = I.TABLE_NAME AND T.DATA_TYPE = &apos;NUMBER&apos; AND T.DATA_PRECISION &lt;= 18 AND T.DATA_SCALE = 0 AND HISTTAB.TABLE_NAME = &apos;H_&apos;||T.TABLE_NAME</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"      </tr>\r\n" + 
+				"      <tr width=\"100%\">\r\n" + 
+				"        <td>\r\n" + 
+				"          <a>DONE</a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td style=\"          width:60%        \">\r\n" + 
+				"                <table class=\"graph\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"                  <tbody>\r\n" + 
+				"                    <tr>\r\n" + 
+				"                      <td class=\"bar\">\r\n" + 
+				"                        <div class=\"div_duration\" style=\"                     width:100%                   \" title=\"duration - 15s\">\r\n" + 
+				"                          <P class=\"nodisp\">.</P>\r\n" + 
+				"                        </div>\r\n" + 
+				"                      </td>\r\n" + 
+				"                    </tr>\r\n" + 
+				"                  </tbody>\r\n" + 
+				"                </table>\r\n" + 
+				"              </td>\r\n" + 
+				"              <td align=\"left\">15s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        csp5671rfba0g\r\n" + 
+				"                        <span>Exec_id:16777216</span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        HUBMANAGER\r\n" + 
+				"                        <span>\r\n" + 
+				"                            UId:72\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Sid:99:1\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Prg:ORACLE.EXE (J007)\r\n" + 
+				"                            <br/>\r\n" + 
+				"                            Svc:SYS$USERS\r\n" + 
+				"                            <br/>\r\n" + 
+				"            </span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">\r\n" + 
+				"          <a class=\"info\"/>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td style=\"          width:60%        \">\r\n" + 
+				"                <table class=\"graph\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"                  <tbody>\r\n" + 
+				"                    <tr>\r\n" + 
+				"                      <td class=\"bar\">\r\n" + 
+				"                        <div class=\"div_cpu_time\" style=\"                     width:98%                   \" title=\"Sql Cpu Time - 15.5s (98%)\">\r\n" + 
+				"                          <P class=\"nodisp\">.</P>\r\n" + 
+				"                        </div>\r\n" + 
+				"                      </td>\r\n" + 
+				"                    </tr>\r\n" + 
+				"                  </tbody>\r\n" + 
+				"                </table>\r\n" + 
+				"              </td>\r\n" + 
+				"              <td align=\"left\">16s</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"            <tbody>\r\n" + 
+				"              <td style=\"          width:60%        \">\r\n" + 
+				"                <table class=\"graph\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">\r\n" + 
+				"                  <tbody>\r\n" + 
+				"                    <tr>\r\n" + 
+				"                      <td class=\"bar\">\r\n" + 
+				"                        <div class=\"div_read_reqs\" style=\"                     width:100%                   \" title=\"Read Requests: 310 = 5MB\">\r\n" + 
+				"                          <P class=\"nodisp\">.</P>\r\n" + 
+				"                        </div>\r\n" + 
+				"                      </td>\r\n" + 
+				"                    </tr>\r\n" + 
+				"                  </tbody>\r\n" + 
+				"                </table>\r\n" + 
+				"              </td>\r\n" + 
+				"              <td align=\"left\">310</td>\r\n" + 
+				"            </tbody>\r\n" + 
+				"          </table>\r\n" + 
+				"        </td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 09:44:05</td>\r\n" + 
+				"        <td align=\"center\">06/24/2013 09:44:20</td>\r\n" + 
+				"        <td>\r\n" + 
+				"          <a class=\"info\">\r\n" + 
+				"                        DECLARE job BINARY_INTEGER := :job; next_date DATE := :mydate;  broken BOOLEAN :...\r\n" + 
+				"                        <span>DECLARE job BINARY_INTEGER := :job; next_date DATE := :mydate;  broken BOOLEAN := FALSE; BEGIN begin HOUSEKEEPING; end; :mydate := next_date; IF broken THEN :b := 1; ELSE :b := 0; END IF; END; </span>\r\n" + 
+				"          </a>\r\n" + 
+				"        </td>\r\n" + 
+				"      </tr>\r\n" + 
+				"    </table>\r\n" + 
+				"  </body>\r\n" + 
+				"</html>\r\n" + 
+				"";
 	}
 
 	@Override

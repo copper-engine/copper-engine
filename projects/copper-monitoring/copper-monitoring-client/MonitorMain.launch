@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/copper-monitoring-client/src/main/java/de/scoopgmbh/copper/monitoring/client/main/MonitorMain.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="de.scoopgmbh.copper.monitoring.client.main.MonitorMain"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--monitorServerAdress=http://localhost:8080&#13;&#10;--monitorServerUser=user1&#13;&#10;--monitorServerPassword=pass1"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="copper-monitoring-client"/>
+</launchConfiguration>

@@ -16,7 +16,9 @@
 package de.scoopgmbh.copper.monitoring.client.doc.view.systemresource;
 
 
+import javafx.application.Platform;
 import javafx.scene.layout.BorderPane;
+import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.FilterAbleFormFixture;
 import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.IntegrationtestBase;
 import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.TestFormContext;
 
@@ -27,12 +29,36 @@ public class SystemResource extends IntegrationtestBase{
 	@Override
 	public void initGui(BorderPane pane, TestFormContext testFormContext) {
 		testFormContext.createRessourceForm().show();
-
+		final FilterAbleFormFixture filterAbleFormFixture= new FilterAbleFormFixture(scene);
+		for (int i=0;i<10;i++){
+			final int ifinal = i;
+			new Thread(){
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(1010*ifinal);
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							filterAbleFormFixture.refresh();
+						}
+					});
+				};
+			}.start();
+		}
 	}
 
 	@Override
 	public String getTitle() {
 		return "System resources";
+	}
+	
+	@Override
+	public long getWaitForInitGuiMs(){
+		return super.getWaitForInitGuiMs()*15;
 	}
 
 }

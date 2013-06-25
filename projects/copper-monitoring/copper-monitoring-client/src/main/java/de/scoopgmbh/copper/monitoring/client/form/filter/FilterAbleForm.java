@@ -76,6 +76,8 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	private FilterService<F,R> filterService;
 	private RepeatFilterService<F,R> repeatFilterService;
 	private final MessageProvider messageProvider;
+	
+	public static final String REFRESH_BUTTON_ID = "refreshbutton";
 
 	public FilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
 			Form<FilterController<F>> filterForm, final Form<FilterResultController<F,R>> resultForm, GuiCopperDataProvider copperDataProvider ) {
@@ -224,6 +226,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		}
 		
 		final Button refreshButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/refresh.png"))));
+		refreshButton.setId(REFRESH_BUTTON_ID);
 		HBox.setMargin(refreshButton, new Insets(4,0,4,0));
 		refreshButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_refresh)));
 		refreshButton.setOnAction(new EventHandler<ActionEvent>() {

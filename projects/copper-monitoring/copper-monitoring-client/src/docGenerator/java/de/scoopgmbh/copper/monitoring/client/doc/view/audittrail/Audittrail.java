@@ -26,7 +26,7 @@ public class Audittrail extends IntegrationtestBase{
 	
 	@Override
 	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createMessageForm().show();
+		testFormContext.createAudittrailForm().show();
 	}
 
 	@Override

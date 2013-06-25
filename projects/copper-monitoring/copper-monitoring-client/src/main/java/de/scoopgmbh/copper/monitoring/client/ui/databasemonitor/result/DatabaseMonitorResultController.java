@@ -116,6 +116,7 @@ public class DatabaseMonitorResultController extends FilterResultControllerBase<
 				
 			}
 		});
+        showTuning.disableProperty().bind(showDeatils.disableProperty());
     }
 
 	

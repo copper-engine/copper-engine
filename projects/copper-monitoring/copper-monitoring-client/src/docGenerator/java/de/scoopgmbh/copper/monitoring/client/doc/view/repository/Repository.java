@@ -26,7 +26,7 @@ public class Repository extends IntegrationtestBase{
 	
 	@Override
 	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createSettingsForm().show();
+		testFormContext.createWorkflowRepositoryForm().show();
 	}
 
 	@Override
