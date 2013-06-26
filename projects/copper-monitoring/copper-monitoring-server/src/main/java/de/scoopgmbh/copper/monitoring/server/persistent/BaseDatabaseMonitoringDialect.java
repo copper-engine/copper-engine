@@ -384,12 +384,12 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 	
 	@Override
 	public String selectDatabaseMonitoringHtmlReport(Connection con) {
-		return "<html><body>not supported for "+this.getClass().getName()+"</body></html>";
+		return "<html><body>not supported for <b>"+this.getClass().getName()+"</b></body></html>";
 	}
 
 	@Override
 	public String selectDatabaseMonitoringHtmlDetailReport(String sqlid, Connection con) {
-		return "<html><body>not supported for "+this.getClass().getName()+"</body></html>";
+		return "<html><body>not supported for <b>"+this.getClass().getName()+"</b></body></html>";
 	}
 
 

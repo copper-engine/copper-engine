@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.rmi.RemoteException;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
@@ -133,6 +134,13 @@ public class ApplicationContext {
 				}
 			}
 		}
+		
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				showErrorMessage(t.getName(), e);
+			}
+		});
 
     	Runtime.getRuntime().addShutdownHook( 
     		new Thread(
@@ -263,7 +271,7 @@ public class ApplicationContext {
 	}
 	
 	
-	public void showMessage(final String message, final Exception e, final Color backColor, final ImageView icon, final Runnable okOnAction){
+	public void showMessage(final String message, final Throwable e, final Color backColor, final ImageView icon, final Runnable okOnAction){
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -275,7 +283,7 @@ public class ApplicationContext {
 				
 				final VBox back = new VBox(3);
 				StackPane.setMargin(back, new Insets(150));
-				back.setStyle("-fx-border-color: "+blackOrWhiteDependingFromBack +"; -fx-border-width: 1px; -fx-padding: 3;");
+				back.setStyle("-fx-border-color: "+blackOrWhiteDependingFromBack +"; -fx-border-width: 1px; -fx-padding: 3; -fx-background-color: derive("+CSSHelper.toCssColor(backColor)+",-50%);");
 				back.setAlignment(Pos.CENTER_RIGHT);
 				final Label label = new Label(message);
 				label.prefWidthProperty().bind(mainStackPane.widthProperty());
@@ -294,6 +302,7 @@ public class ApplicationContext {
 				area.setEditable(false);
 				VBox.setVgrow(area, Priority.ALWAYS);
 				back.getChildren().add(area);
+				area.getStyleClass().add("consoleFont");
 				
 				ContextMenu menue = new ContextMenu();
 				MenuItem item = new MenuItem("copy to clipboard");
@@ -328,19 +337,19 @@ public class ApplicationContext {
 		});
 	}
 	
-	public void showErrorMessage(String message, Exception e){
+	public void showErrorMessage(String message, Throwable e){
 		showErrorMessage(message,e,null);
 	}
 	
-	public void showErrorMessage(String message, Exception e, Runnable okOnACtion){
+	public void showErrorMessage(String message, Throwable e, Runnable okOnACtion){
 		showMessage(message,e,Color.rgb(255,0,0,0.55), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/error.png").toExternalForm()),okOnACtion);
 	}
 	
-	public void showWarningMessage(String message, Exception e, Runnable okOnACtion){
+	public void showWarningMessage(String message, Throwable e, Runnable okOnACtion){
 		showMessage(message,e,Color.rgb(255,200,90,0.75), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/warning.png").toExternalForm()),okOnACtion);
 	}
 	
-	public void showWarningMessage(String message, Exception e){
+	public void showWarningMessage(String message, Throwable e){
 		showWarningMessage(message,e,null);
 	}
 

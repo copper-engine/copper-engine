@@ -101,6 +101,10 @@
 	-fx-font: 12px "Courier New";
 }
 
+.chart-series-line {    
+    -fx-stroke-width: 2px;
+}
+
 
 /*from modena css*/
 .root {

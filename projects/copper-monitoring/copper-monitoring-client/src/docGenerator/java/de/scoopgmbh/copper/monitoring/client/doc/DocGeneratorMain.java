@@ -325,6 +325,13 @@ public class DocGeneratorMain {
 		folder.delete();
 	}
 	
+	private String getRelativePath(File base, File childname) {
+	    String basePath;
+		String childPath;
+		basePath = base.getParentFile().toURI().toString();
+		childPath = childname.toURI().toString();
+	    return childPath.substring(basePath.length());
+	}
 	
 	public File writeSummary(List<IntegrationtestBase> tests){
 		File newTextFile = new File(new File(System.getProperty("concordion.output.dir")).getAbsolutePath()+"/de/scoopgmbh/copper/monitoring/client/doc/index.html");
@@ -340,7 +347,7 @@ public class DocGeneratorMain {
 		list.append("<ul>");
 		for (IntegrationtestBase test:tests){
 
-			String relative = newTextFile.toURI().relativize(new File(getGeneratedHtmlPath(test)).toURI()).getPath();
+			String relative = getRelativePath(newTextFile,new File(getGeneratedHtmlPath(test)));
 				
 			list.append("<li>");
 			list.append("<a href=\"");

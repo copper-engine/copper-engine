@@ -271,7 +271,8 @@ public class TestDataProvider implements CopperMonitoringService {
 	@Override
 	public List<String[]> executeSqlQuery(String query, long resultRowLimit) {
 		List<String[]>  result = new ArrayList<String[]>();
-		result.add(new String[]{"column1","column2",query});
+		result.add(new String[]{"column1","column2","colum3",query});
+		result.add(new String[]{"content1","content2","conten3",query});
 		return result;
 	}
 	
@@ -1209,8 +1210,7 @@ public class TestDataProvider implements CopperMonitoringService {
 
 	@Override
 	public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override

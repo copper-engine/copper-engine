@@ -12,17 +12,47 @@
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="405.0" prefWidth="477.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <SplitPane dividerPositions="0.5682382133995038, 0.7866004962779156" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+    <SplitPane dividerPositions="0.6550868486352357, 0.9230769230769231" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
       <items>
-        <AreaChart id="areaChart" fx:id="measurePointsChart">
-          <xAxis>
-            <NumberAxis fx:id="timeAxis" side="BOTTOM" />
-          </xAxis>
-          <yAxis>
-            <NumberAxis fx:id="numberAxis" label="micro secounds" side="LEFT" />
-          </yAxis>
-        </AreaChart>
-        <AreaChart id="areaChart" fx:id="ressourceChart" minHeight="75.0" prefHeight="75.0" prefWidth="475.0">
+        <BorderPane prefHeight="200.0" prefWidth="200.0">
+          <center>
+            <StackPane prefHeight="150.0" prefWidth="200.0">
+              <children>
+                <LineChart fx:id="measurePointsChart">
+                  <xAxis>
+                    <NumberAxis fx:id="timeAxis" side="BOTTOM" />
+                  </xAxis>
+                  <yAxis>
+                    <NumberAxis fx:id="numberAxis" label="micro secounds" side="LEFT" />
+                  </yAxis>
+                </LineChart>
+                <TextArea fx:id="textChart" prefWidth="200.0" wrapText="true" />
+              </children>
+            </StackPane>
+          </center>
+          <top>
+            <HBox maxHeight="-1.0" prefHeight="-1.0" prefWidth="200.0" spacing="3.0">
+              <children>
+                <RadioButton fx:id="pointsButton" mnemonicParsing="false" text="points">
+                  <HBox.margin>
+                    <Insets bottom="3.0" left="3.0" top="3.0" />
+                  </HBox.margin>
+                </RadioButton>
+                <RadioButton fx:id="textButton" mnemonicParsing="false" text="text">
+                  <HBox.margin>
+                    <Insets bottom="3.0" top="3.0" fx:id="x1" />
+                  </HBox.margin>
+                </RadioButton>
+                <CheckBox fx:id="quantilButton" mnemonicParsing="false" selected="true" text="quantil">
+                  <HBox.margin>
+                    <Insets bottom="3.0" top="3.0" fx:id="x1" />
+                  </HBox.margin>
+                </CheckBox>
+              </children>
+            </HBox>
+          </top>
+        </BorderPane>
+        <AreaChart fx:id="ressourceChart" minHeight="75.0" prefHeight="75.0" prefWidth="475.0">
           <xAxis>
             <NumberAxis id="timeAxis" fx:id="timeResAxis" side="BOTTOM" />
           </xAxis>

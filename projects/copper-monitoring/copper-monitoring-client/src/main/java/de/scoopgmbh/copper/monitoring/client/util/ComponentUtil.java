@@ -15,12 +15,19 @@
  */
 package de.scoopgmbh.copper.monitoring.client.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.effect.BoxBlur;
@@ -29,6 +36,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 
 public class ComponentUtil {
 	
@@ -107,6 +115,39 @@ public class ComponentUtil {
 		};
 		th.setDaemon(true);
 		th.start();
+	}
+	
+	
+	public static void setupXAxis(NumberAxis numberAxis, ObservableList<XYChart.Series<Number, Number>> seriesList){
+		long min=Long.MAX_VALUE;
+		long max=0;
+
+		for (XYChart.Series<Number, ?> series: seriesList){
+			for (Data<Number, ?> data: series.getData()){
+				min = Math.min(data.getXValue().longValue(),min);
+				max = Math.max(data.getXValue().longValue(),max);
+			}
+		}
+		setupXAxis(numberAxis, min, max );
+	}
+	
+	public static void setupXAxis(NumberAxis numberAxis, long min, long max ){
+		numberAxis.setAutoRanging(false);
+		numberAxis.setTickUnit((max-min)/20);
+		numberAxis.setLowerBound(min);
+		numberAxis.setUpperBound(max);
+		numberAxis.setTickLabelFormatter(new StringConverter<Number>() {
+			private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy\nHH:mm:ss,SSS");
+			@Override
+			public String toString(Number object) {
+				return format.format(new Date(object.longValue()));
+			}
+			
+			@Override
+			public Number fromString(String string) {
+				return null;
+			}
+		});
 	}
 
 }

@@ -13,11 +13,8 @@
   <center>
     <AreaChart fx:id="areaChart">
       <xAxis>
-        <CategoryAxis fx:id="categoryAxis" side="BOTTOM">
-          <categories>
-            <FXCollections fx:factory="observableArrayList" />
-          </categories>
-        </CategoryAxis>
+        <NumberAxis fx:id="xAxis" side="BOTTOM">
+        </NumberAxis>
       </xAxis>
       <yAxis>
         <NumberAxis fx:id="numberAxis" label="Workflow instance count" side="LEFT" />

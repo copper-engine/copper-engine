@@ -16,8 +16,8 @@
 package de.scoopgmbh.copper.monitoring.client.ui.systemresource.result;
 
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -25,11 +25,13 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.systemresource.filter.ResourceFilterModel;
+import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 
 public class RessourceResultController extends FilterResultControllerBase<ResourceFilterModel,SystemResourcesInfo> implements Initializable {
@@ -41,16 +43,16 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
 	}
 
     @FXML //  fx:id="classesChart"
-    private AreaChart<String, Number> classesChart; // Value injected by FXMLLoader
+    private AreaChart<Number, Number> classesChart; // Value injected by FXMLLoader
 
     @FXML //  fx:id="cpuChart"
-    private AreaChart<String, Number> cpuChart; // Value injected by FXMLLoader
+    private AreaChart<Number, Number> cpuChart; // Value injected by FXMLLoader
 
     @FXML //  fx:id="memoryChart"
-    private AreaChart<String, Number> memoryChart; // Value injected by FXMLLoader
+    private AreaChart<Number, Number> memoryChart; // Value injected by FXMLLoader
 
     @FXML //  fx:id="threadChart"
-    private AreaChart<String, Number> threadChart; // Value injected by FXMLLoader
+    private AreaChart<Number, Number> threadChart; // Value injected by FXMLLoader
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
@@ -64,28 +66,36 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
     }
 
 	private void initChart() {
-		axisSystemCpuLoad = new XYChart.Series<String, Number>();
+		axisSystemCpuLoad = new XYChart.Series<Number, Number>();
 		axisSystemCpuLoad.setName("SystemCpuLoad");
         cpuChart.getData().add(axisSystemCpuLoad);
-        axisProcessCpuLoad = new XYChart.Series<String, Number>();
+        axisProcessCpuLoad = new XYChart.Series<Number, Number>();
         axisProcessCpuLoad.setName("ProcessCpuLoad");
         cpuChart.getData().add(axisProcessCpuLoad);
+		cpuChart.getXAxis().setAnimated(false);
         
-        axisThread = new XYChart.Series<String, Number>();
+        axisThread = new XYChart.Series<Number, Number>();
         axisThread.setName("Threads count");
         threadChart.getData().add(axisThread);
+        cpuChart.getXAxis().setAnimated(false);
         
-        axisClasses = new XYChart.Series<String, Number>();
+        axisClasses = new XYChart.Series<Number, Number>();
         axisClasses.setName("Total loaded classes");
         classesChart.getData().add(axisClasses);
         
-        axisMemory = new XYChart.Series<String, Number>();
+        axisMemory = new XYChart.Series<Number, Number>();
         axisMemory.setName("Memory usage");
         memoryChart.getData().add(axisMemory);
         
-        axisFreeSystemMem= new XYChart.Series<String, Number>();
+        axisFreeSystemMem= new XYChart.Series<Number, Number>();
         axisFreeSystemMem.setName("Free System Memory");
         memoryChart.getData().add(axisFreeSystemMem);
+        
+        cpuChart.getXAxis().setAnimated(false);
+        threadChart.getXAxis().setAnimated(false);
+        classesChart.getXAxis().setAnimated(false);
+        memoryChart.getXAxis().setAnimated(false);
+        
         
 //        memoryChart.sett
 	}
@@ -97,18 +107,18 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
 
 	private static final int MAX_DATA_POINTS = 30;
 
-	private XYChart.Series<String, Number> axisSystemCpuLoad;
-	private XYChart.Series<String, Number> axisProcessCpuLoad;
+	private XYChart.Series<Number, Number> axisSystemCpuLoad;
+	private XYChart.Series<Number, Number> axisProcessCpuLoad;
 
-	private XYChart.Series<String, Number> axisFreeSystemMem;
-	private XYChart.Series<String, Number> axisThread;
-	private XYChart.Series<String, Number> axisClasses;
-	private XYChart.Series<String, Number> axisMemory;
+	private XYChart.Series<Number, Number> axisFreeSystemMem;
+	private XYChart.Series<Number, Number> axisThread;
+	private XYChart.Series<Number, Number> axisClasses;
+	private XYChart.Series<Number, Number> axisMemory;
 	
 	@Override
 	public void showFilteredResult(List<SystemResourcesInfo> filteredlist, ResourceFilterModel usedFilter) {
 		SystemResourcesInfo systemRessourcesInfo = filteredlist.get(0);
-		String date = new SimpleDateFormat("HH:mm:ss").format(systemRessourcesInfo.getTimestamp());
+		Date date = systemRessourcesInfo.getTimestamp();
 
 		updateChart(systemRessourcesInfo.getSystemCpuLoad(),date,axisSystemCpuLoad);
 		updateChart(systemRessourcesInfo.getProcessCpuLoad(),date,axisProcessCpuLoad);
@@ -117,11 +127,16 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
 		updateChart(systemRessourcesInfo.getTotalLoadedClassCount(),date,axisClasses);
 		updateChart(systemRessourcesInfo.getHeapMemoryUsage()/1000000,date,axisMemory);
 		updateChart(systemRessourcesInfo.getFreePhysicalMemorySize()/1000000,date,axisFreeSystemMem);
+		
+		ComponentUtil.setupXAxis((NumberAxis)cpuChart.getXAxis(),cpuChart.getData());
+		ComponentUtil.setupXAxis((NumberAxis)threadChart.getXAxis(),threadChart.getData());
+		ComponentUtil.setupXAxis((NumberAxis)classesChart.getXAxis(),classesChart.getData());
+		ComponentUtil.setupXAxis((NumberAxis)memoryChart.getXAxis(),memoryChart.getData());
 	}
 	
-	private void updateChart(Number value,String date, XYChart.Series<String, Number> axis){
-		ObservableList<Data<String, Number>> data = axis.getData();
-		data.add(new XYChart.Data<String, Number>(date, value));
+	private void updateChart(Number value,Date date, XYChart.Series<Number, Number> series){
+		ObservableList<Data<Number, Number>> data = series.getData();
+		data.add(new XYChart.Data<Number, Number>(date.getTime(), value));
 		if (data.size() > MAX_DATA_POINTS) {
 			data.remove(0);
 		}

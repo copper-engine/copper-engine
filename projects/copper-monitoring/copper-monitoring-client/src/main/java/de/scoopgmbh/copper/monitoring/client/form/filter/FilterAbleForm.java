@@ -96,11 +96,10 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 					resultForm.getController().showFilteredResult(result.result, result.usedFilter);
 				} catch (Exception e){
 					e.printStackTrace(); //Future swallows Exceptions
-					if (e instanceof RuntimeException){
-						throw (RuntimeException)e;
-					} else {
-						throw new RuntimeException(e);
+					if (Thread.getDefaultUncaughtExceptionHandler()!=null){
+						Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
 					}
+					throw new RuntimeException(e);
 				}
             }
         });
@@ -338,7 +337,12 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 					while (!isCancelled()) {
 						if (lasttime + refreshRate < System.currentTimeMillis()) {
 							updateProgress(-1, 1);
-							final List<R> result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
+							final List<R> result;
+							try {
+								result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
+							} catch (Exception e1) {
+								throw new RuntimeException(e1);
+							}
 							Platform.runLater(new Runnable() {
 								@Override
 								public void run() {
@@ -346,19 +350,22 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 										filterResultController.showFilteredResult(result, filterForm.getController().getFilter());
 									} catch (Exception e) {
 										e.printStackTrace(); // Future swallows Exceptions
-										if (e instanceof RuntimeException) {
-											throw (RuntimeException) e;
-										} else {
-											throw new RuntimeException(e);
+										if (Thread.getDefaultUncaughtExceptionHandler()!=null){
+											Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
 										}
+										throw new RuntimeException(e);
 									}
 								}
 							});
 							lasttime = System.currentTimeMillis();
 						}
-						Thread.sleep(50);
+						Thread.sleep(Math.min(50,refreshRate/10));
 						long progress = System.currentTimeMillis() - lasttime;
-						updateProgress(progress <= refreshRate ? progress : refreshRate, refreshRate);
+						progress = progress <= refreshRate ? progress : refreshRate;
+						if (refreshRate<=500){
+							progress=-1;
+						}
+						updateProgress(progress, refreshRate);
 					}
 					return null;
 				}
@@ -382,15 +389,14 @@ public class FilterAbleForm<F,R> extends Form<Object>{
                 @Override
 				protected ResultFilterPair<F,R> call() throws Exception {
 					try {
-						List<R> result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
+						final List<R> result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
 						return new ResultFilterPair<F, R>(result, filterForm.getController().getFilter());
 					} catch (Exception e) {
 						e.printStackTrace(); // Future swollows Exceptions
-						if (e instanceof RuntimeException) {
-							throw (RuntimeException) e;
-						} else {
-							throw new RuntimeException(e);
+						if (Thread.getDefaultUncaughtExceptionHandler()!=null){
+							Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
 						}
+						throw new RuntimeException(e);
 					}
 				}
             };

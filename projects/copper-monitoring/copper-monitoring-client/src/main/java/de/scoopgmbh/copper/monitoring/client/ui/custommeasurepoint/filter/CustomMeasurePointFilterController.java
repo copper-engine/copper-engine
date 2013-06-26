@@ -76,6 +76,8 @@ public class CustomMeasurePointFilterController extends BaseFilterController<Cus
 				return textFieldListCell;
 			}
 		});
+        
+        measurePointIdComboBox.getSelectionModel().selectFirst();
 	}
 
 	@Override
