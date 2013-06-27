@@ -18,7 +18,6 @@ package de.scoopgmbh.copper.wfrepo;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -29,9 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -403,7 +400,15 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 	}
 
 	private byte[] readFully(File f) throws IOException {
-		return Files.readAllBytes(f.toPath());
+		byte[] data = new byte[(int)f.length()];
+		int c = 0;
+		FileInputStream fistr = new FileInputStream(f);
+		int read;
+		for (;(read = fistr.read(data,c,data.length-c)) > 0; c+=read);
+		fistr.close();
+		if (c < data.length)
+			throw new IOException("Premature end of file");
+		return data;
 	}
 
 	private String createAliasName(final String alias, final WorkflowVersion version) {
