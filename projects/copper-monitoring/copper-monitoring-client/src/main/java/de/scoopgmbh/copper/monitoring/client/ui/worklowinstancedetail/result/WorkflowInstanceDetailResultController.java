@@ -20,18 +20,27 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.web.WebView;
+import javafx.util.Callback;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
+import de.scoopgmbh.copper.monitoring.core.debug.DisplayableNode;
+import de.scoopgmbh.copper.monitoring.core.debug.NodeTyp;
 
 public class WorkflowInstanceDetailResultController extends FilterResultControllerBase<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> implements Initializable {
 	private final GuiCopperDataProvider copperDataProvider;
@@ -41,6 +50,40 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 		super();
 		this.copperDataProvider = copperDataProvider;
 		this.codeMirrorFormatter = codeMirrorFormatter;
+	}
+
+	
+	private class LazyTreeItem extends TreeItem<DisplayableNode> {
+		private boolean hasLoadedChildren = false;
+
+		public LazyTreeItem(DisplayableNode item) {
+			super(item);
+		}
+
+		@Override
+		public ObservableList<TreeItem<DisplayableNode>> getChildren() {
+			if (hasLoadedChildren == false) {
+				loadChildren();
+			}
+			return super.getChildren();
+		}
+
+		@Override
+		public boolean isLeaf() {
+			if (hasLoadedChildren == false) {
+				loadChildren();
+			}
+			return super.getChildren().isEmpty();
+		}
+
+		private void loadChildren() {
+			hasLoadedChildren = true;
+			for (DisplayableNode displayableNode: getValue().getChildren()){
+				final LazyTreeItem node = new LazyTreeItem(displayableNode);
+				super.getChildren().add(node);
+			}
+	
+		}
 	}
 
 
@@ -56,12 +99,38 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
     private TextField titleText; // Value injected by FXMLLoader
 
 
+    @FXML //  fx:id="treeView"
+    private TreeView<DisplayableNode> treeView; // Value injected by FXMLLoader
+
+
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert restart != null : "fx:id=\"restart\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
         assert sourceView != null : "fx:id=\"sourceView\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
         assert titleText != null : "fx:id=\"titleText\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
+        assert treeView != null : "fx:id=\"treeView\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
 
+        
+        final Image icon = new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/stackframe.png"));
+        treeView.setRoot(new TreeItem<DisplayableNode>(null));
+        treeView.setShowRoot(false);
+		treeView.setCellFactory(new Callback<TreeView<DisplayableNode>, TreeCell<DisplayableNode>>() {
+			@Override
+			public TreeCell<DisplayableNode> call(TreeView<DisplayableNode> param) {
+				return new TreeCell<DisplayableNode>() {
+					@Override
+					protected void updateItem(final DisplayableNode node, boolean empty) {
+						super.updateItem(node, empty);
+						if (node!=null){
+							setText(node.getDisplayValue());
+							if (node.getTyp() == NodeTyp.STACKFRAME){
+								setGraphic(new ImageView(icon));
+							}
+						}
+					}
+				};
+			}
+		});
         
         restart.getStyleClass().add("copperActionButton");
         restart.setDisable(true);
@@ -87,6 +156,12 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 		
 		final WorkflowInstanceDetailResultModel workflowInstanceDetailResultModel = filteredResult.get(0);
 		sourceView.getEngine().loadContent(codeMirrorFormatter.format(workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowClassMetaData().getSource(), CodeFormatLanguage.JAVA, false));
+	
+		for (DisplayableNode displayableNode: workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowInstanceDetailedInfo().getStack()) {
+			final LazyTreeItem item = new LazyTreeItem(displayableNode);
+			treeView.getRoot().getChildren().add(item);
+		}
+	
 	}
 
 	@Override

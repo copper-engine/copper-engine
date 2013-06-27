@@ -162,7 +162,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 			series90qantil.getData().clear();
 			series99qantil.getData().clear();
 		} else {
-			craeteQuantil(groups);
+			craeteQuantil();
 		}
 		measurePointsChart.setAnimated(true);
 	}
@@ -183,12 +183,12 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 			}
 			group.add(measurePointData);
 		}
-		craetePointAndRessourceChart(groups);
-		craeteTextChart(groups);;
-		setupChart(groups);
+		craetePointAndRessourceChart();
+		craeteTextChart();;
+		setupChart();
 	}
 	
-	private void craeteTextChart(Map<String, List<MeasurePointData>> groups) {
+	private void craeteTextChart() {
 		StringBuilder result = new StringBuilder();
 		for (List<MeasurePointData> group: groups.values()){
 			result.append(group.get(0).getMeasurePointId()+"\n");
@@ -199,7 +199,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 		textChart.setText(result.toString());
 	}
 	
-	private void setupChart(Map<String, List<MeasurePointData>> groups) {
+	private void setupChart() {
 		long xmin=Long.MAX_VALUE;
 		long xmax=Long.MIN_VALUE;
 		long ymax=Long.MIN_VALUE;
@@ -223,7 +223,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 		ComponentUtil.setupXAxis(timeResAxis,xmin,xmax);
 	}
 	
-	private void craeteQuantil(Map<String, List<MeasurePointData>> groups) {
+	private void craeteQuantil() {
 		series99qantil.getData().clear();
 		series90qantil.getData().clear();
 		series50qantil.getData().clear();
@@ -260,7 +260,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 		}
 	}
 	
-	private void craetePointAndRessourceChart(Map<String, List<MeasurePointData>> groups) {
+	private void craetePointAndRessourceChart() {
 		measurePointSeries.getData().clear();
 		ressourceChart.getData().clear();
 		

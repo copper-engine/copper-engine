@@ -21,11 +21,15 @@
     </HBox>
   </bottom>
   <center>
-    <WebView fx:id="sourceView" prefHeight="70.0" prefWidth="117.0" visible="true">
+    <SplitPane dividerPositions="0.4634146341463415" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+      <items>
+        <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="200.0" />
+        <WebView fx:id="sourceView" prefHeight="70.0" prefWidth="117.0" visible="true" />
+      </items>
       <BorderPane.margin>
         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
       </BorderPane.margin>
-    </WebView>
+    </SplitPane>
   </center>
   <top>
     <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0">
