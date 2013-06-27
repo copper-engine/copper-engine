@@ -2,9 +2,10 @@ package de.scoopgmbh.copper.monitoring.core.debug;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-public class StackFrame implements Serializable {
+public class StackFrame implements Serializable, DisplayableNode {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -30,7 +31,20 @@ public class StackFrame implements Serializable {
 		return stack;
 	}
 	
+	@Override
+	public String getDisplayValue() {
+		return method.declaration+" : "+line;
+	}
 	
+	@Override
+	public Collection<? extends DisplayableNode> getChildren() {
+		return locals;
+	}
+	
+	@Override
+	public NodeTyp getTyp() {
+		return NodeTyp.STACKFRAME;
+	}
 	
 
 }

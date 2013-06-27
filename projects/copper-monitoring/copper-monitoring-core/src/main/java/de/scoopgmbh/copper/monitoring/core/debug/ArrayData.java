@@ -1,14 +1,30 @@
 package de.scoopgmbh.copper.monitoring.core.debug;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 public class ArrayData extends Data {
 
 	private static final long serialVersionUID = 1L;
 	
-	final Data[] data;
+	final Member[] data;
 
-	public ArrayData(String type, int objectId, Data[] data) {
-		super(type, objectId);
-		this.data = data;
+	public ArrayData(Class<?> arrayType, int objectId, Data[] data) {
+		super(arrayType.getCanonicalName(), objectId);
+		this.data = new Member[data.length];
+		for (int i = 0; i < data.length; ++i) {
+			this.data[i] = new Member(""+i, arrayType.getComponentType().getCanonicalName(), data[i]);
+		}
+	}
+	
+	@Override
+	public Collection<DisplayableNode> getChildren() {
+		return Arrays.<DisplayableNode>asList(data);
+	}
+
+	@Override
+	public String getDisplayValue() {
+		return type;
 	}
 
 }

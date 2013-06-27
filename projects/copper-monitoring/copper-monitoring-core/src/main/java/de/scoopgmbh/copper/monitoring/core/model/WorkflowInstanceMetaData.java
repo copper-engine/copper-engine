@@ -38,6 +38,12 @@ public class WorkflowInstanceMetaData implements Serializable{
 	public void setWorkflowClassMetaData(WorkflowClassMetaData workflowClassMetaData) {
 		this.workflowClassMetaData = workflowClassMetaData;
 	}
+
+	public WorkflowInstanceDetailedInfo getWorkflowInstanceDetailedInfo() {
+		return workflowInstanceDetailedInfo;
+	}
+	
+	
 	
 	
 

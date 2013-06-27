@@ -1,6 +1,7 @@
 package de.scoopgmbh.copper.monitoring.core.debug;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class StructuredData extends Data  {
@@ -15,6 +16,16 @@ public class StructuredData extends Data  {
 	
 	public void addMember(Member m) {
 		member.add(m);
+	}
+
+	@Override
+	public String getDisplayValue() {
+		return type+" (id="+objectId+")";
+	}
+	
+	@Override
+	public Collection<? extends DisplayableNode> getChildren() {
+		return member;
 	}
 
 }

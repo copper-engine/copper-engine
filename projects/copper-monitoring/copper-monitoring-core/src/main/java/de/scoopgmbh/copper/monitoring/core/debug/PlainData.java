@@ -11,4 +11,9 @@ public class PlainData extends Data {
 
 	final Object value;
 
+	@Override
+	public String getDisplayValue() {
+		return value != null?value.toString():"<null>";
+	}
+
 }

@@ -51,7 +51,7 @@ public class DataTool {
 					if (srcArray[i] != null)
 						array[i] = convert(convertedObjects, srcArray[i]);
 				}
-				ArrayData sd = new ArrayData(clazz.getCanonicalName(), nextId, array);
+				ArrayData sd = new ArrayData(clazz, nextId, array);
 				convertedObjects.put(objectId,  sd);
 				d = sd;
 			}
