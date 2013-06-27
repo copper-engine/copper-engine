@@ -21,6 +21,7 @@ import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.List;
 
+import de.scoopgmbh.copper.monitoring.core.debug.WorkflowInstanceDetailedInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
@@ -115,5 +116,6 @@ public interface CopperMonitoringService extends Remote, Serializable {
 	public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException;
 	
 	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException;
+	
 }
 

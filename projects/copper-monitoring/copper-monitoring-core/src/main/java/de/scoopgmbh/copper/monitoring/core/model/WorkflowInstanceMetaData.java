@@ -17,14 +17,18 @@ package de.scoopgmbh.copper.monitoring.core.model;
 
 import java.io.Serializable;
 
+import de.scoopgmbh.copper.monitoring.core.debug.WorkflowInstanceDetailedInfo;
+
 public class WorkflowInstanceMetaData implements Serializable{
 	private static final long serialVersionUID = -3474254791751446121L;
 	
 	private WorkflowClassMetaData workflowClassMetaData;
+	final WorkflowInstanceDetailedInfo workflowInstanceDetailedInfo;
 
-	public WorkflowInstanceMetaData(WorkflowClassMetaData workflowClassMetaData) {
+	public WorkflowInstanceMetaData(WorkflowClassMetaData workflowClassMetaData, WorkflowInstanceDetailedInfo workflowInstanceDetailedInfo) {
 		super();
 		this.workflowClassMetaData = workflowClassMetaData;
+		this.workflowInstanceDetailedInfo = workflowInstanceDetailedInfo;
 	}
 
 	public WorkflowClassMetaData getWorkflowClassMetaData() {

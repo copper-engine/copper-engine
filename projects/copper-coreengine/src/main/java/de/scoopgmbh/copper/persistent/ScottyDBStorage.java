@@ -502,5 +502,15 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 	public String getDescription() {
 		return "Default RDBMS storage";
 	}
+
+	@Override
+	public Workflow<?> read(final String workflowInstanceId) throws Exception {
+		return run(new DatabaseTransaction<Workflow<?>>() {
+			@Override
+			public Workflow<?> run(Connection con) throws Exception {
+				return dialect.read(workflowInstanceId, con);
+			}
+		});
+	}
 	
 }

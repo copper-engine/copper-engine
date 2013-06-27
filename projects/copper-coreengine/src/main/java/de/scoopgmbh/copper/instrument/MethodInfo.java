@@ -49,10 +49,27 @@ public class MethodInfo implements Serializable {
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder(1000);
+		sb.append(getDeclaration());
+		sb.append(" {\n");
+		for (LabelInfo lb : getLabelInfos()) {
+			sb.append("\t\t").append(lb).append('\n');
+		}
+		sb.append("\t}\n");
+		return sb.toString();
+	}
+
+	public String getDeclaration() {
+		StringBuilder sb = new StringBuilder();
 		if ((access & Opcodes.ACC_PRIVATE) != 0)
 			sb.append("private ");
+		if ((access & Opcodes.ACC_PROTECTED) != 0)
+			sb.append("protected ");
+		if ((access & Opcodes.ACC_PUBLIC) != 0)
+			sb.append("public ");
 		if ((access & Opcodes.ACC_STATIC) != 0)
 			sb.append("static ");
+		if ((access & Opcodes.ACC_FINAL) != 0)
+			sb.append("final ");
 		sb.append(Type.getReturnType(descriptor).getClassName()).append(' ').append(methodName).append('(');
 		
 		boolean first = true;
@@ -62,11 +79,7 @@ public class MethodInfo implements Serializable {
 			first = false;
 			sb.append(t.getClassName());
 		}
-		sb.append(") {\n");
-		for (LabelInfo lb : getLabelInfos()) {
-			sb.append("\t\t").append(lb).append('\n');
-		}
-		sb.append("\t}\n");
+		sb.append(')');
 		return sb.toString();
 	}
 
@@ -80,12 +93,24 @@ public class MethodInfo implements Serializable {
 			descriptor = t.getDescriptor();
 		}
 		
+		public SerializableType(String descriptor) {
+			this.descriptor = descriptor;
+		}
+		
 		public Type toType() {
 			return Type.getType(descriptor);
 		}
 		
 		public String toString() {
 			return toType().getClassName();
+		}
+		
+		public String getDescriptor() {
+			return descriptor;
+		}
+		
+		public String getDeclaredType() {
+			return Type.getType(descriptor).getClassName();
 		}
 
 	}
@@ -98,6 +123,11 @@ public class MethodInfo implements Serializable {
 		
 		public LocalVariable(String name, Type type) {
 			super(type);
+			this.name = name;
+		}
+		
+		public LocalVariable(String name, String descriptor) {
+			super(descriptor);
 			this.name = name;
 		}
 		
@@ -118,12 +148,14 @@ public class MethodInfo implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		int                labelNo;
-		Integer            lineNo;
-		LocalVariable[]    locals;
-		SerializableType[] stack;
+		final String calledMethodName;
+		final String calledMethodDescriptor;
+		final int                labelNo;
+		final Integer            lineNo;
+		final LocalVariable[]    locals;
+		final SerializableType[] stack;
 		
-		public LabelInfo(Integer labelNo, int lineNo, List<String> localNames, List<Type> localDescriptors, List<Type> localTypes, List<Type> stack) {
+		public LabelInfo(Integer labelNo, int lineNo, List<String> localNames, List<Type> localDescriptors, List<Type> localTypes, List<Type> stack, String calledMethodName, String calledMethodDescriptor) {
 			
 			assert localNames.size() == localTypes.size();
 			this.labelNo = labelNo;
@@ -141,9 +173,19 @@ public class MethodInfo implements Serializable {
 			for (int i = 0; i < stack.size(); ++i) {
 				this.stack[i] = new SerializableType(stack.get(i));
 			}
+			this.calledMethodDescriptor = calledMethodDescriptor;
+			this.calledMethodName = calledMethodName;
 
 		}
 		
+		public String getCalledMethodName() {
+			return calledMethodName;
+		}
+
+		public String getCalledMethodDescriptor() {
+			return calledMethodDescriptor;
+		}
+
 		public int getLabelNo() {
 			return labelNo;
 		}
@@ -184,6 +226,19 @@ public class MethodInfo implements Serializable {
 		}
 
 	}
-	
+
+	public String getDefiningClass() {
+		return definingClass;
+	}
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public String getDescriptor() {
+		return descriptor;
+	}
+
+
 
 }

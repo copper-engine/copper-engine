@@ -121,6 +121,14 @@ public interface ScottyDBStorageInterface {
 	 * @throws Exception 
 	 */
 	public void restartAll() throws Exception;
+	
+	/**
+	 * Read a workflow from the backing storage
+	 * @param workflowInstanceId
+	 * @return
+	 * @throws Exception
+	 */
+	public Workflow<?> read(final String workflowInstanceId) throws Exception;
 
 
 }

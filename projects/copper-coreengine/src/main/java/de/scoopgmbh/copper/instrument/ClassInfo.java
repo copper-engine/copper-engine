@@ -23,13 +23,27 @@ public class ClassInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	final List<MethodInfo> methodInfos;
+	      ClassInfo        superClassInfo;
+	      byte[]           sourceCode;
 	
 	public ClassInfo(List<MethodInfo> methodInfos) {
 		this.methodInfos = methodInfos;
 	}
 	
+	public void setSuperClassInfo(ClassInfo superClassInfo) {
+		this.superClassInfo = superClassInfo;
+	}
+	
+	public void setSourceCode(byte[] sourceCode) {
+		this.sourceCode = sourceCode;
+	}
+	
 	public List<MethodInfo> getMethodInfos() {
 		return methodInfos;
+	}
+	
+	public ClassInfo getSuperClassInfo() {
+		return superClassInfo;
 	}
 	
 	@Override
@@ -40,6 +54,10 @@ public class ClassInfo implements Serializable {
 			sb.append("\t").append(info).append('\n');
 		}
 		return sb.toString();
+	}
+
+	public byte[] getSourceCode() {
+		return sourceCode;
 	}
 	
 }

@@ -45,7 +45,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 	}	
 
 	private final String currentClassName;
-	private final List<Label> labels = new ArrayList<Label>();
+	private final List<InterruptibleCall> interuptibleCalls = new ArrayList<InterruptibleCall>();
 	private final Map<Label,StackInfo> labelInfo = new HashMap<Label,StackInfo>();
 	private final Label switchLabelAtEnd = new Label();
 	private final Label begin = new Label();
@@ -270,10 +270,14 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 		if (waitMethods.contains(signature)) {
 			super.visitMethodInsn(opcode, owner, name, desc);
 
-			int idx = labels.size();
+			int idx = interuptibleCalls.size();
 			StackInfo currentStackInfo = stackInfo.getCurrentStackInfo();
 			Label label = new Label();
-			labels.add(label);
+			InterruptibleCall call = new InterruptibleCall();
+			call.methodName = name;
+			call.descriptor = desc;
+			call.label = label;
+			interuptibleCalls.add(call);
 			labelInfo.put(label, currentStackInfo);
 			createStackEntry(idx, currentStackInfo);
 			incStackPos();
@@ -295,9 +299,13 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 			Label nopLabel = new Label();
 			Label interruptLabel = new Label();
 			Label throwableHandler = new Label();
-			int idx = labels.size();
+			int idx = interuptibleCalls.size();
 			StackInfo info = stackInfo.getPreviousStackInfo();
-			labels.add(invokeLabel);
+			InterruptibleCall call = new InterruptibleCall();
+			call.methodName = name;
+			call.descriptor = desc;
+			call.label = invokeLabel;
+			interuptibleCalls.add(call);
 			labelInfo.put(invokeLabel, info);
 			createStackEntry(idx, info);
 			recreateStack(info);
@@ -383,9 +391,9 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 		visitFieldInsn(GETFIELD, Type.getInternalName(StackEntry.class), "jumpNo", "I");
 
 
-		if (!labels.isEmpty()) {
+		if (!interuptibleCalls.isEmpty()) {
 			int labelNo = 0;
-			for (Label label : labels) {
+			for (InterruptibleCall call : interuptibleCalls) {
 				
 				Label nextCheck = new Label();
 				visitInsn(DUP);
@@ -393,15 +401,15 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 				visitJumpInsn(IF_ICMPNE, nextCheck);
 				visitInsn(POP);
 
-				StackInfo currentLabelInfo = labelInfo.get(label);
+				StackInfo currentLabelInfo = labelInfo.get(call.label);
 				recreateLocals(currentLabelInfo);
 				recreateStack(currentLabelInfo);				
 				incStackPos();
 				
-				visitJumpInsn(GOTO, label);
+				visitJumpInsn(GOTO, call.label);
 				visitLabel(nextCheck);
 				
-				info.addLabelInfo(new MethodInfo.LabelInfo(labelNo, currentLabelInfo.lineNo, Arrays.asList(stackInfo.getLocalNames(currentLabelInfo.lineNo, currentLabelInfo.localsSize())), Arrays.asList(stackInfo.getLocalDescriptors(currentLabelInfo.lineNo, currentLabelInfo.localsSize())), currentLabelInfo.locals, currentLabelInfo.stack));
+				info.addLabelInfo(new MethodInfo.LabelInfo(labelNo, currentLabelInfo.lineNo, Arrays.asList(stackInfo.getLocalNames(currentLabelInfo.lineNo, currentLabelInfo.localsSize())), Arrays.asList(stackInfo.getLocalDescriptors(currentLabelInfo.lineNo, currentLabelInfo.localsSize())), currentLabelInfo.locals, currentLabelInfo.stack, call.methodName, call.descriptor));
 				++labelNo;
 			}
 			visitTypeInsn(NEW, "java/lang/RuntimeException");
@@ -436,4 +444,9 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 		visitFieldInsn(PUTFIELD, currentClassName, "__stackPosition", "I");
 	}
 
+	static final class InterruptibleCall {
+		String methodName;
+		String descriptor;
+		Label  label;
+	}
 }

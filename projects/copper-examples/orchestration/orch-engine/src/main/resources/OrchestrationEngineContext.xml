@@ -125,6 +125,11 @@
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 	</bean>
 	
+	<bean id="workflowInstanceIntrospector" class="de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector"  lazy-init="false">
+		<constructor-arg type="de.scoopgmbh.copper.persistent.ScottyDBStorageInterface"><ref bean="persistent.dbStorage"/></constructor-arg>
+		<constructor-arg type="de.scoopgmbh.copper.common.WorkflowRepository"><ref bean="wfRepository"/></constructor-arg>
+	</bean>
+	
 	<bean id="springRemotingServer" class="de.scoopgmbh.copper.monitoring.server.SpringRemotingServer" factory-method="createWithDefaults" init-method="start">
 		<constructor-arg type="java.util.List">
 			<list>
@@ -135,6 +140,7 @@
 		<constructor-arg type="org.apache.shiro.realm.Realm"><ref bean="realm"/></constructor-arg>
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.LoggingStatisticCollector"><ref bean="statisticsCollector"/></constructor-arg>
 		<constructor-arg type="de.scoopgmbh.copper.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector"><ref bean="workflowInstanceIntrospector"/></constructor-arg>
 	</bean>
 	
 	<bean id="realm" class="org.apache.shiro.realm.SimpleAccountRealm">

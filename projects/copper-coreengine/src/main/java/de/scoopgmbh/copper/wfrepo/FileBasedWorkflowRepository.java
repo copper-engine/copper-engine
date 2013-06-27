@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.wfrepo;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -28,8 +29,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -72,9 +75,10 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 		final Map<String,Class<?>> wfMapVersioned;
 		final Map<String,List<WorkflowVersion>> wfVersions;
 		final Map<String,String> javaSources;
+		final Map<String, ClassInfo> classInfoMap;
 		final ClassLoader classLoader;
 		final long checksum;
-		VolatileState(Map<String, Class<?>> wfMap, Map<String,Class<?>> wfMapVersioned, Map<String,List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum, Map<String,Class<?>> wfClassMap, Map<String,String> javaSources) {
+		VolatileState(Map<String, Class<?>> wfMap, Map<String,Class<?>> wfMapVersioned, Map<String,List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum, Map<String,Class<?>> wfClassMap, Map<String,String> javaSources, Map<String, ClassInfo> classInfoMap) {
 			this.wfMapLatest = wfMap;
 			this.wfMapVersioned = wfMapVersioned;
 			this.classLoader = classLoader;
@@ -82,6 +86,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 			this.wfVersions = wfVersions;
 			this.wfClassMap = wfClassMap;
 			this.javaSources = javaSources;
+			this.classInfoMap = classInfoMap;
 		}
 	}
 
@@ -337,10 +342,21 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 		if (!additionalSourcesDir.exists()) additionalSourcesDir.mkdirs();
 		extractAdditionalSources(additionalSourcesDir, this.sourceArchiveUrls);
 
-		compile(compileTargetDir,additionalSourcesDir);
+		Map<String, File> sourceFiles = compile(compileTargetDir,additionalSourcesDir);
 		final Map<String, Clazz> clazzMap = findInterruptableMethods(compileTargetDir);
 		final Map<String, ClassInfo> clazzInfoMap = new HashMap<String, ClassInfo>();
 		instrumentWorkflows(adaptedTargetDir, clazzMap, clazzInfoMap, compileTargetDir);
+		for (Clazz clazz : clazzMap.values()) {
+			File f = sourceFiles.get(clazz.classname+".java");
+			ClassInfo info = clazzInfoMap.get(clazz.classname);
+			if (info != null) {
+				if (f != null) {
+					info.setSourceCode(readFully(f));
+				}
+				ClassInfo superClassInfo = clazzInfoMap.get(clazz.superClassname);
+				info.setSuperClassInfo(superClassInfo);
+			}
+		}
 		final ClassLoader cl = createClassLoader(map, adaptedTargetDir, loadNonWorkflowClasses ? compileTargetDir : adaptedTargetDir, clazzMap);
 		checkConstraints(map);
 		
@@ -383,7 +399,11 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 				logger.trace("wfMapVersioned.key={}, class={}", e.getKey(), e.getValue().getName());
 			}
 		}
-		return new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, checksum, wfClassMap, readJavaFiles(wfClassMap, sourceDirs, additionalSourcesDir));
+		return new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, checksum, wfClassMap, readJavaFiles(wfClassMap, sourceDirs, additionalSourcesDir), clazzInfoMap);
+	}
+
+	private byte[] readFully(File f) throws IOException {
+		return Files.readAllBytes(f.toPath());
 	}
 
 	private String createAliasName(final String alias, final WorkflowVersion version) {
@@ -432,7 +452,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 		logger.info("Analysing classfiles");
 		// Find and visit all classes
 		Map<String,Clazz> clazzMap = new HashMap<String, Clazz>();
-		List<File> classfiles = findFiles(compileTargetDir, ".class");
+		Collection<File> classfiles = findFiles(compileTargetDir, ".class").values();
 		for (File f : classfiles) {
 			ScottyFindInterruptableMethodsVisitor visitor = new ScottyFindInterruptableMethodsVisitor();
 			InputStream is = new FileInputStream(f);
@@ -474,7 +494,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 		return clazzMap;
 	}
 
-	private void compile(File compileTargetDir, File additionalSourcesDir) throws IOException {
+	private Map<String,File> compile(File compileTargetDir, File additionalSourcesDir) throws IOException {
 		logger.info("Compiling workflows");
 		List<String> options = new ArrayList<String>();
 		options.add("-g");
@@ -487,16 +507,16 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) throw new NullPointerException("No java compiler available! Did you start from a JDK? JRE will not work.");
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+		final Map<String,File> files = new HashMap<String,File>();
 		try {
 			final StringWriter sw = new StringWriter();
 			sw.append("Compilation failed!\n");
-			final List<File> files = new ArrayList<File>();
 			for (String dir : sourceDirs) {
-				files.addAll(findFiles(new File(dir), ".java"));
+				files.putAll(findFiles(new File(dir), ".java"));
 			}
-			files.addAll(findFiles(additionalSourcesDir,".java"));
+			files.putAll(findFiles(additionalSourcesDir,".java"));
 			if (files.size() > 0) {
-				final Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(files);
+				final Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(files.values());
 				final CompilationTask task = compiler.getTask(sw, fileManager, null, options, null, compilationUnits1);
 				if (!task.call()) {
 					logger.error(sw.toString());
@@ -507,6 +527,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 		finally {
 			fileManager.close();
 		}
+		return files;
 	}
 	
 	private Map<String,String> readJavaFiles(final Map<String,Class<?>> wfClassMap, List<String> _sourceDirs, File additionalSourcesDir) throws IOException {
@@ -542,19 +563,21 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 		return map;
 	}
 
-	private List<File> findFiles(File rootDir, String fileExtension) {
-		List<File> files = new ArrayList<File>();
-		findFiles(rootDir, fileExtension, files);
+	private Map<String,File> findFiles(File rootDir, String fileExtension) {
+		Map<String,File> files = new HashMap<String,File>();
+		findFiles(rootDir, fileExtension, files, "");
 		return files;
 	}
 
-	private void findFiles(final File rootDir, final String fileExtension, final List<File> files) {
-		files.addAll(Arrays.asList(rootDir.listFiles(new FileFilter() {
+	private void findFiles(final File rootDir, final String fileExtension, final Map<String,File> files, final String pathPrefix) {
+		for (File f : rootDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().endsWith(fileExtension);
 			}
-		})));
+		})){
+			files.put(pathPrefix+f.getName(),f);
+		};
 		File[] subdirs = rootDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
@@ -562,7 +585,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 			}
 		});
 		for (File subdir : subdirs) {
-			findFiles(subdir, fileExtension, files);
+			findFiles(subdir, fileExtension, files, rootDir.getName()+".");
 		}
 	}
 
@@ -648,6 +671,12 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 			resultList.add(wfi);
 		}
 		return resultList;
+	}
+	
+	@Override
+	public ClassInfo getClassInfo(@SuppressWarnings("rawtypes") Class<? extends Workflow> wfClazz) {
+		final VolatileState localVolatileState = volatileState;
+		return localVolatileState.classInfoMap.get(wfClazz.getCanonicalName().replace(".","/"));
 	}
 
 }

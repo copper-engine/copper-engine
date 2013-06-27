@@ -258,7 +258,7 @@ public class TestDataProvider implements CopperMonitoringService {
 				"		\r\n" + 
 				"	}\r\n" + 
 				"\r\n" + 
-				"}"));
+				"}"),null);
 		
 		
 	}

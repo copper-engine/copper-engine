@@ -46,6 +46,7 @@ import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.LoginService;
+import de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
@@ -62,26 +63,28 @@ public class SpringRemotingServer {
 	private final String host; 
 	private final DefaultLoginService loginService;
 	
-	public static SpringRemotingServer createWithDefaults(List<ProcessingEngineMXBean> engines, MonitoringDataAccessQueue monitoringQueue, Realm realm, LoggingStatisticCollector runtimeStatisticsCollector, TransactionController transactionController){
+	public static SpringRemotingServer createWithDefaults(List<ProcessingEngineMXBean> engines, MonitoringDataAccessQueue monitoringQueue, Realm realm, LoggingStatisticCollector runtimeStatisticsCollector, TransactionController transactionController, WorkflowInstanceIntrospector introspector){
 		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
 				new MonitoringDbStorage(transactionController,new DerbyMonitoringDbDialect(new StandardJavaSerializer())),
 				runtimeStatisticsCollector,
 				engines,
 				monitoringQueue, 
 				true,
-				new CompressedBase64PostProcessor());
+				new CompressedBase64PostProcessor(),
+				introspector);
 	
 		return new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm));
 	}
 	
-	public static SpringRemotingServer createWithDefaultsForOracle(List<ProcessingEngineMXBean> engines, MonitoringDataAccessQueue monitoringQueue, Realm realm, LoggingStatisticCollector runtimeStatisticsCollector, TransactionController transactionController){
+	public static SpringRemotingServer createWithDefaultsForOracle(List<ProcessingEngineMXBean> engines, MonitoringDataAccessQueue monitoringQueue, Realm realm, LoggingStatisticCollector runtimeStatisticsCollector, TransactionController transactionController, WorkflowInstanceIntrospector introspector){
 		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
 				new MonitoringDbStorage(transactionController,new OracleMonitoringDbDialect(new StandardJavaSerializer())),
 				runtimeStatisticsCollector,
 				engines,
 				monitoringQueue, 
 				true,
-				new CompressedBase64PostProcessor());
+				new CompressedBase64PostProcessor(),
+				introspector);
 	
 		return new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm));
 	}

@@ -72,7 +72,6 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
 	}
 	
 	public ClassInfo getClassInfo() {
-		return new ClassInfo(methodInfos);
-		
+		return new ClassInfo(methodInfos);		
 	}
 }

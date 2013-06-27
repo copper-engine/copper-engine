@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -623,6 +624,83 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 		this.workflowPersistencePlugin = workflowPersistencePlugin;
 	}
 
+
+	@Override
+	public Workflow<?> read(String workflowInstanceId, Connection con) throws Exception {
+		logger.trace("read({})", workflowInstanceId);
+
+		PreparedStatement readStmt = null;
+		PreparedStatement selectResponsesStmt = null;
+		try {
+			readStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state,ppool_id from COP_WORKFLOW_INSTANCE where id = ?");
+
+			final ResultSet rs = readStmt.executeQuery();
+			if (! rs.next()) {
+				rs.close();
+				return null;
+			}
+			PersistentWorkflow<?> wf;
+			final String id = rs.getString(1);
+			final int prio = rs.getInt(2);
+			final String rowid = rs.getString(4);
+			final Timestamp creationTS = rs.getTimestamp(6);
+			String objectState = rs.getString(7);
+			if (objectState == null) 
+				objectState = rs.getString(8);
+			String data = rs.getString(3);
+			if (data == null) 
+				data = rs.getString(5);
+			SerializedWorkflow sw = new SerializedWorkflow();
+			sw.setData(data);
+			sw.setObjectState(objectState);
+			wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
+			wf.setId(id);
+			wf.setProcessorPoolId(rs.getString(9));
+			wf.setPriority(prio);
+			wf.rowid = rowid;
+			wf.oldPrio = prio;
+			wf.oldProcessorPoolId = rs.getString(9);
+			WorkflowAccessor.setCreationTS(wf, new Date(creationTS.getTime()));
+			rs.close();
+			readStmt.close();
+
+			selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response, r.long_response, w.is_timed_out from (select WORKFLOW_INSTANCE_ID, correlation_id, case when timeout_ts < systimestamp then 1 else 0 end is_timed_out from cop_wait where WORKFLOW_INSTANCE_ID = ?) w, cop_response r where w.correlation_id = r.correlation_id(+)");
+			selectResponsesStmt.setString(1, workflowInstanceId);
+			ResultSet rsResponses = selectResponsesStmt.executeQuery();
+			while (rsResponses.next()) {
+				String cid = rsResponses.getString(2);
+				boolean isTimeout = rsResponses.getBoolean(5);
+				String response = rsResponses.getString(3);
+				if (response == null)
+					response = rsResponses.getString(4);
+				Response<?> r = null;
+				if (response != null) {
+					r = (Response<?>) serializer.deserializeResponse(response);
+					wf.addResponseId(r.getResponseId());
+				}
+				else if (isTimeout) {
+					r = new Response<Object>(cid);
+				}
+				if (r != null) {
+					wf.putResponse(r);
+				}
+				wf.addWaitCorrelationId(cid);
+			}
+			workflowPersistencePlugin.onWorkflowsLoaded(con, Arrays.<PersistentWorkflow<?>>asList(wf));
+
+			return wf;
+		}
+		finally {
+			JdbcUtils.closeStatement(readStmt);
+			JdbcUtils.closeStatement(selectResponsesStmt);
+		}
+	}
+	
+	protected PreparedStatement createReadStmt(final Connection c, final String workflowId) throws SQLException {
+		PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts,PPOOL_ID from COP_WORKFLOW_INSTANCE where id = ?");
+		dequeueStmt.setString(1, workflowId);
+		return dequeueStmt;
+	}
 
 
 }

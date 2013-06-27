@@ -88,6 +88,7 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo.Workflow
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
+import de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLog4jDataProvider;
@@ -103,6 +104,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	private final PerformanceMonitor performanceMonitor;
 	private final MonitoringDataAccessQueue monitoringDataAccessQueue;
 	private final MessagePostProcessor messagePostProcessor;
+	final WorkflowInstanceIntrospector workflowInstanceIntrospector;
 	
 
 		
@@ -111,9 +113,11 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			List<ProcessingEngineMXBean> engineList,
 			MonitoringDataAccessQueue monitoringDataAccessQueue,
 			boolean enableSql,
-			MessagePostProcessor messagePostProcessor){
+			MessagePostProcessor messagePostProcessor,
+			WorkflowInstanceIntrospector workflowInstanceIntrospector
+			){
 		this(dbStorage,new CopperInterfaceSettings(enableSql), statisticsCollectorMXBean, engineList
-			,new PerformanceMonitor(),monitoringDataAccessQueue, messagePostProcessor);
+			,new PerformanceMonitor(),monitoringDataAccessQueue, messagePostProcessor, workflowInstanceIntrospector);
 	}
 	
 	public DefaultCopperMonitoringService(MonitoringDbStorage dbStorage,
@@ -122,13 +126,15 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			List<ProcessingEngineMXBean> engineList,
 			PerformanceMonitor performanceMonitor,
 			MonitoringDataAccessQueue monitoringDataAccessQueue,
-			MessagePostProcessor messagePostProcessor){
+			MessagePostProcessor messagePostProcessor,
+			WorkflowInstanceIntrospector workflowInstanceIntrospector){
 		this.dbStorage = dbStorage;
 		this.copperInterfaceSettings = copperInterfaceSettings;
 		this.statisticsCollectorMXBean = statisticsCollectorMXBean;
 		this.performanceMonitor = performanceMonitor;
 		this.monitoringDataAccessQueue = monitoringDataAccessQueue;
 		this.messagePostProcessor = messagePostProcessor;
+		this.workflowInstanceIntrospector = workflowInstanceIntrospector;
 		
 		engines = new HashMap<String,ProcessingEngineMXBean>();
 		for (ProcessingEngineMXBean engine: engineList){
@@ -191,7 +197,11 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			}
 		}
 		
-		return new WorkflowInstanceMetaData(workflowClassMetaData);
+		try {
+			return new WorkflowInstanceMetaData(workflowClassMetaData, workflowInstanceIntrospector.getInstanceInfo(workflowInstanceId));
+		} catch (Exception e) {
+			throw new RemoteException("Bad",e);
+		}
 	}
 
 	@Override

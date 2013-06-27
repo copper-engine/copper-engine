@@ -73,4 +73,7 @@ public interface DatabaseDialect {
 	
 	public void shutdown();
 
+	public abstract Workflow<?> read(String workflowInstanceId, Connection con) throws Exception;
+
+
 }
