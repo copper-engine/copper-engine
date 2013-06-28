@@ -11,6 +11,7 @@ import de.scoopgmbh.copper.instrument.MethodInfo;
 import de.scoopgmbh.copper.instrument.MethodInfo.LabelInfo;
 import de.scoopgmbh.copper.instrument.MethodInfo.LocalVariable;
 import de.scoopgmbh.copper.instrument.MethodInfo.SerializableType;
+import de.scoopgmbh.copper.monitoring.core.debug.Data;
 import de.scoopgmbh.copper.monitoring.core.debug.DataTool;
 import de.scoopgmbh.copper.monitoring.core.debug.Member;
 import de.scoopgmbh.copper.monitoring.core.debug.Method;
@@ -56,7 +57,7 @@ public class WorkflowInstanceIntrospector {
 				LocalVariable v = lf.getLocals()[i];
 				if (v != null) {
 					Object local = en.locals[i];
-					Member m = new Member(v.getName(), v.getDeclaredType(), local != null?DataTool.convert(local):null );
+					Member m = new Member(v.getName(), v.getDeclaredType(), local != null?DataTool.convert(local):Data.NULL );
 					sf.getLocals().add(m);
 				}
 			}
@@ -64,7 +65,7 @@ public class WorkflowInstanceIntrospector {
 				SerializableType v = lf.getStack()[i];
 				if (v != null) {
 					Object local = en.stack[i];
-					Member m = new Member(""+i, v.getDeclaredType(), local != null?DataTool.convert(local):null );
+					Member m = new Member(""+i, v.getDeclaredType(), local != null?DataTool.convert(local):Data.NULL );
 					sf.getStack().add(m);
 				}
 			}

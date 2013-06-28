@@ -13,7 +13,7 @@ public class PlainData extends Data {
 
 	@Override
 	public String getDisplayValue() {
-		return value != null?value.toString():"<null>";
+		return type+" = '"+value+"'";
 	}
 
 }

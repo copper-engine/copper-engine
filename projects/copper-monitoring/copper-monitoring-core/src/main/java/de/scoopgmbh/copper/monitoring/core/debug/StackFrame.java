@@ -46,5 +46,13 @@ public class StackFrame implements Serializable, DisplayableNode {
 		return NodeTyp.STACKFRAME;
 	}
 	
+	public Integer getLine() {
+		return line;
+	}
+	
+	public byte[] getSourceCode() {
+		return sourceCode;
+	}
+	
 
 }

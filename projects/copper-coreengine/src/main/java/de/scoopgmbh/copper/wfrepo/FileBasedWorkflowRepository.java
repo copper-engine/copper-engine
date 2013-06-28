@@ -590,7 +590,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 			}
 		});
 		for (File subdir : subdirs) {
-			findFiles(subdir, fileExtension, files, rootDir.getName()+".");
+			findFiles(subdir, fileExtension, files, pathPrefix+subdir.getName()+"/");
 		}
 	}
 

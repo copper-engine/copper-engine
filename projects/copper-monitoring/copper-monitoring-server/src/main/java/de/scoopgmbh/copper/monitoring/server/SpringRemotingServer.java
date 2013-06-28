@@ -128,7 +128,6 @@ public class SpringRemotingServer {
 
 			@Override
 			public void outgoing(Socket socket, Buffer bytes) {
-				System.err.println(bytes.asArray().length);
 				
 			}
 

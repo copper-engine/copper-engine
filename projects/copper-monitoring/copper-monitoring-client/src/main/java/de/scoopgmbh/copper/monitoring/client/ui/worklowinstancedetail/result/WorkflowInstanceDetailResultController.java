@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -32,6 +34,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.web.WebView;
 import javafx.util.Callback;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
@@ -41,6 +44,7 @@ import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
 import de.scoopgmbh.copper.monitoring.core.debug.DisplayableNode;
 import de.scoopgmbh.copper.monitoring.core.debug.NodeTyp;
+import de.scoopgmbh.copper.monitoring.core.debug.StackFrame;
 
 public class WorkflowInstanceDetailResultController extends FilterResultControllerBase<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> implements Initializable {
 	private final GuiCopperDataProvider copperDataProvider;
@@ -114,6 +118,33 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
         final Image icon = new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/stackframe.png"));
         treeView.setRoot(new TreeItem<DisplayableNode>(null));
         treeView.setShowRoot(false);
+        treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<DisplayableNode>>() {
+			@Override
+			public void changed(
+					ObservableValue<? extends TreeItem<DisplayableNode>> observable,
+					TreeItem<DisplayableNode> oldValue,
+					TreeItem<DisplayableNode> newValue) {
+				TreeItem<DisplayableNode> currentItem = newValue;
+				while (currentItem != null) {
+					if (currentItem.getValue() instanceof StackFrame) {
+						StackFrame sf = (StackFrame)currentItem.getValue();
+						byte[] sourceBytes = sf.getSourceCode();
+						int linecount = 1;
+						for (byte b : sourceBytes) {
+							if (b == (byte)'\n')
+								++linecount;
+						}
+						String sourceCode = new String(sourceBytes);
+						
+						int line = sf.getLine() != null?sf.getLine():0;
+						sourceView.getEngine().loadContent(codeMirrorFormatter.format(sourceCode, CodeFormatLanguage.JAVA, false, line ));
+						return;
+					}
+					currentItem = currentItem.getParent();
+				}
+			}
+
+		});
 		treeView.setCellFactory(new Callback<TreeView<DisplayableNode>, TreeCell<DisplayableNode>>() {
 			@Override
 			public TreeCell<DisplayableNode> call(TreeView<DisplayableNode> param) {
@@ -155,11 +186,13 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 
 		
 		final WorkflowInstanceDetailResultModel workflowInstanceDetailResultModel = filteredResult.get(0);
-		sourceView.getEngine().loadContent(codeMirrorFormatter.format(workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowClassMetaData().getSource(), CodeFormatLanguage.JAVA, false));
+		String source = new String(workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowInstanceDetailedInfo().getStack().get(0).getSourceCode());
+		sourceView.getEngine().loadContent(codeMirrorFormatter.format(source, CodeFormatLanguage.JAVA, false));
 	
 		for (DisplayableNode displayableNode: workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowInstanceDetailedInfo().getStack()) {
 			final LazyTreeItem item = new LazyTreeItem(displayableNode);
 			treeView.getRoot().getChildren().add(item);
+			
 		}
 	
 	}

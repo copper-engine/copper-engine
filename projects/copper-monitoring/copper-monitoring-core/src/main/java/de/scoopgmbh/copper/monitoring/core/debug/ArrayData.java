@@ -13,7 +13,7 @@ public class ArrayData extends Data {
 		super(arrayType.getCanonicalName(), objectId);
 		this.data = new Member[data.length];
 		for (int i = 0; i < data.length; ++i) {
-			this.data[i] = new Member(""+i, arrayType.getComponentType().getCanonicalName(), data[i]);
+			this.data[i] = new Member(""+i, arrayType.getComponentType().getCanonicalName(), data[i] != null?data[i]:Data.NULL);
 		}
 	}
 	

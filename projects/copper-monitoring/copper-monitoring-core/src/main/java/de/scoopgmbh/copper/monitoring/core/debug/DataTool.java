@@ -77,7 +77,7 @@ public class DataTool {
 				f.setAccessible(true);
 				Object member = f.get(o);
 				if (member == null) {
-					sd.addMember(new Member(f.getName(), f.getType().getCanonicalName(), null));
+					sd.addMember(new Member(f.getName(), f.getType().getCanonicalName(), Data.NULL));
 				} else {
 					Data d = convert(convertedObjects, member);
 					sd.addMember(new Member(f.getName(), f.getType().getCanonicalName(), d));

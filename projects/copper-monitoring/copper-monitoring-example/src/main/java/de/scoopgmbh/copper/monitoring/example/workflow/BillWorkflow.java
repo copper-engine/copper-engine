@@ -54,7 +54,7 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 	public void main() throws InterruptException {
 		while (true){
 			auditTrail.asynchLog(2, new Date(), "1", "1", "", "", "", "wait for Data", "Text");
-			wait(WaitMode.ALL,Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME,BillAdapter.BILLABLE_SERVICE);
+			callWait();
 			auditTrail.asynchLog(1, new Date(), "2", "2", "", "", "", "data found", "Text");
 			
 			ArrayList<Response<?>> all = new ArrayList<Response<?>>(getAndRemoveResponses(BillAdapter.BILL_TIME));
@@ -85,6 +85,11 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 			
 		}
 		
+	}
+
+	private void callWait() throws InterruptException {
+		String someData = "BillyBoyJimBob";
+		wait(WaitMode.ALL,Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME,BillAdapter.BILLABLE_SERVICE);
 	}
 
 }
