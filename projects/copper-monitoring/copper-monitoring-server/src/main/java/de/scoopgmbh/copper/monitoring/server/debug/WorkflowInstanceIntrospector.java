@@ -48,11 +48,12 @@ public class WorkflowInstanceIntrospector {
 			throw new RuntimeException(ex);
 		}
 		List<StackFrame>  verboseStack = new ArrayList<StackFrame>(stack.size());
-		MethodInfo currentMethod = getMethod(classInfo, "main", "()V");
+		ClassInfo[] definingClass = new ClassInfo[1];
+		MethodInfo currentMethod = getMethod(classInfo, "main", "()V", definingClass);
 		for (StackEntry en : stack) {
 			Method method = new Method(currentMethod.getDefiningClass(), currentMethod.getDeclaration());
 			LabelInfo lf = currentMethod.getLabelInfos().get(en.jumpNo);
-			StackFrame sf = new StackFrame(method, lf.getLineNo(), classInfo.getSourceCode());
+			StackFrame sf = new StackFrame(method, lf.getLineNo(), definingClass[0].getSourceCode());
 			for (int i = 0; i < lf.getLocals().length; ++i) {
 				LocalVariable v = lf.getLocals()[i];
 				if (v != null) {
@@ -70,19 +71,20 @@ public class WorkflowInstanceIntrospector {
 				}
 			}
 			verboseStack.add(sf);
-			currentMethod = getMethod(classInfo, lf.getCalledMethodName(), lf.getCalledMethodDescriptor());
+			currentMethod = getMethod(classInfo, lf.getCalledMethodName(), lf.getCalledMethodDescriptor(), definingClass);
 		}
 		return new WorkflowInstanceDetailedInfo(workflow.getId(), verboseStack);
 	}
 
 	private MethodInfo getMethod(ClassInfo classInfo,
-			String methodName, String methodDescriptor) {
+			String methodName, String methodDescriptor, ClassInfo[] definingClass) {
+		definingClass[0] = classInfo;
 		for (MethodInfo methodInfo : classInfo.getMethodInfos()) {
 			if (methodName.equals(methodInfo.getMethodName()) && methodDescriptor.equals(methodInfo.getDescriptor()))
 				return methodInfo;
 		}
 		if (classInfo.getSuperClassInfo() != null)
-			return getMethod(classInfo.getSuperClassInfo(), methodName, methodDescriptor);
+			return getMethod(classInfo.getSuperClassInfo(), methodName, methodDescriptor, definingClass);
 		return null;
 	}
 
