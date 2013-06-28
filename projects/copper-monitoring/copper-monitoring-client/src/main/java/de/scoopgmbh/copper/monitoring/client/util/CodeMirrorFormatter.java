@@ -105,15 +105,8 @@ public class CodeMirrorFormatter{
 		
 		if (selectLine>=0){
 			modeScript = modeScript+
-			"var hlLine = editor.addLineClass(0, \"background\", \"activeline\");\r\n" + 
-			"editor.on(\"cursorActivity\", function() {\r\n" + 
-			"  var cur = editor.getLineHandle(editor.getCursor().line);\r\n" + 
-			"  if (cur != hlLine) {\r\n" + 
-			"    editor.removeLineClass(hlLine, \"background\", \"activeline\");\r\n" + 
-			"    hlLine = editor.addLineClass(cur, \"background\", \"activeline\");\r\n" + 
-			"  }\r\n" + 
-			"});\r\n" + 
-			"editor.setCursor("+(selectLine-1)+");";
+			"  var cur = editor.getLineHandle("+(selectLine-1)+");\r\n" + 
+			"  hlLine = editor.addLineClass(cur, \"background\", \"activeline\");\r\n";
 		}
 				
 		String formatedMessage = "<!doctype html>" +
