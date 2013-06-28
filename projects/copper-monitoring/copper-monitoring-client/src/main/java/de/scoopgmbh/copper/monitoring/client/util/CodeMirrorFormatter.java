@@ -120,7 +120,10 @@ public class CodeMirrorFormatter{
 				" <script>"+codemirrorjs+"</script>" +
 				" <script>"+mode+"</script>" +
 				" <style type=\"text/css\">\n" + 
-				"      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}\n" + 
+				"      .CodeMirror {display: block;\n" + 
+				"        position: absolute;\n" + 
+				"        top: 0; left: 0;\n" + 
+				"        width: 100%;}\n" + 
 				"      .activeline {background: #F78181 !important;}\n" + 
 				" </style>\n"+
 				"</head>" +
