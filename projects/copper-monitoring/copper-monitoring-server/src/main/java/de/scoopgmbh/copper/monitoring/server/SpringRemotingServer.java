@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.Socket;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
@@ -29,8 +28,6 @@ import javax.servlet.DispatcherType;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.remoting.SecureRemoteInvocationExecutor;
-import org.eclipse.jetty.io.Buffer;
-import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NCSARequestLog;
@@ -112,32 +109,8 @@ public class SpringRemotingServer {
 		NetworkTrafficSelectChannelConnector connector = new NetworkTrafficSelectChannelConnector();
 		connector.setPort(port);
 		connector.setHost(host);
-		connector.addNetworkTrafficListener(new NetworkTrafficListener(){
-
-			@Override
-			public void opened(Socket socket) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void incoming(Socket socket, Buffer bytes) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void outgoing(Socket socket, Buffer bytes) {
-				
-			}
-
-			@Override
-			public void closed(Socket socket) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
+//		connector.addNetworkTrafficListener();
+		
 		server.setConnectors(new Connector[] { connector });
 
 		ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
