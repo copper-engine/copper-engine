@@ -105,8 +105,11 @@ public class CodeMirrorFormatter{
 		
 		if (selectLine>=0){
 			modeScript = modeScript+
-			"  var cur = editor.getLineHandle("+(selectLine-1)+");\r\n" + 
-			"  hlLine = editor.addLineClass(cur, \"background\", \"activeline\");\r\n";
+			"var cur = editor.getLineHandle("+(selectLine-1)+");\n" + 
+			"hlLine = editor.addLineClass(cur, \"background\", \"activeline\");\n"+
+			"editor.setCursor("+(selectLine-1)+");\n"+
+            "var coords = editor.cursorCoords("+(selectLine-1)+");\n"+
+            "window.scrollTo(0, coords.top - window.innerHeight/2 );";
 		}
 				
 		String formatedMessage = "<!doctype html>" +
