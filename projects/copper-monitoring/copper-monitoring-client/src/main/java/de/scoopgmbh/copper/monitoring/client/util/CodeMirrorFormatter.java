@@ -53,51 +53,67 @@ public class CodeMirrorFormatter{
     	}
     }
 	
-	public String format(String code, CodeFormatLanguage language, boolean ediable){
+    public String format(String code, CodeFormatLanguage language, boolean ediable){
+    	return format( code, language, ediable, -1);
+    }
+	/**
+	 * @param code
+	 * @param language
+	 * @param ediable
+	 * @param selectLine 1=first line
+	 * @return
+	 */
+	public String format(String code, CodeFormatLanguage language, boolean ediable, int selectLine){
 		String ediableString =""+ediable;
 		String mode = xmlmodejs;
-		String modeScript= "<script>\n" + 
+		String modeScript=
 				"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n" + 
 				"        mode: {name: \"xml\", alignCDATA: true},\n" + 
 				"        readOnly: "+ediableString+",\n" + 
 				"        lineNumbers: true\n" + 
-				"      });\n" + 
-				"    </script>";
+				"      });\n";
 		if (language==CodeFormatLanguage.JAVASCRIPT){
 			mode=javascriptjs;
-			modeScript=
-					"    <script>\n" + 
+			modeScript= 
 					"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n" + 
 					"        lineNumbers: true,\n" + 
 					"        matchBrackets: true,\n" + 
 					"        readOnly: "+ediableString+",\n" + 
 					"        extraKeys: {\"Enter\": \"newlineAndIndentContinueComment\"}\n" + 
-					"      });\n" + 
-					"    </script>";
+					"      });\n";
 		}
 		if (language==CodeFormatLanguage.JAVA){
 			mode=java;
 			modeScript=
-					"    <script>\n" + 
 					"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n" + 
 					"        lineNumbers: true,\n" + 
 					"        matchBrackets: true,\n" + 
 					"        readOnly: "+ediableString+",\n" + 
-					"        mode: \"text/x-java\"\n" + 
-					"      });\n" + 
-					"    </script>";
+					"        mode: \"text/x-java\"\n"+ 
+					"      });\n";
 		}
 		if (language==CodeFormatLanguage.SQL){
 			mode=sqljs;
 			modeScript=
-					"    <script>\n" + 
 					"      var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n" + 
 					"        lineNumbers: true,\n" + 
 					"        indentUnit: 4,\n" + 
 					"        readOnly: "+ediableString+",\n" + 
 					"        mode: \"text/x-plsql\"\n" + 
-					"      });\n" + 
-					"    </script>";
+					"      });\n";
+		}
+		
+		if (selectLine>=0){
+			modeScript = modeScript+
+			"var hlLine = editor.addLineClass(0, \"background\", \"activeline\");\r\n" + 
+			"editor.on(\"cursorActivity\", function() {\r\n" + 
+			"  var cur = editor.getLineHandle(editor.getCursor().line);\r\n" + 
+			"  if (cur != hlLine) {\r\n" + 
+			"    editor.removeLineClass(hlLine, \"background\", \"activeline\");\r\n" + 
+			"    hlLine = editor.addLineClass(cur, \"background\", \"activeline\");\r\n" + 
+			"  }\r\n" + 
+			"});\r\n" + 
+			"editor.setCursor("+(selectLine-1)+");";
 		}
 				
 		String formatedMessage = "<!doctype html>" +
@@ -107,12 +123,18 @@ public class CodeMirrorFormatter{
 				"</style>"+
 				" <script>"+codemirrorjs+"</script>" +
 				" <script>"+mode+"</script>" +
+				" <style type=\"text/css\">\n" + 
+				"      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}\n" + 
+				"      .activeline {background: #F78181 !important;}\n" + 
+				" </style>\n"+
 				"</head>" +
 				"<body>" +
 				"<form><textarea id=\"code\" name=\"code\" style=\"width: 100%; height: 100%;\">\n" +
 				code+
 				"</textarea></form>" +
+				"<script>\n"+
 				modeScript+
+				"</script>\n"+
 				"</body>" +
 				"</html>";
 		return formatedMessage;
