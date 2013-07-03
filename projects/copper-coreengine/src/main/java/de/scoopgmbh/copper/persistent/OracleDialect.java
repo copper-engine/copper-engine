@@ -633,6 +633,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 		PreparedStatement selectResponsesStmt = null;
 		try {
 			readStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state,ppool_id from COP_WORKFLOW_INSTANCE where id = ?");
+			readStmt.setString(1,  workflowInstanceId);
 
 			final ResultSet rs = readStmt.executeQuery();
 			if (! rs.next()) {
