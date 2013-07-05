@@ -16,6 +16,8 @@
 package de.scoopgmbh.copper.monitoring.example;
 
 import java.beans.PropertyVetoException;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +44,9 @@ import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapterImpl;
 import de.scoopgmbh.copper.monitoring.example.util.SingleProzessInstanceUtil;
 import de.scoopgmbh.copper.monitoring.server.CopperMonitorServiceSecurityProxy;
@@ -51,9 +56,9 @@ import de.scoopgmbh.copper.monitoring.server.SpringRemotingServer;
 import de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
-import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLog4jDataProvider;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
+import de.scoopgmbh.copper.monitoring.server.provider.MonitoringDataProviderFactory;
 import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
 import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringAdapterProcessingEngine;
 import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringDependencyInjector;
@@ -195,7 +200,14 @@ public class MonitoringExampleMain {
 		
 		
 		PojoDependencyInjector dependyInjector = new PojoDependencyInjector();
-		final MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue();
+		MonitoringDataStorage monitoringDataStorage;
+		try {
+			monitoringDataStorage = new MonitoringDataStorage(File.createTempFile("test", ".tmp").getParentFile(), "copperMonitorLog");
+		} catch (IOException e1) {
+			throw new RuntimeException(e1);
+		}
+		final MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue(new MonitoringDataAccesor(monitoringDataStorage),new MonitoringDataAdder(monitoringDataStorage), monitoringDataStorage);
+		
 		final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
 		MonitoringDependencyInjector monitoringDependencyInjector= new MonitoringDependencyInjector(dependyInjector, monitoringDataCollector);
 		BillAdapterImpl billAdapterImpl = new BillAdapterImpl(monitoringDataCollector);
@@ -206,7 +218,7 @@ public class MonitoringExampleMain {
 		persistentengine.setDependencyInjector(monitoringDependencyInjector);
 		persistentengine.startup();
 		
-		new MonitoringLog4jDataProvider(monitoringDataCollector);
+		new MonitoringDataProviderFactory(monitoringDataCollector).createAndStartProvider();
 		
 		try {
 			persistentengine.run("BillWorkflow", "");

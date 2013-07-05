@@ -41,6 +41,11 @@ public class SystemResourcesInfo implements Serializable{
 		this.totalLoadedClassCount = totalLoadedClassCount;
 	}
 
+	public SystemResourcesInfo() {
+		super();
+	}
+
+
 	public long getLiveThreadsCount() {
 		return liveThreadsCount;
 	}

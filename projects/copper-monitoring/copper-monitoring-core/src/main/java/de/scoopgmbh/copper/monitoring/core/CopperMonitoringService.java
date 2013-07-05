@@ -21,21 +21,19 @@ import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.List;
 
-import de.scoopgmbh.copper.monitoring.core.debug.WorkflowInstanceDetailedInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
-import de.scoopgmbh.copper.monitoring.core.model.LogData;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
-import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
+import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
 
 public interface CopperMonitoringService extends Remote, Serializable {
 
@@ -66,14 +64,6 @@ public interface CopperMonitoringService extends Remote, Serializable {
 	public List<String[]> executeSqlQuery(String query, long resultRowLimit) throws RemoteException;
 	
 	/**
-	 * System resources as JMX interface reports them
-	 * @return
-	 * @throws RemoteException
-	 */
-	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException;
-
-	
-	/**
 	 * Trigger restart of a workflow instance that is in the error state.
 	 * @param workflowInstanceId
 	 */
@@ -96,18 +86,9 @@ public interface CopperMonitoringService extends Remote, Serializable {
 	
 	public void setBatcherNumThreads(int numThread, String engineid) throws RemoteException;
 	
-	
 	public List<MessageInfo> getMessageList(final boolean ignoreProcessed, long resultRowLimit) throws RemoteException;
 	
-	public AdapterHistoryInfo getAdapterHistoryInfos(String adapterId) throws RemoteException;
-	
-	public List<MeasurePointData> getMonitoringMeasurePoints(String measurePoint, final long limit) throws RemoteException;
-	
-	public List<String> getMonitoringMeasurePointIds() throws RemoteException;
-	
-	public LogData getLogData() throws RemoteException;
-	
-	public void clearLogData() throws RemoteException;
+	public String getLogConfig() throws RemoteException;
 
 	public void updateLogConfig(String config) throws RemoteException;
 	
@@ -116,6 +97,16 @@ public interface CopperMonitoringService extends Remote, Serializable {
 	public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException;
 	
 	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException;
+
+	public MonitoringDataAccesor getRecentMonitoringDataAccesor() throws RemoteException;
+	
+	/** group and agreggate Data on server
+	 * @param clazz
+	 * @param statisticCreator
+	 * @return
+	 * @throws RemoteException
+	 */
+	public <T,U> List<U> getListGrouped(Class<T> clazz, StatisticCreator<T,U> statisticCreator) throws RemoteException;
 	
 }
 

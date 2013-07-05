@@ -22,7 +22,7 @@ import java.util.Date;
 public class MeasurePointData implements Serializable {
 	private static final long serialVersionUID = -2755509084700249664L;
 	
-	private final String measurePointId;
+	private String measurePointId;
 	private long elementCount = 0L;
 	private long elapsedTimeMicros = 0L;
 	private long count = 0L;
@@ -42,6 +42,10 @@ public class MeasurePointData implements Serializable {
 	public MeasurePointData(String measurePointId) {
 		this.measurePointId = measurePointId;
 	}
+	
+	public MeasurePointData() {
+	}
+	
 	void reset() {
 		elementCount = 0L;
 		elapsedTimeMicros = 0L;
