@@ -495,6 +495,7 @@ project(':projects:copper-monitoring:copper-monitoring-core') {
     dependencies {
     	 compile 'org.apache.shiro:shiro-core:1.2.2'
 		 compile 'org.apache.shiro:shiro-spring:1.2.2'
+		 compile 'com.esotericsoftware.kryo:kryo:2.21'
     }
 }
 
