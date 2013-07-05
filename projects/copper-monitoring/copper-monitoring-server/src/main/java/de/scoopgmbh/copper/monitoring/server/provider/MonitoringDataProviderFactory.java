@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.server.monitoring;
+package de.scoopgmbh.copper.monitoring.server.provider;
 
+import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
-
-public class MonitoringDataTest {
-
+public class MonitoringDataProviderFactory {
+	private final MonitoringDataCollector monitoringDataCollector;
 	
+	public MonitoringDataProviderFactory(MonitoringDataCollector monitoringDataCollector) {
+		super();
+		this.monitoringDataCollector = monitoringDataCollector;
+	}
 
+	public void createAndStartProvider(){
+		new MonitoringLog4jDataProvider(monitoringDataCollector);
+		new SystemRessourceDataProvider(monitoringDataCollector).start();
+	}
 
 }

@@ -18,7 +18,6 @@ package de.scoopgmbh.copper.monitoring.client.doc.view.fixture;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -26,16 +25,11 @@ import java.util.Map;
 import java.util.Random;
 
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo.DependencyInjectorTyp;
-import de.scoopgmbh.copper.monitoring.core.model.LogData;
-import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
@@ -43,7 +37,6 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo.ProcessorPoolTyp;
 import de.scoopgmbh.copper.monitoring.core.model.StorageInfo;
-import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaData;
@@ -52,7 +45,7 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo.WorkflowRepositorTyp;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
-import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
+import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
 
 public class TestDataProvider implements CopperMonitoringService {
 	private static final long serialVersionUID = -509088135898037190L;
@@ -275,11 +268,7 @@ public class TestDataProvider implements CopperMonitoringService {
 		result.add(new String[]{"content1","content2","conten3",query});
 		return result;
 	}
-	
-	@Override
-	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException {
-		return new PerformanceMonitor().createRessourcenInfo();
-	}
+
 
 	@Override
 	public WorkflowStateSummary getAggregatedWorkflowStateSummary(String engineid) throws RemoteException {
@@ -355,51 +344,39 @@ public class TestDataProvider implements CopperMonitoringService {
 		return Arrays.asList(new MessageInfo(new Date(),"message","correlationid"));
 	}
 
-	@Override
-	public AdapterHistoryInfo getAdapterHistoryInfos(String adapterId) throws RemoteException {
-		final AdapterHistoryInfo adapterHistoryInfo = new AdapterHistoryInfo();
-		adapterHistoryInfo.setAdapterCalls(new ArrayList<AdapterCallInfo>());
-		adapterHistoryInfo.setAdapterWfLaunches(new ArrayList<AdapterWfLaunchInfo>());
-		adapterHistoryInfo.setAdapterWfNotifies(new ArrayList<AdapterWfNotifyInfo>());
-		return adapterHistoryInfo;
-	}
+//	@Override
+//	public AdapterHistoryInfo getAdapterHistoryInfos(String adapterId) throws RemoteException {
+//		final AdapterHistoryInfo adapterHistoryInfo = new AdapterHistoryInfo();
+//		adapterHistoryInfo.setAdapterCalls(new ArrayList<AdapterCallInfo>());
+//		adapterHistoryInfo.setAdapterWfLaunches(new ArrayList<AdapterWfLaunchInfo>());
+//		adapterHistoryInfo.setAdapterWfNotifies(new ArrayList<AdapterWfNotifyInfo>());
+//		return adapterHistoryInfo;
+//	}
+
+//	@Override
+//	public List<MeasurePointData> getMonitoringMeasurePoints(String measurePoint,long limit) throws RemoteException {
+//		ArrayList<MeasurePointData> list = new ArrayList<MeasurePointData>();
+//		for (int i=0;i<20;i++){
+//			final MeasurePointData measurepoint = new MeasurePointData("Measurepoint");
+//			measurepoint.setElapsedTimeMicros((long) (Math.random()*50));
+//			measurepoint.setSystemResourcesInfo(new PerformanceMonitor().createRessourcenInfo());
+//			measurepoint.setTime(new Date(i));
+//			list.add(measurepoint);
+//		}
+//		return list;
+//	}
 
 	@Override
-	public List<MeasurePointData> getMonitoringMeasurePoints(String measurePoint,long limit) throws RemoteException {
-		ArrayList<MeasurePointData> list = new ArrayList<MeasurePointData>();
-		for (int i=0;i<20;i++){
-			final MeasurePointData measurepoint = new MeasurePointData("Measurepoint");
-			measurepoint.setElapsedTimeMicros((long) (Math.random()*50));
-			measurepoint.setSystemResourcesInfo(new PerformanceMonitor().createRessourcenInfo());
-			measurepoint.setTime(new Date(i));
-			list.add(measurepoint);
-		}
-		return list;
-	}
-
-	@Override
-	public List<String> getMonitoringMeasurePointIds() throws RemoteException {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public LogData getLogData() throws RemoteException {
-		// TODO Auto-generated method stub
-		return new LogData(Arrays.asList(new LogEvent(new Date(), "test", "WorkflowClass1(line: 20)", "ERROR")), "# Set root logger level to DEBUG and its only appender to A1.\r\n" + 
+	public String getLogConfig() throws RemoteException {
+		return   "# Set root logger level to DEBUG and its only appender to A1.\r\n" + 
 				"log4j.rootLogger=DEBUG, A1\r\n" + 
 				"\r\n" + 
 				"# A1 is set to be a ConsoleAppender.\r\n" + 
-				"log4j.appender.A1=org.apache.log4j.ConsoleAppender");
+				"log4j.appender.A1=org.apache.log4j.ConsoleAppender";
 	}
 
 	@Override
 	public void updateLogConfig(String config) throws RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void clearLogData() throws RemoteException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -1217,4 +1194,18 @@ public class TestDataProvider implements CopperMonitoringService {
 	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException {
 		return "";
 	}
+
+	@Override
+	public <T, U> List<U> getListGrouped(Class<T> clazz, StatisticCreator<T, U> statisticCreator) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MonitoringDataAccesor getRecentMonitoringDataAccesor() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 }

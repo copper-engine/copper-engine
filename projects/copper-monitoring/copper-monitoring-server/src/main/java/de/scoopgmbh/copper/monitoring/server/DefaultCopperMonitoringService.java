@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -60,17 +59,12 @@ import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
 import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.BatcherInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo.DependencyInjectorTyp;
-import de.scoopgmbh.copper.monitoring.core.model.LogData;
-import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
@@ -78,7 +72,6 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo.ProcessorPoolTyp;
 import de.scoopgmbh.copper.monitoring.core.model.StorageInfo;
-import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaData;
@@ -87,12 +80,12 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowRepositoryInfo.WorkflowRepositorTyp;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
-import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
+import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
 import de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
-import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLog4jDataProvider;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
+import de.scoopgmbh.copper.monitoring.server.provider.MonitoringLog4jDataProvider;
 
 public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	private static final long serialVersionUID = 1829707298427309206L;
@@ -101,7 +94,6 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	private final CopperInterfaceSettings copperInterfaceSettings;
 	private final StatisticsCollectorMXBean statisticsCollectorMXBean;
 	private final Map<String,ProcessingEngineMXBean> engines;
-	private final PerformanceMonitor performanceMonitor;
 	private final MonitoringDataAccessQueue monitoringDataAccessQueue;
 	private final MessagePostProcessor messagePostProcessor;
 	final WorkflowInstanceIntrospector workflowInstanceIntrospector;
@@ -117,21 +109,19 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			WorkflowInstanceIntrospector workflowInstanceIntrospector
 			){
 		this(dbStorage,new CopperInterfaceSettings(enableSql), statisticsCollectorMXBean, engineList
-			,new PerformanceMonitor(),monitoringDataAccessQueue, messagePostProcessor, workflowInstanceIntrospector);
+			,monitoringDataAccessQueue, messagePostProcessor, workflowInstanceIntrospector);
 	}
 	
 	public DefaultCopperMonitoringService(MonitoringDbStorage dbStorage,
 			CopperInterfaceSettings copperInterfaceSettings, 
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList,
-			PerformanceMonitor performanceMonitor,
 			MonitoringDataAccessQueue monitoringDataAccessQueue,
 			MessagePostProcessor messagePostProcessor,
 			WorkflowInstanceIntrospector workflowInstanceIntrospector){
 		this.dbStorage = dbStorage;
 		this.copperInterfaceSettings = copperInterfaceSettings;
 		this.statisticsCollectorMXBean = statisticsCollectorMXBean;
-		this.performanceMonitor = performanceMonitor;
 		this.monitoringDataAccessQueue = monitoringDataAccessQueue;
 		this.messagePostProcessor = messagePostProcessor;
 		this.workflowInstanceIntrospector = workflowInstanceIntrospector;
@@ -220,11 +210,6 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			return dbStorage.executeMonitoringQuery(query, resultRowLimit);
 		}
 		return Collections.emptyList();
-	}
-
-	@Override
-	public SystemResourcesInfo getSystemResourceInfo() throws RemoteException {
-		return performanceMonitor.createRessourcenInfo();
 	}
 
 	@Override
@@ -376,70 +361,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	}
 
 	@Override
-	public AdapterHistoryInfo getAdapterHistoryInfos(final String adapterId) throws RemoteException {
-		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<AdapterHistoryInfo>() {
-			@Override
-			public AdapterHistoryInfo call() throws Exception {
-				final List<AdapterCallInfo> adapterCalls = new ArrayList<AdapterCallInfo>();
-			    for (AdapterCallInfo adapterCallInfo: monitoringData.getAdapterCalls()){
-			    	if (adapterId==null || adapterId.isEmpty() || adapterId.equals(adapterCallInfo.getAdapterName())){
-			    		adapterCalls.add(adapterCallInfo);
-			    	}
-			    }
-				final List<AdapterWfLaunchInfo> adapterWfLaunches = new ArrayList<AdapterWfLaunchInfo>();
-			    for (AdapterWfLaunchInfo adapterWfLaunchInfo: monitoringData.getAdapterWfLaunches()){
-			    	if (adapterId==null || adapterId.isEmpty() ||  adapterId.equals(adapterWfLaunchInfo.getAdapterName())){
-			    		adapterWfLaunches.add(adapterWfLaunchInfo);
-			    	}
-			    }
-				final List<AdapterWfNotifyInfo> adapterWfNotifies = new ArrayList<AdapterWfNotifyInfo>();
-			    for (AdapterWfNotifyInfo adapterWfNotifyInfo: monitoringData.getAdapterWfNotifies()){
-			    	if (adapterId==null || adapterId.isEmpty() || adapterId.equals(adapterWfNotifyInfo.getAdapterName())){
-			    		adapterWfNotifies.add(adapterWfNotifyInfo);
-			    	}
-			    }
-				return new AdapterHistoryInfo(adapterCalls,adapterWfLaunches,adapterWfNotifies);
-			}
-		});
-	}
-
-	@Override
-	public List<MeasurePointData> getMonitoringMeasurePoints(final String measurePoint, final long limit) throws RemoteException {
-		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<MeasurePointData>>(){
-			@Override
-			public List<MeasurePointData> call() throws Exception {
-				ArrayList<MeasurePointData> result = new ArrayList<MeasurePointData>();
-				final List<MeasurePointData> measurePoints = monitoringData.getMeasurePoints();
-				Collections.reverse(measurePoints);
-				for (MeasurePointData measurePointData: measurePoints){
-					if (measurePoint==null || measurePoint.isEmpty() || measurePoint.equals(measurePointData.getMeasurePointId())){
-						result.add(measurePointData);
-					}
-					if (result.size()>=limit){
-						break;
-					}
-				}
-				return result;
-			}
-		});
-	}
-
-	@Override
-	public List<String> getMonitoringMeasurePointIds() throws RemoteException {
-		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<String>>(){
-			@Override
-			public List<String> call() throws Exception {
-				HashSet<String> ids = new HashSet<String>();
-				for (MeasurePointData measurePointData : monitoringData.getMeasurePoints()){
-					ids.add(measurePointData.getMeasurePointId());
-				}
-				return new ArrayList<String>(ids);
-			}
-		});
-	}
-
-	@Override
-	public LogData getLogData() throws RemoteException {
+	public String getLogConfig() throws RemoteException {
 		String propertylocation=System.getProperty("log4j.configuration");
 		if (propertylocation==null){
 			propertylocation="log4j.properties";
@@ -479,16 +401,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 		}
 		config=logProperty;
 		
-		final List<LogEvent> logEvents = monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<LogEvent>>() {
-			@Override
-			public List<LogEvent> call() throws Exception {
-				return monitoringData.getLogEvents();
-			}
-		});
-		if (logEvents.isEmpty()){
-			logEvents.add(new LogEvent(new Date(),"No logs found probably missing: "+MonitoringLog4jDataProvider.class.getName(),"","ERROR"));
-		}
-		return new LogData(logEvents, config);
+		return config;
 	}
 	
 	public static String convertStreamToString(java.io.InputStream is) {
@@ -548,17 +461,6 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	}
 
 	@Override
-	public void clearLogData() throws RemoteException {
-		monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				monitoringData.clearLogEvents();
-				return null;
-			}
-		});
-	}
-
-	@Override
 	public String getDatabaseMonitoringHtmlReport() throws RemoteException {
 		return dbStorage.getDatabaseMonitoringHtmlReport();
 	}
@@ -571,6 +473,26 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	@Override
 	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException {
 		return dbStorage.getRecommendationsReport(sqlid);
+	}
+
+	@Override
+	public <T, U> List<U> getListGrouped(final Class<T> clazz, final StatisticCreator<T, U> statisticCreator) throws RemoteException {
+		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<U>>() {
+			@Override
+			public List<U> call() throws Exception {
+				return monitoringDataAccesor.getListGrouped(clazz,statisticCreator);
+			}
+		});
+	}
+
+	@Override
+	public MonitoringDataAccesor getRecentMonitoringDataAccesor() throws RemoteException {
+		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<MonitoringDataAccesor>() {
+			@Override
+			public MonitoringDataAccesor call() throws Exception {
+				return new MonitoringDataAccesor(monitoringDataStorage.createFileTransfer());
+			}
+		});
 	}
 
 

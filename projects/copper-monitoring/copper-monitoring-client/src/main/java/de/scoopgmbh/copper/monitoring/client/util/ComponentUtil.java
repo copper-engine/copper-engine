@@ -62,7 +62,7 @@ public class ComponentUtil {
 		}
 		rectangle.widthProperty().bind(parent.widthProperty().subtract(margin.getLeft()+margin.getRight()));
 		rectangle.heightProperty().bind(parent.heightProperty().subtract(margin.getTop()+margin.getBottom()));
-		rectangle.setFill(Color.BLUE);
+		rectangle.setFill(Color.rgb(0, 150, 201));
 		parent.getChildren().add(rectangle);
 		
         BoxBlur bb = new BoxBlur();

@@ -24,6 +24,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage;
+
 /**
  *	provide thread save access to monitoring data by serialize the access with {@link java.util.concurrent.ArrayBlockingQueue}.
  *  Accessing monitoring data is not blocking so monitoring can't block copper core functionality.
@@ -35,14 +39,22 @@ public class MonitoringDataAccessQueue {
 	AtomicLong ignored = new AtomicLong();
 	private static final Logger logger = LoggerFactory.getLogger(MonitoringDataAccessQueue.class);
 	
-	private final MonitoringData monitoringData; //only access over the monitoring queue
+	/**
+	 *	Contains the data for monitoring.
+	 *  Should only be accessed via the {@link MonitoringDataAccessQueue}
+	 */
+	private final MonitoringDataAccesor monitoringDataAccesor;
+	private final  MonitoringDataAdder monitoringDataAdder;
+	private final MonitoringDataStorage dataStorage;
 
-	public MonitoringDataAccessQueue(){
-		this(1000, new MonitoringData());
+	public MonitoringDataAccessQueue(MonitoringDataAccesor monitoringDataAccesor, MonitoringDataAdder monitoringDataAdder, MonitoringDataStorage dataStorage){
+		this(1000, monitoringDataAccesor,monitoringDataAdder, dataStorage);
 	}
 	
-	public MonitoringDataAccessQueue(int queueCapacity, MonitoringData monitoringData){
-		this.monitoringData = monitoringData;
+	public MonitoringDataAccessQueue(int queueCapacity, MonitoringDataAccesor monitoringDataAccesor, MonitoringDataAdder monitoringDataAdder, MonitoringDataStorage dataStorage){
+		this.monitoringDataAccesor = monitoringDataAccesor;
+		this.monitoringDataAdder = monitoringDataAdder;
+		this.dataStorage = dataStorage;
 		queue = new ArrayBlockingQueue<Runnable>(queueCapacity);
 		new Thread("monitoringEventQueue") {
 			{
@@ -59,7 +71,9 @@ public class MonitoringDataAccessQueue {
 	}
 
 	public boolean offer(MonitoringDataAwareRunnable runnable) {
-		runnable.setMonitoringData(monitoringData);
+		runnable.setMonitoringDataAccesor(monitoringDataAccesor);
+		runnable.setMonitoringDataAdder(monitoringDataAdder);
+		runnable.setMonitoringDataStorage(dataStorage);
 		boolean result=queue.offer(runnable);
 		if (!result) {
 			logger.warn(IGNORE_WARN_TEXT+ignored.incrementAndGet());
@@ -71,7 +85,9 @@ public class MonitoringDataAccessQueue {
 	 * @param runnable
 	 */
 	public void put(MonitoringDataAwareRunnable runnable) {
-		runnable.setMonitoringData(monitoringData);
+		runnable.setMonitoringDataAccesor(monitoringDataAccesor);
+		runnable.setMonitoringDataAdder(monitoringDataAdder);
+		runnable.setMonitoringDataStorage(dataStorage);
 		try {
 			queue.put(runnable);
 		} catch (InterruptedException e) {
@@ -80,7 +96,9 @@ public class MonitoringDataAccessQueue {
 	}
 	
 	public <T> T callAndWait(MonitoringDataAwareCallable<T> callable) {
-		callable.setMonitoringData(monitoringData);
+		callable.setMonitoringDataAccesor(monitoringDataAccesor);
+		callable.setMonitoringDataAdder(monitoringDataAdder);
+		callable.setMonitoringDataStorage(dataStorage);
 		try {
 			FutureTask<T> futureTask = new FutureTask<T>(callable);
 			queue.put(futureTask);

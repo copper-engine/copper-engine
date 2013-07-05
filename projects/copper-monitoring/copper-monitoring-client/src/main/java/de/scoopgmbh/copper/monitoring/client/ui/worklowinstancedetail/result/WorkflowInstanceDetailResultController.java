@@ -34,9 +34,11 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.web.WebView;
 import javafx.util.Callback;
+
+import com.google.common.base.Charsets;
+
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
@@ -129,12 +131,7 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 					if (currentItem.getValue() instanceof StackFrame) {
 						StackFrame sf = (StackFrame)currentItem.getValue();
 						byte[] sourceBytes = sf.getSourceCode();
-						int linecount = 1;
-						for (byte b : sourceBytes) {
-							if (b == (byte)'\n')
-								++linecount;
-						}
-						String sourceCode = new String(sourceBytes);
+						String sourceCode = new String(sourceBytes,Charsets.UTF_8);
 						
 						int line = sf.getLine() != null?sf.getLine():0;
 						sourceView.getEngine().loadContent(codeMirrorFormatter.format(sourceCode, CodeFormatLanguage.JAVA, false, line ));

@@ -177,6 +177,7 @@ public class OracleMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 					);
 			selectStmt.setString(1, sqlid);
 			selectStmt.execute();
+			JdbcUtils.closeStatement(selectStmt);
 			
 			con.createStatement().execute("call DBMS_SQLTUNE.execute_tuning_task(task_name => 'AWR_tuning_task')");
 			

@@ -95,9 +95,6 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
     private Button updateConfig;
     
     @FXML 
-    private Button clearLogs;
-    
-    @FXML 
     private TableColumn<LogsRowModel, String> locationColumn;
 
 
@@ -115,7 +112,6 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
         assert tableBorderPane != null ;
         assert updateConfig != null ;
         assert locationColumn != null ;
-        assert clearLogs != null ;
         
         resultTable.setRowFactory(new Callback<TableView<LogsRowModel>, TableRow<LogsRowModel>>() {
 			@Override
@@ -222,13 +218,7 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 			}
 		});
         
-        clearLogs.getStyleClass().add("copperActionButton");
-        clearLogs.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				copperDataProvider.clearLogData();
-			}
-		});
+
         
         
         

@@ -31,7 +31,7 @@ public class MonitoringDataAccessQueueTest {
 
 	@Test
 	public void test_offer_to_full(){
-		MonitoringDataAccessQueue monitoringEventQueue = new MonitoringDataAccessQueue(1, new MonitoringData());
+		MonitoringDataAccessQueue monitoringEventQueue = new MonitoringDataAccessQueue(1, null,null,null);
 		Mock runnable = new Mock();
 		monitoringEventQueue.offer(runnable);
 		

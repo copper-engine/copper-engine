@@ -20,7 +20,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
 import de.scoopgmbh.copper.monitoring.server.testfixture.LogFixture;
 import de.scoopgmbh.copper.monitoring.server.testfixture.LogFixture.LogContentAssertion;
 import de.scoopgmbh.copper.monitoring.server.testfixture.LogFixture.MessageAndLogLevel;
@@ -30,14 +32,14 @@ import de.scoopgmbh.copper.monitoring.server.testfixture.MonitoringFixture;
 public class MonitoringDataCollectorTest {
 	@Test
 	public void test_too_many_data_adds_schould_be_ignored_and_not_block_the_submitting_thread(){
-		MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue(10,new MonitoringData());
+		MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue(10,null,Mockito.mock(MonitoringDataAdder.class),null);
 		final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
 		
 		new LogFixture().assertLogContent(new LogContentAssertion() {
 			
 			@Override
 			public void executeLogCreatingAction() {
-				for (int i=0;i<100000;i++){
+				for (int i=0;i<1000;i++){
 					monitoringDataCollector.submitAdapterWfLaunch("", new Object());
 				}
 			}

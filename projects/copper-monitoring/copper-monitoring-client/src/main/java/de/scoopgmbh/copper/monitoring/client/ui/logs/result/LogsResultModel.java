@@ -16,12 +16,12 @@
 package de.scoopgmbh.copper.monitoring.client.ui.logs.result;
 
 import java.util.Date;
+import java.util.List;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import de.scoopgmbh.copper.monitoring.core.model.LogData;
 import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 
 public class LogsResultModel {
@@ -62,10 +62,10 @@ public class LogsResultModel {
 	public final ObservableList<LogsRowModel> logs = FXCollections.observableArrayList();
 	
 	
-	public LogsResultModel(LogData logData) {
+	public LogsResultModel(String config, List<LogEvent> logevents) {
 		super();
-		this.config = new SimpleStringProperty(logData.getLogConfig());
-		for (LogEvent logEvent: logData.getLogEvents()){
+		this.config = new SimpleStringProperty(config);
+		for (LogEvent logEvent: logevents){
 			logs.add(new LogsRowModel(logEvent));
 		}
 	}

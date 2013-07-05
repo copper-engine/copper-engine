@@ -121,7 +121,7 @@
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 	</bean>
 	
-	<bean id="monitoringLog4jDataProvider" class="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringLog4jDataProvider"  lazy-init="false">
+	<bean id="monitoringLog4jDataProvider" class="de.scoopgmbh.copper.monitoring.server.provider.MonitoringLog4jDataProvider"  lazy-init="false">
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 	</bean>
 	

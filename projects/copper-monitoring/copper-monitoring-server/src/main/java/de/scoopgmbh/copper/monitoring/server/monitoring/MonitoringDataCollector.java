@@ -25,6 +25,7 @@ import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
 import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
+import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
 
 public class MonitoringDataCollector{
@@ -46,7 +47,7 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringData.addAdapterCallsWitdhLimit(new AdapterCallInfo(method.getName(), Arrays.toString(args), new Date(), adapter.getClass().getName()));
+				monitoringDataAdder.add(new AdapterCallInfo(method.getName(), Arrays.toString(args), new Date(), adapter.getClass().getName()));
 			}
 		});
 	}
@@ -55,7 +56,7 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringData.addAdapterWflaunchWitdhLimit(new AdapterWfLaunchInfo(wfname,new Date(), adapter.getClass().getName()));
+				monitoringDataAdder.add(new AdapterWfLaunchInfo(wfname,new Date(), adapter.getClass().getName()));
 			}
 		});
 	}
@@ -64,7 +65,7 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringData.addAdapterWfNotifyWitdhLimit(new AdapterWfNotifyInfo(correlationId, message!=null?message.toString():"null", new Date(), adapter.getClass().getName()));
+				monitoringDataAdder.add(new AdapterWfNotifyInfo(correlationId, message!=null?message.toString():"null", new Date(), adapter.getClass().getName()));
 			}
 		});
 	}
@@ -86,7 +87,7 @@ public class MonitoringDataCollector{
 			@Override
 			public void run() {
 				measurePointData.setSystemResourcesInfo(performanceMonitor.createRessourcenInfo());
-				monitoringData.addMeasurePointWitdhLimit(measurePointData);
+				monitoringDataAdder.add(measurePointData);
 			}
 		});
 		return result;
@@ -106,11 +107,18 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringData.addLogEventWitdhLimit(new LogEvent(date,message,locationInformation,level));
+				monitoringDataAdder.add(new LogEvent(date,message,locationInformation,level));
 			}
 		});
 	}
 
-
+	public void submitSystemRessource(final SystemResourcesInfo resourcesInfo) {
+		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+			@Override
+			public void run() {
+				monitoringDataAdder.add(resourcesInfo);
+			}
+		});
+	}
 
 }

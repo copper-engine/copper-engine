@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitoring.client.adapter;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javafx.beans.property.SimpleLongProperty;
@@ -40,6 +41,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.Wor
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
@@ -51,20 +53,27 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
+import de.scoopgmbh.copper.monitoring.core.statistic.AggregateFunction;
+import de.scoopgmbh.copper.monitoring.core.statistic.AggregateSystemRessourceAvg;
+import de.scoopgmbh.copper.monitoring.core.statistic.DateConverter;
+import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
+import de.scoopgmbh.copper.monitoring.core.statistic.SystemResourcesInfoDateConverter;
+import de.scoopgmbh.copper.monitoring.core.statistic.TimeframeGroup;
 
 public class GuiCopperDataProvider {
-	
-	private final CopperMonitoringService copperDataProvider;
+
+
+	private final CopperMonitoringService copperMonitoringService;
 	
 	public GuiCopperDataProvider(final CopperMonitoringService copperDataProvider) {
 		super();
-		this.copperDataProvider=copperDataProvider;
+		this.copperMonitoringService=copperDataProvider;
 	}
 
 	public List<WorkflowInstanceResultModel> getWorkflowInstanceList(WorkflowInstanceFilterModel filter, int maxResultCount){
 		List<WorkflowInstanceInfo> list;
 		try {
-			list = copperDataProvider.getWorkflowInstanceList(getPoolId(filter.enginePoolModel),filter.version.classname.get(),
+			list = copperMonitoringService.getWorkflowInstanceList(getPoolId(filter.enginePoolModel),filter.version.classname.get(),
 					filter.state.get(), getFilterReadyInteger(filter.priority.get()),filter.from.get(),filter.to.get(), maxResultCount);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
@@ -92,7 +101,7 @@ public class GuiCopperDataProvider {
 		
 		List<AuditTrailInfo> list;
 		try {
-			list = copperDataProvider.getAuditTrails(filter.workflowClass.getValue(), filter.workflowInstanceId.getValue(), filter.correlationId.getValue(), getFilterReadyInteger(filter.level.getValue()), maxResultCount);
+			list = copperMonitoringService.getAuditTrails(filter.workflowClass.getValue(), filter.workflowInstanceId.getValue(), filter.correlationId.getValue(), getFilterReadyInteger(filter.level.getValue()), maxResultCount);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -106,7 +115,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowSummaryResultModel> getWorkflowSummery(WorkflowSummaryFilterModel filter) {
 		List<WorkflowSummary> summeries;
 		try {
-			summeries = copperDataProvider.getWorkflowSummary(getPoolId(filter.enginePoolModel), filter.version.classname.get());
+			summeries = copperMonitoringService.getWorkflowSummary(getPoolId(filter.enginePoolModel), filter.version.classname.get());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -120,7 +129,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowVersion> getWorkflowClassesList(final String engineId){
 		List<WorkflowClassMetaData> list;
 		try {
-			list = copperDataProvider.getWorkflowClassesList(engineId);
+			list = copperMonitoringService.getWorkflowClassesList(engineId);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -133,7 +142,7 @@ public class GuiCopperDataProvider {
 
 	public WorkflowInstanceDetailResultModel getWorkflowDetails(WorkflowInstanceDetailFilterModel filter ) {
 		try {
-			return new WorkflowInstanceDetailResultModel(copperDataProvider.getWorkflowInstanceDetails(filter.workflowInstanceId.getValue(),filter.getEngineFilterModel().selectedEngine.get().getId()));
+			return new WorkflowInstanceDetailResultModel(copperMonitoringService.getWorkflowInstanceDetails(filter.workflowInstanceId.getValue(),filter.getEngineFilterModel().selectedEngine.get().getId()));
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -141,7 +150,7 @@ public class GuiCopperDataProvider {
 
 	public WorkflowStateSummary getCopperLoadInfo(ProcessingEngineInfo engine) {
 		try {
-			return  copperDataProvider.getAggregatedWorkflowStateSummary(engine.getId());
+			return  copperMonitoringService.getAggregatedWorkflowStateSummary(engine.getId());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -149,7 +158,7 @@ public class GuiCopperDataProvider {
 
 	public String getAuditTrailMessage(SimpleLongProperty id) {
 		try {
-			return  copperDataProvider.getAuditTrailMessage(id.getValue());
+			return  copperMonitoringService.getAuditTrailMessage(id.getValue());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -158,7 +167,7 @@ public class GuiCopperDataProvider {
 	public List<SqlResultModel> executeSqlQuery(SqlFilterModel filter, int maxResultCount){
 		List<String[]> list;
 		try {
-			list = copperDataProvider.executeSqlQuery(filter.sqlQuery.getValue(), maxResultCount);
+			list = copperMonitoringService.executeSqlQuery(filter.sqlQuery.getValue(), maxResultCount);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -169,9 +178,17 @@ public class GuiCopperDataProvider {
 		return result;
 	}
 
-	public SystemResourcesInfo getSystemRessources() {
+	public List<SystemResourcesInfo> getSystemRessources() {
+		Date min = getMonitoringDatasource().getMinDate();
+		Date max = getMonitoringDatasource().getMaxDate();
+		
+		final AggregateFunction<SystemResourcesInfo, SystemResourcesInfo> aggregateFunction =new AggregateSystemRessourceAvg();
+		final DateConverter<SystemResourcesInfo> dateConverter = new SystemResourcesInfoDateConverter();
+		
 		try {
-			return copperDataProvider.getSystemResourceInfo();
+			return copperMonitoringService.getListGrouped(SystemResourcesInfo.class,
+					new StatisticCreator<>(TimeframeGroup.<SystemResourcesInfo, SystemResourcesInfo>createGroups(
+							50,min,max,aggregateFunction, dateConverter)));
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -179,7 +196,7 @@ public class GuiCopperDataProvider {
 	
 	public List<ProcessingEngineInfo> getEngineList() {
 		try {
-			return copperDataProvider.getProccessingEngineList();
+			return copperMonitoringService.getProccessingEngineList();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -187,7 +204,7 @@ public class GuiCopperDataProvider {
 	
 	public List<MeasurePointData> getMeasurePoints(EngineFilterModelBase engineFilter) {
 		try {
-			return copperDataProvider.getMeasurePoints(engineFilter.enginePoolModel.selectedEngine.get().getId());
+			return copperMonitoringService.getMeasurePoints(engineFilter.enginePoolModel.selectedEngine.get().getId());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -195,7 +212,7 @@ public class GuiCopperDataProvider {
 	
 	public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads){
 		try {
-			copperDataProvider.setNumberOfThreads(engineid, processorPoolId, numberOfThreads);
+			copperMonitoringService.setNumberOfThreads(engineid, processorPoolId, numberOfThreads);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}		
@@ -203,7 +220,7 @@ public class GuiCopperDataProvider {
 	
 	public void setThreadPriority(String engineid, String processorPoolId, int threadPriority){
 		try {
-			copperDataProvider.setThreadPriority(engineid, processorPoolId, threadPriority);
+			copperMonitoringService.setThreadPriority(engineid, processorPoolId, threadPriority);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}		
@@ -211,7 +228,7 @@ public class GuiCopperDataProvider {
 
 	public void resetMeasurePoints() {
 		try {
-			copperDataProvider.resetMeasurePoints();
+			copperMonitoringService.resetMeasurePoints();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}	
@@ -219,7 +236,7 @@ public class GuiCopperDataProvider {
 
 	public void setBatcherNumThreads(String id, int numThread) {
 		try {
-			copperDataProvider.setBatcherNumThreads(numThread, id);
+			copperMonitoringService.setBatcherNumThreads(numThread, id);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}	
@@ -228,7 +245,7 @@ public class GuiCopperDataProvider {
 	public List<MessageResultModel> getMessageList(MessageFilterModel filter, final int maxResultCount) {
 		List<MessageInfo> list;
 		try {
-			list = copperDataProvider.getMessageList(filter.ignoreProcessed.get(), maxResultCount);
+			list = copperMonitoringService.getMessageList(filter.ignoreProcessed.get(), maxResultCount);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -241,7 +258,7 @@ public class GuiCopperDataProvider {
 
 	public void restartAllError(String engineid) {
 		try {
-			copperDataProvider.restartAllErroneousInstances(engineid);
+			copperMonitoringService.restartAllErroneousInstances(engineid);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -249,7 +266,7 @@ public class GuiCopperDataProvider {
 
 	public CopperInterfaceSettings getInterfaceSettings() {
 		try {
-			return copperDataProvider.getSettings();
+			return copperMonitoringService.getSettings();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -257,7 +274,7 @@ public class GuiCopperDataProvider {
 
 	public AdapterMonitoringResultModel getAdapterHistoryInfo(AdapterMonitoringFilterModel filter) {
 		try {
-			AdapterHistoryInfo  adapterHistory = copperDataProvider.getAdapterHistoryInfos(filter.adapterId.get());
+			AdapterHistoryInfo  adapterHistory = getMonitoringDatasource().getAdapterHistoryInfos(filter.adapterId.get());
 			Collections.reverse(adapterHistory.getAdapterCalls());
 			return new AdapterMonitoringResultModel(adapterHistory);
 		} catch (RemoteException e) {
@@ -267,7 +284,15 @@ public class GuiCopperDataProvider {
 
 	public void restartInstance(final String workflowInstanceId, String engineid) {
 		try {
-			copperDataProvider.restartWorkflowInstance(workflowInstanceId, engineid);
+			copperMonitoringService.restartWorkflowInstance(workflowInstanceId, engineid);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private MonitoringDataAccesor getMonitoringDatasource(){
+		try {
+			return copperMonitoringService.getRecentMonitoringDataAccesor();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -275,7 +300,7 @@ public class GuiCopperDataProvider {
 
 	public List<MeasurePointData> getMonitoringMeasurePoints(CustomMeasurePointFilterModel filter, long limit) {
 		try {
-			return copperDataProvider.getMonitoringMeasurePoints(filter.measurePointId.get(),limit);
+			return getMonitoringDatasource().getMonitoringMeasurePoints(filter.measurePointId.get(),limit);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -283,7 +308,7 @@ public class GuiCopperDataProvider {
 	
 	public List<String> getMonitoringMeasurePointIds() {
 		try {
-			return copperDataProvider.getMonitoringMeasurePointIds();
+			return getMonitoringDatasource().getMonitoringMeasurePointIds();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -291,7 +316,7 @@ public class GuiCopperDataProvider {
 
 	public LogsResultModel getLogData() {
 		try {
-			return new LogsResultModel(copperDataProvider.getLogData());
+			return new LogsResultModel(copperMonitoringService.getLogConfig(),getMonitoringDatasource().getFilteredLogEvents());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -299,23 +324,16 @@ public class GuiCopperDataProvider {
 	
 	public void updateLogConfig(String config){
 		try {
-			copperDataProvider.updateLogConfig(config);
+			copperMonitoringService.updateLogConfig(config);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public void clearLogData() {
-		try {
-			copperDataProvider.clearLogData();
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
-	}
 	
 	public String getDatabaseMonitoringHtmlReport() {
 		try {
-			return copperDataProvider.getDatabaseMonitoringHtmlReport();
+			return copperMonitoringService.getDatabaseMonitoringHtmlReport();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -323,7 +341,7 @@ public class GuiCopperDataProvider {
 
 	public String getDatabaseMonitoringHtmlDetailReport(String sqlid)  {
 		try {
-			return copperDataProvider.getDatabaseMonitoringHtmlDetailReport(sqlid);
+			return copperMonitoringService.getDatabaseMonitoringHtmlDetailReport(sqlid);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -331,7 +349,7 @@ public class GuiCopperDataProvider {
 	
 	public String getDatabaseMonitoringRecommendationsReport(String sqlid)  {
 		try {
-			return copperDataProvider.getDatabaseMonitoringRecommendationsReport(sqlid);
+			return copperMonitoringService.getDatabaseMonitoringRecommendationsReport(sqlid);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

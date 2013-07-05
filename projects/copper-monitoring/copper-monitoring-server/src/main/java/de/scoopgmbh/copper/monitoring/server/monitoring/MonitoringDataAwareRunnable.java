@@ -15,15 +15,34 @@
  */
 package de.scoopgmbh.copper.monitoring.server.monitoring;
 
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage;
+
 
 public abstract class MonitoringDataAwareRunnable implements Runnable{
-	protected MonitoringData monitoringData;
+	protected MonitoringDataAccesor monitoringDataAccesor;
+	protected MonitoringDataAdder monitoringDataAdder;
+	protected MonitoringDataStorage monitoringDataStorage;
 	
-	public MonitoringData getMonitoringData() {
-		return monitoringData;
+	public MonitoringDataAccesor getMonitoringDataAccesor() {
+		return monitoringDataAccesor;
 	}
+	public void setMonitoringDataAccesor(MonitoringDataAccesor monitoringDataAccesor) {
+		this.monitoringDataAccesor = monitoringDataAccesor;
+	}
+	public MonitoringDataAdder getMonitoringDataAdder() {
+		return monitoringDataAdder;
+	}
+	public void setMonitoringDataAdder(MonitoringDataAdder monitoringDataAdder) {
+		this.monitoringDataAdder = monitoringDataAdder;
+	}
+	public MonitoringDataStorage getMonitoringDataStorage() {
+		return monitoringDataStorage;
+	}
+	public void setMonitoringDataStorage(MonitoringDataStorage monitoringDataStorage) {
+		this.monitoringDataStorage = monitoringDataStorage;
+	}
+	
 
-	public void setMonitoringData(MonitoringData monitoringData){
-		this.monitoringData = monitoringData;
-	}
 }
