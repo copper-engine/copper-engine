@@ -187,7 +187,7 @@ public class GuiCopperDataProvider {
 		
 		try {
 			return copperMonitoringService.getListGrouped(SystemResourcesInfo.class,
-					new StatisticCreator<>(TimeframeGroup.<SystemResourcesInfo, SystemResourcesInfo>createGroups(
+					new StatisticCreator<SystemResourcesInfo,SystemResourcesInfo>(TimeframeGroup.<SystemResourcesInfo, SystemResourcesInfo>createGroups(
 							50,min,max,aggregateFunction, dateConverter)));
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
