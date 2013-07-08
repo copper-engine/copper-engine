@@ -228,15 +228,16 @@ project(':projects:copper-examples:orchestration:orch-interfaces') {
         wsgen 'org.apache.cxf:cxf-xjc-ts:2.2.12'
         wsgen 'com.sun.xml.bind:jaxb-xjc:2.2.4-1'		
     }
+    
+	genDirName = "$projectDir/src/main/generated";
 
 	tasks.add(name: "gen_wsbindings") {
-		ext.genDirName = "$buildDir/gen.wsdls.src"
 			
 		inputs.dir new File(sourceSets.schema.srcDir)
-    	outputs.dir new File(ext.genDirName)
+    	outputs.dir new File("$genDirName")
 
         doFirst {
-        	new File(ext.genDirName).mkdirs()
+        	new File("$genDirName").mkdirs()
         }    	
 		doLast {
 	        fileTree(dir: sourceSets.schema.srcDir + "/wsdl", include: "**/*.wsdl", exclude: "common.wsdl").each { def wsdlFile -> 
@@ -247,17 +248,32 @@ project(':projects:copper-examples:orchestration:orch-interfaces') {
 			                '-db', 'jaxb',
 			                '-xjc-extension',
 			                '-impl', '-server', '-client', '-validate',
-			                '-d', ext.genDirName,
+			                '-d', "$genDirName",
                             '-wsdlLocation', 'classpath:wsdl/'+wsdlFile.name,
 			                wsdlFile
 			    }	            
 		    } 
         }		
 	}
-	sourceSets.main.java.srcDirs += gen_wsbindings.genDirName	
+	sourceSets.main.java.srcDirs += genDirName	
 	
 	compileJava.dependsOn gen_wsbindings
 	eclipseClasspath.dependsOn gen_wsbindings
+	
+		eclipse {
+	    classpath {
+	    	defaultOutputDir = file('build')
+		    file {
+		      	withXml {//ignore compile warnings in generated code
+					it.asNode().find {
+					    it.@kind == 'src' &&  "$genDirName".contains(it.@path)
+					}
+					.appendNode ('attributes')
+					.appendNode('attribute', [ name: "ignore_optional_problems", value: "true"])
+		    	}
+	    	}
+	    }
+	} 
 
     idea {
         module {
