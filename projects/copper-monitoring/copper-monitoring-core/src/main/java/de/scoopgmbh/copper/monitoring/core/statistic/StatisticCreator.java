@@ -5,7 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class StatisticCreator<T,R> implements Serializable{
+/**
+ *
+ * @param <T>
+ * @param <R> aggregate result typ
+ */
+public class StatisticCreator<T,R extends Serializable> implements Serializable{
 	private static final long serialVersionUID = -8510844252874340757L;
 	
 	private TimeframeGroup<T,R> currentGroupFunction;
@@ -13,10 +18,10 @@ public class StatisticCreator<T,R> implements Serializable{
 	public StatisticCreator(TimeframeGroup<T,R> firstGroupFunctions) {
 		super();
 		this.currentGroupFunction = firstGroupFunctions;
-		usedGroupFunnction.add(currentGroupFunction);
+		usedGroups.add(currentGroupFunction);
 	}
 	
-	List<TimeframeGroup<T,R>> usedGroupFunnction= new ArrayList<TimeframeGroup<T,R>>();
+	List<TimeframeGroup<T,R>> usedGroups= new ArrayList<TimeframeGroup<T,R>>();
 	
 	/**
 	 * first value must be in the first group
@@ -32,7 +37,7 @@ public class StatisticCreator<T,R> implements Serializable{
 			currentGroupFunction.clear();
 			currentGroupFunction = currentGroupFunction.nextGroup();
 			if (currentGroupFunction!=null){
-				usedGroupFunnction.add(currentGroupFunction);
+				usedGroups.add(currentGroupFunction);
 				add(listvalue);
 				
 			}
@@ -41,7 +46,7 @@ public class StatisticCreator<T,R> implements Serializable{
 	
 	public List<R> getAggregatedResult(){
 		ArrayList<R> result = new ArrayList<R>();
-		for (TimeframeGroup<T,R> groupFunction: usedGroupFunnction){
+		for (TimeframeGroup<T,R> groupFunction: usedGroups){
 			if (!groupFunction.isAggregated()){//for last group 
 				groupFunction.doAggregateAndSaveResult();
 				groupFunction.clear();

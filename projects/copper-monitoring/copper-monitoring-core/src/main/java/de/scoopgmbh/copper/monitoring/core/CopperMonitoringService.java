@@ -21,7 +21,7 @@ import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.List;
 
-import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
+import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataQuerys;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
@@ -33,9 +33,8 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
-import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
 
-public interface CopperMonitoringService extends Remote, Serializable {
+public interface CopperMonitoringService extends Remote, Serializable, MonitoringDataQuerys {
 
 	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname) throws RemoteException;
 
@@ -97,16 +96,20 @@ public interface CopperMonitoringService extends Remote, Serializable {
 	public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException;
 	
 	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException;
+	
+//	/** group and agreggate Monitoringdata on server
+//	 * @param clazz
+//	 * @param statisticCreator
+//	 * @return
+//	 * @throws RemoteException
+//	 */
+//	public <T,R extends Serializable> List<List<R>> createStatistic(final MonitoringDataFilter<T> filter, final List<StatisticCreator<T, R>> statisticCreator,Date from, Date to) throws RemoteException;
+//	
+//	
+//	/** query Monitoringdata and create list on server
+//	 */
+//	@Override
+//	public <T> List<T> getList(final MonitoringDataFilter<T> filter, Date from, Date to, long maxCount) throws RemoteException;
 
-	public MonitoringDataAccesor getRecentMonitoringDataAccesor() throws RemoteException;
-	
-	/** group and agreggate Data on server
-	 * @param clazz
-	 * @param statisticCreator
-	 * @return
-	 * @throws RemoteException
-	 */
-	public <T,U> List<U> getListGrouped(Class<T> clazz, StatisticCreator<T,U> statisticCreator) throws RemoteException;
-	
 }
 

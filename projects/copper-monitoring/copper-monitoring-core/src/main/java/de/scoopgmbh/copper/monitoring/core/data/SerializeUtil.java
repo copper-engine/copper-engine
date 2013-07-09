@@ -16,6 +16,13 @@ public class SerializeUtil{
 	
 	private static Kryo kryo;
 
+	/**
+	 * We use Kryo instead of java serialization to create small serialized output
+	 * 
+	 * reading and write need the same order
+	 * its not necessary to register all used classes it just saves same space
+	 * @return
+	 */
 	public static Kryo getKryo(){
 		if (kryo==null){
 			kryo = new Kryo();

@@ -2,6 +2,8 @@ package de.scoopgmbh.copper.monitoring.core.statistic;
 
 import java.util.List;
 
+import de.scoopgmbh.copper.monitoring.core.statistic.converter.DoubleConverter;
+
 
 public class AvgAggregateFunction<T> implements AggregateFunction<T,TimeValuePair<Double>>{
 	private static final long serialVersionUID = 4882013677988826331L;

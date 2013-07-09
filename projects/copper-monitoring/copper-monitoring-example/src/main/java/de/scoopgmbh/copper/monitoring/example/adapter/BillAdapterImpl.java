@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.monitoring.example.adapter;
 
 import java.math.BigDecimal;
 
+import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
@@ -41,7 +42,7 @@ public class BillAdapterImpl implements BillAdapter{
 				while(true){
 					long now = System.currentTimeMillis();
 					if (lastServicetime+700<now){
-						engine.notify(new Response<BillableService>(BILLABLE_SERVICE, new BillableService(new BigDecimal("5")),null));
+						engine.notify(new Response<BillableService>(BILLABLE_SERVICE, new BillableService(new BigDecimal("5")),null), new Acknowledge.BestEffortAcknowledge());
 						lastServicetime=now;
 					}
 					try {
@@ -61,7 +62,7 @@ public class BillAdapterImpl implements BillAdapter{
 				while(true){
 					long now = System.currentTimeMillis();
 					if (lastBilltime+5000<now){
-						engine.notify(new Response<Bill>(BILL_TIME,new Bill(),null));
+						engine.notify(new Response<Bill>(BILL_TIME,new Bill(),null), new Acknowledge.BestEffortAcknowledge());
 						lastBilltime=now;
 					}
 					try {

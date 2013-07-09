@@ -88,7 +88,6 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 	}
 
 	private void callWait() throws InterruptException {
-		String someData = "BillyBoyJimBob";
 		wait(WaitMode.ALL,Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME,BillAdapter.BILLABLE_SERVICE);
 	}
 

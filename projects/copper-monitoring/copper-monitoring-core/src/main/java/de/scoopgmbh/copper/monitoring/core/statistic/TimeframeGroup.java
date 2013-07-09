@@ -4,15 +4,17 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
+import de.scoopgmbh.copper.monitoring.core.statistic.converter.TimeConverter;
+
 public class TimeframeGroup<T,R> implements Serializable{
 	private static final long serialVersionUID = -4529367917791924193L;
 	
 	final Date from; 
 	final Date to;
-	private final DateConverter<T> dateConverter;
+	private final TimeConverter<T> dateConverter;
 	AggregateFunction<T, R> aggregateFunction;
 	
-	public TimeframeGroup(AggregateFunction<T, R> aggregateFunction, Date from, Date to, DateConverter<T> dateConverter) {
+	public TimeframeGroup(AggregateFunction<T, R> aggregateFunction, Date from, Date to, TimeConverter<T> dateConverter) {
 		this.aggregateFunction = aggregateFunction;
 		this.from = from;
 		this.to = to;
@@ -48,11 +50,11 @@ public class TimeframeGroup<T,R> implements Serializable{
 	}
 
 	public boolean isInGroup(T listvalue) {
-		return dateConverter.getDate(listvalue).getTime()>=from.getTime() && dateConverter.getDate(listvalue).getTime()<to.getTime();
+		return dateConverter.getTime(listvalue).getTime()>=from.getTime() && dateConverter.getTime(listvalue).getTime()<to.getTime();
 	}
 	
 	public static <T,R> TimeframeGroup<T,R> createGroups(int groupCount, Date from, Date to,
-			AggregateFunction<T, R> aggregateFunction, DateConverter<T> dateConverter){
+			AggregateFunction<T, R> aggregateFunction, TimeConverter<T> dateConverter){
 		long delta = to.getTime()-from.getTime();
 		if (delta<=0){
 			throw new IllegalArgumentException();

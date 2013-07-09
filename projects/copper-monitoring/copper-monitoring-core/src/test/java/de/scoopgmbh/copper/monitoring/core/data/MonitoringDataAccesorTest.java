@@ -1,24 +1,28 @@
 package de.scoopgmbh.copper.monitoring.core.data;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
+import de.scoopgmbh.copper.monitoring.core.data.filter.TypeFilter;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
 import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 
 
 public class MonitoringDataAccesorTest {
+	
+	@Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
 	
 	
 	@Test
@@ -43,7 +47,7 @@ public class MonitoringDataAccesorTest {
 	public void test_add(){
 		MonitoringDataStorage monitoringDataStorage;
 		try {
-			monitoringDataStorage = new MonitoringDataStorage(createTempDir("test"), "copperMonitorLog");
+			monitoringDataStorage = new MonitoringDataStorage(testFolder.newFolder("test"), "copperMonitorLog");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -55,14 +59,14 @@ public class MonitoringDataAccesorTest {
 		adapterWfLaunch.setTimestamp(new Date());
 		monitoringDataAdder.add(adapterWfLaunch);
 		
-		assertEquals(1, monitoringDataAccesor.getAdapterWfLaunches().size());
+		assertEquals(1, monitoringDataAccesor.getList(new TypeFilter<AdapterWfLaunchInfo>(AdapterWfLaunchInfo.class), null, null, 1000).size());
 	}
 	
 	@Test
 	public void test_add_different (){
 		MonitoringDataStorage monitoringDataStorage;
 		try {
-			monitoringDataStorage = new MonitoringDataStorage(createTempDir("test"), "copperMonitorLog");
+			monitoringDataStorage = new MonitoringDataStorage(testFolder.newFolder("test"), "copperMonitorLog");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -75,42 +79,9 @@ public class MonitoringDataAccesorTest {
 		logEvent.setTime(new Date());
 		monitoringDataAdder.add(logEvent);
 		
-		assertEquals(1, monitoringDataAccesor.getAdapterWfLaunches().size());
-		assertEquals(1, monitoringDataAccesor.getLogEvents().size());
+		assertEquals(1, monitoringDataAccesor.getList(new TypeFilter<AdapterWfLaunchInfo>(AdapterWfLaunchInfo.class), null, null, 1000).size());
+		assertEquals(1, monitoringDataAccesor.getList(new TypeFilter<LogEvent>(LogEvent.class), null, null, 1000).size());
 	}
 	
-	static File createTempDir(String name) throws IOException {
-		File f = File.createTempFile(name, ".tmp");
-		f.delete();
-		f.mkdirs();
-		return f;
-	}
-	
-	@Test
-	public void test_getContent(){
-		MonitoringDataStorage monitoringDataStorage;
-		try {
-			monitoringDataStorage = new MonitoringDataStorage(createTempDir("test"), "copperMonitorLog");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		final MonitoringDataAccesor monitoringDataAccesor = new MonitoringDataAccesor(monitoringDataStorage);
-		final MonitoringDataAdder monitoringDataAdder = new MonitoringDataAdder(monitoringDataStorage);
-		
-		
-		final AdapterWfLaunchInfo adapterWfLaunch = new AdapterWfLaunchInfo();
-		adapterWfLaunch.setTimestamp(new Date());
-		monitoringDataAdder.add(adapterWfLaunch);
-		final LogEvent logEvent = new LogEvent();
-		logEvent.setTime(new Date());
-		
-		for (Input input: monitoringDataAccesor.getData().getReadableInput().read()){
-			assertNotNull(SerializeUtil.getKryo().readClassAndObject(input));
-		}
-		
-	}
-	
-
-
 	
 }

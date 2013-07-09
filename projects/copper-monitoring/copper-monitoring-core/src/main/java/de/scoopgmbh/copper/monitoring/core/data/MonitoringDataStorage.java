@@ -16,10 +16,8 @@
 package de.scoopgmbh.copper.monitoring.core.data;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.ClosedChannelException;
@@ -36,13 +34,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import com.esotericsoftware.kryo.io.Input;
 
-import de.scoopgmbh.copper.monitoring.core.util.ReadableInput;
-
 /**
  *  stores monitoring data in chunked files
  *
  */
-public class MonitoringDataStorage implements ReadableInput {
+public class MonitoringDataStorage {
 
 	static final int FILE_CHUNK_SIZE=4*1024*1024;
 	static final int LIMIT_POSITION = 0;
@@ -272,125 +268,7 @@ public class MonitoringDataStorage implements ReadableInput {
 			Thread.currentThread().interrupt();
 		}
     }
-    
-    public static class FileTransfer implements Serializable, ReadableInput {
-    	
-		private static final long serialVersionUID = 1L;
-
-		byte[] data;
-		Date min;
-		Date max;
-    	
-    	public FileTransfer(byte[] data, Date min, Date max) {
-    		this.data = data;
-    		this.min = min;
-    		this.max = max;
-    	}
-
-        @Override
-		public Iterable<Input> read() {
-        	final ByteBuffer b = ByteBuffer.wrap(data);
-        	return new Iterable<Input>() {
-
-				@Override
-				public Iterator<Input> iterator() {
-					return new Iterator<Input>() {
-
-						@Override
-						public boolean hasNext() {
-							return b.limit() > b.position();
-						}
-
-						@Override
-						public Input next() {
-							if (!hasNext())
-								throw new NoSuchElementException();
-							int len = b.getInt();
-							long milis = b.getLong();
-							int nextPos = len + b.position();
-							Input ret = new Input(b.array(),b.position(),b.position()+len);
-							b.position(nextPos);
-							return ret;
-						}
-
-						@Override
-						public void remove() {
-							throw new UnsupportedOperationException();
-						}};
-				}
-        		
-        	};
-        }
-
-		@Override
-		public Date getMinDate() {
-			return min;
-		}
-
-		@Override
-		public Date getMaxDate() {
-			return max;
-		}
-
-    }
-    
-    public FileTransfer createFileTransfer() throws IOException {
-    	final ArrayList<TargetFile> filesToRead = new ArrayList<TargetFile>();
-        synchronized (lock) {
-        	for (TargetFile target : writtenFiles) {
-    			filesToRead.add(target);
-	    	}
-    		filesToRead.add(currentTarget);
-        }
-    	Collections.sort(filesToRead, new Comparator<TargetFile>() {
-			@Override
-			public int compare(TargetFile o1, TargetFile o2) {
-				if (o1.earliestTimestamp > o2.earliestTimestamp)
-					return -1;
-				if (o1.earliestTimestamp < o2.earliestTimestamp)
-					return 1;
-				if (o1.latestTimestamp > o2.latestTimestamp)
-					return -1;
-				if (o1.latestTimestamp < o2.latestTimestamp)
-					return 1;
-				return System.identityHashCode(o1)-System.identityHashCode(o2);
-			}
-		});
-    	final ArrayList<TargetFile> transfer = new ArrayList<TargetFile>();
-    	int len = 0;
-		if (!filesToRead.isEmpty()) {
-	    	final TargetFile file = filesToRead.remove(0);
-	    	len += file.limit-FIRST_RECORD_POSITION;
-    		transfer.add(file);
-    	}
-		if (!filesToRead.isEmpty()) {
-	    	final TargetFile file = filesToRead.remove(0);
-	    	len += file.limit-FIRST_RECORD_POSITION;
-    		transfer.add(file);
-    	}
-		byte[] data = new byte[len];
-		int off = 0;
-		
-		long minDate=Long.MAX_VALUE;
-		long maxDate=0;
-		for (TargetFile f : transfer) {
-			RandomAccessFile rF = new RandomAccessFile(f.file, "r");
-			rF.skipBytes(FIRST_RECORD_POSITION);
-			rF.read(data, off, f.limit-FIRST_RECORD_POSITION);
-			off += f.limit;
-			rF.close();
-			maxDate=Math.max(maxDate,f.latestTimestamp);
-			minDate=Math.min(minDate,f.earliestTimestamp);
-		}
-		return new FileTransfer(data,new Date(minDate),new Date(maxDate));
-    }
-
-    @Override
-	public Iterable<Input> read() {
-    	return read(null,null);
-    }
-    
-    
+ 
     static class OpenedFile {
     	byte[] data;
     	ArrayList<DataPointer> dataPointers;
@@ -555,8 +433,7 @@ public class MonitoringDataStorage implements ReadableInput {
 		};
     	
     }
-
-	@Override
+    
 	public Date getMinDate() {
 		long min=Long.MAX_VALUE;
 		final ArrayList<TargetFile> files = new ArrayList<TargetFile>();
@@ -572,7 +449,6 @@ public class MonitoringDataStorage implements ReadableInput {
 		return new Date(min);
 	}
 
-	@Override
 	public Date getMaxDate() {
 		long max=0;
 		final ArrayList<TargetFile> files = new ArrayList<TargetFile>();

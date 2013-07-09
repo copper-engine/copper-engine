@@ -56,6 +56,7 @@ public abstract class Data implements Serializable, DisplayableNode {
 		
 		private static final long serialVersionUID = 1L;
 
+		@Override
 		public String getDisplayValue() {
 			return "<null>";
 		};

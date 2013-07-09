@@ -7,10 +7,15 @@ import java.util.List;
 
 import org.junit.Test;
 
+import de.scoopgmbh.copper.monitoring.core.statistic.converter.DoubleConverter;
+import de.scoopgmbh.copper.monitoring.core.statistic.converter.TimeConverter;
+
 
 public class StatisticCreatorTest {
 	
 	private class Pair extends TimeValuePair<Double>{
+		private static final long serialVersionUID = 5132976891911560776L;
+
 		public Pair(Date date, Double value) {
 			super(date, value);
 		}
@@ -20,17 +25,19 @@ public class StatisticCreatorTest {
 	public void test_group_avg(){
 		
 		final DoubleConverter<TimeValuePair<Double>> doubleConverter = new DoubleConverter<TimeValuePair<Double>>() {
+			private static final long serialVersionUID = 1L;
 			@Override
 			public double getDouble(TimeValuePair<Double> value) {
 				return value.value;
 			}
 		};
 		
-		
 		AvgAggregateFunction<TimeValuePair<Double>> avg = new AvgAggregateFunction<TimeValuePair<Double>>(doubleConverter);
-		final DateConverter<TimeValuePair<Double>> dateConverter = new DateConverter<TimeValuePair<Double>>() {
+		final TimeConverter<TimeValuePair<Double>> dateConverter = new TimeConverter<TimeValuePair<Double>>() {
+			private static final long serialVersionUID = -5711345254694347322L;
+
 			@Override
-			public Date getDate(TimeValuePair<Double> value) {
+			public Date getTime(TimeValuePair<Double> value) {
 				return value.date;
 			}
 		};
@@ -54,14 +61,16 @@ public class StatisticCreatorTest {
 	@Test
 	public void test_group_count(){
 		CountAggregateFunction<Pair> count = new CountAggregateFunction<Pair>();
-		TimeframeGroup<Pair,TimeValuePair<Long>> group = new TimeframeGroup<Pair,TimeValuePair<Long>>(count,new Date(0),new Date(5),new DateConverter<Pair>() {
+		TimeframeGroup<Pair,TimeValuePair<Double>> group = new TimeframeGroup<Pair,TimeValuePair<Double>>(count,new Date(0),new Date(5),new TimeConverter<Pair>() {
+			private static final long serialVersionUID = 8575974750093890171L;
+
 			@Override
-			public Date getDate(Pair value) {
+			public Date getTime(Pair value) {
 				return value.date;
 			}
 		});
 
-		StatisticCreator<Pair,TimeValuePair<Long>> statisticCreator = new StatisticCreator<Pair,TimeValuePair<Long>>(group);
+		StatisticCreator<Pair,TimeValuePair<Double>> statisticCreator = new StatisticCreator<Pair,TimeValuePair<Double>>(group);
 		
 		statisticCreator.add(new Pair(new Date(0),2.0));
 		statisticCreator.add(new Pair(new Date(0),2.0));
@@ -69,7 +78,7 @@ public class StatisticCreatorTest {
 		statisticCreator.add(new Pair(new Date(5),6.0));
 		statisticCreator.add(new Pair(new Date(5),6.0));
 		
-		List<TimeValuePair<Long>> result = statisticCreator.getAggregatedResult();
+		List<TimeValuePair<Double>> result = statisticCreator.getAggregatedResult();
 		assertEquals(2, result.size());
 		
 		assertEquals(2l, result.get(0).value.longValue());
@@ -79,15 +88,17 @@ public class StatisticCreatorTest {
 	@Test
 	public void test_empty_groups(){
 		CountAggregateFunction<Pair> count = new CountAggregateFunction<Pair>();
-		TimeframeGroup<Pair,TimeValuePair<Long>> group = new TimeframeGroup<Pair,TimeValuePair<Long>>(count,new Date(0),new Date(5),new DateConverter<Pair>() {
+		TimeframeGroup<Pair,TimeValuePair<Double>> group = new TimeframeGroup<Pair,TimeValuePair<Double>>(count,new Date(0),new Date(5),new TimeConverter<Pair>() {
+			private static final long serialVersionUID = 4477205822827368748L;
+
 			@Override
-			public Date getDate(Pair value) {
+			public Date getTime(Pair value) {
 				return value.date;
 			}
 		});
 
 
-		StatisticCreator<Pair,TimeValuePair<Long>> statisticCreator = new StatisticCreator<Pair,TimeValuePair<Long>>(group);
+		StatisticCreator<Pair,TimeValuePair<Double>> statisticCreator = new StatisticCreator<Pair,TimeValuePair<Double>>(group);
 		
 		statisticCreator.add(new Pair(new Date(0),2.0));
 		//5-10 empty
@@ -96,7 +107,7 @@ public class StatisticCreatorTest {
 		statisticCreator.add(new Pair(new Date(20),6.0));
 		statisticCreator.add(new Pair(new Date(20),6.0));
 		
-		List<TimeValuePair<Long>> result = statisticCreator.getAggregatedResult();
+		List<TimeValuePair<Double>> result = statisticCreator.getAggregatedResult();
 		assertEquals(5, result.size());
 		
 		assertEquals(1l, result.get(0).value.longValue());
