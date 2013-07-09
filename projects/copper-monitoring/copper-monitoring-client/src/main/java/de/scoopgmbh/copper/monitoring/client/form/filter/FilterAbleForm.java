@@ -62,7 +62,7 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController.Action
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.MessageKey;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
-import de.scoopgmbh.copper.monitoring.client.util.NumerOnlyTextField;
+import de.scoopgmbh.copper.monitoring.client.util.NumberOnlyTextField;
 
 /**
  * A Form with a filter form and a result form
@@ -267,7 +267,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		HBox hbox = new HBox(3);
 		hbox.setAlignment(Pos.CENTER_LEFT);
 		hbox.getChildren().add(new Label("Refresh Interval"));
-		TextField interval = new NumerOnlyTextField();
+		TextField interval = new NumberOnlyTextField();
 		interval.setPrefWidth(100);
 		interval.textProperty().bindBidirectional(refreshRateInMs);
 		hbox.getChildren().add(interval);

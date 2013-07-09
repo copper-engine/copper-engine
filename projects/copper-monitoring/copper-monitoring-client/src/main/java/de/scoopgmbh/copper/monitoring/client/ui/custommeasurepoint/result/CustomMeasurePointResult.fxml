@@ -18,7 +18,7 @@
           <center>
             <StackPane prefHeight="150.0" prefWidth="200.0">
               <children>
-                <LineChart fx:id="measurePointsChart">
+                <LineChart id="measurePointsChart" fx:id="avgChart">
                   <xAxis>
                     <NumberAxis fx:id="timeAxis" side="BOTTOM" />
                   </xAxis>
@@ -27,28 +27,40 @@
                   </yAxis>
                 </LineChart>
                 <TextArea fx:id="textChart" prefWidth="200.0" wrapText="true" />
+                <LineChart id="avgChart" fx:id="countChart">
+                  <xAxis>
+                    <NumberAxis id="timeAxis" side="BOTTOM" />
+                  </xAxis>
+                  <yAxis>
+                    <NumberAxis id="numberAxis" label="count" side="LEFT" />
+                  </yAxis>
+                </LineChart>
+                <LineChart id="avgChart" fx:id="quantilChart">
+                  <xAxis>
+                    <NumberAxis id="timeAxis" side="BOTTOM" />
+                  </xAxis>
+                  <yAxis>
+                    <NumberAxis id="numberAxis" label="micro secounds" side="LEFT" />
+                  </yAxis>
+                </LineChart>
               </children>
             </StackPane>
           </center>
           <top>
             <HBox maxHeight="-1.0" prefHeight="-1.0" prefWidth="200.0" spacing="3.0">
               <children>
-                <RadioButton fx:id="pointsButton" mnemonicParsing="false" text="points">
+                <RadioButton id="pointsButton" fx:id="avgButton" mnemonicParsing="false" text="avg">
                   <HBox.margin>
-                    <Insets bottom="3.0" left="3.0" top="3.0" />
+                    <Insets fx:id="x1" />
                   </HBox.margin>
                 </RadioButton>
-                <RadioButton fx:id="textButton" mnemonicParsing="false" text="text">
-                  <HBox.margin>
-                    <Insets bottom="3.0" top="3.0" fx:id="x1" />
-                  </HBox.margin>
-                </RadioButton>
-                <CheckBox fx:id="quantilButton" mnemonicParsing="false" selected="true" text="quantil">
-                  <HBox.margin>
-                    <Insets bottom="3.0" top="3.0" fx:id="x1" />
-                  </HBox.margin>
-                </CheckBox>
+                <RadioButton id="pointsButton" fx:id="countButton" mnemonicParsing="false" text="count" HBox.margin="$x1" />
+                <RadioButton id="pointsButton" fx:id="quantilButton" mnemonicParsing="false" text="quantil" HBox.margin="$x1" />
+                <RadioButton fx:id="textButton" mnemonicParsing="false" text="text" HBox.margin="$x1" />
               </children>
+              <BorderPane.margin>
+                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+              </BorderPane.margin>
             </HBox>
           </top>
         </BorderPane>

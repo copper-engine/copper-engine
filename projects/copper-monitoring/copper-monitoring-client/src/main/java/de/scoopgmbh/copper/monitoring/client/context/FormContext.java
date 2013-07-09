@@ -59,6 +59,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResu
 import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.result.CustomMeasurePointResultController;
+import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.result.CustomMeasurePointResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardDependencyFactory;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultModel;
@@ -330,6 +331,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 			).build();
 	}
 	
+	@Override
 	public FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> createWorkflowInstanceListForm(){
 		final EngineFilterAbleForm<WorkflowInstanceFilterModel, WorkflowInstanceResultModel> form = new EngineFormBuilder<WorkflowInstanceFilterModel,WorkflowInstanceResultModel,WorkflowInstanceFilterController,WorkflowInstanceResultController>(
 					new WorkflowInstanceFilterController(),
@@ -388,6 +390,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		return resultForm;
 	}
 
+	@Override
 	public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(BorderPane target) {
 		return createWorkflowinstanceDetailResultForm(new BorderPaneShowFormStrategie(target));
 	}
@@ -484,8 +487,8 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		return new TabPaneShowFormStrategie(mainTabPane);
 	}
 	
-	public FilterAbleForm<CustomMeasurePointFilterModel, MeasurePointData> createCustomMeasurePointForm() {
-		return new FormBuilder<CustomMeasurePointFilterModel, MeasurePointData, CustomMeasurePointFilterController,CustomMeasurePointResultController>(
+	public FilterAbleForm<CustomMeasurePointFilterModel, CustomMeasurePointResultModel> createCustomMeasurePointForm() {
+		return new FormBuilder<CustomMeasurePointFilterModel, CustomMeasurePointResultModel, CustomMeasurePointFilterController,CustomMeasurePointResultController>(
 				new CustomMeasurePointFilterController(guiCopperDataProvider),
 				new CustomMeasurePointResultController(guiCopperDataProvider),
 				this

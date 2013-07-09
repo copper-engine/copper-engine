@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URL;
 import java.rmi.RemoteException;
@@ -59,7 +60,7 @@ import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
 import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
-import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
+import de.scoopgmbh.copper.monitoring.core.data.filter.MonitoringDataFilter;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.BatcherInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
@@ -475,22 +476,45 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 		return dbStorage.getRecommendationsReport(sqlid);
 	}
 
+
+
 	@Override
-	public <T, U> List<U> getListGrouped(final Class<T> clazz, final StatisticCreator<T, U> statisticCreator) throws RemoteException {
-		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<U>>() {
+	public Date getMonitoringhDataMinDate() throws RemoteException {
+		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<Date>() {
 			@Override
-			public List<U> call() throws Exception {
-				return monitoringDataAccesor.getListGrouped(clazz,statisticCreator);
+			public Date call() throws Exception {
+				return monitoringDataAccesor.getMonitoringhDataMinDate();
 			}
 		});
 	}
 
 	@Override
-	public MonitoringDataAccesor getRecentMonitoringDataAccesor() throws RemoteException {
-		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<MonitoringDataAccesor>() {
+	public Date getMonitoringhDataMaxDate() throws RemoteException {
+		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<Date>() {
 			@Override
-			public MonitoringDataAccesor call() throws Exception {
-				return new MonitoringDataAccesor(monitoringDataStorage.createFileTransfer());
+			public Date call() throws Exception {
+				return monitoringDataAccesor.getMonitoringhDataMaxDate();
+			}
+		});
+	}
+
+	@Override
+	public <T> List<T> getList(final MonitoringDataFilter<T> filter, final Date from, final Date to, final long maxCount) throws RemoteException {
+		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				return monitoringDataAccesor.getList(filter, from, to, maxCount);
+			}
+		});
+	}
+
+	@Override
+	public <T, R extends Serializable> List<List<R>> createStatistic(final MonitoringDataFilter<T> filter,
+			final List<StatisticCreator<T, R>> statisticCreators, final Date from, final Date to) throws RemoteException {
+		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<List<List<R>>>() {
+			@Override
+			public List<List<R>> call() throws Exception {
+				return monitoringDataAccesor.createStatistic(filter, statisticCreators, from, to);
 			}
 		});
 	}

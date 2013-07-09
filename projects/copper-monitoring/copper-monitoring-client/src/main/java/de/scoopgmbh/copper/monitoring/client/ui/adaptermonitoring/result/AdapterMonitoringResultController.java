@@ -245,7 +245,11 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 
 	@Override
 	public List<AdapterMonitoringResultModel> applyFilterInBackgroundThread(AdapterMonitoringFilterModel filter) {
-		return Arrays.asList(copperDataProvider.getAdapterHistoryInfo(filter));
+		AdapterMonitoringResultModel result = new AdapterMonitoringResultModel(
+				copperDataProvider.getAdapterCalls(null, null, 1000),
+				copperDataProvider.getAdapterNotifies(null, null, 1000),
+				copperDataProvider.getAdapterLaunches(null, null, 1000));
+		return Arrays.asList(result);
 	}
 	
 	@Override

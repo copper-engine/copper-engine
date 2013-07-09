@@ -218,9 +218,6 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 			}
 		});
         
-
-        
-        
         
         resultTextarea.getStyleClass().add("consoleFont");
         resultTextarea.setWrapText(false);
@@ -259,7 +256,7 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 
 	@Override
 	public List<LogsResultModel> applyFilterInBackgroundThread(LogsFilterModel filter) {
-		return Arrays.asList(copperDataProvider.getLogData());
+		return Arrays.asList(copperDataProvider.getLogData(null,null,1000));
 	}
 
 	@Override

@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.monitoring.client.doc.view.fixture;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +26,7 @@ import java.util.Map;
 import java.util.Random;
 
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
-import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
+import de.scoopgmbh.copper.monitoring.core.data.filter.MonitoringDataFilter;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
@@ -1195,14 +1196,28 @@ public class TestDataProvider implements CopperMonitoringService {
 		return "";
 	}
 
+
 	@Override
-	public <T, U> List<U> getListGrouped(Class<T> clazz, StatisticCreator<T, U> statisticCreator) throws RemoteException {
+	public Date getMonitoringhDataMinDate() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public MonitoringDataAccesor getRecentMonitoringDataAccesor() throws RemoteException {
+	public Date getMonitoringhDataMaxDate() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T, R extends Serializable> List<List<R>> createStatistic(MonitoringDataFilter<T> filter,
+			List<StatisticCreator<T, R>> statisticCreator, Date from, Date to) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> List<T> getList(MonitoringDataFilter<T> filter, Date from, Date to, long maxCount) throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}

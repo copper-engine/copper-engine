@@ -15,31 +15,22 @@
  */
 package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterHistoryInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
 
 public class AdapterMonitoringResultModel {
 	
-	public final ObservableList<AdapterCallRowModel> adapterCalls = FXCollections.observableArrayList();
-	public final ObservableList<AdapterNotifyRowModel> adapterNotifies = FXCollections.observableArrayList();
-	public final ObservableList<AdapterLaunchRowModel> adapterLaunches = FXCollections.observableArrayList();
-	
-	
-	public AdapterMonitoringResultModel(AdapterHistoryInfo adapterHistoryInfo) {
-		for (AdapterCallInfo adapterCall: adapterHistoryInfo.getAdapterCalls()){
-			adapterCalls.add(new AdapterCallRowModel(adapterCall));
-		}
-		for (AdapterWfNotifyInfo  adapterWfNotifyInfo: adapterHistoryInfo.getAdapterWfNotifies()){
-			adapterNotifies.add(new AdapterNotifyRowModel(adapterWfNotifyInfo));
-		}
-		for (AdapterWfLaunchInfo adapterWfLaunchInfo: adapterHistoryInfo.getAdapterWfLaunches()){
-			adapterLaunches.add(new AdapterLaunchRowModel(adapterWfLaunchInfo));
-		}
+	public final ObservableList<AdapterCallRowModel> adapterCalls;
+	public final ObservableList<AdapterNotifyRowModel> adapterNotifies;
+	public final ObservableList<AdapterLaunchRowModel> adapterLaunches;
+	public AdapterMonitoringResultModel(ObservableList<AdapterCallRowModel> adapterCalls,
+			ObservableList<AdapterNotifyRowModel> adapterNotifies, ObservableList<AdapterLaunchRowModel> adapterLaunches) {
+		super();
+		this.adapterCalls = adapterCalls;
+		this.adapterNotifies = adapterNotifies;
+		this.adapterLaunches = adapterLaunches;
 	}
+
+	
 	
 	
 	

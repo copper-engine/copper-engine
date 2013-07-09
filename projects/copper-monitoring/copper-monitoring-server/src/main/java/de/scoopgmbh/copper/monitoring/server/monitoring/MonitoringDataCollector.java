@@ -86,7 +86,7 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				measurePointData.setSystemResourcesInfo(performanceMonitor.createRessourcenInfo());
+				measurePointData.setSystemCpuLoad(performanceMonitor.createRessourcenInfo().getSystemCpuLoad());
 				monitoringDataAdder.add(measurePointData);
 			}
 		});

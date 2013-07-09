@@ -21,11 +21,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -35,7 +33,6 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -47,9 +44,9 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerB
 import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.logs.result.LogsResultModel.LogsRowModel;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
-import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
+import de.scoopgmbh.copper.monitoring.core.statistic.TimeValuePair;
 
-public class CustomMeasurePointResultController extends FilterResultControllerBase<CustomMeasurePointFilterModel,MeasurePointData> implements Initializable {
+public class CustomMeasurePointResultController extends FilterResultControllerBase<CustomMeasurePointFilterModel,CustomMeasurePointResultModel> implements Initializable {
 	private final GuiCopperDataProvider copperDataProvider;
 	private ArrayList<LogsRowModel> logEvents = new ArrayList<LogsRowModel>();
 	
@@ -61,64 +58,70 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 	private static final int DEFAUKKT_TIME_FRAME = 1000*10;
 
 
+
+    @FXML //  fx:id="avgButton"
+    private RadioButton avgButton; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="avgChart"
+    private LineChart<Number, Number> avgChart; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="countButton"
+    private RadioButton countButton; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="countChart"
+    private LineChart<Number, Number> countChart; // Value injected by FXMLLoader
+
     @FXML //  fx:id="logText"
     private TextArea logText; // Value injected by FXMLLoader
-
-    @FXML //  fx:id="measurePointsChart"
-    private LineChart<Number, Number> measurePointsChart; // Value injected by FXMLLoader
-
-    @FXML //  fx:id="numberAxis"
-    private NumberAxis numberAxis; // Value injected by FXMLLoader
-
-    @FXML //  fx:id="ressourceChart"
-    private AreaChart<Number, Number> ressourceChart; // Value injected by FXMLLoader
-
-    @FXML //  fx:id="timeAxis"
-    private NumberAxis timeAxis; // Value injected by FXMLLoader
-    
-    @FXML //  fx:id="timeResAxis"
-    private NumberAxis timeResAxis;
 
     @FXML //  fx:id="measurePointField"
     private TextField measurePointField; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="timeRange"
-    private TextField timeRange; // Value injected by FXMLLoader
-
-    @FXML //  fx:id="pointsButton"
-    private RadioButton pointsButton; // Value injected by FXMLLoader
+    @FXML //  fx:id="numberAxis"
+    private NumberAxis numberAxis; // Value injected by FXMLLoader
 
     @FXML //  fx:id="quantilButton"
-    private CheckBox quantilButton; // Value injected by FXMLLoader
+    private RadioButton quantilButton; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="quantilChart"
+    private LineChart<Number, Number> quantilChart; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="ressourceChart"
+    private AreaChart<Number, Number> ressourceChart; // Value injected by FXMLLoader
 
     @FXML //  fx:id="textButton"
     private RadioButton textButton; // Value injected by FXMLLoader
 
     @FXML //  fx:id="textChart"
     private TextArea textChart; // Value injected by FXMLLoader
-	private Series<Number, Number> series99qantil = new Series<Number, Number>();
-	private Series<Number, Number> series90qantil = new Series<Number, Number>();
-	private Series<Number, Number> series50qantil = new Series<Number, Number>();
-	private Map<String, List<MeasurePointData>> groups;
-	private Series<Number, Number> measurePointSeries;
 
+    @FXML //  fx:id="timeAxis"
+    private NumberAxis timeAxis; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="timeRange"
+    private TextField timeRange; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="timeResAxis"
+    private NumberAxis timeResAxis; // Value injected by FXMLLoader
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
+        assert avgButton != null : "fx:id=\"avgButton\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
+        assert avgChart != null : "fx:id=\"avgChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
+        assert countButton != null : "fx:id=\"countButton\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
+        assert countChart != null : "fx:id=\"countChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert logText != null : "fx:id=\"logText\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert measurePointField != null : "fx:id=\"measurePointField\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
-        assert measurePointsChart != null : "fx:id=\"measurePointsChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert numberAxis != null : "fx:id=\"numberAxis\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
-        assert pointsButton != null : "fx:id=\"pointsButton\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert quantilButton != null : "fx:id=\"quantilButton\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
+        assert quantilChart != null : "fx:id=\"quantilChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert ressourceChart != null : "fx:id=\"ressourceChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert textButton != null : "fx:id=\"textButton\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert textChart != null : "fx:id=\"textChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert timeAxis != null : "fx:id=\"timeAxis\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert timeRange != null : "fx:id=\"timeRange\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert timeResAxis != null : "fx:id=\"timeResAxis\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
-
         
         maxResultCountProperty().set(100);
         logText.setWrapText(false);
@@ -126,45 +129,37 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
         timeRange.setText(""+DEFAUKKT_TIME_FRAME);
        
         final ToggleGroup group = new ToggleGroup();
-        pointsButton.setToggleGroup(group);
+        avgButton.setToggleGroup(group);
         textButton.setToggleGroup(group);
-        measurePointsChart.visibleProperty().bind(pointsButton.selectedProperty());
+        countButton.setToggleGroup(group);
+        quantilButton.setToggleGroup(group);
+        avgChart.visibleProperty().bind(avgButton.selectedProperty());
         textChart.visibleProperty().bind(textButton.selectedProperty());
+        countChart.visibleProperty().bind(countButton.selectedProperty());
+        quantilChart.visibleProperty().bind(quantilButton.selectedProperty());
         
-        pointsButton.setSelected(true);
+        avgButton.setSelected(true);
         
-        measurePointSeries = new Series<Number, Number>();
-        measurePointsChart.getData().add(measurePointSeries);
-        
-		series99qantil.setName("99%");
-		series90qantil.setName("90%");
-		series50qantil.setName("50%");
-		measurePointsChart.getData().add(series99qantil);
-		measurePointsChart.getData().add(series90qantil);
-		measurePointsChart.getData().add(series50qantil);
-		
-		
-		quantilButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				if (newValue!=null){
-					updateQuantilSeries(newValue);
-				}
-			}
-		});
-
     }
     
-	private void updateQuantilSeries(boolean visible) {
-		measurePointsChart.setAnimated(false);
-		if (!visible) {
-			series50qantil.getData().clear();
-			series90qantil.getData().clear();
-			series99qantil.getData().clear();
-		} else {
-			craeteQuantil();
+	private void updateChart(XYChart<Number, Number> chart, Map<String,List<TimeValuePair<Double>>> seriesTitleToData) {
+		chart.getData().clear();
+		
+		for (Entry<String,List<TimeValuePair<Double>>> seriesData: seriesTitleToData.entrySet()){
+			final Series<Number, Number> series = new Series<Number, Number>();
+			series.setName(seriesData.getKey());
+			for (TimeValuePair<Double> timeValuePair: seriesData.getValue()){
+				final Data<Number, Number> data = new Data<Number, Number>(timeValuePair.date.getTime(),timeValuePair.value);
+				data.setNode(new HoveredNode(timeValuePair.date.getTime(),timeValuePair.value,""));
+				series.getData().add(data);
+			}
+			chart.getData().add(series);
 		}
-		measurePointsChart.setAnimated(true);
+		ComponentUtil.setupXAxis((NumberAxis)chart.getXAxis(),chart.getData());
+		
+//		measurePointsChart.getYAxis().setAutoRanging(false);
+//		((NumberAxis)measurePointsChart.getYAxis()).setLowerBound(0);
+//		((NumberAxis)measurePointsChart.getYAxis()).setUpperBound(ymax*1.10);
 	}
 	
 	@Override
@@ -173,127 +168,85 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 	}
 
 	@Override
-	public void showFilteredResult(List<MeasurePointData> filteredlist, CustomMeasurePointFilterModel usedFilter) {
-		groups = new HashMap<String, List<MeasurePointData>>();
-		for (MeasurePointData measurePointData: filteredlist){
-			List<MeasurePointData> group = groups.get(measurePointData.getMeasurePointId());
-			if (group==null){
-				group= new ArrayList<MeasurePointData>();
-				groups.put(measurePointData.getMeasurePointId(),group);
-			}
-			group.add(measurePointData);
+	public void showFilteredResult(List<CustomMeasurePointResultModel> filteredlist, CustomMeasurePointFilterModel usedFilter) {
+		CustomMeasurePointResultModel measurePointResultModel = filteredlist.get(0);
+		
+		Map<String,List<TimeValuePair<Double>>> seriesTitleToDataForText = new HashMap<String,List<TimeValuePair<Double>>>();
+		
+		{
+			HashMap<String,List<TimeValuePair<Double>>> map = new HashMap<String,List<TimeValuePair<Double>>>();
+			map.put("average",measurePointResultModel.avg);
+			updateChart(avgChart,map);
+			seriesTitleToDataForText.putAll(map);
 		}
-		craetePointAndRessourceChart();
-		craeteTextChart();;
-		setupChart();
+		{
+			HashMap<String,List<TimeValuePair<Double>>> map = new HashMap<String,List<TimeValuePair<Double>>>();
+			map.put("count",measurePointResultModel.count);
+			updateChart(countChart,map);
+			seriesTitleToDataForText.putAll(map);
+		}
+		{
+			HashMap<String,List<TimeValuePair<Double>>> map = new HashMap<String,List<TimeValuePair<Double>>>();
+			map.put("50% quantil",measurePointResultModel.quantil50);
+			map.put("90% quantil",measurePointResultModel.quantil90);
+			map.put("99% quantil",measurePointResultModel.quantil99);
+			updateChart(quantilChart,map);
+			seriesTitleToDataForText.putAll(map);
+		}
+		{
+			HashMap<String,List<TimeValuePair<Double>>> map = new HashMap<String,List<TimeValuePair<Double>>>();
+			map.put("system cpu load",measurePointResultModel.avgCpuCreator);
+			updateChart(ressourceChart,map);
+			seriesTitleToDataForText.putAll(map);
+		}
+		
+		craeteTextChart(seriesTitleToDataForText);
 	}
 	
-	private void craeteTextChart() {
+	private void craeteTextChart(Map<String,List<TimeValuePair<Double>>> seriesTitleToData) {
 		StringBuilder result = new StringBuilder();
-		for (List<MeasurePointData> group: groups.values()){
-			result.append(group.get(0).getMeasurePointId()+"\n");
-			for (MeasurePointData measurePointData: group){
-				result.append(measurePointData.getTime()+"\t"+measurePointData.getElapsedTimeMicros()+"\n");
+		for (Entry<String,List<TimeValuePair<Double>>> seriesData: seriesTitleToData.entrySet()){
+			result.append(seriesData.getKey()+"\n");
+			for (TimeValuePair<Double> value: seriesData.getValue()){
+				result.append(value.date+"\t"+value.value+"\n");
 			}
 		}
 		textChart.setText(result.toString());
 	}
 	
-	private void setupChart() {
-		long xmin=Long.MAX_VALUE;
-		long xmax=Long.MIN_VALUE;
-		long ymax=Long.MIN_VALUE;
-		
-		for (List<MeasurePointData> group: groups.values()){
-			for (MeasurePointData measurePointData: group){
-				final long occurence = measurePointData.getTime().getTime();
-				final long elapsedTime = measurePointData.getElapsedTimeMicros();
-
-				xmin = Math.min(xmin, occurence);
-				xmax = Math.max(xmax, occurence);
-				ymax = Math.max(ymax, elapsedTime);
-			}
-		}
-		
-		measurePointsChart.getYAxis().setAutoRanging(false);
-		((NumberAxis)measurePointsChart.getYAxis()).setLowerBound(0);
-		((NumberAxis)measurePointsChart.getYAxis()).setUpperBound(ymax*1.10);
-		
-		ComponentUtil.setupXAxis(timeAxis,xmin,xmax);
-		ComponentUtil.setupXAxis(timeResAxis,xmin,xmax);
-	}
-	
-	private void craeteQuantil() {
-		series99qantil.getData().clear();
-		series90qantil.getData().clear();
-		series50qantil.getData().clear();
-		
-		ArrayList<Long> data = new ArrayList<Long>();
-		for (List<MeasurePointData> group: groups.values()){
-			for (MeasurePointData measurePointData: group){
-				final long elapsedTime = measurePointData.getElapsedTimeMicros();
-				data.add(elapsedTime);
-			}
-		}
-		
-		final Long[] sorted = data.toArray(new Long[data.size()]);
-		Arrays.sort(sorted);
-		long qu50 = sorted[sorted.length/2];
-		long qu90 = sorted[sorted.length*9/10];
-		long qu99 = sorted[sorted.length*99/100];
-		
-		for (List<MeasurePointData> group: groups.values()){
-			for (int i=0;i<group.size();i++){
-				if (i==0 || i==group.size()-1){
-					final long occurence = group.get(i).getTime().getTime();
-					final Data<Number, Number> data99 = new XYChart.Data<Number, Number>(occurence, qu99);
-					data99.setNode(new HoveredNode(occurence,qu99,""));
-					series99qantil.getData().add(data99);
-					final Data<Number, Number> data90 = new XYChart.Data<Number, Number>(occurence, qu90);
-					data90.setNode(new HoveredNode(occurence,qu90,""));
-					series90qantil.getData().add(data90);
-					final Data<Number, Number> data50 = new XYChart.Data<Number, Number>(occurence, qu50);
-					data50.setNode(new HoveredNode(occurence,qu50,""));
-					series50qantil.getData().add(data50);
-				}
-			}
-		}
-	}
-	
-	private void craetePointAndRessourceChart() {
-		measurePointSeries.getData().clear();
-		ressourceChart.getData().clear();
-		
-		updateQuantilSeries(quantilButton.isSelected());
-		
-		Series<Number, Number> systemCPU = new Series<Number, Number>();
-		systemCPU.setName("System CPU usage");
-		Series<Number, Number> processCPU = new Series<Number, Number>();
-		processCPU.setName("Process CPU usage");
-		for (List<MeasurePointData> group: groups.values()){
-			measurePointSeries.setName(group.get(0).getMeasurePointId());
-			ObservableList<Data<Number, Number>> data = measurePointSeries.getData();
-			for (MeasurePointData measurePointData: group){
-				final long time = measurePointData.getTime().getTime();
-				final Data<Number, Number> dataPoint = new XYChart.Data<Number, Number>(time, measurePointData.getElapsedTimeMicros());
-				dataPoint.setNode(new HoveredNode(time,measurePointData.getElapsedTimeMicros(),measurePointData.getMeasurePointId()+", "+measurePointData.getTime()));
-				data.add(dataPoint);
-				if (ressourceChart.getData().isEmpty()){
-					systemCPU.getData().add(new XYChart.Data<Number, Number>(time, measurePointData.getSystemResourcesInfo().getSystemCpuLoad()));
-					processCPU.getData().add(new XYChart.Data<Number, Number>(time, measurePointData.getSystemResourcesInfo().getProcessCpuLoad()));
-				}
-			}
-			
-			if (ressourceChart.getData().isEmpty()){
-				ressourceChart.getData().add(systemCPU);
-				ressourceChart.getData().add(processCPU);
-			}
-		}
-	}
+//	private void craetePointAndRessourceChart() {
+//		measurePointSeries.getData().clear();
+//		ressourceChart.getData().clear();
+//		
+//		updateQuantilSeries(quantilButton.isSelected());
+//		
+//		Series<Number, Number> systemCPU = new Series<Number, Number>();
+//		systemCPU.setName("System CPU usage");
+//		Series<Number, Number> processCPU = new Series<Number, Number>();
+//		processCPU.setName("Process CPU usage");
+//		for (List<MeasurePointData> group: groups.values()){
+//			measurePointSeries.setName(group.get(0).getMeasurePointId());
+//			ObservableList<Data<Number, Number>> data = measurePointSeries.getData();
+//			for (MeasurePointData measurePointData: group){
+//				final long time = measurePointData.getTime().getTime();
+//				final Data<Number, Number> dataPoint = new XYChart.Data<Number, Number>(time, measurePointData.getElapsedTimeMicros());
+//				dataPoint.setNode(new HoveredNode(time,measurePointData.getElapsedTimeMicros(),measurePointData.getMeasurePointId()+", "+measurePointData.getTime()));
+//				data.add(dataPoint);
+//				if (ressourceChart.getData().isEmpty()){
+//					systemCPU.getData().add(new XYChart.Data<Number, Number>(time, measurePointData.getSystemResourcesInfo().getSystemCpuLoad()));
+//					processCPU.getData().add(new XYChart.Data<Number, Number>(time, measurePointData.getSystemResourcesInfo().getProcessCpuLoad()));
+//				}
+//			}
+//			
+//			if (ressourceChart.getData().isEmpty()){
+//				ressourceChart.getData().add(systemCPU);
+//				ressourceChart.getData().add(processCPU);
+//			}
+//		}
+//	}
 	
 	class HoveredNode extends StackPane {
-		long value;
-		public HoveredNode(final long xvalue, final long yvalue, final String measurePointDescription) {
+		public HoveredNode(final long xvalue, final double yvalue, final String measurePointDescription) {
 			setPrefSize(9, 9);
 			setOnMouseEntered(new EventHandler<MouseEvent>() {
 				@Override
@@ -342,11 +295,11 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 	}
 
 	@Override
-	public List<MeasurePointData> applyFilterInBackgroundThread(CustomMeasurePointFilterModel filter) {
+	public List<CustomMeasurePointResultModel> applyFilterInBackgroundThread(CustomMeasurePointFilterModel filter) {
 		logEvents.clear();
-		logEvents.addAll(copperDataProvider.getLogData().logs);
+		logEvents.addAll(copperDataProvider.getLogData(null,null,this.maxResultCountProperty().get()).logs);
 		
-		return copperDataProvider.getMonitoringMeasurePoints(filter,this.maxResultCountProperty().get());
+		return Arrays.asList(copperDataProvider.getMonitoringMeasurePoints(filter,null,null));
 	}
 
 	@Override
@@ -356,8 +309,9 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 	
 	@Override
 	public void clear() {
-		measurePointsChart.getData().clear();
-		ressourceChart.getData().clear();
-		logText.clear();
+		 avgChart.getData().clear();
+		 countChart.getData().clear();
+		 quantilChart.getData().clear();
+		 logText.clear();
 	}
 }
