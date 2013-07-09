@@ -43,7 +43,7 @@ public class MonitoringDataAccesorTest {
 	public void test_add(){
 		MonitoringDataStorage monitoringDataStorage;
 		try {
-			monitoringDataStorage = new MonitoringDataStorage(File.createTempFile("test", ".tmp").getParentFile(), "copperMonitorLog");
+			monitoringDataStorage = new MonitoringDataStorage(createTempDir("test"), "copperMonitorLog");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -62,7 +62,7 @@ public class MonitoringDataAccesorTest {
 	public void test_add_different (){
 		MonitoringDataStorage monitoringDataStorage;
 		try {
-			monitoringDataStorage = new MonitoringDataStorage(File.createTempFile("test", ".tmp").getParentFile(), "copperMonitorLog");
+			monitoringDataStorage = new MonitoringDataStorage(createTempDir("test"), "copperMonitorLog");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -79,11 +79,18 @@ public class MonitoringDataAccesorTest {
 		assertEquals(1, monitoringDataAccesor.getLogEvents().size());
 	}
 	
+	static File createTempDir(String name) throws IOException {
+		File f = File.createTempFile(name, ".tmp");
+		f.delete();
+		f.mkdirs();
+		return f;
+	}
+	
 	@Test
 	public void test_getContent(){
 		MonitoringDataStorage monitoringDataStorage;
 		try {
-			monitoringDataStorage = new MonitoringDataStorage(File.createTempFile("test", ".tmp").getParentFile(), "copperMonitorLog");
+			monitoringDataStorage = new MonitoringDataStorage(createTempDir("test"), "copperMonitorLog");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

@@ -439,8 +439,10 @@ public class MonitoringDataStorage implements ReadableInput {
 	    		if ((fromTime <= target.latestTimestamp || toTime >= target.earliestTimestamp) && target.limit > FIRST_RECORD_POSITION)
 	    			filesToRead.add(target);
 	    	}
-        	if (currentTarget != null && (fromTime <= currentTarget.latestTimestamp || toTime >= currentTarget.earliestTimestamp) && currentTarget.limit > FIRST_RECORD_POSITION)
+        	if (currentTarget != null && (fromTime <= currentTarget.latestTimestamp || toTime >= currentTarget.earliestTimestamp) && currentTarget.limit > FIRST_RECORD_POSITION) {
+        		currentTarget.out.force();
         		filesToRead.add(currentTarget);
+        	}
         }
     	Collections.sort(filesToRead, new Comparator<TargetFile>() {
 			@Override
