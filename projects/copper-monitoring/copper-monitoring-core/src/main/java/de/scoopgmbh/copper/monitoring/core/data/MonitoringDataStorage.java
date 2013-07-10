@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import com.esotericsoftware.kryo.io.Input;
 
@@ -152,14 +153,14 @@ public class MonitoringDataStorage {
 	}
 	
 	public MonitoringDataStorage(File targetPath, String filenamePrefix) {
-		this(targetPath, filenamePrefix, Long.MAX_VALUE, 60L*24L*366L*100L /* hundred years should be enough for everyone */);
+		this(targetPath, filenamePrefix, Long.MAX_VALUE, TimeUnit.DAYS, 366L*100L /* hundred years should be enough for everyone */);
 	}
 	
-	public MonitoringDataStorage(File targetPath, String filenamePrefix, long maxSize, long maxAgeMinutes) {
+	public MonitoringDataStorage(File targetPath, String filenamePrefix, long maxSize, TimeUnit maxAgeUnit, long duration) {
 		this.targetPath = targetPath;
 		this.filenamePrefix = filenamePrefix;
 		this.maxTotalSize = maxSize;
-		this.discardDataBeforeDateMillis = 60L*1000L*maxAgeMinutes;
+		this.discardDataBeforeDateMillis = maxAgeUnit.toMillis(duration);
 		loadFiles();
 		(forceThread = new ForceThread()).start();
 	}

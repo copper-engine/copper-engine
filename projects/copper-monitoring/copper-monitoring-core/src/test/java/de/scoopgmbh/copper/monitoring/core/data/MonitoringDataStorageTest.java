@@ -7,6 +7,7 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -81,7 +82,7 @@ public class MonitoringDataStorageTest {
 		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
 		tmpDir.delete();
 		tmpDir.mkdirs();
-		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,9000000,10);
+		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,9000000,TimeUnit.DAYS,10);
 		storage.write(new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
 		Thread.sleep(100);
 		System.gc();
@@ -109,7 +110,7 @@ public class MonitoringDataStorageTest {
 		tmpDir.delete();
 		tmpDir.mkdirs();
 		long now = System.currentTimeMillis();
-		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,Long.MAX_VALUE,1);
+		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,Long.MAX_VALUE,TimeUnit.MINUTES,1);
 		storage.write(new Date(now-60001), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
 		Thread.sleep(100);
 		System.gc();
