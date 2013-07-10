@@ -93,11 +93,6 @@ public class MeasurePointResultController extends FilterResultControllerBase<Eng
 	public List<MeasurePointData> applyFilterInBackgroundThread(EngineFilterModelBase filter) {
 		return copperDataProvider.getMeasurePoints(filter);
 	}
-
-	@Override
-	public boolean canLimitResult() {
-		return false;
-	}
 	
 	@Override
 	public void clear() {

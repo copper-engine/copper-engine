@@ -16,8 +16,6 @@
 package de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter;
 
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -26,6 +24,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
@@ -33,40 +32,14 @@ import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
+import de.scoopgmbh.copper.monitoring.client.util.DateValidationHelper;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class WorkflowInstanceFilterController extends BaseFilterController<WorkflowInstanceFilterModel> implements Initializable, FxmlController {
-	private static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
+	static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
 	WorkflowInstanceFilterModel model = new WorkflowInstanceFilterModel();
-
-	private final class DateValidation implements ChangeListener<String> {
-		private final TextField field;
-		
-		public DateValidation(TextField field) {
-			super();
-			this.field = field;
-		}
-
-		@Override
-		public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-			boolean parsed=true;
-			if (newValue!=null && !newValue.isEmpty()) {
-				try {
-					new SimpleDateFormat(DATE_TIME_FORMAT).parse(newValue);
-				} catch (ParseException e) {
-					parsed=false;
-				}
-			}
-			if (!parsed){
-				if (!field.getStyleClass().contains("error")){
-					field.getStyleClass().add("error");
-				}
-			} else {
-				field.getStyleClass().remove("error");
-			}
-		}
-	}
 
 	public class EmptySelectionWorkaround{
 		public WorkflowInstanceState value;
@@ -109,8 +82,8 @@ public class WorkflowInstanceFilterController extends BaseFilterController<Workf
         
         from.textProperty().bindBidirectional(model.from, new DateStringConverter(DATE_TIME_FORMAT));
         to.textProperty().bindBidirectional(model.to, new DateStringConverter(DATE_TIME_FORMAT));
-        from.textProperty().addListener(new DateValidation(from));
-        to.textProperty().addListener(new DateValidation(to));
+        DateValidationHelper.addValidation(from,DATE_TIME_FORMAT);
+        DateValidationHelper.addValidation(to,DATE_TIME_FORMAT);
         ArrayList<EmptySelectionWorkaround> states = new ArrayList<EmptySelectionWorkaround>();
         for (WorkflowInstanceState state: WorkflowInstanceState.values()){
         	states.add(new EmptySelectionWorkaround(state,state.toString()));
@@ -157,6 +130,11 @@ public class WorkflowInstanceFilterController extends BaseFilterController<Workf
 	@Override
 	public long getDefaultRefreshIntervall() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
+	}
+
+	@Override
+	public Node createDefaultFilter() {
+		return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
 	}
 	
 }

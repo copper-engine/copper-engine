@@ -20,10 +20,13 @@ import java.util.Map;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterModelBase;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.MaxCountFilterModel;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class EngineLoadFilterModel extends EngineFilterModelBase {
 	public final Map<WorkflowInstanceState,SimpleBooleanProperty> stateFilters = new HashMap<WorkflowInstanceState,SimpleBooleanProperty>();
+	public final MaxCountFilterModel maxCountFilterModel = new MaxCountFilterModel();
+	
 	
 	public EngineLoadFilterModel(){
 		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){

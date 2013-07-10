@@ -15,7 +15,9 @@
  */
 package de.scoopgmbh.copper.monitoring.client.ui.systemresource.filter;
 
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.FromToMaxCountFilterModel;
 
-public class ResourceFilterModel {
+
+public class ResourceFilterModel extends FromToMaxCountFilterModel{
 	
 }

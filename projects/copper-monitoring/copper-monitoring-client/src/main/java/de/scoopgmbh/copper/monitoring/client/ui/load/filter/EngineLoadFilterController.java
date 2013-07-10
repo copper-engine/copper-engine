@@ -22,10 +22,12 @@ import java.util.ResourceBundle;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class EngineLoadFilterController extends BaseFilterController<EngineLoadFilterModel> implements Initializable, FxmlController {
@@ -67,6 +69,11 @@ public class EngineLoadFilterController extends BaseFilterController<EngineLoadF
 	@Override
 	public long getDefaultRefreshIntervall() {
 		return 1500;
+	}
+
+	@Override
+	public Node createDefaultFilter() {
+		return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
 	}
 	
 }

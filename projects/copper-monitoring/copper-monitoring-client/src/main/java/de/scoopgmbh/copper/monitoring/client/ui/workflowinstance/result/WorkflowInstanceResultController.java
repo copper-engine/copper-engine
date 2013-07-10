@@ -334,12 +334,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 	
 	@Override
 	public List<WorkflowInstanceResultModel> applyFilterInBackgroundThread(WorkflowInstanceFilterModel filter) {
-		return copperDataProvider.getWorkflowInstanceList(filter, maxResultCountProperty().get());
-	}
-	
-	@Override
-	public boolean canLimitResult() {
-		return true;
+		return copperDataProvider.getWorkflowInstanceList(filter, filter.maxCountFilterModel.getMaxCount());
 	}
 	
 	@Override

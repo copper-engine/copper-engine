@@ -119,11 +119,6 @@ public class EngineLoadResultController extends FilterResultControllerBase<Engin
 	}
 
 	@Override
-	public boolean canLimitResult() {
-		return false;
-	}
-	
-	@Override
 	public void clear() {
 		areaChart.getData().clear();
 		initChart();

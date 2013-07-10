@@ -15,7 +15,9 @@
  */
 package de.scoopgmbh.copper.monitoring.client.ui.logs.filter;
 
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.FromToMaxCountFilterModel;
 
-public class LogsFilterModel {
+
+public class LogsFilterModel extends FromToMaxCountFilterModel{
 
 }

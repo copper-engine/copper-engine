@@ -16,8 +16,9 @@
 package de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter;
 
 import javafx.beans.property.SimpleStringProperty;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.MaxCountFilterModel;
 
-public class AuditTrailFilterModel {
+public class AuditTrailFilterModel extends MaxCountFilterModel{
 	public SimpleStringProperty workflowClass = new SimpleStringProperty();
 	public SimpleStringProperty workflowInstanceId = new SimpleStringProperty();
 	public SimpleStringProperty correlationId = new SimpleStringProperty();

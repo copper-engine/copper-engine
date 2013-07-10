@@ -20,6 +20,7 @@ import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
@@ -66,6 +67,11 @@ public class WorkflowInstanceDetailFilterController  extends BaseFilterControlle
 	@Override
 	public long getDefaultRefreshIntervall() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
+	}
+
+	@Override
+	public Node createDefaultFilter() {
+		return null;
 	}
 	
 }

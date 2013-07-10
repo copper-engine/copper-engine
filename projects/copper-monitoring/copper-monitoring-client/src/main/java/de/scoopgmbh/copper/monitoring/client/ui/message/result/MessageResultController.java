@@ -134,12 +134,7 @@ public class MessageResultController extends FilterResultControllerBase<MessageF
 
 	@Override
 	public List<MessageResultModel> applyFilterInBackgroundThread(MessageFilterModel filter) {
-		return copperDataProvider.getMessageList(filter,maxResultCountProperty().get());  
-	}
-	
-	@Override
-	public boolean canLimitResult() {
-		return true;
+		return copperDataProvider.getMessageList(filter,filter.maxCountFilterModel.getMaxCount());  
 	}
 	
 	@Override

@@ -20,9 +20,11 @@ import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.layout.FlowPane;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 
 public class ResourceFilterController extends BaseFilterController<ResourceFilterModel> implements Initializable, FxmlController {
 	final ResourceFilterModel model= new ResourceFilterModel();
@@ -34,6 +36,7 @@ public class ResourceFilterController extends BaseFilterController<ResourceFilte
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert pane != null : "fx:id=\"pane\" was not injected: check your FXML file 'EngineLoadFilter.fxml'.";
+        model.maxCountFilterModel.maxCount.set(50);
 	}
 
 	@Override
@@ -54,5 +57,10 @@ public class ResourceFilterController extends BaseFilterController<ResourceFilte
 	@Override
 	public long getDefaultRefreshIntervall() {
 		return 1500;
+	}
+
+	@Override
+	public Node createDefaultFilter() {
+		return new DefaultFilterFactory().createFromToMaxCount(model);
 	}
 }

@@ -54,7 +54,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.util.converter.IntegerStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
@@ -199,9 +198,24 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			hbox.setAlignment(Pos.CENTER);
 			hbox.setSpacing(3);
 			buttonsPane=hbox;
-			buttonsPane.getChildren().add(new Separator(Orientation.VERTICAL));
+		}
+		Orientation orientation = verticalRightButton?Orientation.HORIZONTAL:Orientation.VERTICAL;
+				
+		buttonsPane.getChildren().add(new Separator(orientation));
+		
+		MenuButton defaultFilterButton = new MenuButton("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/filter.png"))));
+		defaultFilterButton.setPrefWidth(20);
+		CustomMenuItem defaultFilterContent = new CustomMenuItem();
+		defaultFilterButton.getItems().add(defaultFilterContent);
+		defaultFilterContent.getStyleClass().setAll("noSelectAnimationMenueItem","menu-item");
+		buttonsPane.getChildren().add(defaultFilterButton);
+		if (filterForm.getController().createDefaultFilter()!=null){
+			defaultFilterContent.setContent(filterForm.getController().createDefaultFilter());
+		} else {
+			defaultFilterButton.setDisable(true);
 		}
 		
+		buttonsPane.getChildren().add(new Separator(orientation));
 		
 	
 		final Button clearButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/clear.png"))));
@@ -212,18 +226,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		    }
 		});
 		buttonsPane.getChildren().add(clearButton);
-		
-		if (resultForm.getController().canLimitResult()){
-			TextField maxCountTextField = new TextField();
-			maxCountTextField.setPrefWidth(70);
-			maxCountTextField.textProperty().bindBidirectional(resultForm.getController().maxResultCountProperty(), new IntegerStringConverter());
-			
-			Label label = new Label("Limit rows:");
-			label.setLabelFor(maxCountTextField);
-			buttonsPane.getChildren().add(label);
-			buttonsPane.getChildren().add(maxCountTextField);
-		}
-		
+
 		final Button refreshButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/refresh.png"))));
 		refreshButton.setId(REFRESH_BUTTON_ID);
 		HBox.setMargin(refreshButton, new Insets(4,0,4,0));

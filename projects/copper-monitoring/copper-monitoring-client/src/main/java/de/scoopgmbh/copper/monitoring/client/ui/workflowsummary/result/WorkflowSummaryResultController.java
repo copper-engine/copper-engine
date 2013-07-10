@@ -173,11 +173,6 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 	}
 	
 	@Override
-	public boolean canLimitResult() {
-		return false;
-	}
-	
-	@Override
 	public void clear() {
 		resultTable.getItems().clear();
 	}

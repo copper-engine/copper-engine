@@ -1198,13 +1198,13 @@ public class TestDataProvider implements CopperMonitoringService {
 
 
 	@Override
-	public Date getMonitoringhDataMinDate() throws RemoteException {
+	public Date getMonitoringDataMinDate() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Date getMonitoringhDataMaxDate() throws RemoteException {
+	public Date getMonitoringDataMaxDate() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}

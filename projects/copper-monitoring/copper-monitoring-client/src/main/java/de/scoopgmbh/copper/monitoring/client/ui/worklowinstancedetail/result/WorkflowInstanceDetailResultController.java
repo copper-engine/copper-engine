@@ -200,11 +200,6 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 	}
 	
 	@Override
-	public boolean canLimitResult() {
-		return true;
-	}
-
-	@Override
 	public void clear() {
 		restart.setDisable(true);
 	}

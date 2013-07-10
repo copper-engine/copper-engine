@@ -128,11 +128,6 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
 	}
 	
 	@Override
-	public boolean canLimitResult() {
-		return false;
-	}
-	
-	@Override
 	public void clear() {
 		if (workflowView.getRoot()!=null){
 			workflowView.getRoot().getChildren().clear();

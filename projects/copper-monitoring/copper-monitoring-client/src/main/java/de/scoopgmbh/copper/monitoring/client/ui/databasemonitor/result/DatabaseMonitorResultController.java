@@ -136,11 +136,6 @@ public class DatabaseMonitorResultController extends FilterResultControllerBase<
 	public List<String> applyFilterInBackgroundThread(EmptyFilterModel filter) {
 		return Arrays.asList(copperDataProvider.getDatabaseMonitoringHtmlReport());
 	}
-
-	@Override
-	public boolean canLimitResult() {
-		return false;
-	}
 	
 	@Override
 	public void clear() {

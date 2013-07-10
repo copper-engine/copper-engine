@@ -17,8 +17,10 @@ package de.scoopgmbh.copper.monitoring.client.ui.message.filter;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterModelBase;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.MaxCountFilterModel;
 
 public class MessageFilterModel extends EngineFilterModelBase{
 	public final SimpleBooleanProperty ignoreProcessed = new SimpleBooleanProperty();
+	public final MaxCountFilterModel maxCountFilterModel = new MaxCountFilterModel();
 
 }

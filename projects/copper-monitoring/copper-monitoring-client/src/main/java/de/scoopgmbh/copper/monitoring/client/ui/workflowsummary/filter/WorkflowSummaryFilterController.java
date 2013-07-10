@@ -20,6 +20,7 @@ import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextField;
@@ -31,11 +32,12 @@ import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
 public class WorkflowSummaryFilterController extends BaseFilterController<WorkflowSummaryFilterModel> implements Initializable, FxmlController {
-	private final WorkflowSummaryFilterModel model= new WorkflowSummaryFilterModel();
+	private final WorkflowSummaryFilterModel model = new WorkflowSummaryFilterModel();
 	private final FormContext formFactory;
 
 	public WorkflowSummaryFilterController(FormContext formFactory) {
@@ -100,6 +102,11 @@ public class WorkflowSummaryFilterController extends BaseFilterController<Workfl
 	@Override
 	public long getDefaultRefreshIntervall() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
+	}
+
+	@Override
+	public Node createDefaultFilter() {
+		return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
 	}
 	
 	

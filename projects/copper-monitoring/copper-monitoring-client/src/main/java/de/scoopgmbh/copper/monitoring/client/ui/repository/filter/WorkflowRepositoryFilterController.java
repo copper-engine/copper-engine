@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
@@ -62,6 +63,11 @@ public class WorkflowRepositoryFilterController extends BaseFilterController<Wor
 	@Override
 	public long getDefaultRefreshIntervall() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
+	}
+
+	@Override
+	public Node createDefaultFilter() {
+		return null;
 	}
 	
 }

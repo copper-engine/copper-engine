@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -52,13 +51,6 @@ import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 * @param <T>Resultmodel
 */
 public abstract class FilterResultControllerBase<F,R> implements FilterResultController<F,R>, FxmlController {
-	
-	SimpleObjectProperty<Integer> maxResultCount= new SimpleObjectProperty<Integer>(1000);
-	@Override
-	public SimpleObjectProperty<Integer> maxResultCountProperty(){
-		return maxResultCount;
-	}
-	
 	
 	public <M> HBox createTabelControlls(final TableView<M> tableView){
 		if (tableView.getContextMenu()==null){

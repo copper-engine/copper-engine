@@ -20,6 +20,7 @@ import java.util.Date;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterModelBase;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.MaxCountFilterModel;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
@@ -31,4 +32,6 @@ public class WorkflowInstanceFilterModel extends EngineFilterModelBase{
 	public final SimpleObjectProperty<WorkflowInstanceState> state = new SimpleObjectProperty<WorkflowInstanceState>();
 	public final SimpleStringProperty priority = new SimpleStringProperty();
 	public final WorkflowVersion version = new WorkflowVersion();
+	
+	public final MaxCountFilterModel maxCountFilterModel = new MaxCountFilterModel();
 }

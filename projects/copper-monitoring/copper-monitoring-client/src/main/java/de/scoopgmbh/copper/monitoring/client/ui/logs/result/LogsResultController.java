@@ -260,11 +260,6 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 	}
 
 	@Override
-	public boolean canLimitResult() {
-		return false;
-	}
-
-	@Override
 	public void clear() {
 		resultTable.getItems().clear();
 		resultTextarea.clear();

@@ -18,16 +18,20 @@
           <center>
             <StackPane prefHeight="150.0" prefWidth="200.0">
               <children>
-                <LineChart id="measurePointsChart" fx:id="avgChart">
-                  <xAxis>
-                    <NumberAxis fx:id="timeAxis" side="BOTTOM" />
-                  </xAxis>
-                  <yAxis>
-                    <NumberAxis fx:id="numberAxis" label="micro secounds" side="LEFT" />
-                  </yAxis>
-                </LineChart>
+                <StackPane fx:id="avgWrap" prefHeight="150.0" prefWidth="200.0">
+                  <children>
+                    <LineChart fx:id="avgChart">
+                      <xAxis>
+                        <NumberAxis fx:id="timeAxis" side="BOTTOM" />
+                      </xAxis>
+                      <yAxis>
+                        <NumberAxis fx:id="numberAxis" label="micro secounds" side="LEFT" />
+                      </yAxis>
+                    </LineChart>
+                  </children>
+                </StackPane>
                 <TextArea fx:id="textChart" prefWidth="200.0" wrapText="true" />
-                <LineChart id="avgChart" fx:id="countChart">
+                <LineChart fx:id="countChart">
                   <xAxis>
                     <NumberAxis id="timeAxis" side="BOTTOM" />
                   </xAxis>
@@ -35,7 +39,7 @@
                     <NumberAxis id="numberAxis" label="count" side="LEFT" />
                   </yAxis>
                 </LineChart>
-                <LineChart id="avgChart" fx:id="quantilChart">
+                <LineChart fx:id="quantilChart">
                   <xAxis>
                     <NumberAxis id="timeAxis" side="BOTTOM" />
                   </xAxis>

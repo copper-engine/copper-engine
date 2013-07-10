@@ -73,11 +73,6 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 		}
 		return Arrays.asList(new DashboardResultModel(engineIdTostateSummery,engines));
 	}
-
-	@Override
-	public boolean canLimitResult() {
-		return false;
-	}
 	
 	@Override
 	public void clear() {

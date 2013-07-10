@@ -93,14 +93,9 @@ public class SqlResultController extends FilterResultControllerBase<SqlFilterMod
 	@Override
 	public List<SqlResultModel> applyFilterInBackgroundThread(SqlFilterModel filter) {
 		if (!Strings.isNullOrEmpty(filter.sqlQuery.get())){
-			return copperDataProvider.executeSqlQuery(filter,maxResultCountProperty().get());
+			return copperDataProvider.executeSqlQuery(filter,filter.getMaxCount());
 		}
 		return Collections.emptyList();
-	}
-	
-	@Override
-	public boolean canLimitResult() {
-		return true;
 	}
 
 	@Override

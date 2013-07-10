@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.monitoring.client.form.filter;
 
 import javafx.beans.property.ListProperty;
+import javafx.scene.Node;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 
 public interface FilterController<F> extends FxmlController {
@@ -31,4 +32,6 @@ public interface FilterController<F> extends FxmlController {
 	public static interface ActionsWithFilterForm{
 		public void run(FilterAbleForm<?,?> filterForm);
 	}
+	
+	public Node createDefaultFilter();
 }

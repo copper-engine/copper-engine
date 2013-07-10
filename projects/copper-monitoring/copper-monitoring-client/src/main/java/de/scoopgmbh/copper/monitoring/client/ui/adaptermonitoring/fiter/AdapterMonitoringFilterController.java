@@ -20,10 +20,12 @@ import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 
 public class AdapterMonitoringFilterController extends BaseFilterController<AdapterMonitoringFilterModel> implements Initializable, FxmlController {
 	private final AdapterMonitoringFilterModel model= new AdapterMonitoringFilterModel();
@@ -62,6 +64,11 @@ public class AdapterMonitoringFilterController extends BaseFilterController<Adap
 	@Override
 	public long getDefaultRefreshIntervall() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
+	}
+
+	@Override
+	public Node createDefaultFilter() {
+		return new DefaultFilterFactory().createFromToMaxCount(model);
 	}
 
 }

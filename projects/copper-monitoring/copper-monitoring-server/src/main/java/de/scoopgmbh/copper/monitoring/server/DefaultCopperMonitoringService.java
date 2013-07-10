@@ -479,21 +479,21 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 
 
 	@Override
-	public Date getMonitoringhDataMinDate() throws RemoteException {
+	public Date getMonitoringDataMinDate() throws RemoteException {
 		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<Date>() {
 			@Override
 			public Date call() throws Exception {
-				return monitoringDataAccesor.getMonitoringhDataMinDate();
+				return monitoringDataAccesor.getMonitoringDataMinDate();
 			}
 		});
 	}
 
 	@Override
-	public Date getMonitoringhDataMaxDate() throws RemoteException {
+	public Date getMonitoringDataMaxDate() throws RemoteException {
 		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<Date>() {
 			@Override
 			public Date call() throws Exception {
-				return monitoringDataAccesor.getMonitoringhDataMaxDate();
+				return monitoringDataAccesor.getMonitoringDataMaxDate();
 			}
 		});
 	}

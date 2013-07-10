@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.result;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.logs.result.LogsResultModel.LogsRowModel;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
@@ -55,7 +57,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 		this.copperDataProvider = copperDataProvider;
 	}
 	
-	private static final int DEFAUKKT_TIME_FRAME = 1000*10;
+	private static final int DEFAULT_TIME_FRAME = 1000*10;
 
 
 
@@ -104,11 +106,14 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
     @FXML //  fx:id="timeResAxis"
     private NumberAxis timeResAxis; // Value injected by FXMLLoader
 
+    @FXML //  fx:id="avgWrap"
+    private StackPane avgWrap; // Value injected by FXMLLoader
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert avgButton != null : "fx:id=\"avgButton\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert avgChart != null : "fx:id=\"avgChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
+        assert avgWrap != null : "fx:id=\"avgWrap\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert countButton != null : "fx:id=\"countButton\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert countChart != null : "fx:id=\"countChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert logText != null : "fx:id=\"logText\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
@@ -123,10 +128,9 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
         assert timeRange != null : "fx:id=\"timeRange\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert timeResAxis != null : "fx:id=\"timeResAxis\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         
-        maxResultCountProperty().set(100);
         logText.setWrapText(false);
         logText.getStyleClass().add("consoleFont");
-        timeRange.setText(""+DEFAUKKT_TIME_FRAME);
+        timeRange.setText(""+DEFAULT_TIME_FRAME);
        
         final ToggleGroup group = new ToggleGroup();
         avgButton.setToggleGroup(group);
@@ -150,7 +154,8 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 			series.setName(seriesData.getKey());
 			for (TimeValuePair<Double> timeValuePair: seriesData.getValue()){
 				final Data<Number, Number> data = new Data<Number, Number>(timeValuePair.date.getTime(),timeValuePair.value);
-				data.setNode(new HoveredNode(timeValuePair.date.getTime(),timeValuePair.value,""));
+				data.setNode(new HoveredNode(timeValuePair.date.getTime(),timeValuePair.value,
+						new SimpleDateFormat(DefaultFilterFactory.DATE_FORMAT).format(timeValuePair.date)+" , value: "+timeValuePair.value+"μs"));
 				series.getData().add(data);
 			}
 			chart.getData().add(series);
@@ -214,37 +219,6 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 		textChart.setText(result.toString());
 	}
 	
-//	private void craetePointAndRessourceChart() {
-//		measurePointSeries.getData().clear();
-//		ressourceChart.getData().clear();
-//		
-//		updateQuantilSeries(quantilButton.isSelected());
-//		
-//		Series<Number, Number> systemCPU = new Series<Number, Number>();
-//		systemCPU.setName("System CPU usage");
-//		Series<Number, Number> processCPU = new Series<Number, Number>();
-//		processCPU.setName("Process CPU usage");
-//		for (List<MeasurePointData> group: groups.values()){
-//			measurePointSeries.setName(group.get(0).getMeasurePointId());
-//			ObservableList<Data<Number, Number>> data = measurePointSeries.getData();
-//			for (MeasurePointData measurePointData: group){
-//				final long time = measurePointData.getTime().getTime();
-//				final Data<Number, Number> dataPoint = new XYChart.Data<Number, Number>(time, measurePointData.getElapsedTimeMicros());
-//				dataPoint.setNode(new HoveredNode(time,measurePointData.getElapsedTimeMicros(),measurePointData.getMeasurePointId()+", "+measurePointData.getTime()));
-//				data.add(dataPoint);
-//				if (ressourceChart.getData().isEmpty()){
-//					systemCPU.getData().add(new XYChart.Data<Number, Number>(time, measurePointData.getSystemResourcesInfo().getSystemCpuLoad()));
-//					processCPU.getData().add(new XYChart.Data<Number, Number>(time, measurePointData.getSystemResourcesInfo().getProcessCpuLoad()));
-//				}
-//			}
-//			
-//			if (ressourceChart.getData().isEmpty()){
-//				ressourceChart.getData().add(systemCPU);
-//				ressourceChart.getData().add(processCPU);
-//			}
-//		}
-//	}
-	
 	class HoveredNode extends StackPane {
 		public HoveredNode(final long xvalue, final double yvalue, final String measurePointDescription) {
 			setPrefSize(9, 9);
@@ -252,10 +226,9 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 				@Override
 				public void handle(MouseEvent mouseEvent) {
 					logText.clear();
-					long timerangeTmp = DEFAUKKT_TIME_FRAME;
+					long timerangeTmp = DEFAULT_TIME_FRAME;
 					try {
 						timerangeTmp = Long.valueOf(timeRange.getText());
-						
 					} catch(NumberFormatException e){
 						//ignore
 					}
@@ -297,14 +270,11 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 	@Override
 	public List<CustomMeasurePointResultModel> applyFilterInBackgroundThread(CustomMeasurePointFilterModel filter) {
 		logEvents.clear();
-		logEvents.addAll(copperDataProvider.getLogData(null,null,this.maxResultCountProperty().get()).logs);
+		logEvents.addAll(copperDataProvider.getLogData(
+				filter.fromToFilterModel.from.get(),filter.fromToFilterModel.to.get(),filter.maxCountFilterModel.getMaxCount()).logs);
 		
-		return Arrays.asList(copperDataProvider.getMonitoringMeasurePoints(filter,null,null));
-	}
-
-	@Override
-	public boolean canLimitResult() {
-		return true;
+		return Arrays.asList(copperDataProvider.getMonitoringMeasurePoints(
+				filter,filter.fromToFilterModel.from.get(),filter.fromToFilterModel.to.get()));
 	}
 	
 	@Override
@@ -312,6 +282,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 		 avgChart.getData().clear();
 		 countChart.getData().clear();
 		 quantilChart.getData().clear();
+		 ressourceChart.getData().clear();
 		 logText.clear();
 	}
 }

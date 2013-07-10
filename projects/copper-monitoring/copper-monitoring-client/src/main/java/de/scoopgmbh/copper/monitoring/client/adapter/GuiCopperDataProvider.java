@@ -195,21 +195,22 @@ public class GuiCopperDataProvider {
 		return result;
 	}
 
-	public List<SystemResourcesInfo> getSystemRessources(Date from, Date to) {
+	public List<SystemResourcesInfo> getSystemRessources(Date from, Date to, int groupCount) {
 		try {
-			Date min = copperMonitoringService.getMonitoringhDataMinDate();
-			Date max = copperMonitoringService.getMonitoringhDataMaxDate();
-			if (from!=null && to!=null){
+			Date min = copperMonitoringService.getMonitoringDataMinDate();
+			Date max = copperMonitoringService.getMonitoringDataMaxDate();
+			if (from!=null){
 				min=from;
-				to=from;
+			}	
+			if (to!=null){
+				max=to;
 			}
-			
 			
 			final AggregateFunction<SystemResourcesInfo, SystemResourcesInfo> aggregateFunction =new AggregateSystemRessourceAvg();
 			final TimeConverter<SystemResourcesInfo> dateConverter = new SystemResourcesInfoDateConverter();
 		
 			final StatisticCreator<SystemResourcesInfo, SystemResourcesInfo> statisticCreator = new StatisticCreator<SystemResourcesInfo,SystemResourcesInfo>(TimeframeGroup.<SystemResourcesInfo, SystemResourcesInfo>createGroups(
-					50,min,max,aggregateFunction, dateConverter));
+					groupCount,min,max,aggregateFunction, dateConverter));
 			List<List<SystemResourcesInfo>> statisticCreators = copperMonitoringService.<SystemResourcesInfo,SystemResourcesInfo>createStatistic(
 					new TypeFilter<SystemResourcesInfo>(SystemResourcesInfo.class), Arrays.<StatisticCreator<SystemResourcesInfo, SystemResourcesInfo>>asList(statisticCreator),min,max);
 			return (List<SystemResourcesInfo>) statisticCreators.get(0);
@@ -345,12 +346,14 @@ public class GuiCopperDataProvider {
 
 	public CustomMeasurePointResultModel getMonitoringMeasurePoints(CustomMeasurePointFilterModel filter, Date from, Date to) {
 		try {
-			Date min = copperMonitoringService.getMonitoringhDataMinDate();
-			Date max = copperMonitoringService.getMonitoringhDataMaxDate();
-			if (from!=null && to!=null){
+			Date min = copperMonitoringService.getMonitoringDataMinDate();
+			Date max = copperMonitoringService.getMonitoringDataMaxDate();
+			if (from!=null){
 				min=from;
-				to=from;
-			}
+			}	
+			if (to!=null){
+				max=to;
+			}	
 			
 			final AvgAggregateFunction<MeasurePointData> avgFunction =new AvgAggregateFunction<MeasurePointData>(new MeasurePointDataDoubleConverter());
 			final StatisticCreator<MeasurePointData, TimeValuePair<Double>> avgCreator = new StatisticCreator<MeasurePointData,TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
@@ -375,7 +378,6 @@ public class GuiCopperDataProvider {
 			final AvgAggregateFunction<MeasurePointData> avgCpuFunction =new AvgAggregateFunction<MeasurePointData>(new SystemResMeasurePointDataDoubleConverter());
 			final StatisticCreator<MeasurePointData, TimeValuePair<Double>> avgCpuCreator = new StatisticCreator<MeasurePointData,TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
 					50,min,max,avgCpuFunction, new MeasurePointDataDateConverter()));
-			
 			
 			final List<StatisticCreator<MeasurePointData, TimeValuePair<Double>>> statistics = Arrays.<StatisticCreator<MeasurePointData, TimeValuePair<Double>>>asList(
 					avgCreator,
@@ -408,8 +410,8 @@ public class GuiCopperDataProvider {
 		//TODO fix performance iteration over all is too slow
 		
 		try {
-			Date min = copperMonitoringService.getMonitoringhDataMinDate();
-			Date max = copperMonitoringService.getMonitoringhDataMaxDate();
+			Date min = copperMonitoringService.getMonitoringDataMinDate();
+			Date max = copperMonitoringService.getMonitoringDataMaxDate();
 			List<MeasurePointData> list = copperMonitoringService.getList(new TypeFilter<MeasurePointData>(MeasurePointData.class), min, max, 10000);
 			Set<String> result = new HashSet<String>();
 			for (MeasurePointData measurePointData: list){
@@ -423,8 +425,8 @@ public class GuiCopperDataProvider {
 
 	public LogsResultModel getLogData(Date from, Date to, int maxCount) {
 		try {
-			Date min = copperMonitoringService.getMonitoringhDataMinDate();
-			Date max = copperMonitoringService.getMonitoringhDataMaxDate();
+			Date min = copperMonitoringService.getMonitoringDataMinDate();
+			Date max = copperMonitoringService.getMonitoringDataMaxDate();
 			if (from!=null && to!=null){
 				min=from;
 				to=from;

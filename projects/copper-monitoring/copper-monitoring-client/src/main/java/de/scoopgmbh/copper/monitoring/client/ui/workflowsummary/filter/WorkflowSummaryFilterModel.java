@@ -16,9 +16,11 @@
 package de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter;
 
 import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterModelBase;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.MaxCountFilterModel;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
 public class WorkflowSummaryFilterModel extends EngineFilterModelBase{
 	public final WorkflowVersion version = new WorkflowVersion();
+	public final MaxCountFilterModel maxCountFilterModel = new MaxCountFilterModel();
 
 }

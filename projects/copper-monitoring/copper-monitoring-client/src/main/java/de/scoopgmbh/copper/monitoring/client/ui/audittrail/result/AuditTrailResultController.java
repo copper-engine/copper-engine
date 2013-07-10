@@ -340,12 +340,7 @@ public class AuditTrailResultController extends FilterResultControllerBase<Audit
 
 	@Override
 	public List<AuditTrailResultModel> applyFilterInBackgroundThread(AuditTrailFilterModel filter) {
-		return copperDataProvider.getAuditTrails(filter,maxResultCountProperty().get());
-	}
-
-	@Override
-	public boolean canLimitResult() {
-		return true;
+		return copperDataProvider.getAuditTrails(filter,filter.getMaxCount());
 	}
 
 	@Override

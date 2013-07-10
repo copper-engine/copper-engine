@@ -16,8 +16,9 @@
 package de.scoopgmbh.copper.monitoring.client.ui.sql.filter;
 
 import javafx.beans.property.SimpleStringProperty;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.MaxCountFilterModel;
 
-public class SqlFilterModel {
+public class SqlFilterModel extends MaxCountFilterModel{
 	
 	public SimpleStringProperty sqlQuery = new SimpleStringProperty();
 

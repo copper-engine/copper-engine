@@ -253,11 +253,6 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 	}
 	
 	@Override
-	public boolean canLimitResult() {
-		return false;
-	}
-	
-	@Override
 	public void clear() {
 		adapterInputTable.getItems().clear();
 		adapterOutputLaunchTable.getItems().clear();

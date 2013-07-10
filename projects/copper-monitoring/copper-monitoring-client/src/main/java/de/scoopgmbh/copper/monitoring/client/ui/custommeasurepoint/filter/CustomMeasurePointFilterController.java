@@ -22,6 +22,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -32,6 +33,7 @@ import javafx.util.Callback;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 
 public class CustomMeasurePointFilterController extends BaseFilterController<CustomMeasurePointFilterModel> implements Initializable, FxmlController {
 	final CustomMeasurePointFilterModel model= new CustomMeasurePointFilterModel();
@@ -56,6 +58,8 @@ public class CustomMeasurePointFilterController extends BaseFilterController<Cus
         assert measurePointIdComboBox != null : "fx:id=\"measurePointChoice\" was not injected: check your FXML file 'CustomMeasurePointFilter.fxml'.";
         assert measurePointText != null : "fx:id=\"measurePointText\" was not injected: check your FXML file 'CustomMeasurePointFilter.fxml'.";
 
+        model.maxCountFilterModel.maxCount.set(50);
+        
         model.measurePointId.bind(measurePointText.textProperty());
        
         measurePointIdComboBox.getItems().clear();
@@ -98,6 +102,11 @@ public class CustomMeasurePointFilterController extends BaseFilterController<Cus
 	@Override
 	public long getDefaultRefreshIntervall() {
 		return 1500;
+	}
+
+	@Override
+	public Node createDefaultFilter() {
+		return new DefaultFilterFactory().createFromToMaxCount(model);
 	}
 	
 }

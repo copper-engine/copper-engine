@@ -16,8 +16,9 @@
 package de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter;
 
 import javafx.beans.property.SimpleStringProperty;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.FromToMaxCountFilterModel;
 
-public class CustomMeasurePointFilterModel {
+public class CustomMeasurePointFilterModel extends FromToMaxCountFilterModel{
 	public final SimpleStringProperty measurePointId = new SimpleStringProperty();
 	
 }

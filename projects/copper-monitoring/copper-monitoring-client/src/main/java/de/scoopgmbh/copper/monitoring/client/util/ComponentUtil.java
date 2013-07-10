@@ -23,7 +23,9 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -31,10 +33,12 @@ import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
@@ -149,5 +153,32 @@ public class ComponentUtil {
 			}
 		});
 	}
+	
+	public static void addMarker(final XYChart<?, ?> chart, final StackPane chartWrap) {
+		final Line valueMarker = new Line();
+		final Node chartArea = chart.lookup(".chart-plot-background");
+
+		chartArea.setOnMouseMoved(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				Point2D scenePoint = chart.localToScene(event.getSceneX(), event.getSceneY());
+				Point2D position = chartWrap.sceneToLocal(scenePoint.getX(), scenePoint.getY());
+				
+				Bounds chartAreaBounds = chartArea.localToScene(chartArea.getBoundsInLocal());
+				valueMarker.setStartY(0);
+				valueMarker.setEndY(chartWrap.sceneToLocal(chartAreaBounds).getMaxY()-chartWrap.sceneToLocal(chartAreaBounds).getMinY());
+				
+				valueMarker.setStartX(0);
+				valueMarker.setEndX(0);
+				valueMarker.setTranslateX(position.getX()-chartWrap.getWidth()/2);
+				
+				double ydelta = chartArea.localToScene(0, 0).getY()-chartWrap.localToScene(0,0).getY();
+				valueMarker.setTranslateY(-ydelta*2);
+			}
+		});
+		
+		chartWrap.getChildren().add(valueMarker);
+	}
+	
 
 }

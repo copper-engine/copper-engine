@@ -17,7 +17,6 @@ package de.scoopgmbh.copper.monitoring.client.form.filter;
 
 import java.util.List;
 
-import javafx.beans.property.SimpleObjectProperty;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 
 /**
@@ -32,7 +31,6 @@ public interface FilterResultController<F,R> extends FxmlController{
 	 */
 	public void showFilteredResult(List<R> filteredResult, F usedFilter);
 	public List<R> applyFilterInBackgroundThread(F filter);
-	public boolean canLimitResult();
 	public void clear();
-	public SimpleObjectProperty<Integer> maxResultCountProperty();
+
 }

@@ -94,7 +94,7 @@
 
 
 .error{/*-fx-control-inner-background*/
-	-fx-control-inner-background: derive(red,20%);
+	-fx-control-inner-background: #FF8080;
 }
 
 .consoleFont {
