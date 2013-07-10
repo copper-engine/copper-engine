@@ -45,6 +45,7 @@ public class MonitoringDataStorage {
 	static final int EARLIEST_POSITION = LIMIT_POSITION+4;
 	static final int LATEST_POSITION = EARLIEST_POSITION+8;
 	static final int FIRST_RECORD_POSITION = LATEST_POSITION+8;
+	static final int HEADER_END = FIRST_RECORD_POSITION;
 
 	final File targetPath;
 	final String filenamePrefix;
@@ -55,6 +56,9 @@ public class MonitoringDataStorage {
 	final ArrayBlockingQueue<TargetFile> buffersToForce = new ArrayBlockingQueue<TargetFile>(16,false);
 	boolean closed = false;
 	final ForceThread forceThread;
+	long totalSize;
+	final long maxTotalSize;
+	final long discardDataBeforeDateMillis;
 	
 	class ForceThread extends Thread {
 		
@@ -75,8 +79,13 @@ public class MonitoringDataStorage {
 						}
 					} catch (InterruptedException e) {
 						if (closed) {
-							while ((f = buffersToForce.poll()) != null)
-								f.out.force();
+							while ((f = buffersToForce.poll()) != null) {
+								try {
+									f.close();
+								} catch (IOException e1) {
+									//ignore
+								}
+							}
 							return;
 						}
 						throw new RuntimeException("Unexpected interruption", e);
@@ -93,12 +102,15 @@ public class MonitoringDataStorage {
 		long             earliestTimestamp = Long.MAX_VALUE;
 		long             latestTimestamp = Long.MIN_VALUE;
 		int              limit = FIRST_RECORD_POSITION;
+		int              fileSize;
 		@Override
 		protected void finalize() throws Throwable {
 			super.finalize();
 			close();
 		}
-		public void close() throws IOException {
+		public synchronized void close() throws IOException {
+			if (memoryMappedFile == null)
+				return;
 			if (!memoryMappedFile.getChannel().isOpen())
 				return;
 			out.force();
@@ -140,8 +152,14 @@ public class MonitoringDataStorage {
 	}
 	
 	public MonitoringDataStorage(File targetPath, String filenamePrefix) {
+		this(targetPath, filenamePrefix, Long.MAX_VALUE, new Date(0));
+	}
+	
+	public MonitoringDataStorage(File targetPath, String filenamePrefix, long maxSize, Date maxAge) {
 		this.targetPath = targetPath;
 		this.filenamePrefix = filenamePrefix;
+		this.maxTotalSize = maxSize;
+		this.discardDataBeforeDateMillis = maxAge.getTime();
 		loadFiles();
 		(forceThread = new ForceThread()).start();
 	}
@@ -157,20 +175,42 @@ public class MonitoringDataStorage {
 				return name.matches("\\.[0-9]+");
 			}
 		};
+		TargetFile latestFile = null;
+		long latestTimestamp = Long.MIN_VALUE;
 		for (File file : targetPath.listFiles(f)) {
 			TargetFile tf = new TargetFile();
 			tf.file = file;
 			RandomAccessFile rf;
 			try {
 				rf = new RandomAccessFile(tf.file,"r");
-				MappedByteBuffer bb = rf.getChannel().map(MapMode.READ_ONLY, 0, FIRST_RECORD_POSITION);
+				tf.fileSize = (int)file.length();
+				totalSize += tf.fileSize;
+				MappedByteBuffer bb = rf.getChannel().map(MapMode.READ_ONLY, 0, HEADER_END);
 				tf.earliestTimestamp = bb.getLong(EARLIEST_POSITION);
 				tf.latestTimestamp = bb.getLong(LATEST_POSITION);
 				tf.limit = bb.getInt(LIMIT_POSITION);
 				rf.close();
-				writtenFiles.add(tf);
+				if (tf.latestTimestamp > latestTimestamp) {
+					latestTimestamp = tf.latestTimestamp;
+					if (latestFile != null)
+						writtenFiles.add(latestFile);
+					latestFile = tf;
+				} else {
+					writtenFiles.add(tf);
+				}
 			} catch (IOException e) {
 				/* silently discard broken files */
+			}
+		}
+		if (latestFile != null) {
+			try {
+				latestFile.memoryMappedFile = new RandomAccessFile(latestFile.file, "rw");
+				latestFile.out = latestFile.memoryMappedFile.getChannel().map(MapMode.READ_WRITE, 0, latestFile.file.length());
+				latestFile.out.position(latestFile.limit);
+				currentTarget = latestFile;
+			} catch (IOException ioe) {
+				/* should never happen */
+				writtenFiles.add(latestFile);				
 			}
 		}
 	}
@@ -179,7 +219,7 @@ public class MonitoringDataStorage {
 		if (currentTarget == null) {
 			currentTarget = createTargetFile();
 		}
-		if (currentTarget.out.position() + additionalBytes > FILE_CHUNK_SIZE) {
+		if (currentTarget.out.position() + additionalBytes > currentTarget.fileSize) {
 			closeCurrentTarget();
 			currentTarget = createTargetFile();
 		}
@@ -207,18 +247,54 @@ public class MonitoringDataStorage {
 				continue;
 			}
 		} while (false);
-			
+		houseKeeping(FILE_CHUNK_SIZE);	
 		newTarget.memoryMappedFile = new RandomAccessFile(newTarget.file, "rw");
 		newTarget.out = newTarget.memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, FILE_CHUNK_SIZE);
+		newTarget.fileSize = FILE_CHUNK_SIZE;
 		newTarget.out.putLong(LIMIT_POSITION,newTarget.limit);
 		newTarget.out.putLong(EARLIEST_POSITION,newTarget.earliestTimestamp);
 		newTarget.out.putLong(LATEST_POSITION,newTarget.latestTimestamp);
 		newTarget.out.position(FIRST_RECORD_POSITION);
+		totalSize += newTarget.fileSize;
 		return newTarget;
 	}
 
 	
-    public void write(byte b[]) throws IOException {
+    private void houseKeeping(int additionalSize) {
+    	synchronized (lock) {
+	    	Collections.sort(writtenFiles, new Comparator<TargetFile>() {
+				@Override
+				public int compare(TargetFile o1, TargetFile o2) {
+					if (o1.latestTimestamp < o2.latestTimestamp)
+						return -1;
+					if (o1.latestTimestamp > o2.latestTimestamp)
+						return 1;
+					return System.identityHashCode(o1)-System.identityHashCode(o2);
+				}
+			});
+	    	int i = 0;
+	    	while (totalSize + additionalSize > maxTotalSize && i < writtenFiles.size()) {
+	    		int size = writtenFiles.get(i).fileSize;
+	    		if (writtenFiles.get(i).file.delete()) {
+	    			writtenFiles.remove(i);
+	    			totalSize -= size;
+	    		}
+	    		++i;
+	    	}
+	    	i = 0;
+	    	while (!writtenFiles.isEmpty() && writtenFiles.get(0).latestTimestamp < discardDataBeforeDateMillis && i < writtenFiles.size()) {
+	    		int size = writtenFiles.get(0).fileSize;
+	    		if (writtenFiles.get(0).file.delete()) {
+	    			writtenFiles.remove(0);
+	    			totalSize -= size;
+	    		}
+	    		++i;
+	    	}
+		}
+		
+	}
+
+	public void write(byte b[]) throws IOException {
         write(new Date(), b, 0, b.length);
     }
 
@@ -439,33 +515,23 @@ public class MonitoringDataStorage {
     }
     
 	public Date getMinDate() {
-		long min=Long.MAX_VALUE;
-		final ArrayList<TargetFile> files = new ArrayList<TargetFile>();
         synchronized (lock) {
+    		long min=currentTarget.earliestTimestamp;
         	for (TargetFile target : writtenFiles) {
-    			files.add(target);
+    			min = Math.min(target.earliestTimestamp, min);
 	    	}
-    		files.add(currentTarget);
+    		return new Date(min);
         }
-		for (TargetFile file: files){
-			min = Math.min(file.earliestTimestamp, min);
-		}
-		return new Date(min);
 	}
 
 	public Date getMaxDate() {
-		long max=0;
-		final ArrayList<TargetFile> files = new ArrayList<TargetFile>();
         synchronized (lock) {
+    		long max=currentTarget.latestTimestamp;
         	for (TargetFile target : writtenFiles) {
-    			files.add(target);
+    			max = Math.max(target.latestTimestamp, max);
 	    	}
-    		files.add(currentTarget);
+    		return new Date(max);
         }
-		for (TargetFile file: files){
-			max = Math.max(file.latestTimestamp, max);
-		}
-		return new Date(max);
 	}
 
     
