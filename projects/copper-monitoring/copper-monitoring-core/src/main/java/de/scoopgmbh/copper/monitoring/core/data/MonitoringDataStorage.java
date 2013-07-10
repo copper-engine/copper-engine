@@ -288,8 +288,9 @@ public class MonitoringDataStorage {
 			dataPointers = new ArrayList<DataPointer>();
 			while (data.position() < data.limit()) {
 				DataPointer dp = new DataPointer(data); //adjusts buf.position()
-				if (dp.timestamp <= toTime && dp.timestamp >= fromTime)
+				if (dp.timestamp <= toTime && dp.timestamp >= fromTime) {
 					dataPointers.add(dp);
+				}
 			}
 			Collections.sort(dataPointers);
 		}
@@ -409,6 +410,10 @@ public class MonitoringDataStorage {
 								openFiles();
 								return popNext();
 							}							
+						} else if (!files.isEmpty()) {
+							currentTimestamp = files.get(0).earliestTimestamp;
+							openFiles();
+							return popNext();
 						}
 
 						return dp;
