@@ -275,11 +275,11 @@ public class MonitoringDataStorage {
     	
     	public OpenedFile(TargetFile f, long fromTime, long toTime) throws IOException {
     		RandomAccessFile rf = new RandomAccessFile(f.file, "r");
-    		rf.seek(LIMIT_POSITION);
-    		int limit = rf.readInt();
+    		MappedByteBuffer b = rf.getChannel().map(MapMode.READ_ONLY, 0, f.limit);
+    		int limit = b.getInt(LIMIT_POSITION);
     		byte[] dat = new byte[limit-FIRST_RECORD_POSITION];
-    		rf.seek(FIRST_RECORD_POSITION); 
-    		rf.read(dat);
+    		b.position(FIRST_RECORD_POSITION);
+    		b.get(dat, 0, dat.length);
     		rf.close();
     		readDataPointers(ByteBuffer.wrap(dat), fromTime, toTime);
     	}
@@ -319,7 +319,6 @@ public class MonitoringDataStorage {
 	    			filesToRead.add(target);
 	    	}
         	if (currentTarget != null && (fromTime <= currentTarget.latestTimestamp || toTime >= currentTarget.earliestTimestamp) && currentTarget.limit > FIRST_RECORD_POSITION) {
-        		currentTarget.out.force();
         		filesToRead.add(currentTarget);
         	}
         }
