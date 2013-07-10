@@ -81,7 +81,7 @@ public class MonitoringDataStorageTest {
 		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
 		tmpDir.delete();
 		tmpDir.mkdirs();
-		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,9000000,new Date(0));
+		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,9000000,10);
 		storage.write(new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
 		Thread.sleep(100);
 		System.gc();
@@ -108,24 +108,25 @@ public class MonitoringDataStorageTest {
 		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
 		tmpDir.delete();
 		tmpDir.mkdirs();
-		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,Long.MAX_VALUE,new Date(10));
-		storage.write(new Date(9), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		long now = System.currentTimeMillis();
+		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,Long.MAX_VALUE,1);
+		storage.write(new Date(now-60001), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
 		Thread.sleep(100);
 		System.gc();
 		Runtime.getRuntime().runFinalization();
-		storage.write(new Date(11), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new Date(now), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
 		Thread.sleep(100);
 		System.gc();
 		Runtime.getRuntime().runFinalization();
-		storage.write(new Date(12), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new Date(now), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
 		Thread.sleep(100);
 		System.gc();
 		Runtime.getRuntime().runFinalization();
-		storage.write(new Date(13), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new Date(now), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
 		Thread.sleep(100);
 		System.gc();
 		Runtime.getRuntime().runFinalization();
-		storage.write(new Date(14), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new Date(now), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
 		storage.close();
 		File[] files = tmpDir.listFiles(new FileFilter() {
 

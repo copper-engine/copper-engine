@@ -152,14 +152,14 @@ public class MonitoringDataStorage {
 	}
 	
 	public MonitoringDataStorage(File targetPath, String filenamePrefix) {
-		this(targetPath, filenamePrefix, Long.MAX_VALUE, new Date(0));
+		this(targetPath, filenamePrefix, Long.MAX_VALUE, 60L*24L*366L*100L /* hundred years should be enough for everyone */);
 	}
 	
-	public MonitoringDataStorage(File targetPath, String filenamePrefix, long maxSize, Date maxAge) {
+	public MonitoringDataStorage(File targetPath, String filenamePrefix, long maxSize, long maxAgeMinutes) {
 		this.targetPath = targetPath;
 		this.filenamePrefix = filenamePrefix;
 		this.maxTotalSize = maxSize;
-		this.discardDataBeforeDateMillis = maxAge.getTime();
+		this.discardDataBeforeDateMillis = 60L*1000L*maxAgeMinutes;
 		loadFiles();
 		(forceThread = new ForceThread()).start();
 	}
@@ -261,6 +261,7 @@ public class MonitoringDataStorage {
 
 	
     private void houseKeeping(int additionalSize) {
+    	long discardBefore = System.currentTimeMillis()-discardDataBeforeDateMillis;
     	synchronized (lock) {
 	    	Collections.sort(writtenFiles, new Comparator<TargetFile>() {
 				@Override
@@ -275,19 +276,19 @@ public class MonitoringDataStorage {
 	    	int i = 0;
 	    	while (totalSize + additionalSize > maxTotalSize && i < writtenFiles.size()) {
 	    		int size = writtenFiles.get(i).fileSize;
-	    		if (writtenFiles.get(i).file.delete()) {
-	    			writtenFiles.remove(i);
-	    			totalSize -= size;
-	    		}
+	    		if (!writtenFiles.get(i).file.delete())
+	    			break;
+    			writtenFiles.remove(i);
+    			totalSize -= size;
 	    		++i;
 	    	}
 	    	i = 0;
-	    	while (!writtenFiles.isEmpty() && writtenFiles.get(0).latestTimestamp < discardDataBeforeDateMillis && i < writtenFiles.size()) {
+	    	while (!writtenFiles.isEmpty() && writtenFiles.get(0).latestTimestamp < discardBefore && i < writtenFiles.size()) {
 	    		int size = writtenFiles.get(0).fileSize;
-	    		if (writtenFiles.get(0).file.delete()) {
-	    			writtenFiles.remove(0);
-	    			totalSize -= size;
-	    		}
+	    		if (!writtenFiles.get(0).file.delete())
+	    			break;
+    			writtenFiles.remove(0);
+    			totalSize -= size;
 	    		++i;
 	    	}
 		}
