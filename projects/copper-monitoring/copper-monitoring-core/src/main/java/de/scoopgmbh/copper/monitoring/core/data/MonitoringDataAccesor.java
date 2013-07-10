@@ -57,12 +57,12 @@ public class MonitoringDataAccesor implements Serializable, MonitoringDataQuerys
 	}
 	
 	@Override
-	public Date getMonitoringhDataMinDate(){
+	public Date getMonitoringDataMinDate(){
 		return monitoringDataStorage.getMinDate();
 	}
 	
 	@Override
-	public Date getMonitoringhDataMaxDate(){
+	public Date getMonitoringDataMaxDate(){
 		return monitoringDataStorage.getMaxDate();	
 	}
 
