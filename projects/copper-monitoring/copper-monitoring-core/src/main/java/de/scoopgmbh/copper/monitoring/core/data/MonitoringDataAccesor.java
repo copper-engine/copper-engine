@@ -17,7 +17,7 @@ import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
 
 /**
 
- *
+ * warpper for {@link MonitoringDataStorage } to read data
  */
 public class MonitoringDataAccesor implements Serializable, MonitoringDataQuerys{
 	private static final Logger logger = LoggerFactory.getLogger(MonitoringDataAccesor.class);

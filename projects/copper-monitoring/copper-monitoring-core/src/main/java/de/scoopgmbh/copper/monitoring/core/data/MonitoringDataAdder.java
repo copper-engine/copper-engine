@@ -15,8 +15,7 @@ import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 
 /**
-
- *
+ * wrapper for {@link MonitoringDataStorage} to add Data 
  */
 public class MonitoringDataAdder{
 	

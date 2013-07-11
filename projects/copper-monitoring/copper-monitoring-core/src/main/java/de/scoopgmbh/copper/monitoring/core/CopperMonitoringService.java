@@ -96,20 +96,6 @@ public interface CopperMonitoringService extends Remote, Serializable, Monitorin
 	public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException;
 	
 	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException;
-	
-//	/** group and agreggate Monitoringdata on server
-//	 * @param clazz
-//	 * @param statisticCreator
-//	 * @return
-//	 * @throws RemoteException
-//	 */
-//	public <T,R extends Serializable> List<List<R>> createStatistic(final MonitoringDataFilter<T> filter, final List<StatisticCreator<T, R>> statisticCreator,Date from, Date to) throws RemoteException;
-//	
-//	
-//	/** query Monitoringdata and create list on server
-//	 */
-//	@Override
-//	public <T> List<T> getList(final MonitoringDataFilter<T> filter, Date from, Date to, long maxCount) throws RemoteException;
 
 }
 

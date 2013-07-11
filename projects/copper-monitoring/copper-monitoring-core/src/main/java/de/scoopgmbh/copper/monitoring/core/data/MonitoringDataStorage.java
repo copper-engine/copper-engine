@@ -152,6 +152,18 @@ public class MonitoringDataStorage {
 		close();
 	}
 	
+	public MonitoringDataStorage() throws IOException {
+		this(createTempFolder(), "data", Long.MAX_VALUE, TimeUnit.DAYS, 366L*100L /* hundred years should be enough for everyone */);
+	}
+
+	private static File createTempFolder() throws IOException {
+		File temp = File.createTempFile("coppermonitoring", "");
+		temp.delete();
+		temp.mkdir();
+		return temp;
+	}
+	
+	
 	public MonitoringDataStorage(File targetPath, String filenamePrefix) {
 		this(targetPath, filenamePrefix, Long.MAX_VALUE, TimeUnit.DAYS, 366L*100L /* hundred years should be enough for everyone */);
 	}

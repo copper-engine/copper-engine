@@ -66,6 +66,7 @@ import de.scoopgmbh.copper.persistent.DatabaseDialect;
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 import de.scoopgmbh.copper.persistent.OracleDialect;
 import de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool;
+import de.scoopgmbh.copper.persistent.PersistentProcessorPool;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorage;
 import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
@@ -171,7 +172,7 @@ public class MonitoringExampleMain {
 		persistentdbStorage.setCheckDbConsistencyAtStartup(true);
 	
 		
-		PersistentPriorityProcessorPool persistentPriorityProcessorPool = new PersistentPriorityProcessorPool("P#DEFAULT",txnController);
+		PersistentPriorityProcessorPool persistentPriorityProcessorPool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID,txnController);
 		
 		PersistentScottyEngine persistentengine = new PersistentScottyEngine();
 		persistentengine.setIdFactory(new JdkRandomUUIDFactory());
@@ -206,7 +207,7 @@ public class MonitoringExampleMain {
 		} catch (IOException e1) {
 			throw new RuntimeException(e1);
 		}
-		final MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue(new MonitoringDataAccesor(monitoringDataStorage),new MonitoringDataAdder(monitoringDataStorage), monitoringDataStorage);
+		final MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue(new MonitoringDataAccesor(monitoringDataStorage),new MonitoringDataAdder(monitoringDataStorage));
 		
 		final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
 		MonitoringDependencyInjector monitoringDependencyInjector= new MonitoringDependencyInjector(dependyInjector, monitoringDataCollector);
