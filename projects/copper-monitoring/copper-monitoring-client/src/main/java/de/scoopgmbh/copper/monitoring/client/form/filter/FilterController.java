@@ -33,5 +33,8 @@ public interface FilterController<F> extends FxmlController {
 		public void run(FilterAbleForm<?,?> filterForm);
 	}
 	
+	/**
+	 * @return null for no filter
+	 */
 	public Node createDefaultFilter();
 }

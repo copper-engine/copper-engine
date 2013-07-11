@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.monitoring.client.ui.load.filter;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
@@ -26,13 +27,14 @@ import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.BaseEngineFilterController;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class EngineLoadFilterController extends BaseFilterController<EngineLoadFilterModel> implements Initializable, FxmlController {
-	final EngineLoadFilterModel model= new EngineLoadFilterModel();
-
+public class EngineLoadFilterController extends BaseEngineFilterController<EngineLoadFilterModel> implements Initializable, FxmlController {
+	public EngineLoadFilterController(List<ProcessingEngineInfo> availableEngines) {
+		super(availableEngines,new EngineLoadFilterModel());
+	}
 
 
     @FXML //  fx:id="pane"
@@ -52,11 +54,6 @@ public class EngineLoadFilterController extends BaseFilterController<EngineLoadF
 	}
 
 	@Override
-	public EngineLoadFilterModel getFilter() {
-		return model;
-	}
-
-	@Override
 	public URL getFxmlRessource() {
 		return getClass().getResource("EngineLoadFilter.fxml");
 	}
@@ -70,10 +67,10 @@ public class EngineLoadFilterController extends BaseFilterController<EngineLoadF
 	public long getDefaultRefreshIntervall() {
 		return 1500;
 	}
-
+	
 	@Override
-	public Node createDefaultFilter() {
-		return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
+	public Node createAdditionalFilter() {
+		return null;
 	}
 	
 }

@@ -17,13 +17,11 @@ package de.scoopgmbh.copper.monitoring.server.monitoring;
 
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
-import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage;
 
 
 public abstract class MonitoringDataAwareRunnable implements Runnable{
 	protected MonitoringDataAccesor monitoringDataAccesor;
 	protected MonitoringDataAdder monitoringDataAdder;
-	protected MonitoringDataStorage monitoringDataStorage;
 	
 	public MonitoringDataAccesor getMonitoringDataAccesor() {
 		return monitoringDataAccesor;
@@ -37,12 +35,5 @@ public abstract class MonitoringDataAwareRunnable implements Runnable{
 	public void setMonitoringDataAdder(MonitoringDataAdder monitoringDataAdder) {
 		this.monitoringDataAdder = monitoringDataAdder;
 	}
-	public MonitoringDataStorage getMonitoringDataStorage() {
-		return monitoringDataStorage;
-	}
-	public void setMonitoringDataStorage(MonitoringDataStorage monitoringDataStorage) {
-		this.monitoringDataStorage = monitoringDataStorage;
-	}
-	
 
 }

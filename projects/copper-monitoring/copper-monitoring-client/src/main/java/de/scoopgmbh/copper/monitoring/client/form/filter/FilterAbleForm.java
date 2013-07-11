@@ -54,7 +54,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
@@ -71,7 +70,6 @@ import de.scoopgmbh.copper.monitoring.client.util.NumberOnlyTextField;
 public class FilterAbleForm<F,R> extends Form<Object>{
 	protected final Form<FilterController<F>> filterForm;
 	protected final Form<FilterResultController<F,R>> resultForm;
-	protected final GuiCopperDataProvider copperDataProvider;
 	private FilterService<F,R> filterService;
 	private RepeatFilterService<F,R> repeatFilterService;
 	private final MessageProvider messageProvider;
@@ -79,12 +77,11 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	public static final String REFRESH_BUTTON_ID = "refreshbutton";
 
 	public FilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
-			Form<FilterController<F>> filterForm, final Form<FilterResultController<F,R>> resultForm, GuiCopperDataProvider copperDataProvider ) {
+			Form<FilterController<F>> filterForm, final Form<FilterResultController<F,R>> resultForm) {
 		super("", showFormStrategie, null);
 		this.messageProvider = messageProvider;
 		this.filterForm = filterForm;
 		this.resultForm = resultForm;
-		this.copperDataProvider = copperDataProvider;
 		filterService = new FilterService<F,R>(resultForm.getController(), filterForm);
 		filterService.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 			@SuppressWarnings("unchecked")

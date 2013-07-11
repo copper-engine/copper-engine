@@ -174,7 +174,7 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 		restart.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				copperDataProvider.restartInstance(usedFilter.workflowInstanceId.get(), usedFilter.enginePoolModel.selectedEngine.get().getId());
+				copperDataProvider.restartInstance(usedFilter.workflowInstanceId.get(), usedFilter.selectedEngine.get().getId());
 			}
 		});
 		restart.setDisable(false);
@@ -186,6 +186,7 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 		String source = new String(workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowInstanceDetailedInfo().getStack().get(0).getSourceCode());
 		sourceView.getEngine().loadContent(codeMirrorFormatter.format(source, CodeFormatLanguage.JAVA, false));
 	
+		treeView.getRoot().getChildren().clear();
 		for (DisplayableNode displayableNode: workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowInstanceDetailedInfo().getStack()) {
 			final LazyTreeItem item = new LazyTreeItem(displayableNode);
 			treeView.getRoot().getChildren().add(item);

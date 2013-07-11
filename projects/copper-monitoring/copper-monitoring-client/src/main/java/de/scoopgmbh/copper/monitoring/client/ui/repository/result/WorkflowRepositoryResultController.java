@@ -124,7 +124,7 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
 
 	@Override
 	public List<WorkflowVersion> applyFilterInBackgroundThread(WorkflowRepositoryFilterModel filter) {
-		return copperDataProvider.getWorkflowClassesList(filter.enginePoolModel.selectedEngine.get().getId());  
+		return copperDataProvider.getWorkflowClassesList(filter.selectedEngine.get().getId());  
 	}
 	
 	@Override

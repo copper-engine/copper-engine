@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
@@ -23,15 +24,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.BaseEngineFilterController;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
-public class WorkflowInstanceDetailFilterController  extends BaseFilterController<WorkflowInstanceDetailFilterModel> implements Initializable, FxmlController {
-	private WorkflowInstanceDetailFilterModel model;
+public class WorkflowInstanceDetailFilterController extends BaseEngineFilterController<WorkflowInstanceDetailFilterModel> implements Initializable, FxmlController {
 
-	public WorkflowInstanceDetailFilterController(WorkflowInstanceDetailFilterModel model) {
-		super();
-		this.model = model;
+	public WorkflowInstanceDetailFilterController(WorkflowInstanceDetailFilterModel model, List<ProcessingEngineInfo> availableEngines) {
+		super(availableEngines,model);
 	}
 	
 	public void setFilter(String workflowInstanceId){
@@ -47,11 +47,6 @@ public class WorkflowInstanceDetailFilterController  extends BaseFilterControlle
         assert workflowInstanceIdTextfield != null : "fx:id=\"workflowInstanceIdTextfield\" was not injected: check your FXML file 'WorkflowInstanceDetailFilter.fxml'.";
 
         workflowInstanceIdTextfield.textProperty().bindBidirectional(model.workflowInstanceId);
-	}
-
-	@Override
-	public WorkflowInstanceDetailFilterModel getFilter() {
-		return model;
 	}
 
 	@Override
@@ -71,6 +66,11 @@ public class WorkflowInstanceDetailFilterController  extends BaseFilterControlle
 
 	@Override
 	public Node createDefaultFilter() {
+		return null;
+	}
+
+	@Override
+	public Node createAdditionalFilter() {
 		return null;
 	}
 	

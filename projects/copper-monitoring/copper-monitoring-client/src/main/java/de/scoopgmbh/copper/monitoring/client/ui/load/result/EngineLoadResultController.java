@@ -115,7 +115,7 @@ public class EngineLoadResultController extends FilterResultControllerBase<Engin
 
 	@Override
 	public List<WorkflowStateSummary> applyFilterInBackgroundThread(EngineLoadFilterModel filter) {
-		return Arrays.asList(copperDataProvider.getCopperLoadInfo(filter.enginePoolModel.selectedEngine.getValue()));
+		return Arrays.asList(copperDataProvider.getCopperLoadInfo(filter.selectedEngine.getValue()));
 	}
 
 	@Override

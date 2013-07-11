@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.monitoring.client.ui.message.filter;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
@@ -23,13 +24,17 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.BaseEngineFilterController;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class MessageFilterController extends BaseFilterController<MessageFilterModel> implements Initializable, FxmlController {
-	MessageFilterModel model = new MessageFilterModel();
+public class MessageFilterController extends BaseEngineFilterController<MessageFilterModel> implements Initializable, FxmlController {
+	
+	public MessageFilterController(List<ProcessingEngineInfo> availableEngines) {
+		super(availableEngines,new MessageFilterModel());
+	}
 
 	public class EmptySelectionWorkaround{
 		public WorkflowInstanceState value;
@@ -55,11 +60,6 @@ public class MessageFilterController extends BaseFilterController<MessageFilterM
 	}
 
 	@Override
-	public MessageFilterModel getFilter() {
-		return model;
-	}
-
-	@Override
 	public URL getFxmlRessource() {
 		return getClass().getResource("MessageFilter.fxml");
 	}
@@ -75,7 +75,7 @@ public class MessageFilterController extends BaseFilterController<MessageFilterM
 	}
 
 	@Override
-	public Node createDefaultFilter() {
+	public Node createAdditionalFilter() {
 		return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
 	}
 	

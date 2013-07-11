@@ -32,7 +32,7 @@ import de.scoopgmbh.copper.monitoring.server.testfixture.MonitoringFixture;
 public class MonitoringDataCollectorTest {
 	@Test
 	public void test_too_many_data_adds_schould_be_ignored_and_not_block_the_submitting_thread(){
-		MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue(10,null,Mockito.mock(MonitoringDataAdder.class),null);
+		MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue(10,null,Mockito.mock(MonitoringDataAdder.class));
 		final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
 		
 		new LogFixture().assertLogContent(new LogContentAssertion() {

@@ -63,7 +63,7 @@ public final class DetailLoadService extends Service<Void> {
 	                	 stackDetailPane.getChildren().add(indicator);
 	                 }
 	             });
-				filter = new WorkflowInstanceDetailFilterModel(workflowInstanceResultModel.id.getValue(),usedFilter.enginePoolModel.selectedEngine.get());
+				filter = new WorkflowInstanceDetailFilterModel(workflowInstanceResultModel.id.getValue(),usedFilter.selectedEngine.get());
 				filter.workflowInstanceId.setValue(workflowInstanceResultModel.id.getValue());
 				result = detailForm.getController().applyFilterInBackgroundThread(filter);
 				return null;

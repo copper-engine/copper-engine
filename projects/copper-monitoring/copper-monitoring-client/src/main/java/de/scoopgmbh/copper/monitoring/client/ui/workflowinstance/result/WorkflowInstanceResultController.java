@@ -249,7 +249,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 			public void handle(MouseEvent mouseEvent) {
 				if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
 		            if(mouseEvent.getClickCount() == 2 && !resultTable.getSelectionModel().isEmpty()){
-		            	navigation.createWorkflowInstanceDetailForm(resultTable.getSelectionModel().getSelectedItem().id.get(),usedFilter.enginePoolModel.selectedEngine.get()).show();
+		            	navigation.createWorkflowInstanceDetailForm(resultTable.getSelectionModel().getSelectedItem().id.get(),usedFilter.selectedEngine.get()).show();
 		            }
 		            if(mouseEvent.getClickCount() == 1 && !resultTable.getSelectionModel().isEmpty()){
 		            	showDetails(resultTable.getSelectionModel().getSelectedItem());
@@ -264,7 +264,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
         detailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				navigation.createWorkflowInstanceDetailForm(resultTable.getSelectionModel().getSelectedItem().id.get(),usedFilter.enginePoolModel.selectedEngine.get()).show();
+				navigation.createWorkflowInstanceDetailForm(resultTable.getSelectionModel().getSelectedItem().id.get(),usedFilter.selectedEngine.get()).show();
 
 			}
 		});

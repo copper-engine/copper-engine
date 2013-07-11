@@ -26,8 +26,7 @@ import java.util.Set;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterModelBase;
-import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EnginePoolModel;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterCallRowModel;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterLaunchRowModel;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterNotifyRowModel;
@@ -90,7 +89,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowInstanceResultModel> getWorkflowInstanceList(WorkflowInstanceFilterModel filter, int maxResultCount){
 		List<WorkflowInstanceInfo> list;
 		try {
-			list = copperMonitoringService.getWorkflowInstanceList(getPoolId(filter.enginePoolModel),filter.version.classname.get(),
+			list = copperMonitoringService.getWorkflowInstanceList(getPoolId(filter),filter.version.classname.get(),
 					filter.state.get(), getFilterReadyInteger(filter.priority.get()),filter.from.get(),filter.to.get(), maxResultCount);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
@@ -110,7 +109,7 @@ public class GuiCopperDataProvider {
 		}
 	}
 
-	public String getPoolId(EnginePoolModel enginePoolModel) {
+	public String getPoolId(EnginePoolFilterModel enginePoolModel) {
 		return enginePoolModel.selectedPool.get().getId();
 	}
 	
@@ -132,7 +131,7 @@ public class GuiCopperDataProvider {
 	public List<WorkflowSummaryResultModel> getWorkflowSummery(WorkflowSummaryFilterModel filter) {
 		List<WorkflowSummary> summeries;
 		try {
-			summeries = copperMonitoringService.getWorkflowSummary(getPoolId(filter.enginePoolModel), filter.version.classname.get());
+			summeries = copperMonitoringService.getWorkflowSummary(getPoolId(filter), filter.version.classname.get());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -159,7 +158,7 @@ public class GuiCopperDataProvider {
 
 	public WorkflowInstanceDetailResultModel getWorkflowDetails(WorkflowInstanceDetailFilterModel filter ) {
 		try {
-			return new WorkflowInstanceDetailResultModel(copperMonitoringService.getWorkflowInstanceDetails(filter.workflowInstanceId.getValue(),filter.getEngineFilterModel().selectedEngine.get().getId()));
+			return new WorkflowInstanceDetailResultModel(copperMonitoringService.getWorkflowInstanceDetails(filter.workflowInstanceId.getValue(),filter.selectedEngine.get().getId()));
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -227,9 +226,9 @@ public class GuiCopperDataProvider {
 		}
 	}
 	
-	public List<MeasurePointData> getMeasurePoints(EngineFilterModelBase engineFilter) {
+	public List<MeasurePointData> getMeasurePoints(EnginePoolFilterModel engineFilter) {
 		try {
-			return copperMonitoringService.getMeasurePoints(engineFilter.enginePoolModel.selectedEngine.get().getId());
+			return copperMonitoringService.getMeasurePoints(engineFilter.selectedEngine.get().getId());
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

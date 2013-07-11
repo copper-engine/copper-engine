@@ -98,18 +98,32 @@
     	<property name="statisticsCollector" ref="statisticsCollector"/>
 	</bean>
 	
+	<bean id="compressedBase64PostProcessor" class="de.scoopgmbh.copper.audit.CompressedBase64PostProcessor"/>
+	
 	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton">
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
-		<property name="messagePostProcessor">
-			<bean class="de.scoopgmbh.copper.audit.CompressedBase64PostProcessor"/>
-		</property>
+		<property name="messagePostProcessor" ref="compressedBase64PostProcessor"/>
 	</bean>
 	
 	<bean id="dependencyInjector" class="de.scoopgmbh.copper.spring.SpringDependencyInjector">
 	</bean>
+
+	
+	<bean id="monitoringDataStorage" class="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage">
+	</bean>
+	
+	<bean id="monitoringDataAdder" class="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder">
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage"><ref bean="monitoringDataStorage"/></constructor-arg>
+	</bean>
+	
+	<bean id="monitoringDataAccesor" class="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor">
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage"><ref bean="monitoringDataStorage"/></constructor-arg>
+	</bean>
 	
 	<bean id="monitoringDataAccessQueue" class="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue">
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder"><ref bean="monitoringDataAdder"/></constructor-arg>
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor"><ref bean="monitoringDataAccesor"/></constructor-arg>
 	</bean>
 	
 	<bean id="monitoringDataCollector" class="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector">
@@ -121,16 +135,17 @@
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 	</bean>
 	
-	<bean id="monitoringLog4jDataProvider" class="de.scoopgmbh.copper.monitoring.server.provider.MonitoringLog4jDataProvider"  lazy-init="false">
+	<bean id="monitoringDataProviderFactory" class="de.scoopgmbh.copper.monitoring.server.provider.MonitoringDataProviderFactory"  lazy-init="false" init-method="createAndStartProvider">
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 	</bean>
+	
 	
 	<bean id="workflowInstanceIntrospector" class="de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector"  lazy-init="false">
 		<constructor-arg type="de.scoopgmbh.copper.persistent.ScottyDBStorageInterface"><ref bean="persistent.dbStorage"/></constructor-arg>
 		<constructor-arg type="de.scoopgmbh.copper.common.WorkflowRepository"><ref bean="wfRepository"/></constructor-arg>
 	</bean>
 	
-	<bean id="springRemotingServer" class="de.scoopgmbh.copper.monitoring.server.SpringRemotingServer" factory-method="createWithDefaults" init-method="start">
+	<bean id="springRemotingServer" class="de.scoopgmbh.copper.monitoring.server.SpringRemotingServer" factory-method="createWithDefaultsForDerby" init-method="start">
 		<constructor-arg type="java.util.List">
 			<list>
            		<ref bean="persistent.engine"/>
@@ -141,6 +156,7 @@
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.LoggingStatisticCollector"><ref bean="statisticsCollector"/></constructor-arg>
 		<constructor-arg type="de.scoopgmbh.copper.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector"><ref bean="workflowInstanceIntrospector"/></constructor-arg>
+		<constructor-arg type="de.scoopgmbh.copper.audit.MessagePostProcessor"><ref bean="compressedBase64PostProcessor"/></constructor-arg>
 	</bean>
 	
 	<bean id="realm" class="org.apache.shiro.realm.SimpleAccountRealm">

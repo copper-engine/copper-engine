@@ -16,17 +16,22 @@
 package de.scoopgmbh.copper.monitoring.client.ui.repository.filter;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.BaseEngineFilterController;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class WorkflowRepositoryFilterController extends BaseFilterController<WorkflowRepositoryFilterModel> implements Initializable, FxmlController {
-	WorkflowRepositoryFilterModel model = new WorkflowRepositoryFilterModel();
+public class WorkflowRepositoryFilterController extends BaseEngineFilterController<WorkflowRepositoryFilterModel> implements Initializable, FxmlController {
+	public WorkflowRepositoryFilterController(List<ProcessingEngineInfo> availableEngines) {
+		super(availableEngines,new WorkflowRepositoryFilterModel());
+	}
+
 
 	public class EmptySelectionWorkaround{
 		public WorkflowInstanceState value;
@@ -39,15 +44,9 @@ public class WorkflowRepositoryFilterController extends BaseFilterController<Wor
 		
 	}
 
-
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
        
-	}
-
-	@Override
-	public WorkflowRepositoryFilterModel getFilter() {
-		return model;
 	}
 
 	@Override
@@ -66,7 +65,7 @@ public class WorkflowRepositoryFilterController extends BaseFilterController<Wor
 	}
 
 	@Override
-	public Node createDefaultFilter() {
+	public Node createAdditionalFilter() {
 		return null;
 	}
 	

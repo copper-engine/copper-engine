@@ -41,13 +41,14 @@ import de.scoopgmbh.copper.monitoring.client.form.FormGroup;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
 import de.scoopgmbh.copper.monitoring.client.form.TabPaneShowFormStrategie;
-import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterAbleForm;
-import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterModelBase;
 import de.scoopgmbh.copper.monitoring.client.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.GenericFilterController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EngineFilterAbleForm;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.GenericEngineFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterMonitoringResultController;
@@ -325,7 +326,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	
 	public FilterAbleForm<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> createWorkflowOverviewForm(){
 		return new EngineFormBuilder<WorkflowSummaryFilterModel,WorkflowSummaryResultModel,WorkflowSummaryFilterController,WorkflowSummaryResultController>(
-				new WorkflowSummaryFilterController(this),
+				new WorkflowSummaryFilterController(this,getCachedAvailableEngines()),
 				new WorkflowSummaryResultController(guiCopperDataProvider,this),
 				this
 			).build();
@@ -334,7 +335,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	@Override
 	public FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> createWorkflowInstanceListForm(){
 		final EngineFilterAbleForm<WorkflowInstanceFilterModel, WorkflowInstanceResultModel> form = new EngineFormBuilder<WorkflowInstanceFilterModel,WorkflowInstanceResultModel,WorkflowInstanceFilterController,WorkflowInstanceResultController>(
-					new WorkflowInstanceFilterController(),
+					new WorkflowInstanceFilterController(getCachedAvailableEngines()),
 					new WorkflowInstanceResultController(guiCopperDataProvider,this),
 					this
 				).build();
@@ -345,7 +346,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
 	public FilterAbleForm<MessageFilterModel,MessageResultModel> createMessageForm(){
 		return new EngineFormBuilder<MessageFilterModel,MessageResultModel,MessageFilterController,MessageResultController>(
-				new MessageFilterController(),
+				new MessageFilterController(getCachedAvailableEngines()),
 				new MessageResultController(guiCopperDataProvider),
 				this
 			).build();
@@ -353,7 +354,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	
 	public FilterAbleForm<WorkflowRepositoryFilterModel,WorkflowVersion> createWorkflowRepositoryForm(){
 		return new EngineFormBuilder<WorkflowRepositoryFilterModel,WorkflowVersion,WorkflowRepositoryFilterController,WorkflowRepositoryResultController>(
-				new WorkflowRepositoryFilterController(),
+				new WorkflowRepositoryFilterController(getCachedAvailableEngines()),
 				new WorkflowRepositoryResultController(guiCopperDataProvider,this,codeMirrorFormatterSingelton),
 				this
 			).build();
@@ -370,14 +371,14 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	
 	@Override
 	public EngineFilterAbleForm<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId, ProcessingEngineInfo engineInfo){
-		FilterController<WorkflowInstanceDetailFilterModel> fCtrl = new WorkflowInstanceDetailFilterController(new WorkflowInstanceDetailFilterModel(workflowInstanceId,engineInfo)); 
+		FilterController<WorkflowInstanceDetailFilterModel> fCtrl = new WorkflowInstanceDetailFilterController(new WorkflowInstanceDetailFilterModel(workflowInstanceId,engineInfo),getCachedAvailableEngines()); 
 		
 		FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>>(fCtrl, messageProvider);
 		
 		FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm = createWorkflowinstanceDetailResultForm(new EmptyShowFormStrategie());
 		
 		EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> filterAbleForm = new EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>(messageProvider,
-				getDefaultShowFormStrategy(), filterForm, resultForm,guiCopperDataProvider);
+				getDefaultShowFormStrategy(), filterForm, resultForm);
 		filterAbleForm.displayedTitleProperty().bind(new SimpleStringProperty("Details Id:").concat(fCtrl.getFilter().workflowInstanceId));
 		return filterAbleForm;
 	}
@@ -395,9 +396,16 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		return createWorkflowinstanceDetailResultForm(new BorderPaneShowFormStrategie(target));
 	}
 	
+	public List<ProcessingEngineInfo> getCachedAvailableEngines(){
+		if (engineList==null){
+			engineList = guiCopperDataProvider.getEngineList();
+		}
+		return engineList;
+	}
+	
 	private FilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary> engineLoadFormSingelton;
 	public FilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary> createEngineLoadForm(){
-		FilterController<EngineLoadFilterModel> fCtrl = new EngineLoadFilterController(); 
+		FilterController<EngineLoadFilterModel> fCtrl = new EngineLoadFilterController(getCachedAvailableEngines()); 
 		FxmlForm<FilterController<EngineLoadFilterModel>> filterForm = new FxmlForm<FilterController<EngineLoadFilterModel>>(fCtrl, messageProvider);
 		
 		FilterResultController<EngineLoadFilterModel,WorkflowStateSummary> resCtrl = new EngineLoadResultController(guiCopperDataProvider);
@@ -406,7 +414,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		
 		if (engineLoadFormSingelton==null){
 			engineLoadFormSingelton = new EngineFilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary>(messageProvider,
-					getDefaultShowFormStrategy(), filterForm, resultForm,guiCopperDataProvider);
+					getDefaultShowFormStrategy(), filterForm, resultForm);
 		}
 		return engineLoadFormSingelton;
 	}
@@ -436,6 +444,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	}
 	
 	FilterAbleForm<ResourceFilterModel,SystemResourcesInfo> ressourceFormSingelton=null;
+	private List<ProcessingEngineInfo> engineList;
 	public FilterAbleForm<ResourceFilterModel,SystemResourcesInfo> createRessourceForm(){
 		if (ressourceFormSingelton==null){
 			ressourceFormSingelton=new FormBuilder<ResourceFilterModel,SystemResourcesInfo,ResourceFilterController,RessourceResultController>(
@@ -467,9 +476,9 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine,model,this,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane));
 	}
 	
-	public FilterAbleForm<EngineFilterModelBase, MeasurePointData> createMeasurePointForm() {
-		return new EngineFormBuilder<EngineFilterModelBase, MeasurePointData, GenericFilterController<EngineFilterModelBase>,MeasurePointResultController>(
-				new GenericFilterController<EngineFilterModelBase>(new EngineFilterModelBase()),
+	public FilterAbleForm<EnginePoolFilterModel, MeasurePointData> createMeasurePointForm() {
+		return new EngineFormBuilder<EnginePoolFilterModel, MeasurePointData, GenericEngineFilterController<EnginePoolFilterModel>,MeasurePointResultController>(
+				new GenericEngineFilterController<EnginePoolFilterModel>(new EnginePoolFilterModel(),getCachedAvailableEngines()),
 				new MeasurePointResultController(guiCopperDataProvider),
 				this
 			).build();

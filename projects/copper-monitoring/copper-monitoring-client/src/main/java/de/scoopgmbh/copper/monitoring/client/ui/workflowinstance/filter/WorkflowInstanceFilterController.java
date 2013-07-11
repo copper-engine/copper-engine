@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
@@ -30,16 +31,19 @@ import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
 import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.BaseEngineFilterController;
 import de.scoopgmbh.copper.monitoring.client.util.DateValidationHelper;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class WorkflowInstanceFilterController extends BaseFilterController<WorkflowInstanceFilterModel> implements Initializable, FxmlController {
-	static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
+public class WorkflowInstanceFilterController extends BaseEngineFilterController<WorkflowInstanceFilterModel> implements Initializable, FxmlController {
+	public WorkflowInstanceFilterController(List<ProcessingEngineInfo> availableEngines) {
+		super(availableEngines,new WorkflowInstanceFilterModel());
+	}
 
-	WorkflowInstanceFilterModel model = new WorkflowInstanceFilterModel();
+	static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
 	public class EmptySelectionWorkaround{
 		public WorkflowInstanceState value;
@@ -113,11 +117,6 @@ public class WorkflowInstanceFilterController extends BaseFilterController<Workf
 	}
     
 	@Override
-	public WorkflowInstanceFilterModel getFilter() {
-		return model;
-	}
-
-	@Override
 	public URL getFxmlRessource() {
 		return getClass().getResource("WorkflowInstanceFilter.fxml");
 	}
@@ -133,7 +132,7 @@ public class WorkflowInstanceFilterController extends BaseFilterController<Workf
 	}
 
 	@Override
-	public Node createDefaultFilter() {
+	public Node createAdditionalFilter() {
 		return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
 	}
 	

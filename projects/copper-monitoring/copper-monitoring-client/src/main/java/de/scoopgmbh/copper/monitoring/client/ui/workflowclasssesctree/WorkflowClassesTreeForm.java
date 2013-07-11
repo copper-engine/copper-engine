@@ -54,7 +54,7 @@ public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController>
 		Button refreshButton  = new Button("Refresh");
 		BorderPane.setMargin(refreshButton, new Insets(5));
 		pane.setBottom(refreshButton);
-		controller.refresh(copperDataProvider.getWorkflowClassesList(filterController.getFilter().enginePoolModel.selectedEngine.get().getId()));
+		controller.refresh(copperDataProvider.getWorkflowClassesList(filterController.getFilter().selectedEngine.get().getId()));
 		
 		controller.selectedItem.addListener(new ChangeListener<WorkflowVersion>() {
 			@Override
@@ -69,7 +69,7 @@ public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController>
 		refreshButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
-				controller.refresh(copperDataProvider.getWorkflowClassesList(filterController.getFilter().enginePoolModel.selectedEngine.get().getId()));
+				controller.refresh(copperDataProvider.getWorkflowClassesList(filterController.getFilter().selectedEngine.get().getId()));
 			}
 		});
 		return pane;

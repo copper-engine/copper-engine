@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
@@ -30,19 +31,19 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.BaseEngineFilterController;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
-public class WorkflowSummaryFilterController extends BaseFilterController<WorkflowSummaryFilterModel> implements Initializable, FxmlController {
-	private final WorkflowSummaryFilterModel model = new WorkflowSummaryFilterModel();
-	private final FormContext formFactory;
+public class WorkflowSummaryFilterController extends BaseEngineFilterController<WorkflowSummaryFilterModel> implements Initializable, FxmlController {
+	private final FormContext formContext;
 
-	public WorkflowSummaryFilterController(FormContext formFactory) {
-		super();
-		this.formFactory = formFactory;
+	public WorkflowSummaryFilterController(FormContext formContext, List<ProcessingEngineInfo> availableEngines) {
+		super(availableEngines,new WorkflowSummaryFilterModel());
+		this.formContext = formContext;
 	}
 	
 	public void setFilter(WorkflowVersion workflowVersion){
@@ -74,15 +75,10 @@ public class WorkflowSummaryFilterController extends BaseFilterController<Workfl
         
         workflowClass.textProperty().bindBidirectional(model.version.classname );
         
-        searchMenueItem.setContent(formFactory.createWorkflowClassesTreeForm(this).createContent());
+        searchMenueItem.setContent(formContext.createWorkflowClassesTreeForm(this).createContent());
         serachbutton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/search.png"))));
         
         searchMenueItem.getStyleClass().setAll("noSelectAnimationMenueItem","menu-item");
-	}
-
-	@Override
-	public WorkflowSummaryFilterModel getFilter() {
-		return model;
 	}
 
 	@Override
@@ -105,7 +101,7 @@ public class WorkflowSummaryFilterController extends BaseFilterController<Workfl
 	}
 
 	@Override
-	public Node createDefaultFilter() {
+	public Node createAdditionalFilter() {
 		return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
 	}
 	

@@ -28,7 +28,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineSelectionWidget;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EngineSelectionWidget;
 
 public class HotfixController implements Initializable, FxmlController {
 	private final HotfixModel hotfixModelModel;

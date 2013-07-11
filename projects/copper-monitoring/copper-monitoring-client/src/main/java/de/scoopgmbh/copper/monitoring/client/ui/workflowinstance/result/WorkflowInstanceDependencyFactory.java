@@ -17,9 +17,9 @@ package de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result;
 
 import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
-import de.scoopgmbh.copper.monitoring.client.form.enginefilter.EngineFilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EngineFilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;

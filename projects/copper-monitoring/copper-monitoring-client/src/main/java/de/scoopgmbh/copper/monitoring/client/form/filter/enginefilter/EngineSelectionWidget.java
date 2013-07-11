@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.form.enginefilter;
+package de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter;
 
 import java.util.List;
 
@@ -32,10 +32,10 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 
 public class EngineSelectionWidget implements Widget{
-	private final EnginePoolModel model;
+	private final EnginePoolFilterModel model;
 	private final List<ProcessingEngineInfo> engineList;
 	
-	public EngineSelectionWidget(EnginePoolModel model, List<ProcessingEngineInfo> engineList){
+	public EngineSelectionWidget(EnginePoolFilterModel model, List<ProcessingEngineInfo> engineList){
 		this.model=model;
 		this.engineList = engineList;
 	}
@@ -85,13 +85,11 @@ public class EngineSelectionWidget implements Widget{
 			@Override
 			public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue,
 					ProcessingEngineInfo newValue) {
-				for (ProcessingEngineInfo processingEngineInfo: engineChoicebox.getItems()){
-					if (processingEngineInfo.getId()!=null && processingEngineInfo.getId().equals(newValue.getId())){
-						engineChoicebox.getSelectionModel().select(processingEngineInfo);
-					}
-				}
+				updateEngineChoicebox(engineChoicebox, newValue);
 			}
 		});
+		updateEngineChoicebox(engineChoicebox, model.selectedEngine.get());
+		
 		return engineChoicebox;
 	}
 
@@ -102,18 +100,10 @@ public class EngineSelectionWidget implements Widget{
 		model.selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
 			@Override
 			public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue, ProcessingEngineInfo newValue) {
-				if (newValue!=null){
-					poolChoicebox.getItems().clear();
-					for (ProcessorPoolInfo processorPoolInfo: newValue.getPools()){
-						poolChoicebox.getItems().add(processorPoolInfo);
-					}
-					model.selectedPool.set(null);
-					if (!newValue.getPools().isEmpty()){
-						model.selectedPool.set(newValue.getPools().get(0));
-					}
-				}
+				updatePoolChoiceBox(poolChoicebox, newValue);
 			}
 		});
+		updatePoolChoiceBox(poolChoicebox,model.selectedEngine.get());
 		
 		poolChoicebox.setConverter(new StringConverter<ProcessorPoolInfo>() {
 			@Override
@@ -139,13 +129,48 @@ public class EngineSelectionWidget implements Widget{
 			@Override
 			public void changed(ObservableValue<? extends ProcessorPoolInfo> observable, ProcessorPoolInfo oldValue,
 					ProcessorPoolInfo newValue) {
-				for (ProcessorPoolInfo pool: poolChoicebox.getItems()){
-					if (pool.getId()!=null && pool.getId().equals(newValue.getId())){
-						poolChoicebox.getSelectionModel().select(pool);
-					}
-				}
+				updatePoolChoicebox(poolChoicebox, newValue);
 			}
 		});
+		
+		updatePoolChoicebox(poolChoicebox, model.selectedPool.get());
 		return poolChoicebox;
+	}
+	
+	private void updateEngineChoicebox(final ChoiceBox<ProcessingEngineInfo> engineChoicebox, ProcessingEngineInfo newValue) {
+		if (newValue != null) {
+			for (ProcessingEngineInfo processingEngineInfo : engineChoicebox.getItems()) {
+				if (processingEngineInfo.getId() != null && processingEngineInfo.getId().equals(newValue.getId())) {
+					engineChoicebox.getSelectionModel().select(processingEngineInfo);
+				}
+			}
+		} else {
+			engineChoicebox.getSelectionModel().clearSelection();
+		}
+	}
+	
+	private void updatePoolChoicebox(final ChoiceBox<ProcessorPoolInfo> poolChoicebox, ProcessorPoolInfo newValue) {
+		if (newValue!=null){
+			for (ProcessorPoolInfo pool: poolChoicebox.getItems()){
+				if (pool.getId()!=null && pool.getId().equals(newValue.getId())){
+					poolChoicebox.getSelectionModel().select(pool);
+				}
+			}
+		} else {
+			poolChoicebox.getSelectionModel().clearSelection();
+		}
+	}
+	
+	private void updatePoolChoiceBox(final ChoiceBox<ProcessorPoolInfo> poolChoicebox, ProcessingEngineInfo newValue) {
+		if (newValue!=null){
+			poolChoicebox.getItems().clear();
+			for (ProcessorPoolInfo processorPoolInfo: newValue.getPools()){
+				poolChoicebox.getItems().add(processorPoolInfo);
+			}
+			model.selectedPool.set(null);
+			if (!newValue.getPools().isEmpty()){
+				model.selectedPool.set(newValue.getPools().get(0));
+			}
+		}
 	}
 }
