@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.doc.view.hotfix;
+package de.scoopgmbh.copper.monitoring.client.doc.view.manage;
 
 
 import javafx.scene.layout.BorderPane;

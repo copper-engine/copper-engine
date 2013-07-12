@@ -128,7 +128,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 			}
 		});
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem detailMenuItem = new MenuItem("Instancelist");
+        MenuItem detailMenuItem = new MenuItem("Instancelist (db)");
         detailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<BorderPane id="" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="531.0" prefWidth="914.0" xmlns:fx="http://javafx.com/fxml">
+  <top>
+    <HBox fx:id="pane" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0">
+      <children>
+        <Button fx:id="restartAll" mnemonicParsing="false" text="restart all instances in error state">
+          <HBox.margin>
+            <Insets fx:id="x1" />
+          </HBox.margin>
+        </Button>
+        <Label prefHeight="-1.0" text="for:" HBox.margin="$x1" />
+      </children>
+      <BorderPane.margin>
+        <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+      </BorderPane.margin>
+    </HBox>
+  </top>
+</BorderPane>

@@ -256,7 +256,7 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 
 	@Override
 	public List<LogsResultModel> applyFilterInBackgroundThread(LogsFilterModel filter) {
-		return Arrays.asList(copperDataProvider.getLogData(null,null,1000));
+		return Arrays.asList(copperDataProvider.getLogData(filter.fromToFilterModel.from.get(),filter.fromToFilterModel.to.get(),1000));
 	}
 
 	@Override

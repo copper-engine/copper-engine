@@ -67,8 +67,6 @@ import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResult
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
 import de.scoopgmbh.copper.monitoring.client.ui.databasemonitor.result.DatabaseMonitorResultController;
-import de.scoopgmbh.copper.monitoring.client.ui.hotfix.HotfixController;
-import de.scoopgmbh.copper.monitoring.client.ui.hotfix.HotfixModel;
 import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.load.result.EngineLoadResultController;
@@ -76,6 +74,8 @@ import de.scoopgmbh.copper.monitoring.client.ui.logs.filter.LogsFilterController
 import de.scoopgmbh.copper.monitoring.client.ui.logs.filter.LogsFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.logs.result.LogsResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.logs.result.LogsResultModel;
+import de.scoopgmbh.copper.monitoring.client.ui.manage.HotfixController;
+import de.scoopgmbh.copper.monitoring.client.ui.manage.HotfixModel;
 import de.scoopgmbh.copper.monitoring.client.ui.measurepoint.result.MeasurePointResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterModel;
