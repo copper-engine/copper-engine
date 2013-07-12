@@ -170,7 +170,7 @@ public class ApplicationContext {
     	);
 	}
 	
-	GuiCopperDataProvider guiCopperDataProvider;
+	protected GuiCopperDataProvider guiCopperDataProvider;
 	public void setGuiCopperDataProvider(CopperMonitoringService copperDataProvider, String serverAdress, String sessionId){
 		this.serverAdress.set(serverAdress);
 		this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);
@@ -192,7 +192,7 @@ public class ApplicationContext {
 	}
 		
 
-	private void connect(final String serverAdressParam, final String user, final String password) {
+	protected void connect(final String serverAdressParam, final String user, final String password) {
 		String serverAdress = serverAdressParam;
 		if (!serverAdress.endsWith("/")) {
 			serverAdress = serverAdress + "/";
