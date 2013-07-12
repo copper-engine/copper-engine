@@ -134,7 +134,7 @@ public class MonitoringExampleMain {
 	}
 	
 	
-	public MonitoringExampleMain start(){
+	public MonitoringExampleMain start(String[] args){
 		LogManager.getRootLogger().setLevel(Level.INFO);
 		
 		FileBasedWorkflowRepository wfRepository = new FileBasedWorkflowRepository();
@@ -245,14 +245,16 @@ public class MonitoringExampleMain {
 				new CompressedBase64PostProcessor(),
 				introspector);
 
-		new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,8080,"localhost", new DefaultLoginService(realm)).start();
+		String host = (args.length > 0) ? args[0] : "localhost";
+		int port = (args.length > 1) ? Integer.parseInt(args[1]) : 8080;
+		new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,port, host, new DefaultLoginService(realm)).start();
 		
 		return this;
 	}
 	
 	public static void main(String[] args) {
 		SingleProzessInstanceUtil.enforceSingleProzessInstance();
-		new MonitoringExampleMain().start();
+		new MonitoringExampleMain().start(args);
 	}
 	
 	void cleanDB(DataSource ds) throws Exception {
