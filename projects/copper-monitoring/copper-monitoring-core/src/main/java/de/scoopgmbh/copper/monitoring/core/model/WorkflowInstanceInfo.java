@@ -83,7 +83,7 @@ public class WorkflowInstanceInfo implements Serializable{
 		return processorPoolId;
 	}
 
-	public void setProcessorPoolId(String processorPoolId) {
+	public void workflow(String processorPoolId) {
 		this.processorPoolId = processorPoolId;
 	}
 
@@ -156,6 +156,10 @@ public class WorkflowInstanceInfo implements Serializable{
 
 	public void setClassname(String classname) {
 		this.classname = classname;
+	}
+
+	public void setProcessorPoolId(String processorPoolId) {
+		this.processorPoolId = processorPoolId;
 	}
 	
 	

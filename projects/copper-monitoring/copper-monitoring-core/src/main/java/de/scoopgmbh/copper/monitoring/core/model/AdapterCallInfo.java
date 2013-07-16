@@ -23,14 +23,16 @@ public class AdapterCallInfo extends AdapterEventBase implements Serializable{
 	
 	String method;
 	String parameter;
+	WorkflowInstanceInfo workflow;
 	
 	public AdapterCallInfo() {
 		super();
 	}
-	public AdapterCallInfo(String method, String parameter, Date timestamp, String adapterName) {
+	public AdapterCallInfo(String method, String parameter, Date timestamp, String adapterName,WorkflowInstanceInfo workflow) {
 		super(adapterName,timestamp);
 		this.method = method;
 		this.parameter = parameter;
+		this.workflow = workflow;
 	}
 	public String getMethod() {
 		return method;
@@ -44,5 +46,12 @@ public class AdapterCallInfo extends AdapterEventBase implements Serializable{
 	public void setParameter(String parameter) {
 		this.parameter = parameter;
 	}
+	public WorkflowInstanceInfo getWorkflow() {
+		return workflow;
+	}
+	public void setWorkflow(WorkflowInstanceInfo workflow) {
+		this.workflow = workflow;
+	}
+	
 
 }
