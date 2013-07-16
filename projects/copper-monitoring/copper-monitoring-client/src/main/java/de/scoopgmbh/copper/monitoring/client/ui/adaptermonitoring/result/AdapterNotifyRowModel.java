@@ -25,12 +25,12 @@ public class AdapterNotifyRowModel {
 	public final SimpleStringProperty correlationId;
 	public final SimpleStringProperty message;
 	public final SimpleObjectProperty<Date> timestamp;
-	public final SimpleStringProperty name;
+	public final SimpleStringProperty adapterName;
 	
 	public AdapterNotifyRowModel(AdapterWfNotifyInfo  adapterWfNotifyInfo){
 		correlationId= new SimpleStringProperty(adapterWfNotifyInfo.getCorrelationId());
 		message= new SimpleStringProperty(adapterWfNotifyInfo.getMessage());
 		timestamp= new SimpleObjectProperty<Date>(adapterWfNotifyInfo.getTimestamp());
-		name = new SimpleStringProperty(adapterWfNotifyInfo.getAdapterName());
+		adapterName = new SimpleStringProperty(adapterWfNotifyInfo.getAdapterName());
 	};
 }

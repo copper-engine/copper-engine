@@ -203,6 +203,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		MenuButton defaultFilterButton = new MenuButton("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/filter.png"))));
 		defaultFilterButton.setPrefWidth(20);
 		CustomMenuItem defaultFilterContent = new CustomMenuItem();
+		defaultFilterContent.setHideOnClick(false);
 		defaultFilterButton.getItems().add(defaultFilterContent);
 		defaultFilterContent.getStyleClass().setAll("noSelectAnimationMenueItem","menu-item");
 		buttonsPane.getChildren().add(defaultFilterButton);

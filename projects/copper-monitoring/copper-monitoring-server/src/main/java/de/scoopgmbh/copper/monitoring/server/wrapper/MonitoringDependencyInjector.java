@@ -21,6 +21,8 @@ import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
 import de.scoopgmbh.copper.AbstractDependencyInjector;
+import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
 /**
@@ -38,6 +40,15 @@ public class MonitoringDependencyInjector extends AbstractDependencyInjector{
 		this.abstractDependencyInjector = abstractDependencyInjector;
 		this.monitoringDataCollector = monitoringDataCollector;
 	}
+	
+	WorkflowInstanceInfo lastWorkflow;
+	@Override
+	public void inject(Workflow<?> workflow) {
+		lastWorkflow = new WorkflowInstanceInfo();
+		lastWorkflow.setId(workflow.getId());
+		lastWorkflow.setClassname(workflow.getClass().getName());
+		super.inject(workflow);
+	}
 
 	@Override
 	protected Object getBean(String beanId) {
@@ -51,7 +62,7 @@ public class MonitoringDependencyInjector extends AbstractDependencyInjector{
 			throw new RuntimeException(e);
 		}
 	    if (adapter!=null && adapter.getClass().getInterfaces().length>0){
-	    	return java.lang.reflect.Proxy.newProxyInstance(adapter.getClass().getClassLoader(), adapter.getClass().getInterfaces(), new DependencyHandler(adapter,monitoringDataCollector));
+	    	return java.lang.reflect.Proxy.newProxyInstance(adapter.getClass().getClassLoader(), adapter.getClass().getInterfaces(), new DependencyHandler(adapter,monitoringDataCollector,lastWorkflow));
 	    } else {
 	    	return adapter;
 	    }
@@ -60,15 +71,17 @@ public class MonitoringDependencyInjector extends AbstractDependencyInjector{
 	private static class DependencyHandler implements InvocationHandler {
 		private final Object adapter;
 		private final MonitoringDataCollector monitoringDataCollector;
+		private final WorkflowInstanceInfo workflow;
 		
-		public DependencyHandler(Object adapter, MonitoringDataCollector monitoringDataCollector) {
+		public DependencyHandler(Object adapter, MonitoringDataCollector monitoringDataCollector, WorkflowInstanceInfo workflow) {
 			this.adapter = adapter;
 			this.monitoringDataCollector = monitoringDataCollector;
+			this.workflow = workflow;
 		}
 
 		@Override
 		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-			monitoringDataCollector.submitAdapterCalls(method, args, adapter);
+			monitoringDataCollector.submitAdapterCalls(method, args, adapter,workflow);
 			return monitoringDataCollector.<Object>measureTimePeriod(adapter.getClass()+"#"+method.getName(), new Callable<Object>() {
 				@Override
 				public Object call() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {

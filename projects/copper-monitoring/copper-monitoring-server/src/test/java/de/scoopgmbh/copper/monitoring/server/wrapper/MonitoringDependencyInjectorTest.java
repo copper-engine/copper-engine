@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.util.PojoDependencyInjector;
 
@@ -56,7 +57,7 @@ public class MonitoringDependencyInjectorTest {
 		MonitoringDependencyInjector monitoringDependencyInjector = new MonitoringDependencyInjector(pojoDependencyInjector, mock);
 		((Test42)monitoringDependencyInjector.getBean("test")).abc();
 		
-		Mockito.verify(mock).submitAdapterCalls(Mockito.any(Method.class), Mockito.any(Object[].class), Mockito.any());
+		Mockito.verify(mock).submitAdapterCalls(Mockito.any(Method.class), Mockito.any(Object[].class), Mockito.any(),Mockito.any(WorkflowInstanceInfo.class));
 
 	}
 	

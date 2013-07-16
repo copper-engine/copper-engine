@@ -24,11 +24,11 @@ import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
 public class AdapterLaunchRowModel {
 	public final SimpleStringProperty workflowname;
 	public final SimpleObjectProperty<Date> timestamp;
-	public final SimpleStringProperty name;
+	public final SimpleStringProperty adapterName;
 	
 	public AdapterLaunchRowModel(AdapterWfLaunchInfo  adapterWfLaunchInfo){
 		workflowname= new SimpleStringProperty(adapterWfLaunchInfo.getWorkflowname());
 		timestamp= new SimpleObjectProperty<Date>(adapterWfLaunchInfo.getTimestamp());
-		name= new SimpleStringProperty(adapterWfLaunchInfo.getAdapterName());
+		adapterName= new SimpleStringProperty(adapterWfLaunchInfo.getAdapterName());
 	};
 }

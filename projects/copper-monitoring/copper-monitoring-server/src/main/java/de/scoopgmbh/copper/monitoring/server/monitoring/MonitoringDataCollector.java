@@ -26,6 +26,7 @@ import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
 import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
 
 public class MonitoringDataCollector{
@@ -43,11 +44,11 @@ public class MonitoringDataCollector{
 		this.performanceMonitor = performanceMonitor;
 	}
 
-	public void submitAdapterCalls(final Method method, final Object[] args, final Object adapter) {
+	public void submitAdapterCalls(final Method method, final Object[] args, final Object adapter, final WorkflowInstanceInfo workflow) {
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringDataAdder.add(new AdapterCallInfo(method.getName(), Arrays.toString(args), new Date(), adapter.getClass().getName()));
+				monitoringDataAdder.add(new AdapterCallInfo(method.getName(), Arrays.toString(args), new Date(), adapter.getClass().getName(),workflow));
 			}
 		});
 	}

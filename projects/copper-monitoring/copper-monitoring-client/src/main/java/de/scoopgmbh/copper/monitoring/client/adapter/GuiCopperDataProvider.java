@@ -432,7 +432,7 @@ public class GuiCopperDataProvider {
 			if (to!=null){
 				max=to;
 			}
-			List<LogEvent> list = copperMonitoringService.getList(new TypeFilter<LogEvent>(LogEvent.class), min, max, 10000);
+			List<LogEvent> list = copperMonitoringService.getList(new TypeFilter<LogEvent>(LogEvent.class), min, max, maxCount);
 			return new LogsResultModel(copperMonitoringService.getLogConfig(), list);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
@@ -446,7 +446,6 @@ public class GuiCopperDataProvider {
 			throw new RuntimeException(e);
 		}
 	}
-
 	
 	public String getDatabaseMonitoringHtmlReport() {
 		try {
