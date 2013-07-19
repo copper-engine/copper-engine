@@ -127,18 +127,18 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	protected final FormGroup formGroup;
 	protected final MessageProvider messageProvider;
 	protected final GuiCopperDataProvider guiCopperDataProvider;
-	protected final SettingsModel settingsModelSinglton;
+	protected final SettingsModel settingsModelSingleton;
 	protected final CodeMirrorFormatter codeMirrorFormatterSingelton = new CodeMirrorFormatter();
 
 	private FxmlForm<SettingsController> settingsForSingleton;
 	private FxmlForm<HotfixController> hotfixFormSingleton;
 	private FilterAbleForm<EmptyFilterModel, DashboardResultModel> dasboardFormSingleton;
-	public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSinglton) {
+	public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton) {
 		this.mainTabPane = new TabPane();
 		this.messageProvider = messageProvider;
 		this.guiCopperDataProvider = guiCopperDataProvider;
 		this.mainPane = mainPane;
-		this.settingsModelSinglton = settingsModelSinglton;
+		this.settingsModelSingleton = settingsModelSingleton;
 		
 		ArrayList<FormCreator> maingroup = new ArrayList<FormCreator>();
 		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
@@ -364,7 +364,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	public FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> createAudittrailForm(){
 		return new FormBuilder<AuditTrailFilterModel,AuditTrailResultModel,AuditTrailFilterController,AuditTrailResultController>(
 				new AuditTrailFilterController(),
-				new AuditTrailResultController(guiCopperDataProvider, settingsModelSinglton, codeMirrorFormatterSingelton),
+				new AuditTrailResultController(guiCopperDataProvider, settingsModelSingleton, codeMirrorFormatterSingelton),
 				this
 			).build();
 	}
@@ -421,7 +421,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	
 	public Form<SettingsController> createSettingsForm(){
 		if (settingsForSingleton==null){
-			settingsForSingleton = new FxmlForm<SettingsController>("",new SettingsController(settingsModelSinglton), messageProvider,  getDefaultShowFormStrategy());
+			settingsForSingleton = new FxmlForm<SettingsController>("",new SettingsController(settingsModelSingleton), messageProvider,  getDefaultShowFormStrategy());
 		}
 		return settingsForSingleton;
 	}

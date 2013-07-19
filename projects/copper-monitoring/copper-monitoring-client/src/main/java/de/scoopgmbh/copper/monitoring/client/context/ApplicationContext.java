@@ -72,8 +72,8 @@ public class ApplicationContext {
 	private static final String SETTINGS_KEY = "settings";
 	private BorderPane mainPane;
 	private StackPane mainStackPane;
-	MessageProvider messageProvider;
-	SettingsModel settingsModelSinglton;
+	private MessageProvider messageProvider;
+	private SettingsModel settingsModelSingleton;
 	
 	private SimpleStringProperty serverAdress= new SimpleStringProperty();
 	public SimpleStringProperty serverAdressProperty() {
@@ -113,14 +113,14 @@ public class ApplicationContext {
 			}
 		}
 		
-		settingsModelSinglton=defaultSettings;
+		settingsModelSingleton=defaultSettings;
 		ByteArrayInputStream is=null;
 		try{
 			is = new ByteArrayInputStream(prefs.getByteArray(SETTINGS_KEY, defaultModelbytes));
 			ObjectInputStream o = new ObjectInputStream(is);
 			Object object= o.readObject();
 			if (object instanceof SettingsModel){
-				settingsModelSinglton = (SettingsModel)object;
+				settingsModelSingleton = (SettingsModel)object;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -151,7 +151,7 @@ public class ApplicationContext {
     					try{
     						os = new ByteArrayOutputStream();
     						ObjectOutputStream o = new ObjectOutputStream(os);
-    						o.writeObject(settingsModelSinglton);
+    						o.writeObject(settingsModelSingleton);
     						prefs.putByteArray(SETTINGS_KEY, os.toByteArray());
     					} catch (IOException e) {
     						throw new RuntimeException(e);
@@ -174,7 +174,7 @@ public class ApplicationContext {
 	public void setGuiCopperDataProvider(CopperMonitoringService copperDataProvider, String serverAdress, String sessionId){
 		this.serverAdress.set(serverAdress);
 		this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);
-		getFormContextSingelton().setupGUIStructure();
+		getFormContextSingleton().setupGUIStructure();
 	}
 	
 	public void setHttpGuiCopperDataProvider(final String serverAdressParam, final String user, final String password){
@@ -247,21 +247,24 @@ public class ApplicationContext {
 
 	}
 	
-	FormContext formContext;
-	private FxmlForm<LoginController> fxmlForm;
-	public FormContext getFormContextSingelton(){
+	private FormContext formContext;
+	public FormContext getFormContextSingleton(){
 		if (guiCopperDataProvider==null){
-			throw new IllegalStateException("guiCopperDataProvider must initialised");
+			throw new IllegalStateException("guiCopperDataProvider must be initialized");
 		}
 		if (formContext==null){
-			formContext = new FormContext(mainPane,guiCopperDataProvider,messageProvider,settingsModelSinglton);
+			formContext = new FormContext(mainPane,guiCopperDataProvider,messageProvider,settingsModelSingleton);
 		}
 		return formContext;
 	}
+	public void resetFormContext() {
+		formContext = null;
+	}
 	
+	private FxmlForm<LoginController> fxmlForm;
 	public Form<LoginController> createLoginForm(){
 		if (fxmlForm==null){
-			fxmlForm = new FxmlForm<LoginController>("login.title", new LoginController(this,settingsModelSinglton), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
+			fxmlForm = new FxmlForm<LoginController>("login.title", new LoginController(this,settingsModelSingleton), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
 		}
 		return fxmlForm;
 	}

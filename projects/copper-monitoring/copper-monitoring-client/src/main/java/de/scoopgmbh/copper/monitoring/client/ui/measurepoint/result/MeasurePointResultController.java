@@ -68,7 +68,7 @@ public class MeasurePointResultController extends FilterResultControllerBase<Eng
 		axis = new XYChart.Series<String, Number>();
 		axis.setName("Measuring points");
 		chart.getData().add(axis);
-		chart.getYAxis().setLabel("average micro secounds"); 
+		chart.getYAxis().setLabel("average micro seconds"); 
 	}
 	
 	@Override

@@ -35,11 +35,11 @@ import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
 
 public class LoginController implements Initializable, FxmlController {
 	private final ApplicationContext mainFactory;
-	private final SettingsModel settingsModelSinglton;
-	public LoginController(ApplicationContext mainFactory, SettingsModel settingsModelSinglton) {
+	private final SettingsModel settingsModelSingleton;
+	public LoginController(ApplicationContext mainFactory, SettingsModel settingsModelSingleton) {
 		super();
 		this.mainFactory=mainFactory;
-		this.settingsModelSinglton=settingsModelSinglton;
+		this.settingsModelSingleton=settingsModelSingleton;
 	}
 
 
@@ -93,12 +93,12 @@ public class LoginController implements Initializable, FxmlController {
 		    }
 		});
 		
-		serverAdress.textProperty().bindBidirectional(settingsModelSinglton.lastConnectedServer);
+		serverAdress.textProperty().bindBidirectional(settingsModelSingleton.lastConnectedServer);
 		
 	}
     
     private void cleanup(){
-    	serverAdress.textProperty().unbindBidirectional(settingsModelSinglton.lastConnectedServer);
+    	serverAdress.textProperty().unbindBidirectional(settingsModelSingleton.lastConnectedServer);
     }
     
     public void addshorstcut(){

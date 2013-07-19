@@ -111,6 +111,11 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			}
 		});
 	}
+
+	public void setOnFailed(EventHandler<WorkerStateEvent> eventHandler) {
+		filterService.setOnFailed(eventHandler);
+		repeatFilterService.setOnFailed(eventHandler);
+	}
 	
 	boolean verticalRightButton=false;
 	public void useVerticalRightButton(){

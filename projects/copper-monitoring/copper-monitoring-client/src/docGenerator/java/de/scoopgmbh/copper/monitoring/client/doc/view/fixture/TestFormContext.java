@@ -26,8 +26,8 @@ import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 public class TestFormContext extends FormContext{
 
 	public TestFormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider,
-			SettingsModel settingsModelSinglton) {
-		super(mainPane, guiCopperDataProvider, messageProvider, settingsModelSinglton);
+			SettingsModel settingsModelSingleton) {
+		super(mainPane, guiCopperDataProvider, messageProvider, settingsModelSingleton);
 	}
 	
 	@Override
