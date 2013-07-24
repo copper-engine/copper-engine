@@ -345,7 +345,8 @@ public class AdapterAnnimationCreator {
 		Collections.sort(outputsSorted, new Comparator<TimeValuePair<Object>>(){
 			@Override
 			public int compare(TimeValuePair<Object> o1, TimeValuePair<Object> o2) {
-				return Long.compare(o1.time, o2.time);
+				//TODO replace when switch to java 1.7 with: Long.compare(o1.time, o2.time);
+				return Long.valueOf(o1.time).compareTo(Long.valueOf(o2.time));
 			}
 		});
 		for (TimeValuePair<Object> output: outputsSorted){
