@@ -15,13 +15,7 @@
  */
 package de.scoopgmbh.copper.monitoring.server;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.io.StringReader;
-import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,22 +23,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.apache.log4j.Appender;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.helpers.Loader;
-import org.apache.log4j.xml.DOMConfigurator;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.management.BatcherMXBean;
@@ -83,10 +61,10 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
 import de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector;
+import de.scoopgmbh.copper.monitoring.server.logging.LogConfigManager;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
-import de.scoopgmbh.copper.monitoring.server.provider.MonitoringLog4jDataProvider;
 
 public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	private static final long serialVersionUID = 1829707298427309206L;
@@ -98,6 +76,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	private final MonitoringDataAccessQueue monitoringDataAccessQueue;
 	private final MessagePostProcessor messagePostProcessor;
 	final WorkflowInstanceIntrospector workflowInstanceIntrospector;
+	private final LogConfigManager logManager;
 	
 
 		
@@ -107,10 +86,11 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			MonitoringDataAccessQueue monitoringDataAccessQueue,
 			boolean enableSql,
 			MessagePostProcessor messagePostProcessor,
-			WorkflowInstanceIntrospector workflowInstanceIntrospector
+			WorkflowInstanceIntrospector workflowInstanceIntrospector,
+			LogConfigManager logManager
 			){
 		this(dbStorage,new CopperInterfaceSettings(enableSql), statisticsCollectorMXBean, engineList
-			,monitoringDataAccessQueue, messagePostProcessor, workflowInstanceIntrospector);
+			,monitoringDataAccessQueue, messagePostProcessor, workflowInstanceIntrospector,logManager);
 	}
 	
 	public DefaultCopperMonitoringService(MonitoringDbStorage dbStorage,
@@ -119,13 +99,15 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			List<ProcessingEngineMXBean> engineList,
 			MonitoringDataAccessQueue monitoringDataAccessQueue,
 			MessagePostProcessor messagePostProcessor,
-			WorkflowInstanceIntrospector workflowInstanceIntrospector){
+			WorkflowInstanceIntrospector workflowInstanceIntrospector,
+			LogConfigManager logManager){
 		this.dbStorage = dbStorage;
 		this.copperInterfaceSettings = copperInterfaceSettings;
 		this.statisticsCollectorMXBean = statisticsCollectorMXBean;
 		this.monitoringDataAccessQueue = monitoringDataAccessQueue;
 		this.messagePostProcessor = messagePostProcessor;
 		this.workflowInstanceIntrospector = workflowInstanceIntrospector;
+		this.logManager = logManager;
 		
 		engines = new HashMap<String,ProcessingEngineMXBean>();
 		for (ProcessingEngineMXBean engine: engineList){
@@ -363,102 +345,12 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 
 	@Override
 	public String getLogConfig() throws RemoteException {
-		String propertylocation=System.getProperty("log4j.configuration");
-		if (propertylocation==null){
-			propertylocation="log4j.properties";
-		}
-		InputStream input=null;
-		
-		String config="";
-		if (logProperty == null) {
-			try {
-				final URL resource = Loader.getResource(propertylocation);
-				if (resource != null) {
-					try {
-						input = resource.openStream();
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-				if (input == null) {
-					try {
-						input = new FileInputStream(propertylocation);
-					} catch (FileNotFoundException e) {
-						// ignore
-					}
-				}
-				if (input != null) {
-					logProperty = convertStreamToString(input);
-				}
-			} finally {
-				if (input != null) {
-					try {
-						input.close();
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
-		}
-		config=logProperty;
-		
-		return config;
-	}
-	
-	public static String convertStreamToString(java.io.InputStream is) {
-	    @SuppressWarnings("resource")
-		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-	    return s.hasNext() ? s.next() : "";
+		return logManager.getLogConfig();
 	}
 
 	@Override
 	public void updateLogConfig(String config) throws RemoteException {
-		Properties props = new Properties();
-		StringReader reader = null;
-		try {
-			reader = new StringReader(config);
-			try {
-				props.load(reader);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		} finally {
-			if (reader!=null){
-				reader.close();
-			}
-		}
-		Appender appender = LogManager.getRootLogger().getAppender(MonitoringLog4jDataProvider.APPENDER_NAME);
-		LogManager.resetConfiguration();
-		logProperty=config;
-		if (isXml(config)){
-			try {
-				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-				Document doc = dBuilder.parse(new InputSource(new StringReader(config)));
-				DOMConfigurator.configure(doc.getDocumentElement());
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		} else {
-			PropertyConfigurator.configure(props);
-		}
-		if (appender!=null){
-			Logger rootLogger = Logger.getRootLogger();
-			rootLogger.addAppender(appender);
-		}
-	}
-	
-	String logProperty;
-	public boolean isXml(String text) {
-		try {
-			XMLReader parser = XMLReaderFactory.createXMLReader();
-			parser.setContentHandler(new DefaultHandler());
-			InputSource source = new InputSource(new StringReader(text));
-			parser.parse(source);
-			return true;
-		} catch (Exception ioe) {
-			return false;
-		}
+		logManager.updateLogConfig(config);
 	}
 
 	@Override

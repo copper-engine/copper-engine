@@ -46,8 +46,6 @@ public class ComponentUtil {
 	
 	public static Node createProgressIndicator(){
 		ProgressIndicator indicator = new ProgressIndicator();
-		indicator.setPrefHeight(350);
-		indicator.setPrefWidth(350);
 		indicator.setMaxHeight(350);
 		indicator.setMaxWidth(350);
 		

@@ -34,8 +34,8 @@
     </Label>
     <fx:reference source="workflowClass" />
     <Label text="from" />
-    <TextField fx:id="from" prefWidth="175.0" promptText="dd.MM.yyyy HH:mm:ss" />
+    <BorderPane fx:id="from" maxHeight="24.0" prefHeight="24.0" prefWidth="175.0" />
     <Label text="to" />
-    <TextField fx:id="to" prefWidth="175.0" promptText="dd.MM.yyyy HH:mm:ss" />
+    <BorderPane fx:id="to" maxHeight="24.0" prefHeight="24.0" prefWidth="175.0" />
   </children>
 </HBox>

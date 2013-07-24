@@ -16,8 +16,11 @@
 package de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.filter;
 
 import java.net.URL;
+import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -29,11 +32,13 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldListCell;
+import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
+import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 
 public class CustomMeasurePointFilterController extends BaseFilterController<CustomMeasurePointFilterModel> implements Initializable, FxmlController {
 	final CustomMeasurePointFilterModel model= new CustomMeasurePointFilterModel();
@@ -51,19 +56,21 @@ public class CustomMeasurePointFilterController extends BaseFilterController<Cus
 
     @FXML //  fx:id="measurePointText"
     private TextField measurePointText; // Value injected by FXMLLoader
+    
+    @FXML //  fx:id="parentStackPane"
+    private StackPane parentStackPane; // Value injected by FXMLLoader
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert measurePointIdComboBox != null : "fx:id=\"measurePointChoice\" was not injected: check your FXML file 'CustomMeasurePointFilter.fxml'.";
+        assert measurePointIdComboBox != null : "fx:id=\"measurePointIdComboBox\" was not injected: check your FXML file 'CustomMeasurePointFilter.fxml'.";
         assert measurePointText != null : "fx:id=\"measurePointText\" was not injected: check your FXML file 'CustomMeasurePointFilter.fxml'.";
+        assert parentStackPane != null : "fx:id=\"parentStackPane\" was not injected: check your FXML file 'CustomMeasurePointFilter.fxml'.";
 
         model.maxCountFilterModel.maxCount.set(50);
         
         model.measurePointId.bind(measurePointText.textProperty());
        
-        measurePointIdComboBox.getItems().clear();
-        measurePointIdComboBox.getItems().addAll(copperDataProvider.getMonitoringMeasurePointIds());
         measurePointIdComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -81,8 +88,42 @@ public class CustomMeasurePointFilterController extends BaseFilterController<Cus
 			}
 		});
         
+        measurePointIdComboBox.getItems().clear();
+	    measurePointIdComboBox.getItems().addAll(copperDataProvider.getMonitoringMeasurePointIds(model.fromToFilterModel.from.get(),model.fromToFilterModel.to.get()));
         measurePointIdComboBox.getSelectionModel().selectFirst();
+        
+        model.fromToFilterModel.from.addListener(new ChangeListener<Date>() {
+			@Override
+			public void changed(ObservableValue<? extends Date> observable, Date oldValue, Date newValue) {
+				updateMeasurePointIds();
+				
+			}
+		});
+        model.fromToFilterModel.to.addListener(new ChangeListener<Date>() {
+			@Override
+			public void changed(ObservableValue<? extends Date> observable, Date oldValue, Date newValue) {
+				updateMeasurePointIds();
+				
+			}
+		});
+        
 	}
+    
+    public void updateMeasurePointIds(){
+    	ComponentUtil.executeWithProgressDialogInBackground(new Runnable() {
+			@Override
+			public void run() {
+				final List<String> monitoringMeasurePointIds = copperDataProvider.getMonitoringMeasurePointIds(model.fromToFilterModel.from.get(),model.fromToFilterModel.to.get());
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						measurePointIdComboBox.getItems().clear();
+						measurePointIdComboBox.getItems().addAll(monitoringMeasurePointIds);
+					}
+				});
+			}
+		}, parentStackPane, "");
+    }
 
 	@Override
 	public CustomMeasurePointFilterModel getFilter() {

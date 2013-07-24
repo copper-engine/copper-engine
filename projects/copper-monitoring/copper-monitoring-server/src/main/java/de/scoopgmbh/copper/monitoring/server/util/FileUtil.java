@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.server.provider;
+package de.scoopgmbh.copper.monitoring.server.util;
 
-import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
+public class FileUtil {
 
-public class MonitoringDataProviderFactory {
-	private final MonitoringDataCollector monitoringDataCollector;
-	
-	public MonitoringDataProviderFactory(MonitoringDataCollector monitoringDataCollector) {
-		super();
-		this.monitoringDataCollector = monitoringDataCollector;
+	public static String convertStreamToString(java.io.InputStream is) {
+		@SuppressWarnings("resource")
+		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+		return s.hasNext() ? s.next() : "";
 	}
-
-	public void createAndStartProvider(){
-		new MonitoringLog4jDataProvider(monitoringDataCollector);
-		new SystemRessourceDataProvider(monitoringDataCollector).start();
-	}
-
 }

@@ -19,9 +19,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
@@ -46,6 +44,8 @@ import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.Wor
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
+import de.scoopgmbh.copper.monitoring.core.data.filter.DistinctAndTypeFilter;
+import de.scoopgmbh.copper.monitoring.core.data.filter.MeasurePointComperator;
 import de.scoopgmbh.copper.monitoring.core.data.filter.MeasurePointFilter;
 import de.scoopgmbh.copper.monitoring.core.data.filter.TypeFilter;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
@@ -196,22 +196,21 @@ public class GuiCopperDataProvider {
 
 	public List<SystemResourcesInfo> getSystemRessources(Date from, Date to, int groupCount) {
 		try {
-			Date min = copperMonitoringService.getMonitoringDataMinDate();
-			Date max = copperMonitoringService.getMonitoringDataMaxDate();
-			if (from!=null){
-				min=from;
-			}	
-			if (to!=null){
-				max=to;
+			if (from==null){
+				from = copperMonitoringService.getMonitoringDataMinDate();
+			}
+	
+			if (to==null){
+				to = copperMonitoringService.getMonitoringDataMaxDate();
 			}
 			
 			final AggregateFunction<SystemResourcesInfo, SystemResourcesInfo> aggregateFunction =new AggregateSystemRessourceAvg();
 			final TimeConverter<SystemResourcesInfo> dateConverter = new SystemResourcesInfoDateConverter();
 		
 			final StatisticCreator<SystemResourcesInfo, SystemResourcesInfo> statisticCreator = new StatisticCreator<SystemResourcesInfo,SystemResourcesInfo>(TimeframeGroup.<SystemResourcesInfo, SystemResourcesInfo>createGroups(
-					groupCount,min,max,aggregateFunction, dateConverter));
+					groupCount,from,to,aggregateFunction, dateConverter));
 			List<List<SystemResourcesInfo>> statisticCreators = copperMonitoringService.<SystemResourcesInfo,SystemResourcesInfo>createStatistic(
-					new TypeFilter<SystemResourcesInfo>(SystemResourcesInfo.class), Arrays.<StatisticCreator<SystemResourcesInfo, SystemResourcesInfo>>asList(statisticCreator),min,max);
+					new TypeFilter<SystemResourcesInfo>(SystemResourcesInfo.class), Arrays.<StatisticCreator<SystemResourcesInfo, SystemResourcesInfo>>asList(statisticCreator),from,to);
 			return (List<SystemResourcesInfo>) statisticCreators.get(0);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
@@ -345,38 +344,36 @@ public class GuiCopperDataProvider {
 
 	public CustomMeasurePointResultModel getMonitoringMeasurePoints(CustomMeasurePointFilterModel filter, Date from, Date to, int count) {
 		try {
-			Date min = copperMonitoringService.getMonitoringDataMinDate();
-			Date max = copperMonitoringService.getMonitoringDataMaxDate();
-			if (from!=null){
-				min=from;
+			if (from==null){
+				from=copperMonitoringService.getMonitoringDataMinDate();
 			}	
-			if (to!=null){
-				max=to;
+			if (to==null){
+				to=copperMonitoringService.getMonitoringDataMaxDate();
 			}	
 			
 			final AvgAggregateFunction<MeasurePointData> avgFunction =new AvgAggregateFunction<MeasurePointData>(new MeasurePointDataDoubleConverter());
 			final StatisticCreator<MeasurePointData, TimeValuePair<Double>> avgCreator = new StatisticCreator<MeasurePointData,TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
-					count,min,max,avgFunction, new MeasurePointDataDateConverter()));
+					count,from,to,avgFunction, new MeasurePointDataDateConverter()));
 			
 			final CountAggregateFunction<MeasurePointData> countFunction =new CountAggregateFunction<MeasurePointData>();
 			final StatisticCreator<MeasurePointData, TimeValuePair<Double>> countCreator = new StatisticCreator<MeasurePointData,TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
-					count,min,max,countFunction, new MeasurePointDataDateConverter()));
+					count,from,to,countFunction, new MeasurePointDataDateConverter()));
 			
 			final QuantilAggregateFunction<MeasurePointData> quantil50Function =new QuantilAggregateFunction<MeasurePointData>(0.5,new MeasurePointDataDoubleConverter());
 			final StatisticCreator<MeasurePointData, TimeValuePair<Double>> quantil50Creator = new StatisticCreator<MeasurePointData,TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
-					count,min,max,quantil50Function, new MeasurePointDataDateConverter()));
+					count,from,to,quantil50Function, new MeasurePointDataDateConverter()));
 			
 			final QuantilAggregateFunction<MeasurePointData> quantil90Function =new QuantilAggregateFunction<MeasurePointData>(0.9,new MeasurePointDataDoubleConverter());
 			final StatisticCreator<MeasurePointData, TimeValuePair<Double>> quantil90Creator = new StatisticCreator<MeasurePointData,TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
-					count,min,max,quantil90Function, new MeasurePointDataDateConverter()));
+					count,from,to,quantil90Function, new MeasurePointDataDateConverter()));
 			
 			final QuantilAggregateFunction<MeasurePointData> quantil99Function =new QuantilAggregateFunction<MeasurePointData>(0.99,new MeasurePointDataDoubleConverter());
 			final StatisticCreator<MeasurePointData, TimeValuePair<Double>> quantil99Creator = new StatisticCreator<MeasurePointData,TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
-					count,min,max,quantil99Function, new MeasurePointDataDateConverter()));
+					count,from,to,quantil99Function, new MeasurePointDataDateConverter()));
 			
 			final AvgAggregateFunction<MeasurePointData> avgCpuFunction =new AvgAggregateFunction<MeasurePointData>(new SystemResMeasurePointDataDoubleConverter());
 			final StatisticCreator<MeasurePointData, TimeValuePair<Double>> avgCpuCreator = new StatisticCreator<MeasurePointData,TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
-					count,min,max,avgCpuFunction, new MeasurePointDataDateConverter()));
+					count,from,to,avgCpuFunction, new MeasurePointDataDateConverter()));
 			
 			final List<StatisticCreator<MeasurePointData, TimeValuePair<Double>>> statistics = Arrays.<StatisticCreator<MeasurePointData, TimeValuePair<Double>>>asList(
 					avgCreator,
@@ -390,7 +387,7 @@ public class GuiCopperDataProvider {
 			
 			List<List<TimeValuePair<Double>>> result = copperMonitoringService.<MeasurePointData,TimeValuePair<Double>>createStatistic(
 					new MeasurePointFilter(filter.measurePointId.get()), 
-					statistics, min, max);
+					statistics, from, to);
 			
 			return new CustomMeasurePointResultModel(
 					result.get(0),
@@ -405,34 +402,38 @@ public class GuiCopperDataProvider {
 		}
 	}
 	
-	public List<String> getMonitoringMeasurePointIds() {
-		//TODO fix performance iteration over all is too slow
-		
+	public List<String> getMonitoringMeasurePointIds(Date from, Date to) {
 		try {
-			Date min = copperMonitoringService.getMonitoringDataMinDate();
-			Date max = copperMonitoringService.getMonitoringDataMaxDate();
-			List<MeasurePointData> list = copperMonitoringService.getList(new TypeFilter<MeasurePointData>(MeasurePointData.class), min, max, 10000);
-			Set<String> result = new HashSet<String>();
+			if (from==null){
+				from = copperMonitoringService.getMonitoringDataMinDate();
+			}
+	
+			if (to==null){
+				to = copperMonitoringService.getMonitoringDataMaxDate();
+			}
+
+			List<MeasurePointData> list = copperMonitoringService.getList(new DistinctAndTypeFilter<MeasurePointData>(MeasurePointData.class,new MeasurePointComperator()), from , to, 100);
+			ArrayList<String> result = new ArrayList<String>();
 			for (MeasurePointData measurePointData: list){
 				result.add(measurePointData.getMeasurePointId());
 			}
-			return new ArrayList<String>(result);
+			return result;
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 	}
+	
 
 	public LogsResultModel getLogData(Date from, Date to, int maxCount) {
 		try {
-			Date min = copperMonitoringService.getMonitoringDataMinDate();
-			Date max = copperMonitoringService.getMonitoringDataMaxDate();
-			if (from!=null){
-				min=from;
+			if (from==null){
+				from = copperMonitoringService.getMonitoringDataMinDate();
 			}
-			if (to!=null){
-				max=to;
+	
+			if (to==null){
+				to = copperMonitoringService.getMonitoringDataMaxDate();
 			}
-			List<LogEvent> list = copperMonitoringService.getList(new TypeFilter<LogEvent>(LogEvent.class), min, max, maxCount);
+			List<LogEvent> list = copperMonitoringService.getList(new TypeFilter<LogEvent>(LogEvent.class), from, to, maxCount);
 			return new LogsResultModel(copperMonitoringService.getLogConfig(), list);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);

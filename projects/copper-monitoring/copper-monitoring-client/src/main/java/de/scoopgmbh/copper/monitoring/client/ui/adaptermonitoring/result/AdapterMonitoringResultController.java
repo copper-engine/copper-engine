@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.animation.Animation.Status;
 import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -303,7 +304,6 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 						}
 					});
 			        timeline.rateProperty().bindBidirectional(speed.valueProperty());
-			        
 			        pause.setOnAction(new EventHandler<ActionEvent>() {
 						@Override
 						public void handle(ActionEvent event) {
@@ -318,9 +318,11 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 			        slider.setOnMousePressed(new EventHandler<javafx.scene.input.MouseEvent>() {
 						@Override
 						public void handle(javafx.scene.input.MouseEvent event) {
-							timeline.stop();
-							timeline.jumpTo(timeline.getTotalDuration().multiply(event.getX()/slider.getWidth()));
-							timeline.play();
+							if (timeline.getStatus()==Status.RUNNING){
+								timeline.stop();
+								timeline.jumpTo(timeline.getTotalDuration().multiply(event.getX()/slider.getWidth()));
+								timeline.play();
+							}
 						}
 					});
 			        
@@ -343,6 +345,13 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 				} else {
 					timeline.stop();
 				}
+				
+			    timeline.setOnFinished(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent event) {
+						play.setSelected(false);
+					}
+				});
 			}
 		});
         

@@ -138,6 +138,7 @@ public class ApplicationContext {
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread t, Throwable e) {
+				e.printStackTrace();
 				showErrorMessage(t.getName(), e);
 			}
 		});

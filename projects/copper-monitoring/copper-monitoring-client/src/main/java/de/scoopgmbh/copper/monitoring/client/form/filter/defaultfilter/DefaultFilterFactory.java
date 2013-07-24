@@ -25,12 +25,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.util.converter.DateStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EngineSelectionWidget;
-import de.scoopgmbh.copper.monitoring.client.util.DateValidationHelper;
+import de.scoopgmbh.copper.monitoring.client.util.DateTimePicker;
 import de.scoopgmbh.copper.monitoring.client.util.NumberOnlyTextField;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
@@ -88,22 +88,19 @@ public class DefaultFilterFactory {
 	}
 	
 	private void createFromToUI(HBox parent,FromToFilterModel fromToFilterModel){
-		TextField from = new TextField();
+		final DateTimePicker fromDateTimePicker = new DateTimePicker();
+		fromDateTimePicker.bindBidirectionalSelected(fromToFilterModel.from);
+		Pane from = fromDateTimePicker.createContent();
 		from.setPrefWidth(170);
-		Bindings.bindBidirectional(from.textProperty(), fromToFilterModel.from, new DateStringConverter(DATE_FORMAT));
-		from.setPromptText(DATE_FORMAT);
 		parent.getChildren().add(new Label("from"));
 		parent.getChildren().add(from);
 		
-		TextField to = new TextField();
+		final DateTimePicker toDateTimePicker = new DateTimePicker();
+		toDateTimePicker.bindBidirectionalSelected(fromToFilterModel.to);
+		Pane to = toDateTimePicker.createContent();
 		to.setPrefWidth(170);
-		Bindings.bindBidirectional(to.textProperty(), fromToFilterModel.to, new DateStringConverter(DATE_FORMAT));
-		to.setPromptText(DATE_FORMAT);
 		parent.getChildren().add(new Label("to"));
 		parent.getChildren().add(to);
-		
-		DateValidationHelper.addValidation(from, DATE_FORMAT);
-		DateValidationHelper.addValidation(to, DATE_FORMAT);
 	}
 	
 	private HBox createBackpane(){

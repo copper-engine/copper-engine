@@ -25,8 +25,6 @@ import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
 public class MonitoringLog4jDataProvider extends AppenderSkeleton{
 	
-	public static final String APPENDER_NAME="MonitoringLogDataProviderAppender";
-	
 	MonitoringDataCollector monitoringDataCollector;
 	
 	
@@ -34,9 +32,17 @@ public class MonitoringLog4jDataProvider extends AppenderSkeleton{
 		super();
 		this.monitoringDataCollector = monitoringDataCollector;
 		
-		this.setName(APPENDER_NAME);
+		appendToRoot();
+	}
+
+	public void appendToRoot() {
 		Logger rootLogger = Logger.getRootLogger();
 		rootLogger.addAppender(this);
+	}
+	
+	public void removeFromRoot() {
+		Logger rootLogger = Logger.getRootLogger();
+		rootLogger.removeAppender(this);
 	}
 
 	@Override

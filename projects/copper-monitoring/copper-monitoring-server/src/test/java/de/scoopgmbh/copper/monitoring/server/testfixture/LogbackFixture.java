@@ -18,14 +18,15 @@ package de.scoopgmbh.copper.monitoring.server.testfixture;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
 import org.junit.Assert;
+import org.slf4j.LoggerFactory;
 
-public class LogFixture {
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
+
+public class LogbackFixture {
 	
 	public static interface LogContentAssertion{
 		public void executeLogCreatingAction();
@@ -56,26 +57,19 @@ public class LogFixture {
 	
 	public void assertLogContent(LogContentAssertion logContentAssertion){
 		final ArrayList<MessageAndLogLevel> log = new ArrayList<MessageAndLogLevel>();
-		Logger l = Logger.getRootLogger();
-		AppenderSkeleton appender = new AppenderSkeleton() {
-			@Override
-			public void close() {
-			}
+		Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		AppenderBase<ILoggingEvent> appender = new AppenderBase<ILoggingEvent>() {
 
 			@Override
-			public boolean requiresLayout() {
-				return false;
-			}
-
-			@Override
-			protected void append(LoggingEvent event) {
-				log.add(new MessageAndLogLevel(event.getRenderedMessage(),event.getLevel()));
+			protected void append(ILoggingEvent event) {
+				log.add(new MessageAndLogLevel(event.getFormattedMessage(),event.getLevel()));
 			}
 		};
-		l.addAppender(appender);
+		appender.start();
+		root.addAppender(appender);
 		logContentAssertion.executeLogCreatingAction();
 		logContentAssertion.assertLogContent(log);
-		l.removeAppender(appender);
+		root.detachAppender(appender);
 	}
 	
 	public void assertNoError(NoErrorLogContentAssertion logContentAssertion){

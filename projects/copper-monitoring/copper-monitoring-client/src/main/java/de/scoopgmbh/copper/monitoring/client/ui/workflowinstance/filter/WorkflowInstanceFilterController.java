@@ -28,13 +28,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.util.StringConverter;
-import javafx.util.converter.DateStringConverter;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.BaseEngineFilterController;
-import de.scoopgmbh.copper.monitoring.client.util.DateValidationHelper;
+import de.scoopgmbh.copper.monitoring.client.util.DateTimePicker;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
@@ -66,10 +66,10 @@ public class WorkflowInstanceFilterController extends BaseEngineFilterController
     private TextField workflowClass; // Value injected by FXMLLoader
 
     @FXML //  fx:id="from"
-    private TextField from; // Value injected by FXMLLoader
+    private BorderPane from; // Value injected by FXMLLoader
 
     @FXML //  fx:id="to"
-    private TextField to; // Value injected by FXMLLoader
+    private BorderPane to; // Value injected by FXMLLoader
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
@@ -84,10 +84,14 @@ public class WorkflowInstanceFilterController extends BaseEngineFilterController
         priorityField.textProperty().bindBidirectional(model.priority);
         workflowClass.textProperty().bindBidirectional(model.version.classname);
         
-        from.textProperty().bindBidirectional(model.from, new DateStringConverter(DATE_TIME_FORMAT));
-        to.textProperty().bindBidirectional(model.to, new DateStringConverter(DATE_TIME_FORMAT));
-        DateValidationHelper.addValidation(from,DATE_TIME_FORMAT);
-        DateValidationHelper.addValidation(to,DATE_TIME_FORMAT);
+        
+        DateTimePicker fromDatePicker = new DateTimePicker();
+        fromDatePicker.bindBidirectionalSelected(model.from);
+        from.setCenter(fromDatePicker.createContent());
+        DateTimePicker toDatePicker = new DateTimePicker();
+        toDatePicker.bindBidirectionalSelected(model.to);
+        to.setCenter(toDatePicker.createContent());
+        
         ArrayList<EmptySelectionWorkaround> states = new ArrayList<EmptySelectionWorkaround>();
         for (WorkflowInstanceState state: WorkflowInstanceState.values()){
         	states.add(new EmptySelectionWorkaround(state,state.toString()));

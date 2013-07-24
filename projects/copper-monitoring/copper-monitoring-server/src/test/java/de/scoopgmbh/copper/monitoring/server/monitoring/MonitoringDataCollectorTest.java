@@ -23,9 +23,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
-import de.scoopgmbh.copper.monitoring.server.testfixture.LogFixture;
-import de.scoopgmbh.copper.monitoring.server.testfixture.LogFixture.LogContentAssertion;
-import de.scoopgmbh.copper.monitoring.server.testfixture.LogFixture.MessageAndLogLevel;
+import de.scoopgmbh.copper.monitoring.server.testfixture.LogbackFixture;
+import de.scoopgmbh.copper.monitoring.server.testfixture.LogbackFixture.LogContentAssertion;
+import de.scoopgmbh.copper.monitoring.server.testfixture.LogbackFixture.MessageAndLogLevel;
 import de.scoopgmbh.copper.monitoring.server.testfixture.MonitoringFixture;
 
 
@@ -35,7 +35,7 @@ public class MonitoringDataCollectorTest {
 		MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue(10,null,Mockito.mock(MonitoringDataAdder.class));
 		final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
 		
-		new LogFixture().assertLogContent(new LogContentAssertion() {
+		new LogbackFixture().assertLogContent(new LogContentAssertion() {
 			
 			@Override
 			public void executeLogCreatingAction() {

@@ -135,15 +135,22 @@
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 	</bean>
 	
-	<bean id="monitoringDataProviderFactory" class="de.scoopgmbh.copper.monitoring.server.provider.MonitoringDataProviderFactory"  lazy-init="false" init-method="createAndStartProvider">
+	<bean id="systemRessourceDataProvider" class="de.scoopgmbh.copper.monitoring.server.provider.SystemRessourceDataProvider"  lazy-init="false" init-method="start">
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 	</bean>
+	<bean id="monitoringLog4jDataProvider" class="de.scoopgmbh.copper.monitoring.server.provider.MonitoringLog4jDataProvider"  lazy-init="false">
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
+	</bean>
+	<bean id="log4jConfigManager" class="de.scoopgmbh.copper.monitoring.server.logging.Log4jConfigManager">
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.provider.MonitoringLog4jDataProvider"><ref bean="monitoringLog4jDataProvider"/></constructor-arg>
+	</bean>	
 	
 	
 	<bean id="workflowInstanceIntrospector" class="de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector"  lazy-init="false">
 		<constructor-arg type="de.scoopgmbh.copper.persistent.ScottyDBStorageInterface"><ref bean="persistent.dbStorage"/></constructor-arg>
 		<constructor-arg type="de.scoopgmbh.copper.common.WorkflowRepository"><ref bean="wfRepository"/></constructor-arg>
 	</bean>
+
 	
 	<bean id="springRemotingServer" class="de.scoopgmbh.copper.monitoring.server.SpringRemotingServer" factory-method="createWithDefaultsForDerby" init-method="start">
 		<constructor-arg type="java.util.List">
@@ -157,6 +164,7 @@
 		<constructor-arg type="de.scoopgmbh.copper.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
 		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector"><ref bean="workflowInstanceIntrospector"/></constructor-arg>
 		<constructor-arg type="de.scoopgmbh.copper.audit.MessagePostProcessor"><ref bean="compressedBase64PostProcessor"/></constructor-arg>
+		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.logging.LogConfigManager"><ref bean="log4jConfigManager"/></constructor-arg>
 	</bean>
 	
 	<bean id="realm" class="org.apache.shiro.realm.SimpleAccountRealm">

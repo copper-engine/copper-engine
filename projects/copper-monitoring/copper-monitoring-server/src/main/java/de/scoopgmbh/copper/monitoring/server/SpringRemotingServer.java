@@ -15,17 +15,11 @@
  */
 package de.scoopgmbh.copper.monitoring.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Properties;
 
 import javax.servlet.DispatcherType;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.remoting.SecureRemoteInvocationExecutor;
 import org.eclipse.jetty.server.Connector;
@@ -52,6 +46,7 @@ import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.LoginService;
 import de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector;
+import de.scoopgmbh.copper.monitoring.server.logging.LogConfigManager;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
@@ -73,7 +68,8 @@ public class SpringRemotingServer {
 			Realm realm, LoggingStatisticCollector runtimeStatisticsCollector,
 			TransactionController transactionController,
 			WorkflowInstanceIntrospector introspector,
-			MessagePostProcessor messagePostProcessor){
+			MessagePostProcessor messagePostProcessor,
+			LogConfigManager logConfigManager){
 		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
 				new MonitoringDbStorage(transactionController,new DerbyMonitoringDbDialect(new StandardJavaSerializer())),
 				runtimeStatisticsCollector,
@@ -81,7 +77,8 @@ public class SpringRemotingServer {
 				monitoringQueue, 
 				true,
 				messagePostProcessor,
-				introspector);
+				introspector,
+				logConfigManager);
 	
 		return new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService), 8080,"localhost", new DefaultLoginService(realm));
 	}
@@ -93,7 +90,8 @@ public class SpringRemotingServer {
 			LoggingStatisticCollector runtimeStatisticsCollector,
 			TransactionController transactionController,
 			WorkflowInstanceIntrospector introspector,
-			MessagePostProcessor messagePostProcessor){
+			MessagePostProcessor messagePostProcessor,
+			LogConfigManager logConfigManager){
 		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
 				new MonitoringDbStorage(transactionController,new OracleMonitoringDbDialect(new StandardJavaSerializer())),
 				runtimeStatisticsCollector,
@@ -101,7 +99,8 @@ public class SpringRemotingServer {
 				monitoringQueue, 
 				true,
 				messagePostProcessor,
-				introspector);
+				introspector,
+				logConfigManager);
 	
 		return new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService), 8080, "localhost", new DefaultLoginService(realm));
 	}
@@ -176,41 +175,9 @@ public class SpringRemotingServer {
 		return secureRemoteInvocationExecutor;
 	}
 
-	private void stop() {
+	public void stop() {
 		try {
 			server.stop();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public static void main(String[] args) {
-		if (!new File(args[0]).exists() || args.length==0){
-			throw new IllegalArgumentException("valid property file loctaion must be passed as argument invalid: "+(args.length>0?new File(args[0]).getAbsolutePath():"nothing"));
-		}
-		
-		Properties properties = new Properties();
-		try {
-			properties.load(new FileInputStream(args[0]));
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		
-		final Integer port = Integer.valueOf((String) properties.getProperty("webapp.jetty.listener.port"));
-		final String host = (String)properties.getProperty("webapp.jetty.host");
-		
-		PropertyConfigurator.configure(args[1]);
-		System.setProperty("org.apache.cxf.Logger", "org.apache.cxf.common.logging.Log4jLogger");
-		
-		SpringRemotingServer springRemoteServerMain = new SpringRemotingServer(null,port,host,null);
-		try {
-			springRemoteServerMain.start();
-			System.in.read();
-			springRemoteServerMain.stop();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

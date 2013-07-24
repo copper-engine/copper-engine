@@ -35,8 +35,8 @@ import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.LoginService;
-import de.scoopgmbh.copper.monitoring.server.testfixture.LogFixture;
-import de.scoopgmbh.copper.monitoring.server.testfixture.LogFixture.NoErrorLogContentAssertion;
+import de.scoopgmbh.copper.monitoring.server.testfixture.LogbackFixture;
+import de.scoopgmbh.copper.monitoring.server.testfixture.LogbackFixture.NoErrorLogContentAssertion;
 
 public class SpringRemotingServerTest {
 	
@@ -47,7 +47,7 @@ public class SpringRemotingServerTest {
 	@BeforeClass
 	public static void before(){
 		LogManager.getRootLogger().setLevel(Level.INFO);
-		new LogFixture().assertNoError(new NoErrorLogContentAssertion(){
+		new LogbackFixture().assertNoError(new NoErrorLogContentAssertion(){
 			SpringRemotingServer springRemotingServer;
 			@Override
 			public void executeLogCreatingAction() {

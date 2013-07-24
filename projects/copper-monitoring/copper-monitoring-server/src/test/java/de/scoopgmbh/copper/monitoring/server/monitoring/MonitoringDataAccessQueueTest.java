@@ -38,7 +38,7 @@ public class MonitoringDataAccessQueueTest {
 		monitoringEventQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				System.out.println(Math.random());
+				System.out.println(Math.random());//don't optimise it away java
 			}
 		});
 		
