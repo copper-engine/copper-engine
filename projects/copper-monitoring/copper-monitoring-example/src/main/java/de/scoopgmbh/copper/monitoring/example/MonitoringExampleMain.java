@@ -54,11 +54,13 @@ import de.scoopgmbh.copper.monitoring.server.DefaultCopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.server.DefaultLoginService;
 import de.scoopgmbh.copper.monitoring.server.SpringRemotingServer;
 import de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector;
+import de.scoopgmbh.copper.monitoring.server.logging.LogbackConfigManager;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
-import de.scoopgmbh.copper.monitoring.server.provider.MonitoringDataProviderFactory;
+import de.scoopgmbh.copper.monitoring.server.provider.MonitoringLogbackDataProvider;
+import de.scoopgmbh.copper.monitoring.server.provider.SystemRessourceDataProvider;
 import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
 import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringAdapterProcessingEngine;
 import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringDependencyInjector;
@@ -219,7 +221,8 @@ public class MonitoringExampleMain {
 		persistentengine.setDependencyInjector(monitoringDependencyInjector);
 		persistentengine.startup();
 		
-		new MonitoringDataProviderFactory(monitoringDataCollector).createAndStartProvider();
+		MonitoringLogbackDataProvider monitoringLogbackDataProvider = new MonitoringLogbackDataProvider(monitoringDataCollector);
+		new SystemRessourceDataProvider(monitoringDataCollector).start();
 		
 		try {
 			persistentengine.run("BillWorkflow", "");
@@ -243,7 +246,8 @@ public class MonitoringExampleMain {
 				monitoringQueue, 
 				true,
 				new CompressedBase64PostProcessor(),
-				introspector);
+				introspector,
+				new LogbackConfigManager(monitoringLogbackDataProvider));
 
 		String host = (args.length > 0) ? args[0] : "localhost";
 		int port = (args.length > 1) ? Integer.parseInt(args[1]) : 8080;
