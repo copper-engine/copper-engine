@@ -28,6 +28,27 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
     */
     apply plugin: 'eclipse'
     apply plugin: 'idea'
+   
+
+    eclipse {
+	    classpath {
+	    	defaultOutputDir = file('build')
+		    file {
+		      	//exclude slf4f log binding from export
+			    withXml {
+			        def root = it.asNode()
+			        NodeList nodeList = root.getAt(new groovy.xml.QName('classpathentry'));
+			        for ( classpathentry in nodeList ) {
+	    				if (classpathentry.attributes().path.contains('slf4j-log4j12')){
+					        classpathentry.attributes().remove('exported')
+	    				}
+					}
+			     }
+	    	}
+	    }
+	 } 
+
+    
     /*
     * be sure to always regenerate eclipse files, because
     * default behavior is merging into existing files
@@ -41,7 +62,6 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
     	
     	// logging
 		compile 'org.slf4j:slf4j-api:1.6.6'
-		compile 'org.slf4j:slf4j-log4j12:1.6.6'
 		compile 'log4j:log4j:1.2.17'
     }
 
@@ -169,7 +189,9 @@ project(':projects:copper-coreengine') {
 		compile 'c3p0:c3p0-oracle-thin-extras:0.9.0.2'
 		compile 'mysql:mysql-connector-java:5.1.25'
 		compile 'org.apache.derby:derby:10.9.1.0'
-		compile 'postgresql:postgresql:9.1-901.jdbc4'    
+		compile 'postgresql:postgresql:9.1-901.jdbc4'
+		
+		testCompile 'org.slf4j:slf4j-log4j12:1.6.6'    
 		
     }
 
@@ -317,10 +339,13 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 		
 		compile 'com.google.guava:guava:14.0.1'
 		
+		compile 'ch.qos.logback:logback-classic:1.0.13'
+		
 		compile fileTree(dir: project(':projects:copper-coreengine').projectDir.toString()+'/3rdPartyLibs', include: '*.jar')	
 		
 	}
-	
+
+		
 	jar.doFirst {
 	    manifest { 
 	      def manifestClasspath =configurations.runtime.collect {'libs/'+it.getName() }.join(' ')
@@ -435,6 +460,8 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 		compile 'org.springframework:spring-web:3.1.2.RELEASE'
 		compile 'commons-httpclient:commons-httpclient:3.1'	
 		
+		compile 'org.slf4j:slf4j-log4j12:1.6.6'
+		
 		testCompile files("libs/Jemmy3AWTInput-0.9.3-SNAPSHOT.jar")
 		testCompile files("libs/Jemmy3Core-0.9.3-SNAPSHOT.jar")
 		testCompile files("libs/JemmyFX-0.9.3-SNAPSHOT.jar")
@@ -519,6 +546,7 @@ project(':projects:copper-monitoring:copper-monitoring-example') {
     dependencies {
     	 compile project(':projects:copper-monitoring:copper-monitoring-server')
     	 compile project(':projects:copper-coreengine')
+    	 compile 'ch.qos.logback:logback-classic:1.0.13'
     }
 }
 
