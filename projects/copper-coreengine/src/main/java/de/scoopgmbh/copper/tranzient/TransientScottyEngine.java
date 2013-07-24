@@ -178,17 +178,12 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 			dependencyInjector.inject(w);
 			enqueue(w);
 		}
-		catch(RuntimeException e) {
-			logger.error("run/enqeue failed",e);
-			workflowMap.remove(w.getId());
-			ticketPoolManager.release(w);
-			throw e;
-		}
 		catch(Exception e) {
-			logger.error("run/enqeue failed",e);
+			String message = "run/enqeue of workflow with id '" + w.getId() + "' failed.";
+			logger.warn(message);
 			workflowMap.remove(w.getId());
 			ticketPoolManager.release(w);
-			throw new CopperRuntimeException(e);
+			throw new CopperRuntimeException(message, e);
 		}
 	}
 
