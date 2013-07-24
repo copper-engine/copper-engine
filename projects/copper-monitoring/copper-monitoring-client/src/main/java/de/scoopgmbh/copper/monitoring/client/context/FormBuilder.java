@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.monitoring.client.context;
 
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
+import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.ExceptionHandler;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
@@ -37,22 +38,24 @@ public class FormBuilder<FM,RM, F extends FilterController<FM> ,R extends Filter
 	protected final R resultController;
 	protected final MessageProvider messageProvider;
 	protected final ShowFormStrategy<?> showFormStrategy;
+	protected final ExceptionHandler exceptionHandler;
 	
-	public FormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategy){
+	public FormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategy, ExceptionHandler exceptionHandler){
 		this.filterController =filterController;
 		this.resultController = resultController;
 		this.messageProvider = messageProvider;
 		this.showFormStrategy = showFormStrategy;
+		this.exceptionHandler = exceptionHandler;
 	}
 	
 	public FormBuilder(F filterController, R resultController, FormContext formContext){
-		this(filterController,resultController,formContext.messageProvider,formContext.getDefaultShowFormStrategy());
+		this(filterController,resultController,formContext.messageProvider,formContext.getDefaultShowFormStrategy(),formContext.exceptionHandler);
 	}
 	
 	public FilterAbleForm<FM,RM> build(){
 		FxmlForm<FilterController<FM>> filterForm = new FxmlForm<FilterController<FM>>(filterController, messageProvider);
 		FxmlForm<FilterResultController<FM,RM>> resultForm = new FxmlForm<FilterResultController<FM,RM>>(resultController, messageProvider);
-		return new FilterAbleForm<FM,RM>(messageProvider, showFormStrategy, filterForm, resultForm);
+		return new FilterAbleForm<FM,RM>(messageProvider, showFormStrategy, filterForm, resultForm,exceptionHandler);
 	}
 	
 	public static class EngineFormBuilder<FM extends EnginePoolFilterModel,RM, F extends BaseEngineFilterController<FM> ,R extends FilterResultController<FM,RM>> extends FormBuilder<FM,RM, F,R>{
@@ -61,15 +64,15 @@ public class FormBuilder<FM,RM, F extends FilterController<FM> ,R extends Filter
 			super(filterController, resultController, formContext);
 		}
 
-		public EngineFormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategy, String title) {
-			super(filterController, resultController, messageProvider, showFormStrategy);
+		public EngineFormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategy, String title, ExceptionHandler exceptionHandler) {
+			super(filterController, resultController, messageProvider, showFormStrategy,exceptionHandler);
 		}
 		
 		@Override
 		public EngineFilterAbleForm<FM,RM> build(){
 			FxmlForm<FilterController<FM>> filterForm = new FxmlForm<FilterController<FM>>(filterController, messageProvider);
 			FxmlForm<FilterResultController<FM,RM>> resultForm = new FxmlForm<FilterResultController<FM,RM>>(resultController, messageProvider);
-			return new EngineFilterAbleForm<FM,RM>(messageProvider, showFormStrategy, filterForm, resultForm);
+			return new EngineFilterAbleForm<FM,RM>(messageProvider, showFormStrategy, filterForm, resultForm,exceptionHandler);
 		}
 	}
 }

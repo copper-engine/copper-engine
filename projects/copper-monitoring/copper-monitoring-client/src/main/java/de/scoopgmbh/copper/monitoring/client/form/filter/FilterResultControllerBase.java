@@ -98,7 +98,7 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (newValue!=null && newValue.length()>1){
-					serachInTable(tableView, newValue,regExp.isSelected());
+					searchInTable(tableView, newValue,regExp.isSelected());
 				}
 			}
 		});
@@ -106,14 +106,14 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 				if (newValue!=null){
-					serachInTable(tableView,textField.getText(),newValue);
+					searchInTable(tableView,textField.getText(),newValue);
 				}
 			}
 		});
 		textField.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				serachInTable(tableView,textField.getText(),regExp.isSelected());
+				searchInTable(tableView,textField.getText(),regExp.isSelected());
 			}
 		});
 		HBox.setHgrow(textField,Priority.ALWAYS);
@@ -143,13 +143,14 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 		tableView.getContextMenu().getItems().add(copyCellMenuItem);
 	}
 	
-	private void serachInTable(final TableView<?> tableView, String newValue, boolean useRegex) {
+	private void searchInTable(final TableView<?> tableView, String newValue, boolean useRegex) {
 		tableView.getSelectionModel().clearSelection();
-		try {
-			Pattern.compile(newValue);
-		} catch (PatternSyntaxException e) {
-			e.printStackTrace();
-			return;
+		if (useRegex){
+			try {
+				Pattern.compile(newValue);
+			} catch (PatternSyntaxException e) {
+				return;
+			}
 		}
 		int selectedRow= tableView.getSelectionModel().getSelectedIndex();
 		int toSelectedRow= tableView.getSelectionModel().getSelectedIndex();

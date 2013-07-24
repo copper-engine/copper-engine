@@ -20,6 +20,7 @@ import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
+import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.ExceptionHandler;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 
@@ -27,7 +28,12 @@ public class TestFormContext extends FormContext{
 
 	public TestFormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider,
 			SettingsModel settingsModelSingleton) {
-		super(mainPane, guiCopperDataProvider, messageProvider, settingsModelSingleton);
+		super(mainPane, guiCopperDataProvider, messageProvider, settingsModelSingleton,new ExceptionHandler() {
+			@Override
+			public void handleException(Throwable e) {
+				e.printStackTrace();
+			}
+		});
 	}
 	
 	@Override

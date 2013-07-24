@@ -19,6 +19,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
+import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.ExceptionHandler;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
@@ -30,8 +31,8 @@ public class EngineFilterAbleForm<F extends EnginePoolFilterModel, R> extends Fi
 
 
 	public EngineFilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
-			final Form<FilterController<F>> filterForm, Form<FilterResultController<F, R>> resultForm) {
-		super(messageProvider, showFormStrategie, filterForm, resultForm);
+			final Form<FilterController<F>> filterForm, Form<FilterResultController<F, R>> resultForm, ExceptionHandler exceptionHandler) {
+		super(messageProvider, showFormStrategie, filterForm, resultForm, exceptionHandler);
 		
 		filterForm.getController().getFilter().selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
 			@Override

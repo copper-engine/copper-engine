@@ -17,13 +17,10 @@ package de.scoopgmbh.copper.monitoring.client.form.filter;
 
 import java.util.List;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.concurrent.WorkerStateEvent;
@@ -56,6 +53,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
+import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.ExceptionHandler;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.MessageKey;
@@ -70,36 +68,20 @@ import de.scoopgmbh.copper.monitoring.client.util.NumberOnlyTextField;
 public class FilterAbleForm<F,R> extends Form<Object>{
 	protected final Form<FilterController<F>> filterForm;
 	protected final Form<FilterResultController<F,R>> resultForm;
-	private FilterService<F,R> filterService;
-	private RepeatFilterService<F,R> repeatFilterService;
+	private BackgroundFilterService<F,R> filterService;
+	private BackgroundRepeatFilterService<F,R> repeatFilterService;
 	private final MessageProvider messageProvider;
 	
 	public static final String REFRESH_BUTTON_ID = "refreshbutton";
 
 	public FilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
-			Form<FilterController<F>> filterForm, final Form<FilterResultController<F,R>> resultForm) {
+			Form<FilterController<F>> filterForm, final Form<FilterResultController<F,R>> resultForm, ExceptionHandler exceptionHandlerParm) {
 		super("", showFormStrategie, null);
 		this.messageProvider = messageProvider;
 		this.filterForm = filterForm;
 		this.resultForm = resultForm;
-		filterService = new FilterService<F,R>(resultForm.getController(), filterForm);
-		filterService.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-			@SuppressWarnings("unchecked")
-			@Override
-            public void handle(WorkerStateEvent t) {
-				try {
-	            	ResultFilterPair<F, R> result = (ResultFilterPair<F,R>)t.getSource().getValue();
-					resultForm.getController().showFilteredResult(result.result, result.usedFilter);
-				} catch (Exception e){
-					e.printStackTrace(); //Future swallows Exceptions
-					if (Thread.getDefaultUncaughtExceptionHandler()!=null){
-						Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
-					}
-					throw new RuntimeException(e);
-				}
-            }
-        });
-		repeatFilterService = new RepeatFilterService<F,R>(resultForm.getController(), filterForm);
+		filterService = new BackgroundFilterService<F,R>(resultForm.getController(), filterForm, exceptionHandlerParm);
+		repeatFilterService = new BackgroundRepeatFilterService<F,R>(resultForm.getController(), filterForm, exceptionHandlerParm);
 		
 		filterForm.getController().getActionsWithFilterForm().addListener(new ListChangeListener<ActionsWithFilterForm>() {
 			@Override
@@ -112,6 +94,10 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		});
 	}
 
+	/**
+	 * use ExceptionHandler instead
+	 */
+	@Deprecated 
 	public void setOnFailed(EventHandler<WorkerStateEvent> eventHandler) {
 		filterService.setOnFailed(eventHandler);
 		repeatFilterService.setOnFailed(eventHandler);
@@ -248,17 +234,43 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		repeatProgressIndicator.setVisible(false);
 		repeatProgressIndicator.setPrefWidth(300);
 		repeatProgressIndicator.progressProperty().bind(repeatFilterService.progressProperty());
-		toggleButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
+		toggleButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				if (newValue){
+			public void handle(ActionEvent event) {
+				if (toggleButton.isSelected()){
 					repeatFilterService.setRefreshIntervall(Long.valueOf(refreshRateInMs.get()));
 					repeatFilterService.reset();
 					repeatFilterService.start();
-					repeatProgressIndicator.setVisible(true);
 				} else {
 					repeatFilterService.cancel();
+				}
+			}
+		});
+		repeatFilterService.setOnCancelled(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				repeatProgressIndicator.setVisible(false);
+			}
+		});
+		repeatFilterService.stateProperty().addListener(new ChangeListener<State>() {
+			@Override
+			public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
+				if (newValue==State.CANCELLED || newValue == State.FAILED || newValue == State.SUCCEEDED){
 					repeatProgressIndicator.setVisible(false);
+				} else {
+					repeatProgressIndicator.setVisible(true);
+				}
+				
+			}
+		});
+		
+		repeatFilterService.runningProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				if (newValue!=null){
+					toggleButton.setSelected(newValue);
+				} else {
+					
 				}
 			}
 		});
@@ -312,104 +324,9 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	}
 	
 	SimpleStringProperty refreshRateInMs = new SimpleStringProperty();
-
-	public static class RepeatFilterService<F,R>  extends Service<Void> {
-    	private long refreshRate=1000;
-		long lasttime = System.currentTimeMillis();
-        private final FilterResultController<F,R> filterResultController;
-        private final Form<FilterController<F>> filterForm;
-        
-        public RepeatFilterService(FilterResultController<F,R> filterResultController, Form<FilterController<F>> filterForm) {
-			super();
-			this.filterResultController = filterResultController;
-			this.filterForm = filterForm;
-		}
-        
-		public void setRefreshIntervall(long refreshRate) {
-			this.refreshRate = refreshRate;
-		}
-
-		@Override
-		public void start() {
-			lasttime = System.currentTimeMillis();
-			super.start();
-		}
-        
-		@Override
-		protected Task<Void> createTask() {
-			return new Task<Void>() {
-				@Override
-				protected Void call() throws Exception {
-					while (!isCancelled()) {
-						if (lasttime + refreshRate < System.currentTimeMillis()) {
-							updateProgress(-1, 1);
-							final List<R> result;
-							try {
-								result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
-							} catch (Exception e1) {
-								throw new RuntimeException(e1);
-							}
-							Platform.runLater(new Runnable() {
-								@Override
-								public void run() {
-									try {
-										filterResultController.showFilteredResult(result, filterForm.getController().getFilter());
-									} catch (Exception e) {
-										e.printStackTrace(); // Future swallows Exceptions
-										if (Thread.getDefaultUncaughtExceptionHandler()!=null){
-											Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
-										}
-										throw new RuntimeException(e);
-									}
-								}
-							});
-							lasttime = System.currentTimeMillis();
-						}
-						Thread.sleep(Math.min(50,refreshRate/10));
-						long progress = System.currentTimeMillis() - lasttime;
-						progress = progress <= refreshRate ? progress : refreshRate;
-						if (refreshRate<=500){
-							progress=-1;
-						}
-						updateProgress(progress, refreshRate);
-					}
-					return null;
-				}
-			};
-		}
-    }
-
-    public static class FilterService<F,R>  extends Service<ResultFilterPair<F,R>> {
-        private final FilterResultController<F,R> filterResultController;
-        private final Form<FilterController<F>> filterForm;
-        
-        public FilterService(FilterResultController<F,R> filterResultController, Form<FilterController<F>> filterForm) {
-			super();
-			this.filterResultController = filterResultController;
-			this.filterForm = filterForm;
-		}
-
-		@Override
-		protected Task<ResultFilterPair<F,R>> createTask() {
-			return new Task<ResultFilterPair<F,R>>() {
-                @Override
-				protected ResultFilterPair<F,R> call() throws Exception {
-					try {
-						final List<R> result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
-						return new ResultFilterPair<F, R>(result, filterForm.getController().getFilter());
-					} catch (Exception e) {
-						e.printStackTrace(); // Future swollows Exceptions
-						if (Thread.getDefaultUncaughtExceptionHandler()!=null){
-							Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
-						}
-						throw new RuntimeException(e);
-					}
-				}
-            };
-        }
-    }
-    
-    public static class ResultFilterPair<F,R> {
+	
+	
+	public static class ResultFilterPair<F,R> {
         public List<R> result;
         public F usedFilter;
         

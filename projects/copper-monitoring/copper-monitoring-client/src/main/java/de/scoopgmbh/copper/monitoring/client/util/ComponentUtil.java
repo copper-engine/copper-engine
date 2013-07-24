@@ -26,21 +26,33 @@ import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextArea;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
+
+import com.google.common.base.Throwables;
 
 public class ComponentUtil {
 	
@@ -178,5 +190,86 @@ public class ComponentUtil {
 		chartWrap.getChildren().add(valueMarker);
 	}
 	
+	public static void showErrorMessage(StackPane target, String message, Throwable e){
+		showErrorMessage(target,message,e,null);
+	}
+	
+	public static void showErrorMessage(StackPane target, String message, Throwable e, Runnable okOnACtion){
+		showMessage(target,message,e,Color.rgb(255,0,0,0.55), new ImageView(ComponentUtil.class.getResource("/de/scoopgmbh/copper/gui/icon/error.png").toExternalForm()),okOnACtion);
+	}
+	
+	public static void showWarningMessage(StackPane target, String message, Throwable e, Runnable okOnACtion){
+		showMessage(target,message,e,Color.rgb(255,200,90,0.75), new ImageView(ComponentUtil.class.getResource("/de/scoopgmbh/copper/gui/icon/warning.png").toExternalForm()),okOnACtion);
+	}
+	
+	public static void showWarningMessage(StackPane target, String message, Throwable e){
+		showWarningMessage(target,message,e,null);
+	}
+	
+	public static void showMessage(final StackPane target, final String message, final Throwable e, final Color backColor, final ImageView icon, final Runnable okOnAction){
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				final Pane backShadow = new Pane();
+				backShadow.setStyle("-fx-background-color: "+CSSHelper.toCssColor(backColor)+";");
+				target.getChildren().add(backShadow);
+				
+				String blackOrWhiteDependingFromBack ="ladder("+CSSHelper.toCssColor(backColor)+", white 49%, black 50%);";
+				
+				final VBox back = new VBox(3);
+				StackPane.setMargin(back, new Insets(150));
+				back.setStyle("-fx-border-color: "+blackOrWhiteDependingFromBack +"; -fx-border-width: 1px; -fx-padding: 3; -fx-background-color: derive("+CSSHelper.toCssColor(backColor)+",-50%);");
+				back.setAlignment(Pos.CENTER_RIGHT);
+				final Label label = new Label(message);
+				label.prefWidthProperty().bind(target.widthProperty());
+				StackPane.setMargin(back, new Insets(150));
+				label.setStyle("-fx-text-fill: "+blackOrWhiteDependingFromBack +";");
+				label.setWrapText(true);
+				label.setGraphic(icon);
+				back.getChildren().add(label);
+				
+				final TextArea area = new TextArea();
+				area.setPrefRowCount(10);
+				if (e!=null){
+					area.setText(Throwables.getStackTraceAsString(e));
+				}
+				area.setOpacity(0.4);
+				area.setEditable(false);
+				VBox.setVgrow(area, Priority.ALWAYS);
+				back.getChildren().add(area);
+				area.getStyleClass().add("consoleFont");
+				
+				ContextMenu menue = new ContextMenu();
+				MenuItem item = new MenuItem("copy to clipboard");
+				item.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent event) {
+						final Clipboard clipboard = Clipboard.getSystemClipboard();
+					    final ClipboardContent content = new ClipboardContent();
+					    content.putString(area.getText());
+					    clipboard.setContent(content);
+					}
+				});
+				menue.getItems().add(item);
+				area.setContextMenu(menue);
+				
+				Button ok = new Button("OK");
+				ok.setPrefWidth(100);
+				ok.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent event) {
+						target.getChildren().remove(back);
+						target.getChildren().remove(backShadow);
+						if (okOnAction!=null){
+							okOnAction.run();
+						}
+					}
+				});
+				back.getChildren().add(ok);
+				
+				target.getChildren().add(back);
+			}
+		});
+	}
 
 }
