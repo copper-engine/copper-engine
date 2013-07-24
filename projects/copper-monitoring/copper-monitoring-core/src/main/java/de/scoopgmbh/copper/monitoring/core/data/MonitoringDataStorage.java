@@ -54,47 +54,11 @@ public class MonitoringDataStorage {
 	final ArrayList<TargetFile> writtenFiles = new ArrayList<TargetFile>();
 	long lastTimeStamp = 0;
 	final Object lock = new Object();
-	final ArrayBlockingQueue<TargetFile> buffersToForce = new ArrayBlockingQueue<TargetFile>(16,false);
 	boolean closed = false;
-	final ForceThread forceThread;
 	long totalSize;
 	final long maxTotalSize;
 	final long discardDataBeforeDateMillis;
 	
-	class ForceThread extends Thread {
-		
-		ForceThread() {
-			super("File forcer thread for '"+new File(targetPath, filenamePrefix).getAbsolutePath()+"'");
-		}
-		@Override
-		public void run() {
-			synchronized (buffersToForce) {
-				while (true) {
-					TargetFile f;
-					try {
-						f = buffersToForce.take();
-						try {
-							f.close();
-						} catch (IOException e) {
-							//ignore
-						}
-					} catch (InterruptedException e) {
-						if (closed) {
-							while ((f = buffersToForce.poll()) != null) {
-								try {
-									f.close();
-								} catch (IOException e1) {
-									//ignore
-								}
-							}
-							return;
-						}
-						throw new RuntimeException("Unexpected interruption", e);
-					}
-				}
-			}
-		}
-	}
 	
 	static final class TargetFile {
 		File             file;
@@ -114,7 +78,6 @@ public class MonitoringDataStorage {
 				return;
 			if (!memoryMappedFile.getChannel().isOpen())
 				return;
-			out.force();
 			try {
 				memoryMappedFile.close();
 			} catch (IOException ex) {
@@ -174,7 +137,6 @@ public class MonitoringDataStorage {
 		this.maxTotalSize = maxSize;
 		this.discardDataBeforeDateMillis = maxAgeUnit.toMillis(duration);
 		loadFiles();
-		(forceThread = new ForceThread()).start();
 	}
 	
 	private void loadFiles()  {
@@ -242,11 +204,7 @@ public class MonitoringDataStorage {
 
 	private void closeCurrentTarget() throws IOException {
 		writtenFiles.add(currentTarget);
-		try {
-			buffersToForce.put(currentTarget);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+		currentTarget.close();
 		currentTarget = null;
 	}
 
@@ -351,12 +309,6 @@ public class MonitoringDataStorage {
     			closeCurrentTarget();
     		closed = true;
     	}
-    	try {
-    		forceThread.interrupt();
-			forceThread.join();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
     }
  
     static class OpenedFile {
@@ -366,6 +318,7 @@ public class MonitoringDataStorage {
     	public OpenedFile(TargetFile f, long fromTime, long toTime, boolean reverse) throws IOException {
     		RandomAccessFile rf = new RandomAccessFile(f.file, "r");
     		MappedByteBuffer b = rf.getChannel().map(MapMode.READ_ONLY, 0, f.limit);
+    		b.load();
     		int limit = b.getInt(LIMIT_POSITION);
     		byte[] dat = new byte[limit-FIRST_RECORD_POSITION];
     		b.position(FIRST_RECORD_POSITION);
