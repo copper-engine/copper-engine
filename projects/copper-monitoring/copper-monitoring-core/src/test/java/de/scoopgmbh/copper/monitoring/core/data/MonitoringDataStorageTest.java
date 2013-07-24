@@ -91,6 +91,64 @@ public class MonitoringDataStorageTest {
 		
 	}
 
+	@Test
+	public void testSkipSome() throws IOException {
+		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
+		tmpDir.delete();
+		tmpDir.mkdirs();
+		File f1 = new File(tmpDir, filename+".1");
+		f1.deleteOnExit();
+		writeFile(f1, new Date(1), new Date(6));
+		File f2 = new File(tmpDir, filename+".2");
+		f2.deleteOnExit();
+		writeFile(f2, new Date(2), new Date(5));
+		File f3 = new File(tmpDir, filename+".3");
+		f3.deleteOnExit();
+		writeFile(f3, new Date(3), new Date(4));
+		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
+		int i = 4;
+		for (Input in : storage.read(new Date(4), new Date(5))) {
+			byte[] data = new byte[8];
+			in.read(data);
+			for (int j = 0; j < 7; ++j) {
+				Assert.assertEquals(data[j], 0);
+			}
+			Assert.assertEquals(i, data[7]);
+			i += 1;
+		}
+		Assert.assertEquals(6, i);
+		
+	}
+
+	@Test
+	public void testSortedReadReverse() throws IOException {
+		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
+		tmpDir.delete();
+		tmpDir.mkdirs();
+		File f1 = new File(tmpDir, filename+".1");
+		f1.deleteOnExit();
+		writeFile(f1, new Date(1), new Date(6));
+		File f2 = new File(tmpDir, filename+".2");
+		f2.deleteOnExit();
+		writeFile(f2, new Date(2), new Date(5));
+		File f3 = new File(tmpDir, filename+".3");
+		f3.deleteOnExit();
+		writeFile(f3, new Date(3), new Date(4));
+		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
+		int i = 6;
+		for (Input in : storage.readReverse(new Date(1), new Date(6))) {
+			byte[] data = new byte[8];
+			in.read(data);
+			for (int j = 0; j < 7; ++j) {
+				Assert.assertEquals(data[j], 0);
+			}
+			Assert.assertEquals(i, data[7]);
+			i -= 1;
+		}
+		Assert.assertEquals(0, i);
+		
+	}
+
 
 	@Test
 	public void testHouseKeeping() throws Exception {

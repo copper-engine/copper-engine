@@ -363,7 +363,7 @@ public class MonitoringDataStorage {
     	byte[] data;
     	ArrayList<DataPointer> dataPointers;
     	
-    	public OpenedFile(TargetFile f, long fromTime, long toTime) throws IOException {
+    	public OpenedFile(TargetFile f, long fromTime, long toTime, boolean reverse) throws IOException {
     		RandomAccessFile rf = new RandomAccessFile(f.file, "r");
     		MappedByteBuffer b = rf.getChannel().map(MapMode.READ_ONLY, 0, f.limit);
     		int limit = b.getInt(LIMIT_POSITION);
@@ -371,10 +371,10 @@ public class MonitoringDataStorage {
     		b.position(FIRST_RECORD_POSITION);
     		b.get(dat, 0, dat.length);
     		rf.close();
-    		readDataPointers(ByteBuffer.wrap(dat), fromTime, toTime);
+    		readDataPointers(ByteBuffer.wrap(dat), fromTime, toTime, reverse);
     	}
 
-		private void readDataPointers(ByteBuffer data, long fromTime, long toTime) {
+		private void readDataPointers(ByteBuffer data, long fromTime, long toTime, boolean reverse) {
 			dataPointers = new ArrayList<DataPointer>();
 			while (data.position() < data.limit()) {
 				DataPointer dp = new DataPointer(data); //adjusts buf.position()
@@ -383,6 +383,8 @@ public class MonitoringDataStorage {
 				}
 			}
 			Collections.sort(dataPointers);
+			if (reverse)
+				Collections.reverse(dataPointers);
 		}
 		
 		public DataPointer pop() {
@@ -398,8 +400,15 @@ public class MonitoringDataStorage {
     	
     }
 
-    
     public Iterable<Input> read(Date fromDate, Date toDate) {
+    	return read(fromDate, toDate, false);
+    }
+    
+    public Iterable<Input> readReverse(Date fromDate, Date toDate) {
+    	return read(fromDate, toDate, true);
+    }
+    
+    public Iterable<Input> read(Date fromDate, Date toDate, final boolean reverse) {
     	final ArrayList<TargetFile> filesToRead = new ArrayList<TargetFile>();
     	final long fromTime = fromDate == null?Long.MIN_VALUE:fromDate.getTime();
     	final long toTime = toDate == null?Long.MAX_VALUE:toDate.getTime();
@@ -412,20 +421,38 @@ public class MonitoringDataStorage {
         		filesToRead.add(currentTarget);
         	}
         }
-    	Collections.sort(filesToRead, new Comparator<TargetFile>() {
-			@Override
-			public int compare(TargetFile o1, TargetFile o2) {
-				if (o1.earliestTimestamp < o2.earliestTimestamp)
-					return -1;
-				if (o1.earliestTimestamp > o2.earliestTimestamp)
-					return 1;
-				if (o1.latestTimestamp < o2.latestTimestamp)
-					return -1;
-				if (o1.latestTimestamp > o2.latestTimestamp)
-					return 1;
-				return System.identityHashCode(o1)-System.identityHashCode(o2);
-			}
-		});
+        Comparator<TargetFile> cmp = 
+        		reverse?
+        		new Comparator<TargetFile>() {
+        			@Override
+        			public int compare(TargetFile o1, TargetFile o2) {
+        				if (o1.latestTimestamp < o2.latestTimestamp)
+        					return 1;
+        				if (o1.latestTimestamp > o2.latestTimestamp)
+        					return -1;
+        				if (o1.earliestTimestamp < o2.earliestTimestamp)
+        					return 1;
+        				if (o1.earliestTimestamp > o2.earliestTimestamp)
+        					return -1;
+        				return System.identityHashCode(o2)-System.identityHashCode(o1);
+        			}
+        		} : 
+        		new Comparator<TargetFile>() {
+        			@Override
+        			public int compare(TargetFile o1, TargetFile o2) {
+        				if (o1.earliestTimestamp < o2.earliestTimestamp)
+        					return -1;
+        				if (o1.earliestTimestamp > o2.earliestTimestamp)
+        					return 1;
+        				if (o1.latestTimestamp < o2.latestTimestamp)
+        					return -1;
+        				if (o1.latestTimestamp > o2.latestTimestamp)
+        					return 1;
+        				return System.identityHashCode(o2)-System.identityHashCode(o1);
+        			}
+        		};
+        				
+    	Collections.sort(filesToRead, cmp);
     	
     	return new Iterable<Input>() {
 			
@@ -445,19 +472,26 @@ public class MonitoringDataStorage {
 							return false;
 						}
 						if (currentTimestamp == 0)
-							currentTimestamp = files.get(0).earliestTimestamp;
+							currentTimestamp = reverse?files.get(0).latestTimestamp:files.get(0).earliestTimestamp;
 						ListIterator<TargetFile> it = files.listIterator();
 						while (it.hasNext()) {
 							TargetFile tf = it.next();
-							if (tf.earliestTimestamp > currentTimestamp)
-								break;
+							if (reverse) {
+								if (tf.latestTimestamp < currentTimestamp)
+									break;
+							} else {
+								if (tf.earliestTimestamp > currentTimestamp)
+									break;
+							}
 							it.remove();
 							try {
-								openFiles.add(new OpenedFile(tf, fromTime, toTime));
+								openFiles.add(new OpenedFile(tf, fromTime, toTime, reverse));
 								//we have to readjust current time stamp,
 								//because the already-opened file may skip some timestamps that are present in the newly-opened file
 								//else we could skip opening a file in the middle of these timestamps
-								currentTimestamp = Math.min(currentTimestamp, tf.earliestTimestamp);
+								currentTimestamp = reverse?
+										Math.max(currentTimestamp, tf.latestTimestamp)
+										:Math.min(currentTimestamp, tf.earliestTimestamp);
 							} catch (IOException e) {
 								//if file cannot be opened, we simple ignore it.
 							}
@@ -484,7 +518,7 @@ public class MonitoringDataStorage {
 								it.remove();
 								continue;
 							}
-							if (dp == null || nextDp.timestamp < dp.timestamp) {
+							if (dp == null || ((!reverse && nextDp.timestamp < dp.timestamp) || (reverse && nextDp.timestamp > dp.timestamp))) {
 								if (dp != null) {
 									dpSource.push(dp);
 								}
@@ -494,13 +528,13 @@ public class MonitoringDataStorage {
 						}
 						if (dp != null) {
 							currentTimestamp = dp.timestamp;
-							if (!files.isEmpty() && files.get(0).earliestTimestamp < currentTimestamp) {
+							if (!files.isEmpty() && ((!reverse && files.get(0).earliestTimestamp < currentTimestamp) || (reverse && files.get(0).latestTimestamp > currentTimestamp))) {
 								dpSource.push(dp);
 								openFiles();
 								return popNext();
 							}							
 						} else if (!files.isEmpty()) {
-							currentTimestamp = files.get(0).earliestTimestamp;
+							currentTimestamp = reverse?files.get(0).latestTimestamp:files.get(0).earliestTimestamp;
 							openFiles();
 							return popNext();
 						}
