@@ -68,21 +68,86 @@ public class MonitoringDataStorage {
 	
 	
 	static final class TargetFile {
-		File             file;
-		RandomAccessFile memoryMappedFile;
-		MappedByteBuffer out;
-		long             earliestTimestamp = Long.MAX_VALUE;
-		long             latestTimestamp = Long.MIN_VALUE;
-		int              limit = FIRST_RECORD_POSITION;
-		int              fileSize;
-		Kryo kryo = SerializeUtil.createKryo();
+		private File             file;
+		private RandomAccessFile memoryMappedFile;
+		private MappedByteBuffer out;
+		private long             earliestTimestamp = Long.MAX_VALUE;
+		private long             latestTimestamp = Long.MIN_VALUE;
+		private int              limit = FIRST_RECORD_POSITION;
+		private int              fileSize;
+		private Kryo kryo = SerializeUtil.createKryo();
+		private ByteBufferOutputStream bostr;
+		private Output output;
 		
+		/**
+		 * @param file
+		 * @throws IOException
+		 */
+		public TargetFile(File file, boolean readOnly) throws IOException {
+			this.file = file;
+			if (!readOnly) {
+				memoryMappedFile = new RandomAccessFile(file, "rw");
+				out = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, FILE_CHUNK_SIZE);
+				fileSize = FILE_CHUNK_SIZE;
+				limit = FIRST_RECORD_POSITION;
+				out.putLong(LIMIT_POSITION,limit);
+				out.putLong(EARLIEST_POSITION,earliestTimestamp);
+				out.putLong(LATEST_POSITION,latestTimestamp);
+				out.position(FIRST_RECORD_POSITION);
+	    		bostr = new ByteBufferOutputStream(out);
+	    		output = new Output(bostr);
+			} else {
+				memoryMappedFile = new RandomAccessFile(file,"r");
+				fileSize = (int)file.length();
+				MappedByteBuffer bb = memoryMappedFile.getChannel().map(MapMode.READ_ONLY, 0, HEADER_END);
+				earliestTimestamp = bb.getLong(EARLIEST_POSITION);
+				latestTimestamp = bb.getLong(LATEST_POSITION);
+				limit = bb.getInt(LIMIT_POSITION);
+				memoryMappedFile.close(); 
+				memoryMappedFile = null;
+			}
+		}
+
+		public void openForWriting() throws IOException {
+			OpenedFile of = new OpenedFile(this, Long.MIN_VALUE, Long.MAX_VALUE, false);
+			memoryMappedFile = new RandomAccessFile(file, "rw");
+			out = memoryMappedFile.getChannel().map(MapMode.READ_WRITE, 0, FILE_CHUNK_SIZE);
+			out.position(limit);
+			out.putInt(LIMIT_POSITION,FIRST_RECORD_POSITION);
+    		bostr = new ByteBufferOutputStream(out);
+    		output = new Output(bostr);
+			kryo = SerializeUtil.createKryo();
+			
+			MonitoringData md = null;
+			Output o = new Output(nullOut);
+			while ((md = of.pop()) != null) {
+				kryo.writeClassAndObject(o,  md);
+			}
+		}
+
 		@Override
 		protected void finalize() throws Throwable {
 			super.finalize();
 			close();
 		}
 		public synchronized void close() {
+			if (output != null) {
+				try {
+					output.close();
+				} catch (BufferOverflowException be) {
+					/* we can silently ignore this because we alway flush() the output and this is a remainder of the exception when a file is fully written */
+				}
+				output = null;
+			}
+			if (bostr != null) {
+				try {
+					bostr.close();
+				} catch (IOException e) {
+					/* ignore */
+				}
+				bostr = null;
+			}
+			out = null;
 			if (memoryMappedFile == null)
 				return;
 			if (!memoryMappedFile.getChannel().isOpen())
@@ -93,7 +158,10 @@ public class MonitoringDataStorage {
 				ex.printStackTrace();
 			}
 			memoryMappedFile = null;
-			out = null;
+		}
+		public void serialize(MonitoringData monitoringData) {
+			kryo.writeClassAndObject(output, monitoringData);
+			output.flush();
 		}
 	}
 	
@@ -141,18 +209,9 @@ public class MonitoringDataStorage {
 		TargetFile latestFile = null;
 		long latestTimestamp = Long.MIN_VALUE;
 		for (File file : targetPath.listFiles(f)) {
-			TargetFile tf = new TargetFile();
-			tf.file = file;
-			RandomAccessFile rf;
 			try {
-				rf = new RandomAccessFile(tf.file,"r");
-				tf.fileSize = (int)file.length();
+				TargetFile tf = new TargetFile(file, true);
 				totalSize += tf.fileSize;
-				MappedByteBuffer bb = rf.getChannel().map(MapMode.READ_ONLY, 0, HEADER_END);
-				tf.earliestTimestamp = bb.getLong(EARLIEST_POSITION);
-				tf.latestTimestamp = bb.getLong(LATEST_POSITION);
-				tf.limit = bb.getInt(LIMIT_POSITION);
-				rf.close();
 				if (tf.latestTimestamp > latestTimestamp) {
 					latestTimestamp = tf.latestTimestamp;
 					if (latestFile != null)
@@ -167,18 +226,8 @@ public class MonitoringDataStorage {
 		}
 		if (latestFile != null) {
 			try {
-				OpenedFile of = new OpenedFile(latestFile, Long.MIN_VALUE, Long.MAX_VALUE, false);
-				latestFile.memoryMappedFile = new RandomAccessFile(latestFile.file, "rw");
-				latestFile.out = latestFile.memoryMappedFile.getChannel().map(MapMode.READ_WRITE, 0, FILE_CHUNK_SIZE);
-				latestFile.out.position(latestFile.limit);
-				latestFile.out.putInt(LIMIT_POSITION,FIRST_RECORD_POSITION);
-				latestFile.kryo = SerializeUtil.createKryo();
+				latestFile.openForWriting();
 				currentTarget = latestFile;
-				MonitoringData md = null;
-				Output o = new Output(nullOut);
-				while ((md = of.pop()) != null) {
-					latestFile.kryo.writeClassAndObject(o,  md);
-				}
 			} catch (IOException ioe) {
 				/* should never happen */
 				writtenFiles.add(latestFile);				
@@ -211,25 +260,18 @@ public class MonitoringDataStorage {
 
 	private TargetFile createTargetFile(){
 		try {
-			TargetFile newTarget = new TargetFile();
 			long currentTimeStamp = System.currentTimeMillis();
-			do {
-				newTarget.file = new File(targetPath, filenamePrefix+"."+currentTimeStamp);
-				if (newTarget.file.exists()) {
-					++currentTimeStamp;
-					continue;
+			File f = null;
+			while (true) {
+				f = new File(targetPath, filenamePrefix+"."+currentTimeStamp);
+				if (!f.exists()) {
+					houseKeeping(FILE_CHUNK_SIZE);	
+					TargetFile newTarget = new TargetFile(f,  false);
+					totalSize += newTarget.fileSize;
+					return newTarget;
 				}
-			} while (false);
-			houseKeeping(FILE_CHUNK_SIZE);	
-			newTarget.memoryMappedFile = new RandomAccessFile(newTarget.file, "rw");
-			newTarget.out = newTarget.memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, FILE_CHUNK_SIZE);
-			newTarget.fileSize = FILE_CHUNK_SIZE;
-			newTarget.out.putLong(LIMIT_POSITION,newTarget.limit);
-			newTarget.out.putLong(EARLIEST_POSITION,newTarget.earliestTimestamp);
-			newTarget.out.putLong(LATEST_POSITION,newTarget.latestTimestamp);
-			newTarget.out.position(FIRST_RECORD_POSITION);
-			totalSize += newTarget.fileSize;
-			return newTarget;
+				++currentTimeStamp;
+			}
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (IOException e) {
@@ -283,14 +325,10 @@ public class MonitoringDataStorage {
         	if (closed){
         		throw new RuntimeException(new ClosedChannelException());
         	}
-
-    		ensureCurrentFile(0);
+        	ensureCurrentFile(0);
     		Kryo kryo = currentTarget.kryo;
     		try {
-        		ByteBufferOutputStream bostr = new ByteBufferOutputStream(currentTarget.out);
-        		Output output = new Output(bostr);
-    			kryo.writeClassAndObject(output, monitoringData);
-    			output.close();
+    			currentTarget.serialize(monitoringData);
     		} catch (KryoException ky) {
     			if (ky.getCause() != null && ky.getCause() instanceof BufferOverflowException) {
 	    			closeCurrentTarget();

@@ -26,6 +26,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
@@ -66,6 +67,36 @@ public class MonitoringDataStorageTest {
 		Assert.assertEquals(6, read.size());
 		Assert.assertEquals("1", ((MonitoringDataDummy)read.get(0)).value);
 		Assert.assertEquals("6", ((MonitoringDataDummy)read.get(5)).value);
+	}
+	
+	static class HugeData implements MonitoringData {
+
+		byte[] b;
+		
+		public HugeData()
+		{
+			b = new byte[1024*2048];
+			new Random().nextBytes(b);
+		}
+		
+		@Override
+		public Date getTimeStamp() {
+			return new Date(1);
+		}
+	}
+
+	@Test
+	public void testHugeData() throws IOException {
+		File tmpDir = testFolder.newFolder();
+		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
+		storage.write(new HugeData());
+		
+		ArrayList<MonitoringData> read = new ArrayList<MonitoringData>();
+		for (MonitoringData in : storage.read(new Date(1), new Date(6))) {
+			read.add(in);
+		}
+		Assert.assertEquals(1, read.size());
+		Assert.assertTrue(read.get(0) instanceof HugeData);
 	}
 
 	@Test
