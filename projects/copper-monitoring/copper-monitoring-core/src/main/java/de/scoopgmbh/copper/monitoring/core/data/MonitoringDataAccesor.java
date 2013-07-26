@@ -21,13 +21,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.esotericsoftware.kryo.KryoException;
-import com.esotericsoftware.kryo.io.Input;
-
 import de.scoopgmbh.copper.monitoring.core.data.filter.MonitoringDataFilter;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringData;
 import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
 
 /**
@@ -35,7 +30,6 @@ import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
  * warpper for {@link MonitoringDataStorage } to read data
  */
 public class MonitoringDataAccesor implements Serializable, MonitoringDataQuerys{
-	private static final Logger logger = LoggerFactory.getLogger(MonitoringDataAccesor.class);
 	private static final long serialVersionUID = 1L;
 
 	MonitoringDataStorage monitoringDataStorage; 
@@ -47,11 +41,10 @@ public class MonitoringDataAccesor implements Serializable, MonitoringDataQuerys
 	public <T> List<T> getList(final MonitoringDataFilter<T> filter, Date from, Date to, long maxCount){
 		ArrayList<T> result = new ArrayList<T>();
 		int counter=0;
-		final Iterable<Input> read = monitoringDataStorage.read(from,to);
-		for (Input input: read){
-			Object object = serialize(input);
-			if (filter.isValid(object)){
-				result.add(filter.castValid(object));
+		final Iterable<MonitoringData> read = monitoringDataStorage.readReverse(from,to);
+		for (MonitoringData data: read){
+			if (filter.isValid(data)){
+				result.add(filter.castValid(data));
 				counter++;
 			}
 			if (counter>=maxCount){
@@ -59,16 +52,6 @@ public class MonitoringDataAccesor implements Serializable, MonitoringDataQuerys
 			}
 		}
 		return result;
-	}
-	
-	private Object serialize(Input input){
-		Object object=null;
-		try {
-			object = SerializeUtil.getKryo().readClassAndObject(input);
-		} catch (KryoException e){
-			logger.warn("cant serialize old monitoring data", e);
-		}
-		return object;
 	}
 	
 	@Override
@@ -84,12 +67,11 @@ public class MonitoringDataAccesor implements Serializable, MonitoringDataQuerys
 	@Override
 	public <T, R extends Serializable> List<List<R>> createStatistic(MonitoringDataFilter<T> filter,
 			List<StatisticCreator<T, R>> statisticCreators, Date from, Date to) throws RemoteException {
-		final Iterable<Input> read = monitoringDataStorage.read(from,to);
-		for (Input input: read){
-			Object object = serialize(input);
-			if (filter.isValid(object)){
+		final Iterable<MonitoringData> read = monitoringDataStorage.read(from,to);
+		for (MonitoringData data: read){
+			if (filter.isValid(data)){
 				for (StatisticCreator<T,R> statisticCreator: statisticCreators){
-					statisticCreator.add(filter.castValid(object));
+					statisticCreator.add(filter.castValid(data));
 				}
 			}
 		}

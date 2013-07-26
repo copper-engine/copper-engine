@@ -72,7 +72,7 @@ public class MonitoringDataAccesorTest {
 		final AdapterWfLaunchInfo adapterWfLaunch = new AdapterWfLaunchInfo();
 		adapterWfLaunch.setAdapterName("abc");
 		adapterWfLaunch.setTimestamp(new Date());
-		monitoringDataAdder.add(adapterWfLaunch);
+		monitoringDataAdder.addMonitoringData(adapterWfLaunch);
 		
 		assertEquals(1, monitoringDataAccesor.getList(new TypeFilter<AdapterWfLaunchInfo>(AdapterWfLaunchInfo.class), null, null, 1000).size());
 	}
@@ -89,10 +89,10 @@ public class MonitoringDataAccesorTest {
 		final MonitoringDataAdder monitoringDataAdder = new MonitoringDataAdder(monitoringDataStorage);
 		final AdapterWfLaunchInfo adapterWfLaunch = new AdapterWfLaunchInfo();
 		adapterWfLaunch.setTimestamp(new Date());
-		monitoringDataAdder.add(adapterWfLaunch);
+		monitoringDataAdder.addMonitoringData(adapterWfLaunch);
 		final LogEvent logEvent = new LogEvent();
 		logEvent.setTime(new Date());
-		monitoringDataAdder.add(logEvent);
+		monitoringDataAdder.addMonitoringData(logEvent);
 		
 		assertEquals(1, monitoringDataAccesor.getList(new TypeFilter<AdapterWfLaunchInfo>(AdapterWfLaunchInfo.class), null, null, 1000).size());
 		assertEquals(1, monitoringDataAccesor.getList(new TypeFilter<LogEvent>(LogEvent.class), null, null, 1000).size());

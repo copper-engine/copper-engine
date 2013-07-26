@@ -15,42 +15,67 @@
  */
 package de.scoopgmbh.copper.monitoring.core.data;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
-import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
-import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
-import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 
+/**
+ * We use Kryo instead of java serialization to create small serialized output
+ * @return
+ */
 public class SerializeUtil{
 	
 	private static Kryo kryo;
 
-	/**
-	 * We use Kryo instead of java serialization to create small serialized output
-	 * 
-	 * reading and write need the same order
-	 * its not necessary to register all used classes it just saves same space
-	 * @return
-	 */
-	public static Kryo getKryo(){
-		if (kryo==null){
-			kryo = new Kryo();
-			kryo.register(Date.class);
-			kryo.register(ArrayList.class);
-			kryo.register(AdapterCallInfo.class);
-			kryo.register(AdapterWfNotifyInfo.class);
-			kryo.register(AdapterWfLaunchInfo.class);
-			kryo.register(MeasurePointData.class);
-			kryo.register(LogEvent.class);
-			kryo.register(SystemResourcesInfo.class);
-		}
+	public static Kryo createKryo(){
+		kryo = new Kryo();
+		FieldSerializer<MeasurePointData> someClassSerializer = new FieldSerializer<MeasurePointData>(kryo, MeasurePointData.class);
+		someClassSerializer.getField("measurePointId").setSerializer(new MeasurePointIdSerializer());
+		kryo.register(MeasurePointData.class, someClassSerializer);
 		return kryo;
+	}
+	
+	/**
+	 * Measure points have often same id, to save space the id is only saved once 
+	 *
+	 */
+	public static  class MeasurePointIdSerializer extends Serializer<String> {
+		HashMap<Integer,String> keyToString = new HashMap<Integer,String>();
+		HashMap<String,Integer> stringToKey = new HashMap<String,Integer>();
+		
+		{
+			setImmutable(true);
+			setAcceptsNull(true);
+		}
+
+		@Override
+		public void write (Kryo kryo, Output output, String object) {
+			if (stringToKey.containsKey(object)){
+				output.writeInt(stringToKey.get(object));
+			} else {
+				output.writeInt(-1);
+				output.writeString(object);
+				stringToKey.put(object,stringToKey.size());
+			}
+		}
+
+		@Override
+		public String read (Kryo kryo, Input input, Class<String> type) {
+			int key = input.readInt();
+			if (key==-1){
+				final String string = input.readString();
+				keyToString.put(keyToString.size(),string);
+				return string;
+			} else {
+				return keyToString.get(key);
+			}
+		}
 	}
 
 }

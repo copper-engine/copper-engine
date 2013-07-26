@@ -24,6 +24,6 @@ public class SystemResourcesInfoDateConverter implements TimeConverter<SystemRes
 
 	@Override
 	public Date getTime(SystemResourcesInfo value) {
-		return value.getTimestamp();
+		return value.getTimeStamp();
 	}
 }

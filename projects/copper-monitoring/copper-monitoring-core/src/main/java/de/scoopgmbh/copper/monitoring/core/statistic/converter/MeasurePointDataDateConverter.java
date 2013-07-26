@@ -24,6 +24,6 @@ public class MeasurePointDataDateConverter implements TimeConverter<MeasurePoint
 
 	@Override
 	public Date getTime(MeasurePointData value) {
-		return value.getTime();
+		return value.getTimeStamp();
 	}
 }

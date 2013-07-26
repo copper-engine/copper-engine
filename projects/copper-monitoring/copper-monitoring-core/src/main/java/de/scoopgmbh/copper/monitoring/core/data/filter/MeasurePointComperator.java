@@ -25,7 +25,7 @@ public class MeasurePointComperator implements Comparator<MeasurePointData>, Ser
 
 	@Override
 	public int compare(MeasurePointData o1, MeasurePointData o2) {
-		return o1.getMeasurePointId().equals(o2.getMeasurePointId())?0:1;
+		return o1.getMeasurePointId().compareTo(o2.getMeasurePointId());
 	}
 
 }

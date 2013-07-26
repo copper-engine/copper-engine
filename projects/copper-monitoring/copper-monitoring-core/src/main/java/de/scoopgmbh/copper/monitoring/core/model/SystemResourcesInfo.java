@@ -18,7 +18,7 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class SystemResourcesInfo implements Serializable{
+public class SystemResourcesInfo implements Serializable, MonitoringData{
 	private static final long serialVersionUID = 1248127727507816766L;
 	
 	Date timestamp;
@@ -62,7 +62,8 @@ public class SystemResourcesInfo implements Serializable{
 		this.totalLoadedClassCount = totalLoadedClassCount;
 	}
 
-	public Date getTimestamp() {
+	@Override
+	public Date getTimeStamp() {
 		return timestamp;
 	}
 

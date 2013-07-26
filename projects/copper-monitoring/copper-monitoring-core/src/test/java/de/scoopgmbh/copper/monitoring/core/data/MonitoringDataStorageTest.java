@@ -15,195 +15,183 @@
  */
 package de.scoopgmbh.copper.monitoring.core.data;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.ByteBufferInputStream;
+import com.esotericsoftware.kryo.io.ByteBufferOutputStream;
 import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringData;
 
 public class MonitoringDataStorageTest {
 
 	static final String filename = "test"; 
+    
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
 	
 	@Test
 	public void testSimpleCase() throws IOException {
-		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
-		tmpDir.delete();
-		tmpDir.mkdirs();
-		File f1 = new File(tmpDir, filename+".1");
-		f1.deleteOnExit();
-		writeFile(f1, new Date(1), new Date(2));
+		File tmpDir = testFolder.newFolder();
+		File f1 = new File(tmpDir, filename+".1"); 
+		writeFile(f1, new MonitoringDataDummy(new Date(1),"1"), new MonitoringDataDummy(new Date(2),"2"));
 		File f2 = new File(tmpDir, filename+".2");
-		f2.deleteOnExit();
-		writeFile(f2, new Date(3), new Date(4));
+		writeFile(f2, new MonitoringDataDummy(new Date(3),"3"), new MonitoringDataDummy(new Date(4),"4"));
 		File f3 = new File(tmpDir, filename+".3");
-		f3.deleteOnExit();
-		writeFile(f3, new Date(5), new Date(6));
+		writeFile(f3, new MonitoringDataDummy(new Date(5),"5"), new MonitoringDataDummy(new Date(6),"6"));
 		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
-		int i = 1;
-		for (Input in : storage.read(new Date(1), new Date(6))) {
-			byte[] data = new byte[8];
-			in.read(data);
-			for (int j = 0; j < 7; ++j) {
-				Assert.assertEquals(data[j], 0);
-			}
-			Assert.assertEquals(i, data[7]);
-			i += 1;
-		}
-		Assert.assertEquals(7, i);
 		
+		ArrayList<MonitoringData> read = new ArrayList<MonitoringData>();
+		for (MonitoringData in : storage.read(new Date(1), new Date(6))) {
+			read.add(in);
+		}
+		Assert.assertEquals(6, read.size());
+		Assert.assertEquals("1", ((MonitoringDataDummy)read.get(0)).value);
+		Assert.assertEquals("6", ((MonitoringDataDummy)read.get(5)).value);
 	}
 
 	@Test
 	public void testSortedRead() throws IOException {
-		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
-		tmpDir.delete();
-		tmpDir.mkdirs();
+		File tmpDir = testFolder.newFolder();
 		File f1 = new File(tmpDir, filename+".1");
-		f1.deleteOnExit();
-		writeFile(f1, new Date(1), new Date(6));
+		writeFile(f1, new MonitoringDataDummy(new Date(1),"1"), new MonitoringDataDummy(new Date(6),"6"));
 		File f2 = new File(tmpDir, filename+".2");
-		f2.deleteOnExit();
-		writeFile(f2, new Date(2), new Date(5));
+		writeFile(f2, new MonitoringDataDummy(new Date(2),"2"), new MonitoringDataDummy(new Date(5),"5"));
 		File f3 = new File(tmpDir, filename+".3");
-		f3.deleteOnExit();
-		writeFile(f3, new Date(3), new Date(4));
+		writeFile(f3, new MonitoringDataDummy(new Date(3),"3"), new MonitoringDataDummy(new Date(4),"4"));
 		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
-		int i = 1;
-		for (Input in : storage.read(new Date(1), new Date(6))) {
-			byte[] data = new byte[8];
-			in.read(data);
-			for (int j = 0; j < 7; ++j) {
-				Assert.assertEquals(data[j], 0);
-			}
-			Assert.assertEquals(i, data[7]);
-			i += 1;
-		}
-		Assert.assertEquals(7, i);
 		
+		ArrayList<MonitoringData> read = new ArrayList<MonitoringData>();
+		for (MonitoringData in : storage.read(new Date(1), new Date(6))) {
+			read.add(in);
+		}
+		Assert.assertEquals(6, read.size());
+		Assert.assertEquals("1", ((MonitoringDataDummy)read.get(0)).value);
+		Assert.assertEquals("2", ((MonitoringDataDummy)read.get(1)).value);
+		Assert.assertEquals("3", ((MonitoringDataDummy)read.get(2)).value);
+		Assert.assertEquals("4", ((MonitoringDataDummy)read.get(3)).value);
+		Assert.assertEquals("5", ((MonitoringDataDummy)read.get(4)).value);
+		Assert.assertEquals("6", ((MonitoringDataDummy)read.get(5)).value);
 	}
 
 	@Test
 	public void testSkipSome() throws IOException {
-		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
-		tmpDir.delete();
-		tmpDir.mkdirs();
+		File tmpDir = testFolder.newFolder("montoringdatastoragetest");
 		File f1 = new File(tmpDir, filename+".1");
-		f1.deleteOnExit();
-		writeFile(f1, new Date(1), new Date(6));
+		writeFile(f1, new MonitoringDataDummy(new Date(1),"1"), new MonitoringDataDummy(new Date(6),"6"));
 		File f2 = new File(tmpDir, filename+".2");
-		f2.deleteOnExit();
-		writeFile(f2, new Date(2), new Date(5));
+		writeFile(f2, new MonitoringDataDummy(new Date(2),"2"), new MonitoringDataDummy(new Date(5),"5"));
 		File f3 = new File(tmpDir, filename+".3");
-		f3.deleteOnExit();
-		writeFile(f3, new Date(3), new Date(4));
+		writeFile(f3, new MonitoringDataDummy(new Date(3),"3"), new MonitoringDataDummy(new Date(4),"4"));
 		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
-		int i = 4;
-		for (Input in : storage.read(new Date(4), new Date(5))) {
-			byte[] data = new byte[8];
-			in.read(data);
-			for (int j = 0; j < 7; ++j) {
-				Assert.assertEquals(data[j], 0);
-			}
-			Assert.assertEquals(i, data[7]);
-			i += 1;
-		}
-		Assert.assertEquals(6, i);
 		
+		ArrayList<MonitoringData> read = new ArrayList<MonitoringData>();
+		for (MonitoringData in : storage.read(new Date(1), new Date(6))) {
+			read.add(in);
+		}
+		Assert.assertEquals(6, read.size());
+		Assert.assertEquals("1", ((MonitoringDataDummy)read.get(0)).value);
+		Assert.assertEquals("6", ((MonitoringDataDummy)read.get(5)).value);
 	}
 
 	@Test
 	public void testSortedReadReverse() throws IOException {
-		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
-		tmpDir.delete();
-		tmpDir.mkdirs();
+		File tmpDir = testFolder.newFolder();
 		File f1 = new File(tmpDir, filename+".1");
-		f1.deleteOnExit();
-		writeFile(f1, new Date(1), new Date(6));
+		writeFile(f1, new MonitoringDataDummy(new Date(1),"1"), new MonitoringDataDummy(new Date(6),"6"));
 		File f2 = new File(tmpDir, filename+".2");
-		f2.deleteOnExit();
-		writeFile(f2, new Date(2), new Date(5));
+		writeFile(f2, new MonitoringDataDummy(new Date(2),"2"), new MonitoringDataDummy(new Date(5),"5"));
 		File f3 = new File(tmpDir, filename+".3");
-		f3.deleteOnExit();
-		writeFile(f3, new Date(3), new Date(4));
+		writeFile(f3, new MonitoringDataDummy(new Date(3),"3"), new MonitoringDataDummy(new Date(4),"4"));
 		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
-		int i = 6;
-		for (Input in : storage.readReverse(new Date(1), new Date(6))) {
-			byte[] data = new byte[8];
-			in.read(data);
-			for (int j = 0; j < 7; ++j) {
-				Assert.assertEquals(data[j], 0);
-			}
-			Assert.assertEquals(i, data[7]);
-			i -= 1;
+		
+		ArrayList<MonitoringData> read = new ArrayList<MonitoringData>();
+		for (MonitoringData in : storage.readReverse(new Date(1), new Date(6))) {
+			read.add(in);
 		}
-		Assert.assertEquals(0, i);
+		Assert.assertEquals(6, read.size());
+		Assert.assertEquals("1", ((MonitoringDataDummy)read.get(5)).value);
+		Assert.assertEquals("2", ((MonitoringDataDummy)read.get(4)).value);
+		Assert.assertEquals("3", ((MonitoringDataDummy)read.get(3)).value);
+		Assert.assertEquals("4", ((MonitoringDataDummy)read.get(2)).value);
+		Assert.assertEquals("5", ((MonitoringDataDummy)read.get(1)).value);
+		Assert.assertEquals("6", ((MonitoringDataDummy)read.get(0)).value);
 		
 	}
-
+	
+	private String getDummyString(long length){
+		StringBuilder builder = new StringBuilder();
+		for (int i=0;i<length;i++){
+			builder.append("X");
+		}
+		return builder.toString();
+	}
 
 	@Test
 	public void testHouseKeeping() throws Exception {
-		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
-		tmpDir.delete();
-		tmpDir.mkdirs();
+		File tmpDir = testFolder.newFolder();
 		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,9000000,TimeUnit.DAYS,10);
-		storage.write(new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new MonitoringDataDummy(getDummyString(MonitoringDataStorage.FILE_CHUNK_SIZE-1000)));
 		Thread.sleep(100);
 		System.gc();
 		Runtime.getRuntime().runFinalization();
-		storage.write(new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new MonitoringDataDummy(getDummyString(MonitoringDataStorage.FILE_CHUNK_SIZE-1000)));
 		Thread.sleep(100);
 		System.gc();
 		Runtime.getRuntime().runFinalization();
-		storage.write(new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new MonitoringDataDummy(getDummyString(MonitoringDataStorage.FILE_CHUNK_SIZE-1000)));
 		storage.close();
 		File[] files = tmpDir.listFiles(new FileFilter() {
-
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().startsWith(filename);
 			}
-			
 		});
 		Assert.assertEquals(2, files.length);
 	}
 
 	@Test
 	public void testHousekeepingDate() throws Exception {
-		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
-		tmpDir.delete();
-		tmpDir.mkdirs();
+		File tmpDir = testFolder.newFolder();
 		long now = System.currentTimeMillis();
 		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,Long.MAX_VALUE,TimeUnit.MINUTES,1);
-		storage.write(new Date(now-60001), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new MonitoringDataDummy(new Date(now-60001),getDummyString(MonitoringDataStorage.FILE_CHUNK_SIZE-1000)));
 		Thread.sleep(100);
 		System.gc();
 		Runtime.getRuntime().runFinalization();
-		storage.write(new Date(now), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new MonitoringDataDummy(new Date(now),getDummyString(MonitoringDataStorage.FILE_CHUNK_SIZE-1000)));
 		Thread.sleep(100);
 		System.gc();
 		Runtime.getRuntime().runFinalization();
-		storage.write(new Date(now), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new MonitoringDataDummy(new Date(now),getDummyString(MonitoringDataStorage.FILE_CHUNK_SIZE-1000)));
 		Thread.sleep(100);
 		System.gc();
 		Runtime.getRuntime().runFinalization();
-		storage.write(new Date(now), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new MonitoringDataDummy(new Date(now),getDummyString(MonitoringDataStorage.FILE_CHUNK_SIZE-1000)));
 		Thread.sleep(100);
 		System.gc();
 		Runtime.getRuntime().runFinalization();
-		storage.write(new Date(now), new byte[MonitoringDataStorage.FILE_CHUNK_SIZE-1000]);
+		storage.write(new MonitoringDataDummy(new Date(now),getDummyString(MonitoringDataStorage.FILE_CHUNK_SIZE-1000)));
 		storage.close();
 		File[] files = tmpDir.listFiles(new FileFilter() {
-
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().startsWith(filename);
@@ -212,61 +200,80 @@ public class MonitoringDataStorageTest {
 		});
 		Assert.assertEquals(4, files.length);
 	}
-	
 
 	@Test
 	public void testFileReuse() throws Exception {
-		File tmpDir = File.createTempFile("montoringdatastoragetest", ".tmp");
-		tmpDir.delete();
-		tmpDir.mkdirs();
+		File tmpDir = testFolder.newFolder();
 		long d = System.currentTimeMillis();
 		for (int i = 0; i < 127; ++i) {
 			MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
-			storage.write(new Date(d++),new byte[]{(byte)i});
+			storage.write(new MonitoringDataDummy(new Date(d++),getDummyString((byte)i)));
 			storage.close();
 			Thread.yield();
 		}
 		File[] files = tmpDir.listFiles(new FileFilter() {
-
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().startsWith(filename);
 			}
-			
 		});
 		Assert.assertEquals(1, files.length);
 		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
 		int i = 0;
-		for (Input in : storage.read(null,null)) {
-			Assert.assertEquals(i++, in.readByte());
+		for (MonitoringData in : storage.read(null,null)) {
+			Assert.assertEquals(i++,((MonitoringDataDummy)in).value.length());
 		}
 		Assert.assertEquals(127, i);
 		storage.close();
 		
 	}
 
-    private void writeFile(File f, Date ... dates) throws IOException {
+    private void writeFile(File f, MonitoringData ... values) throws IOException {
 		RandomAccessFile ranAccess = new RandomAccessFile(f,"rw");
 		MappedByteBuffer b = ranAccess.getChannel().map(MapMode.READ_WRITE, 0, 1024);
 		long earliest = Long.MAX_VALUE;
 		long latest = Long.MIN_VALUE;
-		for (Date d : dates) {
-			earliest = Math.min(d.getTime(), earliest);
-			latest = Math.max(d.getTime(), latest);
+		for (MonitoringData d : values) {
+			earliest = Math.min(d.getTimeStamp().getTime(), earliest);
+			latest = Math.max(d.getTimeStamp().getTime(), latest);
 		}
+		Kryo kryo = SerializeUtil.createKryo();
+		b.position(MonitoringDataStorage.FIRST_RECORD_POSITION);
+		Output output = new Output(new ByteBufferOutputStream(b));
+		for (MonitoringData data : values) {
+			kryo.writeClassAndObject(output, data);
+		}
+		output.close();
+		int limit = b.position();
+		
 		b.putLong(MonitoringDataStorage.EARLIEST_POSITION, earliest);
 		b.putLong(MonitoringDataStorage.LATEST_POSITION, latest);
-		b.position(MonitoringDataStorage.FIRST_RECORD_POSITION);
-		for (Date d : dates) {
-			b.putInt(8);
-			b.putLong(d.getTime());
-			b.putLong(d.getTime());
-		}
-		b.putInt(MonitoringDataStorage.LIMIT_POSITION, b.position());
-//		b.force();
-		b.position(0);
+		b.putInt(MonitoringDataStorage.LIMIT_POSITION, limit);
 		ranAccess.close();
 	}
-	
+    
+    @Test
+    public void test_Kryo() throws IOException{
+    	final File newFile = testFolder.newFile();
+		writeFile(newFile, new MonitoringDataDummy(new Date(42),"blabla1"), new MonitoringDataDummy(new Date(43),"blabla2"));
+		
+		RandomAccessFile ranAccess = new RandomAccessFile(newFile,"rw");
+		MappedByteBuffer b = ranAccess.getChannel().map(MapMode.READ_WRITE, 0, 218);
+		
+		long earliestTimestamp = b.getLong(MonitoringDataStorage.EARLIEST_POSITION);
+		long latestTimestamp = b.getLong(MonitoringDataStorage.LATEST_POSITION);
+		assertEquals(42, earliestTimestamp);
+		assertEquals(43, latestTimestamp);
+		
+		Kryo kryo = new Kryo();
+		Input input = new Input(new ByteBufferInputStream(b));
+		input.setPosition(MonitoringDataStorage.FIRST_RECORD_POSITION);
+		assertEquals("blabla1",((MonitoringDataDummy)kryo.readClassAndObject(input)).value);
+		assertEquals("blabla2",((MonitoringDataDummy)kryo.readClassAndObject(input)).value);
+		assertNull(kryo.readClassAndObject(input));
+		b.putInt(MonitoringDataStorage.LIMIT_POSITION, b.position());
+		b.position(0);
+		ranAccess.close();
+    }
 	
 }

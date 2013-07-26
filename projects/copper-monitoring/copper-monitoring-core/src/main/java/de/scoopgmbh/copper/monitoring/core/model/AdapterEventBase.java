@@ -18,7 +18,7 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class AdapterEventBase implements Serializable{
+public class AdapterEventBase implements Serializable, MonitoringData{
 	private static final long serialVersionUID = 6386090675365126626L;
 	
 	String adapterName;
@@ -42,7 +42,8 @@ public class AdapterEventBase implements Serializable{
 		super();
 	}
 
-	public Date getTimestamp() {
+	@Override
+	public Date getTimeStamp() {
 		return timestamp;
 	}
 

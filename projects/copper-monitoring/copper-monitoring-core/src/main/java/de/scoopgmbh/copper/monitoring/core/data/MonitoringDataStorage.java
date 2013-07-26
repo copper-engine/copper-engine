@@ -16,9 +16,11 @@
 package de.scoopgmbh.copper.monitoring.core.data;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
+import java.nio.BufferOverflowException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
@@ -30,10 +32,15 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoException;
+import com.esotericsoftware.kryo.io.ByteBufferOutputStream;
 import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringData;
 
 /**
  *  stores monitoring data in chunked files
@@ -68,12 +75,14 @@ public class MonitoringDataStorage {
 		long             latestTimestamp = Long.MIN_VALUE;
 		int              limit = FIRST_RECORD_POSITION;
 		int              fileSize;
+		Kryo kryo = SerializeUtil.createKryo();
+		
 		@Override
 		protected void finalize() throws Throwable {
 			super.finalize();
 			close();
 		}
-		public synchronized void close() throws IOException {
+		public synchronized void close() {
 			if (memoryMappedFile == null)
 				return;
 			if (!memoryMappedFile.getChannel().isOpen())
@@ -85,27 +94,6 @@ public class MonitoringDataStorage {
 			}
 			memoryMappedFile = null;
 			out = null;
-		}
-	}
-	
-	static final class DataPointer extends Input implements Comparable<DataPointer> {
-
-		final long  timestamp;
-		
-		DataPointer(ByteBuffer buf) {
-			super(buf.array(), buf.position()+12, buf.getInt(buf.position())+12+buf.position());
-			this.timestamp = buf.getLong(buf.position()+4);
-			buf.position(limit());
-		}
-
-		@Override
-		public int compareTo(DataPointer o) {
-			//Sort descending! This brings efficiency for popping the earliest from a list 
-			if (timestamp < o.timestamp)
-				return 1;
-			if (timestamp > o.timestamp)
-				return -1;
-			return 0;
 		}
 	}
 	
@@ -179,18 +167,33 @@ public class MonitoringDataStorage {
 		}
 		if (latestFile != null) {
 			try {
+				OpenedFile of = new OpenedFile(latestFile, Long.MIN_VALUE, Long.MAX_VALUE, false);
 				latestFile.memoryMappedFile = new RandomAccessFile(latestFile.file, "rw");
-				latestFile.out = latestFile.memoryMappedFile.getChannel().map(MapMode.READ_WRITE, 0, latestFile.file.length());
+				latestFile.out = latestFile.memoryMappedFile.getChannel().map(MapMode.READ_WRITE, 0, FILE_CHUNK_SIZE);
 				latestFile.out.position(latestFile.limit);
+				latestFile.out.putInt(LIMIT_POSITION,FIRST_RECORD_POSITION);
+				latestFile.kryo = SerializeUtil.createKryo();
 				currentTarget = latestFile;
+				MonitoringData md = null;
+				Output o = new Output(nullOut);
+				while ((md = of.pop()) != null) {
+					latestFile.kryo.writeClassAndObject(o,  md);
+				}
 			} catch (IOException ioe) {
 				/* should never happen */
 				writtenFiles.add(latestFile);				
 			}
 		}
 	}
+	
+	static OutputStream nullOut = new OutputStream() {
+		@Override
+		public void write(int b) throws IOException {}
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {};
+	};
 
-	void ensureCurrentFile(int additionalBytes) throws IOException {
+	void ensureCurrentFile(int additionalBytes) {
 		if (currentTarget == null) {
 			currentTarget = createTargetFile();
 		}
@@ -200,34 +203,38 @@ public class MonitoringDataStorage {
 		}
 	}
 
-
-
-	private void closeCurrentTarget() throws IOException {
+	private void closeCurrentTarget() {
 		writtenFiles.add(currentTarget);
 		currentTarget.close();
 		currentTarget = null;
 	}
 
-	private TargetFile createTargetFile() throws IOException {
-		TargetFile newTarget = new TargetFile();
-		long currentTimeStamp = System.currentTimeMillis();
-		do {
-			newTarget.file = new File(targetPath, filenamePrefix+"."+currentTimeStamp);
-			if (newTarget.file.exists()) {
-				++currentTimeStamp;
-				continue;
-			}
-		} while (false);
-		houseKeeping(FILE_CHUNK_SIZE);	
-		newTarget.memoryMappedFile = new RandomAccessFile(newTarget.file, "rw");
-		newTarget.out = newTarget.memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, FILE_CHUNK_SIZE);
-		newTarget.fileSize = FILE_CHUNK_SIZE;
-		newTarget.out.putLong(LIMIT_POSITION,newTarget.limit);
-		newTarget.out.putLong(EARLIEST_POSITION,newTarget.earliestTimestamp);
-		newTarget.out.putLong(LATEST_POSITION,newTarget.latestTimestamp);
-		newTarget.out.position(FIRST_RECORD_POSITION);
-		totalSize += newTarget.fileSize;
-		return newTarget;
+	private TargetFile createTargetFile(){
+		try {
+			TargetFile newTarget = new TargetFile();
+			long currentTimeStamp = System.currentTimeMillis();
+			do {
+				newTarget.file = new File(targetPath, filenamePrefix+"."+currentTimeStamp);
+				if (newTarget.file.exists()) {
+					++currentTimeStamp;
+					continue;
+				}
+			} while (false);
+			houseKeeping(FILE_CHUNK_SIZE);	
+			newTarget.memoryMappedFile = new RandomAccessFile(newTarget.file, "rw");
+			newTarget.out = newTarget.memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, FILE_CHUNK_SIZE);
+			newTarget.fileSize = FILE_CHUNK_SIZE;
+			newTarget.out.putLong(LIMIT_POSITION,newTarget.limit);
+			newTarget.out.putLong(EARLIEST_POSITION,newTarget.earliestTimestamp);
+			newTarget.out.putLong(LATEST_POSITION,newTarget.latestTimestamp);
+			newTarget.out.position(FIRST_RECORD_POSITION);
+			totalSize += newTarget.fileSize;
+			return newTarget;
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	
@@ -265,27 +272,34 @@ public class MonitoringDataStorage {
 		}
 		
 	}
-
-	public void write(byte b[]) throws IOException {
-        write(new Date(), b, 0, b.length);
-    }
-
-    public void write(byte b[], int off, int len) throws IOException {
-        write(new Date(), b, off, len);
-    }
-
-    public void write(Date referenceDate, byte b[]) throws IOException {
-        write(referenceDate, b, 0, b.length);
-    }
-
-    public void write(Date referenceDate, byte b[], int off, int len) throws IOException {
-    	assert referenceDate != null;
-    	assert b != null;
-    	long referenceMillis = referenceDate.getTime();
+    
+	 /**
+	 * @param monitoringData  {@link MonitoringData#getTimeStamp() must be not null} 
+	 */
+	public void write(MonitoringData monitoringData) {
+	   assert monitoringData.getTimeStamp()!=null;
+    	long referenceMillis = monitoringData.getTimeStamp().getTime();
         synchronized (lock) {
-        	if (closed)
-        		throw new ClosedChannelException();
-            ensureCurrentFile(len+12);
+        	if (closed){
+        		throw new RuntimeException(new ClosedChannelException());
+        	}
+
+    		ensureCurrentFile(0);
+    		Kryo kryo = currentTarget.kryo;
+    		try {
+        		ByteBufferOutputStream bostr = new ByteBufferOutputStream(currentTarget.out);
+        		Output output = new Output(bostr);
+    			kryo.writeClassAndObject(output, monitoringData);
+    			output.close();
+    		} catch (KryoException ky) {
+    			if (ky.getCause() != null && ky.getCause() instanceof BufferOverflowException) {
+	    			closeCurrentTarget();
+	        		write(monitoringData);
+	        		return;
+    			}
+        		throw ky;
+    		}
+
             if (currentTarget.earliestTimestamp > referenceMillis) {
             	currentTarget.earliestTimestamp = referenceMillis;
 	            currentTarget.out.putLong(EARLIEST_POSITION,referenceMillis);
@@ -294,9 +308,6 @@ public class MonitoringDataStorage {
             	currentTarget.latestTimestamp = referenceMillis;
 	            currentTarget.out.putLong(LATEST_POSITION,referenceMillis);
             }
-            currentTarget.out.putInt(b.length);
-            currentTarget.out.putLong(referenceMillis);
-            currentTarget.out.put(b);
             currentTarget.limit = currentTarget.out.position();
             currentTarget.out.putInt(LIMIT_POSITION,currentTarget.limit);
         }
@@ -312,56 +323,69 @@ public class MonitoringDataStorage {
     }
  
     static class OpenedFile {
-    	byte[] data;
-    	ArrayList<DataPointer> dataPointers;
+
+    	ArrayList<MonitoringData> monitoringDataList;
     	
     	public OpenedFile(TargetFile f, long fromTime, long toTime, boolean reverse) throws IOException {
-    		RandomAccessFile rf = new RandomAccessFile(f.file, "r");
-    		MappedByteBuffer b = rf.getChannel().map(MapMode.READ_ONLY, 0, f.limit);
-    		b.load();
-    		int limit = b.getInt(LIMIT_POSITION);
-    		byte[] dat = new byte[limit-FIRST_RECORD_POSITION];
-    		b.position(FIRST_RECORD_POSITION);
-    		b.get(dat, 0, dat.length);
-    		rf.close();
-    		readDataPointers(ByteBuffer.wrap(dat), fromTime, toTime, reverse);
+    		RandomAccessFile randomAccessFile = new RandomAccessFile(f.file, "r");
+    		randomAccessFile.seek(FIRST_RECORD_POSITION);
+    		byte[] data = new byte[f.limit-FIRST_RECORD_POSITION];
+    		int c = 0; 
+    		while ((c += randomAccessFile.read(data,c,data.length-c)) < data.length);
+    		randomAccessFile.close();
+    		readData(new Input(data),SerializeUtil.createKryo(), fromTime, toTime, reverse);
+    		
     	}
 
-		private void readDataPointers(ByteBuffer data, long fromTime, long toTime, boolean reverse) {
-			dataPointers = new ArrayList<DataPointer>();
-			while (data.position() < data.limit()) {
-				DataPointer dp = new DataPointer(data); //adjusts buf.position()
-				if (dp.timestamp <= toTime && dp.timestamp >= fromTime) {
-					dataPointers.add(dp);
+		private void readData(Input i, Kryo kryo, long fromTime, long toTime, final boolean reverse) {
+			monitoringDataList = new ArrayList<MonitoringData>();
+			try {
+				while (i.available() > 0){
+					MonitoringData data = (MonitoringData)kryo.readClassAndObject(i);
+					if (data.getTimeStamp().getTime() <= toTime && data.getTimeStamp().getTime()  >= fromTime) {
+						monitoringDataList.add(data);
+					}
 				}
+			} catch (IOException e) {
+				throw new RuntimeException(e);
 			}
-			Collections.sort(dataPointers);
-			if (reverse)
-				Collections.reverse(dataPointers);
+			Collections.sort(monitoringDataList, new Comparator<MonitoringData>(){
+				@Override
+				public int compare(MonitoringData o1, MonitoringData o2) {
+					return o1.getTimeStamp().compareTo(o2.getTimeStamp());
+				}
+			});
+			if (!reverse)
+				Collections.reverse(monitoringDataList);
 		}
 		
-		public DataPointer pop() {
-			if (dataPointers.isEmpty())
+		public MonitoringData pop() {
+			if (monitoringDataList.isEmpty())
 				return null;
-			return dataPointers.remove(dataPointers.size()-1);
+			return monitoringDataList.remove(monitoringDataList.size()-1);
 		}
 		
-		public void push(DataPointer p) {
-			dataPointers.add(p);
+		public void push(MonitoringData data) {
+			monitoringDataList.add(data);
 		}
 		
     	
     }
 
-    public Iterable<Input> read(Date fromDate, Date toDate) {
+    /**
+     * @param fromDate null = no lower bound
+     * @param toDate null = no upper bound
+     * @return
+     */
+    public Iterable<MonitoringData> read(Date fromDate, Date toDate) {
     	return read(fromDate, toDate, false);
     }
     
-    public Iterable<Input> readReverse(Date fromDate, Date toDate) {
+    public Iterable<MonitoringData> readReverse(Date fromDate, Date toDate) {
     	return read(fromDate, toDate, true);
     }
     
-    public Iterable<Input> read(Date fromDate, Date toDate, final boolean reverse) {
+    public Iterable<MonitoringData> read(Date fromDate, Date toDate, final boolean reverse) {
     	final ArrayList<TargetFile> filesToRead = new ArrayList<TargetFile>();
     	final long fromTime = fromDate == null?Long.MIN_VALUE:fromDate.getTime();
     	final long toTime = toDate == null?Long.MAX_VALUE:toDate.getTime();
@@ -407,18 +431,18 @@ public class MonitoringDataStorage {
         				
     	Collections.sort(filesToRead, cmp);
     	
-    	return new Iterable<Input>() {
+    	return new Iterable<MonitoringData>() {
 			
 			@Override
-			public Iterator<Input> iterator() {
-				return new Iterator<Input>() {
+			public Iterator<MonitoringData> iterator() {
+				return new Iterator<MonitoringData>() {
 					
 					@SuppressWarnings("unchecked")
 					//Has to be sorted in order of ascending earliestTimestamp. openFiles() depends on that
 					ArrayList<TargetFile> files = (ArrayList<TargetFile>)filesToRead.clone();
 					ArrayList<OpenedFile> openFiles = new ArrayList<OpenedFile>(); 
 					long currentTimestamp;
-					DataPointer nextElement;
+					MonitoringData nextElement;
 					
 					boolean openFiles() {
 						if (files.isEmpty()) {
@@ -460,29 +484,29 @@ public class MonitoringDataStorage {
 						return (nextElement = popNext()) != null;
 					}
 
-					private DataPointer popNext()  {
-						DataPointer dp = null;
+					private MonitoringData popNext()  {
+						MonitoringData monitoringData = null;
 						OpenedFile dpSource = null;
 						ListIterator<OpenedFile> it = openFiles.listIterator();
 						while (it.hasNext()) {
 							OpenedFile of = it.next();
-							DataPointer nextDp = of.pop();
+							MonitoringData nextDp = of.pop();
 							if (nextDp == null) {
 								it.remove();
 								continue;
 							}
-							if (dp == null || ((!reverse && nextDp.timestamp < dp.timestamp) || (reverse && nextDp.timestamp > dp.timestamp))) {
-								if (dp != null) {
-									dpSource.push(dp);
+							if (monitoringData == null || ((!reverse && nextDp.getTimeStamp().getTime() < monitoringData.getTimeStamp().getTime()) || (reverse && nextDp.getTimeStamp().getTime() > monitoringData.getTimeStamp().getTime()))) {
+								if (monitoringData != null) {
+									dpSource.push(monitoringData);
 								}
 								dpSource = of;
-								dp = nextDp;
+								monitoringData = nextDp;
 							}
 						}
-						if (dp != null) {
-							currentTimestamp = dp.timestamp;
+						if (monitoringData != null) {
+							currentTimestamp = monitoringData.getTimeStamp().getTime();
 							if (!files.isEmpty() && ((!reverse && files.get(0).earliestTimestamp < currentTimestamp) || (reverse && files.get(0).latestTimestamp > currentTimestamp))) {
-								dpSource.push(dp);
+								dpSource.push(monitoringData);
 								openFiles();
 								return popNext();
 							}							
@@ -492,14 +516,14 @@ public class MonitoringDataStorage {
 							return popNext();
 						}
 
-						return dp;
+						return monitoringData;
 					}
 
 					@Override
-					public Input next() {
+					public MonitoringData next() {
 						if (!hasNext())
 							throw new NoSuchElementException();
-						DataPointer next = nextElement;
+						MonitoringData next = nextElement;
 						nextElement = null;
 						return next;
 					}

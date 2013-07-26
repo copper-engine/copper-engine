@@ -19,7 +19,7 @@ import java.beans.ConstructorProperties;
 import java.io.Serializable;
 import java.util.Date;
 
-public class MeasurePointData implements Serializable {
+public class MeasurePointData implements Serializable, MonitoringData {
 	private static final long serialVersionUID = -2755509084700249664L;
 	
 	private String measurePointId;
@@ -96,7 +96,8 @@ public class MeasurePointData implements Serializable {
 	}
 	
 
-	public Date getTime() {
+	@Override
+	public Date getTimeStamp() {
 		return time;
 	}
 

@@ -18,14 +18,15 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class LogEvent implements Serializable{
+public class LogEvent implements Serializable, MonitoringData{
 	private static final long serialVersionUID = -3392518179689121117L;
 	
 	private Date time;
 	private String message;
 	private String level;
 	private String locationInformation;
-	public Date getTime() {
+	@Override
+	public Date getTimeStamp() {
 		return time;
 	}
 	public void setTime(Date time) {
