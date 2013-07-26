@@ -37,7 +37,7 @@ public class MonitoringDataAccessQueue {
 	final ArrayBlockingQueue<Runnable> queue;
 	AtomicLong ignored = new AtomicLong();
 	private static final Logger logger = LoggerFactory.getLogger(MonitoringDataAccessQueue.class);
-	
+
 	/**
 	 *	Contains the data for monitoring.
 	 *  Should only be accessed via the {@link MonitoringDataAccessQueue}
@@ -64,14 +64,13 @@ public class MonitoringDataAccessQueue {
 				}
 			};
 		}.start();
-		
 	}
 
 	public boolean offer(MonitoringDataAwareRunnable runnable) {
 		runnable.setMonitoringDataAccesor(monitoringDataAccesor);
 		runnable.setMonitoringDataAdder(monitoringDataAdder);
 		boolean result=queue.offer(runnable);
-		if (!result) {
+		if (!result && !runnable.dropSilently) {
 			logger.warn(IGNORE_WARN_TEXT+ignored.incrementAndGet());
 		}
 		return result;

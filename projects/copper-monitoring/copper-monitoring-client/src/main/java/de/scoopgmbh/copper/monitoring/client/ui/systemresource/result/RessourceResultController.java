@@ -114,7 +114,7 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
 	public void showFilteredResult(List<SystemResourcesInfo> filteredlist, ResourceFilterModel usedFilter) {
 		clear();
 		for (SystemResourcesInfo systemRessourcesInfo: filteredlist){
-			Date date = systemRessourcesInfo.getTimestamp();
+			Date date = systemRessourcesInfo.getTimeStamp();
 			updateChart(systemRessourcesInfo.getSystemCpuLoad(),date,seriesSystemCpuLoad);
 			updateChart(systemRessourcesInfo.getProcessCpuLoad(),date,seriesProcessCpuLoad);
 			

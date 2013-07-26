@@ -32,15 +32,15 @@ public class MonitoringLog4jDataProvider extends AppenderSkeleton{
 		super();
 		this.monitoringDataCollector = monitoringDataCollector;
 		
-		appendToRoot();
+		addToRootLogger();
 	}
 
-	public void appendToRoot() {
+	public void addToRootLogger() {
 		Logger rootLogger = Logger.getRootLogger();
 		rootLogger.addAppender(this);
 	}
 	
-	public void removeFromRoot() {
+	public void removeFromRootLogger() {
 		Logger rootLogger = Logger.getRootLogger();
 		rootLogger.removeAppender(this);
 	}

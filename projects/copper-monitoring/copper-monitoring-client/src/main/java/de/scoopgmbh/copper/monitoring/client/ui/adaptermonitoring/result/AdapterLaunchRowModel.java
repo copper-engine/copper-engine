@@ -28,7 +28,7 @@ public class AdapterLaunchRowModel {
 	
 	public AdapterLaunchRowModel(AdapterWfLaunchInfo  adapterWfLaunchInfo){
 		workflowname= new SimpleStringProperty(adapterWfLaunchInfo.getWorkflowname());
-		timestamp= new SimpleObjectProperty<Date>(adapterWfLaunchInfo.getTimestamp());
+		timestamp= new SimpleObjectProperty<Date>(adapterWfLaunchInfo.getTimeStamp());
 		adapterName= new SimpleStringProperty(adapterWfLaunchInfo.getAdapterName());
 	};
 }

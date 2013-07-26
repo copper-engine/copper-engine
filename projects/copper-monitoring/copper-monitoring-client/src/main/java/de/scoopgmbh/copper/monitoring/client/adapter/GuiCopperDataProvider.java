@@ -404,14 +404,6 @@ public class GuiCopperDataProvider {
 	
 	public List<String> getMonitoringMeasurePointIds(Date from, Date to) {
 		try {
-			if (from==null){
-				from = copperMonitoringService.getMonitoringDataMinDate();
-			}
-	
-			if (to==null){
-				to = copperMonitoringService.getMonitoringDataMaxDate();
-			}
-
 			List<MeasurePointData> list = copperMonitoringService.getList(new DistinctAndTypeFilter<MeasurePointData>(MeasurePointData.class,new MeasurePointComperator()), from , to, 100);
 			ArrayList<String> result = new ArrayList<String>();
 			for (MeasurePointData measurePointData: list){
@@ -426,13 +418,6 @@ public class GuiCopperDataProvider {
 
 	public LogsResultModel getLogData(Date from, Date to, int maxCount) {
 		try {
-			if (from==null){
-				from = copperMonitoringService.getMonitoringDataMinDate();
-			}
-	
-			if (to==null){
-				to = copperMonitoringService.getMonitoringDataMaxDate();
-			}
 			List<LogEvent> list = copperMonitoringService.getList(new TypeFilter<LogEvent>(LogEvent.class), from, to, maxCount);
 			return new LogsResultModel(copperMonitoringService.getLogConfig(), list);
 		} catch (RemoteException e) {

@@ -36,17 +36,17 @@ public class MonitoringLogbackDataProvider extends AppenderBase<ILoggingEvent>{
 		this.monitoringDataCollector = monitoringDataCollector;
 		
 		this.setName(APPENDER_NAME);
-		appendToRoot();
+		addToRootLogger();
 	}
 
-	public void appendToRoot() {
+	public void addToRootLogger() {
 		Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 		setContext(root.getLoggerContext());
 		root.addAppender(this);
 		start();
 	}
 	
-	public void removeFromRoot() {
+	public void removeFromRootLogger() {
 		stop();
 		Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 		setContext(root.getLoggerContext());

@@ -45,9 +45,9 @@ public class LogbackConfigManager implements LogConfigManager {
 		InputStream is = null;	
 		try {
 			is	= new ByteArrayInputStream(config.getBytes());
-			dataProvider.removeFromRoot();
+			dataProvider.removeFromRootLogger();
 			reload(is);
-			dataProvider.appendToRoot();
+			dataProvider.addToRootLogger();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {

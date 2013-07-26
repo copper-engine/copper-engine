@@ -22,6 +22,10 @@ import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
 public abstract class MonitoringDataAwareRunnable implements Runnable{
 	protected MonitoringDataAccesor monitoringDataAccesor;
 	protected MonitoringDataAdder monitoringDataAdder;
+	/**
+	 * true=no log message when offer fails usefull for logging appender
+	 */
+	protected boolean dropSilently=false;
 	
 	public MonitoringDataAccesor getMonitoringDataAccesor() {
 		return monitoringDataAccesor;
@@ -35,5 +39,4 @@ public abstract class MonitoringDataAwareRunnable implements Runnable{
 	public void setMonitoringDataAdder(MonitoringDataAdder monitoringDataAdder) {
 		this.monitoringDataAdder = monitoringDataAdder;
 	}
-
 }

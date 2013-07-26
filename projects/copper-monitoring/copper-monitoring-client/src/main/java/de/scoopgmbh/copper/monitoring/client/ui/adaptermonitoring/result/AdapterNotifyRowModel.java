@@ -30,7 +30,7 @@ public class AdapterNotifyRowModel {
 	public AdapterNotifyRowModel(AdapterWfNotifyInfo  adapterWfNotifyInfo){
 		correlationId= new SimpleStringProperty(adapterWfNotifyInfo.getCorrelationId());
 		message= new SimpleStringProperty(adapterWfNotifyInfo.getMessage());
-		timestamp= new SimpleObjectProperty<Date>(adapterWfNotifyInfo.getTimestamp());
+		timestamp= new SimpleObjectProperty<Date>(adapterWfNotifyInfo.getTimeStamp());
 		adapterName = new SimpleStringProperty(adapterWfNotifyInfo.getAdapterName());
 	};
 }

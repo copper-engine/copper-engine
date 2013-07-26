@@ -48,7 +48,7 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringDataAdder.add(new AdapterCallInfo(method.getName(), Arrays.toString(args), new Date(), adapter.getClass().getName(),workflow));
+				monitoringDataAdder.addMonitoringData(new AdapterCallInfo(method.getName(), Arrays.toString(args), new Date(), adapter.getClass().getName(),workflow));
 			}
 		});
 	}
@@ -57,7 +57,7 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringDataAdder.add(new AdapterWfLaunchInfo(wfname,new Date(), adapter.getClass().getName()));
+				monitoringDataAdder.addMonitoringData(new AdapterWfLaunchInfo(wfname,new Date(), adapter.getClass().getName()));
 			}
 		});
 	}
@@ -66,7 +66,7 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringDataAdder.add(new AdapterWfNotifyInfo(correlationId, message!=null?message.toString():"null", new Date(), adapter.getClass().getName()));
+				monitoringDataAdder.addMonitoringData(new AdapterWfNotifyInfo(correlationId, message!=null?message.toString():"null", new Date(), adapter.getClass().getName()));
 			}
 		});
 	}
@@ -88,7 +88,7 @@ public class MonitoringDataCollector{
 			@Override
 			public void run() {
 				measurePointData.setSystemCpuLoad(performanceMonitor.createRessourcenInfo().getSystemCpuLoad());
-				monitoringDataAdder.add(measurePointData);
+				monitoringDataAdder.addMonitoringData(measurePointData);
 			}
 		});
 		return result;
@@ -108,7 +108,8 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringDataAdder.add(new LogEvent(date,message,locationInformation,level));
+				dropSilently=true;
+				monitoringDataAdder.addMonitoringData(new LogEvent(date,message,locationInformation,level));
 			}
 		});
 	}
@@ -117,7 +118,7 @@ public class MonitoringDataCollector{
 		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
 			@Override
 			public void run() {
-				monitoringDataAdder.add(resourcesInfo);
+				monitoringDataAdder.addMonitoringData(resourcesInfo);
 			}
 		});
 	}

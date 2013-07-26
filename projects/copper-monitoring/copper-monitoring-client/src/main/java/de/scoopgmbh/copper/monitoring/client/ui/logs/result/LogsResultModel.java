@@ -33,7 +33,7 @@ public class LogsResultModel {
 		public final SimpleStringProperty locationInformation;
 		
 		public LogsRowModel(LogEvent logEvent) {
-			time = new SimpleObjectProperty<Date>(logEvent.getTime());
+			time = new SimpleObjectProperty<Date>(logEvent.getTimeStamp());
 			message = new SimpleStringProperty(logEvent.getMessage());
 			level = new SimpleStringProperty(logEvent.getLevel());
 			locationInformation = new SimpleStringProperty(logEvent.getLocationInformation());

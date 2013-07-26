@@ -32,7 +32,7 @@ public class AdapterCallRowModel {
 	public AdapterCallRowModel(AdapterCallInfo adapterCall){
 		method= new SimpleStringProperty(adapterCall.getMethod());
 		parameter= new SimpleStringProperty(adapterCall.getParameter());
-		timestamp= new SimpleObjectProperty<Date>(adapterCall.getTimestamp());
+		timestamp= new SimpleObjectProperty<Date>(adapterCall.getTimeStamp());
 		adapterName= new SimpleStringProperty(adapterCall.getAdapterName());
 		workflowInstanceIdCaller = new SimpleStringProperty(adapterCall.getWorkflow().getId()); 
 		workflowClassCaller = new SimpleStringProperty(adapterCall.getWorkflow().getClassname()); 

@@ -61,7 +61,7 @@ public class Log4jConfigManager implements LogConfigManager {
 				reader.close();
 			}
 		}
-		monitoringLog4jDataProvider.removeFromRoot();
+		monitoringLog4jDataProvider.removeFromRootLogger();
 		
 		org.apache.log4j.LogManager.resetConfiguration();
 		logProperty = config;
@@ -77,7 +77,7 @@ public class Log4jConfigManager implements LogConfigManager {
 		} else {
 			PropertyConfigurator.configure(props);
 		}
-		monitoringLog4jDataProvider.appendToRoot();
+		monitoringLog4jDataProvider.addToRootLogger();
 	}
 
 	String logProperty;
