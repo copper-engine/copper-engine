@@ -60,7 +60,14 @@ public class MonitoringDataAccessQueue {
 			@Override
 			public void run() {
 				while (true) {
-					work();
+					try {
+						work();
+					} catch (ThreadDeath d) {
+						throw d;
+					}
+					catch (Throwable t) {
+						logger.error("unhandled exception",t);
+					}
 				}
 			};
 		}.start();
