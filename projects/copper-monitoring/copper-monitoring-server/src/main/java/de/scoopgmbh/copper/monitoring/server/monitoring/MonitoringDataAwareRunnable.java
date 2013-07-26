@@ -23,7 +23,7 @@ public abstract class MonitoringDataAwareRunnable implements Runnable{
 	protected MonitoringDataAccesor monitoringDataAccesor;
 	protected MonitoringDataAdder monitoringDataAdder;
 	/**
-	 * true=no log message when offer fails usefull for logging appender
+	 * true=no log message when offer fails usefull for logging appender to avoid deadlock
 	 */
 	protected boolean dropSilently=false;
 	
