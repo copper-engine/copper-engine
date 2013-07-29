@@ -306,5 +306,26 @@ public class MonitoringDataStorageTest {
 		b.position(0);
 		ranAccess.close();
     }
+    
+    @Test
+    public void test_microbenchmark() throws IOException{
+		File tmpDir = testFolder.newFolder();
+		MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
+		
+		ArrayList<Long> delats= new ArrayList<Long>();
+		for (int i=0;i<40000;i++) {
+			long start=System.nanoTime();
+			storage.write(new MonitoringDataDummy(new Date(42),"X"));
+			delats.add(System.nanoTime()-start);
+		}
+		
+//		double sum=0;
+//		for (Long time : delats) {
+//			sum +=time;
+//		}
+//		
+//		System.out.println((sum/delats.size())/(1000*1000));
+    }
+    
 	
 }
