@@ -51,6 +51,7 @@ import javafx.util.converter.NumberStringConverter;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.annimation.AdapterAnnimationCreator;
 import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 
 public class AdapterMonitoringResultController extends FilterResultControllerBase<AdapterMonitoringFilterModel,AdapterMonitoringResultModel> implements Initializable {
@@ -354,6 +355,7 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 				});
 			}
 		});
+        pause.disableProperty().bind(play.selectedProperty().not());
         
         play.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/play.png"))));
         pause.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/pause.png"))));
@@ -377,9 +379,9 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 	@Override
 	public List<AdapterMonitoringResultModel> applyFilterInBackgroundThread(AdapterMonitoringFilterModel filter) {
 		AdapterMonitoringResultModel result = new AdapterMonitoringResultModel(
-				copperDataProvider.getAdapterCalls(null, null, 1000),
-				copperDataProvider.getAdapterNotifies(null, null, 1000),
-				copperDataProvider.getAdapterLaunches(null, null, 1000));
+				copperDataProvider.getAdapterCalls(null, null, filter.maxCountFilterModel.getMaxCount()),
+				copperDataProvider.getAdapterNotifies(null, null, filter.maxCountFilterModel.getMaxCount()),
+				copperDataProvider.getAdapterLaunches(null, null, filter.maxCountFilterModel.getMaxCount()));
 		return Arrays.asList(result);
 	}
 	

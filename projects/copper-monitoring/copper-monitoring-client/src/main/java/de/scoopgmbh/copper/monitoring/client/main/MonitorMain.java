@@ -25,11 +25,16 @@ import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Strings;
 
 import de.scoopgmbh.copper.monitoring.client.context.ApplicationContext;
 
 public class MonitorMain extends Application {
+	
+	static Logger logger = LoggerFactory.getLogger(MonitorMain.class);
 
 	@Override
 	public void start(final Stage primaryStage) { //Stage = window
@@ -60,7 +65,7 @@ public class MonitorMain extends Application {
 	}
 
 	public static void main(final String[] arguments) {
-		System.out.println("Parameter: "+Arrays.asList(arguments));
+		logger.info("Parameter: "+Arrays.asList(arguments));
 		Application.launch(arguments);
 	}
 }

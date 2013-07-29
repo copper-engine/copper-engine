@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result;
+package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.annimation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -46,52 +47,17 @@ import javafx.util.Duration;
 
 import com.google.common.base.Optional;
 
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterCallRowModel;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterLaunchRowModel;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterNotifyRowModel;
+
 public class AdapterAnnimationCreator {
 	
-	private static final int EVENT_HEIGHT = 35;
-	private static final int ADAPTER_HEIGHT = 100;
-	private static final int EVENT_WIDTH = 110;
-	private static final int ADAPTER_WIDTH = 150;
-	private static final Color WORKFLOW_COLOR = Color.GOLD;
-	private static final Color ADAPTER_NOTIFY_COLOR = Color.CORNFLOWERBLUE;
-	private static final Color ADAPTER_CALL_COLOR = Color.CORAL;
-	private static final Color ADAPTER_COLOR = Color.LIGHTGREEN;
-	private static final Color ADAPTER_LAUNCH_COLOR = Color.SADDLEBROWN; 
 	public long FADEDURATION=300;
 	public long MOVEDURATION=1600;
 	public long DEFAULT_TOTAL_ANNIMATION_TIME=FADEDURATION+MOVEDURATION+FADEDURATION;
 	
-	private enum AnnimationContentTyp{
-		ADAPTER,CALL,NOTIFY,LAUNCH, WORKFLOW
-	}
-	
-	private class Annimation{
-		public long startTime;
-		public long endTime;
-		public Node node;
-		public String id;
-		
-		public double startx;
-		public double starty;
-		public double endx;
-		public double endy;
-		public AnnimationContentTyp contentTyp;
 
-		
-		public Annimation(long startTime, long endTime, Node node, String id, double startx, double starty, double endx, double endy,AnnimationContentTyp contentTyp) {
-			super();
-			this.startTime = startTime;
-			this.endTime = endTime;
-			this.node = node;
-			this.id = id;
-			this.startx = startx;
-			this.starty = starty;
-			this.endx = endx;
-			this.endy = endy;
-			this.contentTyp = contentTyp;
-		}
-	}
-	
 	private long min;
 	
     public long getMin() {
@@ -103,7 +69,7 @@ public class AdapterAnnimationCreator {
 	
 	Pane annimationPane;
 	Timeline timeline;
-	private ArrayList<Annimation> annimations;
+	private ArrayList<AnnimationPartBase> annimations;
 	
 	public AdapterAnnimationCreator(Pane annimationPane, Timeline timeline) {
 		super();
@@ -112,9 +78,9 @@ public class AdapterAnnimationCreator {
 	}
 	
 	
-	private Optional<Annimation> searchAnnimationRunningAt( String id, long startTime, long endTime){
-		Annimation result=null;
-		for (Annimation annimation: annimations){
+	private Optional<AnnimationPartBase> searchAnnimationRunningAt( String id, long startTime, long endTime){
+		AnnimationPartBase result=null;
+		for (AnnimationPartBase annimation: annimations){
 			if (annimation.id.equals(id) && !(endTime<annimation.startTime || startTime>annimation.endTime)){
 				result=annimation;
 				break;
@@ -123,10 +89,10 @@ public class AdapterAnnimationCreator {
 		return Optional.fromNullable(result);
 	}
 	
-	private List<Annimation> searchAnnimationWithType(AnnimationContentTyp contentTyp, long startTime, long endTime){
-		List<Annimation> result=new ArrayList<Annimation>();
-		for (Annimation annimation: annimations){
-			if (annimation.contentTyp==contentTyp && !(endTime<annimation.startTime || startTime>annimation.endTime)){
+	private List<AnnimationPartBase> searchAnnimationWithType(Class<? extends AnnimationPartBase> clazz, long startTime, long endTime){
+		List<AnnimationPartBase> result=new ArrayList<AnnimationPartBase>();
+		for (AnnimationPartBase annimation: annimations){
+			if (annimation.getClass()==clazz && !(endTime<annimation.startTime || startTime>annimation.endTime)){
 				result.add(annimation);
 			}
 		}
@@ -134,45 +100,32 @@ public class AdapterAnnimationCreator {
 	}
 	
 	private void addAdapterAnnimation(String adapterName, long time){
-		Optional<Annimation> annimationOpt =  searchAnnimationRunningAt(adapterName,time,time+DEFAULT_TOTAL_ANNIMATION_TIME);
+		Optional<AnnimationPartBase> annimationOpt =  searchAnnimationRunningAt(adapterName,time,time+DEFAULT_TOTAL_ANNIMATION_TIME);
 		if (annimationOpt.isPresent()){
 			annimationOpt.get().endTime=time+DEFAULT_TOTAL_ANNIMATION_TIME;
 		} else {
-			Pane pane = new Pane();
-			final Rectangle adapterRectangle = new Rectangle(ADAPTER_WIDTH,ADAPTER_HEIGHT);
-			adapterRectangle.setFill(ADAPTER_COLOR);
-			adapterRectangle.setArcHeight(25);
-			adapterRectangle.setArcWidth(25);
-			final Text adapterText = new Text(adapterName);
-			adapterText.setFontSmoothingType(FontSmoothingType.LCD);
-			adapterText.xProperty().bind(adapterRectangle.xProperty().add(adapterRectangle.getWidth()/2).subtract(adapterText.getBoundsInLocal().getWidth()/2));
-			adapterText.yProperty().bind(adapterRectangle.yProperty().subtract(5));
-			pane.getChildren().add(adapterRectangle);
-			pane.getChildren().add(adapterText);
-
-			Optional<Double> ypos = getFreeYslot(time, time+DEFAULT_TOTAL_ANNIMATION_TIME,ADAPTER_HEIGHT+20,false,AnnimationContentTyp.ADAPTER);
+			Optional<Double> ypos = getFreeYslot(time, time+DEFAULT_TOTAL_ANNIMATION_TIME,AdapterAnnimation.ADAPTER_HEIGHT+20,false,Arrays.<Class<? extends AnnimationPartBase>>asList(AdapterAnnimation.class));
 			if (ypos.isPresent()){
-				double xpos = annimationPane.getWidth()/2-adapterRectangle.getWidth()/2;
+				double xpos = annimationPane.getWidth()/2-AdapterAnnimation.ADAPTER_WIDTH/2;
 				
-				annimations.add(new Annimation(time, time+DEFAULT_TOTAL_ANNIMATION_TIME, pane, adapterName,
+				annimations.add(new AdapterAnnimation(new AnnimationPartParameter(time, time+DEFAULT_TOTAL_ANNIMATION_TIME, adapterName,
 						xpos,
 						ypos.get(),
 						xpos, 
-						ypos.get(),
-						AnnimationContentTyp.ADAPTER));
+						ypos.get())));
 			}
 		}
 	}
 	
-	private Optional<Double> getFreeYslot(long starttime, long endtime,  double slotHeight, boolean useEndPos, AnnimationContentTyp... types){
-		final List<Annimation> foundAnnimations = new ArrayList<Annimation>();
-		for (AnnimationContentTyp type: types){
+	private Optional<Double> getFreeYslot(long starttime, long endtime,  double slotHeight, boolean useEndPos, List<Class<? extends AnnimationPartBase>>  types){
+		final List<AnnimationPartBase> foundAnnimations = new ArrayList<AnnimationPartBase>();
+		for (Class<? extends AnnimationPartBase> type: types){
 			foundAnnimations.addAll(searchAnnimationWithType(type, starttime, endtime));
 		}
 		for (int i=0;i<20;i++){
 			double ypos = 65+(slotHeight)*i;
 			boolean posInlist=false;
-			for (Annimation annimation: foundAnnimations){
+			for (AnnimationPartBase annimation: foundAnnimations){
 				if (useEndPos){
 					if (Math.abs(annimation.endy-ypos)<0.0001){
 						posInlist=true;
@@ -189,67 +142,55 @@ public class AdapterAnnimationCreator {
 		}
 		return Optional.absent();
 	}
+
 	
-	private void addOutputEventAnnimation(long time, String id, AnnimationContentTyp annimationContentTyp, String adapterId){
-		Optional<Double> ypos = getFreeYslot(time,time+DEFAULT_TOTAL_ANNIMATION_TIME,60,true,AnnimationContentTyp.NOTIFY,AnnimationContentTyp.LAUNCH);
+	private void addNotifyEventAnnimation(long time, String id, String adapterId){
+		Optional<Double> ypos = getFreeYslot(time,time+DEFAULT_TOTAL_ANNIMATION_TIME,60,true,Arrays.<Class<? extends AnnimationPartBase>>asList(NotifyAnnimation.class,LaunchAnnimation.class));
 		if (ypos.isPresent()){
-			Optional<Annimation> adapterAnnimation =  searchAnnimationRunningAt(adapterId,time,time+DEFAULT_TOTAL_ANNIMATION_TIME);
+			Optional<AnnimationPartBase> adapterAnnimation =  searchAnnimationRunningAt(adapterId,time,time+DEFAULT_TOTAL_ANNIMATION_TIME);
 			if (adapterAnnimation.isPresent()){
-				addEventAnnimation(time,id,annimationContentTyp,
-						adapterAnnimation.get().startx+ADAPTER_WIDTH/2,
-						adapterAnnimation.get().starty+ADAPTER_HEIGHT-EVENT_HEIGHT-5,
-						getAnnimationPaneWidth()/2+getAnnimationPaneWidth()/4,
-						ypos.get());
+				annimations.add(new NotifyAnnimation(createOutputParameter(time, id, ypos, adapterAnnimation)));
+			}
+		}
+	}
+	private AnnimationPartParameter createOutputParameter(long time, String id, Optional<Double> ypos,
+			Optional<AnnimationPartBase> adapterAnnimation) {
+		return new AnnimationPartParameter(time, time+DEFAULT_TOTAL_ANNIMATION_TIME,id,
+				adapterAnnimation.get().startx+AdapterAnnimation.ADAPTER_WIDTH/2-EventAnnimationBase.EVENT_WIDTH/2,
+				adapterAnnimation.get().starty+AdapterAnnimation.ADAPTER_HEIGHT-EventAnnimationBase.EVENT_HEIGHT-5,
+				getAnnimationPaneWidth()/2+getAnnimationPaneWidth()/4-EventAnnimationBase.EVENT_WIDTH/2,
+				ypos.get());
+	}
+	
+	private void addLaunchEventAnnimation(long time, String id, String adapterId){
+		Optional<Double> ypos = getFreeYslot(time,time+DEFAULT_TOTAL_ANNIMATION_TIME,60,true,Arrays.<Class<? extends AnnimationPartBase>>asList(NotifyAnnimation.class,LaunchAnnimation.class));
+		if (ypos.isPresent()){
+			Optional<AnnimationPartBase> adapterAnnimation =  searchAnnimationRunningAt(adapterId,time,time+DEFAULT_TOTAL_ANNIMATION_TIME);
+			if (adapterAnnimation.isPresent()){
+				annimations.add(new LaunchAnnimation(createOutputParameter(time, id, ypos, adapterAnnimation)));
 			}
 		}
 	}
 	
-	private void addInputEventAnnimation(long time, String id, AnnimationContentTyp annimationContentTyp, String adapterId, String workflowInstanceId){
+	private void addCallEventAnnimation(long time, String id, String adapterId, String workflowInstanceId){
 		double ypos = searchAnnimationRunningAt(workflowInstanceId, time, time+DEFAULT_TOTAL_ANNIMATION_TIME).get().starty+5;
 
-		Optional<Annimation> adapterAnnimation =  searchAnnimationRunningAt(adapterId,time,time+DEFAULT_TOTAL_ANNIMATION_TIME);
+		Optional<AnnimationPartBase> adapterAnnimation = searchAnnimationRunningAt(adapterId,time,time+DEFAULT_TOTAL_ANNIMATION_TIME);
+		Optional<AnnimationPartBase> sameCallAnnimation = searchAnnimationRunningAt(id,time,time+20);
 		if (adapterAnnimation.isPresent()){
-			addEventAnnimation(time,id,annimationContentTyp,
-					getAnnimationPaneWidth()/2-getAnnimationPaneWidth()/4,
-					ypos,
-					adapterAnnimation.get().startx+ADAPTER_WIDTH/2,
-					adapterAnnimation.get().starty+5);
+			if (sameCallAnnimation.isPresent()){
+				((CallAnnimation)sameCallAnnimation.get()).count++;
+			} else {
+				annimations.add(new CallAnnimation(new AnnimationPartParameter(time, time+DEFAULT_TOTAL_ANNIMATION_TIME,id,
+						getAnnimationPaneWidth()/2-getAnnimationPaneWidth()/4,
+						ypos,
+						adapterAnnimation.get().startx+AdapterAnnimation.ADAPTER_WIDTH/2-EventAnnimationBase.EVENT_WIDTH/2,
+						adapterAnnimation.get().starty+5)));
+			}
 		}
 	}
 	
-	private void addEventAnnimation(long time, String id, AnnimationContentTyp annimationContentTyp,
-			double startx, double starty, double endx, double endy){
-		
-		Pane pane = new Pane();
-		final Rectangle rectangle = new Rectangle(EVENT_WIDTH,EVENT_HEIGHT);
-		rectangle.setFill(getEventColor(annimationContentTyp));
-		rectangle.setArcHeight(20);
-		rectangle.setArcWidth(20);
-		final Text text = new Text(id);
-		text.setFontSmoothingType(FontSmoothingType.LCD);
-		text.translateXProperty().bind(rectangle.translateXProperty());
-		text.translateYProperty().bind(rectangle.translateYProperty().add(rectangle.getHeight()/2).add(text.getBoundsInLocal().getHeight()/4));
-		pane.getChildren().add(rectangle);
-		pane.getChildren().add(text);
 
-		annimations.add(new Annimation(time, time+DEFAULT_TOTAL_ANNIMATION_TIME, pane, id,
-				startx-rectangle.getWidth()/2, starty, endx-rectangle.getWidth()/2, endy,
-					annimationContentTyp));
-	}
-	
-	private Color getEventColor(AnnimationContentTyp annimationContentTyp){
-		if (annimationContentTyp==AnnimationContentTyp.CALL){
-			return ADAPTER_CALL_COLOR;
-		}
-		if (annimationContentTyp==AnnimationContentTyp.LAUNCH){
-			return ADAPTER_LAUNCH_COLOR;
-		}
-		if (annimationContentTyp==AnnimationContentTyp.NOTIFY){
-			return ADAPTER_NOTIFY_COLOR;
-		}
-		return null;
-	}
-	
 	private class TimeValuePair<T>{
 		long time;
 		T value;
@@ -266,7 +207,7 @@ public class AdapterAnnimationCreator {
     		ObservableList<AdapterNotifyRowModel> adapterOutputNotify,
     		Slider positionSlider){
 		
-		annimations = new ArrayList<Annimation>();
+		annimations = new ArrayList<AnnimationPartBase>();
 
     	min = Long.MAX_VALUE;
 		for (final AdapterCallRowModel adapterCallRowModel: adapterInput){
@@ -313,27 +254,13 @@ public class AdapterAnnimationCreator {
 		
 		
 		for (final AdapterCallRowModel adapterCallRowModel: adapterInput){
-			addInputEventAnnimation(
+			addCallEventAnnimation(
 					adapterCallRowModel.timestamp.get().getTime()-DEFAULT_TOTAL_ANNIMATION_TIME,
 					adapterCallRowModel.method.get(),
-					AnnimationContentTyp.CALL,
 					adapterCallRowModel.adapterName.get(),
 					adapterCallRowModel.workflowInstanceIdCaller.get());
 		}
-		for (final AdapterLaunchRowModel adapterLaunchRowModel: adapterOutputLaunch){
-			addOutputEventAnnimation(
-					adapterLaunchRowModel.timestamp.get().getTime(),
-					adapterLaunchRowModel.workflowname.get(),
-					AnnimationContentTyp.LAUNCH,
-					adapterLaunchRowModel.adapterName.get());
-		}
-		for (final AdapterNotifyRowModel adapterNotifyRowModel: adapterOutputNotify){
-			addOutputEventAnnimation(
-					adapterNotifyRowModel.timestamp.get().getTime(),
-					adapterNotifyRowModel.correlationId.get(),
-					AnnimationContentTyp.NOTIFY,
-					adapterNotifyRowModel.adapterName.get());
-		}
+
 		
 		ArrayList<TimeValuePair<Object>> outputsSorted = new ArrayList<TimeValuePair<Object>>();
 		for (final AdapterLaunchRowModel adapterLaunchRowModel: adapterOutputLaunch){
@@ -352,18 +279,16 @@ public class AdapterAnnimationCreator {
 		for (TimeValuePair<Object> output: outputsSorted){
 			if (output.value instanceof AdapterLaunchRowModel){
 				AdapterLaunchRowModel adapterLaunchRowModel = (AdapterLaunchRowModel)output.value;
-				addOutputEventAnnimation(
+				addLaunchEventAnnimation(
 						adapterLaunchRowModel.timestamp.get().getTime(),
 						adapterLaunchRowModel.workflowname.get(),
-						AnnimationContentTyp.LAUNCH,
 						adapterLaunchRowModel.adapterName.get());
 			}
 			if (output.value instanceof AdapterNotifyRowModel){
 				AdapterNotifyRowModel adapterNotifyRowModel = (AdapterNotifyRowModel)output.value;
-				addOutputEventAnnimation(
+				addNotifyEventAnnimation(
 						adapterNotifyRowModel.timestamp.get().getTime(),
 						adapterNotifyRowModel.correlationId.get(),
-						AnnimationContentTyp.NOTIFY,
 						adapterNotifyRowModel.adapterName.get());
 			}
 		}
@@ -372,8 +297,8 @@ public class AdapterAnnimationCreator {
 		
 		
 		
-		ArrayList<KeyFrame> keyFrames = new ArrayList<KeyFrame>();//Performance optimisation adding single keyframes directly is too slow
-		for (Annimation annimation: annimations){
+		ArrayList<KeyFrame> keyFrames = new ArrayList<KeyFrame>();//Performance optimization adding single keyframes directly is too slow
+		for (AnnimationPartBase annimation: annimations){
 			addAnnimation(keyFrames, annimation, min);
 		}
 		timeline.getKeyFrames().addAll(keyFrames);
@@ -382,37 +307,19 @@ public class AdapterAnnimationCreator {
     }
     
 	private void addWorkflowAnnimation(String workflowClass, String workflowInstanceId, long time) {
-		Optional<Annimation> annimationOpt = searchAnnimationRunningAt(workflowInstanceId,time,time+DEFAULT_TOTAL_ANNIMATION_TIME);
+		Optional<AnnimationPartBase> annimationOpt = searchAnnimationRunningAt(workflowInstanceId,time,time+DEFAULT_TOTAL_ANNIMATION_TIME);
 		if (annimationOpt.isPresent()){
 			annimationOpt.get().endTime=time+DEFAULT_TOTAL_ANNIMATION_TIME;
 		} else {
-			Pane pane = new Pane();
-			final Rectangle workflowRectangle = new Rectangle(EVENT_WIDTH+20,EVENT_HEIGHT+15);
-			workflowRectangle.setFill(WORKFLOW_COLOR);
-			workflowRectangle.setArcHeight(25);
-			workflowRectangle.setArcWidth(25);
-			final Text classText = new Text(workflowClass);
-			classText.setFontSmoothingType(FontSmoothingType.LCD);
-			classText.xProperty().bind(workflowRectangle.xProperty().add(workflowRectangle.getWidth()/2).subtract(classText.getBoundsInLocal().getWidth()/2));
-			classText.yProperty().bind(workflowRectangle.yProperty().subtract(18));
-			final Text instanceIdText = new Text(workflowInstanceId);
-			instanceIdText.setFontSmoothingType(FontSmoothingType.LCD);
-			instanceIdText.xProperty().bind(workflowRectangle.xProperty().add(workflowRectangle.getWidth()/2).subtract(classText.getBoundsInLocal().getWidth()/2));
-			instanceIdText.yProperty().bind(workflowRectangle.yProperty().subtract(3));
-			pane.getChildren().add(workflowRectangle);
-			pane.getChildren().add(classText);
-			pane.getChildren().add(instanceIdText);
-
-			Optional<Double> ypos = getFreeYslot(time, time+DEFAULT_TOTAL_ANNIMATION_TIME,EVENT_HEIGHT+15+35,false,AnnimationContentTyp.WORKFLOW);
+			Optional<Double> ypos = getFreeYslot(time, time+DEFAULT_TOTAL_ANNIMATION_TIME,EventAnnimationBase.EVENT_HEIGHT+15+35,false,Arrays.<Class<? extends AnnimationPartBase>>asList(WorkflowAnnimation.class));
 			if (ypos.isPresent()){
-				double xpos = annimationPane.getWidth()/2-annimationPane.getWidth()/4-workflowRectangle.getWidth()/2;
+				double xpos = annimationPane.getWidth()/2-annimationPane.getWidth()/4-WorkflowAnnimation.WIDTH/2;
 				
-				annimations.add(new Annimation(time, time+DEFAULT_TOTAL_ANNIMATION_TIME, pane, workflowInstanceId,
+				annimations.add(new WorkflowAnnimation(workflowClass,new AnnimationPartParameter(time,time+DEFAULT_TOTAL_ANNIMATION_TIME, workflowInstanceId,
 						xpos,
 						ypos.get(),
 						xpos, 
-						ypos.get(),
-						AnnimationContentTyp.WORKFLOW));
+						ypos.get())));
 			}
 		}
 	}
@@ -421,11 +328,11 @@ public class AdapterAnnimationCreator {
 //		pane.setScaleX(0.5);
 //		pane.setScaleY(0.5);
 		pane.getChildren().add(new Label("Legend"));
-		pane.getChildren().add(createLegendEntry("adapter", ADAPTER_COLOR));
-		pane.getChildren().add(createLegendEntry("adapter method call", ADAPTER_CALL_COLOR));
-		pane.getChildren().add(createLegendEntry("notify correlation id ", ADAPTER_NOTIFY_COLOR));
-		pane.getChildren().add(createLegendEntry("workflow launch", ADAPTER_LAUNCH_COLOR));
-		pane.getChildren().add(createLegendEntry("workflow instance", WORKFLOW_COLOR));
+		pane.getChildren().add(createLegendEntry("adapter", AdapterAnnimation.ADAPTER_COLOR));
+		pane.getChildren().add(createLegendEntry("adapter method call", CallAnnimation.ADAPTER_CALL_COLOR));
+		pane.getChildren().add(createLegendEntry("notify correlation id ", NotifyAnnimation.ADAPTER_NOTIFY_COLOR));
+		pane.getChildren().add(createLegendEntry("workflow launch", LaunchAnnimation.ADAPTER_LAUNCH_COLOR));
+		pane.getChildren().add(createLegendEntry("workflow instance", WorkflowAnnimation.WORKFLOW_COLOR));
 		pane.setStyle("-fx-border-color: black; -fx-border-width: 1;");
 		pane.setTranslateX(3);
 		pane.setTranslateY(annimationPane.getHeight()-150);
@@ -454,13 +361,13 @@ public class AdapterAnnimationCreator {
 		
 		final Text outputText = new Text("Output");
 		outputText.setFontSmoothingType(FontSmoothingType.LCD);
-		outputText.setX(getAnnimationPaneWidth()/2+getAnnimationPaneWidth()/4-inputText.getBoundsInLocal().getWidth()/2);
+		outputText.setX(getAnnimationPaneWidth()/2+getAnnimationPaneWidth()/4-outputText.getBoundsInLocal().getWidth()/2);
 		outputText.setY(20);
 		annimationPane.getChildren().add(outputText);
 		
 		final Text adapterText = new Text("Adapter");
 		adapterText.setFontSmoothingType(FontSmoothingType.LCD);
-		adapterText.setX(getAnnimationPaneWidth()/2-inputText.getBoundsInLocal().getWidth()/2);
+		adapterText.setX(getAnnimationPaneWidth()/2-adapterText.getBoundsInLocal().getWidth()/2);
 		adapterText.setTranslateY(20);
 		annimationPane.getChildren().add(adapterText);
 		
@@ -484,35 +391,37 @@ public class AdapterAnnimationCreator {
 		
 	}
 
-	private void addAnnimation(ArrayList<KeyFrame> keyFrames, final Annimation annimation, long minTime){
+	private void addAnnimation(ArrayList<KeyFrame> keyFrames, final AnnimationPartBase annimation, long minTime){
 		long startTimeMs = annimation.startTime-minTime;
 		long endTimeMs = annimation.endTime-minTime;
 		
-		KeyValue keyValueStartX = new KeyValue(annimation.node.translateXProperty(), annimation.startx);
-		KeyValue keyValueStartY = new KeyValue(annimation.node.translateYProperty(), annimation.starty);
-		KeyValue keyValueEndX = new KeyValue(annimation.node.translateXProperty(),annimation.endx);
-		KeyValue keyValueEndY = new KeyValue(annimation.node.translateYProperty(), annimation.endy);
+		final Node node = annimation.createVisualRepresentaion();
+		
+		KeyValue keyValueStartX = new KeyValue(node.translateXProperty(), annimation.startx);
+		KeyValue keyValueStartY = new KeyValue(node.translateYProperty(), annimation.starty);
+		KeyValue keyValueEndX = new KeyValue(node.translateXProperty(),annimation.endx);
+		KeyValue keyValueEndY = new KeyValue(node.translateYProperty(), annimation.endy);
 		
 
 		KeyFrame keyFrame1 = new KeyFrame(Duration.millis(startTimeMs),
 					new EventHandler<ActionEvent>(){
 						@Override
 						public void handle(ActionEvent event) {
-							annimationPane.getChildren().add(annimation.node);
+							annimationPane.getChildren().add(node);
 						}
-			        },new KeyValue(annimation.node.opacityProperty(), 0));
+			        },new KeyValue(node.opacityProperty(), 0));
 		KeyFrame keyFrame2 = new KeyFrame(Duration.millis(startTimeMs), keyValueStartX, keyValueStartY);
-		KeyFrame keyFrame3 = new KeyFrame(Duration.millis(startTimeMs+FADEDURATION),new KeyValue(annimation.node.opacityProperty(), 1));
+		KeyFrame keyFrame3 = new KeyFrame(Duration.millis(startTimeMs+FADEDURATION),new KeyValue(node.opacityProperty(), 1));
 		KeyFrame keyFrame4 = new KeyFrame(Duration.millis(startTimeMs+FADEDURATION), keyValueStartX, keyValueStartY);
 		KeyFrame keyFrame5 = new KeyFrame(Duration.millis(endTimeMs-FADEDURATION),keyValueEndX,keyValueEndY);
-		KeyFrame keyFrame6 = new KeyFrame(Duration.millis(endTimeMs-FADEDURATION), new KeyValue(annimation.node.opacityProperty(), 1));
+		KeyFrame keyFrame6 = new KeyFrame(Duration.millis(endTimeMs-FADEDURATION), new KeyValue(node.opacityProperty(), 1));
 		KeyFrame keyFrame7 = new KeyFrame(Duration.millis(endTimeMs), 
 				new EventHandler<ActionEvent>(){
 					@Override
 					public void handle(ActionEvent event) {
-						annimationPane.getChildren().remove(annimation.node);
+						annimationPane.getChildren().remove(node);
 					}
-		        },new KeyValue(annimation.node.opacityProperty(), 0));
+		        },new KeyValue(node.opacityProperty(), 0));
 		
 		
 		keyFrames.add(keyFrame1);
@@ -527,7 +436,7 @@ public class AdapterAnnimationCreator {
 			@Override
 			public void changed(ObservableValue<? extends Status> observable, Status oldValue, Status newValue) {
 				if (newValue==Status.STOPPED){//clean up when annimation stpped
-					annimationPane.getChildren().remove(annimation.node);
+					annimationPane.getChildren().remove(node);
 				}
 			}
 		});
