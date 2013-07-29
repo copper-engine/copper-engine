@@ -305,8 +305,10 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 				storageInfo.setDescription(dbStorageTmp.getDescription());
 				if (dbStorageTmp instanceof ScottyDBStorageMXBean ){
 					BatcherMXBean batcherMXBean = ((ScottyDBStorageMXBean)dbStorageTmp).getBatcherMXBean();
-					batcher.setDescription(batcherMXBean.getDescription());
-					batcher.setNumThreads(batcherMXBean.getNumThreads());
+					if (batcherMXBean != null) {
+						batcher.setDescription(batcherMXBean.getDescription());
+						batcher.setNumThreads(batcherMXBean.getNumThreads());
+					}
 				}
 			}
 			
