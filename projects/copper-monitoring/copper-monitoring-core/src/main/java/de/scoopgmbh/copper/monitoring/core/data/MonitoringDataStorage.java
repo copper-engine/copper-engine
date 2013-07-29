@@ -159,9 +159,24 @@ public class MonitoringDataStorage {
 			}
 			memoryMappedFile = null;
 		}
-		public void serialize(MonitoringData monitoringData) {
-			kryo.writeClassAndObject(output, monitoringData);
-			output.flush();
+		
+		public boolean serialize(MonitoringData monitoringData) {
+			try {
+				try {
+					kryo.writeClassAndObject(output, monitoringData);
+					output.flush();
+					return true;
+				} catch (KryoException ky) {
+					// The BufferOverflowException might get wrapped, so we have to handle both.
+					// The exception indicates that we have tried to write beyond the buffer's capacity
+					if (ky.getCause() != null && ky.getCause() instanceof BufferOverflowException) {
+						throw (BufferOverflowException)ky.getCause();
+					}
+		    		throw ky;
+				}
+			} catch (BufferOverflowException be) {
+				return false;
+			}
 		}
 	}
 	
@@ -326,16 +341,10 @@ public class MonitoringDataStorage {
         		throw new RuntimeException(new ClosedChannelException());
         	}
         	ensureCurrentFile(0);
-    		Kryo kryo = currentTarget.kryo;
-    		try {
-    			currentTarget.serialize(monitoringData);
-    		} catch (KryoException ky) {
-    			if (ky.getCause() != null && ky.getCause() instanceof BufferOverflowException) {
-	    			closeCurrentTarget();
-	        		write(monitoringData);
-	        		return;
-    			}
-        		throw ky;
+    		if (!currentTarget.serialize(monitoringData)) {
+    			closeCurrentTarget();
+        		write(monitoringData);
+        		return;
     		}
 
             if (currentTarget.earliestTimestamp > referenceMillis) {
