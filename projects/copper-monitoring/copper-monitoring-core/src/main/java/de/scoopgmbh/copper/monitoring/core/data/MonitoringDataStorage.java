@@ -131,6 +131,7 @@ public class MonitoringDataStorage {
 			close();
 		}
 		public synchronized void close() {
+			kryo = null;
 			if (output != null) {
 				try {
 					output.close();
@@ -150,12 +151,12 @@ public class MonitoringDataStorage {
 			out = null;
 			if (memoryMappedFile == null)
 				return;
-			if (!memoryMappedFile.getChannel().isOpen())
-				return;
-			try {
-				memoryMappedFile.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
+			if (memoryMappedFile.getChannel().isOpen()) {
+				try {
+					memoryMappedFile.close();
+				} catch (IOException ex) {
+					/* ignore */
+				}
 			}
 			memoryMappedFile = null;
 		}

@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.monitoring.server.monitoring;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -44,6 +45,8 @@ public class MonitoringDataAccessQueue {
 	 */
 	private final MonitoringDataAccesor monitoringDataAccesor;
 	private final  MonitoringDataAdder monitoringDataAdder;
+	private final MonitoringQueueThread thread;
+	private final int queueCapacity;
 
 	public MonitoringDataAccessQueue(MonitoringDataAccesor monitoringDataAccesor, MonitoringDataAdder monitoringDataAdder){
 		this(1000, monitoringDataAccesor,monitoringDataAdder);
@@ -52,25 +55,57 @@ public class MonitoringDataAccessQueue {
 	public MonitoringDataAccessQueue(int queueCapacity, MonitoringDataAccesor monitoringDataAccesor, MonitoringDataAdder monitoringDataAdder){
 		this.monitoringDataAccesor = monitoringDataAccesor;
 		this.monitoringDataAdder = monitoringDataAdder;
+		this.queueCapacity = queueCapacity;
 		queue = new ArrayBlockingQueue<Runnable>(queueCapacity);
-		new Thread("monitoringEventQueue") {
-			{
-				setDaemon(true);
+		(thread = new MonitoringQueueThread(this)).start();
+	}
+	
+	static class MonitoringQueueThread extends Thread {
+
+		//allow for gc to clean MonitoringDataAccessQueue 
+		WeakReference<MonitoringDataAccessQueue> queue;
+		volatile boolean run = true;
+		MonitoringQueueThread(MonitoringDataAccessQueue queue) {
+			super("monitoringEventQueue");
+			this.queue = new WeakReference<MonitoringDataAccessQueue>(queue);
+		}
+		
+		public void shutdown() {
+			run = false;
+			interrupt();
+		}
+		
+		public void run() {
+			while (run) {
+				work();
 			}
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						work();
-					} catch (ThreadDeath d) {
-						throw d;
-					}
-					catch (Throwable t) {
-						logger.error("unhandled exception",t);
-					}
+		};
+		
+		ArrayList<Runnable> elements = new ArrayList<Runnable>(100);
+		public void work() {
+			elements.clear();
+			MonitoringDataAccessQueue theQueue = this.queue.get();
+			if (theQueue == null)
+				return;
+			int capacity = theQueue.queueCapacity;
+			ArrayBlockingQueue<Runnable> q = theQueue.queue;
+			theQueue = null;
+			elements.clear();
+			//only if thread should still be running wait for new data to arrive
+			//else drain the queue until all elements are consumed
+			if (run) {
+				try {
+					elements.add(q.take());
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
 				}
-			};
-		}.start();
+			}
+			q.drainTo(elements,capacity);
+			for (Runnable runnable : elements) {
+				runnable.run();
+			}
+		}
+
 	}
 
 	public boolean offer(MonitoringDataAwareRunnable runnable) {
@@ -115,18 +150,10 @@ public class MonitoringDataAccessQueue {
 		}
 	}
 	
-	ArrayList<Runnable> elements = new ArrayList<Runnable>(100);
-	public void work() {
-		try {
-			elements.clear();
-			elements.add(queue.take());
-			queue.drainTo(elements,100);
-			for (Runnable runnable : elements) {
-				runnable.run();
-			}
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		this.thread.shutdown();
 	}
 	
 	

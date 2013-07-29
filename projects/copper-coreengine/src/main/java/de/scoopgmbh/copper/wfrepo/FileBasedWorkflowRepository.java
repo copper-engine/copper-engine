@@ -27,6 +27,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -248,6 +249,49 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 	public java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException ,ClassNotFoundException {
 		return Class.forName(desc.getName(), false, volatileState.classLoader);
 	};
+	
+	
+	static class ObserverThread extends Thread {
+		
+		final WeakReference<FileBasedWorkflowRepository> repository;
+		
+		public ObserverThread(FileBasedWorkflowRepository repository) {
+			super("WfRepoObserver");
+			this.repository = new WeakReference<FileBasedWorkflowRepository>(repository);
+			setDaemon(true);
+		}
+		
+		@Override
+		public void run() {
+			logger.info("Starting observation");
+			FileBasedWorkflowRepository repository = this.repository.get();
+			while(repository != null && !repository.stopped) {
+				try {
+					int checkIntervalMSec = repository.checkIntervalMSec;
+					repository = null;
+					Thread.sleep(checkIntervalMSec);
+					repository = this.repository.get();
+					if (repository == null)
+						break;
+					for (Runnable preprocessor : repository.preprocessors) {
+						preprocessor.run();
+					}
+					final long checksum = processChecksum(repository.sourceDirs);
+					if (checksum != repository.volatileState.checksum) {
+						logger.info("Change detected - recreating workflow map");
+						repository.volatileState = repository.createWfClassMap();
+					}
+				} 
+				catch(InterruptedException e) {
+					// ignore
+				}
+				catch (Exception e) {
+					logger.error("",e);
+				}
+			}
+			logger.info("Stopping observation");
+		}
+	};
 
 
 	@Override
@@ -264,33 +308,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 				}
 				volatileState = createWfClassMap();
 
-				observerThread = new Thread("WfRepoObserver") {
-					@Override
-					public void run() {
-						logger.info("Starting observation");
-						while(!stopped) {
-							try {
-								Thread.sleep(checkIntervalMSec);
-								for (Runnable preprocessor : preprocessors) {
-									preprocessor.run();
-								}
-								final long checksum = processChecksum(sourceDirs);
-								if (checksum != volatileState.checksum) {
-									logger.info("Change detected - recreating workflow map");
-									volatileState = createWfClassMap();
-								}
-							} 
-							catch(InterruptedException e) {
-								// ignore
-							}
-							catch (Exception e) {
-								logger.error("",e);
-							}
-						}
-						logger.info("Stopping observation");
-					}
-				};
-				observerThread.setDaemon(true);
+				observerThread = new ObserverThread(this);
 				observerThread.start();
 			}
 		} 
@@ -306,6 +324,11 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 		if (stopped) return;
 		stopped = true;
 		observerThread.interrupt();
+		try {
+			observerThread.join();
+		} catch (Exception e) {
+			/* ignore */
+		}
 	}
 
 	private synchronized VolatileState createWfClassMap() throws IOException, ClassNotFoundException {
