@@ -378,10 +378,12 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 
 	@Override
 	public List<AdapterMonitoringResultModel> applyFilterInBackgroundThread(AdapterMonitoringFilterModel filter) {
+		Date from = filter.fromToFilterModel.from.get();
+		Date to = filter.fromToFilterModel.to.get();
 		AdapterMonitoringResultModel result = new AdapterMonitoringResultModel(
-				copperDataProvider.getAdapterCalls(null, null, filter.maxCountFilterModel.getMaxCount()),
-				copperDataProvider.getAdapterNotifies(null, null, filter.maxCountFilterModel.getMaxCount()),
-				copperDataProvider.getAdapterLaunches(null, null, filter.maxCountFilterModel.getMaxCount()));
+				copperDataProvider.getAdapterCalls(from, to, filter.maxCountFilterModel.getMaxCount()),
+				copperDataProvider.getAdapterNotifies(from, to, filter.maxCountFilterModel.getMaxCount()),
+				copperDataProvider.getAdapterLaunches(from, to, filter.maxCountFilterModel.getMaxCount()));
 		return Arrays.asList(result);
 	}
 	
