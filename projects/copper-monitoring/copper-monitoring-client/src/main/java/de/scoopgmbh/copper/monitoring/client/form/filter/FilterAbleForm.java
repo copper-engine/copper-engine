@@ -95,9 +95,10 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	}
 
 	/**
-	 * use ExceptionHandler instead
+	 * Please do not deprecate this method. It is needed by the Operator Terminal in order to replace the hard coded 
+	 * {@link de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.MessageAndLogExceptionHandler}
+	 * used by {@link de.scoopgmbh.copper.monitoring.client.context.ApplicationContext} with a custom exception handler.
 	 */
-	@Deprecated 
 	public void setOnFailed(EventHandler<WorkerStateEvent> eventHandler) {
 		filterService.setOnFailed(eventHandler);
 		repeatFilterService.setOnFailed(eventHandler);

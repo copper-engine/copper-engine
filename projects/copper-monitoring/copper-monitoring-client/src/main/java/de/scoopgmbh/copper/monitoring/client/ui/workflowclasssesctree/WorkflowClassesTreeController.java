@@ -35,8 +35,10 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
 public class WorkflowClassesTreeController {
@@ -114,11 +116,34 @@ public class WorkflowClassesTreeController {
 			}
 			
 			if (majorVersionItemToAdd==null){
-				TreeItem<DisplayWorkflowClassesModel> newitemMajor =new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Major: "+newWorkflowVersion.versionMajor.getValue().toString()));
+				List<String> missing = new ArrayList<String>();
+				if(newWorkflowVersion.versionMajor.getValue() == null) {
+					newWorkflowVersion.versionMajor.setValue(1L);
+					missing.add("versionMajor");
+				}
+				if(newWorkflowVersion.versionMinor.getValue() == null) {
+					newWorkflowVersion.versionMinor.setValue(0L);
+					missing.add("versionMinor");
+				}
+				if(newWorkflowVersion.alias.getValue() == null) {
+					newWorkflowVersion.alias.setValue(newWorkflowVersion.classname.getValue());
+					missing.add("alias");
+				}
+				if(newWorkflowVersion.patchlevel.getValue() == null) {
+					newWorkflowVersion.patchlevel.setValue(1L);
+					missing.add("patchlevel");
+				}				
+				
+				if(!missing.isEmpty()) {
+					String errMsg = missing + " not set for newWorkflowVersion classname: " 
+							+ newWorkflowVersion.classname.getValue();
+					ComponentUtil.showErrorMessage(new StackPane(), "Using default values for: " + missing, new RuntimeException(errMsg));
+				}
+				TreeItem<DisplayWorkflowClassesModel> newitemMajor =new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Major: "+newWorkflowVersion.versionMajor.getValue()));
 				classnameItemToAdd.getChildren().add(newitemMajor);
 				majorVersionItemToAdd=newitemMajor;
 			}
-			majorVersionItemToAdd.getChildren().add(new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Minor: "+newWorkflowVersion.versionMinor.getValue().toString()+
+			majorVersionItemToAdd.getChildren().add(new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Minor: "+newWorkflowVersion.versionMinor.getValue()+
 					"\nPatchlevel: "+newWorkflowVersion.patchlevel.get()+"\nAlias: "+newWorkflowVersion.alias.get() )));
 		}
 		
