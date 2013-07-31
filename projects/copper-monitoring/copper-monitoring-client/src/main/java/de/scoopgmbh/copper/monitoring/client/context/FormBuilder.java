@@ -49,7 +49,7 @@ public class FormBuilder<FM,RM, F extends FilterController<FM> ,R extends Filter
 	}
 	
 	public FormBuilder(F filterController, R resultController, FormContext formContext){
-		this(filterController,resultController,formContext.messageProvider,formContext.getDefaultShowFormStrategy(),formContext.exceptionHandler);
+		this(filterController,resultController,formContext.messageProvider,formContext.getDefaultShowFormStrategy(),formContext.issueReporter);
 	}
 	
 	public FilterAbleForm<FM,RM> build(){

@@ -43,7 +43,7 @@ public class BackgroundFilterService<F,R>  extends Service<FilterAbleForm.Result
 					FilterAbleForm.ResultFilterPair<F, R> result = (FilterAbleForm.ResultFilterPair<F,R>)event.getSource().getValue();
 	            	filterResultController.showFilteredResult(result.result, result.usedFilter);
 				} catch (Exception e){
-					exceptionHandler.handleException(e);
+					exceptionHandler.reportError(e);
 				}
 			}
 		});
@@ -58,7 +58,7 @@ public class BackgroundFilterService<F,R>  extends Service<FilterAbleForm.Result
 					final List<R> result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
 					return new FilterAbleForm.ResultFilterPair<F, R>(result, filterForm.getController().getFilter());
 				} catch (Exception e) {
-					exceptionHandler.handleException(e);
+					exceptionHandler.reportError(e);
 					throw new RuntimeException(e);
 				}
 			}

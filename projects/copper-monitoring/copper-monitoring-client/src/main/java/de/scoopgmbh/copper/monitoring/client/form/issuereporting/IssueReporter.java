@@ -22,9 +22,21 @@ package de.scoopgmbh.copper.monitoring.client.form.issuereporting;
  * https://javafx-jira.kenai.com/browse/RT-15332
  */
 public interface IssueReporter {
-	public void handleException(Throwable e);
-	public void handleException(String message, Throwable e);
+	public void reportError(Throwable e);
+	public void reportError(String message, Throwable e);
+	/**
+	 * @param message
+	 * @param e
+	 * @param finishAction action executed when ok button is clicked/ message is procceded
+	 */
+	public void reportError(String message, Throwable e, Runnable finishAction);
 	
-	public void handleWarning(Throwable e);
-	public void handleWarning(String message, Throwable e);
+	public void reportWarning(Throwable e);
+	public void reportWarning(String message, Throwable e);
+	/**
+	 * @param message
+	 * @param e
+	 * @param finishAction action executed when ok button is clicked/ message is procceded
+	 */
+	public void reportWarning(String message, Throwable e, Runnable finishAction);
 }

@@ -35,27 +35,39 @@ public class MessageAndLogIssueReporter implements IssueReporter {
 	}
 
 	@Override
-	public void handleException(Throwable e) {
+	public void reportError(Throwable e) {
 		logger.error("",e);
 		ComponentUtil.showErrorMessage(stackPane,e.getMessage(), e);
 	}
 
 	@Override
-	public void handleException(String message, Throwable e) {
+	public void reportError(String message, Throwable e) {
 		logger.error("",e);
 		ComponentUtil.showErrorMessage(stackPane,message, e);
 	}
 
 	@Override
-	public void handleWarning(Throwable e) {
+	public void reportWarning(Throwable e) {
 		logger.warn("",e);
 		ComponentUtil.showWarningMessage(stackPane,e.getMessage(), e);
 	}
 
 	@Override
-	public void handleWarning(String message, Throwable e) {
+	public void reportWarning(String message, Throwable e) {
 		logger.warn("",e);
 		ComponentUtil.showWarningMessage(stackPane,message, e);
+	}
+
+	@Override
+	public void reportError(String message, Throwable e, Runnable finishAction) {
+		logger.error("",e);
+		ComponentUtil.showErrorMessage(stackPane,message, e,finishAction);
+	}
+
+	@Override
+	public void reportWarning(String message, Throwable e, Runnable finishAction) {
+		logger.warn("",e);
+		ComponentUtil.showWarningMessage(stackPane,message, e,finishAction);
 	}
 
 

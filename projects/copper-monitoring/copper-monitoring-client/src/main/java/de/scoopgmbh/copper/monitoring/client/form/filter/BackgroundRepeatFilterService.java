@@ -59,7 +59,7 @@ public class BackgroundRepeatFilterService<F,R>  extends Service<Void> {
 						try {
 							result = filterResultController.applyFilterInBackgroundThread(filterForm.getController().getFilter());
 						} catch (Exception e1) {
-							exceptionHandler.handleException(e1);
+							exceptionHandler.reportError(e1);
 							cancel();
 							throw new RuntimeException(e1);
 						}
@@ -69,7 +69,7 @@ public class BackgroundRepeatFilterService<F,R>  extends Service<Void> {
 								try {
 									filterResultController.showFilteredResult(result, filterForm.getController().getFilter());
 								} catch (Exception e) {
-									exceptionHandler.handleException(e);
+									exceptionHandler.reportError(e);
 									cancel();
 								}
 							}

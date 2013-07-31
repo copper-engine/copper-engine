@@ -29,23 +29,34 @@ public class TestFormContext extends FormContext{
 	public TestFormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider,
 			SettingsModel settingsModelSingleton) {
 		super(mainPane, guiCopperDataProvider, messageProvider, settingsModelSingleton,new IssueReporter() {
+
 			@Override
-			public void handleException(Throwable e) {
+			public void reportError(Throwable e) {
 				e.printStackTrace();
 			}
 
 			@Override
-			public void handleException(String message, Throwable e) {
+			public void reportError(String message, Throwable e) {
 				e.printStackTrace();
 			}
 
 			@Override
-			public void handleWarning(Throwable e) {
+			public void reportError(String message, Throwable e, Runnable finishAction) {
 				e.printStackTrace();
 			}
 
 			@Override
-			public void handleWarning(String message, Throwable e) {
+			public void reportWarning(Throwable e) {
+				e.printStackTrace();
+			}
+
+			@Override
+			public void reportWarning(String message, Throwable e) {
+				e.printStackTrace();
+			}
+
+			@Override
+			public void reportWarning(String message, Throwable e, Runnable finishAction) {
 				e.printStackTrace();
 			}
 		});

@@ -132,18 +132,18 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	protected final GuiCopperDataProvider guiCopperDataProvider;
 	protected final SettingsModel settingsModelSingleton;
 	protected final CodeMirrorFormatter codeMirrorFormatterSingelton = new CodeMirrorFormatter();
-	protected final IssueReporter exceptionHandler;
+	protected final IssueReporter issueReporter;
 
 	private FxmlForm<SettingsController> settingsForSingleton;
 	private FxmlForm<HotfixController> hotfixFormSingleton;
 	private FilterAbleForm<EmptyFilterModel, DashboardResultModel> dasboardFormSingleton;
-	public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton, IssueReporter exceptionHandler) {
+	public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton, IssueReporter issueReporter) {
 		this.mainTabPane = new TabPane();
 		this.messageProvider = messageProvider;
 		this.guiCopperDataProvider = guiCopperDataProvider;
 		this.mainPane = mainPane;
 		this.settingsModelSingleton = settingsModelSingleton;
-		this.exceptionHandler = exceptionHandler;
+		this.issueReporter = issueReporter;
 		
 		ArrayList<FormCreator> maingroup = new ArrayList<FormCreator>();
 		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
@@ -325,7 +325,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
 	@Override
 	public WorkflowClassesTreeController createWorkflowClassesTreeController(TreeView<DisplayWorkflowClassesModel> workflowView) {
-		WorkflowClassesTreeController workflowClassesTreeController = new WorkflowClassesTreeController(workflowView);
+		WorkflowClassesTreeController workflowClassesTreeController = new WorkflowClassesTreeController(workflowView, issueReporter);
 		return workflowClassesTreeController;
 	}
 	
@@ -383,7 +383,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm = createWorkflowinstanceDetailResultForm(new EmptyShowFormStrategie());
 		
 		EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> filterAbleForm = new EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>(messageProvider,
-				getDefaultShowFormStrategy(), filterForm, resultForm, exceptionHandler);
+				getDefaultShowFormStrategy(), filterForm, resultForm, issueReporter);
 		filterAbleForm.displayedTitleProperty().bind(new SimpleStringProperty("Details Id:").concat(fCtrl.getFilter().workflowInstanceId));
 		return filterAbleForm;
 	}
@@ -419,7 +419,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		
 		if (engineLoadFormSingelton==null){
 			engineLoadFormSingelton = new EngineFilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary>(messageProvider,
-					getDefaultShowFormStrategy(), filterForm, resultForm, exceptionHandler);
+					getDefaultShowFormStrategy(), filterForm, resultForm, issueReporter);
 		}
 		return engineLoadFormSingelton;
 	}

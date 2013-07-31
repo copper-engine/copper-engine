@@ -43,6 +43,7 @@ import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.form.issuereporting.MessageAndLogIssueReporter;
 import de.scoopgmbh.copper.monitoring.client.ui.login.LoginController;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
@@ -111,7 +112,7 @@ public class ApplicationContext {
 			}
 		} catch (Exception e) {
 			logger.error("",e);
-			ComponentUtil.showWarningMessage(mainStackPane,"Can't load settings from (Preferences: "+prefs+") use defaults instead",e);
+			getDefaultExceptionHandler().reportWarning("Can't load settings from (Preferences: "+prefs+") use defaults instead",e);
 		} finally {
 			if (is!=null){
 				try {
@@ -165,7 +166,7 @@ public class ApplicationContext {
 					connect(serverAdressParam,user,password);
 				} catch (final Exception e){
 					logger.error("",e);
-					ComponentUtil.showErrorMessage(mainStackPane,"Can't Connect: \n"+e.getMessage(),e);
+					getDefaultExceptionHandler().reportError("Can't Connect: \n"+e.getMessage(),e);
 				}
 			}
 		}, mainStackPane, "connecting");
@@ -201,7 +202,7 @@ public class ApplicationContext {
 		}
 
 		if (sessionId == null) {
-			ComponentUtil.showWarningMessage(mainStackPane,"Invalid user/password", null, new Runnable() {
+			getDefaultExceptionHandler().reportWarning("Invalid user/password", null, new Runnable() {
 				@Override
 				public void run() {
 					createLoginForm().show();
@@ -238,14 +239,20 @@ public class ApplicationContext {
 		return formContext;
 	}
 
-	private MessageAndLogIssueReporter getDefaultExceptionHandler() {
-		return new MessageAndLogIssueReporter(mainStackPane);
+	
+	private IssueReporter getDefaultExceptionHandler() {
+		if (issueReporter==null){
+			issueReporter = new MessageAndLogIssueReporter(mainStackPane);
+		}
+		return issueReporter;
 	}
 	public void resetFormContext() {
 		formContext = null;
 	}
 	
 	protected FxmlForm<LoginController> loginForm;
+
+	private IssueReporter issueReporter;
 	public Form<LoginController> createLoginForm(){
 		if (loginForm==null){
 			loginForm = new FxmlForm<LoginController>("login.title", new LoginController(this,settingsModelSingleton), messageProvider,  new BorderPaneShowFormStrategie(mainPane));

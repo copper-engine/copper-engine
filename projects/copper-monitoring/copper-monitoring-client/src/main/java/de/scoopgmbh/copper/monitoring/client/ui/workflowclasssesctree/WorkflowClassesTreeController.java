@@ -35,18 +35,19 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
 public class WorkflowClassesTreeController {
 	private final TreeView<DisplayWorkflowClassesModel> treeView;
+	private final IssueReporter issueReporter;
 	
-	public WorkflowClassesTreeController(final TreeView<DisplayWorkflowClassesModel> treeView) {
+	public WorkflowClassesTreeController(final TreeView<DisplayWorkflowClassesModel> treeView, IssueReporter issueReporter) {
 		super();
 		this.treeView = treeView;
+		this.issueReporter = issueReporter;
 		
 		treeView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 		treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<DisplayWorkflowClassesModel>>() {
@@ -137,7 +138,7 @@ public class WorkflowClassesTreeController {
 				if(!missing.isEmpty()) {
 					String errMsg = missing + " not set for newWorkflowVersion classname: " 
 							+ newWorkflowVersion.classname.getValue();
-					ComponentUtil.showErrorMessage(new StackPane(), "Using default values for: " + missing, new RuntimeException(errMsg));
+					issueReporter.reportError("Using default values for: " + missing, new RuntimeException(errMsg));
 				}
 				TreeItem<DisplayWorkflowClassesModel> newitemMajor =new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Major: "+newWorkflowVersion.versionMajor.getValue()));
 				classnameItemToAdd.getChildren().add(newitemMajor);
