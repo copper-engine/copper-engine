@@ -21,16 +21,16 @@ import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
-import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.ExceptionHandler;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 
 public class BackgroundRepeatFilterService<F,R>  extends Service<Void> {
 	private long refreshRate=1000;
 	long lasttime = System.currentTimeMillis();
     private final FilterResultController<F,R> filterResultController;
     private final Form<FilterController<F>> filterForm;
-    private final ExceptionHandler exceptionHandler;
+    private final IssueReporter exceptionHandler;
     
-    public BackgroundRepeatFilterService(FilterResultController<F,R> filterResultController, Form<FilterController<F>> filterForm, ExceptionHandler exceptionHandler) {
+    public BackgroundRepeatFilterService(FilterResultController<F,R> filterResultController, Form<FilterController<F>> filterForm, IssueReporter exceptionHandler) {
 		super();
 		this.filterResultController = filterResultController;
 		this.filterForm = filterForm;

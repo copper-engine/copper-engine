@@ -20,14 +20,20 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
@@ -44,10 +50,20 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
     @FXML //  fx:id="engines"
     private TabPane engines; // Value injected by FXMLLoader
 
+    @FXML //  fx:id="monitoringPane"
+    private HBox monitoringPane; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="storageInfo"
+    private TextArea storageInfo; // Value injected by FXMLLoader
+
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert engines != null : "fx:id=\"engines\" was not injected: check your FXML file 'DashboardResult.fxml'.";
+        assert monitoringPane != null : "fx:id=\"monitoringPane\" was not injected: check your FXML file 'DashboardResult.fxml'.";
+        assert storageInfo != null : "fx:id=\"storageInfo\" was not injected: check your FXML file 'DashboardResult.fxml'.";
+
+
     }
 	
 	@Override
@@ -62,6 +78,18 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 		for (ProcessingEngineInfo processingEngineInfo: dashboardResultModel.engines){
 			dashboardPartsFactory.createEngineForm(engines,processingEngineInfo,dashboardResultModel).show();
 		}
+		monitoringPane.getChildren().clear();
+		for (MonitoringDataProviderInfo monitoringDataProviderInfo: dashboardResultModel.providers){
+			final BorderPane pane = new BorderPane();
+			monitoringPane.getChildren().add(pane);
+			dashboardPartsFactory.createMonitoringDataProviderForm(monitoringDataProviderInfo,pane).show();
+		}
+		MonitoringDataStorageInfo stoargeInfo = dashboardResultModel.monitoringDataStorageInfo;
+		StringBuilder countString = new StringBuilder();
+		for (Entry<String,Long> entry: stoargeInfo.getClassToCount().entrySet()){
+			countString.append(entry.getKey()+": "+entry.getValue()+"\n");
+		}
+		storageInfo.setText("path: "+stoargeInfo.getPath()+"\nsize: "+stoargeInfo.getSizeInMb()+" mb\n\n"+countString.toString());
 	}
 
 	@Override
@@ -71,7 +99,9 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 		for (ProcessingEngineInfo processingEngineInfo: engines){
 			engineIdTostateSummery.put(processingEngineInfo.getId(), copperDataProvider.getCopperLoadInfo(processingEngineInfo));
 		}
-		return Arrays.asList(new DashboardResultModel(engineIdTostateSummery,engines));
+		return Arrays.asList(new DashboardResultModel(engineIdTostateSummery,engines,
+				copperDataProvider.getMonitoringDataProvider(),
+				copperDataProvider.getMonitoringStorageInfo()));
 	}
 	
 	@Override

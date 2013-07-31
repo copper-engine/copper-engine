@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.scoopgmbh.copper.audit.MessagePostProcessor;
+import com.google.common.base.Optional;
+
 import de.scoopgmbh.copper.management.BatcherMXBean;
 import de.scoopgmbh.copper.management.DBStorageMXBean;
 import de.scoopgmbh.copper.management.FileBasedWorkflowRepositoryMXBean;
@@ -46,6 +47,8 @@ import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo.DependencyInjectorTyp;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
@@ -65,6 +68,8 @@ import de.scoopgmbh.copper.monitoring.server.logging.LogConfigManager;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
+import de.scoopgmbh.copper.monitoring.server.provider.MonitoringDataProvider;
+import de.scoopgmbh.copper.monitoring.server.provider.MonitoringDataProviderManager;
 
 public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	private static final long serialVersionUID = 1829707298427309206L;
@@ -74,9 +79,9 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	private final StatisticsCollectorMXBean statisticsCollectorMXBean;
 	private final Map<String,ProcessingEngineMXBean> engines;
 	private final MonitoringDataAccessQueue monitoringDataAccessQueue;
-	private final MessagePostProcessor messagePostProcessor;
 	final WorkflowInstanceIntrospector workflowInstanceIntrospector;
 	private final LogConfigManager logManager;
+	private final MonitoringDataProviderManager monitoringDataProviderManager;
 	
 
 		
@@ -85,12 +90,12 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			List<ProcessingEngineMXBean> engineList,
 			MonitoringDataAccessQueue monitoringDataAccessQueue,
 			boolean enableSql,
-			MessagePostProcessor messagePostProcessor,
 			WorkflowInstanceIntrospector workflowInstanceIntrospector,
-			LogConfigManager logManager
+			LogConfigManager logManager,
+			MonitoringDataProviderManager monitoringDataProviderManager
 			){
 		this(dbStorage,new CopperInterfaceSettings(enableSql), statisticsCollectorMXBean, engineList
-			,monitoringDataAccessQueue, messagePostProcessor, workflowInstanceIntrospector,logManager);
+			,monitoringDataAccessQueue, workflowInstanceIntrospector,logManager,monitoringDataProviderManager);
 	}
 	
 	public DefaultCopperMonitoringService(MonitoringDbStorage dbStorage,
@@ -98,16 +103,16 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			StatisticsCollectorMXBean statisticsCollectorMXBean,
 			List<ProcessingEngineMXBean> engineList,
 			MonitoringDataAccessQueue monitoringDataAccessQueue,
-			MessagePostProcessor messagePostProcessor,
 			WorkflowInstanceIntrospector workflowInstanceIntrospector,
-			LogConfigManager logManager){
+			LogConfigManager logManager,
+			MonitoringDataProviderManager monitoringDataProviderManager){
 		this.dbStorage = dbStorage;
 		this.copperInterfaceSettings = copperInterfaceSettings;
 		this.statisticsCollectorMXBean = statisticsCollectorMXBean;
 		this.monitoringDataAccessQueue = monitoringDataAccessQueue;
-		this.messagePostProcessor = messagePostProcessor;
 		this.workflowInstanceIntrospector = workflowInstanceIntrospector;
 		this.logManager = logManager;
+		this.monitoringDataProviderManager = monitoringDataProviderManager;
 		
 		engines = new HashMap<String,ProcessingEngineMXBean>();
 		for (ProcessingEngineMXBean engine: engineList){
@@ -135,7 +140,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 
 	@Override
 	public String getAuditTrailMessage(final long id) throws RemoteException {
-		return dbStorage.selectAuditTrailMessage(id,messagePostProcessor);
+		return dbStorage.selectAuditTrailMessage(id);
 	}
 
 	@Override
@@ -244,10 +249,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 		}
 		return result;
 	}
-	
-	public MessagePostProcessor getMessagePostProcessor() {
-		return messagePostProcessor;
-	}
+
 	
 	@Override
 	public void resetMeasurePoints() {
@@ -409,6 +411,37 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			@Override
 			public List<List<R>> call() throws Exception {
 				return monitoringDataAccesor.createStatistic(filter, statisticCreators, from, to);
+			}
+		});
+	}
+
+	@Override
+	public List<MonitoringDataProviderInfo> getMonitoringDataProviderInfos() {
+		return monitoringDataProviderManager.getInfos();
+	}
+
+	@Override
+	public void startMonitoringDataProvider(String name) throws RemoteException {
+		final Optional<MonitoringDataProvider> provider = monitoringDataProviderManager.getProvider(name);
+		if (provider.isPresent()){
+			provider.get().startProvider();
+		}
+	}
+
+	@Override
+	public void stopMonitoringDataProvider(String name) throws RemoteException {
+		final Optional<MonitoringDataProvider> provider = monitoringDataProviderManager.getProvider(name);
+		if (provider.isPresent()){
+			provider.get().stopProvider();
+		}
+	}
+
+	@Override
+	public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
+		return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<MonitoringDataStorageInfo>() {
+			@Override
+			public MonitoringDataStorageInfo call() throws Exception {
+				return monitoringDataAccesor.getMonitroingDataStorageInfo();
 			}
 		});
 	}

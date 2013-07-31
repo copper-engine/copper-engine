@@ -19,6 +19,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.Text;
 
@@ -43,8 +44,9 @@ public class WorkflowAnnimation extends AnnimationPartBase{
 		final Text classText = new Text(workflowClass);
 		classText.setFontSmoothingType(FontSmoothingType.LCD);
 		classText.xProperty().bind(workflowRectangle.xProperty().add(workflowRectangle.getWidth()/2).subtract(classText.getBoundsInLocal().getWidth()/2));
-		classText.yProperty().bind(workflowRectangle.yProperty().subtract(18));
+		classText.yProperty().bind(workflowRectangle.yProperty().subtract(16));
 		final Text instanceIdText = new Text(id);
+		instanceIdText.setFont(Font.font(Font.getDefault().getName(),10));
 		instanceIdText.setFontSmoothingType(FontSmoothingType.LCD);
 		instanceIdText.xProperty().bind(workflowRectangle.xProperty().add(workflowRectangle.getWidth()/2).subtract(classText.getBoundsInLocal().getWidth()/2));
 		instanceIdText.yProperty().bind(workflowRectangle.yProperty().subtract(3));

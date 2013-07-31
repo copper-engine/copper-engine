@@ -49,12 +49,14 @@ import de.scoopgmbh.copper.persistent.Serializer;
  */
 public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitoringDialect {
 	
+	private final MessagePostProcessor messagePostProcessor;
 	private static final Logger logger = LoggerFactory.getLogger(BaseDatabaseMonitoringDialect.class);
 	Serializer serializer;
 	
-	public BaseDatabaseMonitoringDialect(Serializer serializer) {
+	public BaseDatabaseMonitoringDialect(Serializer serializer,MessagePostProcessor messagePostProcessor) {
 		super();
 		this.serializer = serializer;
+		this.messagePostProcessor = messagePostProcessor;
 	}
 
 	@Override
@@ -130,7 +132,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 	}
 
 	@Override
-	public String selectAuditTrailMessage(long id, Connection con, MessagePostProcessor messagePostProcessor) {
+	public String selectAuditTrailMessage(long id, Connection con) {
 		PreparedStatement selectStmt = null;
 		try {
 			selectStmt = con.prepareStatement("SELECT LONG_MESSAGE FROM COP_AUDIT_TRAIL_EVENT WHERE SEQ_ID=?");

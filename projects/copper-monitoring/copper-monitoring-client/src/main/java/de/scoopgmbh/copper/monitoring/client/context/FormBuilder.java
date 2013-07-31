@@ -17,13 +17,13 @@ package de.scoopgmbh.copper.monitoring.client.context;
 
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
-import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.ExceptionHandler;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.BaseEngineFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EngineFilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 
 /**
@@ -38,9 +38,9 @@ public class FormBuilder<FM,RM, F extends FilterController<FM> ,R extends Filter
 	protected final R resultController;
 	protected final MessageProvider messageProvider;
 	protected final ShowFormStrategy<?> showFormStrategy;
-	protected final ExceptionHandler exceptionHandler;
+	protected final IssueReporter exceptionHandler;
 	
-	public FormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategy, ExceptionHandler exceptionHandler){
+	public FormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategy, IssueReporter exceptionHandler){
 		this.filterController =filterController;
 		this.resultController = resultController;
 		this.messageProvider = messageProvider;
@@ -64,7 +64,7 @@ public class FormBuilder<FM,RM, F extends FilterController<FM> ,R extends Filter
 			super(filterController, resultController, formContext);
 		}
 
-		public EngineFormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategy, String title, ExceptionHandler exceptionHandler) {
+		public EngineFormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategy, String title, IssueReporter exceptionHandler) {
 			super(filterController, resultController, messageProvider, showFormStrategy,exceptionHandler);
 		}
 		

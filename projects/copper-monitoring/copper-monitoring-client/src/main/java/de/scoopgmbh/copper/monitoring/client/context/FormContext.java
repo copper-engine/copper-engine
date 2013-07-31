@@ -41,7 +41,6 @@ import de.scoopgmbh.copper.monitoring.client.form.FormGroup;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
 import de.scoopgmbh.copper.monitoring.client.form.TabPaneShowFormStrategie;
-import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.ExceptionHandler;
 import de.scoopgmbh.copper.monitoring.client.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
@@ -50,6 +49,7 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.GenericFilterController
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EngineFilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.GenericEngineFilterController;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.AdapterMonitoringResultController;
@@ -67,6 +67,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResult
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.provider.ProviderController;
 import de.scoopgmbh.copper.monitoring.client.ui.databasemonitor.result.DatabaseMonitorResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterModel;
@@ -117,6 +118,7 @@ import de.scoopgmbh.copper.monitoring.client.util.MessageKey;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
@@ -130,12 +132,12 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	protected final GuiCopperDataProvider guiCopperDataProvider;
 	protected final SettingsModel settingsModelSingleton;
 	protected final CodeMirrorFormatter codeMirrorFormatterSingelton = new CodeMirrorFormatter();
-	protected final ExceptionHandler exceptionHandler;
+	protected final IssueReporter exceptionHandler;
 
 	private FxmlForm<SettingsController> settingsForSingleton;
 	private FxmlForm<HotfixController> hotfixFormSingleton;
 	private FilterAbleForm<EmptyFilterModel, DashboardResultModel> dasboardFormSingleton;
-	public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton, ExceptionHandler exceptionHandler) {
+	public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton, IssueReporter exceptionHandler) {
 		this.mainTabPane = new TabPane();
 		this.messageProvider = messageProvider;
 		this.guiCopperDataProvider = guiCopperDataProvider;
@@ -521,6 +523,11 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 				new DatabaseMonitorResultController(guiCopperDataProvider),
 				this
 			).build();
+	}
+
+	@Override
+	public Form<ProviderController> createMonitoringDataProviderForm(MonitoringDataProviderInfo monitoringDataProviderInfo, BorderPane target) {
+		return new FxmlForm<ProviderController>("", new ProviderController(monitoringDataProviderInfo,guiCopperDataProvider), messageProvider, new BorderPaneShowFormStrategie(target));
 	}
 	
 }

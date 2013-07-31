@@ -33,6 +33,8 @@ import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo.DependencyInjectorTyp;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
@@ -1218,6 +1220,30 @@ public class TestDataProvider implements CopperMonitoringService {
 
 	@Override
 	public <T> List<T> getList(MonitoringDataFilter<T> filter, Date from, Date to, long maxCount) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<MonitoringDataProviderInfo> getMonitoringDataProviderInfos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void startMonitoringDataProvider(String name) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void stopMonitoringDataProvider(String name) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
 		// TODO Auto-generated method stub
 		return null;
 	}

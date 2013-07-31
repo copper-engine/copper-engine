@@ -17,41 +17,65 @@ package de.scoopgmbh.copper.monitoring.server.provider;
 
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
-public abstract class RepetitiveMonitoringDataProviderBase {
+public abstract class RepetitiveMonitoringDataProviderBase extends MonitoringDataProviderBase{
 	
+	private final class PollThread extends Thread {
+		public volatile boolean stop;
+		{
+			setDaemon(true);
+		}
+
+		@Override
+		public void run() {
+			while(!stop){
+				long starttime = System.currentTimeMillis();
+				provideData();
+				long passedTime = System.currentTimeMillis()- starttime;
+				try {
+					sleep(Math.max(getMinInterval(), (passedTime*10)));
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+		public boolean isStoped() {
+			return stop;
+		}
+
+		public void stopThread() {
+			stop=true;
+		}
+	}
+	
+	protected int getMinInterval(){
+		return 1000;
+	}
+
 	protected final MonitoringDataCollector monitoringDataCollector;
+	private PollThread thread;
 
 	public RepetitiveMonitoringDataProviderBase(MonitoringDataCollector monitoringDataCollector) {
 		super();
 		this.monitoringDataCollector = monitoringDataCollector;
 	}
 	
-	
-	public void start(){
-		new Thread(){
-			{
-				setDaemon(true);
-			}
-			@Override
-			public void run() {
-				while(true){
-					long starttime = System.currentTimeMillis();
-					provideData();
-					long passedTime = System.currentTimeMillis()- starttime;
-					try {
-						sleep(Math.max(100, (passedTime*10)));
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
-		}.start();
-		
-	}
-	
 	protected abstract void provideData();
 	
 	
+	@Override
+	public void startProvider() {
+		super.startProvider();
+		if (thread==null || thread.isStoped()){
+			thread = new PollThread();
+			thread.start();
+		}
+	}
 	
+	@Override
+	public void stopProvider() {
+		thread.stopThread();
+		super.stopProvider();
+	}
 
 }

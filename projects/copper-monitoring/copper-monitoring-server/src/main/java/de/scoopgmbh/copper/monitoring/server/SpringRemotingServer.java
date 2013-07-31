@@ -16,11 +16,9 @@
 package de.scoopgmbh.copper.monitoring.server;
 
 import java.util.EnumSet;
-import java.util.List;
 
 import javax.servlet.DispatcherType;
 
-import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.remoting.SecureRemoteInvocationExecutor;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -40,19 +38,8 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import de.scoopgmbh.copper.audit.MessagePostProcessor;
-import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
-import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.LoginService;
-import de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector;
-import de.scoopgmbh.copper.monitoring.server.logging.LogConfigManager;
-import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue;
-import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
-import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
-import de.scoopgmbh.copper.monitoring.server.persistent.OracleMonitoringDbDialect;
-import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
-import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
 public class SpringRemotingServer {
 	
@@ -62,48 +49,6 @@ public class SpringRemotingServer {
 	private final int port;
 	private final String host; 
 	private final DefaultLoginService loginService;
-	
-	public static SpringRemotingServer createWithDefaultsForDerby(List<ProcessingEngineMXBean> engines,
-			MonitoringDataAccessQueue monitoringQueue,
-			Realm realm, LoggingStatisticCollector runtimeStatisticsCollector,
-			TransactionController transactionController,
-			WorkflowInstanceIntrospector introspector,
-			MessagePostProcessor messagePostProcessor,
-			LogConfigManager logConfigManager){
-		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
-				new MonitoringDbStorage(transactionController,new DerbyMonitoringDbDialect(new StandardJavaSerializer())),
-				runtimeStatisticsCollector,
-				engines,
-				monitoringQueue, 
-				true,
-				messagePostProcessor,
-				introspector,
-				logConfigManager);
-	
-		return new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService), 8080,"localhost", new DefaultLoginService(realm));
-	}
-	
-	public static SpringRemotingServer createWithDefaultsForOracle(
-			List<ProcessingEngineMXBean> engines,
-			MonitoringDataAccessQueue monitoringQueue,
-			Realm realm,
-			LoggingStatisticCollector runtimeStatisticsCollector,
-			TransactionController transactionController,
-			WorkflowInstanceIntrospector introspector,
-			MessagePostProcessor messagePostProcessor,
-			LogConfigManager logConfigManager){
-		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
-				new MonitoringDbStorage(transactionController,new OracleMonitoringDbDialect(new StandardJavaSerializer())),
-				runtimeStatisticsCollector,
-				engines,
-				monitoringQueue, 
-				true,
-				messagePostProcessor,
-				introspector,
-				logConfigManager);
-	
-		return new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService), 8080, "localhost", new DefaultLoginService(realm));
-	}
 	
 	public SpringRemotingServer(CopperMonitoringService copperMonitoringService, int port, String host, DefaultLoginService loginService) {
 		super();

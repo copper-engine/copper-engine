@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
@@ -27,10 +29,17 @@ public class DashboardResultModel {
 	
 	public final List<ProcessingEngineInfo> engines = new ArrayList<ProcessingEngineInfo>();
 	private Map<String,WorkflowStateSummary> engineIdTostateSummery = new HashMap<String,WorkflowStateSummary>();
+	public List<MonitoringDataProviderInfo> providers = new ArrayList<MonitoringDataProviderInfo>();
+	public MonitoringDataStorageInfo monitoringDataStorageInfo;
 	
-	public DashboardResultModel(Map<String, WorkflowStateSummary> engineIdTostateSummery, List<ProcessingEngineInfo> processingEngineInfo){
+	public DashboardResultModel(Map<String, WorkflowStateSummary> engineIdTostateSummery, 
+			List<ProcessingEngineInfo> processingEngineInfo, 
+			List<MonitoringDataProviderInfo> providers, 
+			MonitoringDataStorageInfo monitoringDataStorageInfo){
 		this.engineIdTostateSummery.putAll(engineIdTostateSummery);
 		this.engines.addAll(processingEngineInfo);
+		this.providers = providers;
+		this.monitoringDataStorageInfo = monitoringDataStorageInfo;
 	}
 	
 	public WorkflowStateSummary getStateSummery(String engineId){

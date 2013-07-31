@@ -22,14 +22,14 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
-import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.ExceptionHandler;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 
 public class BackgroundFilterService<F,R>  extends Service<FilterAbleForm.ResultFilterPair<F,R>> {
     private final FilterResultController<F,R> filterResultController;
     private final Form<FilterController<F>> filterForm;
-    private final ExceptionHandler exceptionHandler;
+    private final IssueReporter exceptionHandler;
     
-    public BackgroundFilterService(FilterResultController<F,R> filterResultControllerParam, Form<FilterController<F>> filterForm, ExceptionHandler exceptionHandlerParam) {
+    public BackgroundFilterService(FilterResultController<F,R> filterResultControllerParam, Form<FilterController<F>> filterForm, IssueReporter exceptionHandlerParam) {
 		super();
 		this.filterResultController = filterResultControllerParam;
 		this.filterForm = filterForm;

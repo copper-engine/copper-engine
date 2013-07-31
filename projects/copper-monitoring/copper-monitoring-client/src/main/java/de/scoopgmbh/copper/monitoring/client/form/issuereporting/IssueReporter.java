@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.form.exceptionhandling;
+package de.scoopgmbh.copper.monitoring.client.form.issuereporting;
 
 /**
- * workaround for a bug in javafx 2.2 
+ * 
+ * workaround for a bug in javafx 2.2 (not possible to define uncougtexception handler)
  * http://stackoverflow.com/questions/12318861/javafx-2-catching-all-runtime-exceptions
  * https://javafx-jira.kenai.com/browse/RT-15332
  */
-public interface ExceptionHandler {
+public interface IssueReporter {
 	public void handleException(Throwable e);
 	public void handleException(String message, Throwable e);
 	

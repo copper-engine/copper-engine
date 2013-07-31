@@ -43,7 +43,7 @@ import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
-import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.MessageAndLogExceptionHandler;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.MessageAndLogIssueReporter;
 import de.scoopgmbh.copper.monitoring.client.ui.login.LoginController;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
@@ -238,8 +238,8 @@ public class ApplicationContext {
 		return formContext;
 	}
 
-	private MessageAndLogExceptionHandler getDefaultExceptionHandler() {
-		return new MessageAndLogExceptionHandler(mainStackPane);
+	private MessageAndLogIssueReporter getDefaultExceptionHandler() {
+		return new MessageAndLogIssueReporter(mainStackPane);
 	}
 	public void resetFormContext() {
 		formContext = null;

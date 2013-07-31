@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<Pane prefHeight="113.0" prefWidth="254.0" style="-fx-background-color: rgba(0,0,0,0);" visible="true" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ff2300" height="113.0" layoutX="0.0" layoutY="0.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, #62c462, &#9;#57a957);" width="254.0" />
+    <Label layoutX="43.0" layoutY="2.0" text="Monitoring data provider" textFill="WHITE" />
+    <Label layoutX="14.0" layoutY="28.0" text="name" textFill="WHITE" />
+    <TextField fx:id="name" editable="false" layoutX="54.0" layoutY="27.0" opacity="0.75" prefHeight="22.0" prefWidth="188.0" promptText="" />
+    <Label layoutX="12.0" layoutY="52.0" text="status" textFill="WHITE" />
+    <TextField fx:id="status" editable="false" layoutX="54.0" layoutY="52.0" opacity="0.75" prefHeight="22.0" prefWidth="188.0" />
+    <Button id="nummerbutton" fx:id="start" alignment="TOP_CENTER" layoutX="71.0" layoutY="81.0" minHeight="19.951171875" mnemonicParsing="false" prefHeight="22.000099999997474" prefWidth="51.0" text="start">
+      <font>
+        <Font size="13.0" fx:id="x1" />
+      </font>
+    </Button>
+    <Button id="prioButton" fx:id="stop" font="$x1" layoutX="127.0" layoutY="81.0" minHeight="22.0" mnemonicParsing="false" prefHeight="22.0001220703125" prefWidth="51.0" text="stop" />
+  </children>
+</Pane>

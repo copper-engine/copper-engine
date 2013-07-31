@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.form.exceptionhandling;
+package de.scoopgmbh.copper.monitoring.client.form.issuereporting;
 
 import javafx.scene.layout.StackPane;
 
@@ -22,14 +22,14 @@ import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 
-public class MessageAndLogExceptionHandler implements ExceptionHandler {
+public class MessageAndLogIssueReporter implements IssueReporter {
 	
-	Logger logger = LoggerFactory.getLogger(MessageAndLogExceptionHandler.class);
+	Logger logger = LoggerFactory.getLogger(MessageAndLogIssueReporter.class);
 	private final StackPane stackPane;
 
 	
 	
-	public MessageAndLogExceptionHandler(StackPane stackPane) {
+	public MessageAndLogIssueReporter(StackPane stackPane) {
 		super();
 		this.stackPane = stackPane;
 	}

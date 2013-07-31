@@ -21,9 +21,10 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
-public class MonitoringLog4jDataProvider extends AppenderSkeleton{
+public class MonitoringLog4jDataProvider extends AppenderSkeleton implements MonitoringDataProvider{
 	
 	MonitoringDataCollector monitoringDataCollector;
 	
@@ -31,8 +32,6 @@ public class MonitoringLog4jDataProvider extends AppenderSkeleton{
 	public MonitoringLog4jDataProvider(MonitoringDataCollector monitoringDataCollector) {
 		super();
 		this.monitoringDataCollector = monitoringDataCollector;
-		
-		addToRootLogger();
 	}
 
 	public void addToRootLogger() {
@@ -58,5 +57,34 @@ public class MonitoringLog4jDataProvider extends AppenderSkeleton{
 	protected void append(LoggingEvent event) {
 		monitoringDataCollector.submitLogEvent(new Date(event.getTimeStamp()),event.getLevel().toString(),event.getLocationInformation().fullInfo,event.getRenderedMessage());
 	}
+
+	public Status status=Status.CREATED;
+	@Override
+	public void startProvider() {
+		status=Status.STARTED;
+		addToRootLogger();
+	}
+
+	@Override
+	public void stopProvider() {
+		removeFromRootLogger();
+		status=Status.STOPPED;
+	}
+
+	@Override
+	public Status getProviderStatus() {
+		return status;
+	}
+	
+	@Override
+	public String getProviderName() {
+		return getClass().getSimpleName();
+	}
+	
+	@Override
+	public MonitoringDataProviderInfo createInfo() {
+		return new MonitoringDataProviderInfo(getProviderName(),getProviderStatus().toString());
+	}
+
 
 }

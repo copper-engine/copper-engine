@@ -56,6 +56,8 @@ import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
@@ -452,6 +454,38 @@ public class GuiCopperDataProvider {
 	public String getDatabaseMonitoringRecommendationsReport(String sqlid)  {
 		try {
 			return copperMonitoringService.getDatabaseMonitoringRecommendationsReport(sqlid);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public List<MonitoringDataProviderInfo> getMonitoringDataProvider() {
+		try {
+			return copperMonitoringService.getMonitoringDataProviderInfos();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void startMonitoringDataProvider(String name) {
+		try {
+			copperMonitoringService.startMonitoringDataProvider(name);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void stopMonitoringDataProvider(String name) {
+		try {
+			copperMonitoringService.stopMonitoringDataProvider(name);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public MonitoringDataStorageInfo getMonitoringStorageInfo() {
+		try {
+			return copperMonitoringService.getMonitroingDataStorageInfo();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

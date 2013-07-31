@@ -22,9 +22,10 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
-public class MonitoringLogbackDataProvider extends AppenderBase<ILoggingEvent>{
+public class MonitoringLogbackDataProvider extends AppenderBase<ILoggingEvent> implements MonitoringDataProvider{
 	
 	public static final String APPENDER_NAME="MonitoringLogDataProviderAppender";
 	
@@ -36,7 +37,6 @@ public class MonitoringLogbackDataProvider extends AppenderBase<ILoggingEvent>{
 		this.monitoringDataCollector = monitoringDataCollector;
 		
 		this.setName(APPENDER_NAME);
-		addToRootLogger();
 	}
 
 	public void addToRootLogger() {
@@ -59,6 +59,34 @@ public class MonitoringLogbackDataProvider extends AppenderBase<ILoggingEvent>{
 		monitoringDataCollector.submitLogEvent(new Date(event.getTimeStamp()),event.getLevel().toString(),
 				stackTraceElement.getClassName()+":"+stackTraceElement.getLineNumber()
 				,event.getFormattedMessage());
+	}
+	
+	public Status status=Status.CREATED;
+	@Override
+	public void startProvider() {
+		status=Status.STARTED;
+		addToRootLogger();
+	}
+
+	@Override
+	public void stopProvider() {
+		removeFromRootLogger();
+		status=Status.STOPPED;
+	}
+
+	@Override
+	public Status getProviderStatus() {
+		return status;
+	}
+
+	@Override
+	public String getProviderName() {
+		return getClass().getSimpleName();
+	}
+	
+	@Override
+	public MonitoringDataProviderInfo createInfo() {
+		return new MonitoringDataProviderInfo(getProviderName(),getProviderStatus().toString());
 	}
 
 }

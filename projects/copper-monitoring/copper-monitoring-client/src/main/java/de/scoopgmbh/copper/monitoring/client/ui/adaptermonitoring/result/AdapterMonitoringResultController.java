@@ -24,6 +24,7 @@ import java.util.ResourceBundle;
 
 import javafx.animation.Animation.Status;
 import javafx.animation.Timeline;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -58,6 +59,7 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 	private static final String DATETIME_FORMAT = "dd.MM.yyyy HH:mm:ss,SSS";
 
 	GuiCopperDataProvider copperDataProvider;
+	Timeline timeline;
 
 	public AdapterMonitoringResultController(GuiCopperDataProvider copperDataProvider) {
 		super();
@@ -145,11 +147,11 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
     
     @FXML //  fx:id="pause"
     private ToggleButton pause; // Value injected by FXMLLoader
-
+ 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-    	assert adapterInputTable != null : "fx:id=\"adapterInputTable\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+        assert adapterInputTable != null : "fx:id=\"adapterInputTable\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert adapterNameCorOut != null : "fx:id=\"adapterNameCorOut\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert adapterNameIn != null : "fx:id=\"adapterNameIn\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert adapterNameLaunchOut != null : "fx:id=\"adapterNameLaunchOut\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
@@ -165,9 +167,11 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
         assert messageCol != null : "fx:id=\"messageCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert notifyBorderPane != null : "fx:id=\"notifyBorderPane\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert parameterCol != null : "fx:id=\"parameterCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+        assert pause != null : "fx:id=\"pause\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert play != null : "fx:id=\"play\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert positionLabel != null : "fx:id=\"positionLabel\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert slider != null : "fx:id=\"slider\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
+        assert source != null : "fx:id=\"source\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert speed != null : "fx:id=\"speed\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert speedLabel != null : "fx:id=\"speedLabel\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert timeCol != null : "fx:id=\"timeCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
@@ -284,82 +288,93 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
         adapterOutputLaunchTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         adapterOutputNotifyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         
-        play.setOnAction(new EventHandler<ActionEvent>() {
-        	Timeline timeline;
+	
+		
+		setupAnnimationTab();
+    }
+
+
+	private void setupAnnimationTab() {
+		timeline = new Timeline();
+		timeline.setAutoReverse(false);
+		timeline.currentTimeProperty().addListener(new ChangeListener<Duration>() {
+			@Override
+			public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
+				slider.setValue(newValue.toMillis());
+			}
+		});
+		timeline.rateProperty().bindBidirectional(speed.valueProperty());
+		pause.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				if (timeline==null){//lazy init cause else annimation pane is not layouted
-					timeline = new Timeline();
-					timeline.setAutoReverse(false);
+				if (pause.isSelected()) {
+					timeline.pause();
+				} else {
+					timeline.play();
+				}
+			}
+		});
+
+		slider.setOnMousePressed(new EventHandler<javafx.scene.input.MouseEvent>() {
+			@Override
+			public void handle(javafx.scene.input.MouseEvent event) {
+				if (timeline.getStatus() == Status.RUNNING) {
+					timeline.stop();
+					timeline.jumpTo(timeline.getTotalDuration().multiply(event.getX() / slider.getWidth()));
+					timeline.play();
+				}
+			}
+		});
+
+		speedLabel.textProperty().bindBidirectional(speed.valueProperty(), new NumberStringConverter("0.0 x"));
+
+		timeline.setOnFinished(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				play.setSelected(false);
+			}
+		});
+        
+		play.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				if (timeline.getStatus()!=Status.RUNNING){
+					// lazy init cause else annimation pane is not layouted
+					timeline.getKeyFrames().clear();
+					annimationPane.getChildren().clear();
+					final AdapterAnnimationCreator adapterAnnimationCreator = new AdapterAnnimationCreator(annimationPane, timeline);
+					adapterAnnimationCreator.create(adapterInputTable.getItems(), adapterOutputLaunchTable.getItems(),
+							adapterOutputNotifyTable.getItems());
 					
-			        final AdapterAnnimationCreator adapterAnnimationCreator =  new AdapterAnnimationCreator(annimationPane,timeline);
-			        adapterAnnimationCreator.create(
-			        		adapterInputTable.getItems(),
-			        		adapterOutputLaunchTable.getItems(),
-			        		adapterOutputNotifyTable.getItems(), slider);
-			        
-			        timeline.currentTimeProperty().addListener(new ChangeListener<Duration>() {
+					slider.setMax(timeline.getTotalDuration().toMillis());
+					
+					Bindings.unbindBidirectional(positionLabel.textProperty(), slider.valueProperty());
+					positionLabel.textProperty().bindBidirectional(slider.valueProperty(), new StringConverter<Number>() {
+						private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATETIME_FORMAT);
+						
 						@Override
-						public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
-							slider.setValue(newValue.toMillis());
+						public Number fromString(String string) {
+							return null;
 						}
-					});
-			        timeline.rateProperty().bindBidirectional(speed.valueProperty());
-			        pause.setOnAction(new EventHandler<ActionEvent>() {
-						@Override
-						public void handle(ActionEvent event) {
-							if (pause.isSelected()){
-								timeline.pause();
-							} else {
-								timeline.play();
-							}
-						}
-					});
-			        
-			        slider.setOnMousePressed(new EventHandler<javafx.scene.input.MouseEvent>() {
-						@Override
-						public void handle(javafx.scene.input.MouseEvent event) {
-							if (timeline.getStatus()==Status.RUNNING){
-								timeline.stop();
-								timeline.jumpTo(timeline.getTotalDuration().multiply(event.getX()/slider.getWidth()));
-								timeline.play();
-							}
-						}
-					});
-			        
-					positionLabel.textProperty().bindBidirectional(slider.valueProperty(), new StringConverter<Number>(){
-						private SimpleDateFormat simpleDateFormat= new SimpleDateFormat(DATETIME_FORMAT);
-
-						@Override
-						public Number fromString(String string) {return null;}
-
+						
 						@Override
 						public String toString(Number object) {
 							return simpleDateFormat.format(new Date(object.longValue()+adapterAnnimationCreator.getMin()));
 						}
 					});
-					speedLabel.textProperty().bindBidirectional(speed.valueProperty(), new NumberStringConverter("0.0 x"));
-				}
-				
-				if (play.isSelected()){
+					timeline.jumpTo(Duration.ZERO);
 					timeline.play();
-				} else {
+				} else{
 					timeline.stop();
+					annimationPane.getChildren().clear();
 				}
-				
-			    timeline.setOnFinished(new EventHandler<ActionEvent>() {
-					@Override
-					public void handle(ActionEvent event) {
-						play.setSelected(false);
-					}
-				});
 			}
 		});
-        pause.disableProperty().bind(play.selectedProperty().not());
+		pause.disableProperty().bind(play.selectedProperty().not());
         
         play.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/play.png"))));
         pause.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/pause.png"))));
-    }
+	}
     
 
 	@Override

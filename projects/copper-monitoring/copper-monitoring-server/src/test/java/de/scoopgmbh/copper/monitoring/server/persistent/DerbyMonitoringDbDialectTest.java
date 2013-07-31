@@ -20,6 +20,7 @@ import java.sql.SQLException;
 
 import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
 
+import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
 import de.scoopgmbh.copper.persistent.DerbyDbDialect;
 import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
@@ -33,7 +34,7 @@ public class DerbyMonitoringDbDialectTest extends MonitoringDbDialectTestBase{
 		datasource.setDatabaseName("./build/copperExampleDB;create=true");
 		this.datasource=datasource;
 		
-		DerbyMonitoringDbDialect derbyMonitoringDbDialect = new DerbyMonitoringDbDialect(new StandardJavaSerializer());
+		DerbyMonitoringDbDialect derbyMonitoringDbDialect = new DerbyMonitoringDbDialect(new StandardJavaSerializer(), new DummyPostProcessor());
 		this.monitoringDbDialect = derbyMonitoringDbDialect;
 		
 		DerbyDbDialect databaseDialect = new DerbyDbDialect();

@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 
-import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
@@ -34,7 +33,7 @@ public interface DatabaseMonitoringDialect {
 	public abstract List<AuditTrailInfo> selectAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level,
 			long resultRowLimit, Connection con);
 
-	public abstract String selectAuditTrailMessage(long id, Connection con, MessagePostProcessor messagePostProcessor);
+	public abstract String selectAuditTrailMessage(long id, Connection con);
 
 	public abstract List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname, Connection con);
 

@@ -19,10 +19,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
-import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.ExceptionHandler;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
@@ -31,7 +31,7 @@ public class EngineFilterAbleForm<F extends EnginePoolFilterModel, R> extends Fi
 
 
 	public EngineFilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
-			final Form<FilterController<F>> filterForm, Form<FilterResultController<F, R>> resultForm, ExceptionHandler exceptionHandler) {
+			final Form<FilterController<F>> filterForm, Form<FilterResultController<F, R>> resultForm, IssueReporter exceptionHandler) {
 		super(messageProvider, showFormStrategie, filterForm, resultForm, exceptionHandler);
 		
 		filterForm.getController().getFilter().selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {

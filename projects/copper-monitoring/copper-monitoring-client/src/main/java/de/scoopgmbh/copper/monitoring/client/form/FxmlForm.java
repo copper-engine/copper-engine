@@ -18,9 +18,9 @@ package de.scoopgmbh.copper.monitoring.client.form;
 import java.io.IOException;
 
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.layout.Region;
 import de.scoopgmbh.copper.monitoring.client.form.filter.GenericFilterController;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 
@@ -52,7 +52,7 @@ public class FxmlForm<C extends FxmlController> extends Form<C> {
 				throw new RuntimeException(exception);
 			}
 		}
-		return new Region();
+		return new Group();
 	}
 	
 	

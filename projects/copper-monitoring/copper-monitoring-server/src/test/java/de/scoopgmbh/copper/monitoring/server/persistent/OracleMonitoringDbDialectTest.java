@@ -29,6 +29,7 @@ import org.springframework.jdbc.support.JdbcUtils;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import de.scoopgmbh.copper.EngineIdProviderBean;
+import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.persistent.OracleDialect;
 import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
 
@@ -63,7 +64,7 @@ public class OracleMonitoringDbDialectTest extends MonitoringDbDialectTestBase{
 		this.databaseDialect = oracleDialect;
 		
 		
-		OracleMonitoringDbDialect derbyMonitoringDbDialect = new OracleMonitoringDbDialect(new StandardJavaSerializer());
+		OracleMonitoringDbDialect derbyMonitoringDbDialect = new OracleMonitoringDbDialect(new StandardJavaSerializer(), new DummyPostProcessor());
 		this.monitoringDbDialect = derbyMonitoringDbDialect;
 	}
 	

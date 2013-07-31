@@ -34,14 +34,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.FontSmoothingType;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -204,8 +205,7 @@ public class AdapterAnnimationCreator {
 	public void create( 
     		ObservableList<AdapterCallRowModel> adapterInput,
     		ObservableList<AdapterLaunchRowModel> adapterOutputLaunch,
-    		ObservableList<AdapterNotifyRowModel> adapterOutputNotify,
-    		Slider positionSlider){
+    		ObservableList<AdapterNotifyRowModel> adapterOutputNotify){
 		
 		annimations = new ArrayList<AnnimationPartBase>();
 
@@ -302,8 +302,6 @@ public class AdapterAnnimationCreator {
 			addAnnimation(keyFrames, annimation, min);
 		}
 		timeline.getKeyFrames().addAll(keyFrames);
-		
-		positionSlider.setMax(timeline.getTotalDuration().toMillis());
     }
     
 	private void addWorkflowAnnimation(String workflowClass, String workflowInstanceId, long time) {
@@ -354,21 +352,24 @@ public class AdapterAnnimationCreator {
     	createLegend();
    
 		final Text inputText = new Text("Input");
-		inputText.setFontSmoothingType(FontSmoothingType.LCD);
 		inputText.setX(getAnnimationPaneWidth()/2-getAnnimationPaneWidth()/4-inputText.getBoundsInLocal().getWidth()/2);
 		inputText.setY(20);
+		inputText.setFont(Font.font(Font.getDefault().getName(), FontWeight.BOLD, Font.getDefault().getSize()));
+		inputText.setFontSmoothingType(FontSmoothingType.LCD);
 		annimationPane.getChildren().add(inputText);
 		
 		final Text outputText = new Text("Output");
-		outputText.setFontSmoothingType(FontSmoothingType.LCD);
 		outputText.setX(getAnnimationPaneWidth()/2+getAnnimationPaneWidth()/4-outputText.getBoundsInLocal().getWidth()/2);
 		outputText.setY(20);
+		outputText.setFont(Font.font(Font.getDefault().getName(), FontWeight.BOLD, Font.getDefault().getSize()));
+		outputText.setFontSmoothingType(FontSmoothingType.LCD);
 		annimationPane.getChildren().add(outputText);
 		
 		final Text adapterText = new Text("Adapter");
-		adapterText.setFontSmoothingType(FontSmoothingType.LCD);
 		adapterText.setX(getAnnimationPaneWidth()/2-adapterText.getBoundsInLocal().getWidth()/2);
 		adapterText.setTranslateY(20);
+		adapterText.setFont(Font.font(Font.getDefault().getName(), FontWeight.BOLD, Font.getDefault().getSize()));
+		adapterText.setFontSmoothingType(FontSmoothingType.LCD);
 		annimationPane.getChildren().add(adapterText);
 		
 		Line lineInput = new Line();

@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 
-import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
@@ -69,12 +68,12 @@ public class MonitoringDbStorage {
 		}
 	}
 
-	public String selectAuditTrailMessage(final long id,final MessagePostProcessor messagePostProcessor) {
+	public String selectAuditTrailMessage(final long id) {
 		try {
 			return run(new DatabaseTransaction<String>() {
 				@Override
 				public String run(Connection con) throws Exception {
-					return dialect.selectAuditTrailMessage(id,con,messagePostProcessor);
+					return dialect.selectAuditTrailMessage(id,con);
 				}
 			});
 		} catch (Exception e) {

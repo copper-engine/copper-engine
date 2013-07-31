@@ -53,8 +53,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
-import de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.ExceptionHandler;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.MessageKey;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
@@ -75,7 +75,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 	public static final String REFRESH_BUTTON_ID = "refreshbutton";
 
 	public FilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
-			Form<FilterController<F>> filterForm, final Form<FilterResultController<F,R>> resultForm, ExceptionHandler exceptionHandlerParm) {
+			Form<FilterController<F>> filterForm, final Form<FilterResultController<F,R>> resultForm, IssueReporter exceptionHandlerParm) {
 		super("", showFormStrategie, null);
 		this.messageProvider = messageProvider;
 		this.filterForm = filterForm;
@@ -96,7 +96,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 
 	/**
 	 * Please do not deprecate this method. It is needed by the Operator Terminal in order to replace the hard coded 
-	 * {@link de.scoopgmbh.copper.monitoring.client.form.exceptionhandling.MessageAndLogExceptionHandler}
+	 * {@link de.scoopgmbh.copper.monitoring.client.form.issuereporting.MessageAndLogIssueReporter}
 	 * used by {@link de.scoopgmbh.copper.monitoring.client.context.ApplicationContext} with a custom exception handler.
 	 */
 	public void setOnFailed(EventHandler<WorkerStateEvent> eventHandler) {

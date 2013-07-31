@@ -15,14 +15,14 @@
  */
 package de.scoopgmbh.copper.monitoring.server.persistent;
 
+import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.persistent.Serializer;
 
 
 public class PostgreMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
-	
-	public PostgreMonitoringDbDialect(Serializer serializer) {
-		super(serializer);
-		// TODO Auto-generated constructor stub
+
+	public PostgreMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor) {
+		super(serializer, messagePostProcessor);
 	}
 
 	@Override

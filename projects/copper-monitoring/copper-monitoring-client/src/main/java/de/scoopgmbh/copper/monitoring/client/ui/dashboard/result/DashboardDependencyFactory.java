@@ -16,10 +16,15 @@
 package de.scoopgmbh.copper.monitoring.client.ui.dashboard.result;
 
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.provider.ProviderController;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
 public interface DashboardDependencyFactory {
 	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model);
+
+	public Form<ProviderController> createMonitoringDataProviderForm(MonitoringDataProviderInfo monitoringDataProviderInfo, BorderPane target);
 }

@@ -15,6 +15,7 @@
  */
 package de.scoopgmbh.copper.monitoring.server.persistent;
 
+import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.persistent.DatabaseDialect;
 import de.scoopgmbh.copper.persistent.Serializer;
 
@@ -26,9 +27,8 @@ import de.scoopgmbh.copper.persistent.Serializer;
  */
 public class DerbyMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 
-	public DerbyMonitoringDbDialect(Serializer serializer) {
-		super(serializer);
-		// TODO Auto-generated constructor stub
+	public DerbyMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor) {
+		super(serializer, messagePostProcessor);
 	}
 
 	@Override
