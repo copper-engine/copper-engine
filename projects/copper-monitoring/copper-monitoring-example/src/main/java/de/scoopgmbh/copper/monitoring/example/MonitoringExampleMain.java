@@ -59,6 +59,7 @@ import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueu
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 import de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage;
+import de.scoopgmbh.copper.monitoring.server.provider.MonitoringDataProviderManager;
 import de.scoopgmbh.copper.monitoring.server.provider.MonitoringLogbackDataProvider;
 import de.scoopgmbh.copper.monitoring.server.provider.SystemRessourceDataProvider;
 import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
@@ -90,7 +91,7 @@ public class MonitoringExampleMain {
 		}
 	}
 	
-	private DatabaseData setupDerbyDatabase(WorkflowRepository workflowRepository, LoggingStatisticCollector runtimeStatisticsCollector){
+	DatabaseData setupDerbyDatabase(WorkflowRepository workflowRepository, LoggingStatisticCollector runtimeStatisticsCollector){
 
 		EmbeddedConnectionPoolDataSource40 datasource_default = new EmbeddedConnectionPoolDataSource40();
 		datasource_default.setDatabaseName("./build/copperExampleDB;create=true");
@@ -111,7 +112,7 @@ public class MonitoringExampleMain {
 		return new DatabaseData(dbDialect, datasource_default);
 	}
 	
-	private DatabaseData setupOracleDatabase(WorkflowRepository workflowRepository, LoggingStatisticCollector runtimeStatisticsCollector){
+	DatabaseData setupOracleDatabase(WorkflowRepository workflowRepository, LoggingStatisticCollector runtimeStatisticsCollector){
 
 		ComboPooledDataSource datasource_oracle = new ComboPooledDataSource();
 		try {
@@ -221,9 +222,6 @@ public class MonitoringExampleMain {
 		persistentengine.setDependencyInjector(monitoringDependencyInjector);
 		persistentengine.startup();
 		
-		MonitoringLogbackDataProvider monitoringLogbackDataProvider = new MonitoringLogbackDataProvider(monitoringDataCollector);
-		new SystemRessourceDataProvider(monitoringDataCollector).start();
-		
 		try {
 			persistentengine.run("BillWorkflow", "");
 		} catch (CopperException e) {
@@ -239,15 +237,16 @@ public class MonitoringExampleMain {
 		
 		WorkflowInstanceIntrospector introspector = new WorkflowInstanceIntrospector(persistentdbStorage, wfRepository); 
 		
+		final MonitoringLogbackDataProvider monitoringLogbackDataProvider = new MonitoringLogbackDataProvider(monitoringDataCollector);
 		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
-				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect(new StandardJavaSerializer())),
+				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect(new StandardJavaSerializer(),new CompressedBase64PostProcessor())),
 				runtimeStatisticsCollector,
 				engines,
 				monitoringQueue, 
 				true,
-				new CompressedBase64PostProcessor(),
 				introspector,
-				new LogbackConfigManager(monitoringLogbackDataProvider));
+				new LogbackConfigManager(monitoringLogbackDataProvider),
+				new MonitoringDataProviderManager(new SystemRessourceDataProvider(monitoringDataCollector),monitoringLogbackDataProvider));
 
 		String host = (args.length > 0) ? args[0] : "localhost";
 		int port = (args.length > 1) ? Integer.parseInt(args[1]) : 8080;

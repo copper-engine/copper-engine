@@ -23,6 +23,7 @@ import java.util.List;
 
 import de.scoopgmbh.copper.monitoring.core.data.filter.MonitoringDataFilter;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringData;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
 
 /**
@@ -80,5 +81,9 @@ public class MonitoringDataAccesor implements Serializable, MonitoringDataQuerys
 			result.add(statisticCreator.getAggregatedResult());
 		}
 		return result;
+	}
+
+	public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
+		return monitoringDataStorage.getMonitroingDataStorageInfo();
 	}
 }

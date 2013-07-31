@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -41,6 +42,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringData;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 
 /**
  *  stores monitoring data in chunked files
@@ -605,6 +607,22 @@ public class MonitoringDataStorage {
 	    	}
     		return new Date(max);
         }
+	}
+
+	public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
+		
+		final HashMap<String, Long> classToCount = new HashMap<String,Long>();
+		for (MonitoringData data: read(null,null)){
+			String clazz = data.getClass().getName();
+			Long counter = classToCount.get(clazz);
+			if (counter==null){
+				counter=1l;
+			} else {
+				counter++;
+			}
+			classToCount.put(clazz, counter);
+		}
+		return new MonitoringDataStorageInfo(writtenFiles.size()*(FILE_CHUNK_SIZE/1024/1024),targetPath.getAbsolutePath(),classToCount);
 	}
 
     

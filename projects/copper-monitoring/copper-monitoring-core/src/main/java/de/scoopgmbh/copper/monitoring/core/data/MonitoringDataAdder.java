@@ -34,9 +34,4 @@ public class MonitoringDataAdder{
 		monitoringDataStorage.write(object);
 	}
 	
-	public MonitoringDataAdder getData(){
-		return new MonitoringDataAdder(monitoringDataStorage);
-	}
-	
-
 }

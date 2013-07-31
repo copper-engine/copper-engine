@@ -26,6 +26,8 @@ import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
@@ -96,6 +98,14 @@ public interface CopperMonitoringService extends Remote, Serializable, Monitorin
 	public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException;
 	
 	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException;
+	
+	public List<MonitoringDataProviderInfo> getMonitoringDataProviderInfos() throws RemoteException;
+
+	public void startMonitoringDataProvider(String name) throws RemoteException;
+
+	public void stopMonitoringDataProvider(String name) throws RemoteException;
+	
+	public MonitoringDataStorageInfo getMonitroingDataStorageInfo() throws RemoteException;
 
 }
 
