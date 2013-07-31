@@ -30,7 +30,7 @@ public class MonitoringLogbackDataProviderTest {
 	@Test
 	public void test(){
 		MonitoringDataCollector mock = Mockito.mock(MonitoringDataCollector.class);
-		new MonitoringLogbackDataProvider(mock);
+		new MonitoringLogbackDataProvider(mock).startProvider();
 		org.slf4j.Logger logger = LoggerFactory.getLogger(MonitoringLogbackDataProviderTest.class);
 	    logger.info("Hello world.");
 	    Mockito.verify(mock).submitLogEvent(Mockito.any(Date.class), Mockito.eq("INFO"), Mockito.anyString(), Mockito.eq("Hello world."));
@@ -40,6 +40,7 @@ public class MonitoringLogbackDataProviderTest {
 	public void test_after_config_update(){
 		MonitoringDataCollector mock = Mockito.mock(MonitoringDataCollector.class);
 		MonitoringLogbackDataProvider monitoringLogbackDataProvider = new MonitoringLogbackDataProvider(mock);
+		monitoringLogbackDataProvider.startProvider();
 		org.slf4j.Logger logger = LoggerFactory.getLogger(MonitoringLogbackDataProviderTest.class);
 	    logger.info("Hello world.");
 	    Mockito.verify(mock).submitLogEvent(Mockito.any(Date.class), Mockito.eq("INFO"), Mockito.anyString(), Mockito.eq("Hello world."));
