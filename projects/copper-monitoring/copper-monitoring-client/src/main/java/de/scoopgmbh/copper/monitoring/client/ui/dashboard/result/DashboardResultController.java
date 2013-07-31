@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.monitoring.client.ui.dashboard.result;
 
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +90,10 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 		for (Entry<String,Long> entry: stoargeInfo.getClassToCount().entrySet()){
 			countString.append(entry.getKey()+": "+entry.getValue()+"\n");
 		}
-		storageInfo.setText("path: "+stoargeInfo.getPath()+"\nsize: "+stoargeInfo.getSizeInMb()+" mb\n\n"+countString.toString());
+		DecimalFormat format = new DecimalFormat("#0.000");
+		double deltatInS= (stoargeInfo.getMax().getTime()-stoargeInfo.getMin().getTime())/1000;
+		storageInfo.setText("path: "+stoargeInfo.getPath()+"\nsize: "+format.format(stoargeInfo.getSizeInMb())+
+				" mb ("+format.format(stoargeInfo.getSizeInMb()/deltatInS*1000)+" kb/s)\n\n"+countString.toString());
 	}
 
 	@Override
