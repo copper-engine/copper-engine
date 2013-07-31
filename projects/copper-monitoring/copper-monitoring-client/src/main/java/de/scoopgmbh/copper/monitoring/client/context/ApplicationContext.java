@@ -112,7 +112,7 @@ public class ApplicationContext {
 			}
 		} catch (Exception e) {
 			logger.error("",e);
-			getDefaultExceptionHandler().reportWarning("Can't load settings from (Preferences: "+prefs+") use defaults instead",e);
+			getIssueReporterSingleton().reportWarning("Can't load settings from (Preferences: "+prefs+") use defaults instead",e);
 		} finally {
 			if (is!=null){
 				try {
@@ -166,7 +166,7 @@ public class ApplicationContext {
 					connect(serverAdressParam,user,password);
 				} catch (final Exception e){
 					logger.error("",e);
-					getDefaultExceptionHandler().reportError("Can't Connect: \n"+e.getMessage(),e);
+					getIssueReporterSingleton().reportError("Can't Connect: \n"+e.getMessage(),e);
 				}
 			}
 		}, mainStackPane, "connecting");
@@ -202,7 +202,7 @@ public class ApplicationContext {
 		}
 
 		if (sessionId == null) {
-			getDefaultExceptionHandler().reportWarning("Invalid user/password", null, new Runnable() {
+			getIssueReporterSingleton().reportWarning("Invalid user/password", null, new Runnable() {
 				@Override
 				public void run() {
 					createLoginForm().show();
@@ -234,25 +234,32 @@ public class ApplicationContext {
 			throw new IllegalStateException("guiCopperDataProvider must be initialized");
 		}
 		if (formContext==null){
-			formContext = new FormContext(mainPane,guiCopperDataProvider,messageProvider,settingsModelSingleton,getDefaultExceptionHandler());
+			formContext = new FormContext(mainPane,guiCopperDataProvider,messageProvider,settingsModelSingleton,getIssueReporterSingleton());
 		}
 		return formContext;
 	}
 
 	
-	private IssueReporter getDefaultExceptionHandler() {
+	private IssueReporter issueReporter;
+	private IssueReporter getIssueReporterSingleton() {
 		if (issueReporter==null){
-			issueReporter = new MessageAndLogIssueReporter(mainStackPane);
+			issueReporter = createIssueReporter();
 		}
 		return issueReporter;
 	}
+	/**template method to create custom {@link IssueReporter}
+	 */
+	protected IssueReporter createIssueReporter(){
+		return new MessageAndLogIssueReporter(mainStackPane);
+	}
+	
+	
 	public void resetFormContext() {
 		formContext = null;
 	}
 	
 	protected FxmlForm<LoginController> loginForm;
 
-	private IssueReporter issueReporter;
 	public Form<LoginController> createLoginForm(){
 		if (loginForm==null){
 			loginForm = new FxmlForm<LoginController>("login.title", new LoginController(this,settingsModelSingleton), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
