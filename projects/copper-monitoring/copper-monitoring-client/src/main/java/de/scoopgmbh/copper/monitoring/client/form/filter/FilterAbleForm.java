@@ -93,16 +93,6 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			}
 		});
 	}
-
-	/**
-	 * Please do not deprecate this method. It is needed by the Operator Terminal in order to replace the hard coded 
-	 * {@link de.scoopgmbh.copper.monitoring.client.form.issuereporting.MessageAndLogIssueReporter}
-	 * used by {@link de.scoopgmbh.copper.monitoring.client.context.ApplicationContext} with a custom exception handler.
-	 */
-	public void setOnFailed(EventHandler<WorkerStateEvent> eventHandler) {
-		filterService.setOnFailed(eventHandler);
-		repeatFilterService.setOnFailed(eventHandler);
-	}
 	
 	boolean verticalRightButton=false;
 	public void useVerticalRightButton(){
