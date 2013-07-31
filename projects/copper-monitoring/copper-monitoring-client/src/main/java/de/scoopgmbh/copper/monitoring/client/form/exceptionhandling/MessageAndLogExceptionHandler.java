@@ -40,4 +40,23 @@ public class MessageAndLogExceptionHandler implements ExceptionHandler {
 		ComponentUtil.showErrorMessage(stackPane,e.getMessage(), e);
 	}
 
+	@Override
+	public void handleException(String message, Throwable e) {
+		logger.error("",e);
+		ComponentUtil.showErrorMessage(stackPane,message, e);
+	}
+
+	@Override
+	public void handleWarning(Throwable e) {
+		logger.warn("",e);
+		ComponentUtil.showWarningMessage(stackPane,e.getMessage(), e);
+	}
+
+	@Override
+	public void handleWarning(String message, Throwable e) {
+		logger.warn("",e);
+		ComponentUtil.showWarningMessage(stackPane,message, e);
+	}
+
+
 }

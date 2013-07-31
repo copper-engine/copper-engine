@@ -22,4 +22,8 @@ package de.scoopgmbh.copper.monitoring.client.form.exceptionhandling;
  */
 public interface ExceptionHandler {
 	public void handleException(Throwable e);
+	public void handleException(String message, Throwable e);
+	
+	public void handleWarning(Throwable e);
+	public void handleWarning(String message, Throwable e);
 }
