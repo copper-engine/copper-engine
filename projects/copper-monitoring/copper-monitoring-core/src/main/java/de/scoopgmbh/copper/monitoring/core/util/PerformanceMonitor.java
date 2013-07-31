@@ -26,7 +26,26 @@ import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 
 public class PerformanceMonitor { 
 
-    private double boundValue(double value){
+    private Method method_getProcessCpuLoad;
+	private Method method_getSystemCpuLoad;
+	private Method method_getFreePhysicalMemorySize;
+	
+	public PerformanceMonitor(){
+		OperatingSystemMXBean operatingSystemMXBean= ManagementFactory.getOperatingSystemMXBean();
+		try {
+			method_getProcessCpuLoad = operatingSystemMXBean.getClass().getMethod("getProcessCpuLoad");
+			method_getSystemCpuLoad = operatingSystemMXBean.getClass().getMethod("getSystemCpuLoad");
+			method_getFreePhysicalMemorySize = operatingSystemMXBean.getClass().getMethod("getFreePhysicalMemorySize");
+			method_getProcessCpuLoad.setAccessible(true);
+			method_getSystemCpuLoad.setAccessible(true);
+			method_getFreePhysicalMemorySize.setAccessible(true);
+		} catch (Exception e) {
+    		//workaround to support legacy java versions the 
+    		//Exception means no support
+    	}
+	}
+
+	private double boundValue(double value){
     	return Math.max(value, 0);
     }
     
@@ -40,20 +59,15 @@ public class PerformanceMonitor {
     	double processCpuLoad=0;
     	double systemCpuLoad=0;
     	long freePhysicalMemorySize=0;
-    	try {
-    		//part of com.sun.management.OperatingSystemMXBean only available at >= java  1.7
-    		Method method = operatingSystemMXBean.getClass().getMethod("getProcessCpuLoad");
-    		method.setAccessible(true);
-			processCpuLoad = (Double)method.invoke(operatingSystemMXBean);
-    		Method method2 = operatingSystemMXBean.getClass().getMethod("getSystemCpuLoad");
-    		method2.setAccessible(true);
-			systemCpuLoad = (Double)method2.invoke(operatingSystemMXBean);
-    		Method method3 = operatingSystemMXBean.getClass().getMethod("getFreePhysicalMemorySize");
-    		method3.setAccessible(true);
-			freePhysicalMemorySize = (Long)method3.invoke(operatingSystemMXBean);
-    	} catch (Exception e) {
-    		//workaround to support legacy java versions the 
-    		//Exception means no support
+    	if (method_getProcessCpuLoad!=null && method_getSystemCpuLoad!=null && method_getFreePhysicalMemorySize!=null){
+    		try {
+    			processCpuLoad = (Double)method_getProcessCpuLoad.invoke(operatingSystemMXBean);
+    			systemCpuLoad = (Double)method_getSystemCpuLoad.invoke(operatingSystemMXBean);
+    			freePhysicalMemorySize = (Long)method_getFreePhysicalMemorySize.invoke(operatingSystemMXBean);
+    		} catch (Exception e) {
+    			//workaround to support legacy java versions the 
+    			//Exception means no support
+    		}
     	}
     	return new SystemResourcesInfo(new Date(),
     			boundValue(systemCpuLoad),

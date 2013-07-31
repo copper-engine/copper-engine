@@ -238,6 +238,8 @@ public class MonitoringExampleMain {
 		WorkflowInstanceIntrospector introspector = new WorkflowInstanceIntrospector(persistentdbStorage, wfRepository); 
 		
 		final MonitoringLogbackDataProvider monitoringLogbackDataProvider = new MonitoringLogbackDataProvider(monitoringDataCollector);
+		final MonitoringDataProviderManager monitoringDataProviderManager = new MonitoringDataProviderManager(new SystemRessourceDataProvider(monitoringDataCollector),monitoringLogbackDataProvider);
+		monitoringDataProviderManager.startAll();
 		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
 				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect(new StandardJavaSerializer(),new CompressedBase64PostProcessor())),
 				runtimeStatisticsCollector,
@@ -246,7 +248,7 @@ public class MonitoringExampleMain {
 				true,
 				introspector,
 				new LogbackConfigManager(monitoringLogbackDataProvider),
-				new MonitoringDataProviderManager(new SystemRessourceDataProvider(monitoringDataCollector),monitoringLogbackDataProvider));
+				monitoringDataProviderManager);
 
 		String host = (args.length > 0) ? args[0] : "localhost";
 		int port = (args.length > 1) ? Integer.parseInt(args[1]) : 8080;

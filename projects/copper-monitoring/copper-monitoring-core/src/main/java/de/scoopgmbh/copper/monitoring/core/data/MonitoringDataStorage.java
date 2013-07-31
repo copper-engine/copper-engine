@@ -622,7 +622,8 @@ public class MonitoringDataStorage {
 			}
 			classToCount.put(clazz, counter);
 		}
-		return new MonitoringDataStorageInfo(((writtenFiles.size())*(FILE_CHUNK_SIZE/1024.0/1024.0))+(currentTarget.out.position()/1024.0/1024.0),targetPath.getAbsolutePath(),classToCount);
+		final double size = ((writtenFiles.size())*(FILE_CHUNK_SIZE/1024.0/1024.0))+(currentTarget.out.position()/1024.0/1024.0);
+		return new MonitoringDataStorageInfo(size,targetPath.getAbsolutePath(),classToCount,getMinDate(),getMaxDate());
 	}
 
     

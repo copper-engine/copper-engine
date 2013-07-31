@@ -1,6 +1,7 @@
 package de.scoopgmbh.copper.monitoring.core.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 
 public class MonitoringDataStorageInfo implements Serializable{
@@ -8,11 +9,19 @@ public class MonitoringDataStorageInfo implements Serializable{
 	private double sizeInMb;
 	private String path;
 	private HashMap<String,Long> classToCount = new HashMap<String,Long>();
-	public MonitoringDataStorageInfo(double sizeInMb, String path, HashMap<String, Long> classToCount) {
+	private Date min;
+	private Date max;
+
+	public MonitoringDataStorageInfo(double sizeInMb, String path, HashMap<String, Long> classToCount, Date min, Date max) {
 		super();
 		this.sizeInMb = sizeInMb;
 		this.path = path;
 		this.classToCount = classToCount;
+		this.min = min;
+		this.max = max;
+	}
+	public MonitoringDataStorageInfo() {
+		super();
 	}
 	public double getSizeInMb() {
 		return sizeInMb;
@@ -32,8 +41,17 @@ public class MonitoringDataStorageInfo implements Serializable{
 	public void setClassToCount(HashMap<String, Long> classToCount) {
 		this.classToCount = classToCount;
 	}
-	public MonitoringDataStorageInfo() {
-		super();
+	public Date getMin() {
+		return min;
+	}
+	public void setMin(Date min) {
+		this.min = min;
+	}
+	public Date getMax() {
+		return max;
+	}
+	public void setMax(Date max) {
+		this.max = max;
 	}
 	
 
