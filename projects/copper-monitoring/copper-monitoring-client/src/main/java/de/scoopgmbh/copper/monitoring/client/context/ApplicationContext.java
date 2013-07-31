@@ -57,12 +57,12 @@ public class ApplicationContext {
 	Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
 
 	private static final String SETTINGS_KEY = "settings";
-	private BorderPane mainPane;
-	private StackPane mainStackPane;
-	private MessageProvider messageProvider;
-	private SettingsModel settingsModelSingleton;
+	protected BorderPane mainPane;
+	protected StackPane mainStackPane;
+	protected MessageProvider messageProvider;
+	protected SettingsModel settingsModelSingleton;
 	
-	private SimpleStringProperty serverAdress= new SimpleStringProperty();
+	protected SimpleStringProperty serverAdress= new SimpleStringProperty();
 	public SimpleStringProperty serverAdressProperty() {
 		return serverAdress;
 	}
@@ -227,26 +227,30 @@ public class ApplicationContext {
 
 	}
 	
-	private FormContext formContext;
+	protected FormContext formContext;
 	public FormContext getFormContextSingleton(){
 		if (guiCopperDataProvider==null){
 			throw new IllegalStateException("guiCopperDataProvider must be initialized");
 		}
 		if (formContext==null){
-			formContext = new FormContext(mainPane,guiCopperDataProvider,messageProvider,settingsModelSingleton,new MessageAndLogExceptionHandler(mainStackPane));
+			formContext = new FormContext(mainPane,guiCopperDataProvider,messageProvider,settingsModelSingleton,getDefaultExceptionHandler());
 		}
 		return formContext;
+	}
+
+	private MessageAndLogExceptionHandler getDefaultExceptionHandler() {
+		return new MessageAndLogExceptionHandler(mainStackPane);
 	}
 	public void resetFormContext() {
 		formContext = null;
 	}
 	
-	private FxmlForm<LoginController> fxmlForm;
+	protected FxmlForm<LoginController> loginForm;
 	public Form<LoginController> createLoginForm(){
-		if (fxmlForm==null){
-			fxmlForm = new FxmlForm<LoginController>("login.title", new LoginController(this,settingsModelSingleton), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
+		if (loginForm==null){
+			loginForm = new FxmlForm<LoginController>("login.title", new LoginController(this,settingsModelSingleton), messageProvider,  new BorderPaneShowFormStrategie(mainPane));
 		}
-		return fxmlForm;
+		return loginForm;
 	}
 
 	public Pane getMainPane() {
