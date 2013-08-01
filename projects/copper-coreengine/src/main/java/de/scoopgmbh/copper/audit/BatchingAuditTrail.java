@@ -132,6 +132,10 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 		this.dbTable = dbTable;
 	}
 
+	public String getDbTable() {
+		return dbTable;
+	}
+
 	public void setMapping(List<Property2ColumnMapping> mapping) {
 		this.mapping = mapping;
 	}
