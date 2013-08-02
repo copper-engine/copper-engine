@@ -1,22 +1,23 @@
 package de.scoopgmbh.copper.monitoring.core.model;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 
 public class MonitoringDataStorageInfo implements Serializable{
 	private static final long serialVersionUID = 2363074938576106353L;
 	private double sizeInMb;
 	private String path;
-	private HashMap<String,Long> classToCount = new HashMap<String,Long>();
+	private Collection<MonitoringDataStorageContentInfo> monitoringDataStorageContentInfo;
 	private Date min;
 	private Date max;
 
-	public MonitoringDataStorageInfo(double sizeInMb, String path, HashMap<String, Long> classToCount, Date min, Date max) {
+	public MonitoringDataStorageInfo(double sizeInMb, String path, Collection<MonitoringDataStorageContentInfo> monitoringDataStorageContentInfo, Date min, Date max) {
 		super();
 		this.sizeInMb = sizeInMb;
 		this.path = path;
-		this.classToCount = classToCount;
+		this.monitoringDataStorageContentInfo = monitoringDataStorageContentInfo;
 		this.min = min;
 		this.max = max;
 	}
@@ -35,12 +36,6 @@ public class MonitoringDataStorageInfo implements Serializable{
 	public void setPath(String path) {
 		this.path = path;
 	}
-	public HashMap<String, Long> getClassToCount() {
-		return classToCount;
-	}
-	public void setClassToCount(HashMap<String, Long> classToCount) {
-		this.classToCount = classToCount;
-	}
 	public Date getMin() {
 		return min;
 	}
@@ -52,6 +47,12 @@ public class MonitoringDataStorageInfo implements Serializable{
 	}
 	public void setMax(Date max) {
 		this.max = max;
+	}
+	public Collection<MonitoringDataStorageContentInfo> getMonitoringDataStorageContentInfo() {
+		return monitoringDataStorageContentInfo;
+	}
+	public void setMonitoringDataStorageContentInfo(List<MonitoringDataStorageContentInfo> monitoringDataStorageContentInfo) {
+		this.monitoringDataStorageContentInfo = monitoringDataStorageContentInfo;
 	}
 	
 

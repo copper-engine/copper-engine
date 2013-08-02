@@ -48,6 +48,7 @@ import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapterImpl;
+import de.scoopgmbh.copper.monitoring.example.monitoringprovider.GcDataProvider;
 import de.scoopgmbh.copper.monitoring.example.util.SingleProzessInstanceUtil;
 import de.scoopgmbh.copper.monitoring.server.CopperMonitorServiceSecurityProxy;
 import de.scoopgmbh.copper.monitoring.server.DefaultCopperMonitoringService;
@@ -238,10 +239,10 @@ public class MonitoringExampleMain {
 		WorkflowInstanceIntrospector introspector = new WorkflowInstanceIntrospector(persistentdbStorage, wfRepository); 
 		
 		final MonitoringLogbackDataProvider monitoringLogbackDataProvider = new MonitoringLogbackDataProvider(monitoringDataCollector);
-		final MonitoringDataProviderManager monitoringDataProviderManager = new MonitoringDataProviderManager(new SystemRessourceDataProvider(monitoringDataCollector),monitoringLogbackDataProvider);
+		final MonitoringDataProviderManager monitoringDataProviderManager = new MonitoringDataProviderManager(new SystemRessourceDataProvider(monitoringDataCollector),monitoringLogbackDataProvider,new GcDataProvider(monitoringDataCollector));
 		monitoringDataProviderManager.startAll();
 		CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
-				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect(new StandardJavaSerializer(),new CompressedBase64PostProcessor())),
+				new MonitoringDbStorage(txnController,new DerbyMonitoringDbDialect(new StandardJavaSerializer(),new CompressedBase64PostProcessor(),auditTrail)),
 				runtimeStatisticsCollector,
 				engines,
 				monitoringQueue, 

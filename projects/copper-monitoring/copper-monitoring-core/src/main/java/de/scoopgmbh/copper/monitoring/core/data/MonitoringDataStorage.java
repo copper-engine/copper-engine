@@ -42,6 +42,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringData;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageContentInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 
 /**
@@ -611,19 +612,19 @@ public class MonitoringDataStorage {
 
 	public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
 		
-		final HashMap<String, Long> classToCount = new HashMap<String,Long>();
+		final HashMap<String,MonitoringDataStorageContentInfo> classToInfo = new HashMap<String,MonitoringDataStorageContentInfo>();
 		for (MonitoringData data: read(null,null)){
 			String clazz = data.getClass().getName();
-			Long counter = classToCount.get(clazz);
-			if (counter==null){
-				counter=1l;
+			MonitoringDataStorageContentInfo info = classToInfo.get(clazz);
+			if (info==null){
+				info=new MonitoringDataStorageContentInfo(clazz,1l);
 			} else {
-				counter++;
+				info.setCount(info.getCount()+1);
 			}
-			classToCount.put(clazz, counter);
+			classToInfo.put(clazz, info);
 		}
 		final double size = ((writtenFiles.size())*(FILE_CHUNK_SIZE/1024.0/1024.0))+(currentTarget.out.position()/1024.0/1024.0);
-		return new MonitoringDataStorageInfo(size,targetPath.getAbsolutePath(),classToCount,getMinDate(),getMaxDate());
+		return new MonitoringDataStorageInfo(size,targetPath.getAbsolutePath(),new ArrayList<MonitoringDataStorageContentInfo>(classToInfo.values()),getMinDate(),getMaxDate());
 	}
 
     
