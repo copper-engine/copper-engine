@@ -23,6 +23,7 @@ import java.util.concurrent.Callable;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
+import de.scoopgmbh.copper.monitoring.core.model.GenericMonitoringData;
 import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
@@ -119,6 +120,15 @@ public class MonitoringDataCollector{
 			@Override
 			public void run() {
 				monitoringDataAdder.addMonitoringData(resourcesInfo);
+			}
+		});
+	}
+	
+	public void submitGenericMonitoringData(final GenericMonitoringData genericMonitoringData) {
+		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+			@Override
+			public void run() {
+				monitoringDataAdder.addMonitoringData(genericMonitoringData);
 			}
 		});
 	}

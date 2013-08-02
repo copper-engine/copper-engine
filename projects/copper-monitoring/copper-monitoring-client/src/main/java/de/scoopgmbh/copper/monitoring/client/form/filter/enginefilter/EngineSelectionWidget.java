@@ -108,6 +108,7 @@ public class EngineSelectionWidget implements Widget{
 		poolChoicebox.setConverter(new StringConverter<ProcessorPoolInfo>() {
 			@Override
 			public String toString(ProcessorPoolInfo object) {
+				if (object==null) return "any";
 				return object.getId();
 			}
 			
@@ -134,6 +135,7 @@ public class EngineSelectionWidget implements Widget{
 		});
 		
 		updatePoolChoicebox(poolChoicebox, model.selectedPool.get());
+		poolChoicebox.getSelectionModel().select(null);
 		return poolChoicebox;
 	}
 	
@@ -152,10 +154,10 @@ public class EngineSelectionWidget implements Widget{
 	private void updatePoolChoicebox(final ChoiceBox<ProcessorPoolInfo> poolChoicebox, ProcessorPoolInfo newValue) {
 		if (newValue!=null){
 			for (ProcessorPoolInfo pool: poolChoicebox.getItems()){
-				if (pool.getId()!=null && pool.getId().equals(newValue.getId())){
+				if (pool!=null && pool.getId()!=null && pool.getId().equals(newValue.getId())){
 					poolChoicebox.getSelectionModel().select(pool);
 				}
-			}
+			} 
 		} else {
 			poolChoicebox.getSelectionModel().clearSelection();
 		}
@@ -164,6 +166,7 @@ public class EngineSelectionWidget implements Widget{
 	private void updatePoolChoiceBox(final ChoiceBox<ProcessorPoolInfo> poolChoicebox, ProcessingEngineInfo newValue) {
 		if (newValue!=null){
 			poolChoicebox.getItems().clear();
+			poolChoicebox.getItems().add(null);
 			for (ProcessorPoolInfo processorPoolInfo: newValue.getPools()){
 				poolChoicebox.getItems().add(processorPoolInfo);
 			}

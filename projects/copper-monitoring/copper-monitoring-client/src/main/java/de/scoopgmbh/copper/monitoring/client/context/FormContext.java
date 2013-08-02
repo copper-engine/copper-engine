@@ -83,6 +83,10 @@ import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterCont
 import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.message.result.MessageResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.message.result.MessageResultModel;
+import de.scoopgmbh.copper.monitoring.client.ui.provider.filter.ProviderFilterController;
+import de.scoopgmbh.copper.monitoring.client.ui.provider.filter.ProviderFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.provider.result.ProviderResultController;
+import de.scoopgmbh.copper.monitoring.client.ui.provider.result.ProviderResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.filter.WorkflowRepositoryFilterController;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.filter.WorkflowRepositoryFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.repository.result.WorkflowRepositoryDependencyFactory;
@@ -219,6 +223,12 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 				return createLogsForm();
 			}
 		});
+		loggroup.add(new FormCreator(messageProvider.getText(MessageKey.provider_title)) {
+			@Override
+			public Form<?> createForm() {
+				return createProviderForm();
+			}
+		});
 		return loggroup;
 	}
 	
@@ -341,7 +351,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	public FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> createWorkflowInstanceListForm(){
 		final EngineFilterAbleForm<WorkflowInstanceFilterModel, WorkflowInstanceResultModel> form = new EngineFormBuilder<WorkflowInstanceFilterModel,WorkflowInstanceResultModel,WorkflowInstanceFilterController,WorkflowInstanceResultController>(
 					new WorkflowInstanceFilterController(getCachedAvailableEngines()),
-					new WorkflowInstanceResultController(guiCopperDataProvider,this),
+					new WorkflowInstanceResultController(guiCopperDataProvider,this,issueReporter),
 					this
 				).build();
 		form.setStaticTitle(messageProvider.getText(MessageKey.workflowOverview_title));
@@ -516,6 +526,15 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 				this
 			).build();
 	}
+	
+	public FilterAbleForm<ProviderFilterModel, ProviderResultModel> createProviderForm() {
+		return new FormBuilder<ProviderFilterModel, ProviderResultModel, ProviderFilterController,ProviderResultController>(
+				new ProviderFilterController(),
+				new ProviderResultController(guiCopperDataProvider),
+				this
+			).build();
+	}
+	
 	
 	public FilterAbleForm<EmptyFilterModel, String> createDatabaseMonitoringForm() {
 		return new FormBuilder<EmptyFilterModel, String, GenericFilterController<EmptyFilterModel>,DatabaseMonitorResultController>(

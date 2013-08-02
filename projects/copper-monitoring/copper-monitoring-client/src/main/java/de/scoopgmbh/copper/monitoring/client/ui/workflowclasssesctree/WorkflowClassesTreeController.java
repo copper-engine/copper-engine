@@ -37,6 +37,9 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+
+import com.google.common.base.Optional;
+
 import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
@@ -55,10 +58,12 @@ public class WorkflowClassesTreeController {
 			public void changed(ObservableValue<? extends TreeItem<DisplayWorkflowClassesModel>> observable,
 					TreeItem<DisplayWorkflowClassesModel> oldValue, TreeItem<DisplayWorkflowClassesModel> newValue) {
 				
-				if (newValue!=null && newValue.getValue()!=null && newValue.getChildren().isEmpty()){
+				if (newValue!=null && newValue.getValue()!=null /*&& newValue.getChildren().isEmpty()*/){
 					WorkflowVersion workflowClassesModel = newValue.getValue().value;
 					selectedItem.set(workflowClassesModel);
+					expand(newValue);
 				}
+				
 			}
 		});
 		
@@ -79,6 +84,13 @@ public class WorkflowClassesTreeController {
 		treeView.setContextMenu(contextMenu);
 	}
 	
+	private void expand(TreeItem<DisplayWorkflowClassesModel> newValue){
+		for (TreeItem<DisplayWorkflowClassesModel> item: newValue.getChildren()){
+			expand(item);
+		}
+		newValue.setExpanded(true);
+	}
+	
 	public static class DisplayWorkflowClassesModel{
 		public WorkflowVersion value;
 		public String displayname;
@@ -87,6 +99,33 @@ public class WorkflowClassesTreeController {
 			this.value = value;
 			this.displayname = displayname;
 		}
+	}
+	
+	
+	private Optional<TreeItem<DisplayWorkflowClassesModel>> findMajorItem(WorkflowVersion newWorkflowVersion,List<TreeItem<DisplayWorkflowClassesModel>> result){
+		for (TreeItem<DisplayWorkflowClassesModel> classnameItem: result){
+			if (newWorkflowVersion.classname.getValue().equals(classnameItem.getValue().value.classname.getValue())){
+				for (TreeItem<DisplayWorkflowClassesModel> majorItem: classnameItem.getChildren()){
+					if (newWorkflowVersion.versionMajor.getValue().equals(majorItem.getValue().value.versionMajor.getValue())){
+						return Optional.of(majorItem);
+					}
+				}
+			}
+		}
+		return Optional.absent();
+	}
+	
+	public String getMajorVersion(WorkflowVersion workflowVersion){
+		return "Major: "+ nullFix(workflowVersion.versionMajor.getValue());
+	}
+	
+	public String getMinorVersion(WorkflowVersion workflowVersion){
+		return "Minor: "+nullFix(workflowVersion.versionMinor.getValue())+
+				"\nPatchlevel: "+nullFix(workflowVersion.patchlevel.get())+"\nAlias: "+nullFix(workflowVersion.alias.get());
+	}
+	
+	public String nullFix(Object object){
+		return object==null?"?": object.toString();
 	}
 	
 	public List<TreeItem<DisplayWorkflowClassesModel>> groupToTreeItem(List<WorkflowVersion> list){
@@ -98,54 +137,19 @@ public class WorkflowClassesTreeController {
 		
 		List<TreeItem<DisplayWorkflowClassesModel>> result = new ArrayList<TreeItem<DisplayWorkflowClassesModel>>();
 		for (WorkflowVersion newWorkflowVersion: list){
+			Optional<TreeItem<DisplayWorkflowClassesModel>> existingMajorItem=findMajorItem(newWorkflowVersion,result);
+			
 			TreeItem<DisplayWorkflowClassesModel> majorVersionItemToAdd = null;
-			TreeItem<DisplayWorkflowClassesModel> classnameItemToAdd = null;
-			for (TreeItem<DisplayWorkflowClassesModel> classnameItem: result){
-				if (newWorkflowVersion.classname.getValue().equals(classnameItem.getValue().value.classname.getValue())){
-					classnameItemToAdd=classnameItem;
-					for (TreeItem<DisplayWorkflowClassesModel> majorItem: classnameItem.getChildren()){
-						if (newWorkflowVersion.versionMajor.getValue().equals(majorItem.getValue().value.versionMajor.getValue())){
-							majorVersionItemToAdd=majorItem;
-							break;
-						}
-					}
-				}
-			}
-			if (classnameItemToAdd==null){
+			if (existingMajorItem.isPresent()){
+				majorVersionItemToAdd = existingMajorItem.get();
+			} else {
+				TreeItem<DisplayWorkflowClassesModel> classnameItemToAdd = null;
 				classnameItemToAdd = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.classname.get()));
 				result.add(classnameItemToAdd);
+				majorVersionItemToAdd =new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getMajorVersion(newWorkflowVersion)));
+				classnameItemToAdd.getChildren().add(majorVersionItemToAdd);
 			}
-			
-			if (majorVersionItemToAdd==null){
-				List<String> missing = new ArrayList<String>();
-				if(newWorkflowVersion.versionMajor.getValue() == null) {
-					newWorkflowVersion.versionMajor.setValue(1L);
-					missing.add("versionMajor");
-				}
-				if(newWorkflowVersion.versionMinor.getValue() == null) {
-					newWorkflowVersion.versionMinor.setValue(0L);
-					missing.add("versionMinor");
-				}
-				if(newWorkflowVersion.alias.getValue() == null) {
-					newWorkflowVersion.alias.setValue(newWorkflowVersion.classname.getValue());
-					missing.add("alias");
-				}
-				if(newWorkflowVersion.patchlevel.getValue() == null) {
-					newWorkflowVersion.patchlevel.setValue(1L);
-					missing.add("patchlevel");
-				}				
-				
-				if(!missing.isEmpty()) {
-					String errMsg = missing + " not set for newWorkflowVersion classname: " 
-							+ newWorkflowVersion.classname.getValue();
-					issueReporter.reportError("Using default values for: " + missing, new RuntimeException(errMsg));
-				}
-				TreeItem<DisplayWorkflowClassesModel> newitemMajor =new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Major: "+newWorkflowVersion.versionMajor.getValue()));
-				classnameItemToAdd.getChildren().add(newitemMajor);
-				majorVersionItemToAdd=newitemMajor;
-			}
-			majorVersionItemToAdd.getChildren().add(new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, "Minor: "+newWorkflowVersion.versionMinor.getValue()+
-					"\nPatchlevel: "+newWorkflowVersion.patchlevel.get()+"\nAlias: "+newWorkflowVersion.alias.get() )));
+			majorVersionItemToAdd.getChildren().add(new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getMinorVersion(newWorkflowVersion) )));
 		}
 		
 		return result;

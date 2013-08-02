@@ -11,29 +11,49 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.shape.*?>
 
-<SplitPane dividerPositions="0.7220543806646526" focusTraversable="true" minWidth="459.0" orientation="VERTICAL" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+<SplitPane dividerPositions="0.7135650224215246" focusTraversable="true" minWidth="-1.0" orientation="VERTICAL" prefHeight="1786.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
   <items>
     <TitledPane animated="false" collapsible="false" prefHeight="2000.0" prefWidth="-1.0" text="Configuration">
       <content>
         <TabPane fx:id="engines" prefHeight="-1.0" prefWidth="-1.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE" />
       </content>
     </TitledPane>
-    <TitledPane animated="false" collapsible="false" minWidth="460.0" prefHeight="2000.0" prefWidth="460.0" text="Monitoring">
+    <TitledPane animated="false" collapsible="false" minWidth="-1.0" prefHeight="2000.0" prefWidth="-1.0" text="Monitoring">
       <content>
-        <TabPane prefHeight="2000.0" prefWidth="-1.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
+        <TabPane prefHeight="-1.0" prefWidth="-1.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
           <tabs>
             <Tab text="Monitoring data provider">
               <content>
                 <HBox fx:id="monitoringPane" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0">
                   <padding>
-                    <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                    <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x1" />
                   </padding>
                 </HBox>
               </content>
             </Tab>
             <Tab text="Monitoring data storage">
               <content>
-                <TextArea fx:id="storageInfo" prefWidth="-1.0" wrapText="true" />
+                <VBox padding="$x1" prefHeight="-1.0" prefWidth="-1.0">
+                  <children>
+                    <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0">
+                      <children>
+                        <Label text="location" />
+                        <TextField fx:id="location" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                        <Label text="size" />
+                        <TextField id="location" fx:id="size" prefWidth="200.0" />
+                      </children>
+                      <padding>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x1" />
+                      </padding>
+                    </HBox>
+                    <TableView fx:id="storageContentTable" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+                      <columns>
+                        <TableColumn prefWidth="75.0" text="Type" fx:id="typeCol" />
+                        <TableColumn prefWidth="75.0" text="Count" fx:id="countCol" />
+                      </columns>
+                    </TableView>
+                  </children>
+                </VBox>
               </content>
             </Tab>
           </tabs>

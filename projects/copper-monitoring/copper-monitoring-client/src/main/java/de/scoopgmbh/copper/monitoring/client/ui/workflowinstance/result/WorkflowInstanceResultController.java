@@ -48,6 +48,7 @@ import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
@@ -60,11 +61,13 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 	
 	private final GuiCopperDataProvider copperDataProvider;
 	private final WorkflowInstanceDependencyFactory navigation;
+	private final IssueReporter issueReporter;
 	
-	public WorkflowInstanceResultController(GuiCopperDataProvider copperDataProvider, WorkflowInstanceDependencyFactory navigation) {
+	public WorkflowInstanceResultController(GuiCopperDataProvider copperDataProvider, WorkflowInstanceDependencyFactory navigation, IssueReporter issueReporter) {
 		super();
 		this.copperDataProvider = copperDataProvider;
 		this.navigation = navigation;
+		this.issueReporter = issueReporter;
 	}
 
     @FXML //  fx:id="idColumn"
@@ -349,7 +352,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
 			errorInfo.setText(workflowInstanceResultModel.errorInfos.get());
 			
 			if (service==null) {
-				service = new DetailLoadService(usedFilter,workflowInstanceResultModel,stackDetailPane,detailForm);
+				service = new DetailLoadService(usedFilter,workflowInstanceResultModel,stackDetailPane,detailForm,issueReporter);
 			}
 			
 			if (!service.isRunning()){

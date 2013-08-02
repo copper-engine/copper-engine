@@ -57,6 +57,7 @@ public class ProviderController implements Initializable, FxmlController {
 				dataProvider.startMonitoringDataProvider(dataProviderInfo.getName());
 			}
 		});
+        start.getStyleClass().add("copperActionButton");
         
         stop.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -64,6 +65,7 @@ public class ProviderController implements Initializable, FxmlController {
 				dataProvider.stopMonitoringDataProvider(dataProviderInfo.getName());
 			}
 		});
+        stop.getStyleClass().add("copperActionButton");
 	}
 
 }

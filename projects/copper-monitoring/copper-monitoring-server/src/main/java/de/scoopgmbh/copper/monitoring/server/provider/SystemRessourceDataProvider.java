@@ -18,7 +18,7 @@ package de.scoopgmbh.copper.monitoring.server.provider;
 import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
-public class SystemRessourceDataProvider extends RepetitiveMonitoringDataProviderBase{
+public class SystemRessourceDataProvider extends RepeatingMonitoringDataProviderBase{
 
 	private final PerformanceMonitor performanceMonitor;
 	

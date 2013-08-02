@@ -26,6 +26,7 @@ import org.springframework.jdbc.support.JdbcUtils;
 
 import com.google.common.base.Throwables;
 
+import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.persistent.DatabaseDialect;
 import de.scoopgmbh.copper.persistent.Serializer;
@@ -40,8 +41,8 @@ public class OracleMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OracleMonitoringDbDialect.class);
 	
-	public OracleMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor) {
-		super(serializer, messagePostProcessor);
+	public OracleMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor,BatchingAuditTrail auditTrail) {
+		super(serializer, messagePostProcessor,auditTrail);
 	}
 
 	@Override

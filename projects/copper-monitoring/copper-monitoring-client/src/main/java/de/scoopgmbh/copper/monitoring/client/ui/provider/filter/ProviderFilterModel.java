@@ -13,23 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.server.persistent;
+package de.scoopgmbh.copper.monitoring.client.ui.provider.filter;
 
-import de.scoopgmbh.copper.audit.BatchingAuditTrail;
-import de.scoopgmbh.copper.audit.MessagePostProcessor;
-import de.scoopgmbh.copper.persistent.Serializer;
-
-
-public class PostgreMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
-
-	public PostgreMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor,BatchingAuditTrail auditTrail) {
-		super(serializer, messagePostProcessor,auditTrail);
-	}
+import javafx.beans.property.SimpleStringProperty;
+import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.FromToMaxCountFilterModel;
 
 
-	@Override
-	public String getResultLimitingQuery(String query, long limit) {
-		return query+ " LIMIT "+limit;
-	}
+public class ProviderFilterModel extends FromToMaxCountFilterModel{
+	
+	public final SimpleStringProperty id= new SimpleStringProperty();
 
 }

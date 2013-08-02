@@ -24,6 +24,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultController;
+import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
@@ -34,12 +35,20 @@ public final class DetailLoadService extends Service<Void> {
 	private StackPane stackDetailPane;
 	private FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm;
 	private final WorkflowInstanceFilterModel usedFilter;
+	private final IssueReporter issueReporter;
 	
-	public DetailLoadService(WorkflowInstanceFilterModel usedFilter, WorkflowInstanceResultModel workflowInstanceResultModel,StackPane stackDetailPane, FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm) {
+	public DetailLoadService(
+			WorkflowInstanceFilterModel usedFilter, 
+			WorkflowInstanceResultModel workflowInstanceResultModel,
+			StackPane stackDetailPane,
+			FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,
+			WorkflowInstanceDetailResultModel>> detailForm,
+			IssueReporter issueReporter) {
 		this.workflowInstanceResultModel = workflowInstanceResultModel;
 		this.stackDetailPane = stackDetailPane;
 		this.detailForm = detailForm;
 		this.usedFilter = usedFilter;
+		this.issueReporter = issueReporter;
 	}
 	
 	public WorkflowInstanceResultModel getWorkflowInstanceResultModel() {
@@ -65,7 +74,11 @@ public final class DetailLoadService extends Service<Void> {
 	             });
 				filter = new WorkflowInstanceDetailFilterModel(workflowInstanceResultModel.id.getValue(),usedFilter.selectedEngine.get());
 				filter.workflowInstanceId.setValue(workflowInstanceResultModel.id.getValue());
-				result = detailForm.getController().applyFilterInBackgroundThread(filter);
+				try {
+					result = detailForm.getController().applyFilterInBackgroundThread(filter);
+				} catch (Exception e){
+					issueReporter.reportError(e);
+				}
 				return null;
 			}
 			

@@ -17,7 +17,7 @@ package de.scoopgmbh.copper.monitoring.server.provider;
 
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
-public abstract class RepetitiveMonitoringDataProviderBase extends MonitoringDataProviderBase{
+public abstract class RepeatingMonitoringDataProviderBase extends MonitoringDataProviderBase{
 	
 	private final class PollThread extends Thread {
 		public volatile boolean stop;
@@ -55,7 +55,7 @@ public abstract class RepetitiveMonitoringDataProviderBase extends MonitoringDat
 	protected final MonitoringDataCollector monitoringDataCollector;
 	private PollThread thread;
 
-	public RepetitiveMonitoringDataProviderBase(MonitoringDataCollector monitoringDataCollector) {
+	public RepeatingMonitoringDataProviderBase(MonitoringDataCollector monitoringDataCollector) {
 		super();
 		this.monitoringDataCollector = monitoringDataCollector;
 	}

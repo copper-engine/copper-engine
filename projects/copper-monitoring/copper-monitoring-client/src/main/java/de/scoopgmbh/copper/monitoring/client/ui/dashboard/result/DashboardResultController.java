@@ -21,19 +21,22 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
+import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageContentInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
@@ -48,23 +51,42 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 		this.dashboardPartsFactory = dashboardPartsFactory;
 	}
 
+
+    @FXML //  fx:id="countCol"
+    private TableColumn<MonitoringDataStorageContentInfo, Long> countCol; // Value injected by FXMLLoader
+
     @FXML //  fx:id="engines"
     private TabPane engines; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="location"
+    private TextField location; // Value injected by FXMLLoader
 
     @FXML //  fx:id="monitoringPane"
     private HBox monitoringPane; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="storageInfo"
-    private TextArea storageInfo; // Value injected by FXMLLoader
+    @FXML //  fx:id="size"
+    private TextField size; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="storageContentTable"
+    private TableView<MonitoringDataStorageContentInfo> storageContentTable; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="typeCol"
+    private TableColumn<MonitoringDataStorageContentInfo, String> typeCol; // Value injected by FXMLLoader
 
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
+        assert countCol != null : "fx:id=\"countCol\" was not injected: check your FXML file 'DashboardResult.fxml'.";
         assert engines != null : "fx:id=\"engines\" was not injected: check your FXML file 'DashboardResult.fxml'.";
+        assert location != null : "fx:id=\"location\" was not injected: check your FXML file 'DashboardResult.fxml'.";
         assert monitoringPane != null : "fx:id=\"monitoringPane\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-        assert storageInfo != null : "fx:id=\"storageInfo\" was not injected: check your FXML file 'DashboardResult.fxml'.";
+        assert size != null : "fx:id=\"size\" was not injected: check your FXML file 'DashboardResult.fxml'.";
+        assert storageContentTable != null : "fx:id=\"storageContentTable\" was not injected: check your FXML file 'DashboardResult.fxml'.";
+        assert typeCol != null : "fx:id=\"typeCol\" was not injected: check your FXML file 'DashboardResult.fxml'.";
 
 
+
+        storageContentTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 	
 	@Override
@@ -86,14 +108,17 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 			dashboardPartsFactory.createMonitoringDataProviderForm(monitoringDataProviderInfo,pane).show();
 		}
 		MonitoringDataStorageInfo stoargeInfo = dashboardResultModel.monitoringDataStorageInfo;
-		StringBuilder countString = new StringBuilder();
-		for (Entry<String,Long> entry: stoargeInfo.getClassToCount().entrySet()){
-			countString.append(entry.getKey()+": "+entry.getValue()+"\n");
-		}
+
 		DecimalFormat format = new DecimalFormat("#0.000");
 		double deltatInS= (stoargeInfo.getMax().getTime()-stoargeInfo.getMin().getTime())/1000;
-		storageInfo.setText("path: "+stoargeInfo.getPath()+"\nsize: "+format.format(stoargeInfo.getSizeInMb())+
-				" mb ("+format.format(stoargeInfo.getSizeInMb()/deltatInS*1000)+" kb/s)\n\n"+countString.toString());
+		
+		size.setText(format.format(stoargeInfo.getSizeInMb())+" mb ("+format.format(stoargeInfo.getSizeInMb()/deltatInS*1000)+" kb/s)");
+		location.setText(stoargeInfo.getPath());
+		storageContentTable.getItems().clear();
+		storageContentTable.getItems().addAll(stoargeInfo.getMonitoringDataStorageContentInfo());
+		
+		typeCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo,String>("type"));
+		countCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo,Long>("count"));
 	}
 
 	@Override

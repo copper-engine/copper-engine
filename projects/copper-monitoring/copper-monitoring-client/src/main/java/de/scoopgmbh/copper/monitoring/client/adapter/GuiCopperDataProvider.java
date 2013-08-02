@@ -34,6 +34,7 @@ import de.scoopgmbh.copper.monitoring.client.ui.custommeasurepoint.result.Custom
 import de.scoopgmbh.copper.monitoring.client.ui.logs.result.LogsResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.message.result.MessageResultModel;
+import de.scoopgmbh.copper.monitoring.client.ui.provider.result.ProviderResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.sql.filter.SqlFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.sql.result.SqlResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
@@ -47,12 +48,14 @@ import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.data.filter.DistinctAndTypeFilter;
 import de.scoopgmbh.copper.monitoring.core.data.filter.MeasurePointComperator;
 import de.scoopgmbh.copper.monitoring.core.data.filter.MeasurePointFilter;
+import de.scoopgmbh.copper.monitoring.core.data.filter.ProviderDataFilter;
 import de.scoopgmbh.copper.monitoring.core.data.filter.TypeFilter;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfLaunchInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
+import de.scoopgmbh.copper.monitoring.core.model.GenericMonitoringData;
 import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
@@ -112,7 +115,11 @@ public class GuiCopperDataProvider {
 	}
 
 	public String getPoolId(EnginePoolFilterModel enginePoolModel) {
-		return enginePoolModel.selectedPool.get().getId();
+		if (enginePoolModel.selectedPool.get()==null){
+			return null;
+		} else {
+			return enginePoolModel.selectedPool.get().getId();
+		}
 	}
 	
 	public List<AuditTrailResultModel> getAuditTrails(de.scoopgmbh.copper.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel  filter, int maxResultCount){
@@ -486,6 +493,20 @@ public class GuiCopperDataProvider {
 	public MonitoringDataStorageInfo getMonitoringStorageInfo() {
 		try {
 			return copperMonitoringService.getMonitroingDataStorageInfo();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public List<ProviderResultModel> getGenericMonitoringData(String id, Date from,
+			Date to, int maxCount) {
+		try {
+			ArrayList<ProviderResultModel> result = new ArrayList<ProviderResultModel>();
+			List<GenericMonitoringData> list = copperMonitoringService.getList(new ProviderDataFilter(id), from, to, maxCount);
+			for (GenericMonitoringData genericMonitoringData: list){
+				result.add(new ProviderResultModel(genericMonitoringData));
+			}
+			return result;
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

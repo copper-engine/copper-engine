@@ -60,7 +60,7 @@
       <TextField id="id" fx:id="storageId" editable="false" layoutX="516.0" layoutY="106.0" opacity="0.75" prefHeight="22.0" prefWidth="167.0001220703125" />
       <Label layoutX="500.0" layoutY="209.0" text="desc" textFill="WHITE" />
       <TextField id="id" fx:id="batcherId" editable="false" layoutX="556.0" layoutY="208.0" opacity="0.75" prefHeight="22.0" prefWidth="116.0" />
-      <Label layoutX="500.0" layoutY="236.0" text="Threads" textFill="WHITE" />
+      <Label layoutX="500.0" layoutY="236.0" text="threads" textFill="WHITE" />
       <TextField id="id" fx:id="batcherthreadnum" editable="false" layoutX="556.0" layoutY="235.0" opacity="0.75" prefHeight="22.0" prefWidth="116.0" />
       <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="55.0" layoutX="368.0" layoutY="145.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0" />
       <Label layoutX="383.0" layoutY="150.0" prefHeight="19.951171875" text="WAITING" />

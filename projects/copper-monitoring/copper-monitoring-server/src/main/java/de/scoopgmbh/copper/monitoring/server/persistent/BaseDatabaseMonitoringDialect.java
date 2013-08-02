@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import de.scoopgmbh.copper.Response;
+import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
@@ -52,11 +53,13 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 	private final MessagePostProcessor messagePostProcessor;
 	private static final Logger logger = LoggerFactory.getLogger(BaseDatabaseMonitoringDialect.class);
 	Serializer serializer;
+	private final BatchingAuditTrail batchingAuditTrail;
 	
-	public BaseDatabaseMonitoringDialect(Serializer serializer,MessagePostProcessor messagePostProcessor) {
+	public BaseDatabaseMonitoringDialect(Serializer serializer,MessagePostProcessor messagePostProcessor, BatchingAuditTrail batchingAuditTrail) {
 		super();
 		this.serializer = serializer;
 		this.messagePostProcessor = messagePostProcessor;
+		this.batchingAuditTrail = batchingAuditTrail; 
 	}
 
 	@Override
@@ -89,7 +92,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 		PreparedStatement selectStmt = null;
 		try {
 			selectStmt = con.prepareStatement(getResultLimitingQuery(
-					"SELECT SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID,MESSAGE_TYPE FROM COP_AUDIT_TRAIL_EVENT a\n" + 
+					"SELECT SEQ_ID,OCCURRENCE,CONVERSATION_ID,LOGLEVEL,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID,MESSAGE_TYPE FROM "+batchingAuditTrail.getDbTable()+" a\n" + 
 					"LEFT OUTER JOIN COP_WORKFLOW_INSTANCE i ON a.INSTANCE_ID=i.ID \n" + 
 					"WHERE\n" + 
 					"	(? is null or i.CLASSNAME=?) AND \n" + 

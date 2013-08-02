@@ -22,6 +22,12 @@ public class MonitoringDataProviderManager {
 		this.provider = provider;
 	}
 	
+	public void addAll(){
+		for (MonitoringDataProvider monitoringDataProvider: provider){
+			monitoringDataProvider.startProvider();
+		}
+	}
+	
 	public void startAll(){
 		for (MonitoringDataProvider monitoringDataProvider: provider){
 			monitoringDataProvider.startProvider();

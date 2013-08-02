@@ -31,11 +31,17 @@ import de.scoopgmbh.copper.monitoring.server.provider.MonitoringLogbackDataProvi
 public class LogbackConfigManager implements LogConfigManager {
 	
 	private final MonitoringLogbackDataProvider dataProvider;
+	private final LogbackConfigLocationLocator logbackConfigLocationLocator;
 
 	private LoggerContext loggerContext;
-	public LogbackConfigManager(MonitoringLogbackDataProvider dataProvider){
+	public LogbackConfigManager(MonitoringLogbackDataProvider dataProvider,LogbackConfigLocationLocator logbackConfigLocationLocator){
 		loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 		this.dataProvider = dataProvider;
+		this.logbackConfigLocationLocator = logbackConfigLocationLocator;
+	}
+	
+	public LogbackConfigManager(MonitoringLogbackDataProvider dataProvider){
+		this(dataProvider, new DefaultLogbackConfigLocationLocator());
 	}
 	
 	private String config;
@@ -64,8 +70,8 @@ public class LogbackConfigManager implements LogConfigManager {
 		if (config!=null){
 			return config;
 		}
-		ContextInitializer ci = new ContextInitializer(loggerContext);
-		URL url = ci.findURLOfDefaultConfigurationFile(true);
+
+		URL url = logbackConfigLocationLocator.getLogbackConfigLocation();
 		
 		InputStream inputStream=null;
 		try {
@@ -86,6 +92,8 @@ public class LogbackConfigManager implements LogConfigManager {
 			}
 		}
 	}
+
+
 	
 	//copy from JMXConfigurator to fix api
 	private void reload(InputStream in) throws JoranException {
@@ -110,6 +118,19 @@ public class LogbackConfigManager implements LogConfigManager {
 //			}
 		}
 		
+	}
+	
+	public static interface LogbackConfigLocationLocator{
+		public URL getLogbackConfigLocation();
+	}
+	
+	public static class DefaultLogbackConfigLocationLocator implements LogbackConfigLocationLocator{
+		@Override
+		public URL getLogbackConfigLocation() {
+			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+			ContextInitializer ci = new ContextInitializer(loggerContext);
+			return ci.findURLOfDefaultConfigurationFile(true);
+		}
 	}
 
 }
