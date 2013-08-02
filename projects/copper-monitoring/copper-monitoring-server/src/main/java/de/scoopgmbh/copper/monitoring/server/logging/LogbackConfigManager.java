@@ -18,7 +18,6 @@ package de.scoopgmbh.copper.monitoring.server.logging;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
 import org.slf4j.LoggerFactory;
 
@@ -71,17 +70,13 @@ public class LogbackConfigManager implements LogConfigManager {
 			return config;
 		}
 
-		URL url = logbackConfigLocationLocator.getLogbackConfigLocation();
 		
-		InputStream inputStream=null;
+		InputStream inputStream=logbackConfigLocationLocator.getLogbackConfigLocation();;
 		try {
-			if (url==null){
+			if (inputStream==null){
 				return "no logback config found";
 			}
-			inputStream = url.openStream();
 			return de.scoopgmbh.copper.monitoring.server.util.FileUtil.convertStreamToString(inputStream);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		} finally {
 			try {
 				if (inputStream!=null){
@@ -121,15 +116,19 @@ public class LogbackConfigManager implements LogConfigManager {
 	}
 	
 	public static interface LogbackConfigLocationLocator{
-		public URL getLogbackConfigLocation();
+		public InputStream getLogbackConfigLocation();
 	}
 	
 	public static class DefaultLogbackConfigLocationLocator implements LogbackConfigLocationLocator{
 		@Override
-		public URL getLogbackConfigLocation() {
+		public InputStream getLogbackConfigLocation() {
 			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 			ContextInitializer ci = new ContextInitializer(loggerContext);
-			return ci.findURLOfDefaultConfigurationFile(true);
+			try {
+				return ci.findURLOfDefaultConfigurationFile(true).openStream();
+			} catch (Exception e) {
+				return null;
+			}
 		}
 	}
 
