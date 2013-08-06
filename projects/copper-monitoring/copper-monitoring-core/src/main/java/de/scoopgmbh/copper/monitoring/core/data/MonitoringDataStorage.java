@@ -212,6 +212,7 @@ public class MonitoringDataStorage {
 		this.maxTotalSize = maxSize;
 		this.discardDataBeforeDateMillis = maxAgeUnit.toMillis(duration);
 		loadFiles();
+		ensureCurrentFile(0);
 	}
 	
 	private void loadFiles()  {
@@ -592,7 +593,7 @@ public class MonitoringDataStorage {
     
 	public Date getMinDate() {
         synchronized (lock) {
-    		long min=currentTarget.earliestTimestamp;
+        	long min=currentTarget == null?System.currentTimeMillis():currentTarget.earliestTimestamp;
         	for (TargetFile target : writtenFiles) {
     			min = Math.min(target.earliestTimestamp, min);
 	    	}
@@ -602,7 +603,7 @@ public class MonitoringDataStorage {
 
 	public Date getMaxDate() {
         synchronized (lock) {
-    		long max=currentTarget.latestTimestamp;
+    		long max=currentTarget == null?System.currentTimeMillis():currentTarget.latestTimestamp;
         	for (TargetFile target : writtenFiles) {
     			max = Math.max(target.latestTimestamp, max);
 	    	}
@@ -623,7 +624,14 @@ public class MonitoringDataStorage {
 			}
 			classToInfo.put(clazz, info);
 		}
-		final double size = ((writtenFiles.size())*(FILE_CHUNK_SIZE/1024.0/1024.0))+(currentTarget.out.position()/1024.0/1024.0);
+		long lSize = 0;
+    	synchronized (lock) {
+    		for (TargetFile tf : writtenFiles)
+    			lSize += tf.limit;
+    		if (currentTarget != null)
+    			lSize += currentTarget.limit;
+    	}
+		final double size = (lSize/1024.0d/1024.0d);
 		return new MonitoringDataStorageInfo(size,targetPath.getAbsolutePath(),new ArrayList<MonitoringDataStorageContentInfo>(classToInfo.values()),getMinDate(),getMaxDate());
 	}
 
