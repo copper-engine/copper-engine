@@ -15,6 +15,8 @@
  */
 package de.scoopgmbh.copper.persistent;
 
+import java.io.Serializable;
+
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.WorkflowRepository;
@@ -33,5 +35,8 @@ public interface Serializer {
 	
 	public String serializeResponse(final Response<?> r) throws Exception;
 	public Response<?> deserializeResponse(String _data) throws Exception;
-	
+
+	public String serializeObject(final Serializable o) throws Exception;
+	public Serializable deserializeObject(String _data) throws Exception;
+
 }

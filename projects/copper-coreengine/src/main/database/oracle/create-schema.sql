@@ -123,3 +123,18 @@ create table COP_ENGINE (
 );
 */
 
+
+CREATE TABLE ADAPTERCALL ("WORKFLOWID"  VARCHAR2(128CHAR) NOT NULL,
+                          "ENTITYID"    VARCHAR2(128CHAR) NOT NULL,
+                          "ADAPTERID"   VARCHAR2(256CHAR) NOT NULL,
+                          "PRIORITY"    NUMBER(19,0) NOT NULL,
+                          "DEFUNCT"     CHAR(1) DEFAULT '0' NOT NULL ,
+                          "DEQUEUE_TS"  TIMESTAMP , 
+                          "METHODDECLARINGCLASS" VARCHAR2(1024CHAR)  NOT NULL,
+                          "METHODNAME" VARCHAR2(1024CHAR)  NOT NULL,
+                          "METHODSIGNATURE" VARCHAR2(2048CHAR)  NOT NULL,
+                          "ARGS" CLOB  NOT NULL,
+                          CONSTRAINT PK_ADAPTERCLASS PRIMARY KEY (ADAPTERID, WORKFLOWID, ENTITYID));
+
+CREATE INDEX IX_ADAPTERCALL ON ADAPTERCALL(ADAPTERID, PRIORITY);
+

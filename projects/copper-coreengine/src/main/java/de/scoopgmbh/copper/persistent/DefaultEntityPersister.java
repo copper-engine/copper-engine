@@ -74,21 +74,29 @@ public class DefaultEntityPersister<E> implements EntityPersister<E> {
 	@Override
 	public void select(E e,
 			EntityPersister.PostSelectedCallback<E> callback) {
+		if (selectionWorker == null)
+			throw new UnsupportedOperationException();
 		selectionWorker.addSelect(workflow, e, callback);
 	}
 
 	@Override
 	public void insert(E e) {
+		if (insertionWorker == null)
+			throw new UnsupportedOperationException();
 		insertionWorker.addDml(workflow, e);
 	}
 
 	@Override
 	public void update(E e) {
+		if (updateWorker == null)
+			throw new UnsupportedOperationException();
 		updateWorker.addDml(workflow, e);
 	}
 
 	@Override
 	public void delete(E e) {
+		if (deletionWorker == null)
+			throw new UnsupportedOperationException();
 		deletionWorker.addDml(workflow, e);
 	}
 

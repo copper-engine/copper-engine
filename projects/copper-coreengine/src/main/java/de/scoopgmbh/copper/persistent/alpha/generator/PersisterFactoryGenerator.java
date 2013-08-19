@@ -104,19 +104,24 @@ public class PersisterFactoryGenerator {
 			p.sqlType = translateSqlType(desc.getPropertyType());
 			return p;
 		}
+
+		public static PersistentMember fromProperty(Class declaringClass, String propertyName) {
+			try {
+				for (PropertyDescriptor desc : Introspector.getBeanInfo(declaringClass).getPropertyDescriptors()) {
+					if (propertyName.equals(desc.getName())) {
+						return fromProperty(desc);
+					}
+				}
+			} catch (IntrospectionException e) {
+				throw new RuntimeException(e);
+			}
+			throw new RuntimeException("No such property: "+declaringClass.getCanonicalName()+"."+propertyName);
+		}
+
 	}
 	
-	public static interface GenerationDescription {
-		
-		String getEntitySimpleName();
-		String getEntityPackageName();
-		String getFactoryPackgeName();
-		String getTableName();
-		Collection<PersistentMember> getPersistentMembers();
-		
-	}
 	
-	public static class GenerationDesctiptionImpl implements GenerationDescription {
+	public static class GenerationDescription  {
 		
 		final String entitySimpleName;
 		final String entityPackageName;
@@ -124,7 +129,7 @@ public class PersisterFactoryGenerator {
 		final String tableName;
 		final ArrayList<PersistentMember> persistentMembers = new ArrayList<PersistentMember>();
 		
-		GenerationDesctiptionImpl(		String entitySimpleName,String entityPackageName,String factoryPackgeName) {
+		public GenerationDescription(		String entitySimpleName,String entityPackageName,String factoryPackgeName) {
 			this.entityPackageName = entityPackageName;
 			this.entitySimpleName = entitySimpleName;
 			this.factoryPackgeName = factoryPackgeName;
@@ -402,13 +407,13 @@ public class PersisterFactoryGenerator {
 		Region reg = findRegion(template, "SQL_SELECTORACLE");
 		String selectStmt = "\"SELECT "+getColumnList(desc, "tab")+"\"+"
 		                     +reg.linePrefix+"\"FROM \\\""+desc.getTableName()+"\\\" as tab, TABLE(:1) as IDS\"+"
-		                     +reg.linePrefix+"\"WHERE tab.\\\"WORKFLOWID\\\" =  IDS.COLUMN_VALUE";
+		                     +reg.linePrefix+"\"WHERE tab.\\\"WORKFLOWID\\\" =  IDS.COLUMN_VALUE\"";
 		template = replace(template,reg,selectStmt);
 		
 		reg = findRegion(template, "SQL_SELECTCOMMON");
 		selectStmt = "\"SELECT "+getColumnList(desc, "tab")+"\"+"
 		                     +reg.linePrefix+"\"FROM \\\""+desc.getTableName()+"\\\" as tab\"+"
-		                     +reg.linePrefix+"\"WHERE tab.\\\"WORKFLOWID\\\" IN (";
+		                     +reg.linePrefix+"\"WHERE tab.\\\"WORKFLOWID\\\" IN (\"";
 		template = replace(template,reg,selectStmt);
 		
 		for (;;) {
@@ -462,11 +467,10 @@ public class PersisterFactoryGenerator {
 		output.append(template);
 		output.flush();
 	}
-		
-
 	
+
 	public static void main(String[] args) throws UnsupportedEncodingException, IOException, IntrospectionException {
-		GenerationDesctiptionImpl impl = new GenerationDesctiptionImpl("TEMPLATE","de.scoopgmbh.copper.persistent.alpha.generator","de.scoopgmbh.copper.persistent.alpha.generator");
+		GenerationDescription impl = new GenerationDescription("TEMPLATE","de.scoopgmbh.copper.persistent.alpha.generator","de.scoopgmbh.copper.persistent.alpha.generator");
 		for (PropertyDescriptor desc : Introspector.getBeanInfo(TEMPLATE.class).getPropertyDescriptors()) {
 			if ("entityId".equals(desc.getName()))
 				continue;

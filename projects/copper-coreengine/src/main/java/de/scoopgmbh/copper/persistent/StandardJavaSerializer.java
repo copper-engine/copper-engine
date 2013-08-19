@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 
@@ -88,7 +89,7 @@ public class StandardJavaSerializer implements Serializer {
 		return sb.toString();
 	}
 	
-	private Object deserialize(String _data, final WorkflowRepository wfRepo) throws IOException, ClassNotFoundException, DataFormatException {
+	private Serializable deserialize(String _data, final WorkflowRepository wfRepo) throws IOException, ClassNotFoundException, DataFormatException {
 		if (_data == null) 
 			return null;
 		boolean isCompressed = _data.charAt(0) == 'C';
@@ -103,7 +104,7 @@ public class StandardJavaSerializer implements Serializer {
 				return wfRepo.resolveClass(desc);
 			};
 		} : new ObjectInputStream(bais);
-		Object o = ois.readObject();
+		Serializable o = (Serializable) ois.readObject();
 		ois.close();
 		return o;	
 	}
@@ -142,11 +143,11 @@ public class StandardJavaSerializer implements Serializer {
 		return (Response<?>) deserialize(_data, null);
 	}
 
-	public String serializeObject(Object o) throws Exception {
+	public String serializeObject(Serializable o) throws Exception {
 		return serialize(o);
 	}
 
-	public Object deserializeObject(String _data) throws Exception {
+	public Serializable deserializeObject(String _data) throws Exception {
 		return deserialize(_data, null);
 	}
 

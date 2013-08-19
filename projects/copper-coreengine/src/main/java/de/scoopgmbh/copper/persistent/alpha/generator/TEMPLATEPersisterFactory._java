@@ -1,5 +1,6 @@
 package de.scoopgmbh.copper.persistent.alpha.generator;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,8 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import oracle.sql.ARRAY;
-import oracle.sql.ArrayDescriptor;
 
 import org.springframework.jdbc.support.nativejdbc.C3P0NativeJdbcExtractor;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
@@ -22,6 +21,7 @@ import de.scoopgmbh.copper.persistent.DefaultEntityPersisterFactory;
 import de.scoopgmbh.copper.persistent.DefaultPersistenceWorker;
 import de.scoopgmbh.copper.persistent.DefaultPersisterSharedRessources;
 import de.scoopgmbh.copper.persistent.DefaultPersisterSimpleCRUDSharedRessources;
+import de.scoopgmbh.copper.persistent.OracleUtil;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 /*ADDITIONAL_IMPORTS*/
@@ -125,10 +125,10 @@ public abstract class TEMPLATEPersisterFactory implements
 			PreparedStatement stmt = connection.prepareStatement(sql);
 			try {
 				Connection nativeConnection = extractor.getNativeConnection(connection);
-				ArrayDescriptor tableType =
-			            ArrayDescriptor.createDescriptor("COP_VARCHAR128_ARRAY", nativeConnection);
 				String[] parameters  = workflowIds.toArray(new String[workflowIds.size()]);
-				stmt.setArray(1, new ARRAY(tableType, nativeConnection, parameters));
+				Array array =
+			            OracleUtil.createArray("COP_VARCHAR128_ARRAY", nativeConnection, parameters);
+				stmt.setArray(1, array);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()) {
 					EntityIdentity identity = new EntityIdentity(rs.getString(1), rs.getString(2));
@@ -186,7 +186,7 @@ public abstract class TEMPLATEPersisterFactory implements
 			final StringBuilder sql = new StringBuilder( 
 					/*BEGINSQL_SELECTCOMMON*/"SELECT \"WORKFLOWID\", \"ENTITYID\", \"NAME\", \"INTVALUE\" "+
 											"FROM  \"TEMPLATE\" "+
-											"WHERE \"TEMPLATE\".\"WORKFLOWID\" IN (");/*ENDSQL_SELECTCOMMON*/
+											"WHERE \"TEMPLATE\".\"WORKFLOWID\" IN ("/*ENDSQL_SELECTCOMMON*/);
 
 			Set<String> workflowIds = new HashSet<String>();
 			EntityIdentity[] sortedEntities = new EntityIdentity[theWork.size()];
