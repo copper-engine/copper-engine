@@ -66,5 +66,9 @@ public class AdapterCall extends PersistentEntity {
 		gen.generatePersisterFactory(desc, new OutputStreamWriter(System.out));
 	}
 	
+	@Override
+	public String toString() {
+		return adapterId+": "+method;
+	}
 		 
 }

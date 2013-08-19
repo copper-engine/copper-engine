@@ -36,7 +36,7 @@ public final class DefaultPersistenceContextFactory implements PersistenceContex
 	 * @param configuration The persister factory configuration
 	 * @param con The connection that this persistence context factory will flush to. See {@link #flush()}.
 	 */
-	DefaultPersistenceContextFactory(DefaultPersistenceContextFactoryConfiguration configuration,Connection con) {
+	public DefaultPersistenceContextFactory(DefaultPersistenceContextFactoryConfiguration configuration,Connection con) {
 		this.configuration = configuration;
 		this.connection = con;
 	}

@@ -24,7 +24,6 @@ import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
-import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.batcher.CommandCallback;
 import de.scoopgmbh.copper.batcher.NullCallback;
 import de.scoopgmbh.copper.persistent.DefaultEntityPersister;
@@ -238,7 +237,7 @@ public abstract class AdapterCallPersisterFactory implements
 					stmt.setString( 2, entity.getEntityId());
 					stmt.setString(3, entity.getAdapterId());
 					stmt.setInt(4, entity.getPriority());
-					stmt.setString(5, entity.getMethod().getDeclaringClass().getCanonicalName());
+					stmt.setString(5, entity.getMethod().getDeclaringClass().getName());
 					stmt.setString(6, entity.getMethod().getName());
 					stmt.setString(7, Type.getMethodDescriptor(entity.getMethod()));
 					try {
@@ -419,9 +418,10 @@ public abstract class AdapterCallPersisterFactory implements
 				HashMap<String, Method> subCache2 = subCache1.get(methodName);
 				mr = subCache2 == null?null:subCache2.get(signature);
 			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
 			}
 			if (mr == null)
-				throw new NoSuchMethodError("Method "+methodName+"'  with signature '"+signature+"' of class '"+declaringClass+" not found ");
+				throw new NoSuchMethodError("Method '"+methodName+"'  with signature '"+signature+"' of class '"+declaringClass+" not found ");
 			return mr;
 		}
 	}

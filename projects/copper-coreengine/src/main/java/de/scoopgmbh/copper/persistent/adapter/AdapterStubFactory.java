@@ -12,6 +12,7 @@ import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 public class AdapterStubFactory {
 	
 	
+	@SuppressWarnings("unchecked")
 	public static <A> A createAdapter(final PersistentWorkflow<?> wf, String adapterId, Class<A> adapterClass) {
 		ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>(Arrays.asList(adapterClass.getInterfaces()));
 		if (adapterClass.isInterface())
@@ -23,7 +24,7 @@ public class AdapterStubFactory {
 		InvocationHandler h = new InvocationHandler() {
 			@Override
 			public Object invoke(Object proxy, Method method, Object[] args) {
-				if (method.getReturnType() != null)
+				if (method.getReturnType() != void.class)
 					throw new RuntimeException("Cannot buffer call with non-void return type");
 				AdapterCall c = new AdapterCall(wf.getId(), adapterId, UUID.randomUUID().toString(), method, args, wf.getPriority());
 				wf.addAdapterCall(c);

@@ -30,7 +30,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 
 
@@ -105,7 +104,7 @@ public class PersisterFactoryGenerator {
 			return p;
 		}
 
-		public static PersistentMember fromProperty(Class declaringClass, String propertyName) {
+		public static PersistentMember fromProperty(Class<?> declaringClass, String propertyName) {
 			try {
 				for (PropertyDescriptor desc : Introspector.getBeanInfo(declaringClass).getPropertyDescriptors()) {
 					if (propertyName.equals(desc.getName())) {
@@ -333,7 +332,7 @@ public class PersisterFactoryGenerator {
 		return Arrays.<Class<?>>asList(Byte.class,Short.class,Integer.class,Long.class,Boolean.class,Float.class,Double.class).contains(javaType);
 	}
 
-	private static Class getPrimitiveJavaType(Class<?> javaType) {
+	private static Class<?> getPrimitiveJavaType(Class<?> javaType) {
 		if (javaType == Boolean.class)
 			return boolean.class;
 		if (javaType == Float.class)

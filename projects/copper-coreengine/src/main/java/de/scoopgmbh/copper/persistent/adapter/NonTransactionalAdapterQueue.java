@@ -41,36 +41,37 @@ public class NonTransactionalAdapterQueue {
 		}
 
 		long waitMillis;
-		static final long MAX_WAIT_MILLIS = 1000;
+		static final long MAX_WAIT_MILLIS = 2000;
 
 		
 		@Override
 		public void run() {
-			while (run) {
+			waitMillis = 1;
+			loop: while (run) {
 				synchronized (reloadLock) {
-					waitMillis = 64;
-					while (queue.size() > triggerReloadQueueLength) {
-						try {
-							waitMillis *= 2;
-							if (waitMillis > MAX_WAIT_MILLIS)
-								waitMillis = MAX_WAIT_MILLIS;
-							reloadLock.wait(waitMillis);
-						} catch (InterruptedException e) {
-							Thread.currentThread().interrupt();
-							break;
-						}
+					try {
+						waitMillis *= 4;
+						if (waitMillis > MAX_WAIT_MILLIS)
+							waitMillis = MAX_WAIT_MILLIS;
+						reloadLock.wait(waitMillis);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						continue loop;
 					}
 				}
-				if (run) {
+				if (run && queue.size() < triggerReloadQueueLength) {
 					try {
+						List<AdapterCall> newElements = ctrl.run(new DatabaseTransaction<List<AdapterCall>>() {
+							@Override
+							public List<AdapterCall> run(Connection con) throws Exception {
+								Selector s = persistence.createSelector();
+								return s.dequeue(con, adapterIds, transientQueueLength-queue.size());
+							}
+						});
+						if (!newElements.isEmpty())
+							waitMillis = 1;
 						queue.addAll(
-							ctrl.run(new DatabaseTransaction<List<AdapterCall>>() {
-								@Override
-								public List<AdapterCall> run(Connection con) throws Exception {
-									Selector s = persistence.createSelector();
-									return s.dequeue(con, adapterIds, transientQueueLength-queue.size());
-								}
-							})
+							newElements
 						);
 					} catch (Exception e) {
 						logger.error("Dequeue error",e);

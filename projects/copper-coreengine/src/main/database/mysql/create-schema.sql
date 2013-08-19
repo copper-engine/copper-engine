@@ -109,7 +109,7 @@ CREATE TABLE ADAPTERCALL ("WORKFLOWID"  VARCHAR(128) NOT NULL,
                           "METHODDECLARINGCLASS" VARCHAR(1024)  NOT NULL,
                           "METHODNAME" VARCHAR(1024)  NOT NULL,
                           "METHODSIGNATURE" VARCHAR(2048)  NOT NULL,
-                          "ARGS" CLOB  NOT NULL,
+                          "ARGS" CLOB,
                           PRIMARY KEY (ADAPTERID, WORKFLOWID, ENTITYID))
  ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
