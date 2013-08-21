@@ -15,13 +15,11 @@
  */
 package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result;
 
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.ResourceBundle;
-
+import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
+import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterModel;
+import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animation.AdapterAnimationCreator;
+import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 import javafx.animation.Animation.Status;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
@@ -31,14 +29,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.OverrunStyle;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -49,11 +41,13 @@ import javafx.util.Duration;
 import javafx.util.StringConverter;
 import javafx.util.converter.DateStringConverter;
 import javafx.util.converter.NumberStringConverter;
-import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
-import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.fiter.AdapterMonitoringFilterModel;
-import de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.annimation.AdapterAnnimationCreator;
-import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
+
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.ResourceBundle;
 
 public class AdapterMonitoringResultController extends FilterResultControllerBase<AdapterMonitoringFilterModel,AdapterMonitoringResultModel> implements Initializable {
 	private static final String DATETIME_FORMAT = "dd.MM.yyyy HH:mm:ss,SSS";
@@ -342,8 +336,8 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 					// lazy init cause else annimation pane is not layouted
 					timeline.getKeyFrames().clear();
 					annimationPane.getChildren().clear();
-					final AdapterAnnimationCreator adapterAnnimationCreator = new AdapterAnnimationCreator(annimationPane, timeline);
-					adapterAnnimationCreator.create(adapterInputTable.getItems(), adapterOutputLaunchTable.getItems(),
+					final AdapterAnimationCreator adapterAnimationCreator = new AdapterAnimationCreator(annimationPane, timeline);
+					adapterAnimationCreator.create(adapterInputTable.getItems(), adapterOutputLaunchTable.getItems(),
 							adapterOutputNotifyTable.getItems());
 					
 					slider.setMax(timeline.getTotalDuration().toMillis());
@@ -359,7 +353,7 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 						
 						@Override
 						public String toString(Number object) {
-							return simpleDateFormat.format(new Date(object.longValue()+adapterAnnimationCreator.getMin()));
+							return simpleDateFormat.format(new Date(object.longValue()+ adapterAnimationCreator.getMin()));
 						}
 					});
 					timeline.jumpTo(Duration.ZERO);
@@ -378,7 +372,7 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
     
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("AdapterMonitoringResult.fxml");
 	}
 

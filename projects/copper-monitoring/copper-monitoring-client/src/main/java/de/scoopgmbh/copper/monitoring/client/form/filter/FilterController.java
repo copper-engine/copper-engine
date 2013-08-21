@@ -25,7 +25,7 @@ public interface FilterController<F> extends FxmlController {
 	public F getFilter();
 	public boolean supportsFiltering();
 	//public void executeFilter();
-	public long getDefaultRefreshIntervall();
+	public long getDefaultRefreshInterval();
 	
 	public ListProperty<ActionsWithFilterForm> getActionsWithFilterForm();
 	

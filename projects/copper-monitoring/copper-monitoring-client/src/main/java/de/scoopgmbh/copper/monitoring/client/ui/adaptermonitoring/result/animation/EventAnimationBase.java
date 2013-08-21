@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.annimation;
+package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animation;
 
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -22,9 +22,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.Text;
 
-public class EventAnnimationBase extends AnnimationPartBase{
+public class EventAnimationBase extends AnimationPartBase {
 	
-	public EventAnnimationBase(Color color, AnnimationPartParameter animationPartBaseParameter) {
+	public EventAnimationBase(Color color, AnimationPartParameter animationPartBaseParameter) {
 		super(animationPartBaseParameter);
 		this.color = color;
 	}
@@ -34,7 +34,7 @@ public class EventAnnimationBase extends AnnimationPartBase{
 	Color color;
 
 	@Override
-	public Node createVisualRepresentaion() {
+	public Node createVisualRepresentation() {
 		Pane pane = new Pane();
 		final Rectangle rectangle = new Rectangle(EVENT_WIDTH,EVENT_HEIGHT);
 		rectangle.setFill(color);

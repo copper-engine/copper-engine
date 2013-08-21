@@ -43,7 +43,7 @@ public class GenericEngineFilterController<T extends EnginePoolFilterModel> exte
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return GenericFilterController.EMPTY_DUMMY_URL;
 	}
 
@@ -53,7 +53,7 @@ public class GenericEngineFilterController<T extends EnginePoolFilterModel> exte
 	}
 	
 	@Override
-	public long getDefaultRefreshIntervall() {
+	public long getDefaultRefreshInterval() {
 		return refereshIntervall;
 	}
 

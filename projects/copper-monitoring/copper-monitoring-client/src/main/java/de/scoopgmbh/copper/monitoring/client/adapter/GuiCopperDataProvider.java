@@ -218,9 +218,9 @@ public class GuiCopperDataProvider {
 		
 			final StatisticCreator<SystemResourcesInfo, SystemResourcesInfo> statisticCreator = new StatisticCreator<SystemResourcesInfo,SystemResourcesInfo>(TimeframeGroup.<SystemResourcesInfo, SystemResourcesInfo>createGroups(
 					groupCount,from,to,aggregateFunction, dateConverter));
-			List<List<SystemResourcesInfo>> statisticCreators = copperMonitoringService.<SystemResourcesInfo,SystemResourcesInfo>createStatistic(
+			List<List<SystemResourcesInfo>> statisticCreators = copperMonitoringService.createStatistic(
 					new TypeFilter<SystemResourcesInfo>(SystemResourcesInfo.class), Arrays.<StatisticCreator<SystemResourcesInfo, SystemResourcesInfo>>asList(statisticCreator),from,to);
-			return (List<SystemResourcesInfo>) statisticCreators.get(0);
+			return statisticCreators.get(0);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -384,7 +384,7 @@ public class GuiCopperDataProvider {
 			final StatisticCreator<MeasurePointData, TimeValuePair<Double>> avgCpuCreator = new StatisticCreator<MeasurePointData,TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
 					count,from,to,avgCpuFunction, new MeasurePointDataDateConverter()));
 			
-			final List<StatisticCreator<MeasurePointData, TimeValuePair<Double>>> statistics = Arrays.<StatisticCreator<MeasurePointData, TimeValuePair<Double>>>asList(
+			final List<StatisticCreator<MeasurePointData, TimeValuePair<Double>>> statistics = Arrays.asList(
 					avgCreator,
 					countCreator,
 					quantil50Creator,
@@ -394,7 +394,7 @@ public class GuiCopperDataProvider {
 					);
 			
 			
-			List<List<TimeValuePair<Double>>> result = copperMonitoringService.<MeasurePointData,TimeValuePair<Double>>createStatistic(
+			List<List<TimeValuePair<Double>>> result = copperMonitoringService.createStatistic(
 					new MeasurePointFilter(filter.measurePointId.get()), 
 					statistics, from, to);
 			

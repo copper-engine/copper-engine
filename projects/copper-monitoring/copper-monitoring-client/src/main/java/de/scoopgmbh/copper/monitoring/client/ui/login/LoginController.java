@@ -118,7 +118,7 @@ public class LoginController implements Initializable, FxmlController {
     }
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("Login.fxml");
 	}
 }

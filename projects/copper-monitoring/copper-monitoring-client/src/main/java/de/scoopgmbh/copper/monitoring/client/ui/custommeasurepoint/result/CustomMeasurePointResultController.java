@@ -159,7 +159,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 									builder.append("... aborted after 1000 ....");
 									break;
 								}
-						};
+						}
 						Platform.runLater(new Runnable() {
 							@Override
 							public void run() {
@@ -193,7 +193,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 	}
 	
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("CustomMeasurePointResult.fxml");
 	}
 
@@ -236,9 +236,13 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 	private void craeteTextChart(Map<String,List<TimeValuePair<Double>>> seriesTitleToData) {
 		StringBuilder result = new StringBuilder();
 		for (Entry<String,List<TimeValuePair<Double>>> seriesData: seriesTitleToData.entrySet()){
-			result.append(seriesData.getKey()+"\n");
+			result.append(seriesData.getKey());
+            result.append("\n");
 			for (TimeValuePair<Double> value: seriesData.getValue()){
-				result.append(value.date+"\t"+value.value+"\n");
+				result.append(value.date);
+                result.append("\t");
+                result.append(value.value);
+                result.append("\n");
 			}
 		}
 		textChart.setText(result.toString());

@@ -15,11 +15,11 @@
  */
 package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result;
 
-import java.util.Date;
-
+import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterWfNotifyInfo;
+
+import java.util.Date;
 
 public class AdapterNotifyRowModel {
 	public final SimpleStringProperty correlationId;
@@ -32,5 +32,5 @@ public class AdapterNotifyRowModel {
 		message= new SimpleStringProperty(adapterWfNotifyInfo.getMessage());
 		timestamp= new SimpleObjectProperty<Date>(adapterWfNotifyInfo.getTimeStamp());
 		adapterName = new SimpleStringProperty(adapterWfNotifyInfo.getAdapterName());
-	};
+	}
 }

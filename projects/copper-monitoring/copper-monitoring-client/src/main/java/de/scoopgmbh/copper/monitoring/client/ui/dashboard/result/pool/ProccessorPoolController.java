@@ -107,7 +107,7 @@ public class ProccessorPoolController implements Initializable, FxmlController {
     }
 	
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("ProcessorPool.fxml");
 	}
 

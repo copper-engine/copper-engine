@@ -98,7 +98,7 @@ public class SqlFilterController extends BaseFilterController<SqlFilterModel> im
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("SqlFilter.fxml");
 	}
 	
@@ -108,7 +108,7 @@ public class SqlFilterController extends BaseFilterController<SqlFilterModel> im
 	}
 	
 	@Override
-	public long getDefaultRefreshIntervall() {
+	public long getDefaultRefreshInterval() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
 	}
 

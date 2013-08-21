@@ -48,7 +48,7 @@ import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 /**
 *
 * @param <F>Filtermodel
-* @param <T>Resultmodel
+* @param <R>Resultmodel
 */
 public abstract class FilterResultControllerBase<F,R> implements FilterResultController<F,R>, FxmlController {
 	
@@ -184,7 +184,8 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 		for (int row=0; row<tableView.getItems().size();row++){
 			for (int column=0; column<tableView.getColumns().size();column++){
 				 Object cell = tableView.getColumns().get(column).getCellData(row);
-				 clipboardString.append(cell+"\t");
+				 clipboardString.append(cell);
+                clipboardString.append("\t");
 			}
 			clipboardString.append("\n");
 		}

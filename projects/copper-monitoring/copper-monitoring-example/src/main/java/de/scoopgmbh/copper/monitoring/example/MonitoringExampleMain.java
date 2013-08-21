@@ -143,10 +143,17 @@ public class MonitoringExampleMain {
 		
 		FileBasedWorkflowRepository wfRepository = new FileBasedWorkflowRepository();
 		wfRepository.setTargetDir("build/classes/test");
-		wfRepository.setSourceDirs(Arrays.asList("src/main/java"));
+
+        System.out.println(new File(".").getAbsolutePath());
+        File srcDir = new File("src/main/java"); //eclipse
+        if (!srcDir.exists()){
+            srcDir = new File("./projects/copper-monitoring/copper-monitoring-example/src/main/java");//idea
+        }
+        System.out.println(srcDir.getAbsolutePath());
+		wfRepository.setSourceDirs(Arrays.asList(srcDir.getAbsolutePath()));
 		wfRepository.start();
 		//wfRepository.shutdown
-		
+
 		
 		LoggingStatisticCollector runtimeStatisticsCollector = new LoggingStatisticCollector();
 		runtimeStatisticsCollector.start();

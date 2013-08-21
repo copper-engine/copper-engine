@@ -224,7 +224,7 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
     }
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("LogsResult.fxml");
 	}
 	

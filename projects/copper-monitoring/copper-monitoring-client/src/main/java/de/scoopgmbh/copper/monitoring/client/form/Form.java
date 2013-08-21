@@ -19,21 +19,21 @@ import javafx.beans.property.SimpleStringProperty;
 
 /**
  *
- * @param <T> target component to display the form
+ * @param <C> target component to display the form
  */
 public abstract class Form<C> implements Widget {
 
 	private final SimpleStringProperty displayTitle;
 	protected SimpleStringProperty staticTitle;
-	private final ShowFormStrategy<?> showFormStrategie;
+	private final ShowFormStrategy<?> showFormStrategy;
 	protected final C controller;
 	
 
-	public Form(String staticTitle, ShowFormStrategy<?> showFormStrategie, C controller) {
+	public Form(String staticTitle, ShowFormStrategy<?> showFormStrategy, C controller) {
 		super();
 		this.staticTitle = new SimpleStringProperty(staticTitle);
 		this.displayTitle = new SimpleStringProperty(staticTitle);
-		this.showFormStrategie = showFormStrategie;
+		this.showFormStrategy = showFormStrategy;
 		this.controller = controller;
 	}
 
@@ -46,7 +46,7 @@ public abstract class Form<C> implements Widget {
 	}
 	
 	public void show(){
-		showFormStrategie.show(this);
+		showFormStrategy.show(this);
 	}
 
 	public C getController(){

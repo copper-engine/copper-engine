@@ -53,7 +53,7 @@ public class ProviderFilterController extends BaseFilterController<ProviderFilte
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("ProviderFilter.fxml");
 	}
 
@@ -63,7 +63,7 @@ public class ProviderFilterController extends BaseFilterController<ProviderFilte
 	}
 
 	@Override
-	public long getDefaultRefreshIntervall() {
+	public long getDefaultRefreshInterval() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
 	}
 

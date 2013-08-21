@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.annimation;
+package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animation;
 
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -22,17 +22,17 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.Text;
 
-public class AdapterAnnimation extends AnnimationPartBase{
+public class AdapterAnimation extends AnimationPartBase {
 	
 	public static final int ADAPTER_HEIGHT = 100;
 	public static final int ADAPTER_WIDTH = 150;
 	public static final Color ADAPTER_COLOR = Color.LIGHTGREEN;
-	public AdapterAnnimation(AnnimationPartParameter animationPartBaseParameter) {
+	public AdapterAnimation(AnimationPartParameter animationPartBaseParameter) {
 		super(animationPartBaseParameter);
 	}
 
 	@Override
-	public Node createVisualRepresentaion() {
+	public Node createVisualRepresentation() {
 		Pane pane = new Pane();
 		final Rectangle adapterRectangle = new Rectangle(ADAPTER_WIDTH,ADAPTER_HEIGHT);
 		adapterRectangle.setFill(ADAPTER_COLOR);

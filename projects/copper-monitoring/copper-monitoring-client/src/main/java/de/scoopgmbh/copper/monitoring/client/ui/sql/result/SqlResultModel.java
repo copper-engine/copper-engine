@@ -26,7 +26,7 @@ public class SqlResultModel {
 	
 	public SqlResultModel(String... rows){
 		for (String row: rows){
-			this.rows.add(new SimpleStringProperty(row));;
+			this.rows.add(new SimpleStringProperty(row));
 		}
 	}
 	

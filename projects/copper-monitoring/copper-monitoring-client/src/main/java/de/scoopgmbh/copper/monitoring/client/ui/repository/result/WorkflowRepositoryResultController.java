@@ -105,15 +105,21 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
     	for (TreeItem<DisplayWorkflowClassesModel> child: item.getChildren()){
     		if (child.getValue().displayname!=null && p.matcher(child.getValue().displayname).matches()){
     			return child;
-    		} else {
-    			return search(child,regex);
     		}
     	}
-		return null;
+
+        TreeItem<DisplayWorkflowClassesModel> result = null;
+        for (TreeItem<DisplayWorkflowClassesModel> child: item.getChildren()){
+            result = search(child,regex);
+            if (result!=null){
+                break;
+            }
+        }
+		return result;
     }
     
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("WorkflowRepositoryResult.fxml");
 	}
 

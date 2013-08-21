@@ -48,7 +48,7 @@ public class GenericFilterController<T> extends BaseFilterController<T>{
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return EMPTY_DUMMY_URL;
 	}
 
@@ -63,7 +63,7 @@ public class GenericFilterController<T> extends BaseFilterController<T>{
 	}
 	
 	@Override
-	public long getDefaultRefreshIntervall() {
+	public long getDefaultRefreshInterval() {
 		return refereshIntervall;
 	}
 

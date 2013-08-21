@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
-
+<?import javafx.scene.text.Font?>
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="457.0" prefWidth="601.0" xmlns:fx="http://javafx.com/fxml">
   <center>
     <TabPane prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE">

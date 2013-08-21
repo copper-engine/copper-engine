@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.annimation;
+package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animation;
 
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -23,21 +23,21 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.Text;
 
-public class WorkflowAnnimation extends AnnimationPartBase{
+public class WorkflowAnimation extends AnimationPartBase {
 	
 	public static final Color WORKFLOW_COLOR = Color.GOLD;
-	public static final int WIDTH = EventAnnimationBase.EVENT_WIDTH+20;
+	public static final int WIDTH = EventAnimationBase.EVENT_WIDTH+20;
 	String workflowClass;
 
-	public WorkflowAnnimation(String workflowClass, AnnimationPartParameter animationPartBaseParameter) {
+	public WorkflowAnimation(String workflowClass, AnimationPartParameter animationPartBaseParameter) {
 		super(animationPartBaseParameter);
 		this.workflowClass = workflowClass;
 	}
 
 	@Override
-	public Node createVisualRepresentaion() {
+	public Node createVisualRepresentation() {
 		Pane pane = new Pane();
-		final Rectangle workflowRectangle = new Rectangle(WIDTH+20,EventAnnimationBase.EVENT_HEIGHT+15);
+		final Rectangle workflowRectangle = new Rectangle(WIDTH+20, EventAnimationBase.EVENT_HEIGHT+15);
 		workflowRectangle.setFill(WORKFLOW_COLOR);
 		workflowRectangle.setArcHeight(25);
 		workflowRectangle.setArcWidth(25);

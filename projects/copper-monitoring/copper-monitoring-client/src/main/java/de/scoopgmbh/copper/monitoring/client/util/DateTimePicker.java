@@ -129,7 +129,8 @@ public class DateTimePicker extends Application implements Widget{
 	
 	SimpleDateFormat dateFormat;
 	String dateFormatText;
-	public DateTimePicker(String dateFormat){
+
+    public DateTimePicker(final String dateFormat){
 		this.dateFormat = new SimpleDateFormat(dateFormat);
 		this.dateFormat.setLenient(true);
 		this.dateFormatText = dateFormat;
@@ -189,12 +190,12 @@ public class DateTimePicker extends Application implements Widget{
 		hbox.getChildren().add(textfield);
 		MenuButton defaultFilterButton = new MenuButton("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/date.png"))));
 		defaultFilterButton.setPrefWidth(20);
-		CustomMenuItem defaultFilterContent = new CustomMenuItem();
-		defaultFilterContent.setHideOnClick(false);
-		defaultFilterButton.getItems().add(defaultFilterContent);
-		defaultFilterContent.getStyleClass().setAll("noSelectAnimationMenueItem","menu-item");
+		CustomMenuItem popUpMenueItem = new CustomMenuItem();
+		popUpMenueItem.setHideOnClick(false);
+		defaultFilterButton.getItems().add(popUpMenueItem);
+		popUpMenueItem.getStyleClass().setAll("noSelectAnimationMenueItem","menu-item");
 		hbox.getChildren().add(defaultFilterButton);
-		defaultFilterContent.setContent(createPopupContent());
+		popUpMenueItem.setContent(createPopupContent());
 		
 		setModelDate(null);
 		bindBidirectionalSelected(selectedDateProperty);
@@ -226,57 +227,42 @@ public class DateTimePicker extends Application implements Widget{
 			}
 		});
 		topbuttons.getChildren().add(nowMinus5);
-		final Button nullBotton = new Button("clear");
-		nullBotton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				setModelDate(null);
-			}
-		});
-		topbuttons.getChildren().add(nullBotton);
+		final Button nullButton = new Button("clear");
+		nullButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setModelDate(null);
+            }
+        });
+		topbuttons.getChildren().add(nullButton);
 		vbox.getChildren().add(topbuttons);
 		final Label label = new Label();
 		vbox.getChildren().add(label);
-		model.addChangeListener(new ChangeListener<Integer>() {
-			@Override
-			public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-				if (!model.isNull()){
-					label.setText(dateFormat.format(model.getDate()));
-				} else {
-					label.setText("");
-				}
-			}
-		});
 		final HBox yearMonthChooser = createYearMonthChooser();
 		vbox.getChildren().add(yearMonthChooser);
 		
         final GridPane gridPane = new GridPane();
         vbox.getChildren().add(gridPane);
         updateDayInMonthChooser(gridPane);
-        model.month.addListener(new ChangeListener<Integer>() {
-			@Override
-			public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-				updateDayInMonthChooser(gridPane);
-			}
-		});
-        model.year.addListener(new ChangeListener<Integer>() {
-			@Override
-			public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-				updateDayInMonthChooser(gridPane);
-			}
-		});
         VBox.setMargin(gridPane, new Insets(3));
         final HBox timeChooser = createTimeChooser();
 		vbox.getChildren().add(timeChooser);
-        
+
         model.addChangeListener(new ChangeListener<Integer>() {
-			@Override
-			public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-				gridPane.setDisable(model.isNull());
-				timeChooser.setDisable(model.isNull());
-				yearMonthChooser.setDisable(model.isNull());
-			}
-		});
+            @Override
+            public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
+                if (!model.isNull()){
+                    label.setText(dateFormat.format(model.getDate()));
+                } else {
+                    label.setText("");
+                }
+
+                updateDayInMonthChooser(gridPane);
+                gridPane.setDisable(model.isNull());
+                timeChooser.setDisable(model.isNull());
+                yearMonthChooser.setDisable(model.isNull());
+            }
+        });
 		return vbox;
 	}
 	
@@ -350,7 +336,7 @@ public class DateTimePicker extends Application implements Widget{
 		}
 
 		int firstDay=0;
-		int actualDayOfMounthMaximum=30;
+		int actualDayOfMonthMaximum=30;
 		final Optional<Calendar> calendarOptional = model.createCalendar();
 		if (calendarOptional.isPresent()){
 			Calendar calendar = calendarOptional.get();
@@ -360,7 +346,7 @@ public class DateTimePicker extends Application implements Widget{
 				firstDay=6;
 			}
 			calendar.set(Calendar.DAY_OF_MONTH,1);
-			actualDayOfMounthMaximum = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+			actualDayOfMonthMaximum = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 		}
 
 		
@@ -399,7 +385,7 @@ public class DateTimePicker extends Application implements Widget{
 		}
 		
 
-		for(int i=0; i<actualDayOfMounthMaximum;i++){
+		for(int i=0; i<actualDayOfMonthMaximum;i++){
 			gridPane.add(buttons[i], (i+firstDay)%7, 1+(i+firstDay)/7);
         }
 		gridPane.getParent().requestLayout();
@@ -409,25 +395,25 @@ public class DateTimePicker extends Application implements Widget{
 		final int day = calendar.get(Calendar.DAY_OF_WEEK);
 		if (day==Calendar.MONDAY){
 			return 0;
-		};
+		}
 		if (day==Calendar.TUESDAY){
 			return 1;
-		};
+		}
 		if (day==Calendar.WEDNESDAY){
 			return 2;
-		};
+		}
 		if (day==Calendar.THURSDAY){
 			return 3;
-		};
+		}
 		if (day==Calendar.FRIDAY){
 			return 4;
-		};
+		}
 		if (day==Calendar.SATURDAY){
 			return 5;
-		};
+		}
 		if (day==Calendar.SUNDAY){
 			return 6;
-		};
+		}
 		throw new IllegalStateException();
 	}
 	
@@ -455,11 +441,11 @@ public class DateTimePicker extends Application implements Widget{
 			}
 		});
 	}
+
 	SimpleObjectProperty<Date> selectedDateProperty = new SimpleObjectProperty<Date>();
 	public SimpleObjectProperty<Date> selectedDateProperty(){
 		return selectedDateProperty;
 	}
-	 
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -483,7 +469,7 @@ public class DateTimePicker extends Application implements Widget{
 	
 	
 	public static void main(String[] args) {
-		DateTimePicker.launch(args);;
+		DateTimePicker.launch(args);
 	}
 
 

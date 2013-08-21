@@ -121,13 +121,13 @@ public class MessageResultController extends FilterResultControllerBase<MessageF
     }
     
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("MessageResult.fxml");
 	}
 
 	@Override
 	public void showFilteredResult(List<MessageResultModel> filteredResult, MessageFilterModel usedFilter) {
-		ObservableList<MessageResultModel> content = FXCollections.observableList(new ArrayList<MessageResultModel>());;
+		ObservableList<MessageResultModel> content = FXCollections.observableList(new ArrayList<MessageResultModel>());
 		content.addAll(filteredResult);
 		resultTable.setItems(content);
 	}

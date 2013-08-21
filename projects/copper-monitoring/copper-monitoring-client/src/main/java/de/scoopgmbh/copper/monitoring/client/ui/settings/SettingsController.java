@@ -137,7 +137,7 @@ public class SettingsController implements Initializable, FxmlController {
 							this.setTextFill(color);
 						}
 						super.updateItem(color, empty);
-					};
+					}
 				};
 			}
 		});
@@ -266,7 +266,7 @@ public class SettingsController implements Initializable, FxmlController {
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("Settings.fxml");
 	}
 }

@@ -54,7 +54,7 @@ public class EngineLoadFilterController extends BaseEngineFilterController<Engin
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("EngineLoadFilter.fxml");
 	}
 	
@@ -64,7 +64,7 @@ public class EngineLoadFilterController extends BaseEngineFilterController<Engin
 	}
 	
 	@Override
-	public long getDefaultRefreshIntervall() {
+	public long getDefaultRefreshInterval() {
 		return 1500;
 	}
 	

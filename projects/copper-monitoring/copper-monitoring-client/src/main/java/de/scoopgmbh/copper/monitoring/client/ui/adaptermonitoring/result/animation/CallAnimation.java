@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.annimation;
+package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animation;
 
 import javafx.scene.paint.Color;
 
 
-public class CallAnnimation extends EventAnnimationBase{
+public class CallAnimation extends EventAnimationBase {
 
 	public static final Color ADAPTER_CALL_COLOR = Color.CORAL;
 	public int count=1;
 	
-	public CallAnnimation(AnnimationPartParameter animationPartBaseParameter) {
+	public CallAnimation(AnimationPartParameter animationPartBaseParameter) {
 		super(ADAPTER_CALL_COLOR,animationPartBaseParameter);
 	}
 	

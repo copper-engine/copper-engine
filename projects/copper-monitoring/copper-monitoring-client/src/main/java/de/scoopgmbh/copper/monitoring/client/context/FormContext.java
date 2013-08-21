@@ -335,8 +335,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
 	@Override
 	public WorkflowClassesTreeController createWorkflowClassesTreeController(TreeView<DisplayWorkflowClassesModel> workflowView) {
-		WorkflowClassesTreeController workflowClassesTreeController = new WorkflowClassesTreeController(workflowView, issueReporter);
-		return workflowClassesTreeController;
+		return new WorkflowClassesTreeController(workflowView, issueReporter);
 	}
 	
 	public FilterAbleForm<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> createWorkflowOverviewForm(){

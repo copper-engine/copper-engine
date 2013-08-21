@@ -13,17 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.annimation;
-
-import javafx.scene.paint.Color;
+package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animation;
 
 
-public class LaunchAnnimation extends EventAnnimationBase{
-	
-	public static final Color ADAPTER_LAUNCH_COLOR = Color.SADDLEBROWN; 
+public class AnimationPartParameter {
+	public long startTime;
+	public long endTime;
+	public String id;
+	public double startx;
+	public double starty;
+	public double endx;
+	public double endy;
 
-	public LaunchAnnimation(AnnimationPartParameter animationPartBaseParameter) {
-		super(ADAPTER_LAUNCH_COLOR,animationPartBaseParameter);
+	public AnimationPartParameter(long startTime, long endTime, String id, double startx, double starty, double endx,
+                                  double endy) {
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.id = id;
+		this.startx = startx;
+		this.starty = starty;
+		this.endx = endx;
+		this.endy = endy;
 	}
-
 }

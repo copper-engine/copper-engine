@@ -61,7 +61,7 @@ public class SqlResultController extends FilterResultControllerBase<SqlFilterMod
     }
 	
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("SqlResult.fxml");
 	}
 

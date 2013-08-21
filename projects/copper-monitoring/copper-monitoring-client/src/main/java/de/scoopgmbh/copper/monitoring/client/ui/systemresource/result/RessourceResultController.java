@@ -98,7 +98,7 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
 	}
 	
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("ResourceResult.fxml");
 	}
 

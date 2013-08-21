@@ -157,7 +157,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 
 		filterService.reset();
 		filterService.start();
-		refreshRateInMs.set(Long.toString(filterForm.getController().getDefaultRefreshIntervall()));
+		refreshRateInMs.set(Long.toString(filterForm.getController().getDefaultRefreshInterval()));
 		
 		return masterStackPane;
 	}
@@ -171,7 +171,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			Region spacer = new Region();
 			VBox.setMargin(spacer, new Insets(1.5));
 			vbox.getChildren().add(spacer);
-			buttonsPane=vbox;;
+			buttonsPane=vbox;
 		} else {
 			HBox hbox = new HBox();
 			hbox.setAlignment(Pos.CENTER);
@@ -260,8 +260,6 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 				if (newValue!=null){
 					toggleButton.setSelected(newValue);
-				} else {
-					
 				}
 			}
 		});

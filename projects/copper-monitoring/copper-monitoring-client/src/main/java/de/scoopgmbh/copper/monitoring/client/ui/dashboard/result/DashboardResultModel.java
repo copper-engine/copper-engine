@@ -28,22 +28,22 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 public class DashboardResultModel {
 	
 	public final List<ProcessingEngineInfo> engines = new ArrayList<ProcessingEngineInfo>();
-	private Map<String,WorkflowStateSummary> engineIdTostateSummery = new HashMap<String,WorkflowStateSummary>();
+	private Map<String,WorkflowStateSummary> engineIdToStateSummery = new HashMap<String,WorkflowStateSummary>();
 	public List<MonitoringDataProviderInfo> providers = new ArrayList<MonitoringDataProviderInfo>();
 	public MonitoringDataStorageInfo monitoringDataStorageInfo;
 	
-	public DashboardResultModel(Map<String, WorkflowStateSummary> engineIdTostateSummery, 
+	public DashboardResultModel(Map<String, WorkflowStateSummary> engineIdToStateSummery,
 			List<ProcessingEngineInfo> processingEngineInfo, 
 			List<MonitoringDataProviderInfo> providers, 
 			MonitoringDataStorageInfo monitoringDataStorageInfo){
-		this.engineIdTostateSummery.putAll(engineIdTostateSummery);
+		this.engineIdToStateSummery.putAll(engineIdToStateSummery);
 		this.engines.addAll(processingEngineInfo);
 		this.providers = providers;
 		this.monitoringDataStorageInfo = monitoringDataStorageInfo;
 	}
 	
 	public WorkflowStateSummary getStateSummery(String engineId){
-		return engineIdTostateSummery.get(engineId);
+		return engineIdToStateSummery.get(engineId);
 	}
 	
 

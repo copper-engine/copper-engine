@@ -68,7 +68,7 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 
 		@Override
 		public ObservableList<TreeItem<DisplayableNode>> getChildren() {
-			if (hasLoadedChildren == false) {
+			if (!hasLoadedChildren) {
 				loadChildren();
 			}
 			return super.getChildren();
@@ -76,7 +76,7 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 
 		@Override
 		public boolean isLeaf() {
-			if (hasLoadedChildren == false) {
+			if (!hasLoadedChildren) {
 				loadChildren();
 			}
 			return super.getChildren().isEmpty();
@@ -165,7 +165,7 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
     }
 	
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("WorkflowInstanceDetailResult.fxml");
 	}
 

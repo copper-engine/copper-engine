@@ -39,7 +39,7 @@ public abstract class FormCreator{
 	}
 	
 	public MenuItem createShowFormMenuItem(){
-		MenuItem menueItem = MenuItemBuilder
+		return   MenuItemBuilder
 				.create()
 				.text(staticTitle)
 				.onAction(new EventHandler<ActionEvent>() {
@@ -48,7 +48,6 @@ public abstract class FormCreator{
 						createFormInternal().show();
 					}
 				}).build();
-		return menueItem;
 	}
 	
 	public ButtonBase createShowFormButton(){
@@ -66,7 +65,7 @@ public abstract class FormCreator{
 		createFormInternal().show();
 	}
 
-	boolean enabled=true;
+    private boolean enabled=true;
 	public boolean isEnabled() {
 		return enabled;
 	}

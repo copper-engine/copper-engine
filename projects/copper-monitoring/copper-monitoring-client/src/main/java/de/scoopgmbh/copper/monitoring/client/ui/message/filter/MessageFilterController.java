@@ -60,7 +60,7 @@ public class MessageFilterController extends BaseEngineFilterController<MessageF
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("MessageFilter.fxml");
 	}
 	
@@ -70,7 +70,7 @@ public class MessageFilterController extends BaseEngineFilterController<MessageF
 	}
 	
 	@Override
-	public long getDefaultRefreshIntervall() {
+	public long getDefaultRefreshInterval() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
 	}
 

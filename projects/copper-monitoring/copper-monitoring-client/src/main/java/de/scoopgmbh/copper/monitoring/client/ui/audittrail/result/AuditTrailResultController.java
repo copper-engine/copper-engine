@@ -292,13 +292,13 @@ public class AuditTrailResultController extends FilterResultControllerBase<Audit
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("AuditTrailResult.fxml");
 	}
 
 	@Override
 	public void showFilteredResult(List<AuditTrailResultModel> filteredResult, AuditTrailFilterModel usedFilter) {
-		ObservableList<AuditTrailResultModel> content = FXCollections.observableList(new ArrayList<AuditTrailResultModel>());;
+		ObservableList<AuditTrailResultModel> content = FXCollections.observableList(new ArrayList<AuditTrailResultModel>());
 		content.addAll(filteredResult);
 		resultTable.setItems(content);
 		

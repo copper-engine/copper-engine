@@ -13,26 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.annimation;
+package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animation;
+
+import javafx.scene.paint.Color;
 
 
-public class AnnimationPartParameter {
-	public long startTime;
-	public long endTime;
-	public String id;
-	public double startx;
-	public double starty;
-	public double endx;
-	public double endy;
+public class NotifyAnimation extends EventAnimationBase {
+	
+	public static final Color ADAPTER_NOTIFY_COLOR = Color.CORNFLOWERBLUE;
 
-	public AnnimationPartParameter(long startTime, long endTime, String id, double startx, double starty, double endx,
-			double endy) {
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.id = id;
-		this.startx = startx;
-		this.starty = starty;
-		this.endx = endx;
-		this.endy = endy;
+	public NotifyAnimation(AnimationPartParameter animationPartBaseParameter) {
+		super(ADAPTER_NOTIFY_COLOR,animationPartBaseParameter);
 	}
+
 }

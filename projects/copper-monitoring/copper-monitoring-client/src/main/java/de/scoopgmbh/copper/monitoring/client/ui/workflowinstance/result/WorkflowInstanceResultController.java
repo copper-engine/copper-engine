@@ -322,13 +322,13 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
     }
     
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("WorkflowInstanceResult.fxml");
 	}
 
 	@Override
 	public void showFilteredResult(List<WorkflowInstanceResultModel> filteredResult, WorkflowInstanceFilterModel usedFilter) {
-		ObservableList<WorkflowInstanceResultModel> content = FXCollections.observableList(new ArrayList<WorkflowInstanceResultModel>());;
+		ObservableList<WorkflowInstanceResultModel> content = FXCollections.observableList(new ArrayList<WorkflowInstanceResultModel>());
 		content.addAll(filteredResult);
 		resultTable.setItems(content);
 		this.usedFilter=usedFilter;

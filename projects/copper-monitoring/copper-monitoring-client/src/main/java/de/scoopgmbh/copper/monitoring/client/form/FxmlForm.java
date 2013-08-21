@@ -41,13 +41,12 @@ public class FxmlForm<C extends FxmlController> extends Form<C> {
 
 	@Override
 	public Node createContent() {
-		if (controller.getFxmlRessource()!=GenericFilterController.EMPTY_DUMMY_URL){
-			FXMLLoader fxmlLoader = new FXMLLoader(controller.getFxmlRessource());
+		if (controller.getFxmlResource()!=GenericFilterController.EMPTY_DUMMY_URL){
+			FXMLLoader fxmlLoader = new FXMLLoader(controller.getFxmlResource());
 			fxmlLoader.setController(controller);
 			fxmlLoader.setResources(messageProvider.getBundle());
 			try {
-				Parent load = (Parent) fxmlLoader.load();
-				return load;
+				return (Parent)fxmlLoader.load();
 			} catch (IOException exception) {
 				throw new RuntimeException(exception);
 			}

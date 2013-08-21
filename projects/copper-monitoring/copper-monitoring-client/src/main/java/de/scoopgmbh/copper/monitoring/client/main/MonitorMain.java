@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitoring.client.main;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.sun.javafx.perf.PerformanceTracker;
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Scene;
@@ -58,14 +59,34 @@ public class MonitorMain extends Application {
 			applicationContext.setHttpGuiCopperDataProvider(monitorServerAdress,monitorServerUser,monitorServerPassword);
 		} else {
 			applicationContext.createLoginForm().show();
-		}
-	
+        }
 
+//        new Thread(){
+//             {
+//                 setDaemon(true);
+//             }
+//             @Override
+//             public void run() {
+//                 while(true){
+//                     PerformanceTracker sceneTracker = PerformanceTracker.getSceneTracker(primaryStage.getScene());
+//                     System.out.println(sceneTracker.getAverageFPS());
+//                     sceneTracker.resetAverageFPS();
+//
+//                     try {
+//                         Thread.sleep(1000);
+//                     } catch (InterruptedException e) {
+//                         throw new RuntimeException(e);
+//                     }
+//
+//                 }
+//             }
+//         }.start();
 //		ScenicView.show(scene);
 	}
 
 	public static void main(final String[] arguments) {
-		logger.info("Parameter: "+Arrays.asList(arguments));
-		Application.launch(arguments);
+//        System.setProperty("javafx.animation.fullspeed","true");
+        logger.info("Parameter: "+Arrays.asList(arguments));
+        Application.launch(arguments);
 	}
 }

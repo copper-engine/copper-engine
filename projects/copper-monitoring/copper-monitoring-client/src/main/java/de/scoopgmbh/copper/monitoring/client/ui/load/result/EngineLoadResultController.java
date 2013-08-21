@@ -80,7 +80,7 @@ public class EngineLoadResultController extends FilterResultControllerBase<Engin
 	}
 	
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("EngineLoadResult.fxml");
 	}
 

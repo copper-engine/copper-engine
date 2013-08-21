@@ -15,11 +15,11 @@
  */
 package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result;
 
-import java.util.Date;
-
+import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import de.scoopgmbh.copper.monitoring.core.model.AdapterCallInfo;
+
+import java.util.Date;
 
 public class AdapterCallRowModel {
 	public final SimpleStringProperty method;
@@ -36,5 +36,5 @@ public class AdapterCallRowModel {
 		adapterName= new SimpleStringProperty(adapterCall.getAdapterName());
 		workflowInstanceIdCaller = new SimpleStringProperty(adapterCall.getWorkflow().getId()); 
 		workflowClassCaller = new SimpleStringProperty(adapterCall.getWorkflow().getClassname()); 
-	};
+	}
 }

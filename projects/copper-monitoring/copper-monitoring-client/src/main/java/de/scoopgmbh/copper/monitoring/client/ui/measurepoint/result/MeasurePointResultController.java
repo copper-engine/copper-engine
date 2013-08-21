@@ -72,7 +72,7 @@ public class MeasurePointResultController extends FilterResultControllerBase<Eng
 	}
 	
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("MeasurePointResult.fxml");
 	}
 

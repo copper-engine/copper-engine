@@ -50,7 +50,7 @@ public class WorkflowInstanceDetailFilterController extends BaseEngineFilterCont
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("WorkflowInstanceDetailFilter.fxml");
 	}
 	
@@ -60,7 +60,7 @@ public class WorkflowInstanceDetailFilterController extends BaseEngineFilterCont
 	}
 	
 	@Override
-	public long getDefaultRefreshIntervall() {
+	public long getDefaultRefreshInterval() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
 	}
 

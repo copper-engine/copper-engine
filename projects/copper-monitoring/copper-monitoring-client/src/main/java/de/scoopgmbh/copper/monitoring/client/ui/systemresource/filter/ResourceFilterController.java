@@ -45,7 +45,7 @@ public class ResourceFilterController extends BaseFilterController<ResourceFilte
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("ResourceFilter.fxml");
 	}
 	
@@ -55,7 +55,7 @@ public class ResourceFilterController extends BaseFilterController<ResourceFilte
 	}
 	
 	@Override
-	public long getDefaultRefreshIntervall() {
+	public long getDefaultRefreshInterval() {
 		return 1500;
 	}
 

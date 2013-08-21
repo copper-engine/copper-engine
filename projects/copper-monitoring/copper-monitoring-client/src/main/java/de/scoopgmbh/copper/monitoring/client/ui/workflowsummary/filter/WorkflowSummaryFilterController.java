@@ -82,7 +82,7 @@ public class WorkflowSummaryFilterController extends BaseEngineFilterController<
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("WorkflowSummaryFilter.fxml");
 	}
 
@@ -96,7 +96,7 @@ public class WorkflowSummaryFilterController extends BaseEngineFilterController<
 	}
 	
 	@Override
-	public long getDefaultRefreshIntervall() {
+	public long getDefaultRefreshInterval() {
 		return FilterController.DEFAULT_REFRESH_INTERVALL;
 	}
 

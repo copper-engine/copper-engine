@@ -43,8 +43,7 @@ public class TableColumnHelper {
 		column.setCellFactory(new Callback<TableColumn<T, U>, TableCell<T, U>>() {
 			@Override
 			public TableCell<T, U> call(TableColumn<T, U> param) {
-				TextFieldTableCell<T, U> cell = new TextFieldTableCell<T, U>(converter);
-				return cell;
+				return new TextFieldTableCell<T, U>(converter);
 			}
 		});
 	}
@@ -127,7 +126,7 @@ public class TableColumnHelper {
         public void cancelEdit() {
             super.cancelEdit();
  
-            setText((String) getItem());
+            setText(getItem());
             setGraphic(null);
         }
  
@@ -167,7 +166,7 @@ public class TableColumnHelper {
         }
  
         private String getString() {
-            return getItem() == null ? "" : getItem().toString();
+            return getItem() == null ? "" : getItem();
         }
     }
 

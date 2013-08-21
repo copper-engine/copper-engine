@@ -45,12 +45,10 @@ import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
 public class WorkflowClassesTreeController {
 	private final TreeView<DisplayWorkflowClassesModel> treeView;
-	private final IssueReporter issueReporter;
 	
 	public WorkflowClassesTreeController(final TreeView<DisplayWorkflowClassesModel> treeView, IssueReporter issueReporter) {
 		super();
 		this.treeView = treeView;
-		this.issueReporter = issueReporter;
 		
 		treeView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 		treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<DisplayWorkflowClassesModel>>() {
@@ -139,14 +137,14 @@ public class WorkflowClassesTreeController {
 		for (WorkflowVersion newWorkflowVersion: list){
 			Optional<TreeItem<DisplayWorkflowClassesModel>> existingMajorItem=findMajorItem(newWorkflowVersion,result);
 			
-			TreeItem<DisplayWorkflowClassesModel> majorVersionItemToAdd = null;
+			TreeItem<DisplayWorkflowClassesModel> majorVersionItemToAdd;
 			if (existingMajorItem.isPresent()){
 				majorVersionItemToAdd = existingMajorItem.get();
 			} else {
-				TreeItem<DisplayWorkflowClassesModel> classnameItemToAdd = null;
+				TreeItem<DisplayWorkflowClassesModel> classnameItemToAdd;
 				classnameItemToAdd = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, newWorkflowVersion.classname.get()));
 				result.add(classnameItemToAdd);
-				majorVersionItemToAdd =new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getMajorVersion(newWorkflowVersion)));
+				majorVersionItemToAdd = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getMajorVersion(newWorkflowVersion)));
 				classnameItemToAdd.getChildren().add(majorVersionItemToAdd);
 			}
 			majorVersionItemToAdd.getChildren().add(new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getMinorVersion(newWorkflowVersion) )));

@@ -90,7 +90,7 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
     }
 	
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("DashboardResult.fxml");
 	}
 
@@ -107,15 +107,15 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 			monitoringPane.getChildren().add(pane);
 			dashboardPartsFactory.createMonitoringDataProviderForm(monitoringDataProviderInfo,pane).show();
 		}
-		MonitoringDataStorageInfo stoargeInfo = dashboardResultModel.monitoringDataStorageInfo;
+		MonitoringDataStorageInfo storageInfo = dashboardResultModel.monitoringDataStorageInfo;
 
 		DecimalFormat format = new DecimalFormat("#0.000");
-		double deltatInS= (stoargeInfo.getMax().getTime()-stoargeInfo.getMin().getTime())/1000;
+		double deltatInS= (storageInfo.getMax().getTime()-storageInfo.getMin().getTime())/1000;
 		
-		size.setText(format.format(stoargeInfo.getSizeInMb())+" mb ("+format.format(stoargeInfo.getSizeInMb()/deltatInS*1000)+" kb/s)");
-		location.setText(stoargeInfo.getPath());
+		size.setText(format.format(storageInfo.getSizeInMb())+" mb ("+format.format(storageInfo.getSizeInMb()/deltatInS*1000)+" kb/s)");
+		location.setText(storageInfo.getPath());
 		storageContentTable.getItems().clear();
-		storageContentTable.getItems().addAll(stoargeInfo.getMonitoringDataStorageContentInfo());
+		storageContentTable.getItems().addAll(storageInfo.getMonitoringDataStorageContentInfo());
 		
 		typeCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo,String>("type"));
 		countCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo,Long>("count"));
@@ -124,11 +124,11 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 	@Override
 	public List<DashboardResultModel> applyFilterInBackgroundThread(EmptyFilterModel filter) {
 		List<ProcessingEngineInfo> engines = copperDataProvider.getEngineList();
-		Map<String, WorkflowStateSummary> engineIdTostateSummery = new HashMap<String, WorkflowStateSummary>();
+		Map<String, WorkflowStateSummary> engineIdToStateSummery = new HashMap<String, WorkflowStateSummary>();
 		for (ProcessingEngineInfo processingEngineInfo: engines){
-			engineIdTostateSummery.put(processingEngineInfo.getId(), copperDataProvider.getCopperLoadInfo(processingEngineInfo));
+			engineIdToStateSummery.put(processingEngineInfo.getId(), copperDataProvider.getCopperLoadInfo(processingEngineInfo));
 		}
-		return Arrays.asList(new DashboardResultModel(engineIdTostateSummery,engines,
+		return Arrays.asList(new DashboardResultModel(engineIdToStateSummery,engines,
 				copperDataProvider.getMonitoringDataProvider(),
 				copperDataProvider.getMonitoringStorageInfo()));
 	}

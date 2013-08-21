@@ -112,7 +112,7 @@ public class CodeMirrorFormatter{
             "window.scrollTo(0, coords.top - window.innerHeight/2 );";
 		}
 				
-		String formatedMessage = "<!doctype html>" +
+		return  "<!doctype html>" +
 				"<html><head>" +
 				"<style type=\"text/css\">\n" + 
 				codemirrorcss+"\n"+
@@ -136,11 +136,10 @@ public class CodeMirrorFormatter{
 				"</script>\n"+
 				"</body>" +
 				"</html>";
-		return formatedMessage;
 	}
 	
 	public static enum CodeFormatLanguage{
-		JAVASCRIPT,XML,SQL,JAVA;
+		JAVASCRIPT,XML,SQL,JAVA
 	}
 	
 }

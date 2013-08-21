@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.annimation;
+package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animation;
 
 import javafx.scene.Node;
 
-public abstract class AnnimationPartBase{
+public abstract class AnimationPartBase {
 	public long startTime;
 	public long endTime;
 	public String id;
@@ -27,7 +27,7 @@ public abstract class AnnimationPartBase{
 	public double endx;
 	public double endy;
 
-	public AnnimationPartBase(AnnimationPartParameter parameterObject) {
+	public AnimationPartBase(AnimationPartParameter parameterObject) {
 		super();
 		this.startTime = parameterObject.startTime;
 		this.endTime = parameterObject.endTime;
@@ -38,5 +38,5 @@ public abstract class AnnimationPartBase{
 		this.endy = parameterObject.endy;
 	}
 	
-	public abstract Node createVisualRepresentaion();
+	public abstract Node createVisualRepresentation();
 }

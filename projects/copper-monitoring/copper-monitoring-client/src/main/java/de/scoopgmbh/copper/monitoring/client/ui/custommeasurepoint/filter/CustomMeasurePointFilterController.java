@@ -131,7 +131,7 @@ public class CustomMeasurePointFilterController extends BaseFilterController<Cus
 	}
 
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("CustomMeasurePointFilter.fxml");
 	}
 	
@@ -141,7 +141,7 @@ public class CustomMeasurePointFilterController extends BaseFilterController<Cus
 	}
 	
 	@Override
-	public long getDefaultRefreshIntervall() {
+	public long getDefaultRefreshInterval() {
 		return 1500;
 	}
 

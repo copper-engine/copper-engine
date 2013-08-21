@@ -154,7 +154,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 
 	
 	@Override
-	public URL getFxmlRessource() {
+	public URL getFxmlResource() {
 		return getClass().getResource("WorkflowSummaryResult.fxml");
 	}
 
@@ -162,7 +162,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 	@Override
 	public void showFilteredResult(List<WorkflowSummaryResultModel> filteredResult, WorkflowSummaryFilterModel usedFilter) {
 		lastFilteredWithProcessingEngineInfo = usedFilter.selectedEngine.getValue();
-		ObservableList<WorkflowSummaryResultModel> content = FXCollections.observableList(new ArrayList<WorkflowSummaryResultModel>());;
+		ObservableList<WorkflowSummaryResultModel> content = FXCollections.observableList(new ArrayList<WorkflowSummaryResultModel>());
 		content.addAll(filteredResult);
 		resultTable.setItems(content);
 	}
