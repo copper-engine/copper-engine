@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.instrument.Transformed;
+import de.scoopgmbh.copper.persistent.SavepointAware;
 
 /**
  * Abstract COPPER workflow base class.  
@@ -316,5 +317,8 @@ public abstract class Workflow<D> implements Serializable {
 	
 	protected void registerCheckpointAcknowledge(Acknowledge ack) {
 	}
-	
+
+	protected void registerSavepointAware(SavepointAware sa) {
+	}
+
 }

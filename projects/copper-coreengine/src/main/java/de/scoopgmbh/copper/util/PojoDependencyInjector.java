@@ -22,15 +22,73 @@ import de.scoopgmbh.copper.AbstractDependencyInjector;
 
 public class PojoDependencyInjector extends AbstractDependencyInjector {
 
-	private Map<String, Object> map = new ConcurrentHashMap<String, Object>();
+	private Map<String, Provider<?>> map = new ConcurrentHashMap<String, Provider<?>>();
 
 	@Override
 	protected Object getBean(String beanId) {
-		return map.get(beanId);
+		Provider<?> p = map.get(beanId);
+		return p.get();
 	}
 	
-	public void register(String beanId, Object bean) {
-		map.put(beanId, bean);
+	public <T> void register(String beanId, T bean) {
+		register(beanId, new BeanProvider<T>(bean));
+	}
+	
+	public <T> void register(String beanId, Provider<T> provider) {
+		map.put(beanId, provider);
+	}
+	
+	public static interface Provider<T> {
+
+		public T get();
+		
+	}
+
+	public static class BeanProvider<T> implements Provider<T> {
+		
+		T bean;
+		
+		public BeanProvider(T bean) {
+			this.bean = bean;
+		}
+
+		public T get() {
+			return bean;
+		}
+		
+	}
+	
+
+	public static abstract class Factory<T> implements Provider<T> {
+
+		@Override
+		public T get() {
+			return create();
+		}
+
+		public abstract T create();
+		
+	}
+	
+	public static class SimpleFactory<T> extends Factory<T> {
+		
+		Class<? extends T> clazz;
+		
+		public SimpleFactory(Class<? extends T> clazz) {
+			this.clazz = clazz;
+		}
+
+		@Override
+		public T create() {
+			try {
+				return clazz.newInstance();
+			} catch (InstantiationException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
 	}
 
 }

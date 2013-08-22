@@ -92,7 +92,7 @@ public class MementoUtilTest {
 	
 	@Test
 	public void testMementoUtil() {
-		TestWorkflow wf = new TestWorkflow();
+		final TestWorkflow wf = new TestWorkflow();
 		int id = 0;
 		wf.simpleDeletedMember = new SomeMemberClass("deleted",""+(++id));
 		wf.simpleUnchangedMember = new SomeMemberClass("unchanged",""+(++id));
@@ -139,6 +139,10 @@ public class MementoUtilTest {
 			@Override
 			public <T> T getMapper(Class<T> mapperInterface) {
 				return null;
+			}
+			@Override
+			public PersistentWorkflow<?> getWorkflow() {
+				return wf;
 			}
 			
 		};
@@ -190,6 +194,10 @@ public class MementoUtilTest {
 			@Override
 			public <T> T getMapper(Class<T> mapperInterface) {
 				return null;
+			}
+			@Override
+			public PersistentWorkflow<?> getWorkflow() {
+				return wf;
 			}
 			
 		};

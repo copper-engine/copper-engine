@@ -121,6 +121,11 @@ public final class DefaultPersistenceContextFactory implements PersistenceContex
 				return persister;
 			}
 
+			@Override
+			public PersistentWorkflow<?> getWorkflow() {
+				return wf;
+			}
+
 
 		};
 	}

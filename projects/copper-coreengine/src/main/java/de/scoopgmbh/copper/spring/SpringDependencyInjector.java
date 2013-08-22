@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import de.scoopgmbh.copper.AbstractDependencyInjector;
+import de.scoopgmbh.copper.persistent.SavepointAware;
 
 /**
  * Connects SPRING to COPPER. Enables COPPER to inject dependencies into workflow instances using a spring container/context.
@@ -45,7 +46,15 @@ public class SpringDependencyInjector extends AbstractDependencyInjector impleme
 
 	@Override
 	protected Object getBean(String beanId) {
-		return context.getBean(beanId);
+		Object firsttry = context.getBean(beanId);
+		if (firsttry instanceof SavepointAware){
+			Object secoundtry = context.getBean(beanId);
+			if (firsttry==secoundtry){
+				throw new IllegalStateException(beanId+" scope is not prototype");
+			}
+		}
+		return firsttry;
+				
 	}
 
 }

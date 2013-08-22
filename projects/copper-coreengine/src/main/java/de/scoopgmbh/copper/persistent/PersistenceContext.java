@@ -30,6 +30,8 @@ public interface PersistenceContext {
 	
 	<T> T getMapper(Class<T> mapperInterface);
 	
+	PersistentWorkflow<?> getWorkflow();
+	
 	PersistenceContext NULL_CONTEXT = new PersistenceContext() {
 		
 		@Override
@@ -41,6 +43,12 @@ public interface PersistenceContext {
 		public <T> T getMapper(Class<T> mapperInterface) {
 			throw new RuntimeException("You did not configure a WorkflowPersistencePlugin.");
 		}
+		
+		@Override
+		public PersistentWorkflow<?> getWorkflow() {
+			throw new RuntimeException("You did not configure a WorkflowPersistencePlugin.");
+		}
+
 	};
 
 }

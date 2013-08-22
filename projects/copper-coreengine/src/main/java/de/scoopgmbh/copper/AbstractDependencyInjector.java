@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.scoopgmbh.copper.persistent.SavepointAware;
+
 public abstract class AbstractDependencyInjector implements DependencyInjector {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractDependencyInjector.class);
@@ -77,6 +79,9 @@ public abstract class AbstractDependencyInjector implements DependencyInjector {
 				final Object bean = getBean(injectionDescription.beanId);
 				logger.trace("injecting bean with beanId {} to method {}", injectionDescription.beanId, injectionDescription.method);
 				injectionDescription.method.invoke(workflow, bean);
+				if (bean instanceof SavepointAware) {
+					workflow.registerSavepointAware((SavepointAware)bean);
+				}
 			}
 			catch(RuntimeException e) {
 				throw e;

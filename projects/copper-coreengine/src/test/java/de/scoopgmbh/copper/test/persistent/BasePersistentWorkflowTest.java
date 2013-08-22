@@ -50,7 +50,6 @@ import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.CompressedBase64PostProcessor;
 import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
-import de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;

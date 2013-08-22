@@ -166,7 +166,7 @@ public abstract class AdapterCallPersisterFactory implements
 					String workflowId =  rs.getString(1);
 					String entityId =  rs.getString(2);
 					String adapterId =  rs.getString(3);
-					int priority = rs.getInt(4);
+					long priority = rs.getLong(4);
 					String methodDeclaringClass = rs.getString(5);
 					String methodName = rs.getString(6);
 					String methodSignature = rs.getString(7);
@@ -174,7 +174,8 @@ public abstract class AdapterCallPersisterFactory implements
 					Object[] args;
 					try {
 						args = (Object[])serializer.deserializeObject(rs.getString(8));
-						AdapterCall entity = new AdapterCall(workflowId, adapterId, entityId, m, args, priority);
+						AdapterCall entity = new AdapterCall(adapterId, entityId, m, args);
+						entity.setWorkflowData(workflowId, priority);
 						stmtUpdate.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 						stmtUpdate.setString(2, workflowId);
 						stmtUpdate.setString(3, entityId);
@@ -236,7 +237,7 @@ public abstract class AdapterCallPersisterFactory implements
 					stmt.setString( 1, en.workflow.getId());
 					stmt.setString( 2, entity.getEntityId());
 					stmt.setString(3, entity.getAdapterId());
-					stmt.setInt(4, entity.getPriority());
+					stmt.setLong(4, entity.getPriority());
 					stmt.setString(5, entity.getMethod().getDeclaringClass().getName());
 					stmt.setString(6, entity.getMethod().getName());
 					stmt.setString(7, Type.getMethodDescriptor(entity.getMethod()));

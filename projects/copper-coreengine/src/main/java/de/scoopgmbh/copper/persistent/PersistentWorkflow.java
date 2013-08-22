@@ -21,10 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
 import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Acknowledge.DefaultAcknowledge;
-import de.scoopgmbh.copper.persistent.adapter.AdapterCall;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.Workflow;
 
@@ -39,7 +37,7 @@ import de.scoopgmbh.copper.Workflow;
  *
  * @param <E>
  */
-public abstract class PersistentWorkflow<E extends Serializable> extends Workflow<E> implements Serializable {
+public abstract class PersistentWorkflow<E extends Serializable> extends Workflow<E> implements Serializable, SavepointAware {
 
 	private static final long serialVersionUID = 3232137844188440549L;
 	
@@ -49,8 +47,8 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 	transient String rowid;
 	transient String oldProcessorPoolId;
 	transient int oldPrio;
-	transient ArrayList<Acknowledge.DefaultAcknowledge> checkpointAcknowledges = null; 
-	transient ArrayList<AdapterCall> adapterCalls = null;
+	transient ArrayList<Acknowledge.DefaultAcknowledge> checkpointAcknowledges = null;
+	transient ArrayList<SavepointAware> savepointAwares = null;
 
 	void addWaitCorrelationId(final String cid) {
 		if (waitCidList == null) waitCidList = new HashSet<String>();
@@ -72,12 +70,13 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 	
 	public void onLoad(PersistenceContext pc) {
 	}
-	
+
+	@Override
 	public void onSave(PersistenceContext pc) {
-		if (adapterCalls != null && !adapterCalls.isEmpty()) {
-			EntityPersister<AdapterCall> p = pc.getPersister(AdapterCall.class);
-			for (AdapterCall c : adapterCalls)
-				p.insert(c);
+		if (savepointAwares != null) {
+			for (SavepointAware sa : savepointAwares) {
+				sa.onSave(pc);
+			}
 		}
 	}
 	
@@ -98,6 +97,13 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 		}
 	}
 	
+	@Override
+	protected void registerSavepointAware(SavepointAware sa) {
+		if (savepointAwares == null)
+			savepointAwares = new ArrayList<SavepointAware>();
+		savepointAwares.add(sa);
+	}
+	
 	public boolean flushCheckpointAcknowledges() {
 		if (checkpointAcknowledges == null)
 			return true;
@@ -111,11 +117,6 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 		return true;
 	}
 
-	public void addAdapterCall(AdapterCall c) {
-		if (adapterCalls == null)
-			adapterCalls = new ArrayList<AdapterCall>();
-		adapterCalls.add(c);
-	}
 
 
 }
