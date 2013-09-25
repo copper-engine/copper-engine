@@ -96,7 +96,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 	private int checkIntervalMSec = 15000;
 	private List<Runnable> preprocessors = Collections.emptyList();
 	private volatile boolean stopped = false;
-	private boolean loadNonWorkflowClasses = false;
+	private boolean loadNonWorkflowClasses = true;
 	private List<CompilerOptionsProvider> compilerOptionsProviders = new ArrayList<CompilerOptionsProvider>();
 	private List<String> sourceDirs = new ArrayList<String>();
 	private List<String> sourceArchiveUrls = new ArrayList<String>();
@@ -181,7 +181,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 	}
 
 	/** 
-	 * If true, this workflow repository's class loader will also load non-workflow classes, e.g.
+	 * If true (which is the default), this workflow repository's class loader will also load non-workflow classes, e.g.
 	 * inner classes or helper classes.
 	 * As this is maybe not always useful, use this property to enable or disable this feature.
 	 */
