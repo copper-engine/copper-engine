@@ -45,6 +45,8 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractWorkflowRepository.class);
 	
+	private static final int flags = ClassReader.EXPAND_FRAMES;
+	
 	void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, Map<String, ClassInfo> classInfos, File compileTargetDir) throws IOException {
 		logger.info("Instrumenting classfiles");
 		URLClassLoader tmpClassLoader = new URLClassLoader(new URL[] { compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
@@ -54,7 +56,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 			try {
 				ClassReader cr2 = new ClassReader(fis);
 				ClassNode cn = new ClassNode();
-				cr2.accept(cn, 0);
+				cr2.accept(cn, flags);
 
 				//Now content of ClassNode can be modified and then serialized back into bytecode:
 				new TryCatchBlockHandler().instrument(cn);
@@ -73,7 +75,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
 				ClassWriter cw = new ClassWriter(0);
 
 				ScottyClassAdapter cv = new ScottyClassAdapter(cw,clazz.aggregatedInterruptableMethods);
-				cr.accept(cv,0);
+				cr.accept(cv,flags);
 				classInfos.put(clazz.classname, cv.getClassInfo());
 				bytes = cw.toByteArray();
 				
