@@ -399,6 +399,7 @@ public class DefaultPersistenceTest {
 		Assert.assertSame(type, workLogEntry.type);
 	}
 
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings("DE_MIGHT_IGNORE")
 	@Test
 	public void testBrokenConfiguration() {
 		DefaultPersistenceContextFactoryConfigurationBuilder configurationBuilder = new DefaultPersistenceContextFactoryConfigurationBuilder();
@@ -410,7 +411,9 @@ public class DefaultPersistenceTest {
 		try {
 			configurationBuilder.compile();
 			Assert.fail("Expected failure due to cycle in configuration");
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			// ok
+		}
 	}
 
 }

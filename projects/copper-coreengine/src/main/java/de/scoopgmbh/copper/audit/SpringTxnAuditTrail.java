@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.log4j.spi.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;

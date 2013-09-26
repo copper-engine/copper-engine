@@ -43,7 +43,7 @@ public class NonTransactionalAdapterQueue {
 	final Collection<String> adapterIds;
 	final PriorityBlockingQueue<AdapterCall> queue;
 	volatile boolean run = true;
-	volatile boolean[] stopped = new boolean[]{false};
+	volatile boolean stopped = false;
 	final Object reloadLock = new Object();
 	final Set<Thread> waitingThreads = new HashSet<Thread>();
 	final ReloadThread reloadThread;
@@ -93,10 +93,7 @@ public class NonTransactionalAdapterQueue {
 					}
 				}
 			}
-			synchronized (stopped) {
-				stopped[0] = true;
-				stopped.notify();
-			}
+			stopped = true;
 			synchronized (waitingThreads) {
 				for (Thread t : waitingThreads) {
 					t.interrupt();
@@ -171,9 +168,7 @@ public class NonTransactionalAdapterQueue {
 	}
 	
 	protected boolean isRunning() {
-		synchronized (stopped) {
-			return !stopped[0];
-		}
+		return !stopped;
 	}
 	
 	public void shutdown() {
