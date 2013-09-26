@@ -188,6 +188,11 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		assertNull(response.getException());
 		
 		response = getAndRemoveResponse(cidWithResponse);
+		if (response == null) {
+			wait(WaitMode.FIRST, 10000, cidWithResponse, cidNoResponse);
+			response = getAndRemoveResponse(cidWithResponse);
+		}
+		
 		assertNotNull(response);
 		assertFalse(response.isTimeout());
 		assertEquals(getData(),response.getResponse());

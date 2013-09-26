@@ -140,6 +140,18 @@ public class AuditTrailEvent implements Serializable {
 	public void setSequenceId(Long sequenceId) {
 		this.sequenceId = sequenceId;
 	}
+
+	@Override
+	public String toString() {
+		return "AuditTrailEvent [logLevel=" + logLevel + ", occurrence="
+				+ occurrence + ", conversationId=" + conversationId
+				+ ", context=" + context + ", instanceId=" + instanceId
+				+ ", correlationId=" + correlationId + ", message=" + message
+				+ ", transactionId=" + transactionId + ", messageType="
+				+ messageType + ", sequenceId=" + sequenceId + "]";
+	}
+	
+	
 	
 	
 }

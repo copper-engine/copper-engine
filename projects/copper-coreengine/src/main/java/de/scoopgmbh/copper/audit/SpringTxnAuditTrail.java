@@ -19,6 +19,8 @@ import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.log4j.spi.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -32,6 +34,7 @@ import de.scoopgmbh.copper.spring.SpringTransaction;
 
 public class SpringTxnAuditTrail extends BatchingAuditTrail {
 	
+	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(SpringTxnAuditTrail.class);
 	
 	private PlatformTransactionManager transactionManager;
 	
@@ -41,16 +44,20 @@ public class SpringTxnAuditTrail extends BatchingAuditTrail {
 
 	@Override
 	public void synchLog(final AuditTrailEvent e) {
-		new SpringTransaction() {
-			@Override
-			protected void execute(Connection con) throws Exception {
-				@SuppressWarnings("unchecked")
-				BatchCommand<Executor, Command> cmd = createBatchCommand(e, true, NullCallback.instance);
-				@SuppressWarnings("unchecked")
-				Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>>asList(cmd);
-				cmd.executor().doExec(cmdList, con);
-			}
-		}.run(transactionManager, getDataSource(), createTransactionDefinition());
+		if ( isEnabled(e.logLevel) ) {
+			logger.debug("doLog({})",e);
+			e.setMessage(messagePostProcessor.serialize(e.message));
+			new SpringTransaction() {
+				@Override
+				protected void execute(Connection con) throws Exception {
+					@SuppressWarnings("unchecked")
+					BatchCommand<Executor, Command> cmd = createBatchCommand(e, true, NullCallback.instance);
+					@SuppressWarnings("unchecked")
+					Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>>asList(cmd);
+					cmd.executor().doExec(cmdList, con);
+				}
+			}.run(transactionManager, getDataSource(), createTransactionDefinition());
+		}
 	}
 
 	protected TransactionDefinition createTransactionDefinition() {

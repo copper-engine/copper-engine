@@ -117,7 +117,7 @@ public class BasePersistentWorkflowTest {
 	public void testAsnychResponse(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testAsnychResponse");
-		final int NUMB = 20;
+		final int NUMB = 50;
 		final String DATA = createTestData(50);
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
@@ -133,8 +133,7 @@ public class BasePersistentWorkflowTest {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				if (x == null)
-					assertNotNull(x);
+				assertNotNull(x);
 				assertNotNull(x.getResult());
 				assertNotNull(x.getResult().toString().length() == DATA.length());
 				assertNull(x.getException());
@@ -171,8 +170,7 @@ public class BasePersistentWorkflowTest {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				if (x == null)
-					assertNotNull(x);
+				assertNotNull(x);
 				assertNotNull(x.getResult());
 				assertNotNull(x.getResult().toString().length() == DATA.length());
 				assertNull(x.getException());
@@ -187,7 +185,7 @@ public class BasePersistentWorkflowTest {
 	}
 
 	protected ConfigurableApplicationContext createContext(String dsContext) {
-		Thread.interrupted();
+		//Thread.interrupted();
 		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "/CopperTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml"});
 		return context;
 	}
@@ -218,8 +216,7 @@ public class BasePersistentWorkflowTest {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				if (x == null)
-					assertNotNull(x);
+				assertNotNull(x);
 				assertNull(x.getResult());
 				assertNull(x.getException());
 			}
@@ -236,7 +233,7 @@ public class BasePersistentWorkflowTest {
 	public void testWithConnectionBulkInsert(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testWithConnectionBulkInsert");
-		final int NUMB = 20;
+		final int NUMB = 50;
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		final DataSource ds = context.getBean(DataSource.class);
 		cleanDB(ds);
@@ -263,8 +260,7 @@ public class BasePersistentWorkflowTest {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				if (x == null)
-					assertNotNull(x);
+				assertNotNull(x);
 				assertNull(x.getResult());
 				assertNull(x.getException());
 			}
@@ -281,7 +277,7 @@ public class BasePersistentWorkflowTest {
 	public void testTimeouts(String dsContext) throws Exception {
 		assumeFalse(skipTests());
 		logger.info("running testTimeouts");
-		final int NUMB = 20;
+		final int NUMB = 10;
 		final ConfigurableApplicationContext context = createContext(dsContext);
 		cleanDB(context.getBean(DataSource.class));
 		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
@@ -296,8 +292,7 @@ public class BasePersistentWorkflowTest {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				if (x == null)
-					assertNotNull(x);
+				assertNotNull(x);
 				assertNull(x.getResult());
 				assertNull(x.getException());
 			}
@@ -437,8 +432,7 @@ public class BasePersistentWorkflowTest {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				if (x == null)
-					assertNotNull(x);
+				assertNotNull(x);
 				assertNull(x.getResult());
 				assertNull(x.getException());
 			}
@@ -471,8 +465,7 @@ public class BasePersistentWorkflowTest {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				if (x == null)
-					assertNotNull(x);
+				assertNotNull(x);
 				assertNotNull(x.getResult());
 				assertNotNull(x.getResult().toString().length() == DATA.length());
 				assertNull(x.getException());
@@ -521,22 +514,25 @@ public class BasePersistentWorkflowTest {
 
 			for (int i=0; i<NUMB; i++) {
 				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				if (x == null)
-					assertNotNull(x);
+				assertNotNull(x);
 				assertNotNull(x.getResult());
 				assertNotNull(x.getResult().toString().length() == DATA.length());
 				assertNull(x.getException());
 			}
+			Thread.sleep(1000);
+			
 			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
 				@Override
 				protected Void execute() throws Exception {
 					Statement stmt = createStatement(getConnection());
-					ResultSet rs = stmt.executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from cop_audit_trail_event) order by 1");
+					ResultSet rs = stmt.executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from cop_audit_trail_event) order by 1 asc");
 					assertTrue(rs.next());
 					//logger.info("\""+new CompressedBase64PostProcessor().deserialize(rs.getString(1))+"\"");
+					//System.out.println(new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
 					assertEquals("finished", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
 					assertTrue(rs.next());
 					assertEquals("foo successfully called", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
+					//System.out.println(new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
 					assertFalse(rs.next());
 					rs.close();
 					stmt.close();
@@ -544,6 +540,10 @@ public class BasePersistentWorkflowTest {
 				}
 			}.run();
 
+		}
+		catch(Exception e) {
+			logger.error("testCompressedAuditTrail failed",e);
+			throw e;
 		}
 		finally {
 			closeContext(context);

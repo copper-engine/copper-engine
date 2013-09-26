@@ -63,7 +63,13 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 		new Innerclass();
 		
 		try {
-			execute();
+			if (counter != 0) {
+				
+			}
+			else {
+				final String rv = execute(getEngine().createUUID(),1000);
+				System.out.println(rv);
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -142,15 +148,15 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 	}
 
 	
-	private void execute() throws InterruptException {
-		final String cid = getEngine().createUUID();
+	private String execute(String cid, int timeout) throws InterruptException {
 		mockAdapter.foo("foo", cid);
-		wait(WaitMode.ALL, 1000, cid);
+		wait(WaitMode.ALL, timeout, cid);
 		Response<String> response = getAndRemoveResponse(cid);
 		if (response == null) throw new AssertionError();
 		if (!response.getCorrelationId().equals(cid)) throw new AssertionError();
 		if (getAndRemoveResponse(cid) != null) throw new AssertionError();
 		if (!response.getResponse().equals("foo")) throw new AssertionError();
+		return cid;
 	}
 	
 	private void testMultiResponse() throws InterruptException {
