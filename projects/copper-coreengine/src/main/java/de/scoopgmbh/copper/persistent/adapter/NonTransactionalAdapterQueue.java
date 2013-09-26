@@ -31,6 +31,7 @@ import de.scoopgmbh.copper.batcher.Batcher;
 import de.scoopgmbh.copper.persistent.adapter.AdapterCallPersisterFactory.Selector;
 import de.scoopgmbh.copper.persistent.txn.DatabaseTransaction;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class NonTransactionalAdapterQueue {
 	
@@ -107,6 +108,7 @@ public class NonTransactionalAdapterQueue {
 		this (adapterIds, persistence, transientQueueLength, transientQueueLength, ctrl, batcher);
 	}
 	
+	@SuppressWarnings("SC_START_IN_CTOR")
 	public NonTransactionalAdapterQueue(Collection<String> adapterIds, AdapterCallPersisterFactory persistence, int transientQueueLength, int triggerReloadQueueLength, TransactionController ctrl, Batcher batcher) {
 		this.transientQueueLength = transientQueueLength;
 		this.triggerReloadQueueLength = triggerReloadQueueLength;

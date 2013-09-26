@@ -195,6 +195,7 @@ project(':projects:copper-coreengine') {
 		
 		testCompile 'org.slf4j:slf4j-log4j12:1.6.6'    
 		
+		compile fileTree(dir: project(':').projectDir.toString()+'/3rdPartyLibs', include: '*.jar')		
     }
 
     test {
@@ -342,9 +343,6 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 		compile 'com.google.guava:guava:14.0.1'
 		
 		compile 'ch.qos.logback:logback-classic:1.0.13'
-		
-		compile fileTree(dir: project(':projects:copper-coreengine').projectDir.toString()+'/3rdPartyLibs', include: '*.jar')	
-		
 	}
 
 		
