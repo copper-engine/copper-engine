@@ -16,6 +16,8 @@
 package de.scoopgmbh.copper.monitoring.client.form;
 
 import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Region;
@@ -39,7 +41,7 @@ public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
 	
 
 	@Override
-	public void show(Form<?> form){
+	public void show(final Form<?> form){
 		if (tab.getContent()==null){
 			tab.setContent(form.createContent());
 			tab.textProperty().bind(form.displayedTitleProperty());
@@ -62,5 +64,20 @@ public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
 			}
 		}
 		component.getSelectionModel().select(tab);
+		
+
+		tab.setOnClosed(new EventHandler<Event>() {
+			@Override
+			public void handle(Event event) {
+				//workaround for javafx memeoryleaks RT-25652, RT-32087
+				onCloseListener.closed(form);
+				onCloseListener=null;
+				tab.setContent(null);
+				tab.setContent(null);
+				tab.textProperty().unbind();
+				tab.setOnClosed(null);
+			}
+		});
+		
 	}
 }

@@ -53,6 +53,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
+import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy.CloseListener;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
 import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
@@ -89,6 +90,15 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 				c.next();
 				for (ActionsWithFilterForm actionsWithFilterForm: c.getAddedSubList()){
 					actionsWithFilterForm.run(FilterAbleForm.this);
+				}
+			}
+		});
+		
+		showFormStrategie.setOnCloseListener(new CloseListener() {
+			@Override
+			public void closed(Form<?> form) {
+				if (form==FilterAbleForm.this){
+					FilterAbleForm.this.resultForm.getController().onClose();
 				}
 			}
 		});

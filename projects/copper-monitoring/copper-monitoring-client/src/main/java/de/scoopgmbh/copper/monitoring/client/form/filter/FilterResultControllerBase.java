@@ -15,13 +15,16 @@
  */
 package de.scoopgmbh.copper.monitoring.client.form.filter;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -43,6 +46,9 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+
+import com.sun.javafx.scene.control.behavior.TableCellBehavior;
+
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 
 /**
@@ -52,21 +58,24 @@ import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 */
 public abstract class FilterResultControllerBase<F,R> implements FilterResultController<F,R>, FxmlController {
 	
+	List<TableView<?>> tableViews = new ArrayList<TableView<?>>();
 	public <M> HBox createTabelControlls(final TableView<M> tableView){
+		this.tableViews.add(tableView);
+		
 		if (tableView.getContextMenu()==null){
 			tableView.setContextMenu(new ContextMenu());
 		}
 		final MenuItem copyMenuItem = new MenuItem("copy table");
 		final MenuItem copyCellMenuItem = new MenuItem("copy cell");
 		fillContextMenu(tableView, copyMenuItem,copyCellMenuItem);
-		tableView.contextMenuProperty().addListener(new ChangeListener<ContextMenu>() {
-			@Override
-			public void changed(ObservableValue<? extends ContextMenu> observable, ContextMenu oldValue, ContextMenu newValue) {
-				if (newValue!=null){
-					fillContextMenu(tableView, copyMenuItem,copyCellMenuItem);
-				}
-			}
-		});
+//		tableView.contextMenuProperty().addListener(new ChangeListener<ContextMenu>() {
+//			@Override
+//			public void changed(ObservableValue<? extends ContextMenu> observable, ContextMenu oldValue, ContextMenu newValue) {
+//				if (newValue!=null){
+//					fillContextMenu(tableView, copyMenuItem,copyCellMenuItem);
+//				}
+//			}
+//		});
 		
 		final CheckBox regExp = new CheckBox("RegExp");
 		
@@ -118,15 +127,15 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 		});
 		HBox.setHgrow(textField,Priority.ALWAYS);
 		final Label count = new Label("count: 0");
-		tableView.itemsProperty().addListener(new ChangeListener<ObservableList<M>>() {
-			@Override
-			public void changed(ObservableValue<? extends ObservableList<M>> observable, ObservableList<M> oldValue,
-					ObservableList<M> newValue) {
-				if (newValue!=null){
-					count.setText("count: "+String.valueOf(newValue.size()));
-				}
-			}
-		});
+//		tableView.itemsProperty().addListener(new ChangeListener<ObservableList<M>>() {
+//			@Override
+//			public void changed(ObservableValue<? extends ObservableList<M>> observable, ObservableList<M> oldValue,
+//					ObservableList<M> newValue) {
+//				if (newValue!=null){
+//					count.setText("count: "+String.valueOf(newValue.size()));
+//				}
+//			}
+//		});
 		pane.getChildren().add(textField);
 		pane.getChildren().add(regExp);
 		pane.getChildren().add(new Separator(Orientation.VERTICAL));
@@ -168,13 +177,13 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 				break;
 			}
 		}
-		final int rowfinal = toSelectedRow;
+		final int rowFinal = toSelectedRow;
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				tableView.getSelectionModel().select(rowfinal);
-				tableView.getFocusModel().focus(rowfinal);
-				tableView.scrollTo(rowfinal);
+				tableView.getSelectionModel().select(rowFinal);
+				tableView.getFocusModel().focus(rowFinal);
+				tableView.scrollTo(rowFinal);
 			}
 		});
 	}
@@ -205,5 +214,27 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
         Clipboard.getSystemClipboard().setContent(content);
 	}
 	
-	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void onClose(){
+		//workaround for javafx memoryleaks RT-25652, RT-32087
+		for (TableView tableView: tableViews){
+			tableView.getFocusModel().focus(null);
+			Class tcbClass = TableCellBehavior.class;
+			try{
+				Method anchorMethod = tcbClass.getDeclaredMethod("setAnchor", TableView.class, TablePosition.class);
+				anchorMethod.setAccessible(true);
+				anchorMethod.invoke(null,  tableView, null);
+			} catch (Exception e){
+				throw new RuntimeException(e);
+			}
+			tableView.setOnMouseClicked(null);
+			tableView.setSelectionModel(null);
+			tableView.getColumns().clear();
+			tableView.setItems(FXCollections.observableArrayList());
+			tableView=null;
+		}
+		tableViews.clear();
+		
+	}
 }

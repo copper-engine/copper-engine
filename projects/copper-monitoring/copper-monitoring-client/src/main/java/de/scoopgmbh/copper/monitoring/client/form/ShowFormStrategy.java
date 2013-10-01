@@ -23,4 +23,16 @@ public abstract class ShowFormStrategy<E extends Node> {
 		this.component=component;
 	}
 	public abstract void show(Form<?> form);
+	
+	protected CloseListener onCloseListener;
+	/**called if form is closed
+	 * @param runnable
+	 */
+	public void setOnCloseListener(CloseListener closeListner){
+		onCloseListener= closeListner;
+	}
+	
+	public static interface CloseListener{
+		public void closed(Form<?> form);
+	}
 }

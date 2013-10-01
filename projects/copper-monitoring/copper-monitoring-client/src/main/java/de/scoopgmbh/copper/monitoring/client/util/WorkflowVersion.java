@@ -65,6 +65,14 @@ public class WorkflowVersion {
 				patchlevel.get(),
 				source.get());
 	}
+
+	@Override
+	public String toString() {
+		return "WorkflowVersion [classname=" + classname.get() + ", alias=" + alias.get() + ", versionMajor=" + versionMajor.get() + ", versionMinor="
+				+ versionMinor.get() + ", patchlevel=" + patchlevel.get()+ "]";
+	}
+	
+	
 	
 	
 }

@@ -18,6 +18,7 @@ package de.scoopgmbh.copper.monitoring.client.context;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool.ProcessorPoolController;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
@@ -66,7 +67,6 @@ import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardDepend
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
-import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.provider.ProviderController;
 import de.scoopgmbh.copper.monitoring.client.ui.databasemonitor.result.DatabaseMonitorResultController;
 import de.scoopgmbh.copper.monitoring.client.ui.load.filter.EngineLoadFilterController;
@@ -481,8 +481,8 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		return dasboardFormSingleton;
 	}
 	
-	public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool, DashboardResultModel model){
-		return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine,pool,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
+	public Form<ProcessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool){
+		return new FxmlForm<ProcessorPoolController>(pool.getId(), new ProcessorPoolController(engine,pool,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
 	}
 	
 	@Override
