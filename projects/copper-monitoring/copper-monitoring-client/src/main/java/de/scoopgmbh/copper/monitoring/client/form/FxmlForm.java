@@ -27,24 +27,26 @@ import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 
 public class FxmlForm<C extends FxmlController> extends Form<C> {
 
-
-	private final MessageProvider messageProvider;
+	private final FXMLLoader fxmlLoader;
+	
 	public FxmlForm(String dynamicTitle, C controller, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie) {
 		super(dynamicTitle, showFormStrategie, controller);
-		this.messageProvider = messageProvider;
+		if (controller.getFxmlResource()!=GenericFilterController.EMPTY_DUMMY_URL){
+			fxmlLoader = new FXMLLoader(controller.getFxmlResource());
+			fxmlLoader.setController(controller);
+			fxmlLoader.setResources(messageProvider.getBundle());
+		} else {
+			fxmlLoader = null;
+		}
 	}
 	
 	public FxmlForm(C controller, MessageProvider messageProvider) {
-		super("", new EmptyShowFormStrategie(), controller);
-		this.messageProvider = messageProvider;
+		this("", controller, messageProvider, new EmptyShowFormStrategie());
 	}
 
 	@Override
 	public Node createContent() {
-		if (controller.getFxmlResource()!=GenericFilterController.EMPTY_DUMMY_URL){
-			FXMLLoader fxmlLoader = new FXMLLoader(controller.getFxmlResource());
-			fxmlLoader.setController(controller);
-			fxmlLoader.setResources(messageProvider.getBundle());
+		if (fxmlLoader != null){
 			try {
 				return (Parent)fxmlLoader.load();
 			} catch (IOException exception) {
@@ -53,6 +55,4 @@ public class FxmlForm<C extends FxmlController> extends Form<C> {
 		}
 		return new Group();
 	}
-	
-	
 }

@@ -30,7 +30,7 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 
 public class ProccessorPoolController implements Initializable, FxmlController {
-	private final ProcessorPoolInfo pool;
+	private ProcessorPoolInfo pool;
 	private final ProcessingEngineInfo engine;
 	private final GuiCopperDataProvider dataProvider;
 
@@ -77,11 +77,7 @@ public class ProccessorPoolController implements Initializable, FxmlController {
         assert threadPrioritaetInfo != null : "fx:id=\"threadPrioritaetInfo\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
         assert typ != null : "fx:id=\"typ\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
 
-		id.setText(pool.getId());
-		typ.setText(pool.getProcessorPoolTyp().toString());
-		
-		threadNummerInfo.setText(String.valueOf(pool.getNumberOfThreads()));
-		threadPrioritaetInfo.setText(String.valueOf(pool.getThreadPriority()));
+		updatePool();
 		
 		prioButton.disableProperty().bind(prioNew.textProperty().isEqualTo(""));
 		prioButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -105,6 +101,19 @@ public class ProccessorPoolController implements Initializable, FxmlController {
 		});
 		nummerbutton.getStyleClass().add("copperActionButton");
     }
+
+    public void setPool(ProcessorPoolInfo pool) {
+		this.pool = pool;
+		updatePool();
+	}
+
+	private void updatePool() {
+		id.setText(pool.getId());
+		typ.setText(pool.getProcessorPoolTyp().toString());
+		
+		threadNummerInfo.setText(String.valueOf(pool.getNumberOfThreads()));
+		threadPrioritaetInfo.setText(String.valueOf(pool.getThreadPriority()));
+	}
 	
 	@Override
 	public URL getFxmlResource() {

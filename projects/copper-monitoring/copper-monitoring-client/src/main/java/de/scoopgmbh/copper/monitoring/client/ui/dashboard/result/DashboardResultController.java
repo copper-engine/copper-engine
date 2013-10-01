@@ -19,9 +19,12 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,8 +36,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
+import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.provider.ProviderController;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageContentInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
@@ -93,32 +99,85 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 	public URL getFxmlResource() {
 		return getClass().getResource("DashboardResult.fxml");
 	}
-
+	
 	@Override
 	public void showFilteredResult(List<DashboardResultModel> filteredlist, EmptyFilterModel usedFilter) {
 		DashboardResultModel dashboardResultModel = filteredlist.get(0);
-		engines.getTabs().clear();
-		for (ProcessingEngineInfo processingEngineInfo: dashboardResultModel.engines){
-			dashboardPartsFactory.createEngineForm(engines,processingEngineInfo,dashboardResultModel).show();
-		}
-		monitoringPane.getChildren().clear();
-		for (MonitoringDataProviderInfo monitoringDataProviderInfo: dashboardResultModel.providers){
-			final BorderPane pane = new BorderPane();
-			monitoringPane.getChildren().add(pane);
-			dashboardPartsFactory.createMonitoringDataProviderForm(monitoringDataProviderInfo,pane).show();
-		}
-		MonitoringDataStorageInfo storageInfo = dashboardResultModel.monitoringDataStorageInfo;
+		showEngines(dashboardResultModel);
+		showMonitoringData(dashboardResultModel);
+		showDataStorage(dashboardResultModel);
+	}
 
-		DecimalFormat format = new DecimalFormat("#0.000");
-		double deltatInS= (storageInfo.getMax().getTime()-storageInfo.getMin().getTime())/1000;
-		
-		size.setText(format.format(storageInfo.getSizeInMb())+" mb ("+format.format(storageInfo.getSizeInMb()/deltatInS*1000)+" kb/s)");
-		location.setText(storageInfo.getPath());
-		storageContentTable.getItems().clear();
-		storageContentTable.getItems().addAll(storageInfo.getMonitoringDataStorageContentInfo());
-		
-		typeCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo,String>("type"));
-		countCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo,Long>("count"));
+	private void showDataStorage(DashboardResultModel dashboardResultModel) {
+		MonitoringDataStorageInfo storageInfo = dashboardResultModel.monitoringDataStorageInfo;
+		boolean storageChanged = true;
+		if(storageChanged) {
+			DecimalFormat format = new DecimalFormat("#0.000");
+			double deltatInS= (storageInfo.getMax().getTime()-storageInfo.getMin().getTime())/1000;
+			
+			size.setText(format.format(storageInfo.getSizeInMb())+" mb ("+format.format(storageInfo.getSizeInMb()/deltatInS*1000)+" kb/s)");
+			location.setText(storageInfo.getPath());
+			storageContentTable.getItems().clear();
+			storageContentTable.getItems().addAll(storageInfo.getMonitoringDataStorageContentInfo());
+			
+			typeCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo,String>("type"));
+			countCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo,Long>("count"));
+		}
+	}
+
+	private final Map<String, ProcessingEngineController> engineControllers = new TreeMap<String, ProcessingEngineController>();
+	private void showEngines(DashboardResultModel dashboardResultModel) {
+		Set<String> engineIds = new HashSet<String>();
+		for (ProcessingEngineInfo processingEngineInfo: dashboardResultModel.engines){
+			engineIds.add(processingEngineInfo.getId());
+		}
+		boolean enginesChanged = !engineIds.equals(engineControllers.keySet());
+		if(enginesChanged) {
+			engineControllers.clear();
+			engines.getTabs().clear();		
+			for (ProcessingEngineInfo processingEngineInfo: dashboardResultModel.engines){
+				Form<ProcessingEngineController> engineForm = dashboardPartsFactory.createEngineForm(engines,processingEngineInfo,dashboardResultModel);				
+				String id = processingEngineInfo.getId();
+				engineControllers.put(id, engineForm.getController());
+				engineForm.show();
+			}
+		} else {
+			for (ProcessingEngineInfo processingEngineInfo: dashboardResultModel.engines){
+				String id = processingEngineInfo.getId();
+				ProcessingEngineController controller = engineControllers.get(id);
+				controller.setProcessingEngineInfo(processingEngineInfo);
+			}			
+		}
+	}
+
+	private final Map<String, ProviderController> monitoringDataProviders = new TreeMap<String, ProviderController>();
+	private void showMonitoringData(DashboardResultModel dashboardResultModel) {
+		Set<String> monitoringDataNames = new HashSet<String>(); 
+		for (MonitoringDataProviderInfo monitoringDataProviderInfo: dashboardResultModel.providers) {
+			monitoringDataNames.add(monitoringDataProviderInfo.getName());
+		}
+		boolean monitoringDataChanged = !monitoringDataNames.equals(monitoringDataProviders.keySet());
+		if(monitoringDataChanged) {
+			System.err.println("monitoringDataChanged. New names: " + monitoringDataNames);
+			monitoringDataProviders.clear();
+			monitoringPane.getChildren().clear();
+			for (MonitoringDataProviderInfo monitoringDataProviderInfo: dashboardResultModel.providers){
+				final BorderPane pane = new BorderPane();
+				monitoringPane.getChildren().add(pane);
+				Form<ProviderController> providerForm = dashboardPartsFactory.createMonitoringDataProviderForm(monitoringDataProviderInfo,pane);
+				String name = monitoringDataProviderInfo.getName();
+				monitoringDataProviders.put(name, providerForm.getController());
+				providerForm.show();
+			}
+		} else {
+			for(int i=0; i<dashboardResultModel.providers.size(); i++) {
+				MonitoringDataProviderInfo providerInfo = dashboardResultModel.providers.get(i);
+				String name = providerInfo.getName();
+				ProviderController controller = monitoringDataProviders.get(name);
+				String status = providerInfo.getStatus();
+				controller.getStatus().setText(status);
+			}
+		}
 	}
 
 	@Override

@@ -83,4 +83,23 @@ public class ProviderController implements Initializable, FxmlController {
         stop.getStyleClass().add("copperActionButton");
 	}
 
+    public TextField getName() {
+		return name;
+	}
+    
+    public Button getStart() {
+		return start;
+	}
+    
+    public TextField getStatus() {
+		return status;
+	}
+    
+    public GuiCopperDataProvider getDataProvider() {
+		return dataProvider;
+	}
+    
+    public MonitoringDataProviderInfo getDataProviderInfo() {
+		return dataProviderInfo;
+	}
 }

@@ -16,7 +16,11 @@
 package de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.engine;
 
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -28,15 +32,17 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
+import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultModel;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
 public class ProcessingEngineController implements Initializable, FxmlController {
-	private final ProcessingEngineInfo processingEngineInfo;
+	private ProcessingEngineInfo processingEngineInfo;
 	private final DashboardResultModel dashboardResultModel;
 	private final FormContext context;
 	private final  GuiCopperDataProvider dataProvider;
@@ -131,24 +137,8 @@ public class ProcessingEngineController implements Initializable, FxmlController
         state_INVALID.setText(Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.INVALID)));
         state_WAITING.setText(Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.WAITING)));
         
-        id.setText(processingEngineInfo.getId());
-//        row.setText(dashboardResultModel.getStateSummery(processingEngineInfo.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.RAW).toString());
-        typ.setText(processingEngineInfo.getTyp().toString());
-        workflowRepositoryId.setText(processingEngineInfo.getRepositoryInfo().getName());
-        workflowRepositoryTyp.setText(processingEngineInfo.getRepositoryInfo().getWorkflowRepositorTyp().toString());
-        workflowRepositoryPaths.setText("");
-        for (String path: processingEngineInfo.getRepositoryInfo().getSrcPaths()){
-        	workflowRepositoryPaths.setText(workflowRepositoryPaths.getText()+path+"\n");
-        }
-        injectorTyp.setText(processingEngineInfo.getDependencyInjectorInfo().getTyp().toString());
-        storageId.setText(processingEngineInfo.getStorageInfo().getDescription());
-        batcherId.setText(processingEngineInfo.getStorageInfo().getBatcher().getDescription());
-        batcherthreadnum.setText(Integer.toString(processingEngineInfo.getStorageInfo().getBatcher().getNumThreads()));
-        
         pools.getStyleClass().add("floating");//transparent tabheader
-        for (ProcessorPoolInfo processorPoolInfo: processingEngineInfo.getPools()){
-        	context.createPoolForm(pools,processingEngineInfo,processorPoolInfo,dashboardResultModel).show();
-        }
+        updateInfo();
         
         
         batcherNumSet.setOnAction(new EventHandler<ActionEvent>() {
@@ -162,6 +152,54 @@ public class ProcessingEngineController implements Initializable, FxmlController
         batcherNumSet.getStyleClass().add("copperActionButton");
         batcherNumSet.disableProperty().bind(batcherNewNum.textProperty().isEqualTo(""));
     }
+
+    public void setProcessingEngineInfo(ProcessingEngineInfo processingEngineInfo) {
+		this.processingEngineInfo = processingEngineInfo;
+		updateInfo();
+	}
+
+	private void updateInfo() {
+		id.setText(processingEngineInfo.getId());
+//        row.setText(dashboardResultModel.getStateSummery(processingEngineInfo.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.RAW).toString());
+        typ.setText(processingEngineInfo.getTyp().toString());
+        workflowRepositoryId.setText(processingEngineInfo.getRepositoryInfo().getName());
+        workflowRepositoryTyp.setText(processingEngineInfo.getRepositoryInfo().getWorkflowRepositorTyp().toString());
+        workflowRepositoryPaths.setText("");
+        for (String path: processingEngineInfo.getRepositoryInfo().getSrcPaths()){
+        	workflowRepositoryPaths.setText(workflowRepositoryPaths.getText()+path+"\n");
+        }
+        injectorTyp.setText(processingEngineInfo.getDependencyInjectorInfo().getTyp().toString());
+        storageId.setText(processingEngineInfo.getStorageInfo().getDescription());
+        batcherId.setText(processingEngineInfo.getStorageInfo().getBatcher().getDescription());
+        batcherthreadnum.setText(Integer.toString(processingEngineInfo.getStorageInfo().getBatcher().getNumThreads()));
+        
+        updateProcessorPools();
+	}
+
+	private final Map<String, ProccessorPoolController> poolControllers = new TreeMap<String, ProccessorPoolController>();
+	private void updateProcessorPools() {
+		Set<String> poolIds = new HashSet<String>();
+		for (ProcessorPoolInfo processorPoolInfo: processingEngineInfo.getPools()){
+			poolIds.add(processorPoolInfo.getId());
+        }
+		boolean poolsChanged = !poolIds.equals(poolControllers.keySet());
+		if(poolsChanged) {
+			pools.getTabs().clear();
+			poolControllers.clear();
+			for (ProcessorPoolInfo processorPoolInfo: processingEngineInfo.getPools()){
+	        	Form<ProccessorPoolController> poolForm = context.createPoolForm(pools,processingEngineInfo,processorPoolInfo,dashboardResultModel);
+	        	String id = processorPoolInfo.getId();
+	        	poolControllers.put(id, poolForm.getController());
+				poolForm.show();
+	        }
+		} else {
+			for (ProcessorPoolInfo processorPoolInfo: processingEngineInfo.getPools()){
+	        	String id = processorPoolInfo.getId();
+	        	ProccessorPoolController poolController = poolControllers.get(id);
+	        	poolController.setPool(processorPoolInfo);
+	        }
+		}
+	}
 
 	@Override
 	public URL getFxmlResource() {
