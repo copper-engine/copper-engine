@@ -187,7 +187,7 @@ public class ProcessingEngineController implements Initializable, FxmlController
 			pools.getTabs().clear();
 			poolControllers.clear();
 			for (ProcessorPoolInfo processorPoolInfo: processingEngineInfo.getPools()){
-	        	Form<ProccessorPoolController> poolForm = context.createPoolForm(pools,processingEngineInfo,processorPoolInfo,dashboardResultModel);
+	        	Form<ProccessorPoolController> poolForm = context.createPoolForm(pools,processingEngineInfo,processorPoolInfo);
 	        	String id = processorPoolInfo.getId();
 	        	poolControllers.put(id, poolForm.getController());
 				poolForm.show();
