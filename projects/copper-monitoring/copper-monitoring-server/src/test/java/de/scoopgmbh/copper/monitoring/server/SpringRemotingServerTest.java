@@ -56,7 +56,7 @@ public class SpringRemotingServerTest {
 					public void run() {
 						final SimpleAccountRealm realm = new SimpleAccountRealm();
 						realm.addAccount("user1", "pass1");
-						springRemotingServer = new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(Mockito.mock(CopperMonitoringService.class))  ,8087,"localhost", new DefaultLoginService(realm));
+						springRemotingServer = new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(Mockito.mock(CopperMonitoringService.class))  ,8087,"localhost", new SecureLoginService(realm));
 						springRemotingServer.start();
 					}
 				},null);

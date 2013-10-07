@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
+import org.springframework.remoting.support.RemoteInvocationExecutor;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -48,9 +49,11 @@ public class SpringRemotingServer {
 	private final CopperMonitoringService copperMonitoringService;
 	private final int port;
 	private final String host; 
-	private final DefaultLoginService loginService;
+	private final LoginService loginService;
 	
-	public SpringRemotingServer(CopperMonitoringService copperMonitoringService, int port, String host, DefaultLoginService loginService) {
+	private RemoteInvocationExecutor remoteInvocationExecutor = new SecureRemoteInvocationExecutor();
+	
+	public SpringRemotingServer(CopperMonitoringService copperMonitoringService, int port, String host, LoginService loginService) {
 		super();
 		this.copperMonitoringService = copperMonitoringService;
 		this.port = port;
@@ -83,7 +86,7 @@ public class SpringRemotingServer {
 				BeanDefinitionBuilder.genericBeanDefinition(HttpInvokerServiceExporter.class).
 				addPropertyValue("service", copperMonitoringService).
 				addPropertyValue("serviceInterface", CopperMonitoringService.class.getName()).
-				addPropertyValue("remoteInvocationExecutor", createSecureRemoteInvocationExecutor()).
+				addPropertyValue("remoteInvocationExecutor", remoteInvocationExecutor).
 				getBeanDefinition());
 		genericWebApplicationContext.refresh();
 		
@@ -115,11 +118,6 @@ public class SpringRemotingServer {
 		}
 	}
 	
-	private SecureRemoteInvocationExecutor createSecureRemoteInvocationExecutor(){
-		final SecureRemoteInvocationExecutor secureRemoteInvocationExecutor = new SecureRemoteInvocationExecutor();
-		return secureRemoteInvocationExecutor;
-	}
-
 	public void stop() {
 		try {
 			server.stop();
@@ -130,6 +128,10 @@ public class SpringRemotingServer {
 
 	public boolean isRunning() {
 		return server.isRunning();
+	}
+
+	public void setRemoteInvocationExecutor(RemoteInvocationExecutor remoteInvocationExecutor) {
+		this.remoteInvocationExecutor = remoteInvocationExecutor;
 	}
 
 }

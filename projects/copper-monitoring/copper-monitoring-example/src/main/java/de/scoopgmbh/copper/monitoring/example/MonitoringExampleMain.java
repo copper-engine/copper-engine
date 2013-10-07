@@ -29,6 +29,9 @@ import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.shiro.realm.SimpleAccountRealm;
+import org.apache.shiro.spring.remoting.SecureRemoteInvocationExecutor;
+import org.springframework.remoting.support.DefaultRemoteInvocationExecutor;
+import org.springframework.remoting.support.RemoteInvocationExecutor;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -44,15 +47,18 @@ import de.scoopgmbh.copper.common.WorkflowRepository;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
+import de.scoopgmbh.copper.monitoring.core.LoginService;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapterImpl;
 import de.scoopgmbh.copper.monitoring.example.monitoringprovider.GcDataProvider;
 import de.scoopgmbh.copper.monitoring.example.util.SingleProzessInstanceUtil;
+import de.scoopgmbh.copper.monitoring.server.CopperMonitorServiceDefaultProxy;
 import de.scoopgmbh.copper.monitoring.server.CopperMonitorServiceSecurityProxy;
 import de.scoopgmbh.copper.monitoring.server.DefaultCopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.server.DefaultLoginService;
+import de.scoopgmbh.copper.monitoring.server.SecureLoginService;
 import de.scoopgmbh.copper.monitoring.server.SpringRemotingServer;
 import de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector;
 import de.scoopgmbh.copper.monitoring.server.logging.LogbackConfigManager;
@@ -137,9 +143,10 @@ public class MonitoringExampleMain {
 		return new DatabaseData(oracleDialect, datasource_oracle);
 	}
 	
-	
 	public MonitoringExampleMain start(String[] args){
+		boolean unsecure = Boolean.getBoolean("unsecureCopperMonitoring");
 		LogManager.getRootLogger().setLevel(Level.INFO);
+		System.out.println("Copper monitoring using " + (unsecure ? "un" : "") + "secure remote invocation.");
 		
 		FileBasedWorkflowRepository wfRepository = new FileBasedWorkflowRepository();
 		wfRepository.setTargetDir("build/classes/test");
@@ -240,9 +247,6 @@ public class MonitoringExampleMain {
 		engines.add(persistentengine);
 		
 
-		final SimpleAccountRealm realm = new SimpleAccountRealm();
-		realm.addAccount("user1", "pass1");
-		
 		WorkflowInstanceIntrospector introspector = new WorkflowInstanceIntrospector(persistentdbStorage, wfRepository); 
 		
 		final MonitoringLogbackDataProvider monitoringLogbackDataProvider = new MonitoringLogbackDataProvider(monitoringDataCollector);
@@ -260,7 +264,24 @@ public class MonitoringExampleMain {
 
 		String host = (args.length > 0) ? args[0] : "localhost";
 		int port = (args.length > 1) ? Integer.parseInt(args[1]) : 8080;
-		new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(copperMonitoringService)  ,port, host, new DefaultLoginService(realm)).start();
+		
+		CopperMonitoringService monitoringService;
+		LoginService loginService;
+		RemoteInvocationExecutor remoteInvocationExecutor;
+		if(unsecure) {
+			monitoringService = CopperMonitorServiceDefaultProxy.getServiceProxy(copperMonitoringService);
+			loginService = new DefaultLoginService();
+			remoteInvocationExecutor = new DefaultRemoteInvocationExecutor();
+		} else {
+			monitoringService = CopperMonitorServiceSecurityProxy.secure(copperMonitoringService);
+			final SimpleAccountRealm realm = new SimpleAccountRealm();
+			realm.addAccount("user1", "pass1");			
+			loginService = new SecureLoginService(realm);
+			remoteInvocationExecutor = new SecureRemoteInvocationExecutor();
+		}		
+		SpringRemotingServer springRemotingServer = new SpringRemotingServer(monitoringService, port, host, loginService);
+		springRemotingServer.setRemoteInvocationExecutor(remoteInvocationExecutor);
+		springRemotingServer.start();
 		
 		return this;
 	}
