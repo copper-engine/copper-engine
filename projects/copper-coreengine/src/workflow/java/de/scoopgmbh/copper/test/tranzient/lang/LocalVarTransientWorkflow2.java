@@ -30,6 +30,7 @@ import de.scoopgmbh.copper.WaitMode;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.test.MockAdapter;
 import de.scoopgmbh.copper.test.TestResponseReceiver;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class LocalVarTransientWorkflow2 extends Workflow<String> {
 
@@ -59,9 +60,7 @@ public class LocalVarTransientWorkflow2 extends Workflow<String> {
 		
 	}
 
-	/* (non-Javadoc)
-	 * @see de.scoopgmbh.copper.Workflow#main()
-	 */
+	@SuppressWarnings("RpC_REPEATED_CONDITIONAL_TEST")
 	@Override
 	public void main() throws InterruptException {
 		Object x;
