@@ -181,6 +181,7 @@ public class WorkflowClassesTreeController {
 	}
 
 	public void refresh(List<WorkflowVersion> newItems) {
+        treeView.setShowRoot(false);
 		TreeItem<DisplayWorkflowClassesModel> rootItem = new TreeItem<DisplayWorkflowClassesModel>();
 		rootItem.getChildren().addAll(groupToTreeItem(newItems));
 		treeView.setRoot(rootItem);
@@ -202,7 +203,6 @@ public class WorkflowClassesTreeController {
 		});
 		
         rootItem.setExpanded(true);
-        treeView.setShowRoot(false);
 	}
 	
 	public SimpleObjectProperty<WorkflowVersion> selectedItem = new SimpleObjectProperty<WorkflowVersion>();
