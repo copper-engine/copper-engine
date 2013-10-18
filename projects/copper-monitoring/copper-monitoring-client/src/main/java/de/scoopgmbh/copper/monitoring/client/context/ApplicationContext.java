@@ -38,6 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+import org.springframework.remoting.support.DefaultRemoteInvocationFactory;
+import org.springframework.remoting.support.RemoteInvocationFactory;
+import org.springframework.util.StringUtils;
 
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
@@ -174,6 +177,7 @@ public class ApplicationContext {
 		
 
 	protected void connect(final String serverAdressParam, final String user, final String password) {
+		boolean secureConnect = StringUtils.hasText(user) && StringUtils.hasText(password);
 		String serverAdress = serverAdressParam;
 		if (!serverAdress.endsWith("/")) {
 			serverAdress = serverAdress + "/";
@@ -195,10 +199,14 @@ public class ApplicationContext {
 		}
 
 		final String sessionId;
-		try {
-			sessionId = loginService.doLogin(user, password);
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
+		if(secureConnect) {
+			try {
+				sessionId = loginService.doLogin(user, password);
+			} catch (RemoteException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			sessionId = "";
 		}
 
 		if (sessionId == null) {
@@ -212,7 +220,9 @@ public class ApplicationContext {
 			HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
 			httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
 			httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
-			httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory(sessionId));
+			RemoteInvocationFactory remoteInvocationFactory = secureConnect ?
+					new SecureRemoteInvocationFactory(sessionId) : new DefaultRemoteInvocationFactory();
+			httpInvokerProxyFactoryBean.setRemoteInvocationFactory(remoteInvocationFactory);
 			httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
 			httpInvokerProxyFactoryBean.afterPropertiesSet();
 			final CopperMonitoringService copperMonitoringService = (CopperMonitoringService) httpInvokerProxyFactoryBean.getObject();
@@ -225,7 +235,6 @@ public class ApplicationContext {
 				}
 			});
 		}
-
 	}
 	
 	protected FormContext formContext;
