@@ -1,3 +1,9 @@
+COPPER 2.4
+==========
+- New feature: engine.run throws DuplicateIdException if an existing workflow instance id is used - this is also implemented for the transient engine which substitutes throwing an IllegalStateException
+- New feature: Default value for property "loadNonWorkflowClasses" in "FileBasesWorkflowRepository" changed from false to true, due to various problems, e.g. Switch-case not workling out-of-the-box
+- Bugfix: ArrayIndexOutOfBoundsException and other exceptions during workflow instrumentation when extensively using nested blocks and local variables
+
 COPPER 2.3
 ==========
 - New feature: Extended JMX interface
