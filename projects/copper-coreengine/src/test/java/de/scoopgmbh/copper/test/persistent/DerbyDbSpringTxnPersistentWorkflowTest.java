@@ -142,4 +142,11 @@ public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersist
 		}
 		context.close();
 	}	
+	
+	@Test
+	public void testFailOnDuplicateInsert() throws Exception {
+		assertTrue("DBMS not available",dbmsAvailable);
+		super.testFailOnDuplicateInsert(DS_CONTEXT);
+	}	
+	
 }

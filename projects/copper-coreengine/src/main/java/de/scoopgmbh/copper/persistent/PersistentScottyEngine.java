@@ -239,6 +239,12 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 				notifyProcessorPool(ppoolId);
 			}
 		}
+		catch(RuntimeException e) {
+			throw e;
+		}
+		catch(CopperException e) {
+			throw e;
+		}
 		catch(Exception e) {
 			throw new CopperException("run failed",e);
 		}
@@ -270,6 +276,12 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 			}
 			dbStorage.insert(wf, con);
 			notifyProcessorPool(wf.getProcessorPoolId());
+		}
+		catch(RuntimeException e) {
+			throw e;
+		}
+		catch(CopperException e) {
+			throw e;
 		}
 		catch(Exception e) {
 			throw new CopperException("run failed",e);

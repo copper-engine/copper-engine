@@ -130,4 +130,11 @@ public class PostgreSQLSpringTxnPersistentWorkflowTest extends BaseSpringTxnPers
 		assertTrue("DBMS not available",dbmsAvailable);
 		super.testAutoCommit(DS_CONTEXT);
 	}		
+	
+	@Test
+	public void testFailOnDuplicateInsert() throws Exception {
+		assertTrue("DBMS not available",dbmsAvailable);
+		super.testFailOnDuplicateInsert(DS_CONTEXT);
+	}	
+	
 }

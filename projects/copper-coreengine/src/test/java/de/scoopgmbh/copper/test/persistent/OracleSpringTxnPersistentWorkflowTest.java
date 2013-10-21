@@ -148,5 +148,11 @@ public class OracleSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersiste
 	public void testSpringTxnUnitTestWorkflow() throws Exception {
 		assertTrue("DBMS not available",dbmsAvailable);
 		super.testSpringTxnUnitTestWorkflow(DS_CONTEXT);
+	}
+	
+	@Test
+	public void testFailOnDuplicateInsert() throws Exception {
+		assertTrue("DBMS not available",dbmsAvailable);
+		super.testFailOnDuplicateInsert(DS_CONTEXT);
 	}	
 }

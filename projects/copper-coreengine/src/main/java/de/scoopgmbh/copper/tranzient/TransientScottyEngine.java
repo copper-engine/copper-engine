@@ -172,7 +172,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 			}
 			synchronized (workflowMap) {
 				if (!newId && workflowMap.containsKey(w.getId()))
-					throw new IllegalStateException("engine already contains a workflow with id '"+w.getId()+"'");
+					throw new CopperRuntimeException("engine already contains a workflow with id '"+w.getId()+"'");
 				workflowMap.put(w.getId(), w);
 			}
 			dependencyInjector.inject(w);

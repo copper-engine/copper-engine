@@ -37,6 +37,7 @@ import org.springframework.jdbc.support.JdbcUtils;
 
 import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.CopperRuntimeException;
+import de.scoopgmbh.copper.DuplicateIdException;
 import de.scoopgmbh.copper.EngineIdProvider;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
@@ -396,6 +397,12 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			List<PersistentWorkflow<?>> uncheckedWfs = (List)wfs;
 			workflowPersistencePlugin.onWorkflowsSaved(con, uncheckedWfs);
+		}
+		catch(SQLException e) {
+			if (e.getErrorCode() == 1) {
+				throw new DuplicateIdException(e);
+			}
+			throw e;
 		}
 		finally {
 			JdbcUtils.closeStatement(stmt);

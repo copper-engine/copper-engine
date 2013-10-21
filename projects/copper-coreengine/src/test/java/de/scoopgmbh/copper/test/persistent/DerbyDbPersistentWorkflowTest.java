@@ -15,6 +15,8 @@
  */
 package de.scoopgmbh.copper.test.persistent;
 
+import static org.junit.Assert.assertTrue;
+
 import javax.sql.DataSource;
 
 import org.junit.After;
@@ -113,5 +115,10 @@ public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
 		}
 		context.close();
 	}
+	
+	@Test
+	public void testFailOnDuplicateInsert() throws Exception {
+		super.testFailOnDuplicateInsert(DS_CONTEXT);
+	}	
 	
 }

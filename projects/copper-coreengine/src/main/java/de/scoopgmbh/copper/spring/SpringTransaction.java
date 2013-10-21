@@ -24,13 +24,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
-import de.scoopgmbh.copper.CopperRuntimeException;
-
 public abstract class SpringTransaction {
 	
 	protected abstract void execute(Connection con) throws Exception;
 	
-	public void run(PlatformTransactionManager transactionManager, DataSource dataSource, TransactionDefinition def) {
+	public void run(PlatformTransactionManager transactionManager, DataSource dataSource, TransactionDefinition def) throws Exception {
 		TransactionStatus txnStatus = transactionManager.getTransaction(def);
 		try {
 			Connection con = DataSourceUtils.getConnection(dataSource);
@@ -41,13 +39,9 @@ public abstract class SpringTransaction {
 				DataSourceUtils.releaseConnection(con, dataSource);
 			}
 		}
-		catch(RuntimeException e) {
-			transactionManager.rollback(txnStatus);
-			throw e;
-		}
 		catch(Exception e) {
 			transactionManager.rollback(txnStatus);
-			throw new CopperRuntimeException("jdbc operation failed",e);
+			throw e;
 		}
 		transactionManager.commit(txnStatus);
 	}

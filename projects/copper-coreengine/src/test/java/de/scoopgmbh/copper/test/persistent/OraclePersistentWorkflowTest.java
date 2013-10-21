@@ -229,5 +229,13 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 		assertTrue("DBMS not available",dbmsAvailable);
 		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
 	}
+	
+	@Test
+	public void testFailOnDuplicateInsert() throws Exception {
+		assertTrue("DBMS not available",dbmsAvailable);
+		super.testFailOnDuplicateInsert(DS_CONTEXT);
+	}
+	
+	
 
 }

@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import de.scoopgmbh.copper.DuplicateIdException;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
@@ -50,6 +51,7 @@ import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.CompressedBase64PostProcessor;
 import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.db.utility.RetryingTransaction;
+import de.scoopgmbh.copper.persistent.DatabaseDialect;
 import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
 import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
@@ -146,6 +148,32 @@ public class BasePersistentWorkflowTest {
 		assertEquals(0,engine.getNumberOfWorkflowInstances());
 
 	}
+	
+	public void testFailOnDuplicateInsert(String dsContext) throws Exception {
+		assumeFalse(skipTests());
+		logger.info("running testFailOnDuplicateInsert");
+		final String DATA = createTestData(50);
+		final ConfigurableApplicationContext context = createContext(dsContext);
+		cleanDB(context.getBean(DataSource.class));
+		context.getBean(DatabaseDialect.class).setRemoveWhenFinished(false);
+		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+		engine.startup();
+		try {
+			WorkflowInstanceDescr<String> desc = new WorkflowInstanceDescr<String>(PersistentUnitTestWorkflow_NAME, DATA, "DUPLICATE#ID", 1, null);
+			engine.run(desc);
+			engine.run(desc);
+			org.junit.Assert.fail("expected an DuplicateIdException");
+		}
+		catch(DuplicateIdException e) {
+			// ok
+		}
+		finally {
+			closeContext(context);
+		}
+		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		assertEquals(0,engine.getNumberOfWorkflowInstances());
+
+	}	
 
 	protected void closeContext(final ConfigurableApplicationContext context) {
 		context.close();

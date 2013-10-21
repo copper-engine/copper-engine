@@ -136,4 +136,10 @@ public class PostgreSQLPersistentWorkflowTest extends BasePersistentWorkflowTest
 		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
 	}
 
+	@Test
+	public void testFailOnDuplicateInsert() throws Exception {
+		assertTrue("DBMS not available",dbmsAvailable);
+		super.testFailOnDuplicateInsert(DS_CONTEXT);
+	}	
+	
 }

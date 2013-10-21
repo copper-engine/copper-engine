@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import de.scoopgmbh.copper.Acknowledge;
+import de.scoopgmbh.copper.DuplicateIdException;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -523,6 +525,17 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			List<PersistentWorkflow<?>> uncheckedWfs = (List)wfs;
 			workflowPersistencePlugin.onWorkflowsSaved(con, uncheckedWfs);
+		}
+		catch(SQLException e) {
+			// MySQL and DerbyDB throw a SQLIntegrityConstraintViolationException
+			if (e instanceof SQLIntegrityConstraintViolationException || (e.getCause() != null && e.getCause() instanceof SQLIntegrityConstraintViolationException)) {
+				throw new DuplicateIdException(e);
+			}
+			// Postgres handling
+			if (e.getMessage().contains("cop_workflow_instance_pkey") || (e.getNextException() != null && e.getNextException().getMessage().contains("cop_workflow_instance_pkey"))) {
+				throw new DuplicateIdException(e);
+			}
+			throw e;
 		}
 		finally {
 			JdbcUtils.closeStatement(stmtQueue);

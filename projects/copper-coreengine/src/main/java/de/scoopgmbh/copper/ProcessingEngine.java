@@ -92,19 +92,19 @@ public interface ProcessingEngine {
 	 * Enqueues the specified workflow instance into the engine for execution.  
 	 * @param wfname name or alias of the workflows class
 	 * @param data the data to pass to the workflow
-	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id. THIS METHOD IS NOT SAFE: The control flow may return before the message has been processed securely.
+	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id.
 	 */
 	public void run(String wfname, Object data) throws CopperException;
 	
 	/**
 	 * Enqueues the specified workflow instance description into the engine for execution.  
-	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id. THIS METHOD IS NOT SAFE: The control flow may return before the message has been processed securely.
+	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id.
 	 */
 	public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException;
 	
 	/**
 	 * Enqueues the specified batch of workflow instance description into the engine for execution.  
-	 * @throws CopperException if the engine can not run the workflows, e.g. in case of a unkown processor pool id. THIS METHOD IS NOT SAFE: The control flow may return before the message has been processed securely.
+	 * @throws CopperException if the engine can not run the workflows, e.g. in case of a unkown processor pool id.
 	 */
 	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr) throws CopperException;
 	

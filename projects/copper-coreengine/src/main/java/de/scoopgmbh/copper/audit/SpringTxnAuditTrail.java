@@ -24,6 +24,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.audit.BatchInsertIntoAutoTrail.Command;
 import de.scoopgmbh.copper.audit.BatchInsertIntoAutoTrail.Executor;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -32,11 +33,11 @@ import de.scoopgmbh.copper.spring.SpringTransaction;
 
 
 public class SpringTxnAuditTrail extends BatchingAuditTrail {
-	
+
 	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(SpringTxnAuditTrail.class);
-	
+
 	private PlatformTransactionManager transactionManager;
-	
+
 	public void setTransactionManager(PlatformTransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 	}
@@ -46,22 +47,30 @@ public class SpringTxnAuditTrail extends BatchingAuditTrail {
 		if ( isEnabled(e.logLevel) ) {
 			logger.debug("doLog({})",e);
 			e.setMessage(messagePostProcessor.serialize(e.message));
-			new SpringTransaction() {
-				@Override
-				protected void execute(Connection con) throws Exception {
-					@SuppressWarnings("unchecked")
-					BatchCommand<Executor, Command> cmd = createBatchCommand(e, true, NullCallback.instance);
-					@SuppressWarnings("unchecked")
-					Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>>asList(cmd);
-					cmd.executor().doExec(cmdList, con);
-				}
-			}.run(transactionManager, getDataSource(), createTransactionDefinition());
+			try {
+				new SpringTransaction() {
+					@Override
+					protected void execute(Connection con) throws Exception {
+						@SuppressWarnings("unchecked")
+						BatchCommand<Executor, Command> cmd = createBatchCommand(e, true, NullCallback.instance);
+						@SuppressWarnings("unchecked")
+						Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>>asList(cmd);
+						cmd.executor().doExec(cmdList, con);
+					}
+				}.run(transactionManager, getDataSource(), createTransactionDefinition());
+			}
+			catch(RuntimeException ex) {
+				throw ex;
+			}
+			catch(Exception ex) {
+				throw new CopperRuntimeException(ex);
+			}
 		}
 	}
 
 	protected TransactionDefinition createTransactionDefinition() {
 		return new DefaultTransactionDefinition();
 	}
-	
+
 
 }
