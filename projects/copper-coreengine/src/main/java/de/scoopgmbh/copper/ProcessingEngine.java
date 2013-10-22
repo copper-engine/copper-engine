@@ -93,20 +93,23 @@ public interface ProcessingEngine {
 	 * @param wfname name or alias of the workflows class
 	 * @param data the data to pass to the workflow
 	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id.
+	 * @throws DuplicateIdException if a workflow instance with the same id already exists
 	 */
-	public void run(String wfname, Object data) throws CopperException;
+	public void run(String wfname, Object data) throws CopperException, DuplicateIdException;
 	
 	/**
 	 * Enqueues the specified workflow instance description into the engine for execution.  
 	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id.
+	 * @throws DuplicateIdException if a workflow instance with the same id already exists
 	 */
-	public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException;
+	public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException, DuplicateIdException;
 	
 	/**
 	 * Enqueues the specified batch of workflow instance description into the engine for execution.  
 	 * @throws CopperException if the engine can not run the workflows, e.g. in case of a unkown processor pool id.
+	 * @throws DuplicateIdException if a workflow instance with the same id already exists
 	 */
-	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr) throws CopperException;
+	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr) throws CopperException, DuplicateIdException;
 	
 	
 	/**

@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.util.List;
 
 import de.scoopgmbh.copper.Acknowledge;
+import de.scoopgmbh.copper.DuplicateIdException;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 
@@ -34,24 +35,24 @@ public interface ScottyDBStorageInterface {
 	/**
 	 * Inserts a new workflow to the underlying database. The implementation may execute the inserts outside the callers context. The completion will be signalled through the Acknowledge object.
 	 */
-	public void insert(final Workflow<?> wf, Acknowledge ack) throws Exception;
+	public void insert(final Workflow<?> wf, Acknowledge ack) throws DuplicateIdException, Exception;
 
 	/**
 	 * Inserts a list of new workflows to the underlying database. The implementation may execute the inserts outside the callers context. The completion will be signalled through the Acknowledge object. 
 	 */
-	public void insert(final List<Workflow<?>> wfs, Acknowledge ack) throws Exception;
+	public void insert(final List<Workflow<?>> wfs, Acknowledge ack) throws DuplicateIdException, Exception;
 
 	/**
 	 * Inserts a new workflow to the underlying database using the provided connection.
 	 * It is up to the caller commit or rollback and close the connection.
 	 */
-	public void insert(final Workflow<?> wf, Connection con) throws Exception;
+	public void insert(final Workflow<?> wf, Connection con) throws DuplicateIdException, Exception;
 
 	/**
 	 * Inserts a list of new workflows to the underlying database using the provided connection.
 	 * It is up to the caller commit or rollback and close the connection.
 	 */
-	public void insert(final List<Workflow<?>> wfs, Connection con) throws Exception;
+	public void insert(final List<Workflow<?>> wfs, Connection con) throws DuplicateIdException, Exception;
 
 	/**
 	 * Marks a workflow instance as finished or removes it from the underlying database. 

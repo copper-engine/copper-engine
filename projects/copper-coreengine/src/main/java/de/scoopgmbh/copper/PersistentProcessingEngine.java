@@ -31,16 +31,18 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
 	 * @param wfInstanceDescr workflow instance descriptions to run
 	 * @param con connection used for the inserting the workflow to the database 
 	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+	 * @throws DuplicateIdException if a workflow instance with the same id already exists
 	 */
-	public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws CopperException;
+	public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws DuplicateIdException, CopperException;
 	
 	/**
 	 * Enqueues the specified list of workflow instances into the engine for execution.  
 	 * @param wfInstanceDescr the list of workflow instance descriptions to run
 	 * @param con connection used for the inserting the workflow to the database 
 	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+	 * @throws DuplicateIdException if a workflow instance with the same id already exists
 	 */
-	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr, Connection con) throws CopperException;
+	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr, Connection con) throws DuplicateIdException, CopperException;
 	
 	
 	/**

@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import de.scoopgmbh.copper.Acknowledge;
+import de.scoopgmbh.copper.DuplicateIdException;
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -34,9 +35,9 @@ public interface DatabaseDialect {
 
 	public abstract int deleteStaleResponse(Connection con, int maxRows) throws Exception;
 
-	public abstract void insert(final List<Workflow<?>> wfs, final Connection con) throws Exception;
+	public abstract void insert(final List<Workflow<?>> wfs, final Connection con) throws DuplicateIdException, Exception;
 
-	public abstract void insert(final Workflow<?> wf, final Connection con) throws Exception;
+	public abstract void insert(final Workflow<?> wf, final Connection con) throws DuplicateIdException, Exception;
 
 	public abstract void restart(final String workflowInstanceId, Connection c) throws Exception;
 
