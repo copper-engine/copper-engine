@@ -47,13 +47,19 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class WorkflowSummaryResultController extends FilterResultControllerBase<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> implements Initializable {
-	GuiCopperDataProvider copperDataProvider;
+	private GuiCopperDataProvider copperDataProvider;	
 
 	private WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory;
-	public WorkflowSummaryResultController(GuiCopperDataProvider copperDataProvider,WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory) {
+	private final MenuItem[] detailMenuItems;
+	
+	public WorkflowSummaryResultController(GuiCopperDataProvider copperDataProvider,
+			WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory,
+			MenuItem... detailMenuItems) {
 		super();
 		this.copperDataProvider = copperDataProvider;
 		this.workflowSummaryDependencyFactory = workflowSummaryDependencyFactory;
+		this.detailMenuItems = (detailMenuItems.length != 0) ? 
+				detailMenuItems : new MenuItem[] { getDefaultMenuItem() };
 	}
 
     @FXML //  fx:id="countColumn"
@@ -68,7 +74,17 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
     @FXML //  fx:id="borderPane"
     private BorderPane borderPane; // Value injected by FXMLLoader
 
-
+    private MenuItem getDefaultMenuItem() {
+        MenuItem detailMenuItem = new MenuItem("Instancelist (db)");
+        detailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				openWorkflowInstance();
+			}
+		});
+        return detailMenuItem;
+    }
+    
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert countColumn != null : "fx:id=\"countColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
@@ -112,11 +128,6 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 			resultTable.getColumns().add(tableColumn);
         }
 
-    
-        
-
-
-        
         resultTable.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
@@ -128,16 +139,11 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 			}
 		});
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem detailMenuItem = new MenuItem("Instancelist (db)");
-        detailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				openWorkflowInstance();
-			}
-		});
-        detailMenuItem.disableProperty().bind(resultTable.getSelectionModel().selectedItemProperty().isNull());
-        contextMenu.getItems().add(detailMenuItem);
-        
+
+        for(MenuItem menuItem : detailMenuItems) {
+            menuItem.disableProperty().bind(resultTable.getSelectionModel().selectedItemProperty().isNull());
+            contextMenu.getItems().add(menuItem);
+        }
         resultTable.setContextMenu(contextMenu);
     }
     

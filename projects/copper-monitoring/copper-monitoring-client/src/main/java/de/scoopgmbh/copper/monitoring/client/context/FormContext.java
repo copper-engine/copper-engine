@@ -23,6 +23,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
@@ -338,10 +339,10 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 		return new WorkflowClassesTreeController(workflowView, issueReporter);
 	}
 	
-	public FilterAbleForm<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> createWorkflowOverviewForm(){
+	public FilterAbleForm<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> createWorkflowOverviewForm(MenuItem... detailMenuItems){
 		return new EngineFormBuilder<WorkflowSummaryFilterModel,WorkflowSummaryResultModel,WorkflowSummaryFilterController,WorkflowSummaryResultController>(
 				new WorkflowSummaryFilterController(this,getCachedAvailableEngines()),
-				new WorkflowSummaryResultController(guiCopperDataProvider,this),
+				new WorkflowSummaryResultController(guiCopperDataProvider, this, detailMenuItems),
 				this
 			).build();
 	}
