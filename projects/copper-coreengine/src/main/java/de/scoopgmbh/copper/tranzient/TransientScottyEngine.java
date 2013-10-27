@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.CopperRuntimeException;
 import de.scoopgmbh.copper.DependencyInjector;
+import de.scoopgmbh.copper.DuplicateIdException;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
@@ -172,11 +173,17 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 			}
 			synchronized (workflowMap) {
 				if (!newId && workflowMap.containsKey(w.getId()))
-					throw new CopperRuntimeException("engine already contains a workflow with id '"+w.getId()+"'");
+					throw new DuplicateIdException("engine already contains a workflow with id '"+w.getId()+"'");
 				workflowMap.put(w.getId(), w);
 			}
 			dependencyInjector.inject(w);
 			enqueue(w);
+		}
+		catch(DuplicateIdException e) {		
+			String message = "run/enqeue of workflow with id '" + w.getId() + "' failed.";
+			logger.warn(message);
+			ticketPoolManager.release(w);
+			throw new DuplicateIdException(message, e);
 		}
 		catch(Exception e) {
 			String message = "run/enqeue of workflow with id '" + w.getId() + "' failed.";

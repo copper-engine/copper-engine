@@ -17,14 +17,21 @@ package de.scoopgmbh.copper.test.tranzient.simple;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import de.scoopgmbh.copper.DuplicateIdException;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.Workflow;
+import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.test.TestResponseReceiver;
+import de.scoopgmbh.copper.test.backchannel.BackChannelQueue;
+import de.scoopgmbh.copper.test.backchannel.WorkflowResult;
 import de.scoopgmbh.copper.tranzient.TransientScottyEngine;
 import de.scoopgmbh.copper.util.BlockingResponseReceiver;
 
@@ -65,4 +72,24 @@ public class SimpleTransientEngineTest {
 		
 	}
 	
+	
+	@Test(expected=DuplicateIdException.class)
+	public void testDuplicateIdException() throws Exception {
+		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
+		final TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
+		
+		assertEquals(EngineState.STARTED,engine.getEngineState());
+		
+		try {
+			engine.run(new WorkflowInstanceDescr<String>("de.scoopgmbh.copper.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null,
+					null));
+			engine.run(new WorkflowInstanceDescr<String>("de.scoopgmbh.copper.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null,
+					null));
+		}
+		finally {
+			context.close();
+		}
+		assertEquals(EngineState.STOPPED,engine.getEngineState());
+		
+	}
 }
