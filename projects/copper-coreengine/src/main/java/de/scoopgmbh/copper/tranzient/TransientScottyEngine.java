@@ -153,7 +153,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 	}
 
 	@Override
-	protected void run(Workflow<?> w) {
+	protected void run(Workflow<?> w) throws DuplicateIdException {
 		try {
 			startupBlocker.pass();
 		} 
@@ -180,10 +180,8 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 			enqueue(w);
 		}
 		catch(DuplicateIdException e) {		
-			String message = "run/enqeue of workflow with id '" + w.getId() + "' failed.";
-			logger.warn(message);
 			ticketPoolManager.release(w);
-			throw new DuplicateIdException(message, e);
+			throw e;
 		}
 		catch(Exception e) {
 			String message = "run/enqeue of workflow with id '" + w.getId() + "' failed.";
