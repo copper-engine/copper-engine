@@ -37,7 +37,10 @@ import de.scoopgmbh.copper.management.model.MeasurePointData;
  *
  */
 public class LoggingStatisticCollector implements RuntimeStatisticsCollector, StatisticsCollectorMXBean {
-	
+	public static interface Filter {
+		boolean accept(String measurePointId, int elementCount, long elapsedTime, TimeUnit timeUnit);
+	}
+
 	private static final class StatSet {
 		final String mpId;
 		long elementCount = 0L;
@@ -56,6 +59,7 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 	private static final Logger logger = LoggerFactory.getLogger(LoggingStatisticCollector.class);
 	private static final Logger statLogger = LoggerFactory.getLogger("stat");
 
+	private Filter dataFilter = null;
 	private int loggingIntervalSec = 15;
 	private boolean resetAfterLogging = false;
 	
@@ -116,7 +120,10 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 		if (elapsedTime < 0) throw new IllegalArgumentException();
 		if (elementCount < 0) throw new IllegalArgumentException();
 		if (timeUnit == null) throw new NullPointerException();
-		
+
+		if((dataFilter != null) && !dataFilter.accept(measurePointId, elementCount, elapsedTime, timeUnit)) {
+			return;
+		}
 		StatSet ss = map.get(measurePointId);
 		if (ss == null) {
 			synchronized (mutex) {
@@ -220,6 +227,12 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 			}
 			resultList.add(measurePointData);
 		}
+		Collections.sort(resultList, new Comparator<MeasurePointData>() {
+			@Override
+			public int compare(MeasurePointData data1, MeasurePointData data2) {
+				return data1.getMpId().compareTo(data2.getMpId());
+			}			
+		});
 		return resultList;
 	}
 
