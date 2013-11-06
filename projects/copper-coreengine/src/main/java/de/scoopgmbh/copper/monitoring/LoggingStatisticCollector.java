@@ -256,6 +256,12 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
 		return measurePointData;
 	}
 
+	public Filter getDataFilter() {
+		return dataFilter;
+	}
 	
+	public void setDataFilter(Filter dataFilter) {
+		this.dataFilter = dataFilter;
+	}
 }
 
