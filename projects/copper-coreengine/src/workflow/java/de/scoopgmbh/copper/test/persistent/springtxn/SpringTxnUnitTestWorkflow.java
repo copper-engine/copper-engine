@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,7 @@ public class SpringTxnUnitTestWorkflow extends PersistentWorkflow<String> {
 		mockAdapter.foo(getData(), cid);
 		
 		// current Txn ends here
-		wait(WaitMode.ALL, 10000, cid);
+		wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
 		// new Txn starts here
 		
 		Response<?> res = getAndRemoveResponse(cid);

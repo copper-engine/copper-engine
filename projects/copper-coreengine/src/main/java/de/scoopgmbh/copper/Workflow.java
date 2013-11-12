@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,6 +182,39 @@ public abstract class Workflow<D> implements Serializable {
 		}
 		engine.registerCallbacks(this, mode, timeoutMsec, correlationIds);
 	}
+	
+	/**
+	 * Generic wait/sleep. In case of WaitMode FIRST, it waits until at least one response for the specified correlation ids occurs.
+	 * In case of WaitMode ALL, it waits until a response for every specified correlation id occurs.
+	 * @param mode WaitMode
+	 * @param timeout timeout or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
+	 * @param timeUnit unit of the timeout; ignored, if a negative timeout is specified
+	 * @param correlationIds one ore more correlation ids
+	 */
+	protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final String... correlationIds) throws InterruptException {
+		if (correlationIds.length == 0) throw new IllegalArgumentException();
+		for (int i=0; i<correlationIds.length; i++) {
+			if (correlationIds[i] == null) throw new NullPointerException();
+		}
+		engine.registerCallbacks(this, mode, timeout > 0 ? timeUnit.toMillis(timeout) : 0, correlationIds);
+	}
+	
+	/**
+	 * Generic wait/sleep. In case of WaitMode FIRST, it waits until at least one response for the specified correlation ids occurs.
+	 * In case of WaitMode ALL, it waits until a response for every specified correlation id occurs.
+	 * @param mode WaitMode
+	 * @param timeout timeout or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
+	 * @param timeUnit unit of the timeout; ignored, if a negative timeout is specified
+	 * @param callbacks one ore more callbacks
+	 */
+	protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final Callback<?>... callbacks) throws InterruptException {
+		String[] correlationIds = new String[callbacks.length];
+		for (int i=0; i<correlationIds.length; i++) {
+			correlationIds[i] = callbacks[i].getCorrelationId();
+		}
+		engine.registerCallbacks(this, mode, timeout > 0 ? timeUnit.toMillis(timeout) : 0, correlationIds);
+	}	
+	
 
 	/**
 	 * Internal use only - called by the processing engine

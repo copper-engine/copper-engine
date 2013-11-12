@@ -1,6 +1,7 @@
 COPPER ?.?
 ==========
-- Renamed table ADAPTERCALL to COP_ADAPTERCALL, renamed index IX_ADAPTERCALL to COP_IDX_ADAPTERCALL
+- Refactoring: Renamed table ADAPTERCALL to COP_ADAPTERCALL, renamed index IX_ADAPTERCALL to COP_IDX_ADAPTERCALL
+- New feature: Added new wait methods, e.g. de.scoopgmbh.copper.Workflow.wait(WaitMode, long, TimeUnit, String...)
 
 COPPER 2.4
 ==========

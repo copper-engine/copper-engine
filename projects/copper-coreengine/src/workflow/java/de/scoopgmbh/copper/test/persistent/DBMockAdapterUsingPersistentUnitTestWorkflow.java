@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
 	private void callFoo() throws InterruptException {
 		String cid = getEngine().createUUID();
 		dbMockAdapter.foo(getData(), cid);
-		wait(WaitMode.ALL, 10000, cid);
+		wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
 		Response<?> res = getAndRemoveResponse(cid);
 		logger.info(res.toString());
 		assertNotNull(res);

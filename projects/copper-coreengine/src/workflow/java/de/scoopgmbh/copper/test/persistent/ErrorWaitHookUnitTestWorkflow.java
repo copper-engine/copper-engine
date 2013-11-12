@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.test.persistent;
 
 import java.io.Serializable;
 import java.sql.Connection;
+import java.util.concurrent.TimeUnit;
 
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.WaitHook;
@@ -30,14 +31,14 @@ public class ErrorWaitHookUnitTestWorkflow extends PersistentWorkflow<Serializab
 	
 	@Override
 	public void main() throws InterruptException {
-		wait(WaitMode.ALL,50,getEngine().createUUID());
+		wait(WaitMode.ALL,50, TimeUnit.MILLISECONDS,getEngine().createUUID());
 		getEngine().addWaitHook(this.getId(), new WaitHook() {
 			@Override
 			public void onWait(Workflow<?> wf, Connection con) throws Exception {
 				throw new RuntimeException("TEST Exception");
 			}
 		});
-		wait(WaitMode.ALL,50,getEngine().createUUID());
+		wait(WaitMode.ALL,50, TimeUnit.MILLISECONDS,getEngine().createUUID());
 	}
 
 }

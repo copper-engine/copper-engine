@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +105,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		List<Response<Object>> responseList = new ArrayList<Response<Object>>();
 		long waitUntil = System.currentTimeMillis()+20000;
 		while (responseList.size() < 3 && System.currentTimeMillis() < waitUntil) {
-			wait(WaitMode.ALL, 10000, cid);
+			wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
 			List<Response<Object>> tmpResponses = getAndRemoveResponses(cid); 
 			assertNotNull(tmpResponses);
 			responseList.addAll(tmpResponses);
@@ -133,7 +134,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 				dataHolder.put(cid,wf.getId());
 			}
 		});
-		wait(WaitMode.ALL, 10000, cid);
+		wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
 		assertEquals(getId(), dataHolder.get(cid));
 		dataHolder.clear(cid);
 
@@ -150,7 +151,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		final String cidLate = getEngine().createUUID();
 		mockAdapter.foo(getData(), cidEarly, 50);
 
-		wait(WaitMode.FIRST, 5000, cidEarly, cidLate);
+		wait(WaitMode.FIRST, 5000, TimeUnit.MILLISECONDS, cidEarly, cidLate);
 
 		Response<?> resEarly = getAndRemoveResponse(cidEarly);
 		logger.info(resEarly.toString());
@@ -164,7 +165,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
 		mockAdapter.foo(getData(), cidLate,  50);
 
-		wait(WaitMode.ALL, 5000, cidLate);
+		wait(WaitMode.ALL, 5000, TimeUnit.MILLISECONDS, cidLate);
 
 		resEarly = getAndRemoveResponse(cidEarly);
 		assertNull(resEarly);
@@ -179,7 +180,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		final String cidNoResponse = getEngine().createUUID();
 		mockAdapter.fooWithMultiResponse(getData(), cidWithResponse, 2);
 
-		wait(WaitMode.FIRST, 10000, cidWithResponse, cidNoResponse);
+		wait(WaitMode.FIRST, 10000, TimeUnit.MILLISECONDS, cidWithResponse, cidNoResponse);
 
 		Response<?> response = getAndRemoveResponse(cidWithResponse);
 		assertNotNull(response);
@@ -189,7 +190,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		
 		response = getAndRemoveResponse(cidWithResponse);
 		if (response == null) {
-			wait(WaitMode.FIRST, 10000, cidWithResponse, cidNoResponse);
+			wait(WaitMode.FIRST, 10000, TimeUnit.MILLISECONDS, cidWithResponse, cidNoResponse);
 			response = getAndRemoveResponse(cidWithResponse);
 		}
 		
@@ -210,7 +211,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 		final String cidNoResponse = getEngine().createUUID();
 		mockAdapter.fooWithMultiResponse(getData(), cidWithResponse, 2);
 
-		wait(WaitMode.ALL, 200, cidWithResponse, cidNoResponse);
+		wait(WaitMode.ALL, 200, TimeUnit.MILLISECONDS, cidWithResponse, cidNoResponse);
 
 		Response<?> response = getAndRemoveResponse(cidWithResponse);
 		assertNotNull(response);

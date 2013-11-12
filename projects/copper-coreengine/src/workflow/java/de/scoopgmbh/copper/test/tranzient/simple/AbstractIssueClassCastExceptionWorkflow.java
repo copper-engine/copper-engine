@@ -15,6 +15,8 @@
  */
 package de.scoopgmbh.copper.test.tranzient.simple;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +69,7 @@ public abstract class AbstractIssueClassCastExceptionWorkflow extends Workflow<C
 			retriesLeft--;
 			String correlationID = "RETRY-" + this.getEngine().createUUID();
 			logger.info("before WAIT");
-			wait(WaitMode.FIRST, theWaitInterval, correlationID);
+			wait(WaitMode.FIRST, theWaitInterval, TimeUnit.MILLISECONDS, correlationID);
 			logger.info("after WAIT");
 			Response<String> r = getAndRemoveResponse(correlationID);
 			if (logger.isInfoEnabled())

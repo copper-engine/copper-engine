@@ -16,6 +16,7 @@
 package de.scoopgmbh.copper.test.versioning.compatibility;
 
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ public class CompatibilityCheckWorkflow_0001 extends PersistentWorkflow<Serializ
 	
 	protected void directlyWaitingMethod(String strValue_RENAMED, int intValue) throws InterruptException {
 		neverWaitingMethod(strValue_RENAMED, intValue);
-		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
+		this.wait(WaitMode.ALL, 500, TimeUnit.MILLISECONDS, Long.toHexString(System.currentTimeMillis()));
 	}
 	
 	protected void indirectlyWaitingMethod(String strValue, int intValue_RENAMED) throws InterruptException {

@@ -19,6 +19,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import java.util.concurrent.TimeUnit;
+
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
@@ -47,7 +50,7 @@ public class TestParentWorkflow extends PersistentWorkflow<String> {
 			getEngine().run(new WorkflowInstanceDescr<String>(TestChildWorkflow.class.getName(), "12345", id, null, null));
 
 			// wait for the children to finish
-			wait(WaitMode.ALL, 10000, id); 
+			wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, id); 
 			
 			// collect the responses
 			Response<String> r = getAndRemoveResponse(id);

@@ -19,6 +19,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,7 +158,7 @@ public class LocalVarTransientWorkflow1 extends Workflow<String> {
 
 			// simulate timeout
 			final long startTS = System.currentTimeMillis();
-			wait(WaitMode.FIRST, 500, getEngine().createUUID(), getEngine().createUUID());
+			wait(WaitMode.FIRST, 500, TimeUnit.MILLISECONDS, getEngine().createUUID(), getEngine().createUUID());
 			if (System.currentTimeMillis() < startTS+490L) throw new AssertionError();
 
 			// test double call
@@ -193,7 +194,7 @@ public class LocalVarTransientWorkflow1 extends Workflow<String> {
 
 	private void wait4all(final String cid1, final String cid2) throws InterruptException {
 		try {
-			wait(WaitMode.ALL, 5000, cid1, cid2);
+			wait(WaitMode.ALL, 5000, TimeUnit.MILLISECONDS, cid1, cid2);
 		}
 		catch(Exception e) {
 			logger.error("",e);
@@ -207,7 +208,7 @@ public class LocalVarTransientWorkflow1 extends Workflow<String> {
 	
 	private String execute(String cid, int timeout) throws InterruptException {
 		mockAdapter.foo("foo", cid);
-		wait(WaitMode.ALL, timeout, cid);
+		wait(WaitMode.ALL, timeout, TimeUnit.MILLISECONDS, cid);
 		Response<String> response = getAndRemoveResponse(cid);
 		if (response == null) throw new AssertionError();
 		if (!response.getCorrelationId().equals(cid)) throw new AssertionError();
@@ -222,7 +223,7 @@ public class LocalVarTransientWorkflow1 extends Workflow<String> {
 		mockAdapter.fooWithMultiResponse("foo", cid1, SIZE);
 		List<Response<Object>> list1 = new ArrayList<Response<Object>>();
 		for (int i=0;i<SIZE;i++) {
-			wait(WaitMode.ALL, 500, cid1);
+			wait(WaitMode.ALL, 500, TimeUnit.MILLISECONDS, cid1);
 			List<Response<Object>> r1 = getAndRemoveResponses(cid1);
 			logger.debug("{}",r1.size());
 			for (Response<Object> r : r1) {

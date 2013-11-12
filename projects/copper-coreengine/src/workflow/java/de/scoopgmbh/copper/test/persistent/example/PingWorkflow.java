@@ -15,6 +15,8 @@
  */
 package de.scoopgmbh.copper.test.persistent.example;
 
+import java.util.concurrent.TimeUnit;
+
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
@@ -37,7 +39,7 @@ public class PingWorkflow extends PersistentWorkflow<PingData> {
 		// Asynchronous call of the ping service  
 		String correlationId = pingAdapter.ping(getData().pingMessage);
 		// Wait up to 60 seconds for the response
-		wait(WaitMode.ALL, 60000, correlationId);
+		wait(WaitMode.ALL, 60000, TimeUnit.MILLISECONDS, correlationId);
 		// get and remove the response from the engine using the correlationId
 		Response<String> response = getAndRemoveResponse(correlationId);
 		System.out.println("finished, response="+response.getResponse());

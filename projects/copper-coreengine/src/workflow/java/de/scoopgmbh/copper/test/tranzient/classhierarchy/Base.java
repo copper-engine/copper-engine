@@ -15,6 +15,8 @@
  */
 package de.scoopgmbh.copper.test.tranzient.classhierarchy;
 
+import java.util.concurrent.TimeUnit;
+
 import de.scoopgmbh.copper.AutoWire;
 import de.scoopgmbh.copper.InterruptException;
 import de.scoopgmbh.copper.Response;
@@ -48,7 +50,7 @@ public abstract class Base extends Workflow<BlockingResponseReceiver<Integer>> {
 		cid2 = getEngine().createUUID();
 		mockAdapter.foo("foo", cid1);
 		mockAdapter.foo("foo", cid2);
-		wait(WaitMode.ALL, 5000, cid1, cid2);
+		wait(WaitMode.ALL, 5000, TimeUnit.MILLISECONDS, cid1, cid2);
 		Response<String> x1 = getAndRemoveResponse(cid1);
 		Response<String> x2 = getAndRemoveResponse(cid2);
 		if (x1 == null) throw new AssertionError();
@@ -64,7 +66,7 @@ public abstract class Base extends Workflow<BlockingResponseReceiver<Integer>> {
 	protected void simulateTimeout() throws InterruptException {
 		// simulate timeout
 		startTS = System.currentTimeMillis();
-		wait(WaitMode.FIRST, 500, getEngine().createUUID(), getEngine().createUUID());
+		wait(WaitMode.FIRST, 500, TimeUnit.MILLISECONDS, getEngine().createUUID(), getEngine().createUUID());
 		assert (System.currentTimeMillis() > startTS+490L);
 	}
 

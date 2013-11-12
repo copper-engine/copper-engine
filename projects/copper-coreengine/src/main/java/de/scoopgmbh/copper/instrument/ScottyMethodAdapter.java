@@ -41,6 +41,8 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 		waitMethods.add("waitForAll([Lde/scoopgmbh/copper/Callback;)V");
 		waitMethods.add("wait(Lde/scoopgmbh/copper/WaitMode;I[Ljava/lang/String;)V");
 		waitMethods.add("wait(Lde/scoopgmbh/copper/WaitMode;I[Lde/scoopgmbh/copper/Callback;)V");
+		waitMethods.add("wait(Lde/scoopgmbh/copper/WaitMode;JLjava/util/concurrent/TimeUnit;[Ljava/lang/String;)V");
+		waitMethods.add("wait(Lde/scoopgmbh/copper/WaitMode;JLjava/util/concurrent/TimeUnit;[Lde/scoopgmbh/copper/Callback;)V");
 		waitMethods.add("resubmit()V");
 	}	
 
