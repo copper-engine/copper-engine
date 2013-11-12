@@ -275,6 +275,10 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 		}
 	}
 
+	/**
+	 * For internal use only!!
+	 * @param id workflow instance id
+	 */
 	public void removeWorkflow(String id) {
 		final Workflow<?> wf = workflowMap.remove(id);
 		if (wf != null) {
