@@ -147,7 +147,7 @@ public abstract class AdapterCallPersisterFactory implements
 			asterisks.setLength(asterisks.length()-1);
 			String sql =  
 					"SELECT \"WORKFLOWID\", \"ENTITYID\", \"ADAPTERID\", \"PRIORITY\", \"METHODDECLARINGCLASS\", \"METHODNAME\", \"METHODSIGNATURE\", \"ARGS\" "+ 
-					"FROM \"ADAPTERCALL\"  "+ 
+					"FROM \"COP_ADAPTERCALL\"  "+ 
 					"WHERE DEQUEUE_TS is null AND ADAPTERID in ("+asterisks+") AND DEFUNCT <> '1' "+
 					"ORDER BY PRIORITY";
 			if (oracle) {
@@ -155,11 +155,11 @@ public abstract class AdapterCallPersisterFactory implements
 			}
 			
 			final String sqlUpdate =  
-					"UPDATE \"ADAPTERCALL\"  "+
+					"UPDATE \"COP_ADAPTERCALL\"  "+
 				    "SET DEQUEUE_TS = ? "+
 					"WHERE \"WORKFLOWID\" = ? and \"ENTITYID\" = ? and \"ADAPTERID\" = ?";
 			final String sqlUpdateDefunct =  
-					"UPDATE \"ADAPTERCALL\"  "+
+					"UPDATE \"COP_ADAPTERCALL\"  "+
 				    "SET DEFUNCT = '1' "+
 					"WHERE \"WORKFLOWID\" = ? and \"ENTITYID\" = ? and \"ADAPTERID\" = ?";
 
@@ -231,7 +231,7 @@ public abstract class AdapterCallPersisterFactory implements
 
 		
 		static final String sql = 
-				"INSERT INTO \"ADAPTERCALL\""+ 
+				"INSERT INTO \"COP_ADAPTERCALL\""+ 
 				"	(\"WORKFLOWID\", \"ENTITYID\", \"ADAPTERID\", \"PRIORITY\", \"METHODDECLARINGCLASS\", \"METHODNAME\", \"METHODSIGNATURE\", \"ARGS\")"+ 
 				"	VALUES(?,?,?,?,?,?,?,?)"
 				;
@@ -273,7 +273,7 @@ public abstract class AdapterCallPersisterFactory implements
 	static final class Deletor {
 		
 		static final String sql = 
-				"DELETE FROM \"ADAPTERCALL\""+ 
+				"DELETE FROM \"COP_ADAPTERCALL\""+ 
 				"	WHERE \"WORKFLOWID\"=? AND \"ENTITYID\" = ? AND \"ADAPTERID\"=?"
 				;
 

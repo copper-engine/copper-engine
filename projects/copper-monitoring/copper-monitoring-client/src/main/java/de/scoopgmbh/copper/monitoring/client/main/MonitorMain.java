@@ -18,7 +18,6 @@ package de.scoopgmbh.copper.monitoring.client.main;
 import java.util.Arrays;
 import java.util.Map;
 
-import com.sun.javafx.perf.PerformanceTracker;
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Scene;

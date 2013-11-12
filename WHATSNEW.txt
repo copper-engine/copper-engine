@@ -1,3 +1,7 @@
+COPPER ?.?
+==========
+- Renamed table ADAPTERCALL to COP_ADAPTERCALL, renamed index IX_ADAPTERCALL to COP_IDX_ADAPTERCALL
+
 COPPER 2.4
 ==========
 - New feature: engine.run throws DuplicateIdException if an existing workflow instance id is used - this is also implemented for the transient engine which substitutes throwing an IllegalStateException
