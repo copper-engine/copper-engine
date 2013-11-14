@@ -183,11 +183,12 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 
 		
 		final WorkflowInstanceDetailResultModel workflowInstanceDetailResultModel = filteredResult.get(0);
-		String source = new String(workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowInstanceDetailedInfo().getStack().get(0).getSourceCode());
+		List<StackFrame> stackList = workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowInstanceDetailedInfo().getStack();
+		String source = stackList.isEmpty() ? "" : new String(stackList.get(0).getSourceCode());
 		sourceView.getEngine().loadContent(codeMirrorFormatter.format(source, CodeFormatLanguage.JAVA, false));
 	
 		treeView.getRoot().getChildren().clear();
-		for (DisplayableNode displayableNode: workflowInstanceDetailResultModel.workflowClassMetaData.get().getWorkflowInstanceDetailedInfo().getStack()) {
+		for (DisplayableNode displayableNode: stackList) {
 			final LazyTreeItem item = new LazyTreeItem(displayableNode);
 			treeView.getRoot().getChildren().add(item);
 			
