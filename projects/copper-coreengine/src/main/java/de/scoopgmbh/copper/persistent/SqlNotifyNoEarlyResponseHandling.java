@@ -55,9 +55,9 @@ class SqlNotifyNoEarlyResponseHandling {
 		final Response<?> response;
 		final Serializer serializer;
 		final String sql;
-		final int defaultStaleResponseRemovalTimeout;
+		final long defaultStaleResponseRemovalTimeout;
 
-		public Command(Response<?> response, Serializer serializer, String sql, int defaultStaleResponseRemovalTimeout, final long targetTime, Acknowledge ack) {
+		public Command(Response<?> response, Serializer serializer, String sql, long defaultStaleResponseRemovalTimeout, final long targetTime, Acknowledge ack) {
 			super(new AcknowledgeCallbackWrapper<Command>(ack),targetTime);
 			this.response = response;
 			this.serializer = serializer;
@@ -102,7 +102,7 @@ class SqlNotifyNoEarlyResponseHandling {
 					stmt.setTimestamp(3, now);
 					String payload = cmd.serializer.serializeResponse(cmd.response);
 					stmt.setString(4, payload);
-					stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
+					stmt.setTimestamp(5, TimeoutProcessor.processTimout(cmd.response.getInternalProcessingTimeout(), cmd.defaultStaleResponseRemovalTimeout));
 					stmt.setString(6, cmd.response.getMetaData());
 					stmt.setString(7, cmd.response.getResponseId());
 					stmt.addBatch();

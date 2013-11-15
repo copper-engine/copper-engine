@@ -41,9 +41,9 @@ class DerbyDbNotifyNoEarlyResponseHandling {
 
 		final Response<?> response;
 		final Serializer serializer;
-		final int defaultStaleResponseRemovalTimeout;
+		final long defaultStaleResponseRemovalTimeout;
 
-		public Command(Response<?> response, Serializer serializer, int defaultStaleResponseRemovalTimeout, final long targetTime, Acknowledge ack) {
+		public Command(Response<?> response, Serializer serializer, long defaultStaleResponseRemovalTimeout, final long targetTime, Acknowledge ack) {
 			super(new AcknowledgeCallbackWrapper<Command>(ack),targetTime);
 			this.response = response;
 			this.serializer = serializer;
@@ -96,7 +96,7 @@ class DerbyDbNotifyNoEarlyResponseHandling {
 						insertStmt.setTimestamp(3, now);
 						final String payload = cmd.serializer.serializeResponse(cmd.response);
 						insertStmt.setString(4, payload);
-						insertStmt.setTimestamp(5, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
+						insertStmt.setTimestamp(5, TimeoutProcessor.processTimout(cmd.response.getInternalProcessingTimeout(), cmd.defaultStaleResponseRemovalTimeout));
 						insertStmt.setString(6, cmd.response.getMetaData());
 						insertStmt.setString(7, cmd.response.getResponseId());
 						insertStmt.addBatch();

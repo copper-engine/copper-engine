@@ -63,7 +63,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 	private WorkflowRepository wfRepository;
 	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
 	private boolean removeWhenFinished = true;
-	protected int defaultStaleResponseRemovalTimeout = 60*60*1000;
+	protected long defaultStaleResponseRemovalTimeout = 60*60*1000;
 	protected Serializer serializer = new StandardJavaSerializer();
 	protected int dbBatchingLatencyMSec = 0;
 	private WorkflowPersistencePlugin workflowPersistencePlugin = WorkflowPersistencePlugin.NULL_PLUGIN;
@@ -98,12 +98,12 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 	 * there is no workflow instance waiting for it within the specified amount of time. 
 	 * @param defaultStaleResponseRemovalTimeout
 	 */
-	public void setDefaultStaleResponseRemovalTimeout(int defaultStaleResponseRemovalTimeout) {
+	public void setDefaultStaleResponseRemovalTimeout(long defaultStaleResponseRemovalTimeout) {
 		logger.info("setDefaultStaleResponseRemovalTimeout({})",defaultStaleResponseRemovalTimeout);
 		this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
 	}
 	
-	public int getDefaultStaleResponseRemovalTimeout() {
+	public long getDefaultStaleResponseRemovalTimeout() {
 		return defaultStaleResponseRemovalTimeout;
 	}
 

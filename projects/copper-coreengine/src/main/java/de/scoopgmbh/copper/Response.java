@@ -32,11 +32,21 @@ public class Response<E> implements Serializable {
 	private final Exception exception;
 	private final boolean timeout;
 	private final String metaData;
-	private final Integer internalProcessingTimeout;
+	private final Long internalProcessingTimeout;
 	private boolean earlyResponseHandling = true;
 	private String responseId;
 	
-	public Response(String correlationId, E response, Exception exception, boolean isTimeout, String metaData, Integer internalProcessingTimeout, final String responseId) {
+	/**
+	 * Constructor
+	 * @param correlationId
+	 * @param response
+	 * @param exception
+	 * @param isTimeout
+	 * @param metaData
+	 * @param internalProcessingTimeout timeout in msec
+	 * @param responseId
+	 */
+	public Response(String correlationId, E response, Exception exception, boolean isTimeout, String metaData, Long internalProcessingTimeout, final String responseId) {
 		super();
 		if (internalProcessingTimeout != null && internalProcessingTimeout <= 0) {
 			throw new IllegalArgumentException("internalProcessingTimeout must be null or > 0");
@@ -98,7 +108,11 @@ public class Response<E> implements Serializable {
 		return timeout;
 	}
 	
-	public Integer getInternalProcessingTimeout() {
+	/**
+	 * Timeout in milliseconds
+	 * @return
+	 */
+	public Long getInternalProcessingTimeout() {
 		return internalProcessingTimeout;
 	}
 	

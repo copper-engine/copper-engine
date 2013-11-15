@@ -38,12 +38,16 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultEarlyResponseContainer.class);
 	
-	private static final class EarlyResponse {
+	static final class EarlyResponse {
 		final long ts;
 		final Response<?> response;
-		public EarlyResponse(final Response<?> response, final int minHoldBackTime) {
+		public EarlyResponse(final Response<?> response, final long minHoldBackTime) {
 			this.response = response;
-			this.ts = System.currentTimeMillis() + minHoldBackTime;
+			long ts = System.currentTimeMillis() + minHoldBackTime;
+			if (ts <= 0) {
+				ts = Long.MAX_VALUE;
+			}
+			this.ts = ts;
 		}
 	}
 	
@@ -51,7 +55,7 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 	private int upperBorderResponseMapSize = 26000;
 	private LinkedHashMap<String,List<EarlyResponse>> responseMap = new LinkedHashMap<String, List<EarlyResponse>>(5000);
 	
-	private int minHoldBackTime = 30000;
+	private long minHoldBackTime = 30000;
 	private Thread thread;
 	private boolean shutdown = false;
 	private int checkInterval = 250;
@@ -158,13 +162,13 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 		return upperBorderResponseMapSize;
 	}
 	
-	public void setMinHoldBackTime(int minHoldBackTime) {
+	public void setMinHoldBackTime(long minHoldBackTime) {
 		if (minHoldBackTime <= 0)
 			throw new IllegalArgumentException();
 		this.minHoldBackTime = minHoldBackTime;
 	}
 	
-	public int getMinHoldBackTime() {
+	public long getMinHoldBackTime() {
 		return minHoldBackTime;
 	}
 	

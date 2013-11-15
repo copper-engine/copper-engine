@@ -82,7 +82,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
 	private Serializer serializer = new StandardJavaSerializer();
 	private boolean removeWhenFinished = true;
-	private int defaultStaleResponseRemovalTimeout = 60*60*1000;
+	private long defaultStaleResponseRemovalTimeout = 60*60*1000;
 	private int dbBatchingLatencyMSec = 0;
 
 	public OracleDialect() {
@@ -114,7 +114,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 	 * there is no workflow instance waiting for it within the specified amount of time. 
 	 * @param defaultStaleResponseRemovalTimeout
 	 */
-	public void setDefaultStaleResponseRemovalTimeout(int defaultStaleResponseRemovalTimeout) {
+	public void setDefaultStaleResponseRemovalTimeout(long defaultStaleResponseRemovalTimeout) {
 		this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
 	}
 
@@ -158,7 +158,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 		return serializer;
 	}
 
-	public int getDefaultStaleResponseRemovalTimeout() {
+	public long getDefaultStaleResponseRemovalTimeout() {
 		return defaultStaleResponseRemovalTimeout;
 	}	
 

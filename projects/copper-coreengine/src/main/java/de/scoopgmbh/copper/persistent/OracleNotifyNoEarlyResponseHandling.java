@@ -40,9 +40,9 @@ class OracleNotifyNoEarlyResponseHandling {
 
 		final Response<?> response;
 		final Serializer serializer;
-		final int defaultStaleResponseRemovalTimeout;
+		final long defaultStaleResponseRemovalTimeout;
 
-		public Command(Response<?> response, Serializer serializer, int defaultStaleResponseRemovalTimeout, final long targetTime, Acknowledge ack) {
+		public Command(Response<?> response, Serializer serializer, long defaultStaleResponseRemovalTimeout, final long targetTime, Acknowledge ack) {
 			super(new AcknowledgeCallbackWrapper<Command>(ack),targetTime);
 			this.response = response;
 			this.serializer = serializer;
@@ -82,7 +82,7 @@ class OracleNotifyNoEarlyResponseHandling {
 				String payload = cmd.serializer.serializeResponse(cmd.response);
 				stmt.setString(4, payload.length() > 4000 ? null : payload);
 				stmt.setString(5, payload.length() > 4000 ? payload : null);
-				stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis() + (cmd.response.getInternalProcessingTimeout() == null ? cmd.defaultStaleResponseRemovalTimeout : cmd.response.getInternalProcessingTimeout())));
+				stmt.setTimestamp(6, TimeoutProcessor.processTimout(cmd.response.getInternalProcessingTimeout(), cmd.defaultStaleResponseRemovalTimeout));
 				stmt.setString(7, cmd.response.getMetaData());
 				stmt.addBatch();
 			}
