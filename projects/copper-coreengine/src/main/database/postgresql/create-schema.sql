@@ -85,6 +85,9 @@ create table COP_QUEUE (
 );
 
 
+--
+-- COP_AUDIT_TRAIL_EVENT
+--
 create table COP_AUDIT_TRAIL_EVENT (
 	SEQ_ID 					SERIAL,
 	OCCURRENCE				TIMESTAMP NOT NULL,
@@ -99,18 +102,19 @@ create table COP_AUDIT_TRAIL_EVENT (
     PRIMARY KEY (SEQ_ID)
 );
 
-
-
-CREATE TABLE COP_ADAPTERCALL ("WORKFLOWID"  VARCHAR(128) NOT NULL,
-                          "ENTITYID"    VARCHAR(128) NOT NULL,
-                          "ADAPTERID"   VARCHAR(256) NOT NULL,
-                          "PRIORITY"    BIGINT NOT NULL,
-                          "DEFUNCT"     CHAR(1) DEFAULT '0' NOT NULL ,
-                          "DEQUEUE_TS"  TIMESTAMP , 
-                          "METHODDECLARINGCLASS" VARCHAR(1024)  NOT NULL,
-                          "METHODNAME" VARCHAR(1024)  NOT NULL,
-                          "METHODSIGNATURE" VARCHAR(2048)  NOT NULL,
-                          "ARGS" CLOB,
+--
+-- COP_ADAPTERCALL
+--
+CREATE TABLE COP_ADAPTERCALL (WORKFLOWID  VARCHAR(128) NOT NULL,
+                          ENTITYID    VARCHAR(128) NOT NULL,
+                          ADAPTERID   VARCHAR(256) NOT NULL,
+                          PRIORITY    BIGINT NOT NULL,
+                          DEFUNCT     CHAR(1) DEFAULT '0' NOT NULL ,
+                          DEQUEUE_TS  TIMESTAMP , 
+                          METHODDECLARINGCLASS VARCHAR(1024)  NOT NULL,
+                          METHODNAME VARCHAR(1024)  NOT NULL,
+                          METHODSIGNATURE VARCHAR(2048)  NOT NULL,
+                          ARGS TEXT,
                           PRIMARY KEY (ADAPTERID, WORKFLOWID, ENTITYID));
 
-CREATE INDEX COP_IDX_ADAPTERCALL ON ADAPTERCALL(ADAPTERID, PRIORITY);
+CREATE INDEX COP_IDX_ADAPTERCALL ON COP_ADAPTERCALL(ADAPTERID, PRIORITY);
