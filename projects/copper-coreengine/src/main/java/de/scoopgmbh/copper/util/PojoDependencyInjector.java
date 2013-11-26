@@ -25,6 +25,11 @@ public class PojoDependencyInjector extends AbstractDependencyInjector {
 	private Map<String, Provider<?>> map = new ConcurrentHashMap<String, Provider<?>>();
 
 	@Override
+	public String getType() {
+		return "POJO";
+	}
+	
+	@Override
 	protected Object getBean(String beanId) {
 		Provider<?> p = map.get(beanId);
 		return p.get();

@@ -284,6 +284,11 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
 	}
 	
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		 avgChart.getData().clear();
 		 countChart.getData().clear();

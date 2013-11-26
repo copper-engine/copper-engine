@@ -99,6 +99,11 @@ public class SqlResultController extends FilterResultControllerBase<SqlFilterMod
 	}
 
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		resultTable.getItems().clear();
 	}

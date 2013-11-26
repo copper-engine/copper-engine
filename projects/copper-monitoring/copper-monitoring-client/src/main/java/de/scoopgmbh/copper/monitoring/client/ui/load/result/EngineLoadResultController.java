@@ -119,6 +119,11 @@ public class EngineLoadResultController extends FilterResultControllerBase<Engin
 	}
 
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		areaChart.getData().clear();
 		initChart();

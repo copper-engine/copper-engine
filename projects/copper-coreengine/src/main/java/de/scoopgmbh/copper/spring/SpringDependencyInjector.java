@@ -38,6 +38,11 @@ public class SpringDependencyInjector extends AbstractDependencyInjector impleme
 	public SpringDependencyInjector(ApplicationContext context) {
 		this.context = context;
 	}
+
+	@Override
+	public String getType() {
+		return "SPRING";
+	}
 	
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

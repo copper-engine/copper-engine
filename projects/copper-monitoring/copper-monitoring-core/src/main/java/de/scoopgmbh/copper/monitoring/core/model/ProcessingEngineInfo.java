@@ -28,6 +28,7 @@ public class ProcessingEngineInfo implements Serializable {
 	private List<ProcessorPoolInfo> pools = new ArrayList<ProcessorPoolInfo>();
 	private WorkflowRepositoryInfo repositoryInfo;
 	private DependencyInjectorInfo dependencyInjectorInfo;
+	private String statisticsCollectorType;
 	private StorageInfo storageInfo;
 	
 	public static enum EngineTyp{
@@ -38,12 +39,14 @@ public class ProcessingEngineInfo implements Serializable {
 	}
 
 	public ProcessingEngineInfo(EngineTyp typ, String id, WorkflowRepositoryInfo repositoryInfo,
-			DependencyInjectorInfo dependencyInjectorInfo, StorageInfo storageInfo, ProcessorPoolInfo... pools) {
+			DependencyInjectorInfo dependencyInjectorInfo, String statisticsCollectorType, 
+			StorageInfo storageInfo, ProcessorPoolInfo... pools) {
 		super();
 		this.typ = typ;
 		this.id = id;
 		this.repositoryInfo = repositoryInfo;
 		this.dependencyInjectorInfo =  dependencyInjectorInfo;
+		this.statisticsCollectorType = statisticsCollectorType;
 		this.pools.addAll(Arrays.asList(pools));
 		this.storageInfo = storageInfo;
 	}
@@ -64,6 +67,14 @@ public class ProcessingEngineInfo implements Serializable {
 		this.dependencyInjectorInfo = dependencyInjectorInfo;
 	}
 
+	public String getStatisticsCollectorType() {
+		return statisticsCollectorType;
+	}
+	
+	public void setStatisticsCollectorType(String statisticsCollectorType) {
+		this.statisticsCollectorType = statisticsCollectorType;
+	}
+	
 	public WorkflowRepositoryInfo getRepositoryInfo() {
 		return repositoryInfo;
 	}

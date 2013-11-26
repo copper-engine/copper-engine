@@ -202,6 +202,11 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
 	}
 	
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		restart.setDisable(true);
 	}

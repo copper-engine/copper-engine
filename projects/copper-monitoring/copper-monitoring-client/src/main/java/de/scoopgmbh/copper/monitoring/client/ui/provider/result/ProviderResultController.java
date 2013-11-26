@@ -114,6 +114,11 @@ public class ProviderResultController extends FilterResultControllerBase<Provide
 	}
 
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		resultTable.getItems().clear();
 		content.getEngine().loadContent("");

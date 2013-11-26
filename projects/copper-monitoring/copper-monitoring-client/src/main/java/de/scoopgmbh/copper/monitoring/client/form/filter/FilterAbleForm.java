@@ -56,6 +56,7 @@ import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy.CloseListener;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
 import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultController;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.MessageKey;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
@@ -215,7 +216,9 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		    	resultForm.getController().clear();
 		    }
 		});
-		buttonsPane.getChildren().add(clearButton);
+		if(!(resultForm.getController() instanceof DashboardResultController)) {
+			buttonsPane.getChildren().add(clearButton);
+		} 
 
 		final Button refreshButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/refresh.png"))));
 		refreshButton.setId(REFRESH_BUTTON_ID);

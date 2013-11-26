@@ -138,6 +138,11 @@ public class DatabaseMonitorResultController extends FilterResultControllerBase<
 	}
 	
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		listView.getEngine().loadContent("");
 	}

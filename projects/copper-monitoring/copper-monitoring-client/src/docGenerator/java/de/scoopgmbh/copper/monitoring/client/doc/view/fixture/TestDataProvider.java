@@ -30,7 +30,6 @@ import de.scoopgmbh.copper.monitoring.core.data.filter.MonitoringDataFilter;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
-import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo.DependencyInjectorTyp;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
@@ -302,8 +301,8 @@ public class TestDataProvider implements CopperMonitoringService {
 		repositoryInfo.setWorkflowRepositorTyp(WorkflowRepositorTyp.FILE);
 		repositoryInfo.setSrcPaths(new ArrayList<String>());
 		return Arrays.asList(
-				new ProcessingEngineInfo(EngineTyp.PERSISTENT,"peId1",repositoryInfo,new DependencyInjectorInfo(DependencyInjectorTyp.POJO),new StorageInfo(), new ProcessorPoolInfo("poId1",ProcessorPoolTyp.PERSISTENT)),
-				new ProcessingEngineInfo(EngineTyp.TRANSIENT,"peId2",repositoryInfo,new DependencyInjectorInfo(DependencyInjectorTyp.POJO),new StorageInfo(), new ProcessorPoolInfo("poId2",ProcessorPoolTyp.TRANSIENT), new ProcessorPoolInfo("poId3",ProcessorPoolTyp.TRANSIENT))
+				new ProcessingEngineInfo(EngineTyp.PERSISTENT,"peId1",repositoryInfo,new DependencyInjectorInfo("POJO"), "None", new StorageInfo(), new ProcessorPoolInfo("poId1",ProcessorPoolTyp.PERSISTENT)),
+				new ProcessingEngineInfo(EngineTyp.TRANSIENT,"peId2",repositoryInfo,new DependencyInjectorInfo("POJO"), "None", new StorageInfo(), new ProcessorPoolInfo("poId2",ProcessorPoolTyp.TRANSIENT), new ProcessorPoolInfo("poId3",ProcessorPoolTyp.TRANSIENT))
 				);
 	}
 

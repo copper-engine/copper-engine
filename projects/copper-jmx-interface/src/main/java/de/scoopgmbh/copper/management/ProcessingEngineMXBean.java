@@ -20,7 +20,6 @@ import java.util.List;
 import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowInfo;
 
-
 public interface ProcessingEngineMXBean {
 	public String getState();
 	public String getEngineId();
@@ -30,4 +29,6 @@ public interface ProcessingEngineMXBean {
 	public int getNumberOfWorkflowInstances();
 	public List<ProcessorPoolMXBean> getProcessorPools(); 
 	public WorkflowRepositoryMXBean getWorkflowRepository();
+	public String getDependencyInjectorType();
+	public String getStatisticsCollectorType();
 }

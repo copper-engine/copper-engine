@@ -44,7 +44,6 @@ import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.BatcherInfo;
 import de.scoopgmbh.copper.monitoring.core.model.CopperInterfaceSettings;
 import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo;
-import de.scoopgmbh.copper.monitoring.core.model.DependencyInjectorInfo.DependencyInjectorTyp;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
@@ -262,7 +261,10 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 		if (engine instanceof PersistentProcessingEngineMXBean){
 			DBStorageMXBean storage =  ((PersistentProcessingEngineMXBean)engine).getDBStorage();
 			if (storage instanceof ScottyDBStorageMXBean){
-				((ScottyDBStorageMXBean)storage).getBatcherMXBean().setNumThreads(numThread);
+				BatcherMXBean batcherMXBean = ((ScottyDBStorageMXBean)storage).getBatcherMXBean();
+				if(batcherMXBean != null) {
+					batcherMXBean.setNumThreads(numThread);
+				}
 			}
 		}
 	}
@@ -294,10 +296,13 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			workflowRepositoryInfo.setWorkflowRepositorTyp(WorkflowRepositorTyp.UNKOWN);
 			if (workflowRepository instanceof FileBasedWorkflowRepositoryMXBean){
 				workflowRepositoryInfo.setWorkflowRepositorTyp(WorkflowRepositorTyp.FILE);
-				workflowRepositoryInfo.setSrcPaths(((FileBasedWorkflowRepositoryMXBean)workflowRepository).getSourceDirs());
+				FileBasedWorkflowRepositoryMXBean fileBasedRepo = (FileBasedWorkflowRepositoryMXBean)workflowRepository;
+				List<String> srcPaths = new ArrayList<String>(fileBasedRepo.getSourceDirs());
+				srcPaths.addAll(fileBasedRepo.getSourceArchiveUrls());
+				workflowRepositoryInfo.setSrcPaths(srcPaths);
 			}
 			
-			DependencyInjectorInfo dependencyInjectorInfo = new DependencyInjectorInfo(DependencyInjectorTyp.UNKNOWN);
+			DependencyInjectorInfo dependencyInjectorInfo = new DependencyInjectorInfo(engine.getDependencyInjectorType());
 			
 			StorageInfo storageInfo = new StorageInfo();
 			
@@ -333,7 +338,8 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 			}
 			ProcessingEngineInfo engineInfo = new ProcessingEngineInfo(
 					engine.getEngineType()==EngineType.persistent?EngineTyp.PERSISTENT:EngineTyp.TRANSIENT, 
-							engine.getEngineId(), workflowRepositoryInfo, dependencyInjectorInfo, storageInfo, enginepools.toArray(new ProcessorPoolInfo[0]));
+							engine.getEngineId(), workflowRepositoryInfo, dependencyInjectorInfo, 
+							engine.getStatisticsCollectorType(), storageInfo, enginepools.toArray(new ProcessorPoolInfo[0]));
 			result.add(engineInfo);
 			
 		}

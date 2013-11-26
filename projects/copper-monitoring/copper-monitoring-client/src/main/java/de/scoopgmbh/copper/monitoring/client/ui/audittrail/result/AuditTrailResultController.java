@@ -344,6 +344,11 @@ public class AuditTrailResultController extends FilterResultControllerBase<Audit
 	}
 
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		resultTable.getItems().clear();
 	}

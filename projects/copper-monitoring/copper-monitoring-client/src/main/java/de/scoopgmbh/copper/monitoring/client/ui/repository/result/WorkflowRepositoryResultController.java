@@ -134,6 +134,11 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
 	}
 	
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		if (workflowView.getRoot()!=null){
 			workflowView.getRoot().getChildren().clear();

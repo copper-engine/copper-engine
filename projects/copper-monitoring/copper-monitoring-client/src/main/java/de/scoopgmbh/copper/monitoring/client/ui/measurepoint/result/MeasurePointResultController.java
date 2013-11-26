@@ -95,6 +95,11 @@ public class MeasurePointResultController extends FilterResultControllerBase<Eng
 	}
 	
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		axis.getData().clear();
 	}

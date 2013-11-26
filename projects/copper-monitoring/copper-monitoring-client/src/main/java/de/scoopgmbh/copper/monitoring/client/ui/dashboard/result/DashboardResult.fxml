@@ -11,7 +11,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.shape.*?>
 
-<SplitPane dividerPositions="0.7135650224215246" focusTraversable="true" minWidth="-1.0" orientation="VERTICAL" prefHeight="1786.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
+<SplitPane dividerPositions="0.7135650224215246" focusTraversable="true" minWidth="-1.0" orientation="VERTICAL" prefHeight="1100.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
   <items>
     <TitledPane animated="false" collapsible="false" prefHeight="2000.0" prefWidth="-1.0" text="Configuration">
       <content>

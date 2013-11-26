@@ -395,7 +395,12 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 				copperDataProvider.getAdapterLaunches(from, to, filter.maxCountFilterModel.getMaxCount()));
 		return Arrays.asList(result);
 	}
-	
+
+	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
 	@Override
 	public void clear() {
 		adapterInputTable.getItems().clear();

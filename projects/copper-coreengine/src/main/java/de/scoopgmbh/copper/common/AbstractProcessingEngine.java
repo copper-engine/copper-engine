@@ -21,6 +21,7 @@ import java.util.List;
 import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.CopperRuntimeException;
+import de.scoopgmbh.copper.DependencyInjector;
 import de.scoopgmbh.copper.EngineIdProvider;
 import de.scoopgmbh.copper.EngineIdProviderBean;
 import de.scoopgmbh.copper.EngineState;
@@ -32,6 +33,8 @@ import de.scoopgmbh.copper.WorkflowInstanceDescr;
 import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
 import de.scoopgmbh.copper.management.model.WorkflowInfo;
+import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
+import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 import de.scoopgmbh.copper.util.Blocker;
 
 /**
@@ -48,6 +51,34 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
 	protected Blocker startupBlocker = new Blocker(true);
 	private List<Runnable> shutdownObserver = new ArrayList<Runnable>();
 	private EngineIdProvider engineIdProvider = new EngineIdProviderBean("default"); 
+	protected RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
+	protected DependencyInjector dependencyInjector;
+
+	public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
+		this.statisticsCollector = statisticsCollector;
+	}
+
+	public RuntimeStatisticsCollector getStatisticsCollector() {
+		return statisticsCollector;
+	}	
+
+	@Override
+	public String getStatisticsCollectorType() {
+		return (statisticsCollector != null) ? statisticsCollector.getClass().getSimpleName() : "UNKNOWN";
+	}
+	
+	public void setDependencyInjector(DependencyInjector dependencyInjector) {
+		this.dependencyInjector = dependencyInjector;
+	}
+
+	public DependencyInjector getDependencyInjector() {
+		return dependencyInjector;
+	}
+
+	@Override
+	public String getDependencyInjectorType() {
+		return (dependencyInjector != null) ? dependencyInjector.getType() : "UNKNOWN";
+	}
 	
 	public EngineState getEngineState() {
 		return engineState;

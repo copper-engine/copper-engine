@@ -260,6 +260,11 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
 	}
 
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		resultTable.getItems().clear();
 		resultTextarea.clear();

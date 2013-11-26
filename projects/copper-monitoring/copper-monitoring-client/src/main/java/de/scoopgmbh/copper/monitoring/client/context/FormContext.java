@@ -286,8 +286,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	}
 	
 	public void setupGUIStructure(){
-		mainPane.setCenter(mainTabPane);
-		mainPane.setTop(createToolbar());
+		mainPane.setCenter(mainTabPane);		mainPane.setTop(createToolbar());
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -483,7 +482,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	}
 	
 	public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool){
-		return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine,pool,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
+		return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
 	}
 	
 	@Override
@@ -546,7 +545,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
 	@Override
 	public Form<ProviderController> createMonitoringDataProviderForm(MonitoringDataProviderInfo monitoringDataProviderInfo, BorderPane target) {
-		return new FxmlForm<ProviderController>("", new ProviderController(monitoringDataProviderInfo,guiCopperDataProvider), messageProvider, new BorderPaneShowFormStrategie(target));
+		return new FxmlForm<ProviderController>("", new ProviderController(monitoringDataProviderInfo, this, guiCopperDataProvider), messageProvider, new BorderPaneShowFormStrategie(target));
 	}
 	
 }

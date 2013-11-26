@@ -23,4 +23,5 @@ public interface FileBasedWorkflowRepositoryMXBean extends WorkflowRepositoryMXB
 	 * Returns the configured local directory/directories
 	 */	
 	public List<String> getSourceDirs();
+	public List<String> getSourceArchiveUrls();
 }

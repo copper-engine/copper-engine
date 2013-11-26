@@ -28,4 +28,5 @@ package de.scoopgmbh.copper;
 public interface DependencyInjector {
 	public void setEngine(ProcessingEngine e);
 	public void inject(Workflow<?> workflow);
+	public String getType();
 }

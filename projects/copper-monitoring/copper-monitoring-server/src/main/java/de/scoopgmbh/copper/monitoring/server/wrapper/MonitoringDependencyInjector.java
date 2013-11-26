@@ -40,6 +40,11 @@ public class MonitoringDependencyInjector extends AbstractDependencyInjector{
 		this.abstractDependencyInjector = abstractDependencyInjector;
 		this.monitoringDataCollector = monitoringDataCollector;
 	}
+
+	@Override
+	public String getType() {
+		return (abstractDependencyInjector != null) ? abstractDependencyInjector.getType() : "MONITORING";
+	}
 	
 	WorkflowInstanceInfo lastWorkflow;
 	@Override
@@ -90,7 +95,4 @@ public class MonitoringDependencyInjector extends AbstractDependencyInjector{
 			});
 		}
 	}
-
-  
-
 }

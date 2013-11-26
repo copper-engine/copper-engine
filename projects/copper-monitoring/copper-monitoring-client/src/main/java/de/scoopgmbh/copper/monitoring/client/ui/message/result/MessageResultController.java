@@ -138,6 +138,11 @@ public class MessageResultController extends FilterResultControllerBase<MessageF
 	}
 	
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
 		resultTable.getItems().clear();
 	}

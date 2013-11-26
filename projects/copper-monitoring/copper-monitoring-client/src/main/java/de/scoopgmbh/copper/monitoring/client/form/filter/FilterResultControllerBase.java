@@ -237,4 +237,14 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 		tableViews.clear();
 		
 	}
+	
+	@Override
+	public boolean supportsClear() {
+		return false;
+	}
+
+	@Override
+	public void clear() {
+		// default empty implementation		
+	}
 }

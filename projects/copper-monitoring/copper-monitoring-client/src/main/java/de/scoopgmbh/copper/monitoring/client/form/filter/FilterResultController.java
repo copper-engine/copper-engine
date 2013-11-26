@@ -32,6 +32,8 @@ public interface FilterResultController<F,R> extends FxmlController{
 	public void showFilteredResult(List<R> filteredResult, F usedFilter);
 	public List<R> applyFilterInBackgroundThread(F filter);
 	public void clear();
+	public boolean supportsClear();
+
 	
 	public void onClose();
 

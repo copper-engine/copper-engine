@@ -36,6 +36,7 @@ import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultModel;
 import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
+import de.scoopgmbh.copper.monitoring.client.util.dialogs.Dialogs;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
@@ -58,9 +59,6 @@ public class ProcessingEngineController implements Initializable, FxmlController
     @FXML //  fx:id="batcherId"
     private TextField batcherId; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="batcherNewNum"
-    private TextField batcherNewNum; // Value injected by FXMLLoader
-
     @FXML //  fx:id="batcherNumSet"
     private Button batcherNumSet; // Value injected by FXMLLoader
 
@@ -72,6 +70,9 @@ public class ProcessingEngineController implements Initializable, FxmlController
 
     @FXML //  fx:id="injectorTyp"
     private TextField injectorTyp; // Value injected by FXMLLoader
+
+    @FXML //  fx:id="statisticsCollector"
+    private TextField statisticsCollector; // Value injected by FXMLLoader
 
     @FXML //  fx:id="pools"
     private TabPane pools; // Value injected by FXMLLoader
@@ -110,7 +111,6 @@ public class ProcessingEngineController implements Initializable, FxmlController
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert batcherId != null : "fx:id=\"batcherId\" was not injected: check your FXML file 'ProcessingEngine.fxml'.";
-        assert batcherNewNum != null : "fx:id=\"batcherNewNum\" was not injected: check your FXML file 'ProcessingEngine.fxml'.";
         assert batcherNumSet != null : "fx:id=\"batcherNumSet\" was not injected: check your FXML file 'ProcessingEngine.fxml'.";
         assert batcherthreadnum != null : "fx:id=\"batcherthreadnum\" was not injected: check your FXML file 'ProcessingEngine.fxml'.";
         assert id != null : "fx:id=\"id\" was not injected: check your FXML file 'ProcessingEngine.fxml'.";
@@ -139,18 +139,20 @@ public class ProcessingEngineController implements Initializable, FxmlController
         
         pools.getStyleClass().add("floating");//transparent tabheader
         updateInfo();
-        
-        
         batcherNumSet.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				if (batcherNewNum.getText()!=null && batcherNewNum.getText().matches("\\d+")){
-					dataProvider.setBatcherNumThreads(processingEngineInfo.getId(),Integer.valueOf(batcherNewNum.getText()));
+				Integer newValue = Dialogs.showIntInputDialog(null, 
+						"Number of threads", "Storage / Batcher", "Copper Dashboard", 
+						batcherthreadnum.getText());
+				if (newValue != null){
+					dataProvider.setBatcherNumThreads(processingEngineInfo.getId(), newValue);
+					context.createDashboardForm().refresh();
 				}
 			}
 		});
         batcherNumSet.getStyleClass().add("copperActionButton");
-        batcherNumSet.disableProperty().bind(batcherNewNum.textProperty().isEqualTo(""));
+        batcherNumSet.disableProperty().bind(batcherId.textProperty().isEqualTo(""));
     }
 
     public void setProcessingEngineInfo(ProcessingEngineInfo processingEngineInfo) {
@@ -169,6 +171,7 @@ public class ProcessingEngineController implements Initializable, FxmlController
         	workflowRepositoryPaths.setText(workflowRepositoryPaths.getText()+path+"\n");
         }
         injectorTyp.setText(processingEngineInfo.getDependencyInjectorInfo().getTyp().toString());
+        statisticsCollector.setText(processingEngineInfo.getStatisticsCollectorType());
         storageId.setText(processingEngineInfo.getStorageInfo().getDescription());
         batcherId.setText(processingEngineInfo.getStorageInfo().getBatcher().getDescription());
         batcherthreadnum.setText(Integer.toString(processingEngineInfo.getStorageInfo().getBatcher().getNumThreads()));

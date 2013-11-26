@@ -25,16 +25,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
+import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
 
 public class ProviderController implements Initializable, FxmlController {
 	private final GuiCopperDataProvider dataProvider;
+	private final FormContext context;
 	private final MonitoringDataProviderInfo dataProviderInfo;
 	
-
-    public ProviderController(MonitoringDataProviderInfo dataProviderInfo, GuiCopperDataProvider  dataProvider) {
+    public ProviderController(MonitoringDataProviderInfo dataProviderInfo, FormContext context, GuiCopperDataProvider dataProvider) {
     	this.dataProvider = dataProvider;
+    	this.context = context;
     	this.dataProviderInfo = dataProviderInfo;
 	}
     
@@ -70,17 +72,21 @@ public class ProviderController implements Initializable, FxmlController {
 			@Override
 			public void handle(ActionEvent event) {
 				dataProvider.startMonitoringDataProvider(dataProviderInfo.getName());
+				context.createDashboardForm().refresh();
 			}
 		});
         start.getStyleClass().add("copperActionButton");
+        start.disableProperty().bind(status.textProperty().isEqualTo("STARTED"));
         
         stop.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				dataProvider.stopMonitoringDataProvider(dataProviderInfo.getName());
+				context.createDashboardForm().refresh();
 			}
 		});
         stop.getStyleClass().add("copperActionButton");
+        stop.disableProperty().bind(status.textProperty().isEqualTo("STOPPED"));
 	}
 
     public TextField getName() {

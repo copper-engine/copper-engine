@@ -140,6 +140,11 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
 	}
 	
 	@Override
+	public boolean supportsClear() {
+		return true;
+	}
+
+	@Override
 	public void clear() {
         cpuChart.setAnimated(false);
         threadChart.setAnimated(false);

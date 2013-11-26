@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.CopperException;
 import de.scoopgmbh.copper.CopperRuntimeException;
-import de.scoopgmbh.copper.DependencyInjector;
 import de.scoopgmbh.copper.EngineState;
 import de.scoopgmbh.copper.PersistentProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
@@ -50,8 +49,6 @@ import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
 import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
 import de.scoopgmbh.copper.management.model.EngineType;
 import de.scoopgmbh.copper.management.model.WorkflowInfo;
-import de.scoopgmbh.copper.monitoring.NullRuntimeStatisticsCollector;
-import de.scoopgmbh.copper.monitoring.RuntimeStatisticsCollector;
 
 /**
  * COPPER processing engine that offers persistent workflow processing. 
@@ -65,15 +62,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
 	private ScottyDBStorageInterface dbStorage;
 	private ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager;
-	private DependencyInjector dependencyInjector;
 	private boolean notifyProcessorPoolsOnResponse = false;
 	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
-	private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
 	private final Map<String, List<WaitHook>> waitHookMap = new HashMap<String, List<WaitHook>>();
-
-	public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
-		this.statisticsCollector = statisticsCollector;
-	}
 
 	/**
 	 * If true, the engine notifies all processor pools about a new reponse available.
@@ -88,14 +79,6 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
 	public void setDbStorage(ScottyDBStorageInterface dbStorage) {
 		this.dbStorage = dbStorage;
-	}
-
-	public void setDependencyInjector(DependencyInjector dependencyInjector) {
-		this.dependencyInjector = dependencyInjector;
-	}
-
-	public DependencyInjector getDependencyInjector() {
-		return dependencyInjector;
 	}
 
 	public ScottyDBStorageInterface getDbStorage() {

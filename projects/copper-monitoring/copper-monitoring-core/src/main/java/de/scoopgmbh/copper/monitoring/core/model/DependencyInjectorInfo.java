@@ -20,18 +20,15 @@ import java.io.Serializable;
 public class DependencyInjectorInfo implements Serializable{
 	private static final long serialVersionUID = -629782420394773711L;
 	
-	public static enum DependencyInjectorTyp{
-		POJO,SPRING,UNKNOWN
-	}
-	DependencyInjectorTyp typ ;
-	public DependencyInjectorInfo(DependencyInjectorTyp typ) {
+	String typ;
+	public DependencyInjectorInfo(String typ) {
 		super();
 		this.typ = typ;
 	}
-	public DependencyInjectorTyp getTyp() {
+	public String getTyp() {
 		return typ;
 	}
-	public void setTyp(DependencyInjectorTyp typ) {
+	public void setTyp(String typ) {
 		this.typ = typ;
 	}
 
