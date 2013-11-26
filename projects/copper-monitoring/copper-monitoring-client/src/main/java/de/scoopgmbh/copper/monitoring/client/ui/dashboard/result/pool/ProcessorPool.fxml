@@ -11,23 +11,23 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<Pane prefHeight="142.0" prefWidth="328.0" style="-fx-background-color: rgba(0,0,0,0);" visible="true" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+<Pane prefHeight="142.0" prefWidth="328.0" style="-fx-background-color: rgba(0,0,0,0);" visible="true" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ff2300" height="154.0" layoutX="2.0" layoutY="0.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="328.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ff2300" height="142.0" layoutX="2.0" layoutY="0.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="326.0" />
     <Label layoutX="20.0" layoutY="10.0" text="ProcessorPool" textFill="WHITE" />
     <Label layoutX="20.0" layoutY="36.0" text="id" textFill="WHITE" />
     <TextField fx:id="id" editable="false" layoutX="38.0" layoutY="34.0" opacity="0.75" prefHeight="22.0" prefWidth="148.0" promptText="" />
-    <Label layoutX="198.0" layoutY="36.0" text="type" textFill="WHITE" />
-    <TextField fx:id="typ" editable="false" layoutX="225.0" layoutY="34.0" opacity="0.75" prefHeight="22.0" prefWidth="96.0" />
-    <Button fx:id="nummerbutton" alignment="TOP_CENTER" layoutX="142.0" layoutY="71.0" minHeight="19.951171875" mnemonicParsing="false" prefHeight="22.000099999997474" prefWidth="44.0" text="edit">
+    <Label layoutX="196.0" layoutY="36.0" text="type" textFill="WHITE" />
+    <TextField fx:id="typ" editable="false" layoutX="228.0" layoutY="34.0" opacity="0.75" prefHeight="22.0" prefWidth="94.0" />
+    <Button fx:id="nummerbutton" alignment="TOP_CENTER" layoutX="163.0" layoutY="73.0" minHeight="19.951171875" mnemonicParsing="false" prefHeight="22.000099999997474" prefWidth="46.0" text="edit">
       <font>
         <Font size="13.0" fx:id="x1" />
       </font>
     </Button>
-    <Button fx:id="prioButton" font="$x1" layoutX="142.0" layoutY="112.0" minHeight="22.0" mnemonicParsing="false" prefHeight="22.0001220703125" prefWidth="44.0" text="edit" />
-    <Label layoutX="20.0" layoutY="73.0" prefHeight="-1.0" prefWidth="76.0" text="thread count" textFill="WHITE" />
-    <TextField id="typ" fx:id="threadNummerInfo" editable="false" layoutX="97.0" layoutY="71.0" opacity="0.75" prefHeight="22.0" prefWidth="36.0" />
-    <Label layoutX="20.0" layoutY="115.0" prefWidth="76.0" text="thread priority" textFill="WHITE" />
-    <TextField id="typ" fx:id="threadPrioritaetInfo" editable="false" layoutX="97.0" layoutY="112.0" opacity="0.75" prefHeight="22.0" prefWidth="36.0" />
+    <Button fx:id="prioButton" font="$x1" layoutX="163.0" layoutY="106.0" minHeight="22.0" mnemonicParsing="false" prefHeight="22.0001220703125" prefWidth="46.0" text="edit" />
+    <Label layoutX="20.0" layoutY="72.0" prefHeight="-1.0" prefWidth="94.0" text="thread count" textFill="WHITE" />
+    <TextField id="typ" fx:id="threadNummerInfo" editable="false" layoutX="120.0" layoutY="73.0" opacity="0.75" prefHeight="22.0" prefWidth="36.0" />
+    <Label layoutX="20.0" layoutY="106.0" prefWidth="96.0" text="thread priority" textFill="WHITE" />
+    <TextField id="typ" fx:id="threadPrioritaetInfo" editable="false" layoutX="119.0" layoutY="106.0" opacity="0.75" prefHeight="22.0" prefWidth="36.0" />
   </children>
 </Pane>
