@@ -139,9 +139,22 @@ public class WorkflowClassesTreeController {
 	}
 	
 	public String nullFix(Object object){
-		return object==null?"?": object.toString();
+		return object==null ? "?" : object.toString();
 	}
 	
+	private String getAlias(WorkflowVersion workflowVersion) {
+		String alias = workflowVersion.alias.get();
+		if(alias == null) {
+			alias = workflowVersion.classname.get();
+			if(alias == null) {
+				alias = "?";
+			} else {
+				alias = alias.substring(alias.lastIndexOf('.') + 1);
+			}
+		}
+		return alias;
+	}
+
 	public List<TreeItem<DisplayWorkflowClassesModel>> groupToTreeItem(List<WorkflowVersion> list){
 		//from flat List: alias , majorversion, minorversion
 		//totree: 
@@ -159,7 +172,7 @@ public class WorkflowClassesTreeController {
 				majorVersionItemToAdd = existingMajorItem.get();
 			} else {
 				TreeItem<DisplayWorkflowClassesModel> classnameItemToAdd;
-				classnameItemToAdd = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, nullFix(newWorkflowVersion.alias.get())));
+				classnameItemToAdd = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getAlias(newWorkflowVersion)));
 				result.add(classnameItemToAdd);
 				majorVersionItemToAdd = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getMajorVersionText(newWorkflowVersion)));
 				classnameItemToAdd.getChildren().add(majorVersionItemToAdd);
