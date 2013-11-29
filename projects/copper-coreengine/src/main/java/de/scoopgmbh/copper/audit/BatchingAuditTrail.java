@@ -29,7 +29,6 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import de.scoopgmbh.copper.Acknowledge;
@@ -44,7 +43,7 @@ import de.scoopgmbh.copper.management.AuditTrailMXBean;
  * @author austermann
  *
  */
-public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, InitializingBean {
+public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 	
 	private static final Logger logger = LoggerFactory.getLogger(BatchingAuditTrail.class);
 	
@@ -291,11 +290,6 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean, Initial
 	
 	protected DataSource getDataSource() {
 		return dataSource;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		startup();
 	}
 
 }
