@@ -16,6 +16,8 @@
 package de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javafx.beans.property.SimpleObjectProperty;
@@ -56,7 +58,7 @@ public class WorkflowClassesTreeController {
 			public void changed(ObservableValue<? extends TreeItem<DisplayWorkflowClassesModel>> observable,
 					TreeItem<DisplayWorkflowClassesModel> oldValue, TreeItem<DisplayWorkflowClassesModel> newValue) {
 				
-				if (newValue!=null && newValue.getValue()!=null /*&& newValue.getChildren().isEmpty()*/){
+				if (observable != null && newValue!=null && newValue.getValue()!=null /*&& newValue.getChildren().isEmpty()*/){
 					WorkflowVersion workflowClassesModel = newValue.getValue().value;
 					selectedItem.set(workflowClassesModel);
 					expand(newValue);
@@ -89,13 +91,23 @@ public class WorkflowClassesTreeController {
 		newValue.setExpanded(true);
 	}
 	
-	public static class DisplayWorkflowClassesModel{
+	public static class DisplayWorkflowClassesModel implements Comparable<DisplayWorkflowClassesModel>{
 		public WorkflowVersion value;
 		public String displayname;
 		public DisplayWorkflowClassesModel(WorkflowVersion value, String displayname) {
 			super();
 			this.value = value;
 			this.displayname = displayname;
+		}
+
+		@Override
+		public int compareTo(DisplayWorkflowClassesModel model) {
+			return displayname.compareTo(model.displayname);
+		}
+		
+		@Override
+		public String toString() {
+			return displayname;
 		}
 	}
 	
@@ -189,7 +201,12 @@ public class WorkflowClassesTreeController {
 
 			
 		}
-		
+		Collections.sort(result, new Comparator<TreeItem<DisplayWorkflowClassesModel>>() {
+			@Override
+			public int compare(TreeItem<DisplayWorkflowClassesModel> item1, TreeItem<DisplayWorkflowClassesModel> item2) {
+				return item1.getValue().compareTo(item2.getValue());
+			}
+		});
 		return result;
 	}
 
