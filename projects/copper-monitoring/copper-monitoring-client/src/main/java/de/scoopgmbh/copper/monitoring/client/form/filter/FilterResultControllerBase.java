@@ -17,6 +17,7 @@ package de.scoopgmbh.copper.monitoring.client.form.filter;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -30,6 +31,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
@@ -50,6 +52,7 @@ import javafx.scene.layout.Priority;
 import com.sun.javafx.scene.control.behavior.TableCellBehavior;
 
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 
 /**
 *
@@ -246,5 +249,10 @@ public abstract class FilterResultControllerBase<F,R> implements FilterResultCon
 	@Override
 	public void clear() {
 		// default empty implementation		
+	}
+	
+	@Override
+	public List<? extends Node> getContributedButtons(MessageProvider messageProvider) {
+		return Collections.emptyList();
 	}
 }

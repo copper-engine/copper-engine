@@ -17,7 +17,10 @@ package de.scoopgmbh.copper.monitoring.client.form.filter;
 
 import java.util.List;
 
+import javafx.scene.Node;
+
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 
 /**
  *
@@ -33,6 +36,7 @@ public interface FilterResultController<F,R> extends FxmlController{
 	public List<R> applyFilterInBackgroundThread(F filter);
 	public void clear();
 	public boolean supportsClear();
+	public List<? extends Node> getContributedButtons(MessageProvider messageProvider);
 
 	
 	public void onClose();

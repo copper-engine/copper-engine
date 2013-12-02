@@ -56,7 +56,6 @@ import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy.CloseListener;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
 import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
-import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultController;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.client.util.MessageKey;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
@@ -190,7 +189,8 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 			buttonsPane=hbox;
 		}
 		Orientation orientation = verticalRightButton?Orientation.HORIZONTAL:Orientation.VERTICAL;
-				
+
+		buttonsPane.getChildren().addAll(resultForm.getController().getContributedButtons(messageProvider));		
 		buttonsPane.getChildren().add(new Separator(orientation));
 		
 		MenuButton defaultFilterButton = new MenuButton("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/filter.png"))));
@@ -216,7 +216,7 @@ public class FilterAbleForm<F,R> extends Form<Object>{
 		    	resultForm.getController().clear();
 		    }
 		});
-		if(!(resultForm.getController() instanceof DashboardResultController)) {
+		if(resultForm.getController().supportsClear()) {
 			buttonsPane.getChildren().add(clearButton);
 		} 
 

@@ -16,17 +16,25 @@
 package de.scoopgmbh.copper.monitoring.client.ui.repository.result;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
@@ -37,6 +45,8 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowCl
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
+import de.scoopgmbh.copper.monitoring.client.util.MessageKey;
+import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
 public class WorkflowRepositoryResultController extends FilterResultControllerBase<WorkflowRepositoryFilterModel,WorkflowVersion> implements Initializable {
@@ -145,4 +155,44 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
 		}
 	}
 
+	@Override
+	public List<? extends Node> getContributedButtons(MessageProvider messageProvider) {
+		List<Button> contributedButtons = new ArrayList<Button>();
+		
+		final Button expandButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/expandall.png"))));
+		expandButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_expandall)));
+		expandButton.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override public void handle(ActionEvent e) {		    	
+		    	expandAll(workflowView.getRoot());
+		    }
+		});
+		contributedButtons.add(expandButton);
+		
+		final Button collapseButton = new Button("",new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/collapseall.png"))));
+		collapseButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_collapseall)));
+		collapseButton.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override public void handle(ActionEvent e) {		    	
+				for(TreeItem<DisplayWorkflowClassesModel> child : workflowView.getRoot().getChildren()) {
+					collapseAll(child);
+				}
+		    }
+		});
+		contributedButtons.add(collapseButton);
+		
+		return contributedButtons;
+	}
+	
+	private void expandAll(TreeItem<DisplayWorkflowClassesModel> item) {
+		item.setExpanded(true);
+		for(TreeItem<DisplayWorkflowClassesModel> child : item.getChildren()) {
+			expandAll(child);
+		}
+	}
+	
+	private void collapseAll(TreeItem<DisplayWorkflowClassesModel> item) {
+		item.setExpanded(false);
+		for(TreeItem<DisplayWorkflowClassesModel> child : item.getChildren()) {
+			collapseAll(child);
+		}
+	}
 }

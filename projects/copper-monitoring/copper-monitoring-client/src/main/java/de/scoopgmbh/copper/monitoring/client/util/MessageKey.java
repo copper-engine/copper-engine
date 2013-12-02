@@ -19,6 +19,8 @@ public enum MessageKey {
 	dynamicworkflow_title("dynamicworkflow.title"),
 	filterAbleForm_button_refresh("filterAbleForm.button.refresh"),
 	filterAbleForm_button_clear("filterAbleForm.button.clear"),
+	filterAbleForm_button_expandall("filterAbleForm.button.expandall"),
+	filterAbleForm_button_collapseall("filterAbleForm.button.collapseall"),
 	workflowOverview_title("workflowoverview.title"),
 	workflowInstance_title("workflowInstance.title"),
 	audittrail_title("audittrail.title"),
