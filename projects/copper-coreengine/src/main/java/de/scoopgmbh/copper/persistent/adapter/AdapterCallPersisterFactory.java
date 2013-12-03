@@ -33,8 +33,6 @@ import java.util.List;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.support.nativejdbc.C3P0NativeJdbcExtractor;
-import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;
 import de.scoopgmbh.copper.batcher.BatchCommand;
@@ -48,17 +46,14 @@ import de.scoopgmbh.copper.persistent.DefaultPersisterSharedRessources;
 import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.copper.persistent.Serializer;
 
-public abstract class AdapterCallPersisterFactory implements
-		DefaultEntityPersisterFactory<AdapterCall, DefaultEntityPersister<AdapterCall>> {
+public abstract class AdapterCallPersisterFactory implements DefaultEntityPersisterFactory<AdapterCall, DefaultEntityPersister<AdapterCall>> {
 
-	static final NativeJdbcExtractor extractor = new C3P0NativeJdbcExtractor();
 	
 	final Serializer serializer;
 	
 	public AdapterCallPersisterFactory(Serializer serializer) {
 		this.serializer = serializer;
 	}
-	
 
 	@Override
 	public Class<AdapterCall> getEntityClass() {

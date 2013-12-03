@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.jdbc.support.JdbcUtils;
+import de.scoopgmbh.copper.db.utility.JdbcUtils;
 
 import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.batcher.AbstractBatchCommand;

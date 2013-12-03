@@ -20,7 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Collection;
 
-import org.springframework.jdbc.support.JdbcUtils;
+import de.scoopgmbh.copper.db.utility.JdbcUtils;
 
 import de.scoopgmbh.copper.Acknowledge;
 import de.scoopgmbh.copper.Response;
