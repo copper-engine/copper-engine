@@ -7,7 +7,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="de.scoopgmbh.copper.spring.SpringEngineStarter"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="./src/test/resources/derbydb-persistent-engine-application-context.xml ./src/test/resources/noimport-persistent-perf-test-application-context.xml"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="copper-coreengine"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms256M&#13;&#10;-Xmx1024M"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="src/test/resources/mysql-persistent-test-application-context.xml"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="copper-regtest"/>
 </launchConfiguration>

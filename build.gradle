@@ -146,7 +146,12 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
         }   
 }
 
-project(':projects:copper-coreengine') {
+project(':projects:copper-jmx-interface') {
+    dependencies {
+    }
+}
+
+project(':projects:copper-regtest') {
 
     sourceSets {
         workflow {
@@ -154,7 +159,50 @@ project(':projects:copper-coreengine') {
         }
     }
     sourceSets.test.resources.srcDirs += sourceSets.workflow.srcDir
-        
+    
+    dependencies {
+		compile project(':projects:copper-jmx-interface')
+		compile project(':projects:copper-coreengine')
+		compile project(':projects:copper-spring')
+
+		testCompile 'c3p0:c3p0-oracle-thin-extras:0.9.0.2'
+		testCompile 'mysql:mysql-connector-java:5.1.25'
+		testCompile 'org.apache.derby:derby:10.9.1.0'
+		testCompile 'postgresql:postgresql:9.1-901.jdbc4'
+		
+		testCompile 'org.slf4j:slf4j-log4j12:1.6.6'    
+		
+		compile fileTree(dir: project(':').projectDir.toString()+'/3rdPartyLibs', include: '*.jar')		
+
+    }
+    
+    test {
+        //configuring a system property for tests
+        systemProperty 'copper.unittest.skip.external.db.tests', 'true'
+    }
+    
+}
+
+project(':projects:copper-spring') {
+    dependencies {
+		compile project(':projects:copper-jmx-interface')
+		compile project(':projects:copper-coreengine')
+
+		// Spring
+		compile 'org.springframework:spring-aop:3.1.2.RELEASE'
+		compile 'org.springframework:spring-asm:3.1.2.RELEASE'
+		compile 'org.springframework:spring-beans:3.1.2.RELEASE'
+		compile 'org.springframework:spring-context:3.1.2.RELEASE'
+		compile 'org.springframework:spring-core:3.1.2.RELEASE'
+		compile 'org.springframework:spring-expression:3.1.2.RELEASE'
+		compile 'org.springframework:spring-jdbc:3.1.2.RELEASE'
+		compile 'org.springframework:spring-tx:3.1.2.RELEASE'
+		
+		compile 'org.springframework.batch:spring-batch-infrastructure:2.1.8.RELEASE'
+    }
+}
+
+project(':projects:copper-coreengine') {
         
     dependencies {
 		compile project(':projects:copper-jmx-interface')
@@ -174,34 +222,11 @@ project(':projects:copper-coreengine') {
 		compile 'commons-codec:commons-codec:1.4'
 		compile 'commons-logging:commons-logging:1.1.1'
 		 
-		// Spring
-		compile 'org.springframework:spring-aop:3.1.2.RELEASE'
-		compile 'org.springframework:spring-asm:3.1.2.RELEASE'
-		compile 'org.springframework:spring-beans:3.1.2.RELEASE'
-		compile 'org.springframework:spring-context:3.1.2.RELEASE'
-		compile 'org.springframework:spring-core:3.1.2.RELEASE'
-		compile 'org.springframework:spring-expression:3.1.2.RELEASE'
-		compile 'org.springframework:spring-jdbc:3.1.2.RELEASE'
-		compile 'org.springframework:spring-tx:3.1.2.RELEASE'
-		
-		compile 'org.springframework.batch:spring-batch-infrastructure:2.1.8.RELEASE'
-		
 		// Database
 		compile 'c3p0:c3p0:0.9.1.2'
-		compile 'c3p0:c3p0-oracle-thin-extras:0.9.0.2'
-		compile 'mysql:mysql-connector-java:5.1.25'
-		compile 'org.apache.derby:derby:10.9.1.0'
-		compile 'postgresql:postgresql:9.1-901.jdbc4'
 		
-		testCompile 'org.slf4j:slf4j-log4j12:1.6.6'    
-		
-		compile fileTree(dir: project(':').projectDir.toString()+'/3rdPartyLibs', include: '*.jar')		
     }
 
-    test {
-        //configuring a system property for tests
-        systemProperty 'copper.unittest.skip.external.db.tests', 'true'
-    }
 }
 
 project(':projects:copper-examples:orchestration:orch-engine') {
@@ -213,9 +238,12 @@ project(':projects:copper-examples:orchestration:orch-engine') {
     sourceSets.main.resources.srcDirs += sourceSets.workflow.srcDir
     
     dependencies {
+	compile project(':projects:copper-jmx-interface')
 	compile project(':projects:copper-coreengine')
+	compile project(':projects:copper-spring')
 	compile project(':projects:copper-monitoring:copper-monitoring-server')
 	compile project(':projects:copper-examples:orchestration:orch-interfaces')
+	compile 'org.apache.derby:derby:10.9.1.0'
 	compile 'log4j:log4j:1.2.17'
     }
 }
@@ -317,11 +345,6 @@ project(':projects:copper-examples:orchestration:orch-simulators') {
     }
 }
 
-project(':projects:copper-jmx-interface') {
-    dependencies {
-    }
-}
-
 project(':projects:copper-monitoring:copper-monitoring-server') {
 	//apply plugin: 'application'
     dependencies {
@@ -343,6 +366,8 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 		compile 'com.google.guava:guava:14.0.1'
 		
 		compile 'ch.qos.logback:logback-classic:1.0.13'
+	
+		compile 'org.apache.derby:derby:10.9.1.0'
 	}
 
 		
@@ -548,6 +573,7 @@ project(':projects:copper-monitoring:copper-monitoring-example') {
     	 compile project(':projects:copper-monitoring:copper-monitoring-server')
     	 compile project(':projects:copper-coreengine')
     	 compile 'ch.qos.logback:logback-classic:1.0.13'
+	 compile 'org.apache.derby:derby:10.9.1.0'
     }
 }
 

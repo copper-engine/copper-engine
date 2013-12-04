@@ -8,6 +8,6 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="de.scoopgmbh.copper.spring.SpringEngineStarter"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="src/test/resources/persistent-test-application-context-jmx.xml"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="copper-coreengine"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="copper-regtest"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
 </launchConfiguration>

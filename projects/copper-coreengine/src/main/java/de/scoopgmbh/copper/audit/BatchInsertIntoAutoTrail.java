@@ -34,9 +34,9 @@ import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.BatchExecutor;
 import de.scoopgmbh.copper.batcher.CommandCallback;
 
-class BatchInsertIntoAutoTrail {
+public class BatchInsertIntoAutoTrail {
 
-	static final class Command extends AbstractBatchCommand<Executor, Command>{
+	public static final class Command extends AbstractBatchCommand<Executor, Command>{
 
 		final AuditTrailEvent data;
 		final boolean isOracle;
@@ -61,7 +61,7 @@ class BatchInsertIntoAutoTrail {
 
 	}
 
-	static final class Executor extends BatchExecutor<Executor, Command>{
+	public static final class Executor extends BatchExecutor<Executor, Command>{
 
 		private static final Executor INSTANCE = new Executor();
 		private static final Logger logger = LoggerFactory.getLogger(Executor.class);

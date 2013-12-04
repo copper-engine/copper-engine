@@ -22,16 +22,16 @@ public class AuditTrailEvent implements Serializable {
 
 	private static final long serialVersionUID = -6195270904233529021L;
 	
-	int logLevel;
-	Date occurrence;
-	String conversationId;
-	String context;
-	String instanceId;
-	String correlationId;
-	String message;
-	String transactionId;
-	String messageType;
-	Long sequenceId;
+	protected int logLevel;
+	protected Date occurrence;
+	protected String conversationId;
+	protected String context;
+	protected String instanceId;
+	protected String correlationId;
+	protected String message;
+	protected String transactionId;
+	protected String messageType;
+	protected Long sequenceId;
 
 	public AuditTrailEvent(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType) {
 		this(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType, null);

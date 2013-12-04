@@ -65,7 +65,7 @@
 		<property name="notifyProcessorPoolsOnResponse" value="false"/>
 	</bean>
 	
-	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.SpringTxnAuditTrail" scope="singleton" init-method="startup" >
+	<bean id="auditTrail" class="de.scoopgmbh.copper.spring.audit.SpringTxnAuditTrail" scope="singleton" init-method="startup" >
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
 		<property name="transactionManager" ref="txManager"/>
@@ -90,7 +90,7 @@
 		<property name="checkDbConsistencyAtStartup" value="true"/>
 	</bean>
 	
-	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.SpringTransactionController" scope="singleton">
+	<bean id="txnController" class="de.scoopgmbh.copper.spring.SpringTransactionController" scope="singleton">
 		<property name="dataSource" ref="datasource_default"/>
 		<property name="transactionManager" ref="txManager"/>
 	</bean>	

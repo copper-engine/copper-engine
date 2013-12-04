@@ -29,11 +29,11 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.support.JdbcUtils;
 
 import de.scoopgmbh.copper.Response;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.MessagePostProcessor;
+import de.scoopgmbh.copper.db.utility.JdbcUtils;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
@@ -81,7 +81,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			JdbcUtils.closeStatement(selectStmt);
+			de.scoopgmbh.copper.db.utility.JdbcUtils.closeStatement(selectStmt);
 		}
 	}
 

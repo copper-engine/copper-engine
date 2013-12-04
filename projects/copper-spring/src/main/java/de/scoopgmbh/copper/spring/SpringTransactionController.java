@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.persistent.txn;
+package de.scoopgmbh.copper.spring;
 
 import java.sql.Connection;
 
@@ -25,6 +25,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import de.scoopgmbh.copper.persistent.txn.DatabaseTransaction;
+import de.scoopgmbh.copper.persistent.txn.Transaction;
+import de.scoopgmbh.copper.persistent.txn.TransactionController;
 import de.scoopgmbh.copper.spring.SpringTransaction;
 
 /**

@@ -24,13 +24,13 @@ import java.sql.SQLException;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.jdbc.support.JdbcUtils;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import de.scoopgmbh.copper.EngineIdProviderBean;
 import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.audit.DummyPostProcessor;
+import de.scoopgmbh.copper.db.utility.JdbcUtils;
 import de.scoopgmbh.copper.persistent.OracleDialect;
 import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
 

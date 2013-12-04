@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.audit;
+package de.scoopgmbh.copper.spring.audit;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

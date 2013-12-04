@@ -77,7 +77,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 	//TODO: Move datasource to SpringTxnAudit trail, then do not explore the database type, set it as an parameter (isOracle)
 	private DataSource dataSource;
 	private int level = 5;
-	MessagePostProcessor messagePostProcessor = new DummyPostProcessor();
+	protected MessagePostProcessor messagePostProcessor = new DummyPostProcessor();
 	private Class<?> auditTrailEventClass;
 	private String dbTable = "COP_AUDIT_TRAIL_EVENT";
 	private List<Property2ColumnMapping> mapping;
@@ -259,7 +259,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 		return false;
 	}
 
-	BatchInsertIntoAutoTrail.Command createBatchCommand(AuditTrailEvent e, boolean immediate,
+	protected BatchInsertIntoAutoTrail.Command createBatchCommand(AuditTrailEvent e, boolean immediate,
 			CommandCallback<BatchInsertIntoAutoTrail.Command> callback) {
 		return new BatchInsertIntoAutoTrail.Command(e, isOracle, sqlStmt, propertyGetters, callback, immediate?0:250);
 	}

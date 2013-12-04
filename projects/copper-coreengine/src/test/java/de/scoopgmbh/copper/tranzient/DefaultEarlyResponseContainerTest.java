@@ -15,8 +15,6 @@
  */
 package de.scoopgmbh.copper.tranzient;
 
-import java.sql.Timestamp;
-
 import org.junit.Test;
 
 import de.scoopgmbh.copper.tranzient.DefaultEarlyResponseContainer.EarlyResponse;

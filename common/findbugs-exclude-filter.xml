@@ -1,0 +1,8 @@
+<FindBugsFilter>
+  <Match>
+    <Rank value="16"/>
+  </Match>
+  <Match>
+    <Bug category="SECURITY" />
+  </Match>  
+</FindBugsFilter>

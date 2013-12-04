@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.audit;
+package de.scoopgmbh.copper.spring.audit;
 
 import java.sql.Connection;
 import java.util.Arrays;
@@ -25,12 +25,13 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import de.scoopgmbh.copper.CopperRuntimeException;
-import de.scoopgmbh.copper.audit.BatchInsertIntoAutoTrail.Command;
-import de.scoopgmbh.copper.audit.BatchInsertIntoAutoTrail.Executor;
+import de.scoopgmbh.copper.audit.AuditTrailEvent;
+import de.scoopgmbh.copper.audit.BatchingAuditTrail;
 import de.scoopgmbh.copper.batcher.BatchCommand;
 import de.scoopgmbh.copper.batcher.NullCallback;
 import de.scoopgmbh.copper.spring.SpringTransaction;
-
+import de.scoopgmbh.copper.audit.BatchInsertIntoAutoTrail.Command;
+import de.scoopgmbh.copper.audit.BatchInsertIntoAutoTrail.Executor;
 
 public class SpringTxnAuditTrail extends BatchingAuditTrail {
 
@@ -44,9 +45,9 @@ public class SpringTxnAuditTrail extends BatchingAuditTrail {
 
 	@Override
 	public void synchLog(final AuditTrailEvent e) {
-		if ( isEnabled(e.logLevel) ) {
+		if ( isEnabled(e.getLogLevel()) ) {
 			logger.debug("doLog({})",e);
-			e.setMessage(messagePostProcessor.serialize(e.message));
+			e.setMessage(messagePostProcessor.serialize(e.getMessage()));
 			try {
 				new SpringTransaction() {
 					@Override
