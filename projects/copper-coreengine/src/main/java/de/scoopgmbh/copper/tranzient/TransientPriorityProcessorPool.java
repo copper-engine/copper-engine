@@ -38,6 +38,7 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
 	 * <code>id</code> needs to be initialized later using the setter.
 	 */
 	public TransientPriorityProcessorPool() {
+        setProcessorFactory(new TransientProcessorFactory());
 	}
 	
 	/**
@@ -45,10 +46,12 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
 	 */
 	public TransientPriorityProcessorPool(String id) {
 		super(id);
+        setProcessorFactory(new TransientProcessorFactory());
 	}
 	
 	public TransientPriorityProcessorPool(String id, int numberOfThreads) {
 		super(id, numberOfThreads);
+        setProcessorFactory(new TransientProcessorFactory());
 	}
 
 	@Override
@@ -64,9 +67,5 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
 		}
 	}
 
-	@Override
-	protected Processor newProcessor(String name, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine) {
-		return new TransientProcessor(name,queue,threadPrioriry,engine);
-	}
 
 }

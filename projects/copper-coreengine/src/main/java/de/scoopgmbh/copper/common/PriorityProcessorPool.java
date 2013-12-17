@@ -49,6 +49,8 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 	private boolean started = false;
 	private boolean shutdown = false;
 
+    protected IProcessorFactory processorFactory;
+
 	/**
 	 * Creates a new {@link PriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
 	 * <code>id</code> needs to be initialized later using the setter.
@@ -126,13 +128,11 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 			}
 		}
 		while (numberOfThreads > workerThreads.size()) {
-			Processor p = newProcessor(id+"#"+workerThreads.size(), queue, threadPriority, engine);
+			Processor p = processorFactory.newProcessor(id + "#" + workerThreads.size(), queue, threadPriority, engine);
 			p.start();
 			workerThreads.add(p);
 		}
 	}
-
-	protected abstract Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine);
 
 	public synchronized int getNumberOfThreads() {
 		return numberOfThreads;
@@ -224,5 +224,9 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 			queue.setSuspended(true);
 		}
 	}
+
+    public void setProcessorFactory(IProcessorFactory processorFactory) {
+        this.processorFactory = processorFactory;
+    }
 
 }
