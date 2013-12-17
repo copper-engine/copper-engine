@@ -154,7 +154,7 @@ public abstract class Workflow<D> implements Serializable {
 	
 	/**
 	 * waits/sleeps until a response for every callback occurs  
-	 * @param correlationIds one or more callback objects
+	 * @param callbacks one or more callback objects
 	 */
 	protected final void waitForAll(Callback<?>... callbacks) throws InterruptException {
 		this.wait(WaitMode.ALL,0,callbacks);
