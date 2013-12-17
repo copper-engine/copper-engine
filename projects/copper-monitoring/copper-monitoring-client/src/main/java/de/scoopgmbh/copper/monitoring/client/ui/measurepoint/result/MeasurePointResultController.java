@@ -84,7 +84,11 @@ public class MeasurePointResultController extends FilterResultControllerBase<Eng
 		for (MeasurePointData measurePointData: filteredlist){
 			ObservableList<Data<String, Number>> data = axis.getData();
 			if (measurePointData.getCount()!=0){
-				data.add(new XYChart.Data<String, Number>(measurePointData.getMeasurePointId(), measurePointData.getElapsedTimeMicros()/measurePointData.getCount()));
+                String text = measurePointData.getMeasurePointId();
+                if (text!=null){
+                    text=text.replace("de.scoopgmbh.copper.persistent","");
+                }
+				data.add(new XYChart.Data<String, Number>(text, measurePointData.getElapsedTimeMicros()/measurePointData.getCount()));
 			}
 		}
 	}

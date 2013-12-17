@@ -18,6 +18,8 @@ package de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import de.scoopgmbh.copper.monitoring.client.form.dialog.DefaultInputDialogCreator;
+import de.scoopgmbh.copper.monitoring.client.form.dialog.InputDialogCreator;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -27,7 +29,6 @@ import javafx.scene.control.TextField;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.util.dialogs.Dialogs;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 
@@ -36,12 +37,14 @@ public class ProccessorPoolController implements Initializable, FxmlController {
 	private final ProcessingEngineInfo engine;
 	private final FormContext context;
 	private final GuiCopperDataProvider dataProvider;
+    private final InputDialogCreator inputDialogCreator;
 
-    public ProccessorPoolController(ProcessingEngineInfo engine, ProcessorPoolInfo pool, FormContext context, GuiCopperDataProvider dataProvider) {
+    public ProccessorPoolController(ProcessingEngineInfo engine, ProcessorPoolInfo pool, FormContext context, GuiCopperDataProvider dataProvider, InputDialogCreator inputDialogCreator) {
     	this.pool=pool;
     	this.engine = engine;
     	this.context = context;
     	this.dataProvider = dataProvider;
+        this.inputDialogCreator = inputDialogCreator;
 	}
 
 
@@ -78,13 +81,13 @@ public class ProccessorPoolController implements Initializable, FxmlController {
 		prioButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				Integer newValue = Dialogs.showIntInputDialog(null, 
-						"Thread priority", "ProcessorPool", "Copper Dashboard", 
-						threadPrioritaetInfo.getText());
-				if (newValue != null){
-					dataProvider.setThreadPriority(engine.getId(), pool.getId(), newValue);
-					context.createDashboardForm().refresh();
-				}
+                inputDialogCreator.showIntInputDialog("Thread priority",pool.getThreadPriority(),new DefaultInputDialogCreator.DialogClosed<Integer>() {
+                    @Override
+                    public void closed(Integer inputValue) {
+                        dataProvider.setThreadPriority(engine.getId(), pool.getId(), inputValue);
+                        context.createDashboardForm().refresh();
+                    }
+                });
 			}
 		});
 		prioButton.getStyleClass().add("copperActionButton");
@@ -92,13 +95,13 @@ public class ProccessorPoolController implements Initializable, FxmlController {
 		nummerbutton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				Integer newValue = Dialogs.showIntInputDialog(null, 
-						"Thread count", "ProcessorPool", "Copper Dashboard", 
-						threadNummerInfo.getText());
-				if (newValue != null){
-					dataProvider.setNumberOfThreads(engine.getId(), pool.getId(), newValue);
-					context.createDashboardForm().refresh();
-				}
+                inputDialogCreator.showIntInputDialog("Thread count",pool.getNumberOfThreads(),new DefaultInputDialogCreator.DialogClosed<Integer>() {
+                    @Override
+                    public void closed(Integer inputValue) {
+                        dataProvider.setNumberOfThreads(engine.getId(), pool.getId(), inputValue);
+                        context.createDashboardForm().refresh();
+                    }
+                });
 			}
 		});
 		nummerbutton.getStyleClass().add("copperActionButton");

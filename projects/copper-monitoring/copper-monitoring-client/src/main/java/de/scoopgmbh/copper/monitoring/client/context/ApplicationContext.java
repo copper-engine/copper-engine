@@ -24,6 +24,8 @@ import java.rmi.RemoteException;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
+import de.scoopgmbh.copper.monitoring.client.form.dialog.DefaultInputDialogCreator;
+import de.scoopgmbh.copper.monitoring.client.form.dialog.InputDialogCreator;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.layout.BorderPane;
@@ -243,13 +245,16 @@ public class ApplicationContext {
 			throw new IllegalStateException("guiCopperDataProvider must be initialized");
 		}
 		if (formContext==null){
-			formContext = new FormContext(mainPane,guiCopperDataProvider,messageProvider,settingsModelSingleton,getIssueReporterSingleton());
+			formContext = new FormContext(mainPane,guiCopperDataProvider,messageProvider,settingsModelSingleton,getIssueReporterSingleton(), getInputDialogCreator());
 		}
 		return formContext;
 	}
 
-	
-	private IssueReporter issueReporter;
+    protected InputDialogCreator getInputDialogCreator() {
+        return new DefaultInputDialogCreator(mainStackPane);
+    }
+
+    private IssueReporter issueReporter;
 	private IssueReporter getIssueReporterSingleton() {
 		if (issueReporter==null){
 			issueReporter = createIssueReporter();

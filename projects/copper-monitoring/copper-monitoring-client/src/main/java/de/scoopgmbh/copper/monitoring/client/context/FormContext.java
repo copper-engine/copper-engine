@@ -18,30 +18,16 @@ package de.scoopgmbh.copper.monitoring.client.context;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormBuilder.EngineFormBuilder;
 import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
 import de.scoopgmbh.copper.monitoring.client.form.EmptyShowFormStrategie;
 import de.scoopgmbh.copper.monitoring.client.form.Form;
 import de.scoopgmbh.copper.monitoring.client.form.FormCreator;
-import de.scoopgmbh.copper.monitoring.client.form.FormGroup;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlForm;
 import de.scoopgmbh.copper.monitoring.client.form.ShowFormStrategy;
 import de.scoopgmbh.copper.monitoring.client.form.TabPaneShowFormStrategie;
+import de.scoopgmbh.copper.monitoring.client.form.dialog.InputDialogCreator;
 import de.scoopgmbh.copper.monitoring.client.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
@@ -128,11 +114,25 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 public class FormContext implements DashboardDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory, WorkflowSummaryDependencyFactory{
 	protected final TabPane mainTabPane;
 	protected final BorderPane mainPane;
-	protected final FormGroup formGroup;
+	protected final FormCreator formGroup;
 	protected final MessageProvider messageProvider;
 	protected final GuiCopperDataProvider guiCopperDataProvider;
 	protected final SettingsModel settingsModelSingleton;
@@ -142,46 +142,49 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	private FxmlForm<SettingsController> settingsForSingleton;
 	private FxmlForm<HotfixController> hotfixFormSingleton;
 	private FilterAbleForm<EmptyFilterModel, DashboardResultModel> dasboardFormSingleton;
-	public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton, IssueReporter issueReporter) {
+    private final InputDialogCreator inputDialogCreator;
+
+	public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton, IssueReporter issueReporter, InputDialogCreator inputDialogCreator) {
 		this.mainTabPane = new TabPane();
 		this.messageProvider = messageProvider;
 		this.guiCopperDataProvider = guiCopperDataProvider;
 		this.mainPane = mainPane;
 		this.settingsModelSingleton = settingsModelSingleton;
 		this.issueReporter = issueReporter;
+        this.inputDialogCreator = inputDialogCreator;
 		
-		ArrayList<FormCreator> maingroup = new ArrayList<FormCreator>();
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createDashboardForm();
-			}
-		});
+		ArrayList<FormCreator> mainCreators = new ArrayList<FormCreator>();
+		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createDashboardForm();
+            }
+        });
 
-		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.workflowGroup_title),createWorkflowGroup()));
+		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.workflowGroup_title), createWorkflowGroup()));
 		
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.adapterMonitoring_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createAdapterMonitoringForm();
-			}
-		});
+		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.adapterMonitoring_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createAdapterMonitoringForm();
+            }
+        });
 		
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowRepository_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createWorkflowRepositoryForm();
-			}
-		});
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.message_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createMessageForm();
-			}
-		});
-		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.logsGroup_title),createLogGroup()));
+		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.workflowRepository_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createWorkflowRepositoryForm();
+            }
+        });
+		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.message_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createMessageForm();
+            }
+        });
+		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.logsGroup_title), createLogGroup()));
 		
-		maingroup.add(new FormGroup(messageProvider.getText(MessageKey.loadGroup_title),createLoadGroup()));
+		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.loadGroup_title), createLoadGroup()));
 		
 		FormCreator sqlformcreator = new FormCreator(messageProvider.getText(MessageKey.sql_title)) {
 			@Override
@@ -193,21 +196,21 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 			sqlformcreator.setEnabled(false);
 			sqlformcreator.setTooltip(new Tooltip("disabled in copper"));
 		}
-		maingroup.add(sqlformcreator);
+		mainCreators.add(sqlformcreator);
 		
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.hotfix_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createHotfixForm();
-			}
-		});
-		maingroup.add(new FormCreator(messageProvider.getText(MessageKey.settings_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createSettingsForm();
-			}
-		});
-		formGroup = new FormGroup("",maingroup);
+		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.hotfix_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createHotfixForm();
+            }
+        });
+		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.settings_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createSettingsForm();
+            }
+        });
+		formGroup = new FormCreator("",mainCreators);
 	}
 	
 	public ArrayList<FormCreator> createLogGroup() {
@@ -251,42 +254,45 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	}
 
 	public ArrayList<FormCreator> createLoadGroup() {
-		ArrayList<FormCreator> loadgroup = new ArrayList<FormCreator>();
-		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.engineLoad_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createEngineLoadForm();
-			}
-		});
-		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.resource_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createRessourceForm();
-			}
-		});
-		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.measurePoint_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createMeasurePointForm();
-			}
-		});
-		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.customMeasurePoint_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createCustomMeasurePointForm();
-			}
-		});
-		loadgroup.add(new FormCreator(messageProvider.getText(MessageKey.databaseMonitoring_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createDatabaseMonitoringForm();
-			}
-		});
-		return loadgroup;
+		ArrayList<FormCreator> loadCreator = new ArrayList<FormCreator>();
+		loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.engineLoad_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createEngineLoadForm();
+            }
+        });
+		loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.resource_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createRessourceForm();
+            }
+        });
+		loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.measurePoint_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createMeasurePointForm();
+            }
+        });
+		loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.customMeasurePoint_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createCustomMeasurePointForm();
+            }
+        });
+		loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.databaseMonitoring_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createDatabaseMonitoringForm();
+            }
+        });
+		return loadCreator;
 	}
 	
 	public void setupGUIStructure(){
-		mainPane.setCenter(mainTabPane);		mainPane.setTop(createToolbar());
+		mainPane.setCenter(mainTabPane);
+//      mainPane.setTop(createToolbar());
+
+        mainPane.setTop(createMenueBar());
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -302,7 +308,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
 	public MenuBar createMenueBar(){
 		final MenuBar menuBar = new MenuBar();
-		menuBar.getMenus().add(formGroup.createMenu());
+		formGroup.createMenuBar(menuBar);
 		return menuBar;
 	}
 	
@@ -482,12 +488,12 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 	}
 	
 	public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool){
-		return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
+		return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider, inputDialogCreator), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
 	}
 	
 	@Override
 	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model){
-		return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine,model,this,guiCopperDataProvider), messageProvider, new TabPaneShowFormStrategie(tabPane));
+		return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine,model,this,guiCopperDataProvider, inputDialogCreator), messageProvider, new TabPaneShowFormStrategie(tabPane));
 	}
 	
 	public FilterAbleForm<EnginePoolFilterModel, MeasurePointData> createMeasurePointForm() {

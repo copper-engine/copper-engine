@@ -22,6 +22,18 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 
+import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
+import de.scoopgmbh.copper.monitoring.client.context.FormContext;
+import de.scoopgmbh.copper.monitoring.client.form.Form;
+import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.form.dialog.DefaultInputDialogCreator;
+import de.scoopgmbh.copper.monitoring.client.form.dialog.InputDialogCreator;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultModel;
+import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
+import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
+import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -30,29 +42,21 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.context.FormContext;
-import de.scoopgmbh.copper.monitoring.client.form.Form;
-import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
-import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.DashboardResultModel;
-import de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
-import de.scoopgmbh.copper.monitoring.client.util.dialogs.Dialogs;
-import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
-import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
-import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
 public class ProcessingEngineController implements Initializable, FxmlController {
 	private ProcessingEngineInfo processingEngineInfo;
 	private final DashboardResultModel dashboardResultModel;
 	private final FormContext context;
 	private final  GuiCopperDataProvider dataProvider;
-	public ProcessingEngineController(ProcessingEngineInfo processingEngineInfo, DashboardResultModel dashboardResultModel, FormContext context, GuiCopperDataProvider copperDataProvider) {
+    private final InputDialogCreator inputDialogCreator;
+
+	public ProcessingEngineController(ProcessingEngineInfo processingEngineInfo, DashboardResultModel dashboardResultModel, FormContext context, GuiCopperDataProvider copperDataProvider, InputDialogCreator inputDialogCreator) {
 		super();
 		this.processingEngineInfo = processingEngineInfo;
 		this.dashboardResultModel = dashboardResultModel;
 		this.context = context;
 		this.dataProvider = copperDataProvider;
+        this.inputDialogCreator = inputDialogCreator;
 	}
 
 
@@ -142,13 +146,13 @@ public class ProcessingEngineController implements Initializable, FxmlController
         batcherNumSet.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				Integer newValue = Dialogs.showIntInputDialog(null, 
-						"Number of threads", "Storage / Batcher", "Copper Dashboard", 
-						batcherthreadnum.getText());
-				if (newValue != null){
-					dataProvider.setBatcherNumThreads(processingEngineInfo.getId(), newValue);
-					context.createDashboardForm().refresh();
-				}
+                inputDialogCreator.showIntInputDialog("Number of threads",processingEngineInfo.getStorageInfo().getBatcher().getNumThreads(),new DefaultInputDialogCreator.DialogClosed<Integer>() {
+                    @Override
+                    public void closed(Integer inputValue) {
+                        dataProvider.setBatcherNumThreads(processingEngineInfo.getId(), inputValue);
+                        context.createDashboardForm().refresh();
+                    }
+                });
 			}
 		});
         batcherNumSet.getStyleClass().add("copperActionButton");
