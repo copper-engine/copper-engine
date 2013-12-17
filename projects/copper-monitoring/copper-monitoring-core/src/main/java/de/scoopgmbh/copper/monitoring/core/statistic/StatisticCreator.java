@@ -41,8 +41,7 @@ public class StatisticCreator<T,R extends Serializable> implements Serializable{
 	/**
 	 * first value must be in the first group
 	 *
-	 * @param <T>
-	 * @param <R>
+	 * @param listvalue
 	 */
 	public void add(T listvalue ){
 		if (currentGroupFunction.isInGroup(listvalue)){

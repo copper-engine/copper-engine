@@ -27,7 +27,6 @@ import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 
 /**
  * We use Kryo instead of java serialization to create small serialized output
- * @return
  */
 public class SerializeUtil{
 	

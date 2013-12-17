@@ -287,10 +287,7 @@ public class Dialogs {
      *
      *
      * @param  owner           - Component to parent the dialog to
-     * @param  appInfo         - AppInfo object
-     * @param  masthead        - masthead in the top part of the dialog
      * @param  message         - question to display in the middle part
-     * @param  title           - dialog title string from resource bundle
      *
      */
     public static DialogResponse showWarningDialog(final Stage owner, final String message) {
@@ -298,7 +295,19 @@ public class Dialogs {
                                 message, 
                                 DialogType.WARNING.getDefaultMasthead());
     }
-    
+
+    /**
+     * showWarningDialog - displays warning icon instead of "Java" logo icon
+     *                     in the upper right corner of masthead.  Has masthead
+     *                     and message that is displayed in the middle part
+     *                     of the dialog.  No bullet is displayed.
+     *
+     *
+     * @param  owner           - Component to parent the dialog to
+     * @param  masthead        - masthead in the top part of the dialog
+     * @param  message         - question to display in the middle part
+     *
+     */
     public static DialogResponse showWarningDialog(final Stage owner, final String message,
                                         final String masthead) {
         return showWarningDialog(owner, 
@@ -306,7 +315,20 @@ public class Dialogs {
                                 masthead,
                                 DialogType.WARNING.getDefaultTitle());
     }
-                                        
+
+    /**
+     * showWarningDialog - displays warning icon instead of "Java" logo icon
+     *                     in the upper right corner of masthead.  Has masthead
+     *                     and message that is displayed in the middle part
+     *                     of the dialog.  No bullet is displayed.
+     *
+     *
+     * @param  owner           - Component to parent the dialog to
+     * @param  masthead        - masthead in the top part of the dialog
+     * @param  message         - question to display in the middle part
+     * @param  title           - dialog title string from resource bundle
+     *
+     */
     public static DialogResponse showWarningDialog(final Stage owner, final String message,
                                         final String masthead, final String title) {
         return showWarningDialog(owner, 

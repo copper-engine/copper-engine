@@ -23,7 +23,7 @@ public interface TicketPoolManager {
 
 	/**
 	 * Checks if the ticket pool with the corresponding id exists.
-	 * @param poolId ticket pool id
+	 * @param id ticket pool id
 	 * @return true is the ticket pool with the corresponding id exists.
 	 */
 	 boolean exists(String id);
