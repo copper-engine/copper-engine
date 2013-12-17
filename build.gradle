@@ -346,7 +346,7 @@ project(':projects:copper-examples:orchestration:orch-simulators') {
 }
 
 project(':projects:copper-monitoring:copper-monitoring-server') {
-	//apply plugin: 'application'
+
     dependencies {
 		compile project(':projects:copper-jmx-interface')
 		compile project(':projects:copper-monitoring:copper-monitoring-core')
@@ -370,41 +370,6 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 		compile 'org.apache.derby:derby:10.9.1.0'
 	}
 
-		
-	jar.doFirst {
-	    manifest { 
-	      def manifestClasspath =configurations.runtime.collect {'libs/'+it.getName() }.join(' ')
-	      attributes 'Class-Path': manifestClasspath
-	    } 
-	}
-	
-	jar {
-		exclude '**/*.RSA'   //http://www.coderanch.com/t/133070/Security/Jar-File-java-lang-SecurityException
-	    exclude '**/*.SF'
-	    exclude '**/*.DSA' 
-	    webAppDirName = 'WebContent'
-	    
-	    into('lib'){
-	   			 from { configurations.default.collect { it.isDirectory() ? it : it } }
-	    }
-	    
-	    manifest {
-	    		attributes 'Main-Class': 'de.scoopgmbh.copper.monitor.server.ServerMain'
-	    }
-	}
-	
-	task distZipFile( type: Zip, dependsOn: [jar] ) {
-	    baseName 'copper-monitor-server'
-		from fileTree("build/lib") {
-	    	include "**"
-	    	exclude "*.war"
-		}
-		from fileTree("deployment") {
-	    	include "**"
-		}
-	}
-	
-	mainClassName = "de.scoopgmbh.copper.monitor.server.ServerMain"
 }
 
 import groovy.xml.NamespaceBuilder
