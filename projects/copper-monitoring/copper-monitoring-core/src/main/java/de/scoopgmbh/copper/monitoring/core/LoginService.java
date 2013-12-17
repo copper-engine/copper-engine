@@ -22,8 +22,8 @@ import java.rmi.RemoteException;
 public interface LoginService extends Remote, Serializable {
 
 	/**
-	 * @param subject
-	 * @param credentials
+	 * @param username
+	 * @param password
 	 * @return Session id
 	 * @throws RemoteException
 	 */

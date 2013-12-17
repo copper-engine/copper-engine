@@ -31,7 +31,7 @@ public interface Callback<E> {
 	public String getCorrelationId();
 
 	/**
-	 * This method is unsafe, the control may be returned to the caller irrespectively whether the ntification has been safely delivered.
+	 * This method is unsafe, the control may be returned to the caller irrespectively whether the notification has been safely delivered.
 	 * Use {@link Callback#notify(Object, Acknowledge)} instead
 	 * @param response
 	 */
@@ -39,9 +39,9 @@ public interface Callback<E> {
 	public void notify(E response);
 
 	/**
-	 * This method is unsafe, the control may be returned to the caller irrespectively whether the ntification has been safely delivered.
+	 * This method is unsafe, the control may be returned to the caller irrespectively whether the notification has been safely delivered.
 	 * Use {@link Callback#notify(Exception, Acknowledge)} instead
-	 * @param response
+	 * @param exception
 	 */
 	@Deprecated
 	public void notify(Exception exception);
