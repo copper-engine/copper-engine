@@ -26,7 +26,7 @@ public abstract class ShowFormStrategy<E extends Node> {
 	
 	protected CloseListener onCloseListener;
 	/**called if form is closed
-	 * @param runnable
+	 * @param closeListner
 	 */
 	public void setOnCloseListener(CloseListener closeListner){
 		onCloseListener= closeListner;

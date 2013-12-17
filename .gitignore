@@ -4,3 +4,8 @@
 **/generated
 *.log
 .gradle
+.classpath
+.project
+.settings
+build
+
