@@ -1,5 +1,9 @@
 apply plugin: 'idea'
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.8'
+}
+
 allprojects {
     apply plugin: 'maven'
     apply plugin: 'signing'
@@ -107,7 +111,7 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
             from javadoc.destinationDir
         }
 
-        testJava = file("src/test/java").isDirectory() 
+        def testJava = file("src/test/java").isDirectory()
 
         if (testJava) {
             task testJar(type: Jar, dependsOn:testClasses) {
@@ -124,7 +128,7 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
             assemble.dependsOn testSourcesJar
         }
 
-        databaseScripts = file("src/main/database").isDirectory() 
+        def databaseScripts = file("src/main/database").isDirectory()
 
         if (databaseScripts) {
             task scriptsZip(type: Zip) {
@@ -148,10 +152,10 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
             }
         }   
         
-        def sonatypeRepositoryUrl
-        def isDevBuild
-        def isCiBuild
-        def isReleaseBuild
+        def sonatypeRepositoryUrl = ""
+        def isDevBuild = false
+        def isCiBuild = false
+        def isReleaseBuild = false
         
         //set build variables based on build type (release, continuous integration, development)
         if(project.hasProperty("release")) {
@@ -362,44 +366,47 @@ project(':projects:copper-examples:orchestration:orch-interfaces') {
         wsgen 'com.sun.xml.bind:jaxb-xjc:2.2.4-1'		
     }
     
-	genDirName = "$projectDir/src/main/generated";
 
-	tasks.add(name: "gen_wsbindings") {
-			
-		inputs.dir new File(sourceSets.schema.srcDir)
-    	outputs.dir new File("$genDirName")
+	tasks.create(name: "gen_wsbindings") {
+		ext.genDirName = "$projectDir/src/main/generated";
+
+        inputs.dir file(sourceSets.schema.srcDir)
+    	outputs.dir file(ext.genDirName)
 
         doFirst {
-        	new File("$genDirName").mkdirs()
+        	file(ext.genDirName).mkdirs()
         }    	
 		doLast {
 	        fileTree(dir: sourceSets.schema.srcDir + "/wsdl", include: "**/*.wsdl", exclude: "common.wsdl").each { def wsdlFile -> 
 				javaexec {					
 			        main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
 			        classpath = configurations.wsgen
-			        args '-fe', 'jaxws',	        		
+                    // Add -DexitOnFinish=true so that WSDLToJava bails out with exit code 0 (on success) or 1 (on failure)
+                    // so that the build aborts immediately on errors. If you don't set this property, the exit code is always 0.
+                    systemProperty 'exitOnFinish', 'true'
+			        args = [ '-fe', 'jaxws',
 			                '-db', 'jaxb',
 			                '-xjc-extension',
 			                '-impl', '-server', '-client', '-validate',
-			                '-d', "$genDirName",
+			                '-d', ext.genDirName,
                             '-wsdlLocation', 'classpath:wsdl/'+wsdlFile.name,
-			                wsdlFile
+			                wsdlFile ]
 			    }	            
 		    } 
         }		
 	}
-	sourceSets.main.java.srcDirs += genDirName	
+	sourceSets.main.java.srcDirs += gen_wsbindings.genDirName
 	
 	compileJava.dependsOn gen_wsbindings
 	eclipseClasspath.dependsOn gen_wsbindings
-	
-		eclipse {
+
+	eclipse {
 	    classpath {
 	    	defaultOutputDir = file('build')
 		    file {
 		      	withXml {//ignore compile warnings in generated code
 					it.asNode().find {
-					    it.@kind == 'src' &&  "$genDirName".contains(it.@path)
+					    it.@kind == 'src' &&  gen_wsbindings.genDirName.contains(it.@path)
 					}
 					.appendNode ('attributes')
 					.appendNode('attribute', [ name: "ignore_optional_problems", value: "true"])
@@ -472,19 +479,19 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 					        classpathentry.appendNode('attributes').appendNode('attribute',[name:'javadoc_location', value:'jar:platform:/resource/copper-monitoring-client/libs/jfxrt-javadoc.zip!/']);
 	    				}
 		    			if (classpathentry.attributes().path.contains('Jemmy3AWTInput-0.9.3-SNAPSHOT')){
-	    					java.util.Map attributes = classpathentry.attributes();
+	    					Map attributes = classpathentry.attributes();
 	    				    attributes.put('sourcepath','libs/Jemmy3AWTInput-0.9.3-SNAPSHOT-sources.jar');
 	    				    root.appendNode('classpathentry', attributes);
 	    				    root.remove(classpathentry);
 		    			}
 		    			if (classpathentry.attributes().path.contains('Jemmy3Core-0.9.3-SNAPSHOT')){
-	    					java.util.Map attributes = classpathentry.attributes();
+	    					Map attributes = classpathentry.attributes();
 	    				    attributes.put('sourcepath','libs/Jemmy3Core-0.9.3-SNAPSHOT-sources.jar');
 	    				    root.appendNode('classpathentry', attributes);
 	    				    root.remove(classpathentry);
 		    			}
 		    			if (classpathentry.attributes().path.contains('JemmyFX-0.9.3-SNAPSHOT')){
-	    					java.util.Map attributes = classpathentry.attributes();
+	    					Map attributes = classpathentry.attributes();
 	    				    attributes.put('sourcepath','libs/JemmyFX-0.9.3-SNAPSHOT-sources.jar');
 	    				    root.appendNode('classpathentry', attributes);
 	    				    root.remove(classpathentry);
@@ -537,15 +544,8 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 	    exclude "*java2html.jar"
 	}
 	 
-	task('deployfx') {
-		
-	
-	 	dependsOn('jar') 
-	 	dependsOn('copyLibs')
-	 
-	    def antfx = NamespaceBuilder.newInstance(
-	            ant,
-	            'javafx:com.sun.javafx.tools.ant')
+	task('deployfx', dependsOn: [jar, copyLibs]) {
+	    def antfx = NamespaceBuilder.newInstance(ant, 'javafx:com.sun.javafx.tools.ant')
 	 
 	    ant.taskdef(
 	            resource: 'com/sun/javafx/tools/ant/antlib.xml',
@@ -617,9 +617,4 @@ project(':projects:copper-monitoring:copper-monitoring-example') {
 	     compile 'org.apache.derby:derby:10.9.1.0'
     }
 }
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.7'
-}
-
 
