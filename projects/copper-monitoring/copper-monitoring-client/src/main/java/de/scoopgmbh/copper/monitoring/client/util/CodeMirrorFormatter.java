@@ -56,12 +56,9 @@ public class CodeMirrorFormatter{
     public String format(String code, CodeFormatLanguage language, boolean ediable){
     	return format( code, language, ediable, -1);
     }
+
 	/**
-	 * @param code
-	 * @param language
-	 * @param ediable
 	 * @param selectLine 1=first line
-	 * @return
 	 */
 	public String format(String code, CodeFormatLanguage language, boolean ediable, int selectLine){
 		String ediableString =""+ediable;

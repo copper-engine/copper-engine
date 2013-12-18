@@ -125,8 +125,8 @@ public interface ScottyDBStorageInterface {
 	
 	/**
 	 * Read a workflow from the backing storage
-	 * @param workflowInstanceId
-	 * @return
+	 * @param workflowInstanceId the id of the workflow
+	 * @return a new deserialized workflow instance
 	 * @throws Exception
 	 */
 	public Workflow<?> read(final String workflowInstanceId) throws Exception;

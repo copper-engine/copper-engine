@@ -84,7 +84,7 @@ public class Queue {
 
 		public void addLastElement(final Object o) throws OverflowException, IllegalStateException, ClosedException {
 			synchronized (lock) {
-				if (isClosed()) throw new ClosedException();  
+				if (isClosed()) throw new ClosedException();
 				if (capacity > -1 && size() >= capacity) {
 					throw new OverflowException();
 				}
@@ -95,7 +95,7 @@ public class Queue {
 					lock.notify();
 			}
 		}
-		
+
 		private final Object removeOSF1(final long timeout) throws ClosedException, TimeoutException, InterruptedException {
 			final long start = timeout == 0 ? 0 : System.currentTimeMillis();
 			synchronized (lock) {
@@ -260,7 +260,7 @@ public class Queue {
 	 * Return first element of the underlying list and remove it. If no element exists, wait (max. timeout milliseconds)
 	 * until the queue is filled again.
 	 * @param timeout 0 to disable timeout
-	 * @return
+     * @return the first queue element
 	 * @throws TimeoutException
 	 * @throws ClosedException
 	 * @throws InterruptedException
@@ -272,7 +272,7 @@ public class Queue {
 	/**
 	 * Return first element of the underlying list and remove it. If no element exists, wait until the queue is filled
 	 * again.
-	 * @return
+     * @return the first queue element
 	 * @throws TimeoutException
 	 * @throws ClosedException
 	 * @throws InterruptedException
@@ -329,8 +329,6 @@ public class Queue {
 
 	/**
 	 * Create the internal list (allow derived classes to supply their own list implementation)
-	 * @param capacity
-	 * @return
 	 */
 	protected List createList(int capacity, boolean verbose) {
 		return new List(capacity, verbose);

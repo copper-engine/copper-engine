@@ -57,16 +57,15 @@ public interface CopperMonitoringService extends Remote, Serializable, Monitorin
 
 	/**
 	 * Executes an sql query on the database of the copper runtime this monitor interface is connected to.
-	 * @param query
-	 * @param resultRowLimit
-	 * @return
+	 * @param query sql query
+	 * @param resultRowLimit maximum number of rows to return
+	 * @return the query result as a list of rows, each row is a String array.
 	 * @throws RemoteException
 	 */
 	public List<String[]> executeSqlQuery(String query, long resultRowLimit) throws RemoteException;
 	
 	/**
 	 * Trigger restart of a workflow instance that is in the error state.
-	 * @param workflowInstanceId
 	 */
 	public void restartWorkflowInstance(String workflowInstanceId, String engineid) throws RemoteException;
 

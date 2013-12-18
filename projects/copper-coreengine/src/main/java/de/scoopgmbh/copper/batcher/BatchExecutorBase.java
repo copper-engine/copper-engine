@@ -39,8 +39,7 @@ public interface BatchExecutorBase<E extends BatchExecutorBase<E,T>, T extends B
 	int  preferredBatchSize();
 	
 	/**
-	 * The maximum batch size of this executor
-	 * @return
+	 * @return the maximum batch size of this executor
 	 */
 	int  maximumBatchSize();
 	

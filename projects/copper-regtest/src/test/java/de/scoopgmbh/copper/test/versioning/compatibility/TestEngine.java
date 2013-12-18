@@ -50,6 +50,7 @@ public class TestEngine implements PersistentProcessingEngine {
 	}
 
 	@Override
+    @Deprecated
 	public void notify(Response<?> response) throws CopperRuntimeException {
 	}
 

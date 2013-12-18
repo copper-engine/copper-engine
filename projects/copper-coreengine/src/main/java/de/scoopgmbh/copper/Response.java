@@ -37,14 +37,9 @@ public class Response<E> implements Serializable {
 	private String responseId;
 	
 	/**
-	 * Constructor
-	 * @param correlationId
-	 * @param response
-	 * @param exception
-	 * @param isTimeout
-	 * @param metaData
+	 * Constructor.
+     *
 	 * @param internalProcessingTimeout timeout in msec
-	 * @param responseId
 	 */
 	public Response(String correlationId, E response, Exception exception, boolean isTimeout, String metaData, Long internalProcessingTimeout, final String responseId) {
 		super();
@@ -61,10 +56,7 @@ public class Response<E> implements Serializable {
 	}
 
 	/**
-	 * Creates a new instance
-	 * @param correlationId
-	 * @param response
-	 * @param exception
+	 * Creates a new instance.
 	 */
 	public Response(String correlationId, E response, Exception exception) {
 		this(correlationId, response, exception, false, null, null, null);
@@ -72,14 +64,13 @@ public class Response<E> implements Serializable {
 
 	/**
 	 * Creates a new instance with timeout set to true. 
-	 * @param correlationId
 	 */
 	public Response(String correlationId) {
 		this(correlationId, null, null, true, null, null, null);
 	}
 	
 	/**
-	 * 
+	 * Return the correlation id of this response.
 	 * @return the correlation id of this response
 	 */
 	public String getCorrelationId() {
@@ -109,8 +100,7 @@ public class Response<E> implements Serializable {
 	}
 	
 	/**
-	 * Timeout in milliseconds
-	 * @return
+	 * @return Timeout in milliseconds
 	 */
 	public Long getInternalProcessingTimeout() {
 		return internalProcessingTimeout;

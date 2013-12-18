@@ -23,7 +23,7 @@ public interface PersistenceContext {
 
 	/**
 	 * retrieves the persister assigned to this entity class. Throws a runtime exception when no persister can be returned 
-	 * @param entity The entity class to look up the persister for
+	 * @param entityClass The entity class to look up the persister for
 	 * @return the persister
 	 */
 	<T> EntityPersister<T> getPersister(Class<? extends T> entityClass);

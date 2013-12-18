@@ -29,7 +29,7 @@ public interface EntityPersister<E> {
 	}
 
 	/**
-	 * Issues a select for the entity that will be executed later. The entity has to contain the identifying data used to select it. Later on, the callback is called either via {@link PostSelectedCallback#entitySelected(E) entitySelected} or {@link PostSelectedCallback#entityNotFound(E) entityNotFound}
+	 * Issues a select for the entity that will be executed later. The entity has to contain the identifying data used to select it. Later on, the callback is called either via {@link PostSelectedCallback#entitySelected entitySelected} or {@link PostSelectedCallback#entityNotFound entityNotFound}
 	 * @param e the entity to select. The identifier has to be set.
 	 * @param callback the callback to call with the selection results
 	 */

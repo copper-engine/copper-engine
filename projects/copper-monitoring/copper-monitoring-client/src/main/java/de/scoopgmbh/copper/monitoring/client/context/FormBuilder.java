@@ -27,11 +27,12 @@ import de.scoopgmbh.copper.monitoring.client.form.issuereporting.IssueReporter;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 
 /**
- * @return
- * FM = filtermodel
- * RM resultmodel
- * R Resultcontroller
- * F Filtercontroller
+ * a form builder.
+ *
+ * @param <FM> filter model
+ * @param <RM> result model
+ * @param <R> result controller
+ * @param <F> filter controller
  */
 public class FormBuilder<FM,RM, F extends FilterController<FM> ,R extends FilterResultController<FM,RM>>{
 	protected final F filterController;

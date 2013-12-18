@@ -37,11 +37,11 @@ import de.scoopgmbh.copper.batcher.CommandCallback;
 import de.scoopgmbh.copper.management.AuditTrailMXBean;
 
 /**
- * Fast db based audit trail implementation. It is possible to extend the COPPER audit trail with custom attributes. See JUnitTest
- * {@link BatchingAuditTrailTest#testCustomTable()} for an example.
+ * Fast db based audit trail implementation. It is possible to extend the COPPER audit trail with custom attributes.
+ *
+ * See JUnitTest {@code BatchingAuditTrailTest.testCustomTable()} for an example.
  * 
  * @author austermann
- *
  */
 public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
 	

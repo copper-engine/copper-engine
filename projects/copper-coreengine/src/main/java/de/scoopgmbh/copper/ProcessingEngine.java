@@ -45,7 +45,7 @@ public interface ProcessingEngine {
 	/**
 	 * Adds a shutdown observer/hook to the engine. During shutdown of the engine, {@link Runnable#run()} of each registered 
 	 * observer is called subsequently. 
-	 * @param observer
+	 * @param observer the observer/hook to add
 	 */
 	public void addShutdownObserver(Runnable observer);
 	
@@ -62,11 +62,12 @@ public interface ProcessingEngine {
 	/**
 	 * Adds a response to the engine. The engine will subsequently try to find the corresponding workflow instance that is
 	 * waiting for the response. Depending on the workflow instances waitmode and the number of open responses, the workflow 
-	 * may or may not be resumed. This method is unsafe. The control might be returned to the caller before the notification has been safeley delivered.
-	 * Use {@link ProcessingEngine#notify(Response, Acknowledge)} instead.
+	 * may or may not be resumed.
 	 * 
 	 * @param response the reponse
 	 * @throws CopperRuntimeException
+     * @deprecated This method is unsafe. The control might be returned to the caller before the notification has been safeley delivered.
+     * Use {@link #notify(Response, Acknowledge)} instead.
 	 */
 	@Deprecated
 	public void notify(Response<?> response) throws CopperRuntimeException;
@@ -84,7 +85,6 @@ public interface ProcessingEngine {
 	
 	/**
 	 * Creates a Universally Unique Identifier (UUID). The UUID may be used for workflow ids or correlation ids.
-	 * @return
 	 */
 	public String createUUID();
 	
@@ -127,9 +127,6 @@ public interface ProcessingEngine {
 	/**
 	 * Adds the specified WaitHook for the workflow instance with the specified id.
 	 * The WaitHook is called once at the next wait invocation of the specified workflow instance.
-	 *  
-	 * @param wfInstanceId
-	 * @param waitHook
 	 */
 	public void addWaitHook(String wfInstanceId, WaitHook waitHook);
 	

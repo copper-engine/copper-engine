@@ -64,8 +64,8 @@ public interface DatabaseDialect {
 	
 	/**
 	 * Checks the DB consistency, e.g. at system startup, by deserialising all workflow instances in the underlying database.
-	 * @param con
-	 * @return
+	 * @param con database connection
+	 * @return list of ids of bad workflows which could not be deserialized
 	 * @throws Exception
 	 */
 	public List<String> checkDbConsistency(Connection con) throws Exception;

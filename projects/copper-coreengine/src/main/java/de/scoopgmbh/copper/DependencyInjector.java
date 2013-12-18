@@ -19,11 +19,10 @@ package de.scoopgmbh.copper;
  * Glue interface for adding dependency injection capatibilty to COPPER.
  * Implementations of this interface connect a container, e.g. Spring, with COPPER and enables COPPER
  * to inject dependencies to workflow instances.
- * 
- * @see de.scoopgmbh.copper.spring.SpringDependencyInjector
- * 
- * @author austermann
  *
+ * For example, the implementation for Spring is <code>de.scoopgmbh.copper.spring.SpringDependencyInjector</code> which is in project copper-spring.
+ *
+ * @author austermann
  */
 public interface DependencyInjector {
 	public void setEngine(ProcessingEngine e);

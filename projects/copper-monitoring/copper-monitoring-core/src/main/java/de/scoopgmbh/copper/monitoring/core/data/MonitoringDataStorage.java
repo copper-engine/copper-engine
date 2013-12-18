@@ -430,7 +430,6 @@ public class MonitoringDataStorage {
     /**
      * @param fromDate null = no lower bound
      * @param toDate null = no upper bound
-     * @return
      */
     public Iterable<MonitoringData> read(Date fromDate, Date toDate) {
     	return read(fromDate, toDate, false);
