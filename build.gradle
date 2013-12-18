@@ -72,7 +72,7 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
         manifest.attributes provider: 'gradle'
     }
 
-    task replace_headers << {
+    task replace_headers {
         def licenseFile = file("$rootDir/common/apache-license-file.txt")
         def licenseHeader
         	
@@ -186,9 +186,9 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
                         }
     
                         pom.project {
-                            name 'COPPER high-performance workflow engine'
-                            packaging 'jar'
-                            description 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
+                            name = 'COPPER high-performance workflow engine'
+                            packaging = 'jar'
+                            description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
                             url 'http://gradlefx.github.com/'
     
                             scm {
@@ -199,7 +199,7 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
     
                             licenses {
                                 license {
-                                    name 'The Apache Software License, Version 2.0'
+                                    name = 'The Apache Software License, Version 2.0'
                                     url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                                     distribution 'repo'
                                 }
@@ -208,7 +208,7 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
                             developers {
                                 developer {
                                     id 'maustermann'
-                                    name 'Michael Austermann'
+                                    name = 'Michael Austermann'
                                     roles {
                                         role 'architect'
                                         role 'developer'
@@ -216,7 +216,7 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
                                 }
                                 developer {
                                     id 'copper-team'
-                                    name 'Copper Engine Development Team'
+                                    name = 'Copper Engine Development Team'
                                     roles {
                                         role 'developer'
                                         role 'tester'
@@ -573,12 +573,21 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
 	
 	        antfx.deploy(
 	            		outdir: "${buildDir}/deployfx",
-	           			outfile: 'z',
+	           			outfile: 'copper-monitor',
 	           			height: '300',
 	            		width: '500',
-	            		placeholderid: 'blabla',
-	            		placeholderref: 'blabla') {
-	            
+	            		placeholderid: 'copper-monitor-applet',
+	            		placeholderref: 'copper-monitor-applet',
+                        offlineAllowed: true) {
+
+                antfx.info(
+                    title: "COPPER Monitor",
+                    vendor: "copper-engine.org developer team",
+                    description: "COPPER monitoring client",
+                    license: "Apache License v2.0",
+                    copyright: "copper-engine.org developer team"
+                )
+
 		        antfx.resources(){
 		        	fileset(dir: libTempDir)
 		        }
