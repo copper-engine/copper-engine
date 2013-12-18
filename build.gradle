@@ -14,10 +14,6 @@ allprojects {
     repositories {
         mavenCentral()
     }
-    
-    signing {
-        sign configurations.archives
-    }
 }
 
 configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directory || new File(it.projectDir, 'src/main/schema').directory}) {
@@ -167,6 +163,11 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
             sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
         } else {
             isDevBuild = true
+        }
+        
+        signing {
+            required { (isReleaseBuild || isCiBuild) && gradle.taskGraph.hasTask("uploadArchives") }
+            sign configurations.archives
         }
         
         uploadArchives {
