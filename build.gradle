@@ -2,12 +2,17 @@ apply plugin: 'idea'
 
 allprojects {
     apply plugin: 'maven'
+    apply plugin: 'signing'
     apply plugin: 'project-report'
 
-    group = "de.scoopgmbh.copper"
+    group = "org.copper-engine"
 
     repositories {
         mavenCentral()
+    }
+    
+    signing {
+        sign configurations.archives
     }
 }
 
@@ -28,7 +33,6 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
     */
     apply plugin: 'eclipse'
     apply plugin: 'idea'
-   
 
     eclipse {
 	    classpath {
@@ -47,7 +51,6 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
 	    	}
 	    }
 	 } 
-
     
     /*
     * be sure to always regenerate eclipse files, because
@@ -144,7 +147,84 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
                archives scriptsZip
             }
         }   
+        
+        def sonatypeRepositoryUrl
+        def isDevBuild
+        def isCiBuild
+        def isReleaseBuild
+        
+        //set build variables based on build type (release, continuous integration, development)
+        if(project.hasProperty("release")) {
+            isReleaseBuild = true
+            sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+        } else if (project.hasProperty("ci")) {
+            isCiBuild = true
+            //version += "-SNAPSHOT" will be done using Jenkins configuration
+            sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+        } else {
+            isDevBuild = true
+        }
+        
+        uploadArchives {
+            repositories {
+                if (isDevBuild) {
+                    mavenLocal()
+                }
+                else {
+                    mavenDeployer {
+                        if(isReleaseBuild) {
+                            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                        }
+    
+                        repository(url: sonatypeRepositoryUrl) {
+                            authentication(userName: sonatypeUsername, password: sonatypePassword)
+                        }
+    
+                        pom.project {
+                            name 'COPPER high-performance workflow engine'
+                            packaging 'jar'
+                            description 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
+                            url 'http://gradlefx.github.com/'
+    
+                            scm {
+                                url 'scm:git@github.com:copper-engine/copper-engine.git'
+                                connection 'scm:git@github.com:copper-engine/copper-engine.git'
+                                developerConnection 'scm:git@github.com:copper-engine/copper-engine.git'
+                            }
+    
+                            licenses {
+                                license {
+                                    name 'The Apache Software License, Version 2.0'
+                                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                                    distribution 'repo'
+                                }
+                            }
+    
+                            developers {
+                                developer {
+                                    id 'maustermann'
+                                    name 'Michael Austermann'
+                                    roles {
+                                        role 'architect'
+                                        role 'developer'
+                                    }
+                                }
+                                developer {
+                                    id 'copper-team'
+                                    name 'Copper Engine Development Team'
+                                    roles {
+                                        role 'developer'
+                                        role 'tester'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 }
+
 
 project(':projects:copper-jmx-interface') {
     dependencies {
