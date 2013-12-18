@@ -15,12 +15,6 @@
  */
 package de.scoopgmbh.copper.instrument;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,9 +24,6 @@ import java.util.Map;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -40,7 +31,6 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.org.apache.bcel.internal.classfile.ClassFormatException;
 
 import de.scoopgmbh.copper.instrument.StackInfo.ComputationalCategory;
 
@@ -599,56 +589,6 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
 		delegate.visitVarInsn(arg0, arg1);
 	}
 
-	public static void main(String[] args) throws Exception {
-		File basedir = new File("C:/SVN/POLZUG-Solution-1.0-trucking/projects/gui/target/classes");
-		testAllClasses(basedir,basedir);
-
-	}
-
-	private static void testAllClasses(File baseDir, File dir) throws FileNotFoundException, IOException, ClassNotFoundException {
-		File[] files = dir.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".class");
-			}
-		});
-		for (File f : files) {
-			testClass(f, f.getAbsolutePath().substring(baseDir.getAbsolutePath().length()+1).replace(".class", "").replace("\\","."));
-		}
-		files = dir.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				
-				return pathname.isDirectory();
-			}
-		});
-		for (File f : files) {
-			testAllClasses(baseDir, f);
-		}
-	}
-
-	private static void testClass(File file, final String className) throws IOException, FileNotFoundException {
-		ClassReader cr = new ClassReader(new FileInputStream(file));
-		ClassWriter cw = new ClassWriter(0);
-		final String cDesc = Type.getObjectType(className).getDescriptor();
-		ClassVisitor cv = new ClassVisitor(ASM4, cw) {
-
-
-			@Override
-			public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-				if (logger.isDebugEnabled()) logger.debug("=======>"+access+" "+name+" "+desc+" "+signature);
-				return new BuildStackInfoAdapter(cDesc, (access&Opcodes.ACC_STATIC) > 0, name, desc, signature);
-			}
-
-			@Override
-			public void visitInnerClass(String arg0, String arg1, String arg2, int arg3) {
-				if (logger.isDebugEnabled()) logger.debug("== VISIT INNER =======>"+arg0+" "+arg1+" "+arg2+" "+arg3);
-				super.visitInnerClass(arg0, arg1, arg2, arg3);
-			}
-
-		};
-		cr.accept(cv, 0);
-	}
 
 	String getOpCode(int opCode) {
 		for (Field f : Opcodes.class.getDeclaredFields()) {
@@ -706,27 +646,6 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
 		return Type.getObjectType("["+t.getDescriptor());
 	}
 	
-	String getStackInfo(Object[] args) {
-		StringBuilder sb = new StringBuilder("[");
-		for (Object arg : args) {
-			if (arg == null)
-				sb.append("null");
-			else {
-				try {
-					sb.append(deferTypFromCanonicalName(arg.toString()));
-				} catch (ClassFormatException ex) {
-					sb.append(arg.toString());
-				}
-			}
-			sb.append(", ");
-		}
-		if (sb.length() > 1)
-			sb.setLength(sb.length()-2);
-		sb.append(']');
-		return sb.toString();
-
-	}
-
 	static Type deferTypFromCanonicalName(String name) {
 		return Type.getType(name);
 	}
