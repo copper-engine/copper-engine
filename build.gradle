@@ -88,7 +88,6 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
             }
         }
     }
-    compileJava.dependsOn replace_headers    
     
     
     /// ********
