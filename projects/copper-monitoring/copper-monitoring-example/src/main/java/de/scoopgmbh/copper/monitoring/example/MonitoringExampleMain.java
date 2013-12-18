@@ -152,9 +152,9 @@ public class MonitoringExampleMain {
 		wfRepository.setTargetDir("build/classes/test");
 
         System.out.println(new File(".").getAbsolutePath());
-        File srcDir = new File("src/main/java"); //eclipse
+        File srcDir = new File("src/workflow/java"); //eclipse
         if (!srcDir.exists()){
-            srcDir = new File("./projects/copper-monitoring/copper-monitoring-example/src/main/java");//idea
+            srcDir = new File("./projects/copper-monitoring/copper-monitoring-example/src/workflow/java");//idea
         }
         System.out.println(srcDir.getAbsolutePath());
 		wfRepository.setSourceDirs(Arrays.asList(srcDir.getAbsolutePath()));

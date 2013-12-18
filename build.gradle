@@ -523,11 +523,18 @@ project(':projects:copper-monitoring:copper-monitoring-core') {
 }
 
 project(':projects:copper-monitoring:copper-monitoring-example') {
+    sourceSets {
+        workflow {
+            ext.srcDir = "$projectDir/src/workflow/java"
+        }
+    }
+    sourceSets.main.resources.srcDirs += sourceSets.workflow.srcDir
+
     dependencies {
     	 compile project(':projects:copper-monitoring:copper-monitoring-server')
     	 compile project(':projects:copper-coreengine')
     	 compile 'ch.qos.logback:logback-classic:1.0.13'
-	 compile 'org.apache.derby:derby:10.9.1.0'
+	     compile 'org.apache.derby:derby:10.9.1.0'
     }
 }
 

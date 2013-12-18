@@ -20,7 +20,6 @@ import de.scoopgmbh.copper.monitoring.client.util.NumberOnlyTextField;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -28,10 +27,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultInputDialogCreator implements InputDialogCreator {
 
+	Logger logger = LoggerFactory.getLogger(DefaultInputDialogCreator.class);
 	private final StackPane target;
+
+
 
 	public DefaultInputDialogCreator(StackPane stackPane) {
 		super();
@@ -49,17 +53,22 @@ public class DefaultInputDialogCreator implements InputDialogCreator {
 				target.getChildren().add(backShadow);
 				
 				String blackOrWhiteDependingFromBack ="ladder("+CSSHelper.toCssColor(color)+", white 49%, black 50%);";
-				
-				final HBox back = new HBox(3);
-				StackPane.setMargin(back, new Insets(150));
-				back.setStyle("-fx-border-color: "+blackOrWhiteDependingFromBack +"; -fx-border-width: 1px; -fx-padding: 3; -fx-background-color: derive("+CSSHelper.toCssColor(color)+",-50%);");
+
+
+			    HBox back = new HBox(3);
 				back.setAlignment(Pos.CENTER_RIGHT);
 				final Label label = new Label(labelText);
-				StackPane.setMargin(back, new Insets(150));
-				label.setStyle("-fx-text-fill: "+blackOrWhiteDependingFromBack +";");
+				label.setStyle("-fx-text-fill: -fx-dark-text-color;");
 				label.setWrapText(true);
 				back.getChildren().add(label);
                 back.setAlignment(Pos.CENTER);
+                back.setSpacing(5);
+                back.setStyle("-fx-background-color: -fx-background; -fx-border-color: -fx-box-border; -fx-border-width: 1px; -fx-padding: 10;");
+
+                final HBox backWrapper= new HBox();
+                backWrapper.setAlignment(Pos.CENTER);
+                backWrapper.setFillHeight(false);
+                backWrapper.getChildren().add(back);
 
                 final NumberOnlyTextField textField = new NumberOnlyTextField();
                 textField.setText(String.valueOf(initialValue));
@@ -69,7 +78,7 @@ public class DefaultInputDialogCreator implements InputDialogCreator {
 				ok.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent event) {
-                        target.getChildren().remove(back);
+                        target.getChildren().remove(backWrapper);
                         target.getChildren().remove(backShadow);
                         if (textField.getText()!=null && !textField.getText().isEmpty() ){
                             dialogClosed.closed(Integer.parseInt(textField.getText()));
@@ -82,13 +91,13 @@ public class DefaultInputDialogCreator implements InputDialogCreator {
                 cancel.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
-                        target.getChildren().remove(back);
+                        target.getChildren().remove(backWrapper);
                         target.getChildren().remove(backShadow);
                     }
                 });
                 back.getChildren().add(cancel);
 				
-				target.getChildren().add(back);
+				target.getChildren().add(backWrapper);
 			}
 		});
 	}
