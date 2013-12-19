@@ -38,6 +38,9 @@ import org.copperengine.core.common.WorkflowRepository;
  */
 public class StandardJavaSerializer implements Serializer {
 
+    private static final String COPPER_3_PACKAGE_PREFIX = "org.copperengine.core.";
+    private static final String COPPER_2X_PACKAGE_PREFIX = "de.scoopgmbh.copper.";
+
     private boolean compress = true;
     private int compressThresholdSize = 250;
     private int compressorMaxSize = 128 * 1024;
@@ -99,12 +102,29 @@ public class StandardJavaSerializer implements Serializer {
         ObjectInputStream ois = wfRepo != null ? new ObjectInputStream(bais) {
             @Override
             protected java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException {
-                return wfRepo.resolveClass(desc);
+                return wfRepo.resolveClass(classnameReplacement(desc.getName()));
             };
-        } : new ObjectInputStream(bais);
+        } : new ObjectInputStream(bais) {
+            @Override
+            protected java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException {
+                return Class.forName(classnameReplacement(desc.getName()));
+            };
+        };
         Serializable o = (Serializable) ois.readObject();
         ois.close();
         return o;
+    }
+
+    /**
+     * For downward compatibility to copper <= 2.x, there is a package name replacement during
+     * deserialization of workflow instances and reponses.
+     * This can be removed in one of the future releases.
+     */
+    private String classnameReplacement(String classname) {
+        if (classname.startsWith(COPPER_2X_PACKAGE_PREFIX)) {
+            return classname.replace(COPPER_2X_PACKAGE_PREFIX, COPPER_3_PACKAGE_PREFIX);
+        }
+        return classname;
     }
 
     @Override

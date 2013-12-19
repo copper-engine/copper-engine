@@ -37,7 +37,7 @@ public interface WorkflowRepository {
 
     public WorkflowVersion findLatestMinorVersion(final String wfName, long majorVersion, long minorVersion);
 
-    public java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException;
+    public java.lang.Class<?> resolveClass(String classname) throws java.io.IOException, ClassNotFoundException;
 
     ClassInfo getClassInfo(@SuppressWarnings("rawtypes") final Class<? extends Workflow> wfClazz) throws java.io.IOException, ClassNotFoundException;
 

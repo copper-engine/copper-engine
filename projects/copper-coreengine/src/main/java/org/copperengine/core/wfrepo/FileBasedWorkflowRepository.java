@@ -254,8 +254,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     @Override
-    public java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException {
-        return Class.forName(desc.getName(), false, volatileState.classLoader);
+    public java.lang.Class<?> resolveClass(String classname) throws java.io.IOException, ClassNotFoundException {
+        return Class.forName(classname, false, volatileState.classLoader);
     };
 
     static class ObserverThread extends Thread {

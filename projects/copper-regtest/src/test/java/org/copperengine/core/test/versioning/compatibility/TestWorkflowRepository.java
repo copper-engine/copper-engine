@@ -16,7 +16,6 @@
 package org.copperengine.core.test.versioning.compatibility;
 
 import java.io.IOException;
-import java.io.ObjectStreamClass;
 
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 
@@ -26,9 +25,9 @@ public class TestWorkflowRepository extends FileBasedWorkflowRepository {
     String overrideClassname = null;
 
     @Override
-    public Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-        if (triggerClassname == null || overrideClassname == null || !desc.getName().equals(triggerClassname)) {
-            return super.resolveClass(desc);
+    public Class<?> resolveClass(String classname) throws IOException, ClassNotFoundException {
+        if (triggerClassname == null || overrideClassname == null || !classname.equals(triggerClassname)) {
+            return super.resolveClass(classname);
         }
         else {
             return Class.forName(overrideClassname, false, super.getClassLoader());
