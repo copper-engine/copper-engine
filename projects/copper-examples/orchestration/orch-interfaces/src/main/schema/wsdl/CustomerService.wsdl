@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="CustomerServiceService"
-	targetNamespace="http://customerservice.scoopgmbh.de/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-	xmlns:tns="http://customerservice.scoopgmbh.de/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://customerservice.copperengine.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:tns="http://customerservice.copperengine.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
 	<wsdl:types>
-		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://customerservice.scoopgmbh.de/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://customerservice.scoopgmbh.de/">
+		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://customerservice.copperengine.org/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://customerservice.copperengine.org/">
 			<xs:complexType name="customer">
 				<xs:sequence>
 					<xs:element minOccurs="1" maxOccurs="1" name="contractNumber" type="xs:string" />
@@ -56,7 +56,7 @@
 	<wsdl:binding name="CustomerServiceServiceSoapBinding" type="tns:CustomerService">
 		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
 		<wsdl:operation name="getCustomersByMsisdn">
-			<soap:operation soapAction="http://customerservice.scoopgmbh.de/getCustomersByMsisdn" style="document" />
+			<soap:operation soapAction="http://customerservice.copperengine.org/getCustomersByMsisdn" style="document" />
 			<wsdl:input>
 				<soap:body use="literal" />
 			</wsdl:input>

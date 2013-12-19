@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="MobileNetworkServices"
-	targetNamespace="http://services.mobile.network.scoopgmbh.de/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-	xmlns:tns="http://services.mobile.network.scoopgmbh.de/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://services.mobile.network.copperengine.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:tns="http://services.mobile.network.copperengine.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
 	<wsdl:types>
-		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://services.mobile.network.scoopgmbh.de/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://services.mobile.network.scoopgmbh.de/">
+		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://services.mobile.network.copperengine.org/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://services.mobile.network.copperengine.org/">
 			
 			<xs:complexType name="resetMailboxRequest">
 				<xs:sequence>
@@ -101,7 +101,7 @@
 	<wsdl:binding name="NetworkServiceProviderSoapBinding" type="tns:NetworkServiceProvider">
 		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
 		<wsdl:operation name="asyncResetMailbox">
-			<soap:operation soapAction="http://services.mobile.network.scoopgmbh.de/asyncResetMailbox" style="document" />
+			<soap:operation soapAction="http://services.mobile.network.copperengine.org/asyncResetMailbox" style="document" />
 			<wsdl:input>
 				<soap:body use="literal" />
 			</wsdl:input>
@@ -110,7 +110,7 @@
 			</wsdl:output>
 		</wsdl:operation>
 		<wsdl:operation name="sendSMS">
-			<soap:operation soapAction="http://services.mobile.network.scoopgmbh.de/sendSMS" style="document" />
+			<soap:operation soapAction="http://services.mobile.network.copperengine.org/sendSMS" style="document" />
 			<wsdl:input>
 				<soap:body use="literal" />
 			</wsdl:input>
@@ -123,7 +123,7 @@
 	<wsdl:binding name="AsyncNetworkServiceResponseReceiverSoapBinding" type="tns:AsyncNetworkServiceResponseReceiver">
 		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
 		<wsdl:operation name="resetMailboxResponse">
-			<soap:operation soapAction="http://services.mobile.network.scoopgmbh.de/resetMailboxResponse" style="document" />
+			<soap:operation soapAction="http://services.mobile.network.copperengine.org/resetMailboxResponse" style="document" />
 			<wsdl:input>
 				<soap:body use="literal" />
 			</wsdl:input>
