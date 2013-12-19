@@ -23,103 +23,99 @@ import org.copperengine.core.Callback;
 import org.copperengine.core.InterruptException;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
-import org.copperengine.core.test.MockAdapter;
 import org.copperengine.core.tranzient.TransientProcessorPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 public abstract class Spock2GTestWF extends Workflow<String> {
 
-	private static final Logger logger = LoggerFactory.getLogger(Spock2GTestWF.class);
-	private static final long serialVersionUID = 1816644971610832088L;
+    private static final Logger logger = LoggerFactory.getLogger(Spock2GTestWF.class);
+    private static final long serialVersionUID = 1816644971610832088L;
 
-	private Callback<String> cb;
-	private int idx;
-	private String correlationId;
-	private List<String> cids = null;
-	
-	protected transient MockAdapter mockAdapter;
-	
-	@AutoWire
-	public void setMockAdapter(MockAdapter mockAdapter) {
-		this.mockAdapter = mockAdapter;
-	}	
-	
-	@Override
-	public void main() throws InterruptException {
-		logger.debug("started");
+    private Callback<String> cb;
+    private int idx;
+    private String correlationId;
+    private List<String> cids = null;
 
-		logger.info("This is version five");
-		
-		logger.debug("changing processor pool");
-		setProcessorPoolId("PS47112");
-		resubmit();
-		logger.debug("done resubmitting");
+    protected transient MockAdapter mockAdapter;
 
-		logger.debug("changing processor pool again");
-		setProcessorPoolId(TransientProcessorPool.DEFAULT_POOL_ID);
-		super.resubmit();
-		logger.debug("done resubmitting");
-		
-		abstractPartnersystemCall();
-		
-		{
-			correlationId = "ThisIsACustomCorrelationId"+System.nanoTime();
-			mockAdapter.foo("foo", correlationId);
-			logger.debug("Request sent, waiting...");
-			wait(WaitMode.ALL, 250, correlationId);
-			logger.debug("Waking up again, response="+super.getAndRemoveResponse(correlationId));
-		}
-		
-		partnersystemCall();
-		
-		logger.debug("Now sleeping for 2 seconds...");
-		wait(WaitMode.ALL, 2000, getEngine().createUUID());
+    @AutoWire
+    public void setMockAdapter(MockAdapter mockAdapter) {
+        this.mockAdapter = mockAdapter;
+    }
 
-		for (idx=0; idx<3; idx++)
-		{
-			cb = createCallback();
-			mockAdapter.foo("foo", cb);
-			logger.debug("Request sent, waiting...");
-			waitForAll(cb);
-			logger.debug("Waking up again...");
-			logger.debug("Response = "+cb.getResponse(this));
-		}
+    @Override
+    public void main() throws InterruptException {
+        logger.debug("started");
 
-		{
-			cb = super.createCallback();
-			mockAdapter.foo("foo", cb);
-			logger.debug("Request sent, waiting...");
-			super.waitForAll(cb);
-			logger.debug("Waking up again...");
-			logger.debug("Response = "+cb.getResponse(this));
-		}
-		
-		cids = new ArrayList<String>();
-		for (int i=0; i<5; i++) {
-			correlationId = getEngine().createUUID();
-			cids.add(correlationId);
-			mockAdapter.foo("foo", correlationId);
-		}
-		logger.debug("Waiting for first...");
-		super.wait(WaitMode.FIRST, 5000, cids.toArray(new String[cids.size()]));
-		logger.debug("Waking up again");
-		cids = null;
-		
-		logger.debug("finished");
-	}
-	
-	protected void partnersystemCall() throws InterruptException {
-		correlationId = getEngine().createUUID();
-		mockAdapter.foo("foo", correlationId);
-		logger.debug("Request sent, waiting (in subsystem call)...");
-		super.wait(WaitMode.ALL, 5000,correlationId);
-		logger.debug("Waking up again (in subsystem call), response="+super.getAndRemoveResponse(correlationId));
-	}
+        logger.info("This is version five");
 
-	protected abstract void abstractPartnersystemCall() throws InterruptException;
-	
+        logger.debug("changing processor pool");
+        setProcessorPoolId("PS47112");
+        resubmit();
+        logger.debug("done resubmitting");
+
+        logger.debug("changing processor pool again");
+        setProcessorPoolId(TransientProcessorPool.DEFAULT_POOL_ID);
+        super.resubmit();
+        logger.debug("done resubmitting");
+
+        abstractPartnersystemCall();
+
+        {
+            correlationId = "ThisIsACustomCorrelationId" + System.nanoTime();
+            mockAdapter.foo("foo", correlationId);
+            logger.debug("Request sent, waiting...");
+            wait(WaitMode.ALL, 250, correlationId);
+            logger.debug("Waking up again, response=" + super.getAndRemoveResponse(correlationId));
+        }
+
+        partnersystemCall();
+
+        logger.debug("Now sleeping for 2 seconds...");
+        wait(WaitMode.ALL, 2000, getEngine().createUUID());
+
+        for (idx = 0; idx < 3; idx++)
+        {
+            cb = createCallback();
+            mockAdapter.foo("foo", cb);
+            logger.debug("Request sent, waiting...");
+            waitForAll(cb);
+            logger.debug("Waking up again...");
+            logger.debug("Response = " + cb.getResponse(this));
+        }
+
+        {
+            cb = super.createCallback();
+            mockAdapter.foo("foo", cb);
+            logger.debug("Request sent, waiting...");
+            super.waitForAll(cb);
+            logger.debug("Waking up again...");
+            logger.debug("Response = " + cb.getResponse(this));
+        }
+
+        cids = new ArrayList<String>();
+        for (int i = 0; i < 5; i++) {
+            correlationId = getEngine().createUUID();
+            cids.add(correlationId);
+            mockAdapter.foo("foo", correlationId);
+        }
+        logger.debug("Waiting for first...");
+        super.wait(WaitMode.FIRST, 5000, cids.toArray(new String[cids.size()]));
+        logger.debug("Waking up again");
+        cids = null;
+
+        logger.debug("finished");
+    }
+
+    protected void partnersystemCall() throws InterruptException {
+        correlationId = getEngine().createUUID();
+        mockAdapter.foo("foo", correlationId);
+        logger.debug("Request sent, waiting (in subsystem call)...");
+        super.wait(WaitMode.ALL, 5000, correlationId);
+        logger.debug("Waking up again (in subsystem call), response=" + super.getAndRemoveResponse(correlationId));
+    }
+
+    protected abstract void abstractPartnersystemCall() throws InterruptException;
 
 }

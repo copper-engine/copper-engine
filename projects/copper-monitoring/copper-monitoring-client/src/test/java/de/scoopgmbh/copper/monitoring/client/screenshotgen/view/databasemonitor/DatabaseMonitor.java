@@ -15,23 +15,20 @@
  */
 package de.scoopgmbh.copper.monitoring.client.screenshotgen.view.databasemonitor;
 
-
+import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestFormContext;
-import javafx.scene.layout.BorderPane;
-
-
 
 public class DatabaseMonitor extends ScreenshotPageBase {
-	
-	@Override
-	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createDatabaseMonitoringForm().show();
-	}
 
-	@Override
-	public String getTitle() {
-		return "Database Monitoring";
-	}
+    @Override
+    public void initGui(BorderPane pane, TestFormContext testFormContext) {
+        testFormContext.createDatabaseMonitoringForm().show();
+    }
+
+    @Override
+    public String getTitle() {
+        return "Database Monitoring";
+    }
 
 }

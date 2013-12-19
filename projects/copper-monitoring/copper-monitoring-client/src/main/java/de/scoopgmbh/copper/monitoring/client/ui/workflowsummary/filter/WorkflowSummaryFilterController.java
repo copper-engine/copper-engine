@@ -39,71 +39,74 @@ import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
 public class WorkflowSummaryFilterController extends BaseEngineFilterController<WorkflowSummaryFilterModel> implements Initializable, FxmlController {
-	private final FormContext formContext;
+    private final FormContext formContext;
 
-	public WorkflowSummaryFilterController(FormContext formContext, List<ProcessingEngineInfo> availableEngines) {
-		super(availableEngines,new WorkflowSummaryFilterModel());
-		this.formContext = formContext;
-	}
-	
-	public void setFilter(WorkflowVersion workflowVersion){
-		model.version.setAllFrom(workflowVersion);
-	}
-	
-    @FXML //  fx:id="searchMenueItem"
+    public WorkflowSummaryFilterController(FormContext formContext, List<ProcessingEngineInfo> availableEngines) {
+        super(availableEngines, new WorkflowSummaryFilterModel());
+        this.formContext = formContext;
+    }
+
+    public void setFilter(WorkflowVersion workflowVersion) {
+        model.version.setAllFrom(workflowVersion);
+    }
+
+    @FXML
+    // fx:id="searchMenueItem"
     private CustomMenuItem searchMenueItem; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="serachbutton"
+    @FXML
+    // fx:id="serachbutton"
     private MenuButton serachbutton; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="workflowClass"
+    @FXML
+    // fx:id="workflowClass"
     private TextField workflowClass; // Value injected by FXMLLoader
-    
+
     @FXML
     private StackPane stackPane;
-    
+
     @FXML
     private Pane filterPane;
 
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert searchMenueItem != null : "fx:id=\"searchMenueItem\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert serachbutton != null : "fx:id=\"serachbutton\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert stackPane != null : "fx:id=\"stackPane\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
-        assert filterPane !=null;
-        
-        workflowClass.textProperty().bindBidirectional(model.version.classname );
-        
+        assert filterPane != null;
+
+        workflowClass.textProperty().bindBidirectional(model.version.classname);
+
         searchMenueItem.setContent(formContext.createWorkflowClassesTreeForm(this).createContent());
         serachbutton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/search.png"))));
-        
-        searchMenueItem.getStyleClass().setAll("noSelectAnimationMenueItem","menu-item");
-	}
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("WorkflowSummaryFilter.fxml");
-	}
+        searchMenueItem.getStyleClass().setAll("noSelectAnimationMenueItem", "menu-item");
+    }
 
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
-	
-	public void startValueSetAnimation() {
-		ComponentUtil.startValueSetAnimation(stackPane);
-	}
-	
-	@Override
-	public long getDefaultRefreshInterval() {
-		return FilterController.DEFAULT_REFRESH_INTERVALL;
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("WorkflowSummaryFilter.fxml");
+    }
 
-	@Override
-	public Node createAdditionalFilter() {
-		return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
-	}
-	
-	
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
+
+    public void startValueSetAnimation() {
+        ComponentUtil.startValueSetAnimation(stackPane);
+    }
+
+    @Override
+    public long getDefaultRefreshInterval() {
+        return FilterController.DEFAULT_REFRESH_INTERVALL;
+    }
+
+    @Override
+    public Node createAdditionalFilter() {
+        return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
+    }
+
 }

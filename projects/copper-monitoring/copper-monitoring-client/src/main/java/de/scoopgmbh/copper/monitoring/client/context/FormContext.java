@@ -18,6 +18,20 @@ package de.scoopgmbh.copper.monitoring.client.context;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormBuilder.EngineFormBuilder;
 import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
@@ -114,444 +128,421 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 
-public class FormContext implements DashboardDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory, WorkflowSummaryDependencyFactory{
-	protected final TabPane mainTabPane;
-	protected final BorderPane mainPane;
-	protected final FormCreator formGroup;
-	protected final MessageProvider messageProvider;
-	protected final GuiCopperDataProvider guiCopperDataProvider;
-	protected final SettingsModel settingsModelSingleton;
-	protected final CodeMirrorFormatter codeMirrorFormatterSingelton = new CodeMirrorFormatter();
-	protected final IssueReporter issueReporter;
+public class FormContext implements DashboardDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory,
+        WorkflowSummaryDependencyFactory {
+    protected final TabPane mainTabPane;
+    protected final BorderPane mainPane;
+    protected final FormCreator formGroup;
+    protected final MessageProvider messageProvider;
+    protected final GuiCopperDataProvider guiCopperDataProvider;
+    protected final SettingsModel settingsModelSingleton;
+    protected final CodeMirrorFormatter codeMirrorFormatterSingelton = new CodeMirrorFormatter();
+    protected final IssueReporter issueReporter;
 
-	private FxmlForm<SettingsController> settingsForSingleton;
-	private FxmlForm<HotfixController> hotfixFormSingleton;
-	private FilterAbleForm<EmptyFilterModel, DashboardResultModel> dasboardFormSingleton;
+    private FxmlForm<SettingsController> settingsForSingleton;
+    private FxmlForm<HotfixController> hotfixFormSingleton;
+    private FilterAbleForm<EmptyFilterModel, DashboardResultModel> dasboardFormSingleton;
     private final InputDialogCreator inputDialogCreator;
 
-	public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton, IssueReporter issueReporter, InputDialogCreator inputDialogCreator) {
-		this.mainTabPane = new TabPane();
-		this.messageProvider = messageProvider;
-		this.guiCopperDataProvider = guiCopperDataProvider;
-		this.mainPane = mainPane;
-		this.settingsModelSingleton = settingsModelSingleton;
-		this.issueReporter = issueReporter;
+    public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton, IssueReporter issueReporter, InputDialogCreator inputDialogCreator) {
+        this.mainTabPane = new TabPane();
+        this.messageProvider = messageProvider;
+        this.guiCopperDataProvider = guiCopperDataProvider;
+        this.mainPane = mainPane;
+        this.settingsModelSingleton = settingsModelSingleton;
+        this.issueReporter = issueReporter;
         this.inputDialogCreator = inputDialogCreator;
-		
-		ArrayList<FormCreator> mainCreators = new ArrayList<FormCreator>();
-		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
+
+        ArrayList<FormCreator> mainCreators = new ArrayList<FormCreator>();
+        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
             @Override
             public Form<?> createForm() {
                 return createDashboardForm();
             }
         });
 
-		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.workflowGroup_title), createWorkflowGroup()));
-		
-		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.adapterMonitoring_title)) {
+        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.workflowGroup_title), createWorkflowGroup()));
+
+        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.adapterMonitoring_title)) {
             @Override
             public Form<?> createForm() {
                 return createAdapterMonitoringForm();
             }
         });
-		
-		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.workflowRepository_title)) {
+
+        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.workflowRepository_title)) {
             @Override
             public Form<?> createForm() {
                 return createWorkflowRepositoryForm();
             }
         });
-		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.message_title)) {
+        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.message_title)) {
             @Override
             public Form<?> createForm() {
                 return createMessageForm();
             }
         });
-		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.logsGroup_title), createLogGroup()));
-		
-		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.loadGroup_title), createLoadGroup()));
-		
-		FormCreator sqlformcreator = new FormCreator(messageProvider.getText(MessageKey.sql_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createSqlForm();
-			}
-		};
-		if (!guiCopperDataProvider.getInterfaceSettings().isCanExecuteSql()){
-			sqlformcreator.setEnabled(false);
-			sqlformcreator.setTooltip(new Tooltip("disabled in copper"));
-		}
-		mainCreators.add(sqlformcreator);
-		
-		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.hotfix_title)) {
+        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.logsGroup_title), createLogGroup()));
+
+        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.loadGroup_title), createLoadGroup()));
+
+        FormCreator sqlformcreator = new FormCreator(messageProvider.getText(MessageKey.sql_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createSqlForm();
+            }
+        };
+        if (!guiCopperDataProvider.getInterfaceSettings().isCanExecuteSql()) {
+            sqlformcreator.setEnabled(false);
+            sqlformcreator.setTooltip(new Tooltip("disabled in copper"));
+        }
+        mainCreators.add(sqlformcreator);
+
+        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.hotfix_title)) {
             @Override
             public Form<?> createForm() {
                 return createHotfixForm();
             }
         });
-		mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.settings_title)) {
+        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.settings_title)) {
             @Override
             public Form<?> createForm() {
                 return createSettingsForm();
             }
         });
-		formGroup = new FormCreator("",mainCreators);
-	}
-	
-	public ArrayList<FormCreator> createLogGroup() {
-		ArrayList<FormCreator> loggroup = new ArrayList<FormCreator>();
-		loggroup.add(new FormCreator(messageProvider.getText(MessageKey.audittrail_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createAudittrailForm();
-			}
-		});
-		loggroup.add(new FormCreator(messageProvider.getText(MessageKey.logs_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createLogsForm();
-			}
-		});
-		loggroup.add(new FormCreator(messageProvider.getText(MessageKey.provider_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createProviderForm();
-			}
-		});
-		return loggroup;
-	}
-	
-	public ArrayList<FormCreator> createWorkflowGroup() {
-		ArrayList<FormCreator> workflowgroup = new ArrayList<FormCreator>();
-		workflowgroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowOverview_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createWorkflowOverviewForm();
-			}
-		});
-		workflowgroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowInstance_title)) {
-			@Override
-			public Form<?> createForm() {
-				return createWorkflowInstanceListForm();
-			}
-		});
-		return workflowgroup;
-	}
+        formGroup = new FormCreator("", mainCreators);
+    }
 
-	public ArrayList<FormCreator> createLoadGroup() {
-		ArrayList<FormCreator> loadCreator = new ArrayList<FormCreator>();
-		loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.engineLoad_title)) {
+    public ArrayList<FormCreator> createLogGroup() {
+        ArrayList<FormCreator> loggroup = new ArrayList<FormCreator>();
+        loggroup.add(new FormCreator(messageProvider.getText(MessageKey.audittrail_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createAudittrailForm();
+            }
+        });
+        loggroup.add(new FormCreator(messageProvider.getText(MessageKey.logs_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createLogsForm();
+            }
+        });
+        loggroup.add(new FormCreator(messageProvider.getText(MessageKey.provider_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createProviderForm();
+            }
+        });
+        return loggroup;
+    }
+
+    public ArrayList<FormCreator> createWorkflowGroup() {
+        ArrayList<FormCreator> workflowgroup = new ArrayList<FormCreator>();
+        workflowgroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowOverview_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createWorkflowOverviewForm();
+            }
+        });
+        workflowgroup.add(new FormCreator(messageProvider.getText(MessageKey.workflowInstance_title)) {
+            @Override
+            public Form<?> createForm() {
+                return createWorkflowInstanceListForm();
+            }
+        });
+        return workflowgroup;
+    }
+
+    public ArrayList<FormCreator> createLoadGroup() {
+        ArrayList<FormCreator> loadCreator = new ArrayList<FormCreator>();
+        loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.engineLoad_title)) {
             @Override
             public Form<?> createForm() {
                 return createEngineLoadForm();
             }
         });
-		loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.resource_title)) {
+        loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.resource_title)) {
             @Override
             public Form<?> createForm() {
                 return createRessourceForm();
             }
         });
-		loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.measurePoint_title)) {
+        loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.measurePoint_title)) {
             @Override
             public Form<?> createForm() {
                 return createMeasurePointForm();
             }
         });
-		loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.customMeasurePoint_title)) {
+        loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.customMeasurePoint_title)) {
             @Override
             public Form<?> createForm() {
                 return createCustomMeasurePointForm();
             }
         });
-		loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.databaseMonitoring_title)) {
+        loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.databaseMonitoring_title)) {
             @Override
             public Form<?> createForm() {
                 return createDatabaseMonitoringForm();
             }
         });
-		return loadCreator;
-	}
-	
-	public void setupGUIStructure(){
-		mainPane.setCenter(mainTabPane);
-//      mainPane.setTop(createToolbar());
+        return loadCreator;
+    }
+
+    public void setupGUIStructure() {
+        mainPane.setCenter(mainTabPane);
+        // mainPane.setTop(createToolbar());
 
         mainPane.setTop(createMenueBar());
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
-					@Override
-					public Form<?> createForm() {
-						return createDashboardForm();
-					}
-				}.show();
-			}
-		});
-	}
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
+                    @Override
+                    public Form<?> createForm() {
+                        return createDashboardForm();
+                    }
+                }.show();
+            }
+        });
+    }
 
-	public MenuBar createMenueBar(){
-		final MenuBar menuBar = new MenuBar();
-		formGroup.createMenuBar(menuBar);
-		return menuBar;
-	}
-	
-	public ToolBar createToolbar() {
-		ToolBar toolBar = new ToolBar();
-		Region spacer = new Region();
-		spacer.getStyleClass().setAll("spacer");
+    public MenuBar createMenueBar() {
+        final MenuBar menuBar = new MenuBar();
+        formGroup.createMenuBar(menuBar);
+        return menuBar;
+    }
 
-		HBox buttonBar = new HBox();
-		buttonBar.setAlignment(Pos.CENTER);
-		HBox.setHgrow(buttonBar, Priority.ALWAYS);
-		buttonBar.getStyleClass().setAll("segmented-button-bar");
+    public ToolBar createToolbar() {
+        ToolBar toolBar = new ToolBar();
+        Region spacer = new Region();
+        spacer.getStyleClass().setAll("spacer");
 
-		List<Node> buttons = formGroup.createButtonList();
-		buttons.get(0).getStyleClass().addAll("first");
-		buttons.get(buttons.size() - 1).getStyleClass().addAll("last", "capsule");
+        HBox buttonBar = new HBox();
+        buttonBar.setAlignment(Pos.CENTER);
+        HBox.setHgrow(buttonBar, Priority.ALWAYS);
+        buttonBar.getStyleClass().setAll("segmented-button-bar");
 
-		buttonBar.getChildren().addAll(buttons);
-		toolBar.getItems().addAll(/*spacer,*/ buttonBar);
-		toolBar.setCache(true);
-		return toolBar;
-	}
-	
-	public WorkflowClassesTreeForm createWorkflowClassesTreeForm(WorkflowSummaryFilterController filterController){
-		TreeView<DisplayWorkflowClassesModel> workflowView = new TreeView<DisplayWorkflowClassesModel>();
-		WorkflowClassesTreeController workflowClassesTreeController = createWorkflowClassesTreeController(workflowView);
-		return new WorkflowClassesTreeForm("",new EmptyShowFormStrategie(),workflowClassesTreeController,
-				filterController, workflowView,guiCopperDataProvider);
-	}
+        List<Node> buttons = formGroup.createButtonList();
+        buttons.get(0).getStyleClass().addAll("first");
+        buttons.get(buttons.size() - 1).getStyleClass().addAll("last", "capsule");
 
-	@Override
-	public WorkflowClassesTreeController createWorkflowClassesTreeController(TreeView<DisplayWorkflowClassesModel> workflowView) {
-		return new WorkflowClassesTreeController(workflowView, issueReporter);
-	}
-	
-	public FilterAbleForm<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> createWorkflowOverviewForm(MenuItem... detailMenuItems){
-		return new EngineFormBuilder<WorkflowSummaryFilterModel,WorkflowSummaryResultModel,WorkflowSummaryFilterController,WorkflowSummaryResultController>(
-				new WorkflowSummaryFilterController(this,getCachedAvailableEngines()),
-				new WorkflowSummaryResultController(guiCopperDataProvider, this, detailMenuItems),
-				this
-			).build();
-	}
-	
-	@Override
-	public FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> createWorkflowInstanceListForm(){
-		final EngineFilterAbleForm<WorkflowInstanceFilterModel, WorkflowInstanceResultModel> form = new EngineFormBuilder<WorkflowInstanceFilterModel,WorkflowInstanceResultModel,WorkflowInstanceFilterController,WorkflowInstanceResultController>(
-					new WorkflowInstanceFilterController(getCachedAvailableEngines()),
-					new WorkflowInstanceResultController(guiCopperDataProvider,this,issueReporter),
-					this
-				).build();
-		form.setStaticTitle(messageProvider.getText(MessageKey.workflowOverview_title));
-		return form;
-	}
-	
+        buttonBar.getChildren().addAll(buttons);
+        toolBar.getItems().addAll(/* spacer, */buttonBar);
+        toolBar.setCache(true);
+        return toolBar;
+    }
 
-	public FilterAbleForm<MessageFilterModel,MessageResultModel> createMessageForm(){
-		return new EngineFormBuilder<MessageFilterModel,MessageResultModel,MessageFilterController,MessageResultController>(
-				new MessageFilterController(getCachedAvailableEngines()),
-				new MessageResultController(guiCopperDataProvider),
-				this
-			).build();
-	}
-	
-	public FilterAbleForm<WorkflowRepositoryFilterModel,WorkflowVersion> createWorkflowRepositoryForm(){
-		return new EngineFormBuilder<WorkflowRepositoryFilterModel,WorkflowVersion,WorkflowRepositoryFilterController,WorkflowRepositoryResultController>(
-				new WorkflowRepositoryFilterController(getCachedAvailableEngines()),
-				new WorkflowRepositoryResultController(guiCopperDataProvider,this,codeMirrorFormatterSingelton),
-				this
-			).build();
-	}
-	
-	@Override
-	public FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> createAudittrailForm(){
-		return new FormBuilder<AuditTrailFilterModel,AuditTrailResultModel,AuditTrailFilterController,AuditTrailResultController>(
-				new AuditTrailFilterController(),
-				new AuditTrailResultController(guiCopperDataProvider, settingsModelSingleton, codeMirrorFormatterSingelton),
-				this
-			).build();
-	}
-	
-	@Override
-	public EngineFilterAbleForm<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId, ProcessingEngineInfo engineInfo){
-		FilterController<WorkflowInstanceDetailFilterModel> fCtrl = new WorkflowInstanceDetailFilterController(new WorkflowInstanceDetailFilterModel(workflowInstanceId,engineInfo),getCachedAvailableEngines()); 
-		
-		FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>>(fCtrl, messageProvider);
-		
-		FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm = createWorkflowinstanceDetailResultForm(new EmptyShowFormStrategie());
-		
-		EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> filterAbleForm = new EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>(messageProvider,
-				getDefaultShowFormStrategy(), filterForm, resultForm, issueReporter);
-		filterAbleForm.displayedTitleProperty().bind(new SimpleStringProperty("Details Id:").concat(fCtrl.getFilter().workflowInstanceId));
-		return filterAbleForm;
-	}
-	
-	public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(ShowFormStrategy<?> showFormStrategy) {
-		FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> resCtrl = new WorkflowInstanceDetailResultController(guiCopperDataProvider, codeMirrorFormatterSingelton);
-		FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> resultForm = 
-				new FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>>("workflowInstanceDetail.title",
-				resCtrl, messageProvider, showFormStrategy );
-		return resultForm;
-	}
+    public WorkflowClassesTreeForm createWorkflowClassesTreeForm(WorkflowSummaryFilterController filterController) {
+        TreeView<DisplayWorkflowClassesModel> workflowView = new TreeView<DisplayWorkflowClassesModel>();
+        WorkflowClassesTreeController workflowClassesTreeController = createWorkflowClassesTreeController(workflowView);
+        return new WorkflowClassesTreeForm("", new EmptyShowFormStrategie(), workflowClassesTreeController,
+                filterController, workflowView, guiCopperDataProvider);
+    }
 
-	@Override
-	public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(BorderPane target) {
-		return createWorkflowinstanceDetailResultForm(new BorderPaneShowFormStrategie(target));
-	}
-	
-	public List<ProcessingEngineInfo> getCachedAvailableEngines(){
-		if (engineList==null){
-			engineList = guiCopperDataProvider.getEngineList();
-		}
-		return engineList;
-	}
-	
-	private FilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary> engineLoadFormSingelton;
-	public FilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary> createEngineLoadForm(){
-		FilterController<EngineLoadFilterModel> fCtrl = new EngineLoadFilterController(getCachedAvailableEngines()); 
-		FxmlForm<FilterController<EngineLoadFilterModel>> filterForm = new FxmlForm<FilterController<EngineLoadFilterModel>>(fCtrl, messageProvider);
-		
-		FilterResultController<EngineLoadFilterModel,WorkflowStateSummary> resCtrl = new EngineLoadResultController(guiCopperDataProvider);
-		FxmlForm<FilterResultController<EngineLoadFilterModel,WorkflowStateSummary>> resultForm = 
-				new FxmlForm<FilterResultController<EngineLoadFilterModel,WorkflowStateSummary>>(resCtrl, messageProvider);
-		
-		if (engineLoadFormSingelton==null){
-			engineLoadFormSingelton = new EngineFilterAbleForm<EngineLoadFilterModel,WorkflowStateSummary>(messageProvider,
-					getDefaultShowFormStrategy(), filterForm, resultForm, issueReporter);
-		}
-		return engineLoadFormSingelton;
-	}
-	
-	public Form<SettingsController> createSettingsForm(){
-		if (settingsForSingleton==null){
-			settingsForSingleton = new FxmlForm<SettingsController>("",new SettingsController(settingsModelSingleton), messageProvider,  getDefaultShowFormStrategy());
-		}
-		return settingsForSingleton;
-	}
-	
-	public Form<HotfixController> createHotfixForm(){
-		if (hotfixFormSingleton==null){
-			hotfixFormSingleton = new FxmlForm<HotfixController>("",new HotfixController(new HotfixModel(), guiCopperDataProvider), messageProvider, getDefaultShowFormStrategy());
-		}
-		return hotfixFormSingleton;
-	}
-	
-	public FilterAbleForm<SqlFilterModel,SqlResultModel> createSqlForm(){
-		FilterAbleForm<SqlFilterModel, SqlResultModel> filterAbleForm = new FormBuilder<SqlFilterModel,SqlResultModel,SqlFilterController,SqlResultController>(
-				new SqlFilterController(codeMirrorFormatterSingelton),
-				new SqlResultController(guiCopperDataProvider),
-				this
-			).build();
-		filterAbleForm.useVerticalRightButton();
-		return filterAbleForm;
-	}
-	
-	FilterAbleForm<ResourceFilterModel,SystemResourcesInfo> ressourceFormSingelton=null;
-	private List<ProcessingEngineInfo> engineList;
-	public FilterAbleForm<ResourceFilterModel,SystemResourcesInfo> createRessourceForm(){
-		if (ressourceFormSingelton==null){
-			ressourceFormSingelton=new FormBuilder<ResourceFilterModel,SystemResourcesInfo,ResourceFilterController,RessourceResultController>(
-					new ResourceFilterController(),
-					new RessourceResultController(guiCopperDataProvider),
-					this
-				).build();
-		}
-		return ressourceFormSingelton; 
-	}
-	
-	public FilterAbleForm<EmptyFilterModel,DashboardResultModel> createDashboardForm(){
-		if (dasboardFormSingleton==null){
-			dasboardFormSingleton = new FormBuilder<EmptyFilterModel,DashboardResultModel,GenericFilterController<EmptyFilterModel>,DashboardResultController>(
-					new GenericFilterController<EmptyFilterModel>(5000),
-					new DashboardResultController(guiCopperDataProvider,this),
-					this
-				).build();
-		}
-		return dasboardFormSingleton;
-	}
-	
-	public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool){
-		return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider, inputDialogCreator), messageProvider, new TabPaneShowFormStrategie(tabPane,true));
-	}
-	
-	@Override
-	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model){
-		return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine,model,this,guiCopperDataProvider, inputDialogCreator), messageProvider, new TabPaneShowFormStrategie(tabPane));
-	}
-	
-	public FilterAbleForm<EnginePoolFilterModel, MeasurePointData> createMeasurePointForm() {
-		return new EngineFormBuilder<EnginePoolFilterModel, MeasurePointData, GenericEngineFilterController<EnginePoolFilterModel>,MeasurePointResultController>(
-				new GenericEngineFilterController<EnginePoolFilterModel>(new EnginePoolFilterModel(),getCachedAvailableEngines()),
-				new MeasurePointResultController(guiCopperDataProvider),
-				this
-			).build();
-	}
-	
-	public FilterAbleForm<AdapterMonitoringFilterModel, AdapterMonitoringResultModel> createAdapterMonitoringForm() {
-		return new FormBuilder<AdapterMonitoringFilterModel, AdapterMonitoringResultModel, AdapterMonitoringFilterController,AdapterMonitoringResultController>(
-				new AdapterMonitoringFilterController(),
-				new AdapterMonitoringResultController(guiCopperDataProvider),
-				this
-			).build();
-	}
+    @Override
+    public WorkflowClassesTreeController createWorkflowClassesTreeController(TreeView<DisplayWorkflowClassesModel> workflowView) {
+        return new WorkflowClassesTreeController(workflowView, issueReporter);
+    }
 
-	protected ShowFormStrategy<?> getDefaultShowFormStrategy() {
-		return new TabPaneShowFormStrategie(mainTabPane);
-	}
-	
-	public FilterAbleForm<CustomMeasurePointFilterModel, CustomMeasurePointResultModel> createCustomMeasurePointForm() {
-		return new FormBuilder<CustomMeasurePointFilterModel, CustomMeasurePointResultModel, CustomMeasurePointFilterController,CustomMeasurePointResultController>(
-				new CustomMeasurePointFilterController(guiCopperDataProvider),
-				new CustomMeasurePointResultController(guiCopperDataProvider),
-				this
-			).build();
-	}
-	
-	public FilterAbleForm<LogsFilterModel, LogsResultModel> createLogsForm() {
-		return new FormBuilder<LogsFilterModel, LogsResultModel, LogsFilterController,LogsResultController>(
-				new LogsFilterController(),
-				new LogsResultController(guiCopperDataProvider),
-				this
-			).build();
-	}
-	
-	public FilterAbleForm<ProviderFilterModel, ProviderResultModel> createProviderForm() {
-		return new FormBuilder<ProviderFilterModel, ProviderResultModel, ProviderFilterController,ProviderResultController>(
-				new ProviderFilterController(),
-				new ProviderResultController(guiCopperDataProvider),
-				this
-			).build();
-	}
-	
-	
-	public FilterAbleForm<EmptyFilterModel, String> createDatabaseMonitoringForm() {
-		return new FormBuilder<EmptyFilterModel, String, GenericFilterController<EmptyFilterModel>,DatabaseMonitorResultController>(
-				new GenericFilterController<EmptyFilterModel>(null),
-				new DatabaseMonitorResultController(guiCopperDataProvider),
-				this
-			).build();
-	}
+    public FilterAbleForm<WorkflowSummaryFilterModel, WorkflowSummaryResultModel> createWorkflowOverviewForm(MenuItem... detailMenuItems) {
+        return new EngineFormBuilder<WorkflowSummaryFilterModel, WorkflowSummaryResultModel, WorkflowSummaryFilterController, WorkflowSummaryResultController>(
+                new WorkflowSummaryFilterController(this, getCachedAvailableEngines()),
+                new WorkflowSummaryResultController(guiCopperDataProvider, this, detailMenuItems),
+                this).build();
+    }
 
-	@Override
-	public Form<ProviderController> createMonitoringDataProviderForm(MonitoringDataProviderInfo monitoringDataProviderInfo, BorderPane target) {
-		return new FxmlForm<ProviderController>("", new ProviderController(monitoringDataProviderInfo, this, guiCopperDataProvider), messageProvider, new BorderPaneShowFormStrategie(target));
-	}
-	
+    @Override
+    public FilterAbleForm<WorkflowInstanceFilterModel, WorkflowInstanceResultModel> createWorkflowInstanceListForm() {
+        final EngineFilterAbleForm<WorkflowInstanceFilterModel, WorkflowInstanceResultModel> form = new EngineFormBuilder<WorkflowInstanceFilterModel, WorkflowInstanceResultModel, WorkflowInstanceFilterController, WorkflowInstanceResultController>(
+                new WorkflowInstanceFilterController(getCachedAvailableEngines()),
+                new WorkflowInstanceResultController(guiCopperDataProvider, this, issueReporter),
+                this
+                ).build();
+        form.setStaticTitle(messageProvider.getText(MessageKey.workflowOverview_title));
+        return form;
+    }
+
+    public FilterAbleForm<MessageFilterModel, MessageResultModel> createMessageForm() {
+        return new EngineFormBuilder<MessageFilterModel, MessageResultModel, MessageFilterController, MessageResultController>(
+                new MessageFilterController(getCachedAvailableEngines()),
+                new MessageResultController(guiCopperDataProvider),
+                this).build();
+    }
+
+    public FilterAbleForm<WorkflowRepositoryFilterModel, WorkflowVersion> createWorkflowRepositoryForm() {
+        return new EngineFormBuilder<WorkflowRepositoryFilterModel, WorkflowVersion, WorkflowRepositoryFilterController, WorkflowRepositoryResultController>(
+                new WorkflowRepositoryFilterController(getCachedAvailableEngines()),
+                new WorkflowRepositoryResultController(guiCopperDataProvider, this, codeMirrorFormatterSingelton),
+                this).build();
+    }
+
+    @Override
+    public FilterAbleForm<AuditTrailFilterModel, AuditTrailResultModel> createAudittrailForm() {
+        return new FormBuilder<AuditTrailFilterModel, AuditTrailResultModel, AuditTrailFilterController, AuditTrailResultController>(
+                new AuditTrailFilterController(),
+                new AuditTrailResultController(guiCopperDataProvider, settingsModelSingleton, codeMirrorFormatterSingelton),
+                this).build();
+    }
+
+    @Override
+    public EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId, ProcessingEngineInfo engineInfo) {
+        FilterController<WorkflowInstanceDetailFilterModel> fCtrl = new WorkflowInstanceDetailFilterController(new WorkflowInstanceDetailFilterModel(workflowInstanceId, engineInfo), getCachedAvailableEngines());
+
+        FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>>(fCtrl, messageProvider);
+
+        FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm = createWorkflowinstanceDetailResultForm(new EmptyShowFormStrategie());
+
+        EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> filterAbleForm = new EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>(messageProvider,
+                getDefaultShowFormStrategy(), filterForm, resultForm, issueReporter);
+        filterAbleForm.displayedTitleProperty().bind(new SimpleStringProperty("Details Id:").concat(fCtrl.getFilter().workflowInstanceId));
+        return filterAbleForm;
+    }
+
+    public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(ShowFormStrategy<?> showFormStrategy) {
+        FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> resCtrl = new WorkflowInstanceDetailResultController(guiCopperDataProvider, codeMirrorFormatterSingelton);
+        FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm =
+                new FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>>("workflowInstanceDetail.title",
+                        resCtrl, messageProvider, showFormStrategy);
+        return resultForm;
+    }
+
+    @Override
+    public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(BorderPane target) {
+        return createWorkflowinstanceDetailResultForm(new BorderPaneShowFormStrategie(target));
+    }
+
+    public List<ProcessingEngineInfo> getCachedAvailableEngines() {
+        if (engineList == null) {
+            engineList = guiCopperDataProvider.getEngineList();
+        }
+        return engineList;
+    }
+
+    private FilterAbleForm<EngineLoadFilterModel, WorkflowStateSummary> engineLoadFormSingelton;
+
+    public FilterAbleForm<EngineLoadFilterModel, WorkflowStateSummary> createEngineLoadForm() {
+        FilterController<EngineLoadFilterModel> fCtrl = new EngineLoadFilterController(getCachedAvailableEngines());
+        FxmlForm<FilterController<EngineLoadFilterModel>> filterForm = new FxmlForm<FilterController<EngineLoadFilterModel>>(fCtrl, messageProvider);
+
+        FilterResultController<EngineLoadFilterModel, WorkflowStateSummary> resCtrl = new EngineLoadResultController(guiCopperDataProvider);
+        FxmlForm<FilterResultController<EngineLoadFilterModel, WorkflowStateSummary>> resultForm =
+                new FxmlForm<FilterResultController<EngineLoadFilterModel, WorkflowStateSummary>>(resCtrl, messageProvider);
+
+        if (engineLoadFormSingelton == null) {
+            engineLoadFormSingelton = new EngineFilterAbleForm<EngineLoadFilterModel, WorkflowStateSummary>(messageProvider,
+                    getDefaultShowFormStrategy(), filterForm, resultForm, issueReporter);
+        }
+        return engineLoadFormSingelton;
+    }
+
+    public Form<SettingsController> createSettingsForm() {
+        if (settingsForSingleton == null) {
+            settingsForSingleton = new FxmlForm<SettingsController>("", new SettingsController(settingsModelSingleton), messageProvider, getDefaultShowFormStrategy());
+        }
+        return settingsForSingleton;
+    }
+
+    public Form<HotfixController> createHotfixForm() {
+        if (hotfixFormSingleton == null) {
+            hotfixFormSingleton = new FxmlForm<HotfixController>("", new HotfixController(new HotfixModel(), guiCopperDataProvider), messageProvider, getDefaultShowFormStrategy());
+        }
+        return hotfixFormSingleton;
+    }
+
+    public FilterAbleForm<SqlFilterModel, SqlResultModel> createSqlForm() {
+        FilterAbleForm<SqlFilterModel, SqlResultModel> filterAbleForm = new FormBuilder<SqlFilterModel, SqlResultModel, SqlFilterController, SqlResultController>(
+                new SqlFilterController(codeMirrorFormatterSingelton),
+                new SqlResultController(guiCopperDataProvider),
+                this
+                ).build();
+        filterAbleForm.useVerticalRightButton();
+        return filterAbleForm;
+    }
+
+    FilterAbleForm<ResourceFilterModel, SystemResourcesInfo> ressourceFormSingelton = null;
+    private List<ProcessingEngineInfo> engineList;
+
+    public FilterAbleForm<ResourceFilterModel, SystemResourcesInfo> createRessourceForm() {
+        if (ressourceFormSingelton == null) {
+            ressourceFormSingelton = new FormBuilder<ResourceFilterModel, SystemResourcesInfo, ResourceFilterController, RessourceResultController>(
+                    new ResourceFilterController(),
+                    new RessourceResultController(guiCopperDataProvider),
+                    this
+                    ).build();
+        }
+        return ressourceFormSingelton;
+    }
+
+    public FilterAbleForm<EmptyFilterModel, DashboardResultModel> createDashboardForm() {
+        if (dasboardFormSingleton == null) {
+            dasboardFormSingleton = new FormBuilder<EmptyFilterModel, DashboardResultModel, GenericFilterController<EmptyFilterModel>, DashboardResultController>(
+                    new GenericFilterController<EmptyFilterModel>(5000),
+                    new DashboardResultController(guiCopperDataProvider, this),
+                    this
+                    ).build();
+        }
+        return dasboardFormSingleton;
+    }
+
+    public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool) {
+        return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider, inputDialogCreator), messageProvider, new TabPaneShowFormStrategie(tabPane, true));
+    }
+
+    @Override
+    public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model) {
+        return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine, model, this, guiCopperDataProvider, inputDialogCreator), messageProvider, new TabPaneShowFormStrategie(tabPane));
+    }
+
+    public FilterAbleForm<EnginePoolFilterModel, MeasurePointData> createMeasurePointForm() {
+        return new EngineFormBuilder<EnginePoolFilterModel, MeasurePointData, GenericEngineFilterController<EnginePoolFilterModel>, MeasurePointResultController>(
+                new GenericEngineFilterController<EnginePoolFilterModel>(new EnginePoolFilterModel(), getCachedAvailableEngines()),
+                new MeasurePointResultController(guiCopperDataProvider),
+                this).build();
+    }
+
+    public FilterAbleForm<AdapterMonitoringFilterModel, AdapterMonitoringResultModel> createAdapterMonitoringForm() {
+        return new FormBuilder<AdapterMonitoringFilterModel, AdapterMonitoringResultModel, AdapterMonitoringFilterController, AdapterMonitoringResultController>(
+                new AdapterMonitoringFilterController(),
+                new AdapterMonitoringResultController(guiCopperDataProvider),
+                this).build();
+    }
+
+    protected ShowFormStrategy<?> getDefaultShowFormStrategy() {
+        return new TabPaneShowFormStrategie(mainTabPane);
+    }
+
+    public FilterAbleForm<CustomMeasurePointFilterModel, CustomMeasurePointResultModel> createCustomMeasurePointForm() {
+        return new FormBuilder<CustomMeasurePointFilterModel, CustomMeasurePointResultModel, CustomMeasurePointFilterController, CustomMeasurePointResultController>(
+                new CustomMeasurePointFilterController(guiCopperDataProvider),
+                new CustomMeasurePointResultController(guiCopperDataProvider),
+                this).build();
+    }
+
+    public FilterAbleForm<LogsFilterModel, LogsResultModel> createLogsForm() {
+        return new FormBuilder<LogsFilterModel, LogsResultModel, LogsFilterController, LogsResultController>(
+                new LogsFilterController(),
+                new LogsResultController(guiCopperDataProvider),
+                this).build();
+    }
+
+    public FilterAbleForm<ProviderFilterModel, ProviderResultModel> createProviderForm() {
+        return new FormBuilder<ProviderFilterModel, ProviderResultModel, ProviderFilterController, ProviderResultController>(
+                new ProviderFilterController(),
+                new ProviderResultController(guiCopperDataProvider),
+                this).build();
+    }
+
+    public FilterAbleForm<EmptyFilterModel, String> createDatabaseMonitoringForm() {
+        return new FormBuilder<EmptyFilterModel, String, GenericFilterController<EmptyFilterModel>, DatabaseMonitorResultController>(
+                new GenericFilterController<EmptyFilterModel>(null),
+                new DatabaseMonitorResultController(guiCopperDataProvider),
+                this).build();
+    }
+
+    @Override
+    public Form<ProviderController> createMonitoringDataProviderForm(MonitoringDataProviderInfo monitoringDataProviderInfo, BorderPane target) {
+        return new FxmlForm<ProviderController>("", new ProviderController(monitoringDataProviderInfo, this, guiCopperDataProvider), messageProvider, new BorderPaneShowFormStrategie(target));
+    }
+
 }

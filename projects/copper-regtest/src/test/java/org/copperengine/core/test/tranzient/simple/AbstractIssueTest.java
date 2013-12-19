@@ -27,41 +27,39 @@ import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
 public class AbstractIssueTest {
-	
-	private final int[] response = { -1 };
 
-	@Test
-	public void testWorkflow() throws Exception {
-		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		TransientScottyEngine engine = context.getBean("transientEngine", TransientScottyEngine.class);
-		context.getBeanFactory().registerSingleton("OutputChannel4711",new TestResponseReceiver<String, Integer>() {
-			@Override
-			public void setResponse(Workflow<String> wf, Integer r) {
-				synchronized (response) {
-					response[0] = r.intValue();
-					response.notifyAll();
-				}
-			}
-		});
+    private final int[] response = { -1 };
 
-		assertEquals(EngineState.STARTED,engine.getEngineState());
-		
-		try {
-			final CompletionIndicator data = new CompletionIndicator();
-			engine.run("org.copperengine.core.test.tranzient.simple.IssueClassCastExceptionWorkflow", data);
-			
-			Thread.sleep(2500);
-			
-			assertTrue(data.done);
-			assertFalse(data.error);
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
-	}
-	
+    @Test
+    public void testWorkflow() throws Exception {
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        TransientScottyEngine engine = context.getBean("transientEngine", TransientScottyEngine.class);
+        context.getBeanFactory().registerSingleton("OutputChannel4711", new TestResponseReceiver<String, Integer>() {
+            @Override
+            public void setResponse(Workflow<String> wf, Integer r) {
+                synchronized (response) {
+                    response[0] = r.intValue();
+                    response.notifyAll();
+                }
+            }
+        });
+
+        assertEquals(EngineState.STARTED, engine.getEngineState());
+
+        try {
+            final CompletionIndicator data = new CompletionIndicator();
+            engine.run("org.copperengine.core.test.tranzient.simple.IssueClassCastExceptionWorkflow", data);
+
+            Thread.sleep(2500);
+
+            assertTrue(data.done);
+            assertFalse(data.error);
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+
+    }
+
 }

@@ -19,13 +19,15 @@ package org.copperengine.core;
  * Glue interface for adding dependency injection capatibilty to COPPER.
  * Implementations of this interface connect a container, e.g. Spring, with COPPER and enables COPPER
  * to inject dependencies to workflow instances.
- *
- * For example, the implementation for Spring is <code>org.copperengine.core.core.spring.SpringDependencyInjector</code> which is in project copper-spring.
- *
+ * For example, the implementation for Spring is <code>org.copperengine.core.core.spring.SpringDependencyInjector</code>
+ * which is in project copper-spring.
+ * 
  * @author austermann
  */
 public interface DependencyInjector {
-	public void setEngine(ProcessingEngine e);
-	public void inject(Workflow<?> workflow);
-	public String getType();
+    public void setEngine(ProcessingEngine e);
+
+    public void inject(Workflow<?> workflow);
+
+    public String getType();
 }

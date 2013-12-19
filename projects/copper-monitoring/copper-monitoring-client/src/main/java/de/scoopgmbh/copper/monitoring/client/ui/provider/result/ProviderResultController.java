@@ -35,94 +35,92 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerB
 import de.scoopgmbh.copper.monitoring.client.ui.provider.filter.ProviderFilterModel;
 import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 
-public class ProviderResultController extends FilterResultControllerBase<ProviderFilterModel,ProviderResultModel> implements Initializable {
-	private final GuiCopperDataProvider copperDataProvider;
+public class ProviderResultController extends FilterResultControllerBase<ProviderFilterModel, ProviderResultModel> implements Initializable {
+    private final GuiCopperDataProvider copperDataProvider;
 
-	
-	public ProviderResultController(GuiCopperDataProvider copperDataProvider) {
-		super();
-		this.copperDataProvider = copperDataProvider;
-	}
+    public ProviderResultController(GuiCopperDataProvider copperDataProvider) {
+        super();
+        this.copperDataProvider = copperDataProvider;
+    }
 
-
-
-    @FXML //  fx:id="content"
+    @FXML
+    // fx:id="content"
     private WebView content; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="idColumn"
+    @FXML
+    // fx:id="idColumn"
     private TableColumn<ProviderResultModel, String> idColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="resultTable"
+    @FXML
+    // fx:id="resultTable"
     private TableView<ProviderResultModel> resultTable; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="timeColumn"
+    @FXML
+    // fx:id="timeColumn"
     private TableColumn<ProviderResultModel, Date> timeColumn; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert content != null : "fx:id=\"content\" was not injected: check your FXML file 'ProviderResult.fxml'.";
         assert idColumn != null : "fx:id=\"idColumn\" was not injected: check your FXML file 'ProviderResult.fxml'.";
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'ProviderResult.fxml'.";
         assert timeColumn != null : "fx:id=\"timeColumn\" was not injected: check your FXML file 'ProviderResult.fxml'.";
 
-        
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<ProviderResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<ProviderResultModel, String> p) {
-				return p.getValue().creatorId;
-			}
-		});
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<ProviderResultModel, String> p) {
+                return p.getValue().creatorId;
+            }
+        });
         timeColumn.setCellValueFactory(new Callback<CellDataFeatures<ProviderResultModel, Date>, ObservableValue<Date>>() {
-			@Override
-			public ObservableValue<Date> call(
-					CellDataFeatures<ProviderResultModel, Date> p) {
-				return p.getValue().timeStamp;
-			}
-		});
+            @Override
+            public ObservableValue<Date> call(
+                    CellDataFeatures<ProviderResultModel, Date> p) {
+                return p.getValue().timeStamp;
+            }
+        });
         TableColumnHelper.setConverterCellFactory(timeColumn, new DateStringConverter("dd.MM.yyyy HH:mm:ss,SSS"));
         resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-     
+
         resultTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ProviderResultModel>() {
-			@Override
-			public void changed(ObservableValue<? extends ProviderResultModel> observable, ProviderResultModel oldValue,
-					ProviderResultModel newValue) {
-				if (newValue!=null){
-					content.getEngine().loadContent(newValue.content.get());
-				}
-			}
-		});
-        
+            @Override
+            public void changed(ObservableValue<? extends ProviderResultModel> observable, ProviderResultModel oldValue,
+                    ProviderResultModel newValue) {
+                if (newValue != null) {
+                    content.getEngine().loadContent(newValue.content.get());
+                }
+            }
+        });
 
     }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("ProviderResult.fxml");
-	}
-	
-	@Override
-	public void showFilteredResult(List<ProviderResultModel> filteredResult, ProviderFilterModel usedFilter) {
-		resultTable.getItems().clear();
-		resultTable.getItems().addAll(filteredResult);
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("ProviderResult.fxml");
+    }
 
-	@Override
-	public List<ProviderResultModel> applyFilterInBackgroundThread(ProviderFilterModel filter) {
-		return copperDataProvider.getGenericMonitoringData(filter.id.get(),filter.fromToFilterModel.from.get(),filter.fromToFilterModel.to.get(),filter.maxCountFilterModel.getMaxCount());
-	}
+    @Override
+    public void showFilteredResult(List<ProviderResultModel> filteredResult, ProviderFilterModel usedFilter) {
+        resultTable.getItems().clear();
+        resultTable.getItems().addAll(filteredResult);
+    }
 
-	@Override
-	public boolean supportsClear() {
-		return true;
-	}
+    @Override
+    public List<ProviderResultModel> applyFilterInBackgroundThread(ProviderFilterModel filter) {
+        return copperDataProvider.getGenericMonitoringData(filter.id.get(), filter.fromToFilterModel.from.get(), filter.fromToFilterModel.to.get(), filter.maxCountFilterModel.getMaxCount());
+    }
 
-	@Override
-	public void clear() {
-		resultTable.getItems().clear();
-		content.getEngine().loadContent("");
-	}
+    @Override
+    public boolean supportsClear() {
+        return true;
+    }
 
+    @Override
+    public void clear() {
+        resultTable.getItems().clear();
+        content.getEngine().loadContent("");
+    }
 
 }

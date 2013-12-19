@@ -18,5 +18,5 @@ package de.scoopgmbh.copper.monitoring.client.form;
 import javafx.scene.Node;
 
 public interface Widget {
-	public Node createContent();
+    public Node createContent();
 }

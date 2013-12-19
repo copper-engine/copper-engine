@@ -20,20 +20,19 @@ import java.util.regex.Pattern;
 
 import org.copperengine.core.monitoring.LoggingStatisticCollector.Filter;
 
-
 public class RegexStatisticsFilter implements Filter {
-	private final Pattern pattern;
+    private final Pattern pattern;
 
-	public RegexStatisticsFilter(String regex) {
-		this.pattern = Pattern.compile(regex);
-	}
+    public RegexStatisticsFilter(String regex) {
+        this.pattern = Pattern.compile(regex);
+    }
 
-	public RegexStatisticsFilter(String regex, int flags) {
-		this.pattern = Pattern.compile(regex, flags);
-	}
-	
-	@Override
-	public boolean accept(String measurePointId, int elementCount, long elapsedTime, TimeUnit timeUnit) {
-		return pattern.matcher(measurePointId).matches();
-	}
+    public RegexStatisticsFilter(String regex, int flags) {
+        this.pattern = Pattern.compile(regex, flags);
+    }
+
+    @Override
+    public boolean accept(String measurePointId, int elementCount, long elapsedTime, TimeUnit timeUnit) {
+        return pattern.matcher(measurePointId).matches();
+    }
 }

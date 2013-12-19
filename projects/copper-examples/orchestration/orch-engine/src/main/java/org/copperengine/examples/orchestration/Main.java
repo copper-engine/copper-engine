@@ -19,12 +19,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Main {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("OrchestrationEngineContext.xml");
-		ctx.registerShutdownHook();
-	}
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("OrchestrationEngineContext.xml");
+        ctx.registerShutdownHook();
+    }
 
 }

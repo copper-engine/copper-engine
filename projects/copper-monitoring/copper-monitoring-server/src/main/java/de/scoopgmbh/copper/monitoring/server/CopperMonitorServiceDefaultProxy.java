@@ -21,21 +21,21 @@ import java.lang.reflect.Method;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 
 public class CopperMonitorServiceDefaultProxy implements InvocationHandler {
-	
-	public static CopperMonitoringService getServiceProxy(CopperMonitoringService copperMonitoringService){
-		return (CopperMonitoringService)java.lang.reflect.Proxy.newProxyInstance(
-				CopperMonitoringService.class.getClassLoader(),new Class[]{ CopperMonitoringService.class},
-				new CopperMonitorServiceDefaultProxy(copperMonitoringService));
-	}
-	
-	private final CopperMonitoringService copperMonitoringService;
-	
-	public CopperMonitorServiceDefaultProxy(CopperMonitoringService copperMonitoringService) {
-		this.copperMonitoringService = copperMonitoringService;
-	}
 
-	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		return method.invoke(copperMonitoringService, args);
-	}
+    public static CopperMonitoringService getServiceProxy(CopperMonitoringService copperMonitoringService) {
+        return (CopperMonitoringService) java.lang.reflect.Proxy.newProxyInstance(
+                CopperMonitoringService.class.getClassLoader(), new Class[] { CopperMonitoringService.class },
+                new CopperMonitorServiceDefaultProxy(copperMonitoringService));
+    }
+
+    private final CopperMonitoringService copperMonitoringService;
+
+    public CopperMonitorServiceDefaultProxy(CopperMonitoringService copperMonitoringService) {
+        this.copperMonitoringService = copperMonitoringService;
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        return method.invoke(copperMonitoringService, args);
+    }
 }

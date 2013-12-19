@@ -31,41 +31,44 @@ import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EngineSelectionWidget;
 
 public class HotfixController implements Initializable, FxmlController {
-	private final HotfixModel hotfixModelModel;
-	private final GuiCopperDataProvider copperDataProvider;
-	public HotfixController(HotfixModel hotfixModelModel, GuiCopperDataProvider copperDataProvider) {
-		super();
-		this.hotfixModelModel=hotfixModelModel;
-		this.copperDataProvider = copperDataProvider;
-	}
+    private final HotfixModel hotfixModelModel;
+    private final GuiCopperDataProvider copperDataProvider;
 
-    @FXML //  fx:id="pane"
+    public HotfixController(HotfixModel hotfixModelModel, GuiCopperDataProvider copperDataProvider) {
+        super();
+        this.hotfixModelModel = hotfixModelModel;
+        this.copperDataProvider = copperDataProvider;
+    }
+
+    @FXML
+    // fx:id="pane"
     private HBox pane; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="restartAll"
+    @FXML
+    // fx:id="restartAll"
     private Button restartAll; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert pane != null : "fx:id=\"pane\" was not injected: check your FXML file 'Hotfix.fxml'.";
         assert restartAll != null : "fx:id=\"restartAll\" was not injected: check your FXML file 'Hotfix.fxml'.";
 
         restartAll.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				copperDataProvider.restartAllError(hotfixModelModel.selectedEngine.get().getId());
-			}
-		});
+            @Override
+            public void handle(ActionEvent event) {
+                copperDataProvider.restartAllError(hotfixModelModel.selectedEngine.get().getId());
+            }
+        });
         restartAll.getStyleClass().add("copperActionButton");
-        
-        Node engineSelectionWidget = new EngineSelectionWidget(hotfixModelModel,copperDataProvider.getEngineList()).createContent();
+
+        Node engineSelectionWidget = new EngineSelectionWidget(hotfixModelModel, copperDataProvider.getEngineList()).createContent();
         HBox.setMargin(engineSelectionWidget, new Insets(3));
         pane.getChildren().add(engineSelectionWidget);
-	}
+    }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("Hotfix.fxml");
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("Hotfix.fxml");
+    }
 }

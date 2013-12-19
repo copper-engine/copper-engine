@@ -21,9 +21,9 @@ import org.copperengine.core.common.ProcessorPool;
  * Subclass of {@link ProcessorPool} adding some persistence related methods.
  * 
  * @author austermann
- *
  */
 public interface PersistentProcessorPool extends ProcessorPool {
-	public static final String DEFAULT_POOL_ID = "P#DEFAULT";
-	public void doNotify();
+    public static final String DEFAULT_POOL_ID = "P#DEFAULT";
+
+    public void doNotify();
 }

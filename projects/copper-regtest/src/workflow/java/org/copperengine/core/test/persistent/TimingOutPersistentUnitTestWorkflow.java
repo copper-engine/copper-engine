@@ -31,44 +31,40 @@ import org.copperengine.core.test.backchannel.WorkflowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class TimingOutPersistentUnitTestWorkflow extends PersistentWorkflow<Serializable> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static final Logger logger = LoggerFactory.getLogger(PersistentUnitTestWorkflow.class);
+    private static final Logger logger = LoggerFactory.getLogger(PersistentUnitTestWorkflow.class);
 
-	private transient BackChannelQueue backChannelQueue;
+    private transient BackChannelQueue backChannelQueue;
 
+    @AutoWire
+    public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
+        this.backChannelQueue = backChannelQueue;
+    }
 
-	@AutoWire
-	public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
-		this.backChannelQueue = backChannelQueue;
-	}
-
-	@Override
-	public void main() throws InterruptException {
-		try {
-			String cid = getEngine().createUUID();
-			wait(WaitMode.ALL, 500, cid);
-			try {
-				Response<?> res = getAndRemoveResponse(cid);
-				logger.info(res.toString());
-				assertNotNull(res);
-				assertTrue(res.isTimeout());
-				assertNull(res.getResponse());
-				assertNull(res.getException());
-			}
-			catch(RuntimeException e) {
-				logger.error("just for testing - runtime exception caught",e);
-				throw e;
-			}
-			backChannelQueue.enqueue(new WorkflowResult(null, null));
-		}
-		catch(Exception e) {
-			logger.error("execution failed",e);
-			backChannelQueue.enqueue(new WorkflowResult(null, e));
-		}
-	}
+    @Override
+    public void main() throws InterruptException {
+        try {
+            String cid = getEngine().createUUID();
+            wait(WaitMode.ALL, 500, cid);
+            try {
+                Response<?> res = getAndRemoveResponse(cid);
+                logger.info(res.toString());
+                assertNotNull(res);
+                assertTrue(res.isTimeout());
+                assertNull(res.getResponse());
+                assertNull(res.getException());
+            } catch (RuntimeException e) {
+                logger.error("just for testing - runtime exception caught", e);
+                throw e;
+            }
+            backChannelQueue.enqueue(new WorkflowResult(null, null));
+        } catch (Exception e) {
+            logger.error("execution failed", e);
+            backChannelQueue.enqueue(new WorkflowResult(null, e));
+        }
+    }
 
 }

@@ -15,7 +15,6 @@
  */
 package org.copperengine.core.common;
 
-
 import org.copperengine.core.Workflow;
 import org.copperengine.core.util.MDCConstants;
 import org.slf4j.MDC;

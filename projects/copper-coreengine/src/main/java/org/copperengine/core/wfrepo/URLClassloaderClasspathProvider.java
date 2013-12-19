@@ -25,32 +25,31 @@ import java.util.List;
 
 public class URLClassloaderClasspathProvider implements CompilerOptionsProvider {
 
-	@Override
-	public Collection<String> getOptions() {
-		StringBuilder buf = new StringBuilder();
-		ClassLoader loader = (ClassLoader) Thread.currentThread().getContextClassLoader();
-		while (loader != null) {
-			if (loader instanceof URLClassLoader) {
-				StringBuilder buf2 = new StringBuilder();
-				for (URL url : ((URLClassLoader)loader).getURLs() ) {
-					File f = null;
-					try {
-						//convert the URL to a URI to remove the HTML encoding, if it exists.
-						f = new File(url.toURI().getPath());
-					} 
-					catch (URISyntaxException e) {
-						throw new RuntimeException("failed to convert the classpath URL '"+url+"' to a URI",e);
-					}
-					buf2.append(f.getAbsolutePath()).append(File.pathSeparator);
-				}				
-				buf.insert(0,  buf2.toString());
-			}
-			loader = loader.getParent();
-		}
-		List<String> options = new ArrayList<String>();
-		options.add("-classpath");
-		options.add(buf.toString());
-		return options;
-	}
+    @Override
+    public Collection<String> getOptions() {
+        StringBuilder buf = new StringBuilder();
+        ClassLoader loader = (ClassLoader) Thread.currentThread().getContextClassLoader();
+        while (loader != null) {
+            if (loader instanceof URLClassLoader) {
+                StringBuilder buf2 = new StringBuilder();
+                for (URL url : ((URLClassLoader) loader).getURLs()) {
+                    File f = null;
+                    try {
+                        // convert the URL to a URI to remove the HTML encoding, if it exists.
+                        f = new File(url.toURI().getPath());
+                    } catch (URISyntaxException e) {
+                        throw new RuntimeException("failed to convert the classpath URL '" + url + "' to a URI", e);
+                    }
+                    buf2.append(f.getAbsolutePath()).append(File.pathSeparator);
+                }
+                buf.insert(0, buf2.toString());
+            }
+            loader = loader.getParent();
+        }
+        List<String> options = new ArrayList<String>();
+        options.add("-classpath");
+        options.add(buf.toString());
+        return options;
+    }
 
 }

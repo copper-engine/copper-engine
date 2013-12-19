@@ -20,74 +20,73 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class WorkflowInfo implements Serializable {
-	
-	private static final long serialVersionUID = -659602204078726674L;
-	
-	private String id;
-	private String state;
-	private int priority;
-	private String processorPoolId;
-	private Date timeout;
-	
-	public WorkflowInfo() {
-	}
-	
-	@ConstructorProperties({"id", "state", "priority","processorPoolId","timeout"}) 
-	public WorkflowInfo(String id, String state, int priority, String processorPoolId, Date timeout) {
-		super();
-		this.id = id;
-		this.state = state;
-		this.priority = priority;
-		this.processorPoolId = processorPoolId;
-		this.timeout = timeout;
-	}
 
-	public String getId() {
-		return id;
-	}
+    private static final long serialVersionUID = -659602204078726674L;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    private String id;
+    private String state;
+    private int priority;
+    private String processorPoolId;
+    private Date timeout;
 
-	public String getState() {
-		return state;
-	}
+    public WorkflowInfo() {
+    }
 
-	public void setState(String state) {
-		this.state = state;
-	}
+    @ConstructorProperties({ "id", "state", "priority", "processorPoolId", "timeout" })
+    public WorkflowInfo(String id, String state, int priority, String processorPoolId, Date timeout) {
+        super();
+        this.id = id;
+        this.state = state;
+        this.priority = priority;
+        this.processorPoolId = processorPoolId;
+        this.timeout = timeout;
+    }
 
-	public int getPriority() {
-		return priority;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setPriority(int priority) {
-		this.priority = priority;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getProcessorPoolId() {
-		return processorPoolId;
-	}
+    public String getState() {
+        return state;
+    }
 
-	public void setProcessorPoolId(String processorPoolId) {
-		this.processorPoolId = processorPoolId;
-	}
+    public void setState(String state) {
+        this.state = state;
+    }
 
-	public Date getTimeout() {
-		return timeout;
-	}
+    public int getPriority() {
+        return priority;
+    }
 
-	public void setTimeout(Date timeout) {
-		this.timeout = timeout;
-	}
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 
-	@Override
-	public String toString() {
-		return "WorkflowInfo [id=" + id + ", state=" + state + ", priority="
-				+ priority + ", processorPoolId=" + processorPoolId
-				+ ", timeout=" + timeout + "]";
-	}
-	
-	
+    public String getProcessorPoolId() {
+        return processorPoolId;
+    }
+
+    public void setProcessorPoolId(String processorPoolId) {
+        this.processorPoolId = processorPoolId;
+    }
+
+    public Date getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Date timeout) {
+        this.timeout = timeout;
+    }
+
+    @Override
+    public String toString() {
+        return "WorkflowInfo [id=" + id + ", state=" + state + ", priority="
+                + priority + ", processorPoolId=" + processorPoolId
+                + ", timeout=" + timeout + "]";
+    }
+
 }

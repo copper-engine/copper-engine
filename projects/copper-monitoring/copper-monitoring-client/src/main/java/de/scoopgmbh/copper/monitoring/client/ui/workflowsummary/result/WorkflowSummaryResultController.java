@@ -46,146 +46,152 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter.WorkflowS
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class WorkflowSummaryResultController extends FilterResultControllerBase<WorkflowSummaryFilterModel,WorkflowSummaryResultModel> implements Initializable {
-	private GuiCopperDataProvider copperDataProvider;	
+public class WorkflowSummaryResultController extends FilterResultControllerBase<WorkflowSummaryFilterModel, WorkflowSummaryResultModel> implements
+        Initializable {
+    private GuiCopperDataProvider copperDataProvider;
 
-	private WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory;
-	private final MenuItem[] detailMenuItems;
-	
-	public WorkflowSummaryResultController(GuiCopperDataProvider copperDataProvider,
-			WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory,
-			MenuItem... detailMenuItems) {
-		super();
-		this.copperDataProvider = copperDataProvider;
-		this.workflowSummaryDependencyFactory = workflowSummaryDependencyFactory;
-		this.detailMenuItems = (detailMenuItems.length != 0) ? 
-				detailMenuItems : new MenuItem[] { getDefaultMenuItem() };
-	}
+    private WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory;
+    private final MenuItem[] detailMenuItems;
 
-    @FXML //  fx:id="countColumn"
+    public WorkflowSummaryResultController(GuiCopperDataProvider copperDataProvider,
+            WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory,
+            MenuItem... detailMenuItems) {
+        super();
+        this.copperDataProvider = copperDataProvider;
+        this.workflowSummaryDependencyFactory = workflowSummaryDependencyFactory;
+        this.detailMenuItems = (detailMenuItems.length != 0) ?
+                detailMenuItems : new MenuItem[] { getDefaultMenuItem() };
+    }
+
+    @FXML
+    // fx:id="countColumn"
     private TableColumn<WorkflowSummaryResultModel, String> countColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="resultTable"
+    @FXML
+    // fx:id="resultTable"
     private TableView<WorkflowSummaryResultModel> resultTable; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="workflowClass"
+    @FXML
+    // fx:id="workflowClass"
     private TableColumn<WorkflowSummaryResultModel, String> workflowClassColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="borderPane"
+    @FXML
+    // fx:id="borderPane"
     private BorderPane borderPane; // Value injected by FXMLLoader
 
     private MenuItem getDefaultMenuItem() {
         MenuItem detailMenuItem = new MenuItem("Instancelist (db)");
         detailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				openWorkflowInstance();
-			}
-		});
+            @Override
+            public void handle(ActionEvent event) {
+                openWorkflowInstance();
+            }
+        });
         return detailMenuItem;
     }
-    
-    @Override // This method is called by the FXMLLoader when initialization is complete
+
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert countColumn != null : "fx:id=\"countColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert workflowClassColumn != null : "fx:id=\"workflowClassColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
         assert borderPane != null;
-        
+
         borderPane.setBottom(createTabelControlls(resultTable));
-        		
+
         workflowClassColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<WorkflowSummaryResultModel, String> p) {
-				return p.getValue().version.classname;
-			}
-		});
-        
-        countColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
-        	@Override
-			public ObservableValue<String> call(
-        			CellDataFeatures<WorkflowSummaryResultModel, String> p) {
-        		return p.getValue().totalcount;
-        	}
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<WorkflowSummaryResultModel, String> p) {
+                return p.getValue().version.classname;
+            }
         });
-       
+
+        countColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<WorkflowSummaryResultModel, String> p) {
+                return p.getValue().totalcount;
+            }
+        });
+
         countColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.075));
         workflowClassColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(0.525));
-        double totalSpaceForStateColumns=0.4;
-        
-        for (final WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-        	TableColumn<WorkflowSummaryResultModel, String> tableColumn = new TableColumn<WorkflowSummaryResultModel, String>(workflowInstanceState.toString());
-        	tableColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
-            	@Override
-				public ObservableValue<String> call(
-            			CellDataFeatures<WorkflowSummaryResultModel, String> p) {
-            		return new SimpleStringProperty(
-            				String.valueOf(p.getValue().workflowStateSummery.getNumberOfWorkflowInstancesWithState().get(workflowInstanceState)));
-            	}
+        double totalSpaceForStateColumns = 0.4;
+
+        for (final WorkflowInstanceState workflowInstanceState : WorkflowInstanceState.values()) {
+            TableColumn<WorkflowSummaryResultModel, String> tableColumn = new TableColumn<WorkflowSummaryResultModel, String>(workflowInstanceState.toString());
+            tableColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
+                @Override
+                public ObservableValue<String> call(
+                        CellDataFeatures<WorkflowSummaryResultModel, String> p) {
+                    return new SimpleStringProperty(
+                            String.valueOf(p.getValue().workflowStateSummery.getNumberOfWorkflowInstancesWithState().get(workflowInstanceState)));
+                }
             });
-        	tableColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(totalSpaceForStateColumns/WorkflowInstanceState.values().length));
-			resultTable.getColumns().add(tableColumn);
+            tableColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(totalSpaceForStateColumns / WorkflowInstanceState.values().length));
+            resultTable.getColumns().add(tableColumn);
         }
 
         resultTable.setOnMousePressed(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent mouseEvent) {
-				if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
-		            if(mouseEvent.getClickCount() == 2 && !resultTable.getSelectionModel().isEmpty()){
-		            	openWorkflowInstance();
-		            }
-		        }
-			}
-		});
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getClickCount() == 2 && !resultTable.getSelectionModel().isEmpty()) {
+                        openWorkflowInstance();
+                    }
+                }
+            }
+        });
         ContextMenu contextMenu = new ContextMenu();
 
-        for(MenuItem menuItem : detailMenuItems) {
+        for (MenuItem menuItem : detailMenuItems) {
             menuItem.disableProperty().bind(resultTable.getSelectionModel().selectedItemProperty().isNull());
             contextMenu.getItems().add(menuItem);
         }
         resultTable.setContextMenu(contextMenu);
     }
-    
-	private void openWorkflowInstance() {
-		FilterAbleForm<WorkflowInstanceFilterModel,WorkflowInstanceResultModel> workflowInstanceForm = workflowSummaryDependencyFactory.createWorkflowInstanceListForm();
-		workflowInstanceForm.getFilter().version.setAllFrom(getSelectedEntry().version);
-		workflowInstanceForm.getFilter().selectedEngine.setValue(lastFilteredWithProcessingEngineInfo);
-		workflowInstanceForm.show();
-	}
-    
-    private WorkflowSummaryResultModel getSelectedEntry(){
-    	return resultTable.getSelectionModel().getSelectedItem();
+
+    private void openWorkflowInstance() {
+        FilterAbleForm<WorkflowInstanceFilterModel, WorkflowInstanceResultModel> workflowInstanceForm = workflowSummaryDependencyFactory.createWorkflowInstanceListForm();
+        workflowInstanceForm.getFilter().version.setAllFrom(getSelectedEntry().version);
+        workflowInstanceForm.getFilter().selectedEngine.setValue(lastFilteredWithProcessingEngineInfo);
+        workflowInstanceForm.show();
     }
 
-	
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("WorkflowSummaryResult.fxml");
-	}
+    private WorkflowSummaryResultModel getSelectedEntry() {
+        return resultTable.getSelectionModel().getSelectedItem();
+    }
 
-	private ProcessingEngineInfo lastFilteredWithProcessingEngineInfo;
-	@Override
-	public void showFilteredResult(List<WorkflowSummaryResultModel> filteredResult, WorkflowSummaryFilterModel usedFilter) {
-		lastFilteredWithProcessingEngineInfo = usedFilter.selectedEngine.getValue();
-		ObservableList<WorkflowSummaryResultModel> content = FXCollections.observableList(new ArrayList<WorkflowSummaryResultModel>());
-		content.addAll(filteredResult);
-		resultTable.setItems(content);
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("WorkflowSummaryResult.fxml");
+    }
 
-	@Override
-	public List<WorkflowSummaryResultModel> applyFilterInBackgroundThread(WorkflowSummaryFilterModel filter) {
-		return copperDataProvider.getWorkflowSummery(filter);
-	}
-	
-	@Override
-	public boolean supportsClear() {
-		return true;
-	}
+    private ProcessingEngineInfo lastFilteredWithProcessingEngineInfo;
 
-	@Override
-	public void clear() {
-		resultTable.getItems().clear();
-	}
+    @Override
+    public void showFilteredResult(List<WorkflowSummaryResultModel> filteredResult, WorkflowSummaryFilterModel usedFilter) {
+        lastFilteredWithProcessingEngineInfo = usedFilter.selectedEngine.getValue();
+        ObservableList<WorkflowSummaryResultModel> content = FXCollections.observableList(new ArrayList<WorkflowSummaryResultModel>());
+        content.addAll(filteredResult);
+        resultTable.setItems(content);
+    }
+
+    @Override
+    public List<WorkflowSummaryResultModel> applyFilterInBackgroundThread(WorkflowSummaryFilterModel filter) {
+        return copperDataProvider.getWorkflowSummery(filter);
+    }
+
+    @Override
+    public boolean supportsClear() {
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        resultTable.getItems().clear();
+    }
 
 }

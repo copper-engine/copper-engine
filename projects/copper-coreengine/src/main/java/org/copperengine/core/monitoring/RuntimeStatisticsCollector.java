@@ -19,11 +19,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Collects runtime statistics of named measure points for the purpose of monitoring the performance of an application.
- * It depends on the implementation how runtime statistics are handled.   
+ * It depends on the implementation how runtime statistics are handled.
  * 
  * @author austermann
- *
  */
 public interface RuntimeStatisticsCollector {
-	public void submit(String measurePointId, int elementCount, long elapsedTime, TimeUnit timeUnit);
+    public void submit(String measurePointId, int elementCount, long elapsedTime, TimeUnit timeUnit);
 }

@@ -19,19 +19,19 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class DistinctAndTypeFilter<T> extends MonitoringDataFilter<T>{
-	private static final long serialVersionUID = 2601396965721427244L;
-	
-	Set<T> found;
+public class DistinctAndTypeFilter<T> extends MonitoringDataFilter<T> {
+    private static final long serialVersionUID = 2601396965721427244L;
 
-	public DistinctAndTypeFilter(Class<T> clazz, Comparator<T> comparator) {
-		super(clazz);
-		found = new TreeSet<T>(comparator);
-	}
+    Set<T> found;
 
-	@Override
-	protected boolean isValidImpl(T value) {
-		return found.add(value);
-	}
+    public DistinctAndTypeFilter(Class<T> clazz, Comparator<T> comparator) {
+        super(clazz);
+        found = new TreeSet<T>(comparator);
+    }
+
+    @Override
+    protected boolean isValidImpl(T value) {
+        return found.add(value);
+    }
 
 }

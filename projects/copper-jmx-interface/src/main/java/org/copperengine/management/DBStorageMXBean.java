@@ -16,5 +16,5 @@
 package org.copperengine.management;
 
 public interface DBStorageMXBean {
-	public String getDescription();
+    public String getDescription();
 }

@@ -21,12 +21,11 @@ package org.copperengine.core.batcher;
  * A typical usage for the Batcher is database batching. It collects simple insert, update oder delete statements
  * and executes them as a batch. This increases throughput mostly by a factor of 10 or more.
  * Of course, batching may lead to longer latency times.
- *  
+ * 
  * @author austermann
- *
  */
 public interface Batcher {
-	
-	public <E extends BatchExecutor<E,T>, T extends BatchCommand<E,T>> void submitBatchCommand(BatchCommand<E,T> cmd);
+
+    public <E extends BatchExecutor<E, T>, T extends BatchCommand<E, T>> void submitBatchCommand(BatchCommand<E, T> cmd);
 
 }

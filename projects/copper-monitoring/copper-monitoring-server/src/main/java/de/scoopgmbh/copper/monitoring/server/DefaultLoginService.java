@@ -19,13 +19,13 @@ import java.rmi.RemoteException;
 
 import de.scoopgmbh.copper.monitoring.core.LoginService;
 
-public class DefaultLoginService implements LoginService{
-	private static final long serialVersionUID = 1L;
-	
-	private static final String SESSION_ID = "NULL_LOGIN_SERVICE_SESSION_ID";
-	
-	@Override
-	public String doLogin(String username, String password) throws RemoteException {
-		return SESSION_ID;
-	}
+public class DefaultLoginService implements LoginService {
+    private static final long serialVersionUID = 1L;
+
+    private static final String SESSION_ID = "NULL_LOGIN_SERVICE_SESSION_ID";
+
+    @Override
+    public String doLogin(String username, String password) throws RemoteException {
+        return SESSION_ID;
+    }
 }

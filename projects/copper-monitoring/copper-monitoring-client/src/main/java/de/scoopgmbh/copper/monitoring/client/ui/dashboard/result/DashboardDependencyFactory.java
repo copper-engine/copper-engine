@@ -24,7 +24,7 @@ import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
 public interface DashboardDependencyFactory {
-	public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model);
+    public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model);
 
-	public Form<ProviderController> createMonitoringDataProviderForm(MonitoringDataProviderInfo monitoringDataProviderInfo, BorderPane target);
+    public Form<ProviderController> createMonitoringDataProviderForm(MonitoringDataProviderInfo monitoringDataProviderInfo, BorderPane target);
 }

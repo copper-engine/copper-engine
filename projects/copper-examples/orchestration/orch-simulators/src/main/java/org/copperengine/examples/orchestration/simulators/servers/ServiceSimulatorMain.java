@@ -19,11 +19,11 @@ import javax.xml.ws.Endpoint;
 
 public class ServiceSimulatorMain {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         System.out.println("Starting Server");
         Endpoint.publish("http://localhost:9092/NetworkServiceProvider", new NetworkServiceProviderImpl());
         Endpoint.publish("http://localhost:9092/CustomerService", new CustomerServiceImpl());
         Thread.sleep(Long.MAX_VALUE);
-	}
+    }
 
 }

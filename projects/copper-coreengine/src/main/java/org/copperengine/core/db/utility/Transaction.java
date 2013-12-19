@@ -16,9 +16,9 @@
 package org.copperengine.core.db.utility;
 
 /**
- * Basic interface for all COPPER transactions. 
+ * Basic interface for all COPPER transactions.
+ * 
  * @author austermann
- *
  */
 public interface Transaction<R> {
     public R run() throws Exception;

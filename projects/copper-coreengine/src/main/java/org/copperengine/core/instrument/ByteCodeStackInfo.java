@@ -18,13 +18,13 @@ package org.copperengine.core.instrument;
 import org.objectweb.asm.Type;
 
 public interface ByteCodeStackInfo {
-	
-	StackInfo getPreviousStackInfo();
 
-	StackInfo getCurrentStackInfo();
-	
-	public String[] getLocalNames(int lineNo, int count);
+    StackInfo getPreviousStackInfo();
 
-	public Type[] getLocalDescriptors(int lineNo, int count);
+    StackInfo getCurrentStackInfo();
+
+    public String[] getLocalNames(int lineNo, int count);
+
+    public Type[] getLocalDescriptors(int lineNo, int count);
 
 }

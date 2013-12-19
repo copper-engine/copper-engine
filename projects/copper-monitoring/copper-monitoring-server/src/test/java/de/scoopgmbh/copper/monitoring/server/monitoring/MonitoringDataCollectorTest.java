@@ -28,31 +28,29 @@ import de.scoopgmbh.copper.monitoring.server.testfixture.LogbackFixture.LogConte
 import de.scoopgmbh.copper.monitoring.server.testfixture.LogbackFixture.MessageAndLogLevel;
 import de.scoopgmbh.copper.monitoring.server.testfixture.MonitoringFixture;
 
-
 public class MonitoringDataCollectorTest {
-	@Test
-	public void test_too_many_data_adds_schould_be_ignored_and_not_block_the_submitting_thread(){
-		MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue(10,null,Mockito.mock(MonitoringDataAdder.class));
-		final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
-		
-		new LogbackFixture().assertLogContent(new LogContentAssertion() {
-			
-			@Override
-			public void executeLogCreatingAction() {
-				for (int i=0;i<1000;i++){
-					monitoringDataCollector.submitAdapterWfLaunch("", new Object());
-				}
-			}
+    @Test
+    public void test_too_many_data_adds_schould_be_ignored_and_not_block_the_submitting_thread() {
+        MonitoringDataAccessQueue monitoringQueue = new MonitoringDataAccessQueue(10, null, Mockito.mock(MonitoringDataAdder.class));
+        final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
 
-			@Override
-			public void assertLogContent(List<MessageAndLogLevel> logContent) {
-				assertTrue(logContent.size()>0);
-				assertTrue(logContent.get(0).message.contains(MonitoringDataAccessQueue.IGNORE_WARN_TEXT));
-			}
-		});
+        new LogbackFixture().assertLogContent(new LogContentAssertion() {
 
-		
-		new MonitoringFixture().waitUntilMonitoringDataProcessed(monitoringQueue);
-		assertTrue(monitoringQueue.ignored.get()>0);
-	}
+            @Override
+            public void executeLogCreatingAction() {
+                for (int i = 0; i < 1000; i++) {
+                    monitoringDataCollector.submitAdapterWfLaunch("", new Object());
+                }
+            }
+
+            @Override
+            public void assertLogContent(List<MessageAndLogLevel> logContent) {
+                assertTrue(logContent.size() > 0);
+                assertTrue(logContent.get(0).message.contains(MonitoringDataAccessQueue.IGNORE_WARN_TEXT));
+            }
+        });
+
+        new MonitoringFixture().waitUntilMonitoringDataProcessed(monitoringQueue);
+        assertTrue(monitoringQueue.ignored.get() > 0);
+    }
 }

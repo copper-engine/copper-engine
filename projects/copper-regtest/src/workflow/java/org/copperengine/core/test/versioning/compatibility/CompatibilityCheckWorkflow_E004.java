@@ -24,54 +24,50 @@ import org.copperengine.core.persistent.PersistentWorkflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Incompatible change example E003
- * 
  * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
- * 
  * Changing the type of a field
- *
+ * 
  * @author austermann
- *
  */
 public class CompatibilityCheckWorkflow_E004 extends PersistentWorkflow<Serializable> {
-	
-	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_E004.class);
 
-	private static final long serialVersionUID = 1L;
-	
-	private BigInteger aString; // New field type - changed fom String to BigInteger
-	private String bString;
-	
-	@Override
-	public void main() throws InterruptException {
-		aString = BigInteger.TEN;
-		int localIntValue = 1;
-		directlyWaitingMethod(aString.toString(), localIntValue);
-		bString = "B";
-		localIntValue++;
-		indirectlyWaitingMethod(bString, localIntValue);
-	}
-	
-	protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
-		neverWaitingMethod(strValue, intValue);
-		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
-	}
-	
-	protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
-		final Object localObject = 10867L;
-		directlyWaitingMethod(strValue, intValue);
-		logger.debug("{}", localObject);
-	}
-	
-	protected void neverWaitingMethod(String strValue, int intValue) {
-		logger.debug("strValue="+strValue+", intValue="+intValue);
-		anotherNeverWaitingMethod(strValue, intValue);
-	}
-	
-	protected void anotherNeverWaitingMethod(String strValue, int intValue) {
-		logger.debug("strValue="+strValue+", intValue="+intValue);
-	}
+    private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_E004.class);
+
+    private static final long serialVersionUID = 1L;
+
+    private BigInteger aString; // New field type - changed fom String to BigInteger
+    private String bString;
+
+    @Override
+    public void main() throws InterruptException {
+        aString = BigInteger.TEN;
+        int localIntValue = 1;
+        directlyWaitingMethod(aString.toString(), localIntValue);
+        bString = "B";
+        localIntValue++;
+        indirectlyWaitingMethod(bString, localIntValue);
+    }
+
+    protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+        neverWaitingMethod(strValue, intValue);
+        this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
+    }
+
+    protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+        final Object localObject = 10867L;
+        directlyWaitingMethod(strValue, intValue);
+        logger.debug("{}", localObject);
+    }
+
+    protected void neverWaitingMethod(String strValue, int intValue) {
+        logger.debug("strValue=" + strValue + ", intValue=" + intValue);
+        anotherNeverWaitingMethod(strValue, intValue);
+    }
+
+    protected void anotherNeverWaitingMethod(String strValue, int intValue) {
+        logger.debug("strValue=" + strValue + ", intValue=" + intValue);
+    }
 
 }

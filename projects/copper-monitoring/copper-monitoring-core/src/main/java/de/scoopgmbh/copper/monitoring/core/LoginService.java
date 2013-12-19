@@ -21,13 +21,12 @@ import java.rmi.RemoteException;
 
 public interface LoginService extends Remote, Serializable {
 
-	/**
-	 * @param username
-	 * @param password
-	 * @return Session id
-	 * @throws RemoteException
-	 */
-	public String doLogin(String username, String password) throws RemoteException;
+    /**
+     * @param username
+     * @param password
+     * @return Session id
+     * @throws RemoteException
+     */
+    public String doLogin(String username, String password) throws RemoteException;
 
 }
-

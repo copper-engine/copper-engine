@@ -25,57 +25,58 @@ import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
 
-
 public interface DatabaseDialect {
 
-	public abstract void resumeBrokenBusinessProcesses(Connection con) throws Exception;
+    public abstract void resumeBrokenBusinessProcesses(Connection con) throws Exception;
 
-	public abstract List<Workflow<?>> dequeue(final String ppoolId,	final int max, Connection con) throws Exception;
+    public abstract List<Workflow<?>> dequeue(final String ppoolId, final int max, Connection con) throws Exception;
 
-	public abstract int updateQueueState(final int max, final Connection con) throws SQLException;
+    public abstract int updateQueueState(final int max, final Connection con) throws SQLException;
 
-	public abstract int deleteStaleResponse(Connection con, int maxRows) throws Exception;
+    public abstract int deleteStaleResponse(Connection con, int maxRows) throws Exception;
 
-	public abstract void insert(final List<Workflow<?>> wfs, final Connection con) throws DuplicateIdException, Exception;
+    public abstract void insert(final List<Workflow<?>> wfs, final Connection con) throws DuplicateIdException, Exception;
 
-	public abstract void insert(final Workflow<?> wf, final Connection con) throws DuplicateIdException, Exception;
+    public abstract void insert(final Workflow<?> wf, final Connection con) throws DuplicateIdException, Exception;
 
-	public abstract void restart(final String workflowInstanceId, Connection c) throws Exception;
+    public abstract void restart(final String workflowInstanceId, Connection c) throws Exception;
 
-	public abstract void restartAll(Connection c) throws Exception;
+    public abstract void restartAll(Connection c) throws Exception;
 
-	public abstract void notify(List<Response<?>> responses, Connection c) throws Exception;
+    public abstract void notify(List<Response<?>> responses, Connection c) throws Exception;
 
-	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4Finish(final Workflow<?> w, final Acknowledge callback);
+    @SuppressWarnings({ "rawtypes" })
+    public abstract BatchCommand createBatchCommand4Finish(final Workflow<?> w, final Acknowledge callback);
 
-	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4Notify(final Response<?> response, final Acknowledge callback) throws Exception;
+    @SuppressWarnings({ "rawtypes" })
+    public abstract BatchCommand createBatchCommand4Notify(final Response<?> response, final Acknowledge callback) throws Exception;
 
-	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4registerCallback(final RegisterCall rc, final ScottyDBStorageInterface dbStorageInterface, final Acknowledge callback) throws Exception;
+    @SuppressWarnings({ "rawtypes" })
+    public abstract BatchCommand createBatchCommand4registerCallback(final RegisterCall rc, final ScottyDBStorageInterface dbStorageInterface, final Acknowledge callback) throws Exception;
 
-	@SuppressWarnings({"rawtypes"})
-	public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState, final Acknowledge callback);
-	
-	/**
-	 * If true (default), finished workflow instances are removed from the database.
-	 */
-	public void setRemoveWhenFinished(boolean removeWhenFinished);	
-	
-	/**
-	 * Checks the DB consistency, e.g. at system startup, by deserialising all workflow instances in the underlying database.
-	 * @param con database connection
-	 * @return list of ids of bad workflows which could not be deserialized
-	 * @throws Exception
-	 */
-	public List<String> checkDbConsistency(Connection con) throws Exception;
-	
-	public void startup();
-	
-	public void shutdown();
+    @SuppressWarnings({ "rawtypes" })
+    public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState, final Acknowledge callback);
 
-	public abstract Workflow<?> read(String workflowInstanceId, Connection con) throws Exception;
+    /**
+     * If true (default), finished workflow instances are removed from the database.
+     */
+    public void setRemoveWhenFinished(boolean removeWhenFinished);
 
+    /**
+     * Checks the DB consistency, e.g. at system startup, by deserialising all workflow instances in the underlying
+     * database.
+     * 
+     * @param con
+     *            database connection
+     * @return list of ids of bad workflows which could not be deserialized
+     * @throws Exception
+     */
+    public List<String> checkDbConsistency(Connection con) throws Exception;
+
+    public void startup();
+
+    public void shutdown();
+
+    public abstract Workflow<?> read(String workflowInstanceId, Connection con) throws Exception;
 
 }

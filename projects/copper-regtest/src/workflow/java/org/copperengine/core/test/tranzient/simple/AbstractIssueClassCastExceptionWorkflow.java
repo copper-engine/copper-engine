@@ -21,67 +21,62 @@ import org.copperengine.core.InterruptException;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
-import org.copperengine.core.test.tranzient.simple.CompletionIndicator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 public abstract class AbstractIssueClassCastExceptionWorkflow extends Workflow<CompletionIndicator> {
 
-	private static final long serialVersionUID = 1L;
-	
-	private static final Logger logger = LoggerFactory.getLogger(AbstractIssueClassCastExceptionWorkflow.class);
-	private int retriesLeft = 5;
+    private static final long serialVersionUID = 1L;
 
-	protected abstract void callAbstractExceptionSimulation0(String partnerLink);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractIssueClassCastExceptionWorkflow.class);
+    private int retriesLeft = 5;
 
-	protected abstract void callAbstractExceptionSimulation1() throws InterruptException;
-	
-	protected abstract void callAbstractExceptionSimulation2(String partnerLink);
+    protected abstract void callAbstractExceptionSimulation0(String partnerLink);
 
+    protected abstract void callAbstractExceptionSimulation1() throws InterruptException;
 
-	protected void callPartner(int theWaitInterval) throws InterruptException {
-		logger.warn("Start " + this.getClass().getName());
-		boolean retryInterrupted = false;
-		while (!retryInterrupted && retriesLeft > 0) {
-			boolean callWait = callIt();
-			if (callWait) {
-				retryInterrupted = waitForNetRetry(theWaitInterval);
-			}
-		}
-		logger.info("Done callPartner");
-	}
+    protected abstract void callAbstractExceptionSimulation2(String partnerLink);
 
-	private boolean callIt()  {
-		try {
-			callAbstractExceptionSimulation0("partnerLink");
-			return false;
-		} 
-		catch (Exception e) {
-			logger.warn("Handle exception");
-			return true;
-		}
-	}
+    protected void callPartner(int theWaitInterval) throws InterruptException {
+        logger.warn("Start " + this.getClass().getName());
+        boolean retryInterrupted = false;
+        while (!retryInterrupted && retriesLeft > 0) {
+            boolean callWait = callIt();
+            if (callWait) {
+                retryInterrupted = waitForNetRetry(theWaitInterval);
+            }
+        }
+        logger.info("Done callPartner");
+    }
 
-	private boolean waitForNetRetry(int theWaitInterval) throws InterruptException {
-		logger.info("waitForNetRetry("+theWaitInterval+")");
-		boolean interupted = false;
-		if (retriesLeft > 0) {
-			retriesLeft--;
-			String correlationID = "RETRY-" + this.getEngine().createUUID();
-			logger.info("before WAIT");
-			wait(WaitMode.FIRST, theWaitInterval, TimeUnit.MILLISECONDS, correlationID);
-			logger.info("after WAIT");
-			Response<String> r = getAndRemoveResponse(correlationID);
-			if (logger.isInfoEnabled())
-				logger.info("Response for " + correlationID + ": " + r);
-			if (!r.isTimeout()) {
-				if (logger.isInfoEnabled())
-					logger.info("Receiver no TIMEOUT while retring, so must be INTERRUPT_RETRY.");
-				interupted = true;
-			}
-		}
-		return interupted;
-	}
+    private boolean callIt() {
+        try {
+            callAbstractExceptionSimulation0("partnerLink");
+            return false;
+        } catch (Exception e) {
+            logger.warn("Handle exception");
+            return true;
+        }
+    }
+
+    private boolean waitForNetRetry(int theWaitInterval) throws InterruptException {
+        logger.info("waitForNetRetry(" + theWaitInterval + ")");
+        boolean interupted = false;
+        if (retriesLeft > 0) {
+            retriesLeft--;
+            String correlationID = "RETRY-" + this.getEngine().createUUID();
+            logger.info("before WAIT");
+            wait(WaitMode.FIRST, theWaitInterval, TimeUnit.MILLISECONDS, correlationID);
+            logger.info("after WAIT");
+            Response<String> r = getAndRemoveResponse(correlationID);
+            if (logger.isInfoEnabled())
+                logger.info("Response for " + correlationID + ": " + r);
+            if (!r.isTimeout()) {
+                if (logger.isInfoEnabled())
+                    logger.info("Receiver no TIMEOUT while retring, so must be INTERRUPT_RETRY.");
+                interupted = true;
+            }
+        }
+        return interupted;
+    }
 }

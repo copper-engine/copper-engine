@@ -23,10 +23,18 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
+
 import javax.imageio.ImageIO;
+
+import org.jemmy.fx.SceneDock;
 
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ClassInfo;
+
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ApplicationFixture;
@@ -36,184 +44,169 @@ import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestForm
 import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
-import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
-import org.jemmy.fx.SceneDock;
 
 public class ScreenshotGeneratorMain {
-	
-	public static final int SHORT_WAIT_TIME = 100;
-	public static final int LONG_WAIT_TIME = SHORT_WAIT_TIME*10;
+
+    public static final int SHORT_WAIT_TIME = 100;
+    public static final int LONG_WAIT_TIME = SHORT_WAIT_TIME * 10;
     public static final String OUTPUT_FOLDER = "screenshots";
 
     public static void main(String[] args) {
-		new ScreenshotGeneratorMain().run();
-	}
-	
-	void run(){
-		deleteOutputFolder();
-		new Thread(){
-    		@Override
-    		public void run() {
-    			ApplicationFixture.launchWorkaround();
-    		}
-    	}.start();
-    	try {
-    		Thread.sleep(SHORT_WAIT_TIME);
-    	} catch (InterruptedException e) {
-    		throw new RuntimeException(e);
-    	}
-    	scene = new SceneDock();
-    	
-		ArrayList<ScreenshotPageBase> tests = new ArrayList<ScreenshotPageBase>();
-		try {
-			for (ClassInfo classInfo: ClassPath.from(getClass().getClassLoader()).getTopLevelClassesRecursive(ScreenshotGeneratorMain.class.getPackage().getName())){
-				if (ScreenshotPageBase.class.isAssignableFrom(classInfo.load()) && !ScreenshotPageBase.class.equals(classInfo.load())){
-					try {
-						final ScreenshotPageBase test = (ScreenshotPageBase) classInfo.load().newInstance();
-						tests.add(test);
-					} catch (InstantiationException e) {
-						throw new RuntimeException(e);
-					} catch (IllegalAccessException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		
+        new ScreenshotGeneratorMain().run();
+    }
 
-		
-		for (final ScreenshotPageBase screenshotPageBase: tests){
+    void run() {
+        deleteOutputFolder();
+        new Thread() {
+            @Override
+            public void run() {
+                ApplicationFixture.launchWorkaround();
+            }
+        }.start();
+        try {
+            Thread.sleep(SHORT_WAIT_TIME);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        scene = new SceneDock();
+
+        ArrayList<ScreenshotPageBase> tests = new ArrayList<ScreenshotPageBase>();
+        try {
+            for (ClassInfo classInfo : ClassPath.from(getClass().getClassLoader()).getTopLevelClassesRecursive(ScreenshotGeneratorMain.class.getPackage().getName())) {
+                if (ScreenshotPageBase.class.isAssignableFrom(classInfo.load()) && !ScreenshotPageBase.class.equals(classInfo.load())) {
+                    try {
+                        final ScreenshotPageBase test = (ScreenshotPageBase) classInfo.load().newInstance();
+                        tests.add(test);
+                    } catch (InstantiationException e) {
+                        throw new RuntimeException(e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (final ScreenshotPageBase screenshotPageBase : tests) {
             before(screenshotPageBase);
-            writeScreenshotTo(new File(OUTPUT_FOLDER+"/"+screenshotPageBase.getTitle()+".png"));
-		}
-		
+            writeScreenshotTo(new File(OUTPUT_FOLDER + "/" + screenshotPageBase.getTitle() + ".png"));
+        }
 
-	}
+    }
 
+    public void before(final ScreenshotPageBase integrationtestBase) {
+        final TestDataProvider testDataProvider = new TestDataProvider();
+        final GuiCopperDataProvider guiCopperDataProvider = new GuiCopperDataProvider(testDataProvider);
 
-	public void before(final ScreenshotPageBase integrationtestBase){
-		final TestDataProvider testDataProvider = new TestDataProvider();
-		final GuiCopperDataProvider guiCopperDataProvider = new GuiCopperDataProvider(testDataProvider);
-    	
-		integrationtestBase.setTestDataProvider(testDataProvider);
-		integrationtestBase.setScene(scene);
-		
-    	runInGuithreadAndWait(new Runnable() {
-			@Override
-			public void run() {
-				SettingsModel defaultSettings = new SettingsModel();
-				AuditralColorMapping newItem = new AuditralColorMapping();
-				newItem.color.setValue(Color.rgb(255, 128, 128));
-				newItem.loglevelRegEx.setValue("1");
-				defaultSettings.auditralColorMappings.add(newItem);
-				
-				
-				TestFormContext testFormContext = new TestFormContext(
-						ApplicationFixture.getPane(),
-						guiCopperDataProvider, 
-						new MessageProvider(ResourceBundle.getBundle("de.scoopgmbh.copper.gui.message")), 
-						defaultSettings);
-				integrationtestBase.initGui(ApplicationFixture.getPane(),testFormContext);
-			}
-		});	
-    	try {
-			Thread.sleep(integrationtestBase.getWaitForInitGuiMs()); //wait for Background worker
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-    	
-	}
-	
-	public static void runInGuithreadAndWait(Runnable run){
-    	FutureTask<Void> futureTask = new FutureTask<Void>(run,null);
-    	Platform.runLater(futureTask);
-    	try {
-			futureTask.get();
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		} catch (ExecutionException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public static BorderPaneShowFormStrategie getShowFormStrategy(){
-		return new BorderPaneShowFormStrategie(ApplicationFixture.getPane());
-	}
-	
+        integrationtestBase.setTestDataProvider(testDataProvider);
+        integrationtestBase.setScene(scene);
 
-	public void after(){
-		runInGuithreadAndWait(new Runnable() {
-			@Override
-			public void run() {
-				ApplicationFixture.getPane().getChildren().clear();
-			}
-		});
-	}
-	
-	public void writeScreenshotTo(File file){
-			FutureTask<WritableImage> task = new FutureTask<WritableImage>(new Callable<WritableImage>() {
-				@Override
-				public WritableImage call() throws Exception {
-					WritableImage image = scene.wrap().getControl().snapshot(null);
-					return image;
-				}
-			});
-			Platform.runLater(task);
+        runInGuithreadAndWait(new Runnable() {
+            @Override
+            public void run() {
+                SettingsModel defaultSettings = new SettingsModel();
+                AuditralColorMapping newItem = new AuditralColorMapping();
+                newItem.color.setValue(Color.rgb(255, 128, 128));
+                newItem.loglevelRegEx.setValue("1");
+                defaultSettings.auditralColorMappings.add(newItem);
 
-			WritableImage image;
-			try {
-				image = task.get();
-			} catch (InterruptedException e1) {
-				throw new RuntimeException(e1);
-			} catch (ExecutionException e1) {
-				throw new RuntimeException(e1);
-			} // wait for completition, blocking the thread if needed
+                TestFormContext testFormContext = new TestFormContext(
+                        ApplicationFixture.getPane(),
+                        guiCopperDataProvider,
+                        new MessageProvider(ResourceBundle.getBundle("de.scoopgmbh.copper.gui.message")),
+                        defaultSettings);
+                integrationtestBase.initGui(ApplicationFixture.getPane(), testFormContext);
+            }
+        });
+        try {
+            Thread.sleep(integrationtestBase.getWaitForInitGuiMs()); // wait for Background worker
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
-			try {
-				ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-	};
+    }
 
-	protected SceneDock scene;
+    public static void runInGuithreadAndWait(Runnable run) {
+        FutureTask<Void> futureTask = new FutureTask<Void>(run, null);
+        Platform.runLater(futureTask);
+        try {
+            futureTask.get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public void deleteOutputFolder() {
-		File folder = new File(OUTPUT_FOLDER);
-		if (folder.exists() && folder.getAbsoluteFile().getParent()!=null) {//dont delete complete drive
-			deleteReportFolderInternal(folder);
-		}
-	}
-	
-	private void deleteReportFolderInternal(File folder){
-		File[] files = folder.listFiles();
-		if (files != null) { // some JVMs return null for empty dirs
-			for (File f : files) {
-				if (f.isDirectory()) {
-					deleteReportFolderInternal(f);
-				} else {
-					f.delete();
-				}
-			}
-		}
-		folder.delete();
-	}
-	
-	private String getRelativePath(File base, File childname) {
-	    String basePath;
-		String childPath;
-		basePath = base.getParentFile().toURI().toString();
-		childPath = childname.toURI().toString();
-	    return childPath.substring(basePath.length());
-	}
-	
+    public static BorderPaneShowFormStrategie getShowFormStrategy() {
+        return new BorderPaneShowFormStrategie(ApplicationFixture.getPane());
+    }
 
-	
-	
+    public void after() {
+        runInGuithreadAndWait(new Runnable() {
+            @Override
+            public void run() {
+                ApplicationFixture.getPane().getChildren().clear();
+            }
+        });
+    }
+
+    public void writeScreenshotTo(File file) {
+        FutureTask<WritableImage> task = new FutureTask<WritableImage>(new Callable<WritableImage>() {
+            @Override
+            public WritableImage call() throws Exception {
+                WritableImage image = scene.wrap().getControl().snapshot(null);
+                return image;
+            }
+        });
+        Platform.runLater(task);
+
+        WritableImage image;
+        try {
+            image = task.get();
+        } catch (InterruptedException e1) {
+            throw new RuntimeException(e1);
+        } catch (ExecutionException e1) {
+            throw new RuntimeException(e1);
+        } // wait for completition, blocking the thread if needed
+
+        try {
+            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    };
+
+    protected SceneDock scene;
+
+    public void deleteOutputFolder() {
+        File folder = new File(OUTPUT_FOLDER);
+        if (folder.exists() && folder.getAbsoluteFile().getParent() != null) {// dont delete complete drive
+            deleteReportFolderInternal(folder);
+        }
+    }
+
+    private void deleteReportFolderInternal(File folder) {
+        File[] files = folder.listFiles();
+        if (files != null) { // some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    deleteReportFolderInternal(f);
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        folder.delete();
+    }
+
+    private String getRelativePath(File base, File childname) {
+        String basePath;
+        String childPath;
+        basePath = base.getParentFile().toURI().toString();
+        childPath = childname.toURI().toString();
+        return childPath.substring(basePath.length());
+    }
 
 }

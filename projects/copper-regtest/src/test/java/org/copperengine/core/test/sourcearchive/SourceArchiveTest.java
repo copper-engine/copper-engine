@@ -24,22 +24,21 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class SourceArchiveTest {
-	
-	private Logger logger = LoggerFactory.getLogger(SourceArchiveTest.class);
 
-	@Test
-	public void testSourceArchive() throws Exception {
-		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
-		String url = new File("src/workflow_archive/workflow_archive.jar").toURI().toURL().toString();
-		logger.info("URL="+url);
-		repo.addSourceArchiveUrl(url);
-		repo.addSourceArchiveUrl(url);
-		repo.addSourceArchiveUrl(url);
-		repo.setTargetDir("build/compiled_workflow");
-		repo.start();
-		assertNotNull(repo.createWorkflowFactory("org.copperengine.core.archivetest.ArchiveTestWorkflow"));
-		repo.shutdown();
-	}
+    private Logger logger = LoggerFactory.getLogger(SourceArchiveTest.class);
+
+    @Test
+    public void testSourceArchive() throws Exception {
+        FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
+        String url = new File("src/workflow_archive/workflow_archive.jar").toURI().toURL().toString();
+        logger.info("URL=" + url);
+        repo.addSourceArchiveUrl(url);
+        repo.addSourceArchiveUrl(url);
+        repo.addSourceArchiveUrl(url);
+        repo.setTargetDir("build/compiled_workflow");
+        repo.start();
+        assertNotNull(repo.createWorkflowFactory("org.copperengine.core.archivetest.ArchiveTestWorkflow"));
+        repo.shutdown();
+    }
 }

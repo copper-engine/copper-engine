@@ -28,76 +28,75 @@ import org.copperengine.core.batcher.AcknowledgeCallbackWrapper;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.batcher.BatchExecutor;
 
-
 class DerbyDbSetToError {
 
-	static final class Command extends AbstractBatchCommand<Executor, Command> {
+    static final class Command extends AbstractBatchCommand<Executor, Command> {
 
-		private final PersistentWorkflow<?> wf;
-		private final Throwable error;
-		private final DBProcessingState dbProcessingState;
+        private final PersistentWorkflow<?> wf;
+        private final Throwable error;
+        private final DBProcessingState dbProcessingState;
 
-		public Command(PersistentWorkflow<?> wf, Throwable error, final DBProcessingState dbProcessingState, Acknowledge ack) {
-			super(new AcknowledgeCallbackWrapper<Command>(ack),250);
-			this.wf = wf;
-			this.error = error;
-			this.dbProcessingState = dbProcessingState;
-		}
+        public Command(PersistentWorkflow<?> wf, Throwable error, final DBProcessingState dbProcessingState, Acknowledge ack) {
+            super(new AcknowledgeCallbackWrapper<Command>(ack), 250);
+            this.wf = wf;
+            this.error = error;
+            this.dbProcessingState = dbProcessingState;
+        }
 
-		@Override
-		public Executor executor() {
-			return Executor.INSTANCE;
-		}
+        @Override
+        public Executor executor() {
+            return Executor.INSTANCE;
+        }
 
-	}
+    }
 
-	static final class Executor extends BatchExecutor<Executor, Command> {
+    static final class Executor extends BatchExecutor<Executor, Command> {
 
-		private static final Executor INSTANCE = new Executor();
+        private static final Executor INSTANCE = new Executor();
 
-		@Override
-		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
-			final PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
-			final PreparedStatement stmtUpdateState = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE ID=?");
-			final PreparedStatement stmtInsertError = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, \"EXCEPTION\", ERROR_TS) VALUES (?,?,?)");
-			for (BatchCommand<Executor, Command> _cmd : commands) {
-				final Timestamp NOW = new Timestamp(System.currentTimeMillis());
-				Command cmd = (Command)_cmd;
-				stmtUpdateState.setInt(1, cmd.dbProcessingState.ordinal());
-				stmtUpdateState.setTimestamp(2, NOW);
-				stmtUpdateState.setString(3, cmd.wf.getId());
-				stmtUpdateState.addBatch();
+        @Override
+        public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
+            final PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
+            final PreparedStatement stmtUpdateState = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE ID=?");
+            final PreparedStatement stmtInsertError = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, \"EXCEPTION\", ERROR_TS) VALUES (?,?,?)");
+            for (BatchCommand<Executor, Command> _cmd : commands) {
+                final Timestamp NOW = new Timestamp(System.currentTimeMillis());
+                Command cmd = (Command) _cmd;
+                stmtUpdateState.setInt(1, cmd.dbProcessingState.ordinal());
+                stmtUpdateState.setTimestamp(2, NOW);
+                stmtUpdateState.setString(3, cmd.wf.getId());
+                stmtUpdateState.addBatch();
 
-				stmtInsertError.setString(1, cmd.wf.getId());
-				stmtInsertError.setString(2, convert2String(cmd.error));
-				stmtInsertError.setTimestamp(3, NOW);
-				stmtInsertError.addBatch();
+                stmtInsertError.setString(1, cmd.wf.getId());
+                stmtInsertError.setString(2, convert2String(cmd.error));
+                stmtInsertError.setTimestamp(3, NOW);
+                stmtInsertError.addBatch();
 
-				stmtDelQueue.setString(1, cmd.wf.getId());
-				stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
-				stmtDelQueue.setInt(3, cmd.wf.oldPrio);
-				stmtDelQueue.addBatch();
-			}
-			stmtUpdateState.executeBatch();
-			stmtInsertError.executeBatch();
-			stmtDelQueue.executeBatch();
-		}
+                stmtDelQueue.setString(1, cmd.wf.getId());
+                stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
+                stmtDelQueue.setInt(3, cmd.wf.oldPrio);
+                stmtDelQueue.addBatch();
+            }
+            stmtUpdateState.executeBatch();
+            stmtInsertError.executeBatch();
+            stmtDelQueue.executeBatch();
+        }
 
-		@Override
-		public int maximumBatchSize() {
-			return 100;
-		}
+        @Override
+        public int maximumBatchSize() {
+            return 100;
+        }
 
-		@Override
-		public int preferredBatchSize() {
-			return 50;
-		}
+        @Override
+        public int preferredBatchSize() {
+            return 50;
+        }
 
-	}
+    }
 
-	private static final String convert2String(Throwable t)  {
-		StringWriter sw = new StringWriter(2048);
-		t.printStackTrace(new PrintWriter(sw));
-		return sw.toString();
-	}
+    private static final String convert2String(Throwable t) {
+        StringWriter sw = new StringWriter(2048);
+        t.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
 }

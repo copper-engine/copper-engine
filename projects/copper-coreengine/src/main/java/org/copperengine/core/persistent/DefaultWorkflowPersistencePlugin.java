@@ -19,58 +19,59 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Default implementation for the {@link WorkflowPersistencePlugin}. This implementation handles primitive persistence for {@link PersistentWorkflow} members.
+ * Default implementation for the {@link WorkflowPersistencePlugin}. This implementation handles primitive persistence
+ * for {@link PersistentWorkflow} members.
  * It is not capable of handling data-based dependencies between entities concerning insertion and deletion order.
+ * 
  * @author Roland Scheel
- *
  */
 public class DefaultWorkflowPersistencePlugin implements WorkflowPersistencePlugin {
-	
-	DefaultPersistenceContextFactoryConfiguration configuration;
-	public DefaultWorkflowPersistencePlugin(DefaultPersistenceContextFactoryConfiguration configuration) {
-		this.configuration = configuration;
-	}
-	
 
-	@Override
-	public void onWorkflowsLoaded(Connection con,
-			Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
-		PersistenceContextFactory<?> ctxFactory = createPersistenceContextFactory(con);
-		for (PersistentWorkflow<?> wf : workflows) {
-			PersistenceContext pctx = ctxFactory.createPersistenceContextForLoading(wf);
-			wf.onLoad(pctx);
-		}
-		ctxFactory.flush();
-	}
+    DefaultPersistenceContextFactoryConfiguration configuration;
 
-	@Override
-	public void onWorkflowsSaved(Connection con,
-			Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
-		PersistenceContextFactory<?> ctxFactory = createPersistenceContextFactory(con);
-		for (PersistentWorkflow<?> wf : workflows) {
-			PersistenceContext pctx = ctxFactory.createPersistenceContextForSaving(wf);
-			wf.onSave(pctx);
-		}
-		ctxFactory.flush();
-	}
+    public DefaultWorkflowPersistencePlugin(DefaultPersistenceContextFactoryConfiguration configuration) {
+        this.configuration = configuration;
+    }
 
-	@Override
-	public void onWorkflowsDeleted(Connection con,
-			Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
-		PersistenceContextFactory<?> ctxFactory = createPersistenceContextFactory(con);
-		for (PersistentWorkflow<?> wf : workflows) {
-			PersistenceContext pctx = ctxFactory.createPersistenceContextForDeletion(wf);
-			wf.onDelete(pctx);
-		}
-		ctxFactory.flush();
-	}
-	
-	protected DefaultPersistenceContextFactoryConfiguration configuration() {
-		return configuration;
-	}
-	
-	protected PersistenceContextFactory<?> createPersistenceContextFactory(Connection con) {
-		return new DefaultPersistenceContextFactory(configuration, con);
-	}
+    @Override
+    public void onWorkflowsLoaded(Connection con,
+            Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
+        PersistenceContextFactory<?> ctxFactory = createPersistenceContextFactory(con);
+        for (PersistentWorkflow<?> wf : workflows) {
+            PersistenceContext pctx = ctxFactory.createPersistenceContextForLoading(wf);
+            wf.onLoad(pctx);
+        }
+        ctxFactory.flush();
+    }
+
+    @Override
+    public void onWorkflowsSaved(Connection con,
+            Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
+        PersistenceContextFactory<?> ctxFactory = createPersistenceContextFactory(con);
+        for (PersistentWorkflow<?> wf : workflows) {
+            PersistenceContext pctx = ctxFactory.createPersistenceContextForSaving(wf);
+            wf.onSave(pctx);
+        }
+        ctxFactory.flush();
+    }
+
+    @Override
+    public void onWorkflowsDeleted(Connection con,
+            Iterable<? extends PersistentWorkflow<?>> workflows) throws SQLException {
+        PersistenceContextFactory<?> ctxFactory = createPersistenceContextFactory(con);
+        for (PersistentWorkflow<?> wf : workflows) {
+            PersistenceContext pctx = ctxFactory.createPersistenceContextForDeletion(wf);
+            wf.onDelete(pctx);
+        }
+        ctxFactory.flush();
+    }
+
+    protected DefaultPersistenceContextFactoryConfiguration configuration() {
+        return configuration;
+    }
+
+    protected PersistenceContextFactory<?> createPersistenceContextFactory(Connection con) {
+        return new DefaultPersistenceContextFactory(configuration, con);
+    }
 
 }

@@ -18,150 +18,148 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class WorkflowInstanceInfo implements Serializable{
-	private static final long serialVersionUID = 3115987442310287971L;
-	
-	private String id;
-	private WorkflowInstanceState state;
-	private int priority;
-	private String processorPoolId;
-	private Date timeout;
-	
-	private Date lastActivityTimestamp;
+public class WorkflowInstanceInfo implements Serializable {
+    private static final long serialVersionUID = 3115987442310287971L;
+
+    private String id;
+    private WorkflowInstanceState state;
+    private int priority;
+    private String processorPoolId;
+    private Date timeout;
+
+    private Date lastActivityTimestamp;
     private long overallLifetimeInMs;
     private Date startTime;
     private Date finishTime;
     private Date lastErrorTime;
     private String errorInfos;
     private String classname;
-	
-	public WorkflowInstanceInfo() {
-	}
-	
-	public WorkflowInstanceInfo(String id, WorkflowInstanceState state, int priority, String processorPoolId, Date timeout,
-			Date lastActivityTimestamp, long overallLifetimeInMs, Date startTime, Date finishTime, Date lastErrorTime, String errorInfos, String classname) {
-		super();
-		this.id = id;
-		this.state = state;
-		this.priority = priority;
-		this.processorPoolId = processorPoolId;
-		this.timeout = timeout;
-		this.lastActivityTimestamp = lastActivityTimestamp;
-		this.overallLifetimeInMs = overallLifetimeInMs;
-		this.startTime = startTime;
-		this.finishTime = finishTime;
-		this.lastErrorTime = lastErrorTime;
-		this.errorInfos = errorInfos;
-		this.classname = classname;
-	}
 
-	public String getId() {
-		return id;
-	}
+    public WorkflowInstanceInfo() {
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public WorkflowInstanceInfo(String id, WorkflowInstanceState state, int priority, String processorPoolId, Date timeout,
+            Date lastActivityTimestamp, long overallLifetimeInMs, Date startTime, Date finishTime, Date lastErrorTime, String errorInfos, String classname) {
+        super();
+        this.id = id;
+        this.state = state;
+        this.priority = priority;
+        this.processorPoolId = processorPoolId;
+        this.timeout = timeout;
+        this.lastActivityTimestamp = lastActivityTimestamp;
+        this.overallLifetimeInMs = overallLifetimeInMs;
+        this.startTime = startTime;
+        this.finishTime = finishTime;
+        this.lastErrorTime = lastErrorTime;
+        this.errorInfos = errorInfos;
+        this.classname = classname;
+    }
 
-	public WorkflowInstanceState getState() {
-		return state;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setState(WorkflowInstanceState state) {
-		this.state = state;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public int getPriority() {
-		return priority;
-	}
+    public WorkflowInstanceState getState() {
+        return state;
+    }
 
-	public void setPriority(int priority) {
-		this.priority = priority;
-	}
+    public void setState(WorkflowInstanceState state) {
+        this.state = state;
+    }
 
-	public String getProcessorPoolId() {
-		return processorPoolId;
-	}
+    public int getPriority() {
+        return priority;
+    }
 
-	public void workflow(String processorPoolId) {
-		this.processorPoolId = processorPoolId;
-	}
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 
-	public Date getTimeout() {
-		return timeout;
-	}
+    public String getProcessorPoolId() {
+        return processorPoolId;
+    }
 
-	public void setTimeout(Date timeout) {
-		this.timeout = timeout;
-	}
+    public void workflow(String processorPoolId) {
+        this.processorPoolId = processorPoolId;
+    }
 
-	@Override
-	public String toString() {
-		return "WorkflowInfo [id=" + id + ", state=" + state + ", priority="
-				+ priority + ", processorPoolId=" + processorPoolId
-				+ ", timeout=" + timeout + "]";
-	}
+    public Date getTimeout() {
+        return timeout;
+    }
 
-	public Date getLastActivityTimestamp() {
-		return lastActivityTimestamp;
-	}
+    public void setTimeout(Date timeout) {
+        this.timeout = timeout;
+    }
 
-	public void setLastActivityTimestamp(Date lastActivityTimestamp) {
-		this.lastActivityTimestamp = lastActivityTimestamp;
-	}
+    @Override
+    public String toString() {
+        return "WorkflowInfo [id=" + id + ", state=" + state + ", priority="
+                + priority + ", processorPoolId=" + processorPoolId
+                + ", timeout=" + timeout + "]";
+    }
 
-	public long getOverallLifetimeInMs() {
-		return overallLifetimeInMs;
-	}
+    public Date getLastActivityTimestamp() {
+        return lastActivityTimestamp;
+    }
 
-	public void setOverallLifetimeInMs(long overallLifetimeInMs) {
-		this.overallLifetimeInMs = overallLifetimeInMs;
-	}
+    public void setLastActivityTimestamp(Date lastActivityTimestamp) {
+        this.lastActivityTimestamp = lastActivityTimestamp;
+    }
 
-	public Date getStartTime() {
-		return startTime;
-	}
+    public long getOverallLifetimeInMs() {
+        return overallLifetimeInMs;
+    }
 
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
+    public void setOverallLifetimeInMs(long overallLifetimeInMs) {
+        this.overallLifetimeInMs = overallLifetimeInMs;
+    }
 
-	public Date getFinishTime() {
-		return finishTime;
-	}
+    public Date getStartTime() {
+        return startTime;
+    }
 
-	public void setFinishTime(Date finishTime) {
-		this.finishTime = finishTime;
-	}
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
 
-	public Date getLastErrorTime() {
-		return lastErrorTime;
-	}
+    public Date getFinishTime() {
+        return finishTime;
+    }
 
-	public void setLastErrorTime(Date lastErrorTime) {
-		this.lastErrorTime = lastErrorTime;
-	}
+    public void setFinishTime(Date finishTime) {
+        this.finishTime = finishTime;
+    }
 
-	public String getErrorInfos() {
-		return errorInfos;
-	}
+    public Date getLastErrorTime() {
+        return lastErrorTime;
+    }
 
-	public void setErrorInfos(String errorInfos) {
-		this.errorInfos = errorInfos;
-	}
+    public void setLastErrorTime(Date lastErrorTime) {
+        this.lastErrorTime = lastErrorTime;
+    }
 
-	public String getClassname() {
-		return classname;
-	}
+    public String getErrorInfos() {
+        return errorInfos;
+    }
 
-	public void setClassname(String classname) {
-		this.classname = classname;
-	}
+    public void setErrorInfos(String errorInfos) {
+        this.errorInfos = errorInfos;
+    }
 
-	public void setProcessorPoolId(String processorPoolId) {
-		this.processorPoolId = processorPoolId;
-	}
-	
-	
-	
+    public String getClassname() {
+        return classname;
+    }
+
+    public void setClassname(String classname) {
+        this.classname = classname;
+    }
+
+    public void setProcessorPoolId(String processorPoolId) {
+        this.processorPoolId = processorPoolId;
+    }
+
 }

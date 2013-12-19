@@ -18,8 +18,6 @@ package de.scoopgmbh.copper.monitoring.client.ui.dashboard.result.pool;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import de.scoopgmbh.copper.monitoring.client.form.dialog.DefaultInputDialogCreator;
-import de.scoopgmbh.copper.monitoring.client.form.dialog.InputDialogCreator;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -29,45 +27,52 @@ import javafx.scene.control.TextField;
 import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
 import de.scoopgmbh.copper.monitoring.client.context.FormContext;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
+import de.scoopgmbh.copper.monitoring.client.form.dialog.DefaultInputDialogCreator;
+import de.scoopgmbh.copper.monitoring.client.form.dialog.InputDialogCreator;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 
 public class ProccessorPoolController implements Initializable, FxmlController {
-	private ProcessorPoolInfo pool;
-	private final ProcessingEngineInfo engine;
-	private final FormContext context;
-	private final GuiCopperDataProvider dataProvider;
+    private ProcessorPoolInfo pool;
+    private final ProcessingEngineInfo engine;
+    private final FormContext context;
+    private final GuiCopperDataProvider dataProvider;
     private final InputDialogCreator inputDialogCreator;
 
     public ProccessorPoolController(ProcessingEngineInfo engine, ProcessorPoolInfo pool, FormContext context, GuiCopperDataProvider dataProvider, InputDialogCreator inputDialogCreator) {
-    	this.pool=pool;
-    	this.engine = engine;
-    	this.context = context;
-    	this.dataProvider = dataProvider;
+        this.pool = pool;
+        this.engine = engine;
+        this.context = context;
+        this.dataProvider = dataProvider;
         this.inputDialogCreator = inputDialogCreator;
-	}
+    }
 
-
-    @FXML //  fx:id="id"
+    @FXML
+    // fx:id="id"
     private TextField id; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="nummerbutton"
+    @FXML
+    // fx:id="nummerbutton"
     private Button nummerbutton; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="prioButton"
+    @FXML
+    // fx:id="prioButton"
     private Button prioButton; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="threadNummerInfo"
+    @FXML
+    // fx:id="threadNummerInfo"
     private TextField threadNummerInfo; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="threadPrioritaetInfo"
+    @FXML
+    // fx:id="threadPrioritaetInfo"
     private TextField threadPrioritaetInfo; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="typ"
+    @FXML
+    // fx:id="typ"
     private TextField typ; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert id != null : "fx:id=\"id\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
         assert nummerbutton != null : "fx:id=\"nummerbutton\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
@@ -76,53 +81,53 @@ public class ProccessorPoolController implements Initializable, FxmlController {
         assert threadPrioritaetInfo != null : "fx:id=\"threadPrioritaetInfo\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
         assert typ != null : "fx:id=\"typ\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
 
-		updatePool();
-		
-		prioButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-                inputDialogCreator.showIntInputDialog("Thread priority",pool.getThreadPriority(),new DefaultInputDialogCreator.DialogClosed<Integer>() {
+        updatePool();
+
+        prioButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                inputDialogCreator.showIntInputDialog("Thread priority", pool.getThreadPriority(), new DefaultInputDialogCreator.DialogClosed<Integer>() {
                     @Override
                     public void closed(Integer inputValue) {
                         dataProvider.setThreadPriority(engine.getId(), pool.getId(), inputValue);
                         context.createDashboardForm().refresh();
                     }
                 });
-			}
-		});
-		prioButton.getStyleClass().add("copperActionButton");
-		
-		nummerbutton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-                inputDialogCreator.showIntInputDialog("Thread count",pool.getNumberOfThreads(),new DefaultInputDialogCreator.DialogClosed<Integer>() {
+            }
+        });
+        prioButton.getStyleClass().add("copperActionButton");
+
+        nummerbutton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                inputDialogCreator.showIntInputDialog("Thread count", pool.getNumberOfThreads(), new DefaultInputDialogCreator.DialogClosed<Integer>() {
                     @Override
                     public void closed(Integer inputValue) {
                         dataProvider.setNumberOfThreads(engine.getId(), pool.getId(), inputValue);
                         context.createDashboardForm().refresh();
                     }
                 });
-			}
-		});
-		nummerbutton.getStyleClass().add("copperActionButton");
+            }
+        });
+        nummerbutton.getStyleClass().add("copperActionButton");
     }
 
     public void setPool(ProcessorPoolInfo pool) {
-		this.pool = pool;
-		updatePool();
-	}
+        this.pool = pool;
+        updatePool();
+    }
 
-	private void updatePool() {
-		id.setText(pool.getId());
-		typ.setText(pool.getProcessorPoolTyp().toString());
-		
-		threadNummerInfo.setText(String.valueOf(pool.getNumberOfThreads()));
-		threadPrioritaetInfo.setText(String.valueOf(pool.getThreadPriority()));
-	}
-	
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("ProcessorPool.fxml");
-	}
+    private void updatePool() {
+        id.setText(pool.getId());
+        typ.setText(pool.getProcessorPoolTyp().toString());
+
+        threadNummerInfo.setText(String.valueOf(pool.getNumberOfThreads()));
+        threadPrioritaetInfo.setText(String.valueOf(pool.getThreadPriority()));
+    }
+
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("ProcessorPool.fxml");
+    }
 
 }

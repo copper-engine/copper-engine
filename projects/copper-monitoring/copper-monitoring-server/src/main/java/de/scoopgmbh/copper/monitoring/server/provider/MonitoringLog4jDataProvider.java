@@ -24,67 +24,66 @@ import org.apache.log4j.spi.LoggingEvent;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
-public class MonitoringLog4jDataProvider extends AppenderSkeleton implements MonitoringDataProvider{
-	
-	MonitoringDataCollector monitoringDataCollector;
-	
-	
-	public MonitoringLog4jDataProvider(MonitoringDataCollector monitoringDataCollector) {
-		super();
-		this.monitoringDataCollector = monitoringDataCollector;
-	}
+public class MonitoringLog4jDataProvider extends AppenderSkeleton implements MonitoringDataProvider {
 
-	public void addToRootLogger() {
-		Logger rootLogger = Logger.getRootLogger();
-		rootLogger.addAppender(this);
-	}
-	
-	public void removeFromRootLogger() {
-		Logger rootLogger = Logger.getRootLogger();
-		rootLogger.removeAppender(this);
-	}
+    MonitoringDataCollector monitoringDataCollector;
 
-	@Override
-	public void close() {
-	}
+    public MonitoringLog4jDataProvider(MonitoringDataCollector monitoringDataCollector) {
+        super();
+        this.monitoringDataCollector = monitoringDataCollector;
+    }
 
-	@Override
-	public boolean requiresLayout() {
-		return false;
-	}
+    public void addToRootLogger() {
+        Logger rootLogger = Logger.getRootLogger();
+        rootLogger.addAppender(this);
+    }
 
-	@Override
-	protected void append(LoggingEvent event) {
-		monitoringDataCollector.submitLogEvent(new Date(event.getTimeStamp()),event.getLevel().toString(),event.getLocationInformation().fullInfo,event.getRenderedMessage());
-	}
+    public void removeFromRootLogger() {
+        Logger rootLogger = Logger.getRootLogger();
+        rootLogger.removeAppender(this);
+    }
 
-	public Status status=Status.CREATED;
-	@Override
-	public void startProvider() {
-		status=Status.STARTED;
-		addToRootLogger();
-	}
+    @Override
+    public void close() {
+    }
 
-	@Override
-	public void stopProvider() {
-		removeFromRootLogger();
-		status=Status.STOPPED;
-	}
+    @Override
+    public boolean requiresLayout() {
+        return false;
+    }
 
-	@Override
-	public Status getProviderStatus() {
-		return status;
-	}
-	
-	@Override
-	public String getProviderName() {
-		return getClass().getSimpleName();
-	}
-	
-	@Override
-	public MonitoringDataProviderInfo createInfo() {
-		return new MonitoringDataProviderInfo(getProviderName(),getProviderStatus().toString());
-	}
+    @Override
+    protected void append(LoggingEvent event) {
+        monitoringDataCollector.submitLogEvent(new Date(event.getTimeStamp()), event.getLevel().toString(), event.getLocationInformation().fullInfo, event.getRenderedMessage());
+    }
 
+    public Status status = Status.CREATED;
+
+    @Override
+    public void startProvider() {
+        status = Status.STARTED;
+        addToRootLogger();
+    }
+
+    @Override
+    public void stopProvider() {
+        removeFromRootLogger();
+        status = Status.STOPPED;
+    }
+
+    @Override
+    public Status getProviderStatus() {
+        return status;
+    }
+
+    @Override
+    public String getProviderName() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
+    public MonitoringDataProviderInfo createInfo() {
+        return new MonitoringDataProviderInfo(getProviderName(), getProviderStatus().toString());
+    }
 
 }

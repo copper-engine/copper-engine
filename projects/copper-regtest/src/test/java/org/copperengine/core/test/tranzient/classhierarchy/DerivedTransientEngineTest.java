@@ -24,27 +24,25 @@ import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
 public class DerivedTransientEngineTest {
 
-	@Test
-	public void testWorkflow() throws Exception {
-		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
+    @Test
+    public void testWorkflow() throws Exception {
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
 
-		assertEquals(EngineState.STARTED,engine.getEngineState());
-		
-		try {
-			final BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
-			engine.run("org.copperengine.core.test.tranzient.classhierarchy.DerivedDerived", brr);
-			brr.wait4response(30000);
-			assertEquals(10, brr.getResponse().intValue());
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
-	}
-	
+        assertEquals(EngineState.STARTED, engine.getEngineState());
+
+        try {
+            final BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
+            engine.run("org.copperengine.core.test.tranzient.classhierarchy.DerivedDerived", brr);
+            brr.wait4response(30000);
+            assertEquals(10, brr.getResponse().intValue());
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+
+    }
+
 }

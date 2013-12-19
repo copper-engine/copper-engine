@@ -22,62 +22,59 @@ import java.io.Serializable;
  * For internal use only.
  * 
  * @author austermann
- *
  */
 public class StackEntry implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public transient int jumpNo;
-	public transient Object[] locals;
-	public transient Object[] stack;
-	
-	public StackEntry(Object[] stack, int jumpNo, Object[] locals) {
-		this.jumpNo = jumpNo;
-		this.locals = locals;
-		this.stack = stack;
-	}
+    public transient int jumpNo;
+    public transient Object[] locals;
+    public transient Object[] stack;
 
-	public StackEntry(int jumpNo) {
-		this.jumpNo = jumpNo;
-	}
+    public StackEntry(Object[] stack, int jumpNo, Object[] locals) {
+        this.jumpNo = jumpNo;
+        this.locals = locals;
+        this.stack = stack;
+    }
 
-	private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
-		jumpNo = stream.readInt();
-		int numLocals = stream.readInt();
-		int numStack = stream.readInt();
-		if (numLocals > 0)
-			locals = new Object[numLocals];
-		if (numStack > 0)
-			stack = new Object[numStack];
-		for (int i = 0; i < numLocals; ++i)
-			locals[i] = stream.readObject();
-		for (int i = 0; i < numStack; ++i)
-			stack[i] = stream.readObject();
-	}
+    public StackEntry(int jumpNo) {
+        this.jumpNo = jumpNo;
+    }
 
-	private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
-		stream.writeInt(jumpNo);
-		stream.writeInt(locals == null ? 0 : locals.length);
-		stream.writeInt(stack == null ? 0 : stack.length);
-		if (locals != null) {
-			for (int i = 0; i < locals.length; ++i)
-				stream.writeObject(locals[i]);
-		}
-		if (stack != null) {
-			for (int i = 0; i < stack.length; ++i)
-				stream.writeObject(stack[i]);
-		}
-	}
+    private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        jumpNo = stream.readInt();
+        int numLocals = stream.readInt();
+        int numStack = stream.readInt();
+        if (numLocals > 0)
+            locals = new Object[numLocals];
+        if (numStack > 0)
+            stack = new Object[numStack];
+        for (int i = 0; i < numLocals; ++i)
+            locals[i] = stream.readObject();
+        for (int i = 0; i < numStack; ++i)
+            stack[i] = stream.readObject();
+    }
 
-	@Override
-	public String toString() {
-//		return "StackEntry [jumpNo=" + jumpNo + ", locals="
-//		+ Arrays.toString(locals) + ", stack=" + Arrays.toString(stack)
-//		+ "]";
-		return "StackEntry@"+hashCode()+" [jumpNo=" + jumpNo + "]";
-	}
-	
-	
-	
+    private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
+        stream.writeInt(jumpNo);
+        stream.writeInt(locals == null ? 0 : locals.length);
+        stream.writeInt(stack == null ? 0 : stack.length);
+        if (locals != null) {
+            for (int i = 0; i < locals.length; ++i)
+                stream.writeObject(locals[i]);
+        }
+        if (stack != null) {
+            for (int i = 0; i < stack.length; ++i)
+                stream.writeObject(stack[i]);
+        }
+    }
+
+    @Override
+    public String toString() {
+        // return "StackEntry [jumpNo=" + jumpNo + ", locals="
+        // + Arrays.toString(locals) + ", stack=" + Arrays.toString(stack)
+        // + "]";
+        return "StackEntry@" + hashCode() + " [jumpNo=" + jumpNo + "]";
+    }
+
 }

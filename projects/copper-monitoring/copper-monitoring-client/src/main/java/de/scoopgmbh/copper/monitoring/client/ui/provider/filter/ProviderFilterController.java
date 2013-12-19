@@ -29,50 +29,47 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFi
 
 public class ProviderFilterController extends BaseFilterController<ProviderFilterModel> implements Initializable, FxmlController {
 
-	private ProviderFilterModel model = new ProviderFilterModel();
-	public ProviderFilterController() {
-		super();
-	}
+    private ProviderFilterModel model = new ProviderFilterModel();
 
+    public ProviderFilterController() {
+        super();
+    }
 
-
-    @FXML //  fx:id="idTextField"
+    @FXML
+    // fx:id="idTextField"
     private TextField idTextField; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert idTextField != null : "fx:id=\"idTextField\" was not injected: check your FXML file 'ProviderFilter.fxml'.";
 
         idTextField.textProperty().bindBidirectional(model.id);
-	}
+    }
 
-	@Override
-	public ProviderFilterModel getFilter() {
-		return model;
-	}
+    @Override
+    public ProviderFilterModel getFilter() {
+        return model;
+    }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("ProviderFilter.fxml");
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("ProviderFilter.fxml");
+    }
 
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
 
-	@Override
-	public long getDefaultRefreshInterval() {
-		return FilterController.DEFAULT_REFRESH_INTERVALL;
-	}
+    @Override
+    public long getDefaultRefreshInterval() {
+        return FilterController.DEFAULT_REFRESH_INTERVALL;
+    }
 
+    @Override
+    public Node createDefaultFilter() {
+        return new DefaultFilterFactory().createFromToMaxCount(model);
+    }
 
-	@Override
-	public Node createDefaultFilter() {
-		return new DefaultFilterFactory().createFromToMaxCount(model);
-	}
-	
-	
-	
 }

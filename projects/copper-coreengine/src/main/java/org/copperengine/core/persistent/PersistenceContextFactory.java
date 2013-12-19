@@ -17,41 +17,46 @@ package org.copperengine.core.persistent;
 
 import java.sql.SQLException;
 
-
 /**
- * Interface for custom persistence of {@link PersistentWorkflow} members. For every worklow, during saving and loading from and to storage a {@link PersistenceContext} is being created. This context is passed to {@link PersistentWorkflow#onLoad(PersistenceContext)}, {@link PersistentWorkflow#onSave(PersistenceContext)} and {@link PersistentWorkflow#onDelete(PersistenceContext)}.
+ * Interface for custom persistence of {@link PersistentWorkflow} members. For every worklow, during saving and loading
+ * from and to storage a {@link PersistenceContext} is being created. This context is passed to
+ * {@link PersistentWorkflow#onLoad(PersistenceContext)}, {@link PersistentWorkflow#onSave(PersistenceContext)} and
+ * {@link PersistentWorkflow#onDelete(PersistenceContext)}.
+ * 
  * @author Roland Scheel
- *
  * @param <T>
  */
 public interface PersistenceContextFactory<T extends PersistenceContext> {
 
-	/**
-	 * Creates a persistence context for use during loading of workflows.
-	 * @param workflow
-	 * @return the created context
-	 */
-	T createPersistenceContextForLoading(PersistentWorkflow<?> workflow);
+    /**
+     * Creates a persistence context for use during loading of workflows.
+     * 
+     * @param workflow
+     * @return the created context
+     */
+    T createPersistenceContextForLoading(PersistentWorkflow<?> workflow);
 
-	/**
-	 * Creates a persistence context for use during saving of workflows.
-	 * @param workflow
-	 * @return the created context
-	 */
-	T createPersistenceContextForSaving(PersistentWorkflow<?> workflow);
-	
-	/**
-	 * Creates a persistence context for use during deletion of workflows.
-	 * @param workflow
-	 * @return the created context
-	 */
-	T createPersistenceContextForDeletion(PersistentWorkflow<?> workflow);
+    /**
+     * Creates a persistence context for use during saving of workflows.
+     * 
+     * @param workflow
+     * @return the created context
+     */
+    T createPersistenceContextForSaving(PersistentWorkflow<?> workflow);
 
-	/**
-	 * Flushes all operations that were passed to the created {@link PersistenceContext}s.
-	 * @throws SQLException
-	 */
-	void flush() throws SQLException;
+    /**
+     * Creates a persistence context for use during deletion of workflows.
+     * 
+     * @param workflow
+     * @return the created context
+     */
+    T createPersistenceContextForDeletion(PersistentWorkflow<?> workflow);
 
+    /**
+     * Flushes all operations that were passed to the created {@link PersistenceContext}s.
+     * 
+     * @throws SQLException
+     */
+    void flush() throws SQLException;
 
 }

@@ -20,21 +20,28 @@ import java.util.List;
 
 import org.copperengine.core.ProcessingEngine;
 
-
 /**
- * Interface for managing {@link ProcessorPool}s in one COPPER {@link ProcessingEngine}. 
+ * Interface for managing {@link ProcessorPool}s in one COPPER {@link ProcessingEngine}.
+ * 
  * @author austermann
- *
  * @param <T>
  */
 public interface ProcessorPoolManager<T extends ProcessorPool> {
-	public void setEngine(ProcessingEngine engine);
-	public T getProcessorPool(String poolId); 
-	public List<String> getProcessorPoolIds();
-	public void setProcessorPools(List<T> processorPools);
-	public void addProcessorPool(T pool);
-	public void removeProcessorPool(String poolId);
-	public void startup();
-	public void shutdown();
-	public Collection<T> processorPools();
+    public void setEngine(ProcessingEngine engine);
+
+    public T getProcessorPool(String poolId);
+
+    public List<String> getProcessorPoolIds();
+
+    public void setProcessorPools(List<T> processorPools);
+
+    public void addProcessorPool(T pool);
+
+    public void removeProcessorPool(String poolId);
+
+    public void startup();
+
+    public void shutdown();
+
+    public Collection<T> processorPools();
 }

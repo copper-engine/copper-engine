@@ -19,10 +19,9 @@ import java.util.List;
 
 import org.copperengine.management.model.AuditTrailInfo;
 
-
 public interface AuditTrailQueryMXBean {
 
-	List<AuditTrailInfo> getAuditTrails(String transactionId, String conversationId, String correlationId, Integer level, int maxResult);
-	
-	byte[] getMessage(long id);
+    List<AuditTrailInfo> getAuditTrails(String transactionId, String conversationId, String correlationId, Integer level, int maxResult);
+
+    byte[] getMessage(long id);
 }

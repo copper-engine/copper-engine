@@ -23,36 +23,35 @@ import javafx.stage.Stage;
 
 public class ApplicationFixture extends Application {
 
-	private static BorderPane pane;
-	private static Stage stage;
-	
-	@Override
-	public void start(final Stage stage) { 
-		pane = new BorderPane();
-		
-		final Scene scene = new Scene(pane, 1300, 900, Color.WHEAT);
-	    stage.setWidth(1167);
-	    stage.setHeight(800);
-	    
-	    scene.getStylesheets().add(this.getClass().getResource("/de/scoopgmbh/copper/gui/css/base.css").toExternalForm());
-	    
-	    stage.setScene(scene);
-	    stage.show();
-	    
-	    ApplicationFixture.stage = stage;
-	}
-	
-	public static BorderPane getPane(){
-		return pane;
-	}
+    private static BorderPane pane;
+    private static Stage stage;
 
-	public static void launchWorkaround(){
-		Application.launch(new String[]{});
-	}
+    @Override
+    public void start(final Stage stage) {
+        pane = new BorderPane();
 
-	public static Stage getStage() {
-		return stage;
-	}
+        final Scene scene = new Scene(pane, 1300, 900, Color.WHEAT);
+        stage.setWidth(1167);
+        stage.setHeight(800);
 
-	
+        scene.getStylesheets().add(this.getClass().getResource("/de/scoopgmbh/copper/gui/css/base.css").toExternalForm());
+
+        stage.setScene(scene);
+        stage.show();
+
+        ApplicationFixture.stage = stage;
+    }
+
+    public static BorderPane getPane() {
+        return pane;
+    }
+
+    public static void launchWorkaround() {
+        Application.launch(new String[] {});
+    }
+
+    public static Stage getStage() {
+        return stage;
+    }
+
 }

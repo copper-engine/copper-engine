@@ -16,10 +16,10 @@
 package org.copperengine.core.persistent;
 
 public enum DBProcessingState {
-	ENQUEUED, 
-	PROCESSING /* so far unused */, 
-	WAITING, 
-	FINISHED, 
-	INVALID, 
-	ERROR 
+    ENQUEUED,
+    PROCESSING /* so far unused */,
+    WAITING,
+    FINISHED,
+    INVALID,
+    ERROR
 }

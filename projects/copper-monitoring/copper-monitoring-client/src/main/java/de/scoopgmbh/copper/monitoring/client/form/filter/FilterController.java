@@ -20,21 +20,23 @@ import javafx.scene.Node;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 
 public interface FilterController<F> extends FxmlController {
-	public static long DEFAULT_REFRESH_INTERVALL=1000;
-	
-	public F getFilter();
-	public boolean supportsFiltering();
-	//public void executeFilter();
-	public long getDefaultRefreshInterval();
-	
-	public ListProperty<ActionsWithFilterForm> getActionsWithFilterForm();
-	
-	public static interface ActionsWithFilterForm{
-		public void run(FilterAbleForm<?,?> filterForm);
-	}
-	
-	/**
-	 * @return null for no filter
-	 */
-	public Node createDefaultFilter();
+    public static long DEFAULT_REFRESH_INTERVALL = 1000;
+
+    public F getFilter();
+
+    public boolean supportsFiltering();
+
+    // public void executeFilter();
+    public long getDefaultRefreshInterval();
+
+    public ListProperty<ActionsWithFilterForm> getActionsWithFilterForm();
+
+    public static interface ActionsWithFilterForm {
+        public void run(FilterAbleForm<?, ?> filterForm);
+    }
+
+    /**
+     * @return null for no filter
+     */
+    public Node createDefaultFilter();
 }

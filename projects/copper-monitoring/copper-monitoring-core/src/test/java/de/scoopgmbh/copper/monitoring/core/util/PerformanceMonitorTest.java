@@ -17,13 +17,10 @@ package de.scoopgmbh.copper.monitoring.core.util;
 
 import org.junit.Test;
 
-import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
-
-
 public class PerformanceMonitorTest {
 
-	@Test
-	public void test_noexception(){
-		new PerformanceMonitor().createRessourcenInfo();
-	}
+    @Test
+    public void test_noexception() {
+        new PerformanceMonitor().createRessourcenInfo();
+    }
 }

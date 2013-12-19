@@ -32,95 +32,91 @@ import org.copperengine.core.db.utility.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 class DerbyDbNotifyNoEarlyResponseHandling {
 
-	private static final Logger logger = LoggerFactory.getLogger(DerbyDbNotifyNoEarlyResponseHandling.class);
+    private static final Logger logger = LoggerFactory.getLogger(DerbyDbNotifyNoEarlyResponseHandling.class);
 
-	static final class Command extends AbstractBatchCommand<Executor, Command>{
+    static final class Command extends AbstractBatchCommand<Executor, Command> {
 
-		final Response<?> response;
-		final Serializer serializer;
-		final long defaultStaleResponseRemovalTimeout;
+        final Response<?> response;
+        final Serializer serializer;
+        final long defaultStaleResponseRemovalTimeout;
 
-		public Command(Response<?> response, Serializer serializer, long defaultStaleResponseRemovalTimeout, final long targetTime, Acknowledge ack) {
-			super(new AcknowledgeCallbackWrapper<Command>(ack),targetTime);
-			this.response = response;
-			this.serializer = serializer;
-			this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
-		}
+        public Command(Response<?> response, Serializer serializer, long defaultStaleResponseRemovalTimeout, final long targetTime, Acknowledge ack) {
+            super(new AcknowledgeCallbackWrapper<Command>(ack), targetTime);
+            this.response = response;
+            this.serializer = serializer;
+            this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
+        }
 
-		@Override
-		public Executor executor() {
-			return Executor.INSTANCE;
-		}
+        @Override
+        public Executor executor() {
+            return Executor.INSTANCE;
+        }
 
-	}
+    }
 
-	static final class Executor extends BatchExecutor<Executor, Command>{
+    static final class Executor extends BatchExecutor<Executor, Command> {
 
-		private static final Executor INSTANCE = new Executor();
+        private static final Executor INSTANCE = new Executor();
 
-		@Override
-		public int maximumBatchSize() {
-			return 100;
-		}
+        @Override
+        public int maximumBatchSize() {
+            return 100;
+        }
 
-		@Override
-		public int preferredBatchSize() {
-			return 50;
-		}
+        @Override
+        public int preferredBatchSize() {
+            return 50;
+        }
 
-		@Override
-		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
-			if (commands.isEmpty())
-				return;
+        @Override
+        public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
+            if (commands.isEmpty())
+                return;
 
-			final PreparedStatement selectStmt = con.prepareStatement("select count(*) from cop_wait where correlation_id = ?");
-			final PreparedStatement insertStmt = con.prepareStatement("INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA, RESPONSE_ID) VALUES (?,?,?,?,?,?)");
-			try {
-				final Timestamp now = new Timestamp(System.currentTimeMillis());
-				int counter = 0;
-				for (BatchCommand<Executor, Command> _cmd : commands) {
-					Command cmd = (Command)_cmd;
-					selectStmt.clearParameters();
-					selectStmt.setString(1, cmd.response.getCorrelationId());
-					ResultSet rs = selectStmt.executeQuery();
-					rs.next();
-					final int c = rs.getInt(1);
-					rs.close();
+            final PreparedStatement selectStmt = con.prepareStatement("select count(*) from cop_wait where correlation_id = ?");
+            final PreparedStatement insertStmt = con.prepareStatement("INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA, RESPONSE_ID) VALUES (?,?,?,?,?,?)");
+            try {
+                final Timestamp now = new Timestamp(System.currentTimeMillis());
+                int counter = 0;
+                for (BatchCommand<Executor, Command> _cmd : commands) {
+                    Command cmd = (Command) _cmd;
+                    selectStmt.clearParameters();
+                    selectStmt.setString(1, cmd.response.getCorrelationId());
+                    ResultSet rs = selectStmt.executeQuery();
+                    rs.next();
+                    final int c = rs.getInt(1);
+                    rs.close();
 
-					if (c == 1) {
-						insertStmt.setString(1, cmd.response.getCorrelationId());
-						insertStmt.setString(2, cmd.response.getCorrelationId());
-						insertStmt.setTimestamp(3, now);
-						final String payload = cmd.serializer.serializeResponse(cmd.response);
-						insertStmt.setString(4, payload);
-						insertStmt.setTimestamp(5, TimeoutProcessor.processTimout(cmd.response.getInternalProcessingTimeout(), cmd.defaultStaleResponseRemovalTimeout));
-						insertStmt.setString(6, cmd.response.getMetaData());
-						insertStmt.setString(7, cmd.response.getResponseId());
-						insertStmt.addBatch();
-						counter++;
-					}
-				}
-				if (counter > 0) {
-					insertStmt.executeBatch();
-				}
-			}
-			catch(SQLException e) {
-				logger.error("doExec failed",e);
-				logger.error("NextException=",e.getNextException());
-				throw e;
-			}
-			catch(Exception e) {
-				logger.error("doExec failed",e);
-				throw e;
-			}
-			finally {
-				JdbcUtils.closeStatement(insertStmt);
-			}
-		}
+                    if (c == 1) {
+                        insertStmt.setString(1, cmd.response.getCorrelationId());
+                        insertStmt.setString(2, cmd.response.getCorrelationId());
+                        insertStmt.setTimestamp(3, now);
+                        final String payload = cmd.serializer.serializeResponse(cmd.response);
+                        insertStmt.setString(4, payload);
+                        insertStmt.setTimestamp(5, TimeoutProcessor.processTimout(cmd.response.getInternalProcessingTimeout(), cmd.defaultStaleResponseRemovalTimeout));
+                        insertStmt.setString(6, cmd.response.getMetaData());
+                        insertStmt.setString(7, cmd.response.getResponseId());
+                        insertStmt.addBatch();
+                        counter++;
+                    }
+                }
+                if (counter > 0) {
+                    insertStmt.executeBatch();
+                }
+            } catch (SQLException e) {
+                logger.error("doExec failed", e);
+                logger.error("NextException=", e.getNextException());
+                throw e;
+            } catch (Exception e) {
+                logger.error("doExec failed", e);
+                throw e;
+            } finally {
+                JdbcUtils.closeStatement(insertStmt);
+            }
+        }
 
-	}
+    }
 
 }

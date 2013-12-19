@@ -17,22 +17,22 @@ package org.copperengine.core.batcher;
 
 import org.copperengine.core.Acknowledge;
 
-public class AcknowledgeCallbackWrapper<T extends BatchCommand<?,T>> implements CommandCallback<T> {
+public class AcknowledgeCallbackWrapper<T extends BatchCommand<?, T>> implements CommandCallback<T> {
 
-	final Acknowledge ack;
-	
-	public AcknowledgeCallbackWrapper(Acknowledge ack) {
-		this.ack = ack;
-	}
+    final Acknowledge ack;
 
-	@Override
-	public void commandCompleted() {
-		ack.onSuccess();
-	}
+    public AcknowledgeCallbackWrapper(Acknowledge ack) {
+        this.ack = ack;
+    }
 
-	@Override
-	public void unhandledException(Exception e) {
-		ack.onException(e);
-	}
-	
+    @Override
+    public void commandCompleted() {
+        ack.onSuccess();
+    }
+
+    @Override
+    public void unhandledException(Exception e) {
+        ack.onException(e);
+    }
+
 }

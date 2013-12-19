@@ -20,24 +20,29 @@ import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.WorkflowVersion;
 import org.copperengine.core.instrument.ClassInfo;
 
-
 /**
  * A WorkflowRepository is a container for COPPER workflows.
  * It encapsulates the handling and storage of workflows and makes the workflow classes accessible to one or more COPPER
  * {@link org.copperengine.core.core.ProcessingEngine}s.
- *  
+ * 
  * @author austermann
- *
  */
 public interface WorkflowRepository {
 
-	public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName) throws ClassNotFoundException;
-	public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName, final WorkflowVersion version) throws ClassNotFoundException;
-	public WorkflowVersion findLatestMajorVersion(final String wfName, long majorVersion);
-	public WorkflowVersion findLatestMinorVersion(final String wfName, long majorVersion, long minorVersion);
-	public java.lang.Class<?> resolveClass(	java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException;
-	       ClassInfo getClassInfo(@SuppressWarnings("rawtypes") final Class<? extends Workflow> wfClazz) throws java.io.IOException, ClassNotFoundException;
-	public void start();
-	public void shutdown();
+    public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName) throws ClassNotFoundException;
+
+    public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName, final WorkflowVersion version) throws ClassNotFoundException;
+
+    public WorkflowVersion findLatestMajorVersion(final String wfName, long majorVersion);
+
+    public WorkflowVersion findLatestMinorVersion(final String wfName, long majorVersion, long minorVersion);
+
+    public java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException;
+
+    ClassInfo getClassInfo(@SuppressWarnings("rawtypes") final Class<? extends Workflow> wfClazz) throws java.io.IOException, ClassNotFoundException;
+
+    public void start();
+
+    public void shutdown();
 
 }

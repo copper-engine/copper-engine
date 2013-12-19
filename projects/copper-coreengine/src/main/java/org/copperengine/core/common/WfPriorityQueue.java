@@ -23,143 +23,141 @@ import java.util.Queue;
 
 import org.copperengine.core.Workflow;
 
-
 /**
  * Priority queue for {@link Workflow} instances.
- * 
  * Entries in the queue are ordered using their priority and enqueue timestamp
  * 
  * @author austermann
- *
  */
 public class WfPriorityQueue implements Queue<Workflow<?>> {
 
-	private static class QueueEntry {
-		long enqueueTS = System.currentTimeMillis();
-		Workflow<?> workflow;
-		public QueueEntry(Workflow<?> workflow) {
-			this.workflow = workflow;
-		}
-	}
-	
-	private Queue<QueueEntry> queue;
+    private static class QueueEntry {
+        long enqueueTS = System.currentTimeMillis();
+        Workflow<?> workflow;
 
-	public WfPriorityQueue() {
-		this(10000);
-	}
-	
-	public WfPriorityQueue(final int initialSize) {
-		queue = new PriorityQueue<QueueEntry>(10000, new Comparator<QueueEntry>() {
-			public int compare(QueueEntry o1, QueueEntry o2) {
-				if (o1.workflow.getPriority() != o2.workflow.getPriority()) {
-					return o1.workflow.getPriority() - o2.workflow.getPriority();
-				}
-				else {
-					if (o1.enqueueTS == o2.enqueueTS)
-						return 0;
-					if (o1.enqueueTS > o2.enqueueTS)
-						return 1;
-					return -1;
-				}
-			};
-		});		
-	}
-	
-	@Override
-	public int size() {
-		return queue.size();
-	}
+        public QueueEntry(Workflow<?> workflow) {
+            this.workflow = workflow;
+        }
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return queue.isEmpty();
-	}
+    private Queue<QueueEntry> queue;
 
-	@Override
-	public boolean contains(Object o) {
-		return queue.contains(o);
-	}
+    public WfPriorityQueue() {
+        this(10000);
+    }
 
-	@Override
-	public Iterator<Workflow<?>> iterator() {
-		throw new UnsupportedOperationException();
-	}
+    public WfPriorityQueue(final int initialSize) {
+        queue = new PriorityQueue<QueueEntry>(10000, new Comparator<QueueEntry>() {
+            public int compare(QueueEntry o1, QueueEntry o2) {
+                if (o1.workflow.getPriority() != o2.workflow.getPriority()) {
+                    return o1.workflow.getPriority() - o2.workflow.getPriority();
+                }
+                else {
+                    if (o1.enqueueTS == o2.enqueueTS)
+                        return 0;
+                    if (o1.enqueueTS > o2.enqueueTS)
+                        return 1;
+                    return -1;
+                }
+            };
+        });
+    }
 
-	@Override
-	public Object[] toArray() {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public int size() {
+        return queue.size();
+    }
 
-	@Override
-	public <T> T[] toArray(T[] a) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean isEmpty() {
+        return queue.isEmpty();
+    }
 
-	@Override
-	public boolean remove(Object o) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean contains(Object o) {
+        return queue.contains(o);
+    }
 
-	@Override
-	public boolean containsAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public Iterator<Workflow<?>> iterator() {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public boolean addAll(Collection<? extends Workflow<?>> c) {
-		for (Workflow<?> wf : c) {
-			add(wf);
-		}
-		return true;
-	}
+    @Override
+    public Object[] toArray() {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public boolean removeAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public <T> T[] toArray(T[] a) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public boolean retainAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean remove(Object o) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void clear() {
-		queue.clear();
-	}
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public boolean add(Workflow<?> e) {
-		return queue.add(new QueueEntry(e));
-	}
+    @Override
+    public boolean addAll(Collection<? extends Workflow<?>> c) {
+        for (Workflow<?> wf : c) {
+            add(wf);
+        }
+        return true;
+    }
 
-	@Override
-	public boolean offer(Workflow<?> e) {
-		return queue.offer(new QueueEntry(e));
-	}
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public Workflow<?> remove() {
-		QueueEntry e = queue.remove();
-		return e != null ? e.workflow : null;
-	}
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public Workflow<?> poll() {
-		QueueEntry e = queue.poll();
-		return e != null ? e.workflow : null;
-	}
+    @Override
+    public void clear() {
+        queue.clear();
+    }
 
-	@Override
-	public Workflow<?> element() {
-		QueueEntry e = queue.element();
-		return e != null ? e.workflow : null;
-	}
+    @Override
+    public boolean add(Workflow<?> e) {
+        return queue.add(new QueueEntry(e));
+    }
 
-	@Override
-	public Workflow<?> peek() {
-		QueueEntry e = queue.peek();
-		return e != null ? e.workflow : null;
-	}
+    @Override
+    public boolean offer(Workflow<?> e) {
+        return queue.offer(new QueueEntry(e));
+    }
+
+    @Override
+    public Workflow<?> remove() {
+        QueueEntry e = queue.remove();
+        return e != null ? e.workflow : null;
+    }
+
+    @Override
+    public Workflow<?> poll() {
+        QueueEntry e = queue.poll();
+        return e != null ? e.workflow : null;
+    }
+
+    @Override
+    public Workflow<?> element() {
+        QueueEntry e = queue.element();
+        return e != null ? e.workflow : null;
+    }
+
+    @Override
+    public Workflow<?> peek() {
+        QueueEntry e = queue.peek();
+        return e != null ? e.workflow : null;
+    }
 
 }

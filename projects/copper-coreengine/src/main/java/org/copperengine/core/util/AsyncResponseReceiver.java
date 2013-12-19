@@ -16,6 +16,7 @@
 package org.copperengine.core.util;
 
 public interface AsyncResponseReceiver<E> {
-	public void setResponse(E response);
-	public void setException(Exception exception);
+    public void setResponse(E response);
+
+    public void setException(Exception exception);
 }

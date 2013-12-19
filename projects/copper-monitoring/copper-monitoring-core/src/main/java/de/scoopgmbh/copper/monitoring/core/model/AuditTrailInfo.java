@@ -18,100 +18,115 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 import java.util.Date;
 
+public class AuditTrailInfo implements Serializable {
+    private static final long serialVersionUID = -209662541110736345L;
 
-public class AuditTrailInfo implements Serializable{
-	private static final long serialVersionUID = -209662541110736345L;
+    long id;
+    Date occurrence;
+    String conversationId;
+    int loglevel;
+    String context;
+    String workflowInstanceId;
+    String correlationId;
+    String transactionId;
+    String messageType;
 
-	long id;
-	Date occurrence;
-	String conversationId;
-	int loglevel;
-	String context;
-	String workflowInstanceId;
-	String correlationId;
-	String transactionId;
-	String messageType;
-	
-	public AuditTrailInfo(){
-		
-	}
-	
-	public AuditTrailInfo(
-			long id,
-			String transactionId,
-			String conversationId,
-			String correlationId, 
-			Date occurrence, 
-			int loglevel,
-			String context, 
-			String workflowInstanceId, 
-			String messageType) {
-		super();
-		this.id = id;
-		this.occurrence = occurrence;
-		this.conversationId = conversationId;
-		this.loglevel = loglevel;
-		this.context = context;
-		this.workflowInstanceId = workflowInstanceId;
-		this.correlationId = correlationId;
-		this.transactionId = transactionId;
-		this.messageType = messageType;
-	}
-	public long getId() {
-		return id;
-	}
+    public AuditTrailInfo() {
 
-	public void setId(long id) {
-		this.id = id;
-	}
-	
-	public Date getOccurrence() {
-		return occurrence;
-	}
-	public String getConversationId() {
-		return conversationId;
-	}
-	public int getLoglevel() {
-		return loglevel;
-	}
-	public String getContext() {
-		return context;
-	}
-	public String getWorkflowInstanceId() {
-		return workflowInstanceId;
-	}
-	public String getCorrelationId() {
-		return correlationId;
-	}
-	public String getTransactionId() {
-		return transactionId;
-	}
-	public String getMessageType() {
-		return messageType;
-	}
-	public void setOccurrence(Date occurrence) {
-		this.occurrence = occurrence;
-	}
-	public void setConversationId(String conversationId) {
-		this.conversationId = conversationId;
-	}
-	public void setLoglevel(int loglevel) {
-		this.loglevel = loglevel;
-	}
-	public void setContext(String context) {
-		this.context = context;
-	}
-	public void setWorkflowInstanceId(String workflowInstanceId) {
-		this.workflowInstanceId = workflowInstanceId;
-	}
-	public void setCorrelationId(String correlationId) {
-		this.correlationId = correlationId;
-	}
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
-	}
-	public void setMessageType(String messageType) {
-		this.messageType = messageType;
-	}
-	
+    }
+
+    public AuditTrailInfo(
+            long id,
+            String transactionId,
+            String conversationId,
+            String correlationId,
+            Date occurrence,
+            int loglevel,
+            String context,
+            String workflowInstanceId,
+            String messageType) {
+        super();
+        this.id = id;
+        this.occurrence = occurrence;
+        this.conversationId = conversationId;
+        this.loglevel = loglevel;
+        this.context = context;
+        this.workflowInstanceId = workflowInstanceId;
+        this.correlationId = correlationId;
+        this.transactionId = transactionId;
+        this.messageType = messageType;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public Date getOccurrence() {
+        return occurrence;
+    }
+
+    public String getConversationId() {
+        return conversationId;
+    }
+
+    public int getLoglevel() {
+        return loglevel;
+    }
+
+    public String getContext() {
+        return context;
+    }
+
+    public String getWorkflowInstanceId() {
+        return workflowInstanceId;
+    }
+
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public String getMessageType() {
+        return messageType;
+    }
+
+    public void setOccurrence(Date occurrence) {
+        this.occurrence = occurrence;
+    }
+
+    public void setConversationId(String conversationId) {
+        this.conversationId = conversationId;
+    }
+
+    public void setLoglevel(int loglevel) {
+        this.loglevel = loglevel;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
+    }
+
+    public void setWorkflowInstanceId(String workflowInstanceId) {
+        this.workflowInstanceId = workflowInstanceId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public void setMessageType(String messageType) {
+        this.messageType = messageType;
+    }
+
 }

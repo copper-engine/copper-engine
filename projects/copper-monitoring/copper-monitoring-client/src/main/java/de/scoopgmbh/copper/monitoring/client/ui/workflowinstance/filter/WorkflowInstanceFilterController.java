@@ -39,40 +39,46 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class WorkflowInstanceFilterController extends BaseEngineFilterController<WorkflowInstanceFilterModel> implements Initializable, FxmlController {
-	public WorkflowInstanceFilterController(List<ProcessingEngineInfo> availableEngines) {
-		super(availableEngines,new WorkflowInstanceFilterModel());
-	}
+    public WorkflowInstanceFilterController(List<ProcessingEngineInfo> availableEngines) {
+        super(availableEngines, new WorkflowInstanceFilterModel());
+    }
 
-	static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
+    static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
-	public class EmptySelectionWorkaround{
-		public WorkflowInstanceState value;
-		public String text;
-		public EmptySelectionWorkaround(WorkflowInstanceState value, String text) {
-			super();
-			this.value = value;
-			this.text = text;
-		}
-		
-	}
+    public class EmptySelectionWorkaround {
+        public WorkflowInstanceState value;
+        public String text;
 
-    @FXML //  fx:id="priorityField"
+        public EmptySelectionWorkaround(WorkflowInstanceState value, String text) {
+            super();
+            this.value = value;
+            this.text = text;
+        }
+
+    }
+
+    @FXML
+    // fx:id="priorityField"
     private TextField priorityField; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="stateChoice"
+    @FXML
+    // fx:id="stateChoice"
     private ChoiceBox<EmptySelectionWorkaround> stateChoice; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="workflowClass"
+    @FXML
+    // fx:id="workflowClass"
     private TextField workflowClass; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="from"
+    @FXML
+    // fx:id="from"
     private BorderPane from; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="to"
+    @FXML
+    // fx:id="to"
     private BorderPane to; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert from != null : "fx:id=\"from\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
         assert priorityField != null : "fx:id=\"priorityField\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
@@ -80,64 +86,62 @@ public class WorkflowInstanceFilterController extends BaseEngineFilterController
         assert to != null : "fx:id=\"to\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowInstanceFilter.fxml'.";
 
-        
         priorityField.textProperty().bindBidirectional(model.priority);
         workflowClass.textProperty().bindBidirectional(model.version.classname);
-        
-        
+
         DateTimePicker fromDatePicker = new DateTimePicker();
         fromDatePicker.bindBidirectionalSelected(model.from);
         from.setCenter(fromDatePicker.createContent());
         DateTimePicker toDatePicker = new DateTimePicker();
         toDatePicker.bindBidirectionalSelected(model.to);
         to.setCenter(toDatePicker.createContent());
-        
+
         ArrayList<EmptySelectionWorkaround> states = new ArrayList<EmptySelectionWorkaround>();
-        for (WorkflowInstanceState state: WorkflowInstanceState.values()){
-        	states.add(new EmptySelectionWorkaround(state,state.toString()));
-    	}	
-        EmptySelectionWorkaround emptyItem = new EmptySelectionWorkaround(null,"any");
-		states.add(emptyItem);
+        for (WorkflowInstanceState state : WorkflowInstanceState.values()) {
+            states.add(new EmptySelectionWorkaround(state, state.toString()));
+        }
+        EmptySelectionWorkaround emptyItem = new EmptySelectionWorkaround(null, "any");
+        states.add(emptyItem);
         stateChoice.setItems(FXCollections.observableList(states));
         stateChoice.setConverter(new StringConverter<WorkflowInstanceFilterController.EmptySelectionWorkaround>() {
-			@Override
-			public String toString(EmptySelectionWorkaround object) {
-				return object.text;
-			}
-			
-			@Override
-			public EmptySelectionWorkaround fromString(String string) {
-				return null;
-			}
-		});
+            @Override
+            public String toString(EmptySelectionWorkaround object) {
+                return object.text;
+            }
+
+            @Override
+            public EmptySelectionWorkaround fromString(String string) {
+                return null;
+            }
+        });
         stateChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<EmptySelectionWorkaround>() {
             @Override
-			public void changed(ObservableValue<? extends EmptySelectionWorkaround> observableValue, EmptySelectionWorkaround anEnum, EmptySelectionWorkaround anEnum1) {
-            	model.state.setValue(anEnum1.value);
+            public void changed(ObservableValue<? extends EmptySelectionWorkaround> observableValue, EmptySelectionWorkaround anEnum, EmptySelectionWorkaround anEnum1) {
+                model.state.setValue(anEnum1.value);
             }
         });
         stateChoice.getSelectionModel().select(emptyItem);
 
-	}
-    
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("WorkflowInstanceFilter.fxml");
-	}
-	
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
-	
-	@Override
-	public long getDefaultRefreshInterval() {
-		return FilterController.DEFAULT_REFRESH_INTERVALL;
-	}
+    }
 
-	@Override
-	public Node createAdditionalFilter() {
-		return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
-	}
-	
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("WorkflowInstanceFilter.fxml");
+    }
+
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
+
+    @Override
+    public long getDefaultRefreshInterval() {
+        return FilterController.DEFAULT_REFRESH_INTERVALL;
+    }
+
+    @Override
+    public Node createAdditionalFilter() {
+        return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
+    }
+
 }

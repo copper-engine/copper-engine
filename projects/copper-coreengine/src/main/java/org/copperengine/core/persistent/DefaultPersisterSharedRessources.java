@@ -15,9 +15,8 @@
  */
 package org.copperengine.core.persistent;
 
-
 public abstract class DefaultPersisterSharedRessources<E, P extends DefaultEntityPersister<E>> {
-	
-	public abstract Iterable<DefaultPersistenceWorker<E,P>> getWorkers();
+
+    public abstract Iterable<DefaultPersistenceWorker<E, P>> getWorkers();
 
 }

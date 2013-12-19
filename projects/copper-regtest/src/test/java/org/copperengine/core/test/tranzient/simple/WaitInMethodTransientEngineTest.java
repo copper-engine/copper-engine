@@ -26,38 +26,36 @@ import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+public class WaitInMethodTransientEngineTest {
 
-public class WaitInMethodTransientEngineTest{
-	
-	private final int[] response = { -1 };
+    private final int[] response = { -1 };
 
-	@Test
-	public void testWorkflow() throws Exception {
-		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
-		context.getBeanFactory().registerSingleton("OutputChannel4711",new TestResponseReceiver<String, Integer>() {
-			@Override
-			public void setResponse(Workflow<String> wf, Integer r) {
-				synchronized (response) {
-					response[0] = r.intValue();
-					response.notifyAll();
-				}
-			}
-		});
+    @Test
+    public void testWorkflow() throws Exception {
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
+        context.getBeanFactory().registerSingleton("OutputChannel4711", new TestResponseReceiver<String, Integer>() {
+            @Override
+            public void setResponse(Workflow<String> wf, Integer r) {
+                synchronized (response) {
+                    response[0] = r.intValue();
+                    response.notifyAll();
+                }
+            }
+        });
 
-		assertEquals(EngineState.STARTED,engine.getEngineState());
-		
-		try {
-			BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
-			engine.run("org.copperengine.core.test.tranzient.simple.WaitInMethodTestTransientWorkflow", brr);
-			brr.wait4response(5000L);
-			assertEquals(1,brr.getResponse().intValue());
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
-	}
-	
+        assertEquals(EngineState.STARTED, engine.getEngineState());
+
+        try {
+            BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
+            engine.run("org.copperengine.core.test.tranzient.simple.WaitInMethodTestTransientWorkflow", brr);
+            brr.wait4response(5000L);
+            assertEquals(1, brr.getResponse().intValue());
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+
+    }
+
 }

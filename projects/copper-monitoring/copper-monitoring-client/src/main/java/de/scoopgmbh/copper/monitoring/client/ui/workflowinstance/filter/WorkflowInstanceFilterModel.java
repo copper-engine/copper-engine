@@ -24,14 +24,14 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePool
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
-public class WorkflowInstanceFilterModel extends EnginePoolFilterModel{
-	
-	public final SimpleObjectProperty<Date> from = new SimpleObjectProperty<Date>();
-	public final SimpleObjectProperty<Date> to = new SimpleObjectProperty<Date>();
-	
-	public final SimpleObjectProperty<WorkflowInstanceState> state = new SimpleObjectProperty<WorkflowInstanceState>();
-	public final SimpleStringProperty priority = new SimpleStringProperty();
-	public final WorkflowVersion version = new WorkflowVersion();
-	
-	public final MaxCountFilterModel maxCountFilterModel = new MaxCountFilterModel();
+public class WorkflowInstanceFilterModel extends EnginePoolFilterModel {
+
+    public final SimpleObjectProperty<Date> from = new SimpleObjectProperty<Date>();
+    public final SimpleObjectProperty<Date> to = new SimpleObjectProperty<Date>();
+
+    public final SimpleObjectProperty<WorkflowInstanceState> state = new SimpleObjectProperty<WorkflowInstanceState>();
+    public final SimpleStringProperty priority = new SimpleStringProperty();
+    public final WorkflowVersion version = new WorkflowVersion();
+
+    public final MaxCountFilterModel maxCountFilterModel = new MaxCountFilterModel();
 }

@@ -15,9 +15,9 @@
  */
 package de.scoopgmbh.copper.monitoring.server.logging;
 
-
 public interface LogConfigManager {
-	
-	public void updateLogConfig(String config);
-	public String getLogConfig();
+
+    public void updateLogConfig(String config);
+
+    public String getLogConfig();
 }

@@ -35,145 +35,147 @@ import org.copperengine.core.batcher.CommandCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 class SqlRegisterCallback {
-	
-	private static final Logger logger = LoggerFactory.getLogger(SqlRegisterCallback.class);
 
-	static final class Command extends AbstractBatchCommand<Executor, Command> {
+    private static final Logger logger = LoggerFactory.getLogger(SqlRegisterCallback.class);
 
-		private final RegisterCall registerCall;
-		private final Serializer serializer;
-		private final WorkflowPersistencePlugin workflowPersistencePlugin;
+    static final class Command extends AbstractBatchCommand<Executor, Command> {
 
-		public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorage, final long targetTime, final WorkflowPersistencePlugin workflowPersistencePlugin, final Acknowledge ack) {
-			super(new CommandCallback<Command>() {
-				@Override
-				public void commandCompleted() {
-					ack.onSuccess();
-				}
-				@Override
-				public void unhandledException(Exception e) {
-					ack.onException(e);
-					logger.error("Execution of batch entry in a single txn failed.",e);
-					dbStorage.error(registerCall.workflow, e, new Acknowledge.BestEffortAcknowledge());
-				}
-			},targetTime);
-			this.registerCall = registerCall;
-			this.serializer = serializer;
-			this.workflowPersistencePlugin = workflowPersistencePlugin;
-		}
+        private final RegisterCall registerCall;
+        private final Serializer serializer;
+        private final WorkflowPersistencePlugin workflowPersistencePlugin;
 
-		@Override
-		public Executor executor() {
-			return Executor.INSTANCE;
-		}
+        public Command(final RegisterCall registerCall, final Serializer serializer, final ScottyDBStorageInterface dbStorage, final long targetTime, final WorkflowPersistencePlugin workflowPersistencePlugin, final Acknowledge ack) {
+            super(new CommandCallback<Command>() {
+                @Override
+                public void commandCompleted() {
+                    ack.onSuccess();
+                }
 
-	}
+                @Override
+                public void unhandledException(Exception e) {
+                    ack.onException(e);
+                    logger.error("Execution of batch entry in a single txn failed.", e);
+                    dbStorage.error(registerCall.workflow, e, new Acknowledge.BestEffortAcknowledge());
+                }
+            }, targetTime);
+            this.registerCall = registerCall;
+            this.serializer = serializer;
+            this.workflowPersistencePlugin = workflowPersistencePlugin;
+        }
 
-	static final class Executor extends BatchExecutor<Executor, Command> {
+        @Override
+        public Executor executor() {
+            return Executor.INSTANCE;
+        }
 
-		private static final Executor INSTANCE = new Executor();
+    }
 
-		@Override
-		public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
-			final Timestamp now = new Timestamp(System.currentTimeMillis());
-			boolean doWaitDeletes = false;
-			boolean doResponseDeletes = false;
-			PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
-			PreparedStatement deleteWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
-			PreparedStatement deleteResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE RESPONSE_ID=?");
-			PreparedStatement insertWaitStmt = con.prepareStatement("INSERT INTO COP_WAIT (CORRELATION_ID,WORKFLOW_INSTANCE_ID,MIN_NUMB_OF_RESP,TIMEOUT_TS,STATE,PRIORITY,PPOOL_ID) VALUES (?,?,?,?,?,?,?)");
-			PreparedStatement updateWfiStmt = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, PRIORITY=?, LAST_MOD_TS=?, PPOOL_ID=?, DATA=?, OBJECT_STATE=?, CS_WAITMODE=?, MIN_NUMB_OF_RESP=?, NUMB_OF_WAITS=?, TIMEOUT=? WHERE ID=?");
-			HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> wfs = new HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>>();
-			for (BatchCommand<Executor, Command> _cmd : commands) {
-				Command cmd = (Command)_cmd;
-				RegisterCall rc = cmd.registerCall;
-				PersistentWorkflow<?> persistentWorkflow = (PersistentWorkflow<?>)rc.workflow;
-				persistentWorkflow.flushCheckpointAcknowledges();
-				ArrayList<PersistentWorkflow<?>> _wfs = wfs.get(cmd.workflowPersistencePlugin);
-				if (_wfs == null) {
-					_wfs = new ArrayList<PersistentWorkflow<?>>();
-					wfs.put(cmd.workflowPersistencePlugin,_wfs);
-				}
-				_wfs.add(persistentWorkflow);
-				for (String cid : rc.correlationIds) {
-					insertWaitStmt.setString(1, cid);
-					insertWaitStmt.setString(2, rc.workflow.getId());
-					insertWaitStmt.setInt(3,rc.waitMode == WaitMode.ALL ? rc.correlationIds.length : 1);
-					insertWaitStmt.setTimestamp(4,rc.timeoutTS);
-					insertWaitStmt.setInt(5,0);
-					insertWaitStmt.setInt(6,rc.workflow.getPriority());
-					insertWaitStmt.setString(7,rc.workflow.getProcessorPoolId());
-					insertWaitStmt.addBatch();
-				}
-				int idx=1;
-				SerializedWorkflow sw = cmd.serializer.serializeWorkflow(rc.workflow);
-				updateWfiStmt.setInt(idx++, DBProcessingState.WAITING.ordinal());
-				updateWfiStmt.setInt(idx++, rc.workflow.getPriority());
-				updateWfiStmt.setTimestamp(idx++, now);
-				updateWfiStmt.setString(idx++, rc.workflow.getProcessorPoolId());
-				updateWfiStmt.setString(idx++, sw.getData());
-				updateWfiStmt.setString(idx++, sw.getObjectState());
-				updateWfiStmt.setInt(idx++, rc.waitMode.ordinal());
-				updateWfiStmt.setInt(idx++, rc.waitMode == WaitMode.FIRST ? 1 : rc.correlationIds.length);
-				updateWfiStmt.setInt(idx++, rc.correlationIds.length);
-				updateWfiStmt.setTimestamp(idx++, rc.timeoutTS);
-				updateWfiStmt.setString(idx++, rc.workflow.getId());
-				updateWfiStmt.addBatch();
+    static final class Executor extends BatchExecutor<Executor, Command> {
 
-				stmtDelQueue.setString(1, ((PersistentWorkflow<?>)rc.workflow).getId());
-				stmtDelQueue.setString(2, ((PersistentWorkflow<?>)rc.workflow).oldProcessorPoolId);
-				stmtDelQueue.setInt(3, ((PersistentWorkflow<?>)rc.workflow).oldPrio);
-				stmtDelQueue.addBatch();
+        private static final Executor INSTANCE = new Executor();
 
-				Set<String> cidList = ((PersistentWorkflow<?>)rc.workflow).waitCidList;
-				if (cidList != null) {
-					for (String cid : cidList) {
-						deleteWait.setString(1, cid);
-						deleteWait.addBatch();
-						doWaitDeletes = true;
-					}
-				}
-				List<String> responseIdList = ((PersistentWorkflow<?>)rc.workflow).responseIdList;
-				if (responseIdList != null) {
-					for (String responseId : responseIdList) {
-						deleteResponse.setString(1, responseId);
-						deleteResponse.addBatch();
-						doResponseDeletes = true;
-					}
-				}				
+        @Override
+        public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
+            final Timestamp now = new Timestamp(System.currentTimeMillis());
+            boolean doWaitDeletes = false;
+            boolean doResponseDeletes = false;
+            PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
+            PreparedStatement deleteWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
+            PreparedStatement deleteResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE RESPONSE_ID=?");
+            PreparedStatement insertWaitStmt = con.prepareStatement("INSERT INTO COP_WAIT (CORRELATION_ID,WORKFLOW_INSTANCE_ID,MIN_NUMB_OF_RESP,TIMEOUT_TS,STATE,PRIORITY,PPOOL_ID) VALUES (?,?,?,?,?,?,?)");
+            PreparedStatement updateWfiStmt = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, PRIORITY=?, LAST_MOD_TS=?, PPOOL_ID=?, DATA=?, OBJECT_STATE=?, CS_WAITMODE=?, MIN_NUMB_OF_RESP=?, NUMB_OF_WAITS=?, TIMEOUT=? WHERE ID=?");
+            HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> wfs = new HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>>();
+            for (BatchCommand<Executor, Command> _cmd : commands) {
+                Command cmd = (Command) _cmd;
+                RegisterCall rc = cmd.registerCall;
+                PersistentWorkflow<?> persistentWorkflow = (PersistentWorkflow<?>) rc.workflow;
+                persistentWorkflow.flushCheckpointAcknowledges();
+                ArrayList<PersistentWorkflow<?>> _wfs = wfs.get(cmd.workflowPersistencePlugin);
+                if (_wfs == null) {
+                    _wfs = new ArrayList<PersistentWorkflow<?>>();
+                    wfs.put(cmd.workflowPersistencePlugin, _wfs);
+                }
+                _wfs.add(persistentWorkflow);
+                for (String cid : rc.correlationIds) {
+                    insertWaitStmt.setString(1, cid);
+                    insertWaitStmt.setString(2, rc.workflow.getId());
+                    insertWaitStmt.setInt(3, rc.waitMode == WaitMode.ALL ? rc.correlationIds.length : 1);
+                    insertWaitStmt.setTimestamp(4, rc.timeoutTS);
+                    insertWaitStmt.setInt(5, 0);
+                    insertWaitStmt.setInt(6, rc.workflow.getPriority());
+                    insertWaitStmt.setString(7, rc.workflow.getProcessorPoolId());
+                    insertWaitStmt.addBatch();
+                }
+                int idx = 1;
+                SerializedWorkflow sw = cmd.serializer.serializeWorkflow(rc.workflow);
+                updateWfiStmt.setInt(idx++, DBProcessingState.WAITING.ordinal());
+                updateWfiStmt.setInt(idx++, rc.workflow.getPriority());
+                updateWfiStmt.setTimestamp(idx++, now);
+                updateWfiStmt.setString(idx++, rc.workflow.getProcessorPoolId());
+                updateWfiStmt.setString(idx++, sw.getData());
+                updateWfiStmt.setString(idx++, sw.getObjectState());
+                updateWfiStmt.setInt(idx++, rc.waitMode.ordinal());
+                updateWfiStmt.setInt(idx++, rc.waitMode == WaitMode.FIRST ? 1 : rc.correlationIds.length);
+                updateWfiStmt.setInt(idx++, rc.correlationIds.length);
+                updateWfiStmt.setTimestamp(idx++, rc.timeoutTS);
+                updateWfiStmt.setString(idx++, rc.workflow.getId());
+                updateWfiStmt.addBatch();
 
-			}
-			if (doResponseDeletes) deleteResponse.executeBatch();
-			if (doWaitDeletes) deleteWait.executeBatch();
-			
-			insertWaitStmt.executeBatch();
-			updateWfiStmt.executeBatch();
-			stmtDelQueue.executeBatch();
+                stmtDelQueue.setString(1, ((PersistentWorkflow<?>) rc.workflow).getId());
+                stmtDelQueue.setString(2, ((PersistentWorkflow<?>) rc.workflow).oldProcessorPoolId);
+                stmtDelQueue.setInt(3, ((PersistentWorkflow<?>) rc.workflow).oldPrio);
+                stmtDelQueue.addBatch();
 
-			for (BatchCommand<Executor, Command> _cmd : commands) {
-				Command cmd = (Command)_cmd;
-				RegisterCall rc = cmd.registerCall;
-				for (WaitHook wh : rc.waitHooks) {
-					wh.onWait(rc.workflow, con);
-				}
-			}	
-			
-			for (Map.Entry<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> en : wfs.entrySet()) {
-				en.getKey().onWorkflowsSaved(con, en.getValue());
-			}
-		}
+                Set<String> cidList = ((PersistentWorkflow<?>) rc.workflow).waitCidList;
+                if (cidList != null) {
+                    for (String cid : cidList) {
+                        deleteWait.setString(1, cid);
+                        deleteWait.addBatch();
+                        doWaitDeletes = true;
+                    }
+                }
+                List<String> responseIdList = ((PersistentWorkflow<?>) rc.workflow).responseIdList;
+                if (responseIdList != null) {
+                    for (String responseId : responseIdList) {
+                        deleteResponse.setString(1, responseId);
+                        deleteResponse.addBatch();
+                        doResponseDeletes = true;
+                    }
+                }
 
-		@Override
-		public int maximumBatchSize() {
-			return 100;
-		}
+            }
+            if (doResponseDeletes)
+                deleteResponse.executeBatch();
+            if (doWaitDeletes)
+                deleteWait.executeBatch();
 
-		@Override
-		public int preferredBatchSize() {
-			return 50;
-		}
+            insertWaitStmt.executeBatch();
+            updateWfiStmt.executeBatch();
+            stmtDelQueue.executeBatch();
 
-	}
+            for (BatchCommand<Executor, Command> _cmd : commands) {
+                Command cmd = (Command) _cmd;
+                RegisterCall rc = cmd.registerCall;
+                for (WaitHook wh : rc.waitHooks) {
+                    wh.onWait(rc.workflow, con);
+                }
+            }
+
+            for (Map.Entry<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> en : wfs.entrySet()) {
+                en.getKey().onWorkflowsSaved(con, en.getValue());
+            }
+        }
+
+        @Override
+        public int maximumBatchSize() {
+            return 100;
+        }
+
+        @Override
+        public int preferredBatchSize() {
+            return 50;
+        }
+
+    }
 }

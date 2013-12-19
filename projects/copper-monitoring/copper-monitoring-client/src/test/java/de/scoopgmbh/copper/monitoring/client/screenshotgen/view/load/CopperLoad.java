@@ -15,49 +15,47 @@
  */
 package de.scoopgmbh.copper.monitoring.client.screenshotgen.view.load;
 
+import javafx.application.Platform;
+import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.FilterAbleFormFixture;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestFormContext;
-import javafx.application.Platform;
-import javafx.scene.layout.BorderPane;
-
-
 
 public class CopperLoad extends ScreenshotPageBase {
-	
-	@Override
-	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createEngineLoadForm().show();
-		final FilterAbleFormFixture filterAbleFormFixture= new FilterAbleFormFixture(scene);
-		for (int i=0;i<10;i++){
-			final int ifinal = i;
-			new Thread(){
-				@Override
-				public void run() {
-					try {
-						Thread.sleep(1010*ifinal);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							filterAbleFormFixture.refresh();
-						}
-					});
-				};
-			}.start();
-		}
-	}
 
-	@Override
-	public String getTitle() {
-		return "copper load";
-	}
-	
-	@Override
-	public long getWaitForInitGuiMs(){
-		return super.getWaitForInitGuiMs()*15;
-	}
+    @Override
+    public void initGui(BorderPane pane, TestFormContext testFormContext) {
+        testFormContext.createEngineLoadForm().show();
+        final FilterAbleFormFixture filterAbleFormFixture = new FilterAbleFormFixture(scene);
+        for (int i = 0; i < 10; i++) {
+            final int ifinal = i;
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(1010 * ifinal);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            filterAbleFormFixture.refresh();
+                        }
+                    });
+                };
+            }.start();
+        }
+    }
+
+    @Override
+    public String getTitle() {
+        return "copper load";
+    }
+
+    @Override
+    public long getWaitForInitGuiMs() {
+        return super.getWaitForInitGuiMs() * 15;
+    }
 
 }

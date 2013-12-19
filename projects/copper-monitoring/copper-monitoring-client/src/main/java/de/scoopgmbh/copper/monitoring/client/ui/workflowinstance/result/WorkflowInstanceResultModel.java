@@ -25,35 +25,32 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class WorkflowInstanceResultModel {
-	public final SimpleStringProperty id;
-	public final SimpleObjectProperty<WorkflowInstanceState> state;
-	public final SimpleIntegerProperty priority;
-	public final SimpleStringProperty processorPoolId;
-	public final SimpleObjectProperty<Date> timeout;
-	
-	public final SimpleObjectProperty<Date> lastActivityTimestamp;
-	public final SimpleLongProperty overallLifetimeInMs;
+    public final SimpleStringProperty id;
+    public final SimpleObjectProperty<WorkflowInstanceState> state;
+    public final SimpleIntegerProperty priority;
+    public final SimpleStringProperty processorPoolId;
+    public final SimpleObjectProperty<Date> timeout;
+
+    public final SimpleObjectProperty<Date> lastActivityTimestamp;
+    public final SimpleLongProperty overallLifetimeInMs;
     public final SimpleObjectProperty<Date> startTime;
     public final SimpleObjectProperty<Date> finishTime;
     public final SimpleObjectProperty<Date> lastErrorTime;
     public final SimpleStringProperty errorInfos;
 
-	public WorkflowInstanceResultModel(WorkflowInstanceInfo workflowInstanceInfo) {
-		this.id = new SimpleStringProperty(workflowInstanceInfo.getId());
-		this.state = new SimpleObjectProperty<WorkflowInstanceState>(workflowInstanceInfo.getState());
-		this.priority = new SimpleIntegerProperty(workflowInstanceInfo.getPriority());
-		this.processorPoolId = new SimpleStringProperty(workflowInstanceInfo.getProcessorPoolId());
-		this.timeout = new SimpleObjectProperty<Date>(workflowInstanceInfo.getTimeout());
-		
-		this.lastActivityTimestamp=new SimpleObjectProperty<Date>(workflowInstanceInfo.getLastActivityTimestamp());
-		this.overallLifetimeInMs=new SimpleLongProperty(workflowInstanceInfo.getOverallLifetimeInMs());
-	    this.startTime=new SimpleObjectProperty<Date>(workflowInstanceInfo.getStartTime());
-	    this.finishTime=new SimpleObjectProperty<Date>(workflowInstanceInfo.getFinishTime());
-	    this.lastErrorTime=new SimpleObjectProperty<Date>(workflowInstanceInfo.getLastErrorTime());
-	    this.errorInfos=new SimpleStringProperty(workflowInstanceInfo.getErrorInfos());
-	}
-	
-	
-	
-	
+    public WorkflowInstanceResultModel(WorkflowInstanceInfo workflowInstanceInfo) {
+        this.id = new SimpleStringProperty(workflowInstanceInfo.getId());
+        this.state = new SimpleObjectProperty<WorkflowInstanceState>(workflowInstanceInfo.getState());
+        this.priority = new SimpleIntegerProperty(workflowInstanceInfo.getPriority());
+        this.processorPoolId = new SimpleStringProperty(workflowInstanceInfo.getProcessorPoolId());
+        this.timeout = new SimpleObjectProperty<Date>(workflowInstanceInfo.getTimeout());
+
+        this.lastActivityTimestamp = new SimpleObjectProperty<Date>(workflowInstanceInfo.getLastActivityTimestamp());
+        this.overallLifetimeInMs = new SimpleLongProperty(workflowInstanceInfo.getOverallLifetimeInMs());
+        this.startTime = new SimpleObjectProperty<Date>(workflowInstanceInfo.getStartTime());
+        this.finishTime = new SimpleObjectProperty<Date>(workflowInstanceInfo.getFinishTime());
+        this.lastErrorTime = new SimpleObjectProperty<Date>(workflowInstanceInfo.getLastErrorTime());
+        this.errorInfos = new SimpleStringProperty(workflowInstanceInfo.getErrorInfos());
+    }
+
 }

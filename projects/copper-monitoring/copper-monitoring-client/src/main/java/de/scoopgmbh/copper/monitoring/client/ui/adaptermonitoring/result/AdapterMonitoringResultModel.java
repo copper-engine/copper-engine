@@ -18,21 +18,17 @@ package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result;
 import javafx.collections.ObservableList;
 
 public class AdapterMonitoringResultModel {
-	
-	public final ObservableList<AdapterCallRowModel> adapterCalls;
-	public final ObservableList<AdapterNotifyRowModel> adapterNotifies;
-	public final ObservableList<AdapterLaunchRowModel> adapterLaunches;
-	public AdapterMonitoringResultModel(ObservableList<AdapterCallRowModel> adapterCalls,
-			ObservableList<AdapterNotifyRowModel> adapterNotifies, ObservableList<AdapterLaunchRowModel> adapterLaunches) {
-		super();
-		this.adapterCalls = adapterCalls;
-		this.adapterNotifies = adapterNotifies;
-		this.adapterLaunches = adapterLaunches;
-	}
 
-	
-	
-	
-	
-	
+    public final ObservableList<AdapterCallRowModel> adapterCalls;
+    public final ObservableList<AdapterNotifyRowModel> adapterNotifies;
+    public final ObservableList<AdapterLaunchRowModel> adapterLaunches;
+
+    public AdapterMonitoringResultModel(ObservableList<AdapterCallRowModel> adapterCalls,
+            ObservableList<AdapterNotifyRowModel> adapterNotifies, ObservableList<AdapterLaunchRowModel> adapterLaunches) {
+        super();
+        this.adapterCalls = adapterCalls;
+        this.adapterNotifies = adapterNotifies;
+        this.adapterLaunches = adapterLaunches;
+    }
+
 }

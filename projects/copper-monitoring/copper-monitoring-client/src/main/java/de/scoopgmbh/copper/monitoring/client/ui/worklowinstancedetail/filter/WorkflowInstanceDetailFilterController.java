@@ -28,50 +28,52 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.BaseEngineFilterController;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
-public class WorkflowInstanceDetailFilterController extends BaseEngineFilterController<WorkflowInstanceDetailFilterModel> implements Initializable, FxmlController {
+public class WorkflowInstanceDetailFilterController extends BaseEngineFilterController<WorkflowInstanceDetailFilterModel> implements Initializable,
+        FxmlController {
 
-	public WorkflowInstanceDetailFilterController(WorkflowInstanceDetailFilterModel model, List<ProcessingEngineInfo> availableEngines) {
-		super(availableEngines,model);
-	}
-	
-	public void setFilter(String workflowInstanceId){
-		model.workflowInstanceId.setValue(workflowInstanceId);
-	}
+    public WorkflowInstanceDetailFilterController(WorkflowInstanceDetailFilterModel model, List<ProcessingEngineInfo> availableEngines) {
+        super(availableEngines, model);
+    }
 
-    @FXML //  fx:id="workflowInstanceIdTextfield"
+    public void setFilter(String workflowInstanceId) {
+        model.workflowInstanceId.setValue(workflowInstanceId);
+    }
+
+    @FXML
+    // fx:id="workflowInstanceIdTextfield"
     private TextField workflowInstanceIdTextfield; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert workflowInstanceIdTextfield != null : "fx:id=\"workflowInstanceIdTextfield\" was not injected: check your FXML file 'WorkflowInstanceDetailFilter.fxml'.";
 
         workflowInstanceIdTextfield.textProperty().bindBidirectional(model.workflowInstanceId);
-	}
+    }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("WorkflowInstanceDetailFilter.fxml");
-	}
-	
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
-	
-	@Override
-	public long getDefaultRefreshInterval() {
-		return FilterController.DEFAULT_REFRESH_INTERVALL;
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("WorkflowInstanceDetailFilter.fxml");
+    }
 
-	@Override
-	public Node createDefaultFilter() {
-		return null;
-	}
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
 
-	@Override
-	public Node createAdditionalFilter() {
-		return null;
-	}
-	
+    @Override
+    public long getDefaultRefreshInterval() {
+        return FilterController.DEFAULT_REFRESH_INTERVALL;
+    }
+
+    @Override
+    public Node createDefaultFilter() {
+        return null;
+    }
+
+    @Override
+    public Node createAdditionalFilter() {
+        return null;
+    }
+
 }

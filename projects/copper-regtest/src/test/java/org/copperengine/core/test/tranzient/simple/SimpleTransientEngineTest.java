@@ -15,81 +15,71 @@
  */
 package org.copperengine.core.test.tranzient.simple;
 
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.test.TestResponseReceiver;
-import org.copperengine.core.test.backchannel.BackChannelQueue;
-import org.copperengine.core.test.backchannel.WorkflowResult;
 import org.copperengine.core.tranzient.TransientScottyEngine;
 import org.copperengine.core.util.BlockingResponseReceiver;
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
 public class SimpleTransientEngineTest {
-	
-	private final int[] response = { -1 };
 
-	@Test
-	public void testWorkflow() throws Exception {
-		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		TransientScottyEngine engine = context.getBean("transientEngine", TransientScottyEngine.class);
-		context.getBeanFactory().registerSingleton("OutputChannel4711",new TestResponseReceiver<String, Integer>() {
-			@Override
-			public void setResponse(Workflow<String> wf, Integer r) {
-				synchronized (response) {
-					response[0] = r.intValue();
-					response.notifyAll();
-				}
-			}
-		});
+    private final int[] response = { -1 };
 
-		assertEquals(EngineState.STARTED,engine.getEngineState());
-		
-		try {
-			BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
-			engine.run("org.copperengine.core.test.tranzient.simple.SimpleTransientWorkflow", brr);
-			synchronized (response) {
-				if (response[0] == -1) {
-					response.wait(30000);
-				}
-			}
-			assertEquals(10, response[0]);
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
-	}
-	
-	
-	@Test(expected=DuplicateIdException.class)
-	public void testDuplicateIdException() throws Exception {
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		final TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
-		
-		assertEquals(EngineState.STARTED,engine.getEngineState());
-		
-		try {
-			engine.run(new WorkflowInstanceDescr<String>("org.copperengine.core.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null,
-					null));
-			engine.run(new WorkflowInstanceDescr<String>("org.copperengine.core.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null,
-					null));
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
-	}
+    @Test
+    public void testWorkflow() throws Exception {
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        TransientScottyEngine engine = context.getBean("transientEngine", TransientScottyEngine.class);
+        context.getBeanFactory().registerSingleton("OutputChannel4711", new TestResponseReceiver<String, Integer>() {
+            @Override
+            public void setResponse(Workflow<String> wf, Integer r) {
+                synchronized (response) {
+                    response[0] = r.intValue();
+                    response.notifyAll();
+                }
+            }
+        });
+
+        assertEquals(EngineState.STARTED, engine.getEngineState());
+
+        try {
+            BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
+            engine.run("org.copperengine.core.test.tranzient.simple.SimpleTransientWorkflow", brr);
+            synchronized (response) {
+                if (response[0] == -1) {
+                    response.wait(30000);
+                }
+            }
+            assertEquals(10, response[0]);
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+
+    }
+
+    @Test(expected = DuplicateIdException.class)
+    public void testDuplicateIdException() throws Exception {
+        final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        final TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
+
+        assertEquals(EngineState.STARTED, engine.getEngineState());
+
+        try {
+            engine.run(new WorkflowInstanceDescr<String>("org.copperengine.core.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null,
+                    null));
+            engine.run(new WorkflowInstanceDescr<String>("org.copperengine.core.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null,
+                    null));
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+
+    }
 }

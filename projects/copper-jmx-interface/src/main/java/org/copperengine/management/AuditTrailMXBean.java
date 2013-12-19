@@ -17,7 +17,8 @@ package org.copperengine.management;
 
 public interface AuditTrailMXBean {
 
-	public void setLevel(int level);
-	public int getLevel();
+    public void setLevel(int level);
+
+    public int getLevel();
 
 }

@@ -17,13 +17,12 @@ package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animat
 
 import javafx.scene.paint.Color;
 
-
 public class LaunchAnimation extends EventAnimationBase {
-	
-	public static final Color ADAPTER_LAUNCH_COLOR = Color.SADDLEBROWN; 
 
-	public LaunchAnimation(AnimationPartParameter animationPartBaseParameter) {
-		super(ADAPTER_LAUNCH_COLOR,animationPartBaseParameter);
-	}
+    public static final Color ADAPTER_LAUNCH_COLOR = Color.SADDLEBROWN;
+
+    public LaunchAnimation(AnimationPartParameter animationPartBaseParameter) {
+        super(ADAPTER_LAUNCH_COLOR, animationPartBaseParameter);
+    }
 
 }

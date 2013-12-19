@@ -24,35 +24,34 @@ import javafx.scene.Parent;
 import de.scoopgmbh.copper.monitoring.client.form.filter.GenericFilterController;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 
-
 public class FxmlForm<C extends FxmlController> extends Form<C> {
 
-	private final FXMLLoader fxmlLoader;
-	
-	public FxmlForm(String dynamicTitle, C controller, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie) {
-		super(dynamicTitle, showFormStrategie, controller);
-		if (controller.getFxmlResource()!=GenericFilterController.EMPTY_DUMMY_URL){
-			fxmlLoader = new FXMLLoader(controller.getFxmlResource());
-			fxmlLoader.setController(controller);
-			fxmlLoader.setResources(messageProvider.getBundle());
-		} else {
-			fxmlLoader = null;
-		}
-	}
-	
-	public FxmlForm(C controller, MessageProvider messageProvider) {
-		this("", controller, messageProvider, new EmptyShowFormStrategie());
-	}
+    private final FXMLLoader fxmlLoader;
 
-	@Override
-	public Node createContent() {
-		if (fxmlLoader != null){
-			try {
-				return (Parent)fxmlLoader.load();
-			} catch (IOException exception) {
-				throw new RuntimeException(exception);
-			}
-		}
-		return new Group();
-	}
+    public FxmlForm(String dynamicTitle, C controller, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie) {
+        super(dynamicTitle, showFormStrategie, controller);
+        if (controller.getFxmlResource() != GenericFilterController.EMPTY_DUMMY_URL) {
+            fxmlLoader = new FXMLLoader(controller.getFxmlResource());
+            fxmlLoader.setController(controller);
+            fxmlLoader.setResources(messageProvider.getBundle());
+        } else {
+            fxmlLoader = null;
+        }
+    }
+
+    public FxmlForm(C controller, MessageProvider messageProvider) {
+        this("", controller, messageProvider, new EmptyShowFormStrategie());
+    }
+
+    @Override
+    public Node createContent() {
+        if (fxmlLoader != null) {
+            try {
+                return (Parent) fxmlLoader.load();
+            } catch (IOException exception) {
+                throw new RuntimeException(exception);
+            }
+        }
+        return new Group();
+    }
 }

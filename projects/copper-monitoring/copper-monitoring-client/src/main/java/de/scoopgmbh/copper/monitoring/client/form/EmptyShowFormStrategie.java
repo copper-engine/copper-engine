@@ -18,12 +18,12 @@ package de.scoopgmbh.copper.monitoring.client.form;
 import javafx.scene.layout.BorderPane;
 
 public class EmptyShowFormStrategie extends ShowFormStrategy<BorderPane> {
-	public EmptyShowFormStrategie() {
-		super(null);
-	}
+    public EmptyShowFormStrategie() {
+        super(null);
+    }
 
-	@Override
-	public void show(Form<?> form){
-		throw new IllegalStateException("no way defined to show the Form");
-	}
+    @Override
+    public void show(Form<?> form) {
+        throw new IllegalStateException("no way defined to show the Form");
+    }
 }

@@ -18,38 +18,37 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class AdapterEventBase implements Serializable, MonitoringData{
-	private static final long serialVersionUID = 6386090675365126626L;
-	
-	String adapterName;
-	Date timestamp;
+public class AdapterEventBase implements Serializable, MonitoringData {
+    private static final long serialVersionUID = 6386090675365126626L;
 
-	public String getAdapterName() {
-		return adapterName;
-	}
+    String adapterName;
+    Date timestamp;
 
-	public void setAdapterName(String adapterName) {
-		this.adapterName = adapterName;
-	}
+    public String getAdapterName() {
+        return adapterName;
+    }
 
-	public AdapterEventBase(String adapterName, Date timestamp) {
-		super();
-		this.adapterName = adapterName;
-		this.timestamp = timestamp;
-	}
+    public void setAdapterName(String adapterName) {
+        this.adapterName = adapterName;
+    }
 
-	public AdapterEventBase() {
-		super();
-	}
+    public AdapterEventBase(String adapterName, Date timestamp) {
+        super();
+        this.adapterName = adapterName;
+        this.timestamp = timestamp;
+    }
 
-	@Override
-	public Date getTimeStamp() {
-		return timestamp;
-	}
+    public AdapterEventBase() {
+        super();
+    }
 
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
-	
-	
+    @Override
+    public Date getTimeStamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
 }

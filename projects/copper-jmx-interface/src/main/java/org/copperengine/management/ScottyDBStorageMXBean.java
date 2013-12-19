@@ -16,6 +16,7 @@
 package org.copperengine.management;
 
 public interface ScottyDBStorageMXBean extends DBStorageMXBean {
-	public BatcherMXBean getBatcherMXBean();
-	public DatabaseDialectMXBean getDatabaseDialectMXBean();
+    public BatcherMXBean getBatcherMXBean();
+
+    public DatabaseDialectMXBean getDatabaseDialectMXBean();
 }

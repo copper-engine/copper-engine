@@ -16,5 +16,5 @@
 package org.copperengine.core.test.versioning.compatibility;
 
 public class NonSerializableClass {
-	String foo = "foo";
+    String foo = "foo";
 }

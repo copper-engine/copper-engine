@@ -18,25 +18,27 @@ package de.scoopgmbh.copper.monitoring.server.monitoring;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
 
+public abstract class MonitoringDataAwareRunnable implements Runnable {
+    protected MonitoringDataAccesor monitoringDataAccesor;
+    protected MonitoringDataAdder monitoringDataAdder;
+    /**
+     * true=no log message when offer fails usefull for logging appender to avoid deadlock
+     */
+    protected boolean dropSilently = false;
 
-public abstract class MonitoringDataAwareRunnable implements Runnable{
-	protected MonitoringDataAccesor monitoringDataAccesor;
-	protected MonitoringDataAdder monitoringDataAdder;
-	/**
-	 * true=no log message when offer fails usefull for logging appender to avoid deadlock
-	 */
-	protected boolean dropSilently=false;
-	
-	public MonitoringDataAccesor getMonitoringDataAccesor() {
-		return monitoringDataAccesor;
-	}
-	public void setMonitoringDataAccesor(MonitoringDataAccesor monitoringDataAccesor) {
-		this.monitoringDataAccesor = monitoringDataAccesor;
-	}
-	public MonitoringDataAdder getMonitoringDataAdder() {
-		return monitoringDataAdder;
-	}
-	public void setMonitoringDataAdder(MonitoringDataAdder monitoringDataAdder) {
-		this.monitoringDataAdder = monitoringDataAdder;
-	}
+    public MonitoringDataAccesor getMonitoringDataAccesor() {
+        return monitoringDataAccesor;
+    }
+
+    public void setMonitoringDataAccesor(MonitoringDataAccesor monitoringDataAccesor) {
+        this.monitoringDataAccesor = monitoringDataAccesor;
+    }
+
+    public MonitoringDataAdder getMonitoringDataAdder() {
+        return monitoringDataAdder;
+    }
+
+    public void setMonitoringDataAdder(MonitoringDataAdder monitoringDataAdder) {
+        this.monitoringDataAdder = monitoringDataAdder;
+    }
 }

@@ -19,36 +19,35 @@ import org.copperengine.core.InterruptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public abstract class Derived extends Base {
-	
-	private static final long serialVersionUID = 1L;
-	
-	private static final Logger logger = LoggerFactory.getLogger(Derived.class);
 
-	protected abstract void callMock() throws InterruptException;
-	
-	@Override
-	public void main() throws InterruptException {
-		callMock();
-		
-		for (i=0; i<5; i++) {
-			
-			mockSync();
+    private static final long serialVersionUID = 1L;
 
-			resubmit(); // just for fun...
-			
-			mockAsync();
-			
-		}
-		
-		simulateTimeout();
-		
-		doubleWait();
-		
-		logger.info("setting response");
-		getData().setResponse(counter);
-		
-	}
+    private static final Logger logger = LoggerFactory.getLogger(Derived.class);
+
+    protected abstract void callMock() throws InterruptException;
+
+    @Override
+    public void main() throws InterruptException {
+        callMock();
+
+        for (i = 0; i < 5; i++) {
+
+            mockSync();
+
+            resubmit(); // just for fun...
+
+            mockAsync();
+
+        }
+
+        simulateTimeout();
+
+        doubleWait();
+
+        logger.info("setting response");
+        getData().setResponse(counter);
+
+    }
 
 }

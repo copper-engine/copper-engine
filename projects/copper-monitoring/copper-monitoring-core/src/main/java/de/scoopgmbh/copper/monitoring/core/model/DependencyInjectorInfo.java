@@ -17,19 +17,22 @@ package de.scoopgmbh.copper.monitoring.core.model;
 
 import java.io.Serializable;
 
-public class DependencyInjectorInfo implements Serializable{
-	private static final long serialVersionUID = -629782420394773711L;
-	
-	String typ;
-	public DependencyInjectorInfo(String typ) {
-		super();
-		this.typ = typ;
-	}
-	public String getTyp() {
-		return typ;
-	}
-	public void setTyp(String typ) {
-		this.typ = typ;
-	}
+public class DependencyInjectorInfo implements Serializable {
+    private static final long serialVersionUID = -629782420394773711L;
+
+    String typ;
+
+    public DependencyInjectorInfo(String typ) {
+        super();
+        this.typ = typ;
+    }
+
+    public String getTyp() {
+        return typ;
+    }
+
+    public void setTyp(String typ) {
+        this.typ = typ;
+    }
 
 }

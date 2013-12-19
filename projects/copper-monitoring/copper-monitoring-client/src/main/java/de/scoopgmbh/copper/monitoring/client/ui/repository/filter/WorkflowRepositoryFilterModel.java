@@ -17,6 +17,6 @@ package de.scoopgmbh.copper.monitoring.client.ui.repository.filter;
 
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 
-public class WorkflowRepositoryFilterModel extends EnginePoolFilterModel{
+public class WorkflowRepositoryFilterModel extends EnginePoolFilterModel {
 
 }

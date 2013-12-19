@@ -16,5 +16,5 @@
 package org.copperengine.core.test.persistent.example;
 
 public interface PingAdapter {
-	public String ping(final String param);
+    public String ping(final String param);
 }

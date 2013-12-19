@@ -18,40 +18,36 @@ package org.copperengine.core.common;
 import static org.junit.Assert.assertEquals;
 
 import org.copperengine.core.Workflow;
-import org.copperengine.core.common.DefaultTicketPoolManager;
-import org.copperengine.core.common.TicketPool;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 import org.junit.Test;
 
-
 public class DefaultTicketPoolManagerTest {
 
-	private static final String WF_CLASSNAME = "org.copperengine.core.test.tranzient.simple.SimpleTransientWorkflow";
+    private static final String WF_CLASSNAME = "org.copperengine.core.test.tranzient.simple.SimpleTransientWorkflow";
 
-	@Test
-	public void testObtain() throws Exception {
-		
-		final String T_POOL_ID = "testTicketPoolId";
-		DefaultTicketPoolManager ticketPoolManager = new DefaultTicketPoolManager();
-		ticketPoolManager.add(new TicketPool(DefaultTicketPoolManager.DEFAULT_POOL_ID, 50));
-		ticketPoolManager.add(new TicketPool(T_POOL_ID, 50));
-		ticketPoolManager.addMapping(WF_CLASSNAME, T_POOL_ID);
+    @Test
+    public void testObtain() throws Exception {
 
-		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
-		repo.addSourceDir("src/workflow/java");
-		repo.setTargetDir("build/compiled_workflow");
-		
-		repo.start();
-		ticketPoolManager.startup();
-		try {
-			Workflow<?> wf = repo.createWorkflowFactory(WF_CLASSNAME).newInstance();
-			String tpId = ticketPoolManager.obtainAndReturnTicketPoolId(wf);
-			assertEquals(T_POOL_ID, tpId);
-		}
-		finally {
-			repo.shutdown();
-			ticketPoolManager.shutdown();
-		}
-	}
+        final String T_POOL_ID = "testTicketPoolId";
+        DefaultTicketPoolManager ticketPoolManager = new DefaultTicketPoolManager();
+        ticketPoolManager.add(new TicketPool(DefaultTicketPoolManager.DEFAULT_POOL_ID, 50));
+        ticketPoolManager.add(new TicketPool(T_POOL_ID, 50));
+        ticketPoolManager.addMapping(WF_CLASSNAME, T_POOL_ID);
+
+        FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
+        repo.addSourceDir("src/workflow/java");
+        repo.setTargetDir("build/compiled_workflow");
+
+        repo.start();
+        ticketPoolManager.startup();
+        try {
+            Workflow<?> wf = repo.createWorkflowFactory(WF_CLASSNAME).newInstance();
+            String tpId = ticketPoolManager.obtainAndReturnTicketPoolId(wf);
+            assertEquals(T_POOL_ID, tpId);
+        } finally {
+            repo.shutdown();
+            ticketPoolManager.shutdown();
+        }
+    }
 
 }

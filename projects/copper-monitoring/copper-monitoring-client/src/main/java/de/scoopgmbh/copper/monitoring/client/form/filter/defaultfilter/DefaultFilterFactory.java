@@ -35,78 +35,77 @@ import de.scoopgmbh.copper.monitoring.client.util.NumberOnlyTextField;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
 public class DefaultFilterFactory {
-	
-	public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
+    public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
-	public Node createFromTo(FromToFilterModel fromToFilterModel){
-		HBox hbox = createBackpane();
-		createFromToUI(hbox,fromToFilterModel);
-		return hbox;
-	}
-	
-	public Node createMaxCount(MaxCountFilterModel maxCountFilterModel){
-		HBox hbox = createBackpane();
-		createMaxCount(hbox,maxCountFilterModel);
-		return hbox;
-	}
+    public Node createFromTo(FromToFilterModel fromToFilterModel) {
+        HBox hbox = createBackpane();
+        createFromToUI(hbox, fromToFilterModel);
+        return hbox;
+    }
 
-	public Node createFromToMaxCount(FromToMaxCountFilterModel fromToMaxCountFilterModel){
-		HBox hbox = createBackpane();
-		createFromToUI(hbox,fromToMaxCountFilterModel.fromToFilterModel);
-		createMaxCount(hbox,fromToMaxCountFilterModel.maxCountFilterModel);
-		return hbox;
-	}
-	
-	public Node createVerticalMultiFilter(Node... filterrows){
-		VBox vbox = new VBox(3);
-		for (int i = 0; i < filterrows.length; i++) {
-			Node filterrow = filterrows[i];
-			vbox.getChildren().add(filterrow);
-			if (i < filterrows.length-1){
-				vbox.getChildren().add(new Separator(Orientation.HORIZONTAL));
-			}
-		}
-		return vbox;
-	}
-	
-	public Node createEngineFilterUI(EnginePoolFilterModel model, List<ProcessingEngineInfo> engineList){
-		HBox hbox = new HBox(3);
-		hbox.setAlignment(Pos.CENTER_LEFT);
-		EngineSelectionWidget engineSelectionWidget = new EngineSelectionWidget(model, engineList);
-		Node node = engineSelectionWidget.createContent();
-		hbox.getChildren().add(node);
-		return hbox;
-	}
-	
-	private void createMaxCount(HBox parent,MaxCountFilterModel maxCountFilterModel){
-		TextField maxCount = new NumberOnlyTextField();
-		maxCount.setPrefWidth(100);
-		Bindings.bindBidirectional(maxCount.textProperty(), maxCountFilterModel.maxCount, new IntegerStringConverter());
-		parent.getChildren().add(new Label("limit"));
-		parent.getChildren().add(maxCount);
-	}
-	
-	private void createFromToUI(HBox parent,FromToFilterModel fromToFilterModel){
-		final DateTimePicker fromDateTimePicker = new DateTimePicker();
-		fromDateTimePicker.bindBidirectionalSelected(fromToFilterModel.from);
-		Pane from = fromDateTimePicker.createContent();
-		from.setPrefWidth(170);
-		parent.getChildren().add(new Label("from"));
-		parent.getChildren().add(from);
-		
-		final DateTimePicker toDateTimePicker = new DateTimePicker();
-		toDateTimePicker.bindBidirectionalSelected(fromToFilterModel.to);
-		Pane to = toDateTimePicker.createContent();
-		to.setPrefWidth(170);
-		parent.getChildren().add(new Label("to"));
-		parent.getChildren().add(to);
-	}
-	
-	private HBox createBackpane(){
-		HBox hbox = new HBox(3);
-		hbox.setAlignment(Pos.CENTER_LEFT);
-		return hbox;
-	}
+    public Node createMaxCount(MaxCountFilterModel maxCountFilterModel) {
+        HBox hbox = createBackpane();
+        createMaxCount(hbox, maxCountFilterModel);
+        return hbox;
+    }
+
+    public Node createFromToMaxCount(FromToMaxCountFilterModel fromToMaxCountFilterModel) {
+        HBox hbox = createBackpane();
+        createFromToUI(hbox, fromToMaxCountFilterModel.fromToFilterModel);
+        createMaxCount(hbox, fromToMaxCountFilterModel.maxCountFilterModel);
+        return hbox;
+    }
+
+    public Node createVerticalMultiFilter(Node... filterrows) {
+        VBox vbox = new VBox(3);
+        for (int i = 0; i < filterrows.length; i++) {
+            Node filterrow = filterrows[i];
+            vbox.getChildren().add(filterrow);
+            if (i < filterrows.length - 1) {
+                vbox.getChildren().add(new Separator(Orientation.HORIZONTAL));
+            }
+        }
+        return vbox;
+    }
+
+    public Node createEngineFilterUI(EnginePoolFilterModel model, List<ProcessingEngineInfo> engineList) {
+        HBox hbox = new HBox(3);
+        hbox.setAlignment(Pos.CENTER_LEFT);
+        EngineSelectionWidget engineSelectionWidget = new EngineSelectionWidget(model, engineList);
+        Node node = engineSelectionWidget.createContent();
+        hbox.getChildren().add(node);
+        return hbox;
+    }
+
+    private void createMaxCount(HBox parent, MaxCountFilterModel maxCountFilterModel) {
+        TextField maxCount = new NumberOnlyTextField();
+        maxCount.setPrefWidth(100);
+        Bindings.bindBidirectional(maxCount.textProperty(), maxCountFilterModel.maxCount, new IntegerStringConverter());
+        parent.getChildren().add(new Label("limit"));
+        parent.getChildren().add(maxCount);
+    }
+
+    private void createFromToUI(HBox parent, FromToFilterModel fromToFilterModel) {
+        final DateTimePicker fromDateTimePicker = new DateTimePicker();
+        fromDateTimePicker.bindBidirectionalSelected(fromToFilterModel.from);
+        Pane from = fromDateTimePicker.createContent();
+        from.setPrefWidth(170);
+        parent.getChildren().add(new Label("from"));
+        parent.getChildren().add(from);
+
+        final DateTimePicker toDateTimePicker = new DateTimePicker();
+        toDateTimePicker.bindBidirectionalSelected(fromToFilterModel.to);
+        Pane to = toDateTimePicker.createContent();
+        to.setPrefWidth(170);
+        parent.getChildren().add(new Label("to"));
+        parent.getChildren().add(to);
+    }
+
+    private HBox createBackpane() {
+        HBox hbox = new HBox(3);
+        hbox.setAlignment(Pos.CENTER_LEFT);
+        return hbox;
+    }
 
 }

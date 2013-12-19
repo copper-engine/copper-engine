@@ -30,27 +30,27 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 
-public class FormCreator{
+public class FormCreator {
     public final List<FormCreator> childFormCreators;
-	public final String staticTitle;
+    public final String staticTitle;
 
     public FormCreator(String staticTitle) {
-        this(staticTitle,null);
+        this(staticTitle, null);
     }
 
-	public FormCreator(String staticTitle, List<FormCreator> childFormCreators) {
-		this.staticTitle = staticTitle;
-        this.childFormCreators=childFormCreators;
-	}
-	
-	private Form<?> createFormInternal(){
-		Form<?> form = createForm();
-		form.displayedTitleProperty().set(staticTitle);
-		form.setStaticTitle(staticTitle);
-		return form;
-	}
-	
-	public MenuItem createShowFormMenuItem(){
+    public FormCreator(String staticTitle, List<FormCreator> childFormCreators) {
+        this.staticTitle = staticTitle;
+        this.childFormCreators = childFormCreators;
+    }
+
+    private Form<?> createFormInternal() {
+        Form<?> form = createForm();
+        form.displayedTitleProperty().set(staticTitle);
+        form.setStaticTitle(staticTitle);
+        return form;
+    }
+
+    public MenuItem createShowFormMenuItem() {
         MenuItem menuItem = new MenuItem();
         menuItem.setText(staticTitle);
         menuItem.setOnAction(new EventHandler<ActionEvent>() {
@@ -59,47 +59,50 @@ public class FormCreator{
                 createFormInternal().show();
             }
         });
-		return menuItem;
-	}
-	
-	public ButtonBase createShowFormButton(){
-		Button button = new Button(staticTitle);
-		button.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				createFormInternal().show();
-			}
-		});
-		return button;
-	}
+        return menuItem;
+    }
 
-	public void show(){
-		createFormInternal().show();
-	}
+    public ButtonBase createShowFormButton() {
+        Button button = new Button(staticTitle);
+        button.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                createFormInternal().show();
+            }
+        });
+        return button;
+    }
 
-    private boolean enabled=true;
-	public boolean isEnabled() {
-		return enabled;
-	}
-	public void setEnabled(boolean value) {
-		enabled=value;
-	}
+    public void show() {
+        createFormInternal().show();
+    }
 
-	private Tooltip tooltip=null;
-	public void setTooltip(Tooltip tooltip) {
-		this.tooltip = tooltip;
-	}
+    private boolean enabled = true;
 
-	public Tooltip getTooltip() {
-		return tooltip;
-	}
+    public boolean isEnabled() {
+        return enabled;
+    }
 
-    public void createMenu(Menu menu){
-        if (menu.getText().isEmpty()){
+    public void setEnabled(boolean value) {
+        enabled = value;
+    }
+
+    private Tooltip tooltip = null;
+
+    public void setTooltip(Tooltip tooltip) {
+        this.tooltip = tooltip;
+    }
+
+    public Tooltip getTooltip() {
+        return tooltip;
+    }
+
+    public void createMenu(Menu menu) {
+        if (menu.getText().isEmpty()) {
             menu.setText(staticTitle);
         }
-        if (childFormCreators!=null){
-            for (final FormCreator form: childFormCreators){
+        if (childFormCreators != null) {
+            for (final FormCreator form : childFormCreators) {
                 form.createMenu(menu);
             }
         } else {
@@ -108,10 +111,9 @@ public class FormCreator{
         }
     }
 
-
-    public void createMenuBar(MenuBar menuBar){
-        if (childFormCreators!=null){
-            for (final FormCreator form: childFormCreators){
+    public void createMenuBar(MenuBar menuBar) {
+        if (childFormCreators != null) {
+            for (final FormCreator form : childFormCreators) {
                 Menu menu = new Menu();
                 menu.setDisable(!isEnabled());
                 form.createMenu(menu);
@@ -120,14 +122,17 @@ public class FormCreator{
         }
     }
 
-    public List<Node> createButtonList(){
+    public List<Node> createButtonList() {
         ArrayList<Node> result = new ArrayList<Node>();
-        for (final FormCreator form: childFormCreators){
+        for (final FormCreator form : childFormCreators) {
             Control createShowFormButton = form.createShowFormButton();
             createShowFormButton.setDisable(!form.isEnabled());
             createShowFormButton.setTooltip(form.getTooltip());
 
-            if (!form.isEnabled()){/*workaround disabled button must be wrapped in split pane to show tooltip https://javafx-jira.kenai.com/browse/RT-28850*/
+            if (!form.isEnabled()) {/*
+                                     * workaround disabled button must be wrapped in split pane to show tooltip
+                                     * https://javafx-jira.kenai.com/browse/RT-28850
+                                     */
                 SplitPane wrapper = new SplitPane();
                 wrapper.getItems().add(createShowFormButton);
                 createShowFormButton = wrapper;
@@ -139,7 +144,7 @@ public class FormCreator{
         return result;
     }
 
-    public Form<?> createForm(){
+    public Form<?> createForm() {
         return null;
     }
 

@@ -22,23 +22,22 @@ import java.util.Set;
  * Internally used class.
  * 
  * @author austermann
- *
  */
 final class TimeoutSlot {
-	
-	private final long timeoutTS;
-    private final Set<String> correlationIds = new HashSet<String>();
-	
-	public TimeoutSlot(long timeoutTS) {
-		assert timeoutTS > 0;
-		this.timeoutTS = timeoutTS;
-	}
 
-	public Set<String> getCorrelationIds() {
-		return correlationIds;
-	}
-    
+    private final long timeoutTS;
+    private final Set<String> correlationIds = new HashSet<String>();
+
+    public TimeoutSlot(long timeoutTS) {
+        assert timeoutTS > 0;
+        this.timeoutTS = timeoutTS;
+    }
+
+    public Set<String> getCorrelationIds() {
+        return correlationIds;
+    }
+
     public long getTimeoutTS() {
-    	return timeoutTS;
+        return timeoutTS;
     }
 }

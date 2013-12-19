@@ -30,107 +30,106 @@ import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
 
-public class MonitoringDataCollector{
-	
-	private final MonitoringDataAccessQueue monitoringQueue;
-	private final PerformanceMonitor performanceMonitor;
-	
-	public MonitoringDataCollector(final MonitoringDataAccessQueue monitoringQueue){
-		this(monitoringQueue, new PerformanceMonitor());
-	}
+public class MonitoringDataCollector {
 
-	
-	public MonitoringDataCollector(final MonitoringDataAccessQueue monitoringQueue, PerformanceMonitor performanceMonitor){
-		this.monitoringQueue = monitoringQueue; 
-		this.performanceMonitor = performanceMonitor;
-	}
+    private final MonitoringDataAccessQueue monitoringQueue;
+    private final PerformanceMonitor performanceMonitor;
 
-	public void submitAdapterCalls(final Method method, final Object[] args, final Object adapter, final WorkflowInstanceInfo workflow) {
-		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
-			@Override
-			public void run() {
-				monitoringDataAdder.addMonitoringData(new AdapterCallInfo(method.getName(), Arrays.toString(args), new Date(), adapter.getClass().getName(),workflow));
-			}
-		});
-	}
-	
-	public void submitAdapterWfLaunch(final String wfname, final Object adapter) {
-		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
-			@Override
-			public void run() {
-				monitoringDataAdder.addMonitoringData(new AdapterWfLaunchInfo(wfname,new Date(), adapter.getClass().getName()));
-			}
-		});
-	}
-	
-	public void submitAdapterWfNotify(final String correlationId, final Object message, final Object adapter) {
-		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
-			@Override
-			public void run() {
-				monitoringDataAdder.addMonitoringData(new AdapterWfNotifyInfo(correlationId, message!=null?message.toString():"null", new Date(), adapter.getClass().getName()));
-			}
-		});
-	}
-	
-	public <T> T measureTimePeriod(String measurePointId, Callable<T> action) {
-		final MeasurePointData measurePointData = new MeasurePointData(measurePointId);
-		measurePointData.setElementCount(1);
-		measurePointData.setCount(1);
-		measurePointData.setTime(new Date());
-		long timestart=System.nanoTime();
-		T result;
-		try {
-			result = action.call();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		measurePointData.setElapsedTimeMicros((System.nanoTime()-timestart)/1000);
-		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
-			@Override
-			public void run() {
-				measurePointData.setSystemCpuLoad(performanceMonitor.createRessourcenInfo().getSystemCpuLoad());
-				monitoringDataAdder.addMonitoringData(measurePointData);
-			}
-		});
-		return result;
-	}
-	
-	public void measureTimePeriod(String measurePointId, final Runnable action) {
-		measureTimePeriod(measurePointId, new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				action.run();
-				return null;
-			}
-		});
-	}
+    public MonitoringDataCollector(final MonitoringDataAccessQueue monitoringQueue) {
+        this(monitoringQueue, new PerformanceMonitor());
+    }
 
-	public void submitLogEvent(final Date date, final String level, final String locationInformation,final String message) {
-		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
-			@Override
-			public void run() {
-				dropSilently=true;
-				monitoringDataAdder.addMonitoringData(new LogEvent(date,message,locationInformation,level));
-			}
-		});
-	}
+    public MonitoringDataCollector(final MonitoringDataAccessQueue monitoringQueue, PerformanceMonitor performanceMonitor) {
+        this.monitoringQueue = monitoringQueue;
+        this.performanceMonitor = performanceMonitor;
+    }
 
-	public void submitSystemRessource(final SystemResourcesInfo resourcesInfo) {
-		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
-			@Override
-			public void run() {
-				monitoringDataAdder.addMonitoringData(resourcesInfo);
-			}
-		});
-	}
-	
-	public void submitGenericMonitoringData(final GenericMonitoringData genericMonitoringData) {
-		monitoringQueue.offer(new MonitoringDataAwareRunnable() {
-			@Override
-			public void run() {
-				monitoringDataAdder.addMonitoringData(genericMonitoringData);
-			}
-		});
-	}
+    public void submitAdapterCalls(final Method method, final Object[] args, final Object adapter, final WorkflowInstanceInfo workflow) {
+        monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+            @Override
+            public void run() {
+                monitoringDataAdder.addMonitoringData(new AdapterCallInfo(method.getName(), Arrays.toString(args), new Date(), adapter.getClass().getName(), workflow));
+            }
+        });
+    }
+
+    public void submitAdapterWfLaunch(final String wfname, final Object adapter) {
+        monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+            @Override
+            public void run() {
+                monitoringDataAdder.addMonitoringData(new AdapterWfLaunchInfo(wfname, new Date(), adapter.getClass().getName()));
+            }
+        });
+    }
+
+    public void submitAdapterWfNotify(final String correlationId, final Object message, final Object adapter) {
+        monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+            @Override
+            public void run() {
+                monitoringDataAdder.addMonitoringData(new AdapterWfNotifyInfo(correlationId, message != null ? message.toString() : "null", new Date(), adapter.getClass().getName()));
+            }
+        });
+    }
+
+    public <T> T measureTimePeriod(String measurePointId, Callable<T> action) {
+        final MeasurePointData measurePointData = new MeasurePointData(measurePointId);
+        measurePointData.setElementCount(1);
+        measurePointData.setCount(1);
+        measurePointData.setTime(new Date());
+        long timestart = System.nanoTime();
+        T result;
+        try {
+            result = action.call();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        measurePointData.setElapsedTimeMicros((System.nanoTime() - timestart) / 1000);
+        monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+            @Override
+            public void run() {
+                measurePointData.setSystemCpuLoad(performanceMonitor.createRessourcenInfo().getSystemCpuLoad());
+                monitoringDataAdder.addMonitoringData(measurePointData);
+            }
+        });
+        return result;
+    }
+
+    public void measureTimePeriod(String measurePointId, final Runnable action) {
+        measureTimePeriod(measurePointId, new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                action.run();
+                return null;
+            }
+        });
+    }
+
+    public void submitLogEvent(final Date date, final String level, final String locationInformation, final String message) {
+        monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+            @Override
+            public void run() {
+                dropSilently = true;
+                monitoringDataAdder.addMonitoringData(new LogEvent(date, message, locationInformation, level));
+            }
+        });
+    }
+
+    public void submitSystemRessource(final SystemResourcesInfo resourcesInfo) {
+        monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+            @Override
+            public void run() {
+                monitoringDataAdder.addMonitoringData(resourcesInfo);
+            }
+        });
+    }
+
+    public void submitGenericMonitoringData(final GenericMonitoringData genericMonitoringData) {
+        monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+            @Override
+            public void run() {
+                monitoringDataAdder.addMonitoringData(genericMonitoringData);
+            }
+        });
+    }
 
 }

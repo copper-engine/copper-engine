@@ -28,47 +28,47 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 
 public class AdapterMonitoringFilterController extends BaseFilterController<AdapterMonitoringFilterModel> implements Initializable, FxmlController {
-	private final AdapterMonitoringFilterModel model= new AdapterMonitoringFilterModel();
+    private final AdapterMonitoringFilterModel model = new AdapterMonitoringFilterModel();
 
-	public AdapterMonitoringFilterController() {
-		super();
-	}
-	
+    public AdapterMonitoringFilterController() {
+        super();
+    }
 
-    @FXML //  fx:id="instanceId"
+    @FXML
+    // fx:id="instanceId"
     private TextField instanceId; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert instanceId != null : "fx:id=\"instanceId\" was not injected: check your FXML file 'AdapterMonitoringFilter.fxml'.";
 
         model.adapterId.bindBidirectional(instanceId.textProperty());
-	}
+    }
 
-	@Override
-	public AdapterMonitoringFilterModel getFilter() {
-		return model;
-	}
+    @Override
+    public AdapterMonitoringFilterModel getFilter() {
+        return model;
+    }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("AdapterMonitoringFilter.fxml");
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("AdapterMonitoringFilter.fxml");
+    }
 
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
-	
-	@Override
-	public long getDefaultRefreshInterval() {
-		return FilterController.DEFAULT_REFRESH_INTERVALL;
-	}
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
 
-	@Override
-	public Node createDefaultFilter() {
-		return new DefaultFilterFactory().createFromToMaxCount(model);
-	}
+    @Override
+    public long getDefaultRefreshInterval() {
+        return FilterController.DEFAULT_REFRESH_INTERVALL;
+    }
+
+    @Override
+    public Node createDefaultFilter() {
+        return new DefaultFilterFactory().createFromToMaxCount(model);
+    }
 
 }

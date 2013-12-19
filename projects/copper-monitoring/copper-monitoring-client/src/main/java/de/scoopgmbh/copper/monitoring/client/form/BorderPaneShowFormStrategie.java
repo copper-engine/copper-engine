@@ -18,12 +18,12 @@ package de.scoopgmbh.copper.monitoring.client.form;
 import javafx.scene.layout.BorderPane;
 
 public class BorderPaneShowFormStrategie extends ShowFormStrategy<BorderPane> {
-	public BorderPaneShowFormStrategie(BorderPane component) {
-		super(component);
-	}
+    public BorderPaneShowFormStrategie(BorderPane component) {
+        super(component);
+    }
 
-	@Override
-	public void show(Form<?> form){
-		component.setCenter(form.createContent());
-	}
+    @Override
+    public void show(Form<?> form) {
+        component.setCenter(form.createContent());
+    }
 }

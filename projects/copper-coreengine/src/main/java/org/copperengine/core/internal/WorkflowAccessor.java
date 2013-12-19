@@ -21,46 +21,40 @@ import java.util.Date;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
 
-
 public class WorkflowAccessor {
-	
-	private static final Method methodSetProcessingState;
-	private static final Method methodSetCreationTS;
-	
-	static {
-		try {
-			methodSetProcessingState = Workflow.class.getDeclaredMethod("setProcessingState", ProcessingState.class);
-			methodSetProcessingState.setAccessible(true);
-			
-			methodSetCreationTS = Workflow.class.getDeclaredMethod("setCreationTS", Date.class);
-			methodSetCreationTS.setAccessible(true);
-		}
-		catch(Exception e) {
-			throw new Error(e);
-		}
-	}
-	
-	public static void setProcessingState(Workflow<?> w, ProcessingState s) {
-		try {
-			methodSetProcessingState.invoke(w, s);
-		} 
-		catch(RuntimeException e) {
-			throw e;
-		}
-		catch(Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public static void setCreationTS(Workflow<?> w, Date creationTS) {
-		try {
-			methodSetCreationTS.invoke(w, creationTS);
-		} 
-		catch(RuntimeException e) {
-			throw e;
-		}
-		catch(Exception e) {
-			throw new RuntimeException(e);
-		}		
-	}
+
+    private static final Method methodSetProcessingState;
+    private static final Method methodSetCreationTS;
+
+    static {
+        try {
+            methodSetProcessingState = Workflow.class.getDeclaredMethod("setProcessingState", ProcessingState.class);
+            methodSetProcessingState.setAccessible(true);
+
+            methodSetCreationTS = Workflow.class.getDeclaredMethod("setCreationTS", Date.class);
+            methodSetCreationTS.setAccessible(true);
+        } catch (Exception e) {
+            throw new Error(e);
+        }
+    }
+
+    public static void setProcessingState(Workflow<?> w, ProcessingState s) {
+        try {
+            methodSetProcessingState.invoke(w, s);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void setCreationTS(Workflow<?> w, Date creationTS) {
+        try {
+            methodSetCreationTS.invoke(w, creationTS);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

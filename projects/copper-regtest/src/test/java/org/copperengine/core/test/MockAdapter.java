@@ -27,115 +27,114 @@ import org.copperengine.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class MockAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(MockAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(MockAdapter.class);
 
-	private ScheduledExecutorService pool;
-	private int delay=100;
-	private ProcessingEngine engine;
-	private AtomicInteger invokationCounter = new AtomicInteger(0);
-	private static final Acknowledge bestEffortAck = new Acknowledge.BestEffortAcknowledge(); 
+    private ScheduledExecutorService pool;
+    private int delay = 100;
+    private ProcessingEngine engine;
+    private AtomicInteger invokationCounter = new AtomicInteger(0);
+    private static final Acknowledge bestEffortAck = new Acknowledge.BestEffortAcknowledge();
 
-	public void setEngine(ProcessingEngine engine) {
-		this.engine = engine;
-	}
+    public void setEngine(ProcessingEngine engine) {
+        this.engine = engine;
+    }
 
-	public void setDelayMSec(int delay) {
-		this.delay = delay;
-	}
+    public void setDelayMSec(int delay) {
+        this.delay = delay;
+    }
 
-	// do some work; delayed response to callback object
-	public void foo(final String param, final Callback<String> cb) {
-		invokationCounter.incrementAndGet();
-		if (delay <= 0) {
-			cb.notify(param, bestEffortAck);
-		}
-		else {
-			pool.schedule(new Runnable() {
-				@Override
-				public void run() {
-					cb.notify(param, bestEffortAck);
-				}
-			}, delay, TimeUnit.MILLISECONDS);
-		}
-	}
+    // do some work; delayed response to callback object
+    public void foo(final String param, final Callback<String> cb) {
+        invokationCounter.incrementAndGet();
+        if (delay <= 0) {
+            cb.notify(param, bestEffortAck);
+        }
+        else {
+            pool.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    cb.notify(param, bestEffortAck);
+                }
+            }, delay, TimeUnit.MILLISECONDS);
+        }
+    }
 
-	// do some work; delayed response to engine object
-	public void foo(final String param, final String cid) {
-		foo(param, cid, delay);
-	}
+    // do some work; delayed response to engine object
+    public void foo(final String param, final String cid) {
+        foo(param, cid, delay);
+    }
 
-	// do some work; delayed response to engine object
-	public void foo(final String param, final String cid, int overrideDelay) {
-		invokationCounter.incrementAndGet();
-		if (overrideDelay <= 0) {
-			engine.notify(new Response<String>(cid, param, null), bestEffortAck);
-		}
-		else {
-			pool.schedule(new Runnable() {
-				@Override
-				public void run() {
-					engine.notify(new Response<String>(cid, param, null), bestEffortAck);
-				}
-			}, overrideDelay, TimeUnit.MILLISECONDS);
-		}
-	}	
+    // do some work; delayed response to engine object
+    public void foo(final String param, final String cid, int overrideDelay) {
+        invokationCounter.incrementAndGet();
+        if (overrideDelay <= 0) {
+            engine.notify(new Response<String>(cid, param, null), bestEffortAck);
+        }
+        else {
+            pool.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    engine.notify(new Response<String>(cid, param, null), bestEffortAck);
+                }
+            }, overrideDelay, TimeUnit.MILLISECONDS);
+        }
+    }
 
-	// do some work; delayed response to engine object
-	public void fooWithMultiResponse(final String param, final String cid, final int numbOfResponse) {
-		invokationCounter.incrementAndGet();
-		pool.schedule(new Runnable() {
-			@Override
-			public void run() {
-				for (int i=0; i<numbOfResponse; i++) {
-					engine.notify(new Response<String>(cid, param, null), bestEffortAck);
-				}
-			}
-		}, delay, TimeUnit.MILLISECONDS);
-	}	
-	
-	// do some work; delayed resonse to engine object
-	public void incrementAsync(final int c, final String cid) {
-		invokationCounter.incrementAndGet();
-		if (delay <= 0) {
-			engine.notify(new Response<Integer>(cid, c+1, null), bestEffortAck);
-		}
-		else {
-			pool.schedule(new Runnable() {
-				@Override
-				public void run() {
-					engine.notify(new Response<Integer>(cid, c+1, null), bestEffortAck);
-				}
-			}, delay, TimeUnit.MILLISECONDS);
-		}
-	}
+    // do some work; delayed response to engine object
+    public void fooWithMultiResponse(final String param, final String cid, final int numbOfResponse) {
+        invokationCounter.incrementAndGet();
+        pool.schedule(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < numbOfResponse; i++) {
+                    engine.notify(new Response<String>(cid, param, null), bestEffortAck);
+                }
+            }
+        }, delay, TimeUnit.MILLISECONDS);
+    }
 
-	// do some work; t once resonse to engine object	
-	public void incrementSync(final int c, final String cid) {
-		invokationCounter.incrementAndGet();
-		engine.notify(new Response<Integer>(cid, c+1, null), bestEffortAck);
-	}
+    // do some work; delayed resonse to engine object
+    public void incrementAsync(final int c, final String cid) {
+        invokationCounter.incrementAndGet();
+        if (delay <= 0) {
+            engine.notify(new Response<Integer>(cid, c + 1, null), bestEffortAck);
+        }
+        else {
+            pool.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    engine.notify(new Response<Integer>(cid, c + 1, null), bestEffortAck);
+                }
+            }, delay, TimeUnit.MILLISECONDS);
+        }
+    }
 
-	public synchronized void shutdown() {
-		logger.info("Shutting down...");
-		this.pool.shutdown();
-	}
+    // do some work; t once resonse to engine object
+    public void incrementSync(final int c, final String cid) {
+        invokationCounter.incrementAndGet();
+        engine.notify(new Response<Integer>(cid, c + 1, null), bestEffortAck);
+    }
 
-	public int getInvokationCounter() {
-		return invokationCounter.get();
-	}
+    public synchronized void shutdown() {
+        logger.info("Shutting down...");
+        this.pool.shutdown();
+    }
 
-	public synchronized void startup() {
-		logger.info("Starting up...");
-		pool = Executors.newScheduledThreadPool(2);
-	}
+    public int getInvokationCounter() {
+        return invokationCounter.get();
+    }
 
-	// generate and return the correlation id
-	public String foo(String param) {
-		final String cid = engine.createUUID();
-		this.foo(param, cid);
-		return cid;
-	}
+    public synchronized void startup() {
+        logger.info("Starting up...");
+        pool = Executors.newScheduledThreadPool(2);
+    }
+
+    // generate and return the correlation id
+    public String foo(String param) {
+        final String cid = engine.createUUID();
+        this.foo(param, cid);
+        return cid;
+    }
 }

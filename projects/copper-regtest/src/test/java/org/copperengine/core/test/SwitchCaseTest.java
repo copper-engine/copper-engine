@@ -15,7 +15,6 @@
  */
 package org.copperengine.core.test;
 
-
 import static org.junit.Assert.assertEquals;
 
 import org.copperengine.core.EngineState;
@@ -25,28 +24,26 @@ import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+public class SwitchCaseTest {
 
-public class SwitchCaseTest{
+    @Test
+    public void testWorkflow() throws Exception {
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
+        assertEquals(EngineState.STARTED, engine.getEngineState());
 
-	@Test
-	public void testWorkflow() throws Exception {
-		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
-		assertEquals(EngineState.STARTED,engine.getEngineState());
-		
-		try {
-			SwitchCaseTestData data = new SwitchCaseTestData();
-			data.testEnumValue = TestEnum.C;
-			data.asyncResponseReceiver = new BlockingResponseReceiver<Integer>();
-			engine.run("org.copperengine.core.test.SwitchCaseTestWF", data);
-			data.asyncResponseReceiver.wait4response(5000L);
-			assertEquals(0,data.asyncResponseReceiver.getResponse().intValue());
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
-	}
-	
+        try {
+            SwitchCaseTestData data = new SwitchCaseTestData();
+            data.testEnumValue = TestEnum.C;
+            data.asyncResponseReceiver = new BlockingResponseReceiver<Integer>();
+            engine.run("org.copperengine.core.test.SwitchCaseTestWF", data);
+            data.asyncResponseReceiver.wait4response(5000L);
+            assertEquals(0, data.asyncResponseReceiver.getResponse().intValue());
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+
+    }
+
 }

@@ -21,11 +21,11 @@ import java.util.Comparator;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 
 public class MeasurePointComperator implements Comparator<MeasurePointData>, Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public int compare(MeasurePointData o1, MeasurePointData o2) {
-		return o1.getMeasurePointId().compareTo(o2.getMeasurePointId());
-	}
+    @Override
+    public int compare(MeasurePointData o1, MeasurePointData o2) {
+        return o1.getMeasurePointId().compareTo(o2.getMeasurePointId());
+    }
 
 }

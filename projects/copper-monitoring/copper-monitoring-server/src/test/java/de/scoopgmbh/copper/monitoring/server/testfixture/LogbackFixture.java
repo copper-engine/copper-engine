@@ -27,53 +27,54 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 
 public class LogbackFixture {
-	
-	public static interface LogContentAssertion{
-		public void executeLogCreatingAction();
-		public void assertLogContent(List<MessageAndLogLevel> logContent);
-	}
-	
-	public static abstract class NoErrorLogContentAssertion implements LogContentAssertion{
-		@Override
-		public void assertLogContent(List<MessageAndLogLevel> logContent){
-			for (MessageAndLogLevel messageAndLogLevel: logContent){
-				if (messageAndLogLevel.loglevel.equals(Level.ERROR)){
-					Assert.fail("Log contains error message:"+messageAndLogLevel.message);
-				}
-			}
-		}
-	}
-	
-	public static class MessageAndLogLevel{
-		public String message;
-		public Level loglevel;
-		public MessageAndLogLevel(String message, Level loglevel) {
-			super();
-			this.message = message;
-			this.loglevel = loglevel;
-		}
-	}
-	
-	
-	public void assertLogContent(LogContentAssertion logContentAssertion){
-		final ArrayList<MessageAndLogLevel> log = new ArrayList<MessageAndLogLevel>();
-		Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-		AppenderBase<ILoggingEvent> appender = new AppenderBase<ILoggingEvent>() {
 
-			@Override
-			protected void append(ILoggingEvent event) {
-				log.add(new MessageAndLogLevel(event.getFormattedMessage(),event.getLevel()));
-			}
-		};
-		appender.start();
-		root.addAppender(appender);
-		logContentAssertion.executeLogCreatingAction();
-		logContentAssertion.assertLogContent(log);
-		root.detachAppender(appender);
-	}
-	
-	public void assertNoError(NoErrorLogContentAssertion logContentAssertion){
-		assertLogContent(logContentAssertion);
-	}
+    public static interface LogContentAssertion {
+        public void executeLogCreatingAction();
+
+        public void assertLogContent(List<MessageAndLogLevel> logContent);
+    }
+
+    public static abstract class NoErrorLogContentAssertion implements LogContentAssertion {
+        @Override
+        public void assertLogContent(List<MessageAndLogLevel> logContent) {
+            for (MessageAndLogLevel messageAndLogLevel : logContent) {
+                if (messageAndLogLevel.loglevel.equals(Level.ERROR)) {
+                    Assert.fail("Log contains error message:" + messageAndLogLevel.message);
+                }
+            }
+        }
+    }
+
+    public static class MessageAndLogLevel {
+        public String message;
+        public Level loglevel;
+
+        public MessageAndLogLevel(String message, Level loglevel) {
+            super();
+            this.message = message;
+            this.loglevel = loglevel;
+        }
+    }
+
+    public void assertLogContent(LogContentAssertion logContentAssertion) {
+        final ArrayList<MessageAndLogLevel> log = new ArrayList<MessageAndLogLevel>();
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        AppenderBase<ILoggingEvent> appender = new AppenderBase<ILoggingEvent>() {
+
+            @Override
+            protected void append(ILoggingEvent event) {
+                log.add(new MessageAndLogLevel(event.getFormattedMessage(), event.getLevel()));
+            }
+        };
+        appender.start();
+        root.addAppender(appender);
+        logContentAssertion.executeLogCreatingAction();
+        logContentAssertion.assertLogContent(log);
+        root.detachAppender(appender);
+    }
+
+    public void assertNoError(NoErrorLogContentAssertion logContentAssertion) {
+        assertLogContent(logContentAssertion);
+    }
 
 }

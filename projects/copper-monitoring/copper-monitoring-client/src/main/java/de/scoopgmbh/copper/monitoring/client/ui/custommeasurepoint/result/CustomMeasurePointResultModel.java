@@ -20,23 +20,23 @@ import java.util.List;
 import de.scoopgmbh.copper.monitoring.core.statistic.TimeValuePair;
 
 public class CustomMeasurePointResultModel {
-	
-	public List<TimeValuePair<Double>> avg;
-	public List<TimeValuePair<Double>> count;
-	public List<TimeValuePair<Double>> quantil50;
-	public List<TimeValuePair<Double>> quantil90;
-	public List<TimeValuePair<Double>> quantil99;
-	public List<TimeValuePair<Double>> avgCpuCreator;
-	
-	public CustomMeasurePointResultModel(List<TimeValuePair<Double>> avg, List<TimeValuePair<Double>> count,
-			List<TimeValuePair<Double>> quantil50, List<TimeValuePair<Double>> quantil90, List<TimeValuePair<Double>> quantil99, List<TimeValuePair<Double>> avgCpuCreator) {
-		super();
-		this.avg = avg;
-		this.count = count;
-		this.quantil50 = quantil50;
-		this.quantil90 = quantil90;
-		this.quantil99 = quantil99;
-		this.avgCpuCreator = avgCpuCreator;
-	}
-	
+
+    public List<TimeValuePair<Double>> avg;
+    public List<TimeValuePair<Double>> count;
+    public List<TimeValuePair<Double>> quantil50;
+    public List<TimeValuePair<Double>> quantil90;
+    public List<TimeValuePair<Double>> quantil99;
+    public List<TimeValuePair<Double>> avgCpuCreator;
+
+    public CustomMeasurePointResultModel(List<TimeValuePair<Double>> avg, List<TimeValuePair<Double>> count,
+            List<TimeValuePair<Double>> quantil50, List<TimeValuePair<Double>> quantil90, List<TimeValuePair<Double>> quantil99, List<TimeValuePair<Double>> avgCpuCreator) {
+        super();
+        this.avg = avg;
+        this.count = count;
+        this.quantil50 = quantil50;
+        this.quantil90 = quantil90;
+        this.quantil99 = quantil99;
+        this.avgCpuCreator = avgCpuCreator;
+    }
+
 }

@@ -26,29 +26,29 @@ import org.springframework.remoting.RemoteAccessException;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 
 public class CopperMonitorServiceSecurityProxy implements InvocationHandler {
-	
-	public static CopperMonitoringService secure(CopperMonitoringService copperMonitoringService){
-		return (CopperMonitoringService)java.lang.reflect.Proxy.newProxyInstance(
-				CopperMonitoringService.class.getClassLoader(),new Class[]{ CopperMonitoringService.class},
-				new CopperMonitorServiceSecurityProxy(copperMonitoringService));
-	}
-	
-	private static final Logger logger = LoggerFactory.getLogger(CopperMonitorServiceSecurityProxy.class);
 
-	private final CopperMonitoringService copperMonitoringService;
-	
-	public CopperMonitorServiceSecurityProxy(CopperMonitoringService copperMonitoringService) {
-		this.copperMonitoringService = copperMonitoringService;
-	}
+    public static CopperMonitoringService secure(CopperMonitoringService copperMonitoringService) {
+        return (CopperMonitoringService) java.lang.reflect.Proxy.newProxyInstance(
+                CopperMonitoringService.class.getClassLoader(), new Class[] { CopperMonitoringService.class },
+                new CopperMonitorServiceSecurityProxy(copperMonitoringService));
+    }
 
-	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (SecurityUtils.getSubject().isAuthenticated()){
-			return method.invoke(copperMonitoringService, args);
-		} else {
-			final String text = "user not authenticated: "+SecurityUtils.getSubject().getPrincipal()+" session:"+SecurityUtils.getSubject().getSession().getHost();
-			logger.warn(text);
-			throw new RemoteAccessException(text);
-		}
-	}
+    private static final Logger logger = LoggerFactory.getLogger(CopperMonitorServiceSecurityProxy.class);
+
+    private final CopperMonitoringService copperMonitoringService;
+
+    public CopperMonitorServiceSecurityProxy(CopperMonitoringService copperMonitoringService) {
+        this.copperMonitoringService = copperMonitoringService;
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (SecurityUtils.getSubject().isAuthenticated()) {
+            return method.invoke(copperMonitoringService, args);
+        } else {
+            final String text = "user not authenticated: " + SecurityUtils.getSubject().getPrincipal() + " session:" + SecurityUtils.getSubject().getSession().getHost();
+            logger.warn(text);
+            throw new RemoteAccessException(text);
+        }
+    }
 }

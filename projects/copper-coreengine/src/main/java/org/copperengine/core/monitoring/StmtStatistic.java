@@ -19,44 +19,43 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Helper class for collecting SQL statement related runtime statistics.
- * Offers a start and stop method, that encapsulate the measurement of the elapsed time. 
+ * Offers a start and stop method, that encapsulate the measurement of the elapsed time.
  * 
  * @author austermann
- *
  */
 public class StmtStatistic {
-	
-	private ThreadLocal<long[]> startTS = new ThreadLocal<long[]>() {
-		protected long[] initialValue() {
-			return new long[1];
-		}
-	};
-	
-	private final RuntimeStatisticsCollector runtimeStatisticsCollector;
-	private final String measurePointId;
-	
-	
-	/**
-	 * creates a new StmtStatistic with a name only. 
+
+    private ThreadLocal<long[]> startTS = new ThreadLocal<long[]>() {
+        protected long[] initialValue() {
+            return new long[1];
+        }
+    };
+
+    private final RuntimeStatisticsCollector runtimeStatisticsCollector;
+    private final String measurePointId;
+
+    /**
+     * creates a new StmtStatistic with a name only.
+     * 
      * @param measurePointId
      * @param runtimeStatisticsCollector
-	 */
-	public StmtStatistic(final String measurePointId, final RuntimeStatisticsCollector runtimeStatisticsCollector) {
-		if (measurePointId == null) throw new NullPointerException();
-		if (runtimeStatisticsCollector == null) throw new NullPointerException();
-		this.measurePointId = measurePointId;
-		this.runtimeStatisticsCollector = runtimeStatisticsCollector;
-	}
-	
-	public void start() {
-		((long[])startTS.get())[0] = System.nanoTime();
-	}
-	
-	public long stop(int updateCount) {
-		long et = System.nanoTime() - startTS.get()[0];
-		runtimeStatisticsCollector.submit(measurePointId, updateCount, et, TimeUnit.NANOSECONDS);
-		return et;
-	}	
+     */
+    public StmtStatistic(final String measurePointId, final RuntimeStatisticsCollector runtimeStatisticsCollector) {
+        if (measurePointId == null)
+            throw new NullPointerException();
+        if (runtimeStatisticsCollector == null)
+            throw new NullPointerException();
+        this.measurePointId = measurePointId;
+        this.runtimeStatisticsCollector = runtimeStatisticsCollector;
+    }
+
+    public void start() {
+        ((long[]) startTS.get())[0] = System.nanoTime();
+    }
+
+    public long stop(int updateCount) {
+        long et = System.nanoTime() - startTS.get()[0];
+        runtimeStatisticsCollector.submit(measurePointId, updateCount, et, TimeUnit.NANOSECONDS);
+        return et;
+    }
 }
-
-

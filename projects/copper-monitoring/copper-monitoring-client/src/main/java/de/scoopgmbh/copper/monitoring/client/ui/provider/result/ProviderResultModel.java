@@ -24,16 +24,16 @@ import de.scoopgmbh.copper.monitoring.core.model.GenericMonitoringData.ContentTy
 
 public class ProviderResultModel {
 
-	public final SimpleObjectProperty<Date> timeStamp;
-	public final SimpleStringProperty content;
-	public final SimpleObjectProperty<ContentType> contentType;
-	public final SimpleStringProperty creatorId;
+    public final SimpleObjectProperty<Date> timeStamp;
+    public final SimpleStringProperty content;
+    public final SimpleObjectProperty<ContentType> contentType;
+    public final SimpleStringProperty creatorId;
 
-	public ProviderResultModel(GenericMonitoringData genericMonitoringData) {
-		timeStamp = new SimpleObjectProperty<Date>(genericMonitoringData.getTimeStamp());
-		content = new SimpleStringProperty(genericMonitoringData.getContent());
-		contentType = new SimpleObjectProperty<ContentType>(genericMonitoringData.getContentType());
-		creatorId = new SimpleStringProperty(genericMonitoringData.getCreatorId());
-	}
+    public ProviderResultModel(GenericMonitoringData genericMonitoringData) {
+        timeStamp = new SimpleObjectProperty<Date>(genericMonitoringData.getTimeStamp());
+        content = new SimpleStringProperty(genericMonitoringData.getContent());
+        contentType = new SimpleObjectProperty<ContentType>(genericMonitoringData.getContentType());
+        creatorId = new SimpleStringProperty(genericMonitoringData.getCreatorId());
+    }
 
 }

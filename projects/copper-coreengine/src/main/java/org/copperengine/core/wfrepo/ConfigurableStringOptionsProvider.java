@@ -19,16 +19,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class ConfigurableStringOptionsProvider implements CompilerOptionsProvider {
-	
-	private volatile List<String> options = Collections.emptyList();
 
-	public void setOptions(List<String> options) {
-		this.options = options;
-	}
+    private volatile List<String> options = Collections.emptyList();
 
-	@Override
-	public List<String> getOptions() {
-		return options;
-	}
+    public void setOptions(List<String> options) {
+        this.options = options;
+    }
+
+    @Override
+    public List<String> getOptions() {
+        return options;
+    }
 
 }

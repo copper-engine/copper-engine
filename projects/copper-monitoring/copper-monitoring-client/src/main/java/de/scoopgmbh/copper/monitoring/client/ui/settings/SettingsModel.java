@@ -25,26 +25,26 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public class SettingsModel implements Serializable{
-	private static final long serialVersionUID = -2305027466935186248L;
-	public ObservableList<AuditralColorMapping> auditralColorMappings = FXCollections.observableList(new ArrayList<AuditralColorMapping>());
-	public SimpleStringProperty lastConnectedServer = new SimpleStringProperty("");
+public class SettingsModel implements Serializable {
+    private static final long serialVersionUID = -2305027466935186248L;
+    public ObservableList<AuditralColorMapping> auditralColorMappings = FXCollections.observableList(new ArrayList<AuditralColorMapping>());
+    public SimpleStringProperty lastConnectedServer = new SimpleStringProperty("");
 
-	private void writeObject(ObjectOutputStream out) throws IOException {
-		out.writeObject(lastConnectedServer.get());
-		out.writeInt(auditralColorMappings.size());
-		for (int i=0;i<auditralColorMappings.size();i++){
-			out.writeObject(auditralColorMappings.get(i));
-		}
-	}
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeObject(lastConnectedServer.get());
+        out.writeInt(auditralColorMappings.size());
+        for (int i = 0; i < auditralColorMappings.size(); i++) {
+            out.writeObject(auditralColorMappings.get(i));
+        }
+    }
 
-	private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
-		lastConnectedServer = new SimpleStringProperty((String)in.readObject());
-		auditralColorMappings = FXCollections.observableList(new ArrayList<AuditralColorMapping>());
-		int size = in.readInt();
-		for (int i=0;i<size;i++){
-			auditralColorMappings.add((AuditralColorMapping)in.readObject());
-		}
-	}
+    private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
+        lastConnectedServer = new SimpleStringProperty((String) in.readObject());
+        auditralColorMappings = FXCollections.observableList(new ArrayList<AuditralColorMapping>());
+        int size = in.readInt();
+        for (int i = 0; i < size; i++) {
+            auditralColorMappings.add((AuditralColorMapping) in.readObject());
+        }
+    }
 
 }

@@ -19,17 +19,17 @@ import org.copperengine.core.InterruptException;
 
 public class DerivedDerived extends Derived {
 
-	private static final long serialVersionUID = 1L;
-	
-	private String cid;
-	
-	@Override
-	protected void callMock() throws InterruptException {
-		cid = getEngine().createUUID();
-		mockAdapter.foo("foo", cid);
-		waitForAll(cid);
-		assert getAndRemoveResponse(cid) != null;
-		assert getAndRemoveResponse(cid) == null;
-	}
+    private static final long serialVersionUID = 1L;
+
+    private String cid;
+
+    @Override
+    protected void callMock() throws InterruptException {
+        cid = getEngine().createUUID();
+        mockAdapter.foo("foo", cid);
+        waitForAll(cid);
+        assert getAndRemoveResponse(cid) != null;
+        assert getAndRemoveResponse(cid) == null;
+    }
 
 }

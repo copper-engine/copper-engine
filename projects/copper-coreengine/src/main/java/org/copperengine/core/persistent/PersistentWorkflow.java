@@ -22,102 +22,99 @@ import java.util.List;
 import java.util.Set;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.Acknowledge.DefaultAcknowledge;
 import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.Workflow;
-import org.copperengine.core.Acknowledge.DefaultAcknowledge;
-
-
 
 /**
  * Abstract base class for persistent workflows.
- * 
- * It is safe to run a PersistentWorkflow in a transient engine. So if your want to keep it open to decide later whether your
+ * It is safe to run a PersistentWorkflow in a transient engine. So if your want to keep it open to decide later whether
+ * your
  * workflow needs persistence or not, it is OK to inherit from PersistentWorkflow.
  * 
  * @author austermann
- *
  * @param <E>
  */
 public abstract class PersistentWorkflow<E extends Serializable> extends Workflow<E> implements Serializable, SavepointAware {
 
-	private static final long serialVersionUID = 3232137844188440549L;
-	
-	transient RegisterCall registerCall;
-	transient Set<String> waitCidList;
-	transient List<String> responseIdList;
-	transient String rowid;
-	transient String oldProcessorPoolId;
-	transient int oldPrio;
-	transient ArrayList<Acknowledge.DefaultAcknowledge> checkpointAcknowledges = null;
-	transient ArrayList<SavepointAware> savepointAwares = null;
+    private static final long serialVersionUID = 3232137844188440549L;
 
-	void addWaitCorrelationId(final String cid) {
-		if (waitCidList == null) waitCidList = new HashSet<String>();
-		waitCidList.add(cid);
-	}
-	
-	void addResponseId(final String responseId) {
-		if (responseIdList == null) responseIdList = new ArrayList<String>();
-		responseIdList.add(responseId);
-	}
-	
-	/**
-	 * Used internally
-	 */
-	@SuppressWarnings("unchecked")
-	public void setDataAsObject(Object data) {
-		setData((E) data);
-	}
-	
-	public void onLoad(PersistenceContext pc) {
-	}
+    transient RegisterCall registerCall;
+    transient Set<String> waitCidList;
+    transient List<String> responseIdList;
+    transient String rowid;
+    transient String oldProcessorPoolId;
+    transient int oldPrio;
+    transient ArrayList<Acknowledge.DefaultAcknowledge> checkpointAcknowledges = null;
+    transient ArrayList<SavepointAware> savepointAwares = null;
 
-	@Override
-	public void onSave(PersistenceContext pc) {
-		if (savepointAwares != null) {
-			for (SavepointAware sa : savepointAwares) {
-				sa.onSave(pc);
-			}
-		}
-	}
-	
-	public void onDelete(PersistenceContext pc) {
-	}
-	
-	@Override
-	protected Acknowledge createCheckpointAcknowledge() {
-		return new Acknowledge.DefaultAcknowledge();
-	}
-	
-	@Override
-	protected void registerCheckpointAcknowledge(Acknowledge ack) {
-		if (ack instanceof Acknowledge.DefaultAcknowledge) {
-			if (checkpointAcknowledges == null)
-				checkpointAcknowledges = new ArrayList<Acknowledge.DefaultAcknowledge>();
-			checkpointAcknowledges.add((DefaultAcknowledge) ack);
-		}
-	}
-	
-	@Override
-	protected void registerSavepointAware(SavepointAware sa) {
-		if (savepointAwares == null)
-			savepointAwares = new ArrayList<SavepointAware>();
-		savepointAwares.add(sa);
-	}
-	
-	public boolean flushCheckpointAcknowledges() {
-		if (checkpointAcknowledges == null)
-			return true;
-		for (Acknowledge.DefaultAcknowledge ack : checkpointAcknowledges) {
-			try {
-				ack.waitForAcknowledge();
-			} catch (CopperRuntimeException ce) {
-				return false;
-			}
-		}
-		return true;
-	}
+    void addWaitCorrelationId(final String cid) {
+        if (waitCidList == null)
+            waitCidList = new HashSet<String>();
+        waitCidList.add(cid);
+    }
 
+    void addResponseId(final String responseId) {
+        if (responseIdList == null)
+            responseIdList = new ArrayList<String>();
+        responseIdList.add(responseId);
+    }
 
+    /**
+     * Used internally
+     */
+    @SuppressWarnings("unchecked")
+    public void setDataAsObject(Object data) {
+        setData((E) data);
+    }
+
+    public void onLoad(PersistenceContext pc) {
+    }
+
+    @Override
+    public void onSave(PersistenceContext pc) {
+        if (savepointAwares != null) {
+            for (SavepointAware sa : savepointAwares) {
+                sa.onSave(pc);
+            }
+        }
+    }
+
+    public void onDelete(PersistenceContext pc) {
+    }
+
+    @Override
+    protected Acknowledge createCheckpointAcknowledge() {
+        return new Acknowledge.DefaultAcknowledge();
+    }
+
+    @Override
+    protected void registerCheckpointAcknowledge(Acknowledge ack) {
+        if (ack instanceof Acknowledge.DefaultAcknowledge) {
+            if (checkpointAcknowledges == null)
+                checkpointAcknowledges = new ArrayList<Acknowledge.DefaultAcknowledge>();
+            checkpointAcknowledges.add((DefaultAcknowledge) ack);
+        }
+    }
+
+    @Override
+    protected void registerSavepointAware(SavepointAware sa) {
+        if (savepointAwares == null)
+            savepointAwares = new ArrayList<SavepointAware>();
+        savepointAwares.add(sa);
+    }
+
+    public boolean flushCheckpointAcknowledges() {
+        if (checkpointAcknowledges == null)
+            return true;
+        for (Acknowledge.DefaultAcknowledge ack : checkpointAcknowledges) {
+            try {
+                ack.waitForAcknowledge();
+            } catch (CopperRuntimeException ce) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

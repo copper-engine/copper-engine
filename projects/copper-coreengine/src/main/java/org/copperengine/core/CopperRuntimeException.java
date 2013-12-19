@@ -17,23 +17,22 @@ package org.copperengine.core;
 
 public class CopperRuntimeException extends RuntimeException {
 
-	private static final long serialVersionUID = 5683434386450584776L;
+    private static final long serialVersionUID = 5683434386450584776L;
 
-	public CopperRuntimeException() {
-		super();
-	}
+    public CopperRuntimeException() {
+        super();
+    }
 
-	public CopperRuntimeException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public CopperRuntimeException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public CopperRuntimeException(String message) {
-		super(message);
-	}
+    public CopperRuntimeException(String message) {
+        super(message);
+    }
 
-	public CopperRuntimeException(Throwable cause) {
-		super(cause);
-	}
+    public CopperRuntimeException(Throwable cause) {
+        super(cause);
+    }
 
-	
 }

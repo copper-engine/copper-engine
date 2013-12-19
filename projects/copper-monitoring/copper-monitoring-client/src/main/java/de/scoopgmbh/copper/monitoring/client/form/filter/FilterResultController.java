@@ -18,27 +18,29 @@ package de.scoopgmbh.copper.monitoring.client.form.filter;
 import java.util.List;
 
 import javafx.scene.Node;
-
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
 
 /**
- *
  * @param <F>Filtermodel
  * @param <T>Resultmodel
  */
-public interface FilterResultController<F,R> extends FxmlController{
-	
-	/**update gui
-	 * executed in JavaFX Application Thread
-	 */
-	public void showFilteredResult(List<R> filteredResult, F usedFilter);
-	public List<R> applyFilterInBackgroundThread(F filter);
-	public void clear();
-	public boolean supportsClear();
-	public List<? extends Node> getContributedButtons(MessageProvider messageProvider);
+public interface FilterResultController<F, R> extends FxmlController {
 
-	
-	public void onClose();
+    /**
+     * update gui
+     * executed in JavaFX Application Thread
+     */
+    public void showFilteredResult(List<R> filteredResult, F usedFilter);
+
+    public List<R> applyFilterInBackgroundThread(F filter);
+
+    public void clear();
+
+    public boolean supportsClear();
+
+    public List<? extends Node> getContributedButtons(MessageProvider messageProvider);
+
+    public void onClose();
 
 }

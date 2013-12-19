@@ -20,16 +20,24 @@ import java.util.List;
 import org.copperengine.management.model.EngineType;
 import org.copperengine.management.model.WorkflowInfo;
 
-
 public interface ProcessingEngineMXBean {
-	public String getState();
-	public String getEngineId();
-	public EngineType getEngineType();
-	public List<WorkflowInfo> queryWorkflowInstances();
-	public WorkflowInfo queryWorkflowInstance(String id);
-	public int getNumberOfWorkflowInstances();
-	public List<ProcessorPoolMXBean> getProcessorPools(); 
-	public WorkflowRepositoryMXBean getWorkflowRepository();
-	public String getDependencyInjectorType();
-	public String getStatisticsCollectorType();
+    public String getState();
+
+    public String getEngineId();
+
+    public EngineType getEngineType();
+
+    public List<WorkflowInfo> queryWorkflowInstances();
+
+    public WorkflowInfo queryWorkflowInstance(String id);
+
+    public int getNumberOfWorkflowInstances();
+
+    public List<ProcessorPoolMXBean> getProcessorPools();
+
+    public WorkflowRepositoryMXBean getWorkflowRepository();
+
+    public String getDependencyInjectorType();
+
+    public String getStatisticsCollectorType();
 }

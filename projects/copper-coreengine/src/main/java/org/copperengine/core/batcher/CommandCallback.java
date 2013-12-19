@@ -19,20 +19,21 @@ package org.copperengine.core.batcher;
  * Callback interface for notifying a caller about the result of a batch command.
  * 
  * @author austermann
- *
  * @param <T>
  */
-public interface CommandCallback<T extends BatchCommand<?,T>> {
-	
-	/**
-	 * Called when a batch command is successfully executed
-	 */
-	void commandCompleted();
+public interface CommandCallback<T extends BatchCommand<?, T>> {
 
-	/**
-	 * Called when a batch command failed
-	 * @param e the exception
-	 */
-	void unhandledException(Exception e);
-	
+    /**
+     * Called when a batch command is successfully executed
+     */
+    void commandCompleted();
+
+    /**
+     * Called when a batch command failed
+     * 
+     * @param e
+     *            the exception
+     */
+    void unhandledException(Exception e);
+
 }

@@ -42,136 +42,131 @@ import com.google.common.base.Throwables;
 import de.scoopgmbh.copper.monitoring.client.util.CSSHelper;
 
 public class MessageAndLogIssueReporter implements IssueReporter {
-	
-	Logger logger = LoggerFactory.getLogger(MessageAndLogIssueReporter.class);
-	private final StackPane target;
 
-	
-	
-	public MessageAndLogIssueReporter(StackPane stackPane) {
-		super();
-		this.target = stackPane;
-	}
+    Logger logger = LoggerFactory.getLogger(MessageAndLogIssueReporter.class);
+    private final StackPane target;
 
-	@Override
-	public void reportError(Throwable e) {
-		logger.error("",e);
-		showErrorMessage(e.getMessage(), e);
-	}
+    public MessageAndLogIssueReporter(StackPane stackPane) {
+        super();
+        this.target = stackPane;
+    }
 
-	@Override
-	public void reportError(String message, Throwable e) {
-		logger.error("",e);
-		showErrorMessage(message, e);
-	}
+    @Override
+    public void reportError(Throwable e) {
+        logger.error("", e);
+        showErrorMessage(e.getMessage(), e);
+    }
 
-	@Override
-	public void reportWarning(Throwable e) {
-		logger.warn("",e);
-		showWarningMessage(e.getMessage(), e);
-	}
+    @Override
+    public void reportError(String message, Throwable e) {
+        logger.error("", e);
+        showErrorMessage(message, e);
+    }
 
-	@Override
-	public void reportWarning(String message, Throwable e) {
-		logger.warn("",e);
-		showWarningMessage(message, e);
-	}
+    @Override
+    public void reportWarning(Throwable e) {
+        logger.warn("", e);
+        showWarningMessage(e.getMessage(), e);
+    }
 
-	@Override
-	public void reportError(String message, Throwable e, Runnable finishAction) {
-		logger.error("",e);
-		showErrorMessage(message, e,finishAction);
-	}
+    @Override
+    public void reportWarning(String message, Throwable e) {
+        logger.warn("", e);
+        showWarningMessage(message, e);
+    }
 
-	@Override
-	public void reportWarning(String message, Throwable e, Runnable finishAction) {
-		logger.warn("",e);
-		showWarningMessage(message, e,finishAction);
-	}
-	
-	
-	
-	private void showErrorMessage(String message, Throwable e){
-		showErrorMessage(message,e,null);
-	}
-	
-	private void showErrorMessage(String message, Throwable e, Runnable okOnACtion){
-		showMessage(message,e,Color.rgb(255,0,0,0.55), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/error.png").toExternalForm()),okOnACtion);
-	}
-	
-	private void showWarningMessage(String message, Throwable e, Runnable okOnACtion){
-		showMessage(message,e,Color.rgb(255,200,90,0.75), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/warning.png").toExternalForm()),okOnACtion);
-	}
-	
-	private void showWarningMessage(String message, Throwable e){
-		showWarningMessage(message,e,null);
-	}
-	
-	private void showMessage(final String message, final Throwable e, final Color backColor, final ImageView icon, final Runnable okOnAction){
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				final Pane backShadow = new Pane();
-				backShadow.setStyle("-fx-background-color: "+CSSHelper.toCssColor(backColor)+";");
-				target.getChildren().add(backShadow);
-				
-				String blackOrWhiteDependingFromBack ="ladder("+CSSHelper.toCssColor(backColor)+", white 49%, black 50%);";
-				
-				final VBox back = new VBox(3);
-				StackPane.setMargin(back, new Insets(150));
-				back.setStyle("-fx-border-color: "+blackOrWhiteDependingFromBack +"; -fx-border-width: 1px; -fx-padding: 3; -fx-background-color: derive("+CSSHelper.toCssColor(backColor)+",-50%);");
-				back.setAlignment(Pos.CENTER_RIGHT);
-				final Label label = new Label(message);
-				label.prefWidthProperty().bind(target.widthProperty());
-				StackPane.setMargin(back, new Insets(150));
-				label.setStyle("-fx-text-fill: "+blackOrWhiteDependingFromBack +";");
-				label.setWrapText(true);
-				label.setGraphic(icon);
-				back.getChildren().add(label);
-				
-				final TextArea area = new TextArea();
-				area.setPrefRowCount(10);
-				if (e!=null){
-					area.setText(Throwables.getStackTraceAsString(e));
-				}
-				area.setOpacity(0.4);
-				area.setEditable(false);
-				VBox.setVgrow(area, Priority.ALWAYS);
-				back.getChildren().add(area);
-				area.getStyleClass().add("consoleFont");
-				
-				ContextMenu menue = new ContextMenu();
-				MenuItem item = new MenuItem("copy to clipboard");
-				item.setOnAction(new EventHandler<ActionEvent>() {
-					@Override
-					public void handle(ActionEvent event) {
-						final Clipboard clipboard = Clipboard.getSystemClipboard();
-					    final ClipboardContent content = new ClipboardContent();
-					    content.putString(area.getText());
-					    clipboard.setContent(content);
-					}
-				});
-				menue.getItems().add(item);
-				area.setContextMenu(menue);
-				
-				Button ok = new Button("OK");
-				ok.setPrefWidth(100);
-				ok.setOnAction(new EventHandler<ActionEvent>() {
-					@Override
-					public void handle(ActionEvent event) {
-						target.getChildren().remove(back);
-						target.getChildren().remove(backShadow);
-						if (okOnAction!=null){
-							okOnAction.run();
-						}
-					}
-				});
-				back.getChildren().add(ok);
-				
-				target.getChildren().add(back);
-			}
-		});
-	}
+    @Override
+    public void reportError(String message, Throwable e, Runnable finishAction) {
+        logger.error("", e);
+        showErrorMessage(message, e, finishAction);
+    }
 
+    @Override
+    public void reportWarning(String message, Throwable e, Runnable finishAction) {
+        logger.warn("", e);
+        showWarningMessage(message, e, finishAction);
+    }
+
+    private void showErrorMessage(String message, Throwable e) {
+        showErrorMessage(message, e, null);
+    }
+
+    private void showErrorMessage(String message, Throwable e, Runnable okOnACtion) {
+        showMessage(message, e, Color.rgb(255, 0, 0, 0.55), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/error.png").toExternalForm()), okOnACtion);
+    }
+
+    private void showWarningMessage(String message, Throwable e, Runnable okOnACtion) {
+        showMessage(message, e, Color.rgb(255, 200, 90, 0.75), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/warning.png").toExternalForm()), okOnACtion);
+    }
+
+    private void showWarningMessage(String message, Throwable e) {
+        showWarningMessage(message, e, null);
+    }
+
+    private void showMessage(final String message, final Throwable e, final Color backColor, final ImageView icon, final Runnable okOnAction) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                final Pane backShadow = new Pane();
+                backShadow.setStyle("-fx-background-color: " + CSSHelper.toCssColor(backColor) + ";");
+                target.getChildren().add(backShadow);
+
+                String blackOrWhiteDependingFromBack = "ladder(" + CSSHelper.toCssColor(backColor) + ", white 49%, black 50%);";
+
+                final VBox back = new VBox(3);
+                StackPane.setMargin(back, new Insets(150));
+                back.setStyle("-fx-border-color: " + blackOrWhiteDependingFromBack + "; -fx-border-width: 1px; -fx-padding: 3; -fx-background-color: derive(" + CSSHelper.toCssColor(backColor) + ",-50%);");
+                back.setAlignment(Pos.CENTER_RIGHT);
+                final Label label = new Label(message);
+                label.prefWidthProperty().bind(target.widthProperty());
+                StackPane.setMargin(back, new Insets(150));
+                label.setStyle("-fx-text-fill: " + blackOrWhiteDependingFromBack + ";");
+                label.setWrapText(true);
+                label.setGraphic(icon);
+                back.getChildren().add(label);
+
+                final TextArea area = new TextArea();
+                area.setPrefRowCount(10);
+                if (e != null) {
+                    area.setText(Throwables.getStackTraceAsString(e));
+                }
+                area.setOpacity(0.4);
+                area.setEditable(false);
+                VBox.setVgrow(area, Priority.ALWAYS);
+                back.getChildren().add(area);
+                area.getStyleClass().add("consoleFont");
+
+                ContextMenu menue = new ContextMenu();
+                MenuItem item = new MenuItem("copy to clipboard");
+                item.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        final Clipboard clipboard = Clipboard.getSystemClipboard();
+                        final ClipboardContent content = new ClipboardContent();
+                        content.putString(area.getText());
+                        clipboard.setContent(content);
+                    }
+                });
+                menue.getItems().add(item);
+                area.setContextMenu(menue);
+
+                Button ok = new Button("OK");
+                ok.setPrefWidth(100);
+                ok.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        target.getChildren().remove(back);
+                        target.getChildren().remove(backShadow);
+                        if (okOnAction != null) {
+                            okOnAction.run();
+                        }
+                    }
+                });
+                back.getChildren().add(ok);
+
+                target.getChildren().add(back);
+            }
+        });
+    }
 
 }

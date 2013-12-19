@@ -20,18 +20,18 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 
 public class EnginePoolFilterModel {
-	
-	public final SimpleObjectProperty<ProcessingEngineInfo> selectedEngine = new SimpleObjectProperty<ProcessingEngineInfo>();
-	public final SimpleObjectProperty<ProcessorPoolInfo> selectedPool = new SimpleObjectProperty<ProcessorPoolInfo>();
-	
-	public EnginePoolFilterModel(){
-		
-	}
-	
-	public EnginePoolFilterModel(ProcessingEngineInfo engine){
-		this.selectedEngine.setValue(engine);
-		if (!engine.getPools().isEmpty()){
-			this.selectedPool.setValue(engine.getPools().get(0));
-		}
-	}
+
+    public final SimpleObjectProperty<ProcessingEngineInfo> selectedEngine = new SimpleObjectProperty<ProcessingEngineInfo>();
+    public final SimpleObjectProperty<ProcessorPoolInfo> selectedPool = new SimpleObjectProperty<ProcessorPoolInfo>();
+
+    public EnginePoolFilterModel() {
+
+    }
+
+    public EnginePoolFilterModel(ProcessingEngineInfo engine) {
+        this.selectedEngine.setValue(engine);
+        if (!engine.getPools().isEmpty()) {
+            this.selectedPool.setValue(engine.getPools().get(0));
+        }
+    }
 }

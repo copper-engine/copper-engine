@@ -18,7 +18,7 @@ package org.copperengine.core;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-@Retention( RetentionPolicy.RUNTIME )
+@Retention(RetentionPolicy.RUNTIME)
 public @interface AutoWire {
-	String beanId() default "";
+    String beanId() default "";
 }

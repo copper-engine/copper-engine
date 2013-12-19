@@ -20,59 +20,56 @@ import javafx.beans.property.SimpleStringProperty;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
 
 public class WorkflowVersion {
-	public final SimpleStringProperty classname = new SimpleStringProperty(); 
-	public final SimpleStringProperty alias = new SimpleStringProperty(); 
-	public final SimpleObjectProperty<Long> versionMajor = new SimpleObjectProperty<Long>(); 
-	public final SimpleObjectProperty<Long> versionMinor = new SimpleObjectProperty<Long>(); 
-	public final SimpleObjectProperty<Long> patchlevel = new SimpleObjectProperty<Long>(); 
-	public final SimpleStringProperty source = new SimpleStringProperty(); 
-	
-	public WorkflowVersion(){
+    public final SimpleStringProperty classname = new SimpleStringProperty();
+    public final SimpleStringProperty alias = new SimpleStringProperty();
+    public final SimpleObjectProperty<Long> versionMajor = new SimpleObjectProperty<Long>();
+    public final SimpleObjectProperty<Long> versionMinor = new SimpleObjectProperty<Long>();
+    public final SimpleObjectProperty<Long> patchlevel = new SimpleObjectProperty<Long>();
+    public final SimpleStringProperty source = new SimpleStringProperty();
 
-	} 
-	
-	public WorkflowVersion(String classname, String alias, long versionMajor,long versionMinor, long patchlevel, String source){
-		this.classname.setValue(classname);
-		this.alias.setValue(alias);
-		this.versionMajor.setValue(versionMajor);
-		this.versionMinor.setValue(versionMinor);
-		this.patchlevel.setValue(patchlevel);
-		this.source.setValue(source);
-	}
-	
-	public WorkflowVersion(WorkflowClassMetaData workflowClassesInfo){
-		this.classname.set(workflowClassesInfo.getClassname());
-		this.alias.set(workflowClassesInfo.getAlias());
-		this.versionMajor.set(workflowClassesInfo.getMajorVersion());
-		this.versionMinor.set(workflowClassesInfo.getMinorVersion());
-		this.patchlevel.set(workflowClassesInfo.getPatchLevel());
-		this.source.set(workflowClassesInfo.getSource());
-	}
-	
-	public void setAllFrom(WorkflowVersion workflowVersion){
-		classname.set(workflowVersion.classname.get());
-		versionMajor.set(workflowVersion.versionMajor.get());
-		versionMinor.set(workflowVersion.versionMinor.get());
-		patchlevel.set(workflowVersion.patchlevel.get());
-	}
-	
-	public WorkflowClassMetaData convert(){
-		return new WorkflowClassMetaData(
-				classname.get(),
-				alias.get(),
-				versionMajor.get(),
-				versionMinor.get(),
-				patchlevel.get(),
-				source.get());
-	}
+    public WorkflowVersion() {
 
-	@Override
-	public String toString() {
-		return "WorkflowVersion [classname=" + classname.get() + ", alias=" + alias.get() + ", versionMajor=" + versionMajor.get() + ", versionMinor="
-				+ versionMinor.get() + ", patchlevel=" + patchlevel.get()+ "]";
-	}
-	
-	
-	
-	
+    }
+
+    public WorkflowVersion(String classname, String alias, long versionMajor, long versionMinor, long patchlevel, String source) {
+        this.classname.setValue(classname);
+        this.alias.setValue(alias);
+        this.versionMajor.setValue(versionMajor);
+        this.versionMinor.setValue(versionMinor);
+        this.patchlevel.setValue(patchlevel);
+        this.source.setValue(source);
+    }
+
+    public WorkflowVersion(WorkflowClassMetaData workflowClassesInfo) {
+        this.classname.set(workflowClassesInfo.getClassname());
+        this.alias.set(workflowClassesInfo.getAlias());
+        this.versionMajor.set(workflowClassesInfo.getMajorVersion());
+        this.versionMinor.set(workflowClassesInfo.getMinorVersion());
+        this.patchlevel.set(workflowClassesInfo.getPatchLevel());
+        this.source.set(workflowClassesInfo.getSource());
+    }
+
+    public void setAllFrom(WorkflowVersion workflowVersion) {
+        classname.set(workflowVersion.classname.get());
+        versionMajor.set(workflowVersion.versionMajor.get());
+        versionMinor.set(workflowVersion.versionMinor.get());
+        patchlevel.set(workflowVersion.patchlevel.get());
+    }
+
+    public WorkflowClassMetaData convert() {
+        return new WorkflowClassMetaData(
+                classname.get(),
+                alias.get(),
+                versionMajor.get(),
+                versionMinor.get(),
+                patchlevel.get(),
+                source.get());
+    }
+
+    @Override
+    public String toString() {
+        return "WorkflowVersion [classname=" + classname.get() + ", alias=" + alias.get() + ", versionMajor=" + versionMajor.get() + ", versionMinor="
+                + versionMinor.get() + ", patchlevel=" + patchlevel.get() + "]";
+    }
+
 }

@@ -28,45 +28,46 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class WorkflowRepositoryFilterController extends BaseEngineFilterController<WorkflowRepositoryFilterModel> implements Initializable, FxmlController {
-	public WorkflowRepositoryFilterController(List<ProcessingEngineInfo> availableEngines) {
-		super(availableEngines,new WorkflowRepositoryFilterModel());
-	}
+    public WorkflowRepositoryFilterController(List<ProcessingEngineInfo> availableEngines) {
+        super(availableEngines, new WorkflowRepositoryFilterModel());
+    }
 
+    public class EmptySelectionWorkaround {
+        public WorkflowInstanceState value;
+        public String text;
 
-	public class EmptySelectionWorkaround{
-		public WorkflowInstanceState value;
-		public String text;
-		public EmptySelectionWorkaround(WorkflowInstanceState value, String text) {
-			super();
-			this.value = value;
-			this.text = text;
-		}
-		
-	}
+        public EmptySelectionWorkaround(WorkflowInstanceState value, String text) {
+            super();
+            this.value = value;
+            this.text = text;
+        }
 
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    }
+
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-       
-	}
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("WorkflowRepositoryFilter.fxml");
-	}
-	
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
-	
-	@Override
-	public long getDefaultRefreshInterval() {
-		return FilterController.DEFAULT_REFRESH_INTERVALL;
-	}
+    }
 
-	@Override
-	public Node createAdditionalFilter() {
-		return null;
-	}
-	
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("WorkflowRepositoryFilter.fxml");
+    }
+
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
+
+    @Override
+    public long getDefaultRefreshInterval() {
+        return FilterController.DEFAULT_REFRESH_INTERVALL;
+    }
+
+    @Override
+    public Node createAdditionalFilter() {
+        return null;
+    }
+
 }

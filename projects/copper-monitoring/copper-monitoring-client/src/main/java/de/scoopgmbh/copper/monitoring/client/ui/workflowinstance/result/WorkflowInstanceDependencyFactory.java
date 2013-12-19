@@ -27,8 +27,10 @@ import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result.Wor
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
 public interface WorkflowInstanceDependencyFactory {
-	public FilterAbleForm<AuditTrailFilterModel,AuditTrailResultModel> createAudittrailForm();
-	public EngineFilterAbleForm<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId, ProcessingEngineInfo engine);
-	public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(
-			BorderPane detailPane);
+    public FilterAbleForm<AuditTrailFilterModel, AuditTrailResultModel> createAudittrailForm();
+
+    public EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId, ProcessingEngineInfo engine);
+
+    public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(
+            BorderPane detailPane);
 }

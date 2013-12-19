@@ -20,8 +20,8 @@ import org.objectweb.asm.Opcodes;
 
 public class NullMethodVisitor extends MethodVisitor implements Opcodes {
 
-	public NullMethodVisitor() {
-		super(ASM4);
-	}
+    public NullMethodVisitor() {
+        super(ASM4);
+    }
 
 }

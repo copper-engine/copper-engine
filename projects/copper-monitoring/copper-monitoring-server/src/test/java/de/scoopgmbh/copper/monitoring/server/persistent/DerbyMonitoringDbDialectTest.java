@@ -26,42 +26,39 @@ import org.copperengine.core.persistent.StandardJavaSerializer;
 
 import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
 
+public class DerbyMonitoringDbDialectTest extends MonitoringDbDialectTestBase {
 
-public class DerbyMonitoringDbDialectTest extends MonitoringDbDialectTestBase{
+    @Override
+    void intit() {
+        EmbeddedConnectionPoolDataSource40 datasource = new EmbeddedConnectionPoolDataSource40();
+        datasource.setDatabaseName("./build/copperExampleDB;create=true");
+        this.datasource = datasource;
 
-	@Override
-	void intit() {
-		EmbeddedConnectionPoolDataSource40 datasource = new EmbeddedConnectionPoolDataSource40();
-		datasource.setDatabaseName("./build/copperExampleDB;create=true");
-		this.datasource=datasource;
-		
-		DerbyMonitoringDbDialect derbyMonitoringDbDialect = new DerbyMonitoringDbDialect(new StandardJavaSerializer(), new DummyPostProcessor(),new BatchingAuditTrail());
-		this.monitoringDbDialect = derbyMonitoringDbDialect;
-		
-		DerbyDbDialect databaseDialect = new DerbyDbDialect();
-		databaseDialect.setDataSource(datasource);
-		databaseDialect.startup();
-		this.databaseDialect = databaseDialect;
+        DerbyMonitoringDbDialect derbyMonitoringDbDialect = new DerbyMonitoringDbDialect(new StandardJavaSerializer(), new DummyPostProcessor(), new BatchingAuditTrail());
+        this.monitoringDbDialect = derbyMonitoringDbDialect;
 
-		Connection connection = null;
-		try {
-			connection = datasource.getConnection();
-			connection.setAutoCommit(false);
-			DerbyCleanDbUtil.dropSchema(connection.getMetaData(), "APP"); // APP = default schema
-			DerbyDbDialect.checkAndCreateSchema(datasource); 
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				if (connection!=null){
-					connection.close();
-				}
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
-	
+        DerbyDbDialect databaseDialect = new DerbyDbDialect();
+        databaseDialect.setDataSource(datasource);
+        databaseDialect.startup();
+        this.databaseDialect = databaseDialect;
 
-	
+        Connection connection = null;
+        try {
+            connection = datasource.getConnection();
+            connection.setAutoCommit(false);
+            DerbyCleanDbUtil.dropSchema(connection.getMetaData(), "APP"); // APP = default schema
+            DerbyDbDialect.checkAndCreateSchema(datasource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
 }

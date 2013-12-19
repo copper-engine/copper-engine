@@ -18,5 +18,5 @@ package org.copperengine.core.test;
 import org.copperengine.core.Workflow;
 
 public interface TestResponseReceiver<D, E> {
-	void setResponse(Workflow<D> wf, E response);
+    void setResponse(Workflow<D> wf, E response);
 }

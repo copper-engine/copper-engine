@@ -32,64 +32,62 @@ import de.scoopgmbh.copper.monitoring.example.adapter.Bill;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapter;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillableService;
 
-@WorkflowDescription(alias="BillWorkflow", majorVersion=1, minorVersion=0, patchLevelVersion=0)
+@WorkflowDescription(alias = "BillWorkflow", majorVersion = 1, minorVersion = 0, patchLevelVersion = 0)
 public class BillWorkflow extends PersistentWorkflow<String> {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private transient BillAdapter billAdapter;
-	private transient AuditTrail auditTrail;
-	
-	private ArrayList<BillableService> billableServices= new ArrayList<BillableService>();
+    private transient BillAdapter billAdapter;
+    private transient AuditTrail auditTrail;
 
-	@AutoWire
-	public void setBillAdapter(BillAdapter billAdapter) {
-		this.billAdapter = billAdapter;
-	}
-	
-	@AutoWire
-	public void setAuditTrail(AuditTrail auditTrail) {
-		this.auditTrail = auditTrail;
-	}
+    private ArrayList<BillableService> billableServices = new ArrayList<BillableService>();
 
-	@Override
-	public void main() throws InterruptException {
-		while (true){
-			auditTrail.asynchLog(2, new Date(), "1", "1", "", "", "", "wait for Data", "Text");
-			callWait();
-			auditTrail.asynchLog(1, new Date(), "2", "2", "", "", "", "data found", "Text");
-			
-			ArrayList<Response<?>> all = new ArrayList<Response<?>>(getAndRemoveResponses(BillAdapter.BILL_TIME));
-			all.addAll(getAndRemoveResponses(BillAdapter.BILLABLE_SERVICE));
-			
-			Response<String> rsponse = new Response<String>("cor","message",null);
-			rsponse.getResponse();
-			
-			
-			for(Response<?> response: all){
-				if (response.getResponse() instanceof BillableService){
-					billableServices.add(((BillableService)response.getResponse()));
-				}
-			}
-			for(Response<?> response: all){
-				if (response.getResponse() instanceof Bill){
-					Bill bill = ((Bill)response.getResponse());
-					BigDecimal sum = new BigDecimal(0);
-					for (BillableService billableService: billableServices){
-						sum = sum.add(billableService.getAmount());
-					}
-					bill.setTotalAmount(sum);
-					billAdapter.publishBill(bill);
-					billableServices.clear();
-				}
-			}
-			
-			
-		}
-		
-	}
+    @AutoWire
+    public void setBillAdapter(BillAdapter billAdapter) {
+        this.billAdapter = billAdapter;
+    }
 
-	private void callWait() throws InterruptException {
-		wait(WaitMode.ALL,Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME,BillAdapter.BILLABLE_SERVICE);
-	}
+    @AutoWire
+    public void setAuditTrail(AuditTrail auditTrail) {
+        this.auditTrail = auditTrail;
+    }
+
+    @Override
+    public void main() throws InterruptException {
+        while (true) {
+            auditTrail.asynchLog(2, new Date(), "1", "1", "", "", "", "wait for Data", "Text");
+            callWait();
+            auditTrail.asynchLog(1, new Date(), "2", "2", "", "", "", "data found", "Text");
+
+            ArrayList<Response<?>> all = new ArrayList<Response<?>>(getAndRemoveResponses(BillAdapter.BILL_TIME));
+            all.addAll(getAndRemoveResponses(BillAdapter.BILLABLE_SERVICE));
+
+            Response<String> rsponse = new Response<String>("cor", "message", null);
+            rsponse.getResponse();
+
+            for (Response<?> response : all) {
+                if (response.getResponse() instanceof BillableService) {
+                    billableServices.add(((BillableService) response.getResponse()));
+                }
+            }
+            for (Response<?> response : all) {
+                if (response.getResponse() instanceof Bill) {
+                    Bill bill = ((Bill) response.getResponse());
+                    BigDecimal sum = new BigDecimal(0);
+                    for (BillableService billableService : billableServices) {
+                        sum = sum.add(billableService.getAmount());
+                    }
+                    bill.setTotalAmount(sum);
+                    billAdapter.publishBill(bill);
+                    billableServices.clear();
+                }
+            }
+
+        }
+
+    }
+
+    private void callWait() throws InterruptException {
+        wait(WaitMode.ALL, Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME, BillAdapter.BILLABLE_SERVICE);
+    }
 
 }

@@ -27,40 +27,41 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.BaseFilterController;
 import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 
 public class ResourceFilterController extends BaseFilterController<ResourceFilterModel> implements Initializable, FxmlController {
-	final ResourceFilterModel model= new ResourceFilterModel();
+    final ResourceFilterModel model = new ResourceFilterModel();
 
-    @FXML //  fx:id="pane"
+    @FXML
+    // fx:id="pane"
     private FlowPane pane; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert pane != null : "fx:id=\"pane\" was not injected: check your FXML file 'EngineLoadFilter.fxml'.";
         model.maxCountFilterModel.maxCount.set(50);
-	}
+    }
 
-	@Override
-	public ResourceFilterModel getFilter() {
-		return model;
-	}
+    @Override
+    public ResourceFilterModel getFilter() {
+        return model;
+    }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("ResourceFilter.fxml");
-	}
-	
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
-	
-	@Override
-	public long getDefaultRefreshInterval() {
-		return 1500;
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("ResourceFilter.fxml");
+    }
 
-	@Override
-	public Node createDefaultFilter() {
-		return new DefaultFilterFactory().createFromToMaxCount(model);
-	}
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
+
+    @Override
+    public long getDefaultRefreshInterval() {
+        return 1500;
+    }
+
+    @Override
+    public Node createDefaultFilter() {
+        return new DefaultFilterFactory().createFromToMaxCount(model);
+    }
 }

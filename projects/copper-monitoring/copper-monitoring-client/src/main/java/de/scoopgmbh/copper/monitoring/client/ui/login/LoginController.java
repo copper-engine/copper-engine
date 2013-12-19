@@ -34,32 +34,37 @@ import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
 
 public class LoginController implements Initializable, FxmlController {
-	private final ApplicationContext mainFactory;
-	private final SettingsModel settingsModelSingleton;
-	public LoginController(ApplicationContext mainFactory, SettingsModel settingsModelSingleton) {
-		super();
-		this.mainFactory=mainFactory;
-		this.settingsModelSingleton=settingsModelSingleton;
-	}
+    private final ApplicationContext mainFactory;
+    private final SettingsModel settingsModelSingleton;
 
+    public LoginController(ApplicationContext mainFactory, SettingsModel settingsModelSingleton) {
+        super();
+        this.mainFactory = mainFactory;
+        this.settingsModelSingleton = settingsModelSingleton;
+    }
 
-	@FXML //  fx:id="password"
+    @FXML
+    // fx:id="password"
     private PasswordField password; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="serverAdress"
+    @FXML
+    // fx:id="serverAdress"
     private TextField serverAdress; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="serverRadioButton"
+    @FXML
+    // fx:id="serverRadioButton"
     private RadioButton serverRadioButton; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="startButton"
+    @FXML
+    // fx:id="startButton"
     private Button startButton; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="user"
+    @FXML
+    // fx:id="user"
     private TextField user; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert password != null : "fx:id=\"password\" was not injected: check your FXML file 'Login.fxml'.";
         assert serverAdress != null : "fx:id=\"serverAdress\" was not injected: check your FXML file 'Login.fxml'.";
@@ -67,58 +72,56 @@ public class LoginController implements Initializable, FxmlController {
         assert startButton != null : "fx:id=\"startButton\" was not injected: check your FXML file 'Login.fxml'.";
         assert user != null : "fx:id=\"user\" was not injected: check your FXML file 'Login.fxml'.";
 
+        ToggleGroup groupConnection = new ToggleGroup();
+        serverRadioButton.setSelected(true);
+        serverRadioButton.setToggleGroup(groupConnection);
 
-		
-		ToggleGroup groupConnection = new ToggleGroup();
-		serverRadioButton.setSelected(true);
-		serverRadioButton.setToggleGroup(groupConnection);
-		
-		user.disableProperty().bind(serverRadioButton.selectedProperty().not());
-		password.disableProperty().bind(serverRadioButton.selectedProperty().not());
-		serverAdress.disableProperty().bind(serverRadioButton.selectedProperty().not());
-		
-		startButton.disableProperty().bind(serverAdress.textProperty().isEqualTo(""));
-		
-		startButton.setOnAction(new EventHandler<ActionEvent>() {
-		    @Override 
-		    public void handle(ActionEvent event) {
-				try {
-					if (serverRadioButton.isSelected()){
-						cleanup();
-						mainFactory.setHttpGuiCopperDataProvider(serverAdress.getText(), user.getText(), password.getText());
-					} 
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-		    }
-		});
-		
-		serverAdress.textProperty().bindBidirectional(settingsModelSingleton.lastConnectedServer);
-		
-	}
-    
-    private void cleanup(){
-    	serverAdress.textProperty().unbindBidirectional(settingsModelSingleton.lastConnectedServer);
-    }
-    
-    public void addshorstcut(){
-		EventHandler<KeyEvent> eventHandler = new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(KeyEvent event) {
-				if (event.getCode()==KeyCode.ENTER){
-					if (!startButton.isDisabled()) {
-						startButton.fire();
-					}
-				}
-			}
-		};
-		user.setOnKeyReleased(eventHandler);
-		password.setOnKeyReleased(eventHandler);
-		serverAdress.setOnKeyReleased(eventHandler);
+        user.disableProperty().bind(serverRadioButton.selectedProperty().not());
+        password.disableProperty().bind(serverRadioButton.selectedProperty().not());
+        serverAdress.disableProperty().bind(serverRadioButton.selectedProperty().not());
+
+        startButton.disableProperty().bind(serverAdress.textProperty().isEqualTo(""));
+
+        startButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    if (serverRadioButton.isSelected()) {
+                        cleanup();
+                        mainFactory.setHttpGuiCopperDataProvider(serverAdress.getText(), user.getText(), password.getText());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        serverAdress.textProperty().bindBidirectional(settingsModelSingleton.lastConnectedServer);
+
     }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("Login.fxml");
-	}
+    private void cleanup() {
+        serverAdress.textProperty().unbindBidirectional(settingsModelSingleton.lastConnectedServer);
+    }
+
+    public void addshorstcut() {
+        EventHandler<KeyEvent> eventHandler = new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.ENTER) {
+                    if (!startButton.isDisabled()) {
+                        startButton.fire();
+                    }
+                }
+            }
+        };
+        user.setOnKeyReleased(eventHandler);
+        password.setOnKeyReleased(eventHandler);
+        serverAdress.setOnKeyReleased(eventHandler);
+    }
+
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("Login.fxml");
+    }
 }

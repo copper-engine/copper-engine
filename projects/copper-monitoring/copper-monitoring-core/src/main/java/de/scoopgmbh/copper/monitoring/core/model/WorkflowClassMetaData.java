@@ -17,66 +17,72 @@ package de.scoopgmbh.copper.monitoring.core.model;
 
 import java.io.Serializable;
 
+public class WorkflowClassMetaData implements Serializable {
+    private static final long serialVersionUID = -1189606285407748364L;
 
-public class WorkflowClassMetaData implements Serializable{
-	private static final long serialVersionUID = -1189606285407748364L;
-	
-	private String classname;
-	private String alias;
-	private Long majorVersion;
-	private Long minorVersion;
-	private Long patchLevel;
-	private String source;
-	
-	public WorkflowClassMetaData(String classname, String alias, Long majorVersion, Long minorVersion, Long patchLevel, String source) {
-		super();
-		this.classname = classname;
-		this.alias = alias;
-		this.majorVersion = majorVersion;
-		this.minorVersion = minorVersion;
-		this.patchLevel = patchLevel;
-		this.source = source;
-	}
-	
-	public String getClassname() {
-		return classname;
-	}
-	public void setClassname(String classname) {
-		this.classname = classname;
-	}
-	public Long getMajorVersion() {
-		return majorVersion;
-	}
-	public void setMajorVersion(Long majorVersion) {
-		this.majorVersion = majorVersion;
-	}
-	public Long getMinorVersion() {
-		return minorVersion;
-	}
-	public void setMinorVersion(Long minorVersion) {
-		this.minorVersion = minorVersion;
-	}
-	public Long getPatchLevel() {
-		return patchLevel;
-	}
-	public void setPatchLevel(Long patchLevel) {
-		this.patchLevel = patchLevel;
-	}
-	public String getAlias() {
-		return alias;
-	}
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
+    private String classname;
+    private String alias;
+    private Long majorVersion;
+    private Long minorVersion;
+    private Long patchLevel;
+    private String source;
 
-	public String getSource() {
-		return source;
-	}
+    public WorkflowClassMetaData(String classname, String alias, Long majorVersion, Long minorVersion, Long patchLevel, String source) {
+        super();
+        this.classname = classname;
+        this.alias = alias;
+        this.majorVersion = majorVersion;
+        this.minorVersion = minorVersion;
+        this.patchLevel = patchLevel;
+        this.source = source;
+    }
 
-	public void setSource(String source) {
-		this.source = source;
-	}
-	
-	
-	
+    public String getClassname() {
+        return classname;
+    }
+
+    public void setClassname(String classname) {
+        this.classname = classname;
+    }
+
+    public Long getMajorVersion() {
+        return majorVersion;
+    }
+
+    public void setMajorVersion(Long majorVersion) {
+        this.majorVersion = majorVersion;
+    }
+
+    public Long getMinorVersion() {
+        return minorVersion;
+    }
+
+    public void setMinorVersion(Long minorVersion) {
+        this.minorVersion = minorVersion;
+    }
+
+    public Long getPatchLevel() {
+        return patchLevel;
+    }
+
+    public void setPatchLevel(Long patchLevel) {
+        this.patchLevel = patchLevel;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
 }

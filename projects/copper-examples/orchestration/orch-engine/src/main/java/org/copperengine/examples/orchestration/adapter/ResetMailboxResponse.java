@@ -19,29 +19,28 @@ import java.io.Serializable;
 
 public class ResetMailboxResponse implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
-	private final boolean success;
-	private final int returnCode;
-	
-	public ResetMailboxResponse(boolean success, int returnCode) {
-		this.success = success;
-		this.returnCode = returnCode;
-	}
+    private static final long serialVersionUID = 1L;
 
-	public int getReturnCode() {
-		return returnCode;
-	}
-	
-	public boolean isSuccess() {
-		return success;
-	}
+    private final boolean success;
+    private final int returnCode;
 
-	@Override
-	public String toString() {
-		return "ResetMailboxResponse [success=" + success + ", returnCode="
-				+ returnCode + "]";
-	}
+    public ResetMailboxResponse(boolean success, int returnCode) {
+        this.success = success;
+        this.returnCode = returnCode;
+    }
 
-	
+    public int getReturnCode() {
+        return returnCode;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    @Override
+    public String toString() {
+        return "ResetMailboxResponse [success=" + success + ", returnCode="
+                + returnCode + "]";
+    }
+
 }

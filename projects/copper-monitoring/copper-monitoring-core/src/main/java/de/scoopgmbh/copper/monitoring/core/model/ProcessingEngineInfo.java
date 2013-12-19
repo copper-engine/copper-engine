@@ -21,102 +21,102 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ProcessingEngineInfo implements Serializable {
-	private static final long serialVersionUID = -4083220310307902745L;
-	
-	private EngineTyp typ;
-	private String id;
-	private List<ProcessorPoolInfo> pools = new ArrayList<ProcessorPoolInfo>();
-	private WorkflowRepositoryInfo repositoryInfo;
-	private DependencyInjectorInfo dependencyInjectorInfo;
-	private String statisticsCollectorType;
-	private StorageInfo storageInfo;
-	
-	public static enum EngineTyp{
-		TRANSIENT, PERSISTENT
-	}
+    private static final long serialVersionUID = -4083220310307902745L;
 
-	public ProcessingEngineInfo() {
-	}
+    private EngineTyp typ;
+    private String id;
+    private List<ProcessorPoolInfo> pools = new ArrayList<ProcessorPoolInfo>();
+    private WorkflowRepositoryInfo repositoryInfo;
+    private DependencyInjectorInfo dependencyInjectorInfo;
+    private String statisticsCollectorType;
+    private StorageInfo storageInfo;
 
-	public ProcessingEngineInfo(EngineTyp typ, String id, WorkflowRepositoryInfo repositoryInfo,
-			DependencyInjectorInfo dependencyInjectorInfo, String statisticsCollectorType, 
-			StorageInfo storageInfo, ProcessorPoolInfo... pools) {
-		super();
-		this.typ = typ;
-		this.id = id;
-		this.repositoryInfo = repositoryInfo;
-		this.dependencyInjectorInfo =  dependencyInjectorInfo;
-		this.statisticsCollectorType = statisticsCollectorType;
-		this.pools.addAll(Arrays.asList(pools));
-		this.storageInfo = storageInfo;
-	}
-	
-	public StorageInfo getStorageInfo() {
-		return storageInfo;
-	}
+    public static enum EngineTyp {
+        TRANSIENT, PERSISTENT
+    }
 
-	public void setStorageInfo(StorageInfo storageInfo) {
-		this.storageInfo = storageInfo;
-	}
+    public ProcessingEngineInfo() {
+    }
 
-	public DependencyInjectorInfo getDependencyInjectorInfo() {
-		return dependencyInjectorInfo;
-	}
+    public ProcessingEngineInfo(EngineTyp typ, String id, WorkflowRepositoryInfo repositoryInfo,
+            DependencyInjectorInfo dependencyInjectorInfo, String statisticsCollectorType,
+            StorageInfo storageInfo, ProcessorPoolInfo... pools) {
+        super();
+        this.typ = typ;
+        this.id = id;
+        this.repositoryInfo = repositoryInfo;
+        this.dependencyInjectorInfo = dependencyInjectorInfo;
+        this.statisticsCollectorType = statisticsCollectorType;
+        this.pools.addAll(Arrays.asList(pools));
+        this.storageInfo = storageInfo;
+    }
 
-	public void setDependencyInjectorInfo(DependencyInjectorInfo dependencyInjectorInfo) {
-		this.dependencyInjectorInfo = dependencyInjectorInfo;
-	}
+    public StorageInfo getStorageInfo() {
+        return storageInfo;
+    }
 
-	public String getStatisticsCollectorType() {
-		return statisticsCollectorType;
-	}
-	
-	public void setStatisticsCollectorType(String statisticsCollectorType) {
-		this.statisticsCollectorType = statisticsCollectorType;
-	}
-	
-	public WorkflowRepositoryInfo getRepositoryInfo() {
-		return repositoryInfo;
-	}
+    public void setStorageInfo(StorageInfo storageInfo) {
+        this.storageInfo = storageInfo;
+    }
 
-	public void setRepositoryInfo(WorkflowRepositoryInfo repositoryInfo) {
-		this.repositoryInfo = repositoryInfo;
-	}
+    public DependencyInjectorInfo getDependencyInjectorInfo() {
+        return dependencyInjectorInfo;
+    }
 
-	public EngineTyp getTyp() {
-		return typ;
-	}
+    public void setDependencyInjectorInfo(DependencyInjectorInfo dependencyInjectorInfo) {
+        this.dependencyInjectorInfo = dependencyInjectorInfo;
+    }
 
-	public void setTyp(EngineTyp typ) {
-		this.typ = typ;
-	}
+    public String getStatisticsCollectorType() {
+        return statisticsCollectorType;
+    }
 
-	public String getId() {
-		return id;
-	}
+    public void setStatisticsCollectorType(String statisticsCollectorType) {
+        this.statisticsCollectorType = statisticsCollectorType;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public WorkflowRepositoryInfo getRepositoryInfo() {
+        return repositoryInfo;
+    }
 
-	public List<ProcessorPoolInfo> getPools() {
-		return pools;
-	}
+    public void setRepositoryInfo(WorkflowRepositoryInfo repositoryInfo) {
+        this.repositoryInfo = repositoryInfo;
+    }
 
-	public void setPools(List<ProcessorPoolInfo> pools) {
-		this.pools = pools;
-	}
+    public EngineTyp getTyp() {
+        return typ;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder result = new StringBuilder();
-		result.append("ProcessingEngine: "+id+", ");
-		result.append("Typ: "+typ+", ");
-		result.append("Pools:\n");
-		for (ProcessorPoolInfo pool: pools){
-			result.append(pool.toString());
-		}
-		return result.toString();
-	}
-	
+    public void setTyp(EngineTyp typ) {
+        this.typ = typ;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<ProcessorPoolInfo> getPools() {
+        return pools;
+    }
+
+    public void setPools(List<ProcessorPoolInfo> pools) {
+        this.pools = pools;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append("ProcessingEngine: " + id + ", ");
+        result.append("Typ: " + typ + ", ");
+        result.append("Pools:\n");
+        for (ProcessorPoolInfo pool : pools) {
+            result.append(pool.toString());
+        }
+        return result.toString();
+    }
+
 }

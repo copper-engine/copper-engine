@@ -16,5 +16,5 @@
 package org.copperengine.core.test.persistent;
 
 public interface Constants {
-	public static final String SKIP_EXTERNAL_DB_TESTS_KEY = "copper.unittest.skip.external.db.tests";
+    public static final String SKIP_EXTERNAL_DB_TESTS_KEY = "copper.unittest.skip.external.db.tests";
 }

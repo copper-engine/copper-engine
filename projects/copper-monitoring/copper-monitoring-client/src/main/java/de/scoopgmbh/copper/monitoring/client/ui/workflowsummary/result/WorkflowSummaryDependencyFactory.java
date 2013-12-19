@@ -19,10 +19,8 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterAbleForm;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import de.scoopgmbh.copper.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultModel;
 
+public interface WorkflowSummaryDependencyFactory {
 
-public interface WorkflowSummaryDependencyFactory  {
-
-	FilterAbleForm<WorkflowInstanceFilterModel, WorkflowInstanceResultModel> createWorkflowInstanceListForm();
-	
+    FilterAbleForm<WorkflowInstanceFilterModel, WorkflowInstanceResultModel> createWorkflowInstanceListForm();
 
 }

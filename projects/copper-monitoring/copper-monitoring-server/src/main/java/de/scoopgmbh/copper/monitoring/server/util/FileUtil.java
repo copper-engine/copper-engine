@@ -17,9 +17,9 @@ package de.scoopgmbh.copper.monitoring.server.util;
 
 public class FileUtil {
 
-	public static String convertStreamToString(java.io.InputStream is) {
-		@SuppressWarnings("resource")
-		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-		return s.hasNext() ? s.next() : "";
-	}
+    public static String convertStreamToString(java.io.InputStream is) {
+        @SuppressWarnings("resource")
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
 }

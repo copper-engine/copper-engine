@@ -17,40 +17,55 @@ package org.copperengine.core.persistent;
 
 /**
  * Base interface for persistent entities as members of {@link PersistentWorkflow}..
+ * 
  * @author Roland Scheel
- *
  * @param <E>
  */
 public interface EntityPersister<E> {
 
-	interface PostSelectedCallback<E> {
-		void entitySelected(E e);
-		void entityNotFound(E e);
-	}
+    interface PostSelectedCallback<E> {
+        void entitySelected(E e);
 
-	/**
-	 * Issues a select for the entity that will be executed later. The entity has to contain the identifying data used to select it. Later on, the callback is called either via {@link PostSelectedCallback#entitySelected entitySelected} or {@link PostSelectedCallback#entityNotFound entityNotFound}
-	 * @param e the entity to select. The identifier has to be set.
-	 * @param callback the callback to call with the selection results
-	 */
-	void select(E e, PostSelectedCallback<E> callback);
-	
-	/**
-	 * Issues an insert for the entity. The insertion will be effectively committed when the workflow instance is committed too. 
-	 * @param e the entity to insert.
-	 */
-	void insert(E e);
+        void entityNotFound(E e);
+    }
 
-	/**
-	 * Issues an update for the entity. The update will be effectively committed when the workflow instance is committed too. 
-	 * @param e the entity to insert.
-	 */
-	void update(E e);
+    /**
+     * Issues a select for the entity that will be executed later. The entity has to contain the identifying data used
+     * to select it. Later on, the callback is called either via {@link PostSelectedCallback#entitySelected
+     * entitySelected} or {@link PostSelectedCallback#entityNotFound entityNotFound}
+     * 
+     * @param e
+     *            the entity to select. The identifier has to be set.
+     * @param callback
+     *            the callback to call with the selection results
+     */
+    void select(E e, PostSelectedCallback<E> callback);
 
-	/**
-	 * Issues a delete for the entity. The deletion will be effectively committed when the workflow instance is committed too. 
-	 * @param e the entity to insert.
-	 */
-	void delete(E e);
+    /**
+     * Issues an insert for the entity. The insertion will be effectively committed when the workflow instance is
+     * committed too.
+     * 
+     * @param e
+     *            the entity to insert.
+     */
+    void insert(E e);
+
+    /**
+     * Issues an update for the entity. The update will be effectively committed when the workflow instance is committed
+     * too.
+     * 
+     * @param e
+     *            the entity to insert.
+     */
+    void update(E e);
+
+    /**
+     * Issues a delete for the entity. The deletion will be effectively committed when the workflow instance is
+     * committed too.
+     * 
+     * @param e
+     *            the entity to insert.
+     */
+    void delete(E e);
 
 }

@@ -36,62 +36,60 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Adds "if (e instanceof InterruptException) throw (InterruptException)e;" to each catch block.
  * This prevent COPPERs InterruptExceptions thrown by the COPPER wait calls to be handled in the exception handlers.
  * 
  * @author austermann
- *
  */
 public class TryCatchBlockHandler {
-	
-	private static final Logger logger = LoggerFactory.getLogger(TryCatchBlockHandler.class);
-	
-	private static final String INTERRUPT_EXCEPTION_NAME = InterruptException.class.getName().replace('.', '/');
-	
-	@SuppressWarnings("unchecked")
-	public void instrument(ClassNode cn) {
-		//if (1 == 1) return;
-		
-		for (MethodNode m : (List<MethodNode>)cn.methods) {
-			if (!m.exceptions.contains(INTERRUPT_EXCEPTION_NAME) || m.tryCatchBlocks.isEmpty()) {
-				continue;
-			}
-			logger.info("Instrument "+cn.name+"."+m.name);
-			HashSet<Label> labels = new HashSet<Label>();
-			for (TryCatchBlockNode catchNode : (List<TryCatchBlockNode>)m.tryCatchBlocks) {
-				if (labels.contains(catchNode.handler.getLabel())) {
-					// some handlers share their handling code - check it out to prevent double instrumentation
-					logger.info("skipping node");
-					continue;
-				}
-				labels.add(catchNode.handler.getLabel());
-				
-				LabelNode labelNode = catchNode.handler;
-				AbstractInsnNode lineNumberNode = labelNode.getNext() instanceof LineNumberNode ? labelNode.getNext() : labelNode;
-				FrameNode frameNode = (FrameNode) lineNumberNode.getNext();
-				VarInsnNode varInsnNode = (VarInsnNode) frameNode.getNext();
-				AbstractInsnNode insertPoint = varInsnNode;
-				
-				if (catchNode.type == null) {
-					// this is probably a finally block;
-					if (insertPoint.getNext() != null && insertPoint.getNext() instanceof LabelNode) {
-						insertPoint = insertPoint.getNext();
-					}
-				}
-				
-				LabelNode labelNode4ifeg = new LabelNode();
-				InsnList newCode = new InsnList();
-				newCode.add(new VarInsnNode(Opcodes.ALOAD, varInsnNode.var));
-				newCode.add(new TypeInsnNode(Opcodes.INSTANCEOF, INTERRUPT_EXCEPTION_NAME));
-				newCode.add(new JumpInsnNode(Opcodes.IFEQ, labelNode4ifeg));
-				newCode.add(new VarInsnNode(Opcodes.ALOAD, varInsnNode.var));
-				newCode.add(new TypeInsnNode(Opcodes.CHECKCAST, INTERRUPT_EXCEPTION_NAME));
-				newCode.add(new InsnNode(Opcodes.ATHROW));
-				newCode.add(labelNode4ifeg);
-				m.instructions.insert(insertPoint, newCode);
-			}
-		}
-	}
+
+    private static final Logger logger = LoggerFactory.getLogger(TryCatchBlockHandler.class);
+
+    private static final String INTERRUPT_EXCEPTION_NAME = InterruptException.class.getName().replace('.', '/');
+
+    @SuppressWarnings("unchecked")
+    public void instrument(ClassNode cn) {
+        // if (1 == 1) return;
+
+        for (MethodNode m : (List<MethodNode>) cn.methods) {
+            if (!m.exceptions.contains(INTERRUPT_EXCEPTION_NAME) || m.tryCatchBlocks.isEmpty()) {
+                continue;
+            }
+            logger.info("Instrument " + cn.name + "." + m.name);
+            HashSet<Label> labels = new HashSet<Label>();
+            for (TryCatchBlockNode catchNode : (List<TryCatchBlockNode>) m.tryCatchBlocks) {
+                if (labels.contains(catchNode.handler.getLabel())) {
+                    // some handlers share their handling code - check it out to prevent double instrumentation
+                    logger.info("skipping node");
+                    continue;
+                }
+                labels.add(catchNode.handler.getLabel());
+
+                LabelNode labelNode = catchNode.handler;
+                AbstractInsnNode lineNumberNode = labelNode.getNext() instanceof LineNumberNode ? labelNode.getNext() : labelNode;
+                FrameNode frameNode = (FrameNode) lineNumberNode.getNext();
+                VarInsnNode varInsnNode = (VarInsnNode) frameNode.getNext();
+                AbstractInsnNode insertPoint = varInsnNode;
+
+                if (catchNode.type == null) {
+                    // this is probably a finally block;
+                    if (insertPoint.getNext() != null && insertPoint.getNext() instanceof LabelNode) {
+                        insertPoint = insertPoint.getNext();
+                    }
+                }
+
+                LabelNode labelNode4ifeg = new LabelNode();
+                InsnList newCode = new InsnList();
+                newCode.add(new VarInsnNode(Opcodes.ALOAD, varInsnNode.var));
+                newCode.add(new TypeInsnNode(Opcodes.INSTANCEOF, INTERRUPT_EXCEPTION_NAME));
+                newCode.add(new JumpInsnNode(Opcodes.IFEQ, labelNode4ifeg));
+                newCode.add(new VarInsnNode(Opcodes.ALOAD, varInsnNode.var));
+                newCode.add(new TypeInsnNode(Opcodes.CHECKCAST, INTERRUPT_EXCEPTION_NAME));
+                newCode.add(new InsnNode(Opcodes.ATHROW));
+                newCode.add(labelNode4ifeg);
+                m.instructions.insert(insertPoint, newCode);
+            }
+        }
+    }
 }

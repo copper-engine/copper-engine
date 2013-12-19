@@ -16,39 +16,44 @@
 package org.copperengine.core.persistent;
 
 /**
- * Interface for use in {@link PersistentWorkflow#onLoad(PersistenceContext)}, {@link PersistentWorkflow#onSave(PersistenceContext)} and {@link PersistentWorkflow#onDelete(PersistenceContext)} 
+ * Interface for use in {@link PersistentWorkflow#onLoad(PersistenceContext)},
+ * {@link PersistentWorkflow#onSave(PersistenceContext)} and {@link PersistentWorkflow#onDelete(PersistenceContext)}
+ * 
  * @author Roland Scheel
  */
 public interface PersistenceContext {
 
-	/**
-	 * retrieves the persister assigned to this entity class. Throws a runtime exception when no persister can be returned 
-	 * @param entityClass The entity class to look up the persister for
-	 * @return the persister
-	 */
-	<T> EntityPersister<T> getPersister(Class<? extends T> entityClass);
-	
-	<T> T getMapper(Class<T> mapperInterface);
-	
-	PersistentWorkflow<?> getWorkflow();
-	
-	PersistenceContext NULL_CONTEXT = new PersistenceContext() {
-		
-		@Override
-		public <T> EntityPersister<T> getPersister(Class<? extends T> entityClass) {
-			throw new RuntimeException("You did not configure a WorkflowPersistencePlugin.");
-		}
+    /**
+     * retrieves the persister assigned to this entity class. Throws a runtime exception when no persister can be
+     * returned
+     * 
+     * @param entityClass
+     *            The entity class to look up the persister for
+     * @return the persister
+     */
+    <T> EntityPersister<T> getPersister(Class<? extends T> entityClass);
 
-		@Override
-		public <T> T getMapper(Class<T> mapperInterface) {
-			throw new RuntimeException("You did not configure a WorkflowPersistencePlugin.");
-		}
-		
-		@Override
-		public PersistentWorkflow<?> getWorkflow() {
-			throw new RuntimeException("You did not configure a WorkflowPersistencePlugin.");
-		}
+    <T> T getMapper(Class<T> mapperInterface);
 
-	};
+    PersistentWorkflow<?> getWorkflow();
+
+    PersistenceContext NULL_CONTEXT = new PersistenceContext() {
+
+        @Override
+        public <T> EntityPersister<T> getPersister(Class<? extends T> entityClass) {
+            throw new RuntimeException("You did not configure a WorkflowPersistencePlugin.");
+        }
+
+        @Override
+        public <T> T getMapper(Class<T> mapperInterface) {
+            throw new RuntimeException("You did not configure a WorkflowPersistencePlugin.");
+        }
+
+        @Override
+        public PersistentWorkflow<?> getWorkflow() {
+            throw new RuntimeException("You did not configure a WorkflowPersistencePlugin.");
+        }
+
+    };
 
 }

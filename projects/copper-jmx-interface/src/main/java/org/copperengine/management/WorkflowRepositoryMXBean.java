@@ -19,8 +19,8 @@ import java.util.List;
 
 import org.copperengine.management.model.WorkflowClassInfo;
 
-
 public interface WorkflowRepositoryMXBean {
-	public String getDescription();
-	public List<WorkflowClassInfo> getWorkflows();
+    public String getDescription();
+
+    public List<WorkflowClassInfo> getWorkflows();
 }

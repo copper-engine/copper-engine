@@ -19,59 +19,56 @@ import java.beans.ConstructorProperties;
 import java.io.Serializable;
 
 public class MeasurePointData implements Serializable {
-	
-	private static final long serialVersionUID = -3238490302037724442L;
-	
-	private String mpId;
-	private long elementCount = 0L;
-	private long elapsedTimeMicros = 0L;
-	private long count = 0L;
-	
-	public MeasurePointData() {
-	}
-	
-	@ConstructorProperties({"mpId", "elementCount", "elapsedTimeMicros", "count"})
-	public MeasurePointData(String mpId, long elementCount, long elapsedTimeMicros, long count) {
-		super();
-		this.mpId = mpId;
-		this.elementCount = elementCount;
-		this.elapsedTimeMicros = elapsedTimeMicros;
-		this.count = count;
-	}
 
-	public String getMpId() {
-		return mpId;
-	}
+    private static final long serialVersionUID = -3238490302037724442L;
 
-	public void setMpId(String mpId) {
-		this.mpId = mpId;
-	}
+    private String mpId;
+    private long elementCount = 0L;
+    private long elapsedTimeMicros = 0L;
+    private long count = 0L;
 
-	public long getElementCount() {
-		return elementCount;
-	}
+    public MeasurePointData() {
+    }
 
-	public void setElementCount(long elementCount) {
-		this.elementCount = elementCount;
-	}
+    @ConstructorProperties({ "mpId", "elementCount", "elapsedTimeMicros", "count" })
+    public MeasurePointData(String mpId, long elementCount, long elapsedTimeMicros, long count) {
+        super();
+        this.mpId = mpId;
+        this.elementCount = elementCount;
+        this.elapsedTimeMicros = elapsedTimeMicros;
+        this.count = count;
+    }
 
-	public long getElapsedTimeMicros() {
-		return elapsedTimeMicros;
-	}
+    public String getMpId() {
+        return mpId;
+    }
 
-	public void setElapsedTimeMicros(long elapsedTimeMicros) {
-		this.elapsedTimeMicros = elapsedTimeMicros;
-	}
+    public void setMpId(String mpId) {
+        this.mpId = mpId;
+    }
 
-	public long getCount() {
-		return count;
-	}
+    public long getElementCount() {
+        return elementCount;
+    }
 
-	public void setCount(long count) {
-		this.count = count;
-	}
-	
-	
-	
+    public void setElementCount(long elementCount) {
+        this.elementCount = elementCount;
+    }
+
+    public long getElapsedTimeMicros() {
+        return elapsedTimeMicros;
+    }
+
+    public void setElapsedTimeMicros(long elapsedTimeMicros) {
+        this.elapsedTimeMicros = elapsedTimeMicros;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
+    }
 
 }

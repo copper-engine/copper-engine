@@ -16,5 +16,5 @@
 package org.copperengine.core;
 
 public enum ProcessingState {
-	RAW, ENQUEUED, DEQUEUED, RUNNING, WAITING, FINISHED, ERROR, INVALID
+    RAW, ENQUEUED, DEQUEUED, RUNNING, WAITING, FINISHED, ERROR, INVALID
 }

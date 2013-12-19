@@ -18,21 +18,26 @@ package de.scoopgmbh.copper.monitoring.client.form;
 import javafx.scene.Node;
 
 public abstract class ShowFormStrategy<E extends Node> {
-	protected E component;
-	public ShowFormStrategy(E component){
-		this.component=component;
-	}
-	public abstract void show(Form<?> form);
-	
-	protected CloseListener onCloseListener;
-	/**called if form is closed
-	 * @param closeListner
-	 */
-	public void setOnCloseListener(CloseListener closeListner){
-		onCloseListener= closeListner;
-	}
-	
-	public static interface CloseListener{
-		public void closed(Form<?> form);
-	}
+    protected E component;
+
+    public ShowFormStrategy(E component) {
+        this.component = component;
+    }
+
+    public abstract void show(Form<?> form);
+
+    protected CloseListener onCloseListener;
+
+    /**
+     * called if form is closed
+     * 
+     * @param closeListner
+     */
+    public void setOnCloseListener(CloseListener closeListner) {
+        onCloseListener = closeListner;
+    }
+
+    public static interface CloseListener {
+        public void closed(Form<?> form);
+    }
 }

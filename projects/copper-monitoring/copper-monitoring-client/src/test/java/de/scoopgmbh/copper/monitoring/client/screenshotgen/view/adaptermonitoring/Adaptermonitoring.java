@@ -15,23 +15,20 @@
  */
 package de.scoopgmbh.copper.monitoring.client.screenshotgen.view.adaptermonitoring;
 
-
-import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import javafx.scene.layout.BorderPane;
+import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestFormContext;
 
+public class Adaptermonitoring extends ScreenshotPageBase {
 
+    @Override
+    public void initGui(BorderPane pane, TestFormContext testFormContext) {
+        testFormContext.createAdapterMonitoringForm().show();
+    }
 
-public class Adaptermonitoring extends ScreenshotPageBase{
-	
-	@Override
-	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createAdapterMonitoringForm().show();
-	}
-
-	@Override
-	public String getTitle() {
-		return "Adaptermonitoring";
-	}
+    @Override
+    public String getTitle() {
+        return "Adaptermonitoring";
+    }
 
 }

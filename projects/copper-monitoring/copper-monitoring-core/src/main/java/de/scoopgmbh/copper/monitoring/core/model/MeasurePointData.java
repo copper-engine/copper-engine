@@ -20,98 +20,102 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class MeasurePointData implements Serializable, MonitoringData {
-	private static final long serialVersionUID = -2755509084700249664L;
-	
-	private String measurePointId;
-	private long elementCount = 0L;
-	private long elapsedTimeMicros = 0L;
-	private long count = 0L;
-	private Date time;
-	private double systemCpuLoad;
-	
-	
-	@ConstructorProperties({"mpId", "elementCount", "elapsedTimeMicros", "count"})
-	public MeasurePointData(String measurePointId, long elementCount, long elapsedTimeMicros, long count) {
-		super();
-		this.measurePointId = measurePointId;
-		this.elementCount = elementCount;
-		this.elapsedTimeMicros = elapsedTimeMicros;
-		this.count = count;
-	}
+    private static final long serialVersionUID = -2755509084700249664L;
 
-	public MeasurePointData(String measurePointId) {
-		this.measurePointId = measurePointId;
-	}
-	
-	public MeasurePointData() {
-	}
-	
-	void reset() {
-		elementCount = 0L;
-		elapsedTimeMicros = 0L;
-		count = 0L;
-	}
-	public long getElementCount() {
-		return elementCount;
-	}
-	public void setElementCount(long elementCount) {
-		this.elementCount = elementCount;
-	}
-	public long getElapsedTimeMicros() {
-		return elapsedTimeMicros;
-	}
-	public void setElapsedTimeMicros(long elapsedTimeMicros) {
-		this.elapsedTimeMicros = elapsedTimeMicros;
-	}
-	public long getCount() {
-		return count;
-	}
-	public void setCount(long count) {
-		this.count = count;
-	}
-	public String getMeasurePointId() {
-		return measurePointId;
-	}
-	
-	public void update( long elementCount,long elapsedTimeMicros){
-		this.elementCount+=elementCount;
-		this.elapsedTimeMicros+=elapsedTimeMicros;
-		this.count++;
-		if (this.elapsedTimeMicros<0 || this.elementCount<0 || this.count<0){//long overflow
-			reset();
-		}
-	}
-	
-	@Override
-	public String toString() {
-		final String DOTS = ".................................................1";
-		long calcCount = 0L;
+    private String measurePointId;
+    private long elementCount = 0L;
+    private long elapsedTimeMicros = 0L;
+    private long count = 0L;
+    private Date time;
+    private double systemCpuLoad;
 
-		calcCount = count > 0 ? count : 1;
+    @ConstructorProperties({ "mpId", "elementCount", "elapsedTimeMicros", "count" })
+    public MeasurePointData(String measurePointId, long elementCount, long elapsedTimeMicros, long count) {
+        super();
+        this.measurePointId = measurePointId;
+        this.elementCount = elementCount;
+        this.elapsedTimeMicros = elapsedTimeMicros;
+        this.count = count;
+    }
 
-		final long avgElementCount = elementCount/calcCount;
-		final double avgTimePerElement = elementCount > 0 ? (double)elapsedTimeMicros/(double)elementCount/1000.0 : 0.0;
-		final double avgTimePerExecution = count > 0 ? (double)elapsedTimeMicros/(double)calcCount/1000.0 : 0.0;
-		return String.format("%1$55.55s #elements=%2$6d; avgCount=%3$6d; avgTime/Element=%4$12.5f msec; avgTime/Exec=%5$12.5f msec", measurePointId+DOTS, elementCount, avgElementCount, avgTimePerElement, avgTimePerExecution);
-	}
-	
+    public MeasurePointData(String measurePointId) {
+        this.measurePointId = measurePointId;
+    }
 
-	@Override
-	public Date getTimeStamp() {
-		return time;
-	}
+    public MeasurePointData() {
+    }
 
-	public void setTime(Date time) {
-		this.time = time;
-	}
+    void reset() {
+        elementCount = 0L;
+        elapsedTimeMicros = 0L;
+        count = 0L;
+    }
 
-	public double getSystemCpuLoad() {
-		return systemCpuLoad;
-	}
+    public long getElementCount() {
+        return elementCount;
+    }
 
-	public void setSystemCpuLoad(double systemCpuLoad) {
-		this.systemCpuLoad = systemCpuLoad;
-	}
+    public void setElementCount(long elementCount) {
+        this.elementCount = elementCount;
+    }
 
+    public long getElapsedTimeMicros() {
+        return elapsedTimeMicros;
+    }
+
+    public void setElapsedTimeMicros(long elapsedTimeMicros) {
+        this.elapsedTimeMicros = elapsedTimeMicros;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
+    }
+
+    public String getMeasurePointId() {
+        return measurePointId;
+    }
+
+    public void update(long elementCount, long elapsedTimeMicros) {
+        this.elementCount += elementCount;
+        this.elapsedTimeMicros += elapsedTimeMicros;
+        this.count++;
+        if (this.elapsedTimeMicros < 0 || this.elementCount < 0 || this.count < 0) {// long overflow
+            reset();
+        }
+    }
+
+    @Override
+    public String toString() {
+        final String DOTS = ".................................................1";
+        long calcCount = 0L;
+
+        calcCount = count > 0 ? count : 1;
+
+        final long avgElementCount = elementCount / calcCount;
+        final double avgTimePerElement = elementCount > 0 ? (double) elapsedTimeMicros / (double) elementCount / 1000.0 : 0.0;
+        final double avgTimePerExecution = count > 0 ? (double) elapsedTimeMicros / (double) calcCount / 1000.0 : 0.0;
+        return String.format("%1$55.55s #elements=%2$6d; avgCount=%3$6d; avgTime/Element=%4$12.5f msec; avgTime/Exec=%5$12.5f msec", measurePointId + DOTS, elementCount, avgElementCount, avgTimePerElement, avgTimePerExecution);
+    }
+
+    @Override
+    public Date getTimeStamp() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
+    }
+
+    public double getSystemCpuLoad() {
+        return systemCpuLoad;
+    }
+
+    public void setSystemCpuLoad(double systemCpuLoad) {
+        this.systemCpuLoad = systemCpuLoad;
+    }
 
 }

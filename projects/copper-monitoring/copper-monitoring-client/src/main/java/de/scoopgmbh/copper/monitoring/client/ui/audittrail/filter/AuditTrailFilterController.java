@@ -29,25 +29,30 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFi
 
 public class AuditTrailFilterController extends BaseFilterController<AuditTrailFilterModel> implements Initializable, FxmlController {
 
-	private AuditTrailFilterModel model = new AuditTrailFilterModel();
-	public AuditTrailFilterController() {
-		super();
-	}
+    private AuditTrailFilterModel model = new AuditTrailFilterModel();
 
-    @FXML //  fx:id="correlationId"
+    public AuditTrailFilterController() {
+        super();
+    }
+
+    @FXML
+    // fx:id="correlationId"
     private TextField correlationId; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="level"
+    @FXML
+    // fx:id="level"
     private TextField level; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="workflowClass"
+    @FXML
+    // fx:id="workflowClass"
     private TextField workflowClass; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="workflowInstanceId"
+    @FXML
+    // fx:id="workflowInstanceId"
     private TextField workflowInstanceId; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert correlationId != null : "fx:id=\"correlationId\" was not injected: check your FXML file 'AuditTrailFilter.fxml'.";
         assert level != null : "fx:id=\"level\" was not injected: check your FXML file 'AuditTrailFilter.fxml'.";
@@ -58,32 +63,31 @@ public class AuditTrailFilterController extends BaseFilterController<AuditTrailF
         level.textProperty().bindBidirectional(model.level);
         correlationId.textProperty().bindBidirectional(model.correlationId);
         workflowInstanceId.textProperty().bindBidirectional(model.workflowInstanceId);
-	}
+    }
 
-	@Override
-	public AuditTrailFilterModel getFilter() {
-		return model;
-	}
+    @Override
+    public AuditTrailFilterModel getFilter() {
+        return model;
+    }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("AuditTrailFilter.fxml");
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("AuditTrailFilter.fxml");
+    }
 
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
 
-	@Override
-	public long getDefaultRefreshInterval() {
-		return FilterController.DEFAULT_REFRESH_INTERVALL;
-	}
+    @Override
+    public long getDefaultRefreshInterval() {
+        return FilterController.DEFAULT_REFRESH_INTERVALL;
+    }
 
-	@Override
-	public Node createDefaultFilter() {
-		return new DefaultFilterFactory().createMaxCount(model);
-	}
-	
-	
+    @Override
+    public Node createDefaultFilter() {
+        return new DefaultFilterFactory().createMaxCount(model);
+    }
+
 }

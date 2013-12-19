@@ -18,38 +18,36 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class AdapterWfNotifyInfo extends AdapterEventBase implements Serializable{
-	private static final long serialVersionUID = -7005919571274984644L;
-	
-	String correlationId;
-	String message;
-	
-	public AdapterWfNotifyInfo(String correlationId, String message, Date timestamp,String adapterName) {
-		super(adapterName,timestamp);
-		this.correlationId = correlationId;
-		this.message = message;
-	}
+public class AdapterWfNotifyInfo extends AdapterEventBase implements Serializable {
+    private static final long serialVersionUID = -7005919571274984644L;
 
-	public AdapterWfNotifyInfo() {
-		super();
-	}
+    String correlationId;
+    String message;
 
-	public String getCorrelationId() {
-		return correlationId;
-	}
+    public AdapterWfNotifyInfo(String correlationId, String message, Date timestamp, String adapterName) {
+        super(adapterName, timestamp);
+        this.correlationId = correlationId;
+        this.message = message;
+    }
 
-	public void setCorrelationId(String correlationId) {
-		this.correlationId = correlationId;
-	}
+    public AdapterWfNotifyInfo() {
+        super();
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public String getCorrelationId() {
+        return correlationId;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
 
-	
-	
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
 }

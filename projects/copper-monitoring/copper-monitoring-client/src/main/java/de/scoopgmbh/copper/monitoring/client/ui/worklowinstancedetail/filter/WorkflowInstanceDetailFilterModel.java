@@ -19,12 +19,12 @@ import javafx.beans.property.SimpleStringProperty;
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 
-public class WorkflowInstanceDetailFilterModel extends EnginePoolFilterModel{
-	public SimpleStringProperty workflowInstanceId = new SimpleStringProperty();
-	
-	public WorkflowInstanceDetailFilterModel(String workflowInstanceId, ProcessingEngineInfo engine){
-		this.workflowInstanceId.set(workflowInstanceId);
-		selectedEngine.set(engine);
-	}
-	
+public class WorkflowInstanceDetailFilterModel extends EnginePoolFilterModel {
+    public SimpleStringProperty workflowInstanceId = new SimpleStringProperty();
+
+    public WorkflowInstanceDetailFilterModel(String workflowInstanceId, ProcessingEngineInfo engine) {
+        this.workflowInstanceId.set(workflowInstanceId);
+        selectedEngine.set(engine);
+    }
+
 }

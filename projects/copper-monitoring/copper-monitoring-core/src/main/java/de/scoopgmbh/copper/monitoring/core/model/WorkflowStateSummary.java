@@ -19,37 +19,35 @@ import java.io.Serializable;
 import java.util.Map;
 
 public class WorkflowStateSummary implements Serializable {
-	private static final long serialVersionUID = -5328848786752720825L;
-	
-	private Map<WorkflowInstanceState,Integer> numberOfWorkflowInstancesWithState;
+    private static final long serialVersionUID = -5328848786752720825L;
 
-	public Map<WorkflowInstanceState, Integer> getNumberOfWorkflowInstancesWithState() {
-		return numberOfWorkflowInstancesWithState;
-	}
+    private Map<WorkflowInstanceState, Integer> numberOfWorkflowInstancesWithState;
 
-	public void setNumberOfWorkflowInstancesWithState(Map<WorkflowInstanceState, Integer> numberOfWorkflowInstancesWithState) {
-		this.numberOfWorkflowInstancesWithState = numberOfWorkflowInstancesWithState;
-	}
+    public Map<WorkflowInstanceState, Integer> getNumberOfWorkflowInstancesWithState() {
+        return numberOfWorkflowInstancesWithState;
+    }
 
-	public WorkflowStateSummary(Map<WorkflowInstanceState, Integer> numberOfWorkflowInstancesWithState) {
-		super();
-		this.numberOfWorkflowInstancesWithState = numberOfWorkflowInstancesWithState;
-	}
+    public void setNumberOfWorkflowInstancesWithState(Map<WorkflowInstanceState, Integer> numberOfWorkflowInstancesWithState) {
+        this.numberOfWorkflowInstancesWithState = numberOfWorkflowInstancesWithState;
+    }
 
-	@Override
-	public String toString() {
-		return "WorkflowStateSummary [numberOfWorkflowInstancesWithState=" + numberOfWorkflowInstancesWithState + "]";
-	}
-	
-	public int getCount(WorkflowInstanceState workflowInstanceState){
-		Integer count = numberOfWorkflowInstancesWithState.get(workflowInstanceState);
-		if (count == null){
-			return 0;
-		} else {
-			return count;
-		}
-	}
-	
-	
-	
+    public WorkflowStateSummary(Map<WorkflowInstanceState, Integer> numberOfWorkflowInstancesWithState) {
+        super();
+        this.numberOfWorkflowInstancesWithState = numberOfWorkflowInstancesWithState;
+    }
+
+    @Override
+    public String toString() {
+        return "WorkflowStateSummary [numberOfWorkflowInstancesWithState=" + numberOfWorkflowInstancesWithState + "]";
+    }
+
+    public int getCount(WorkflowInstanceState workflowInstanceState) {
+        Integer count = numberOfWorkflowInstancesWithState.get(workflowInstanceState);
+        if (count == null) {
+            return 0;
+        } else {
+            return count;
+        }
+    }
+
 }

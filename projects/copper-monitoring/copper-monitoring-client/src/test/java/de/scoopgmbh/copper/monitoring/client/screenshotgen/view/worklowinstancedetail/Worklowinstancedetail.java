@@ -15,24 +15,21 @@
  */
 package de.scoopgmbh.copper.monitoring.client.screenshotgen.view.worklowinstancedetail;
 
-
+import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestFormContext;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
-import javafx.scene.layout.BorderPane;
-
-
 
 public class Worklowinstancedetail extends ScreenshotPageBase {
-	
-	@Override
-	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createWorkflowInstanceDetailForm("id 42",new ProcessingEngineInfo()).show();
-	}
 
-	@Override
-	public String getTitle() {
-		return "Worklowinstance detail";
-	}
+    @Override
+    public void initGui(BorderPane pane, TestFormContext testFormContext) {
+        testFormContext.createWorkflowInstanceDetailForm("id 42", new ProcessingEngineInfo()).show();
+    }
+
+    @Override
+    public String getTitle() {
+        return "Worklowinstance detail";
+    }
 
 }

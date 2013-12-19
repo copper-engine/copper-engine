@@ -24,20 +24,23 @@ import org.copperengine.core.persistent.PersistentWorkflow;
 
 import com.mchange.util.AssertException;
 
-
 public class PersistentTimeoutTestWF extends PersistentWorkflow<Serializable> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public void main() throws InterruptException {
-		final String cid = getEngine().createUUID(); 
-		wait(WaitMode.ALL, 100, cid);
-		Response<Object> r = getAndRemoveResponse(cid);
-		if (r == null) throw new AssertException("response is null");
-		if (!r.isTimeout()) throw new AssertException("timeout flag not set in response");
-		if (r.getResponse() != null) throw new AssertException();
-		if (r.getException() != null) throw new AssertException();
-	}
+    @Override
+    public void main() throws InterruptException {
+        final String cid = getEngine().createUUID();
+        wait(WaitMode.ALL, 100, cid);
+        Response<Object> r = getAndRemoveResponse(cid);
+        if (r == null)
+            throw new AssertException("response is null");
+        if (!r.isTimeout())
+            throw new AssertException("timeout flag not set in response");
+        if (r.getResponse() != null)
+            throw new AssertException();
+        if (r.getException() != null)
+            throw new AssertException();
+    }
 
 }

@@ -39,93 +39,97 @@ import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
-public class EngineLoadResultController extends FilterResultControllerBase<EngineLoadFilterModel,WorkflowStateSummary> implements Initializable {
-	private final GuiCopperDataProvider copperDataProvider;
-	
-	public EngineLoadResultController(GuiCopperDataProvider copperDataProvider) {
-		super();
-		this.copperDataProvider = copperDataProvider;
-	}
+public class EngineLoadResultController extends FilterResultControllerBase<EngineLoadFilterModel, WorkflowStateSummary> implements Initializable {
+    private final GuiCopperDataProvider copperDataProvider;
 
-    @FXML //  fx:id="areaChart"
+    public EngineLoadResultController(GuiCopperDataProvider copperDataProvider) {
+        super();
+        this.copperDataProvider = copperDataProvider;
+    }
+
+    @FXML
+    // fx:id="areaChart"
     private AreaChart<Number, Number> areaChart; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="yAxis"
+    @FXML
+    // fx:id="yAxis"
     private NumberAxis xAxis; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="numberAxis"
+    @FXML
+    // fx:id="numberAxis"
     private NumberAxis numberAxis; // Value injected by FXMLLoader
 
-    private Map<WorkflowInstanceState,XYChart.Series<Number, Number>> stateToAxis = new HashMap<WorkflowInstanceState,XYChart.Series<Number, Number>>();
+    private Map<WorkflowInstanceState, XYChart.Series<Number, Number>> stateToAxis = new HashMap<WorkflowInstanceState, XYChart.Series<Number, Number>>();
 
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert areaChart != null : "fx:id=\"areaChart\" was not injected: check your FXML file 'EngineLoadResult.fxml'.";
         assert xAxis != null : "fx:id=\"xAxis\" was not injected: check your FXML file 'EngineLoadResult.fxml'.";
         assert numberAxis != null : "fx:id=\"numberAxis\" was not injected: check your FXML file 'EngineLoadResult.fxml'.";
-        
+
         initChart();
 
     }
 
-	private void initChart() {
-		stateToAxis.clear();
-        for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-        	XYChart.Series<Number, Number> series= new XYChart.Series<Number, Number>();
-        	series.setName(workflowInstanceState.toString());
-        	stateToAxis.put(workflowInstanceState,series);
-        	areaChart.getData().add(series);
+    private void initChart() {
+        stateToAxis.clear();
+        for (WorkflowInstanceState workflowInstanceState : WorkflowInstanceState.values()) {
+            XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
+            series.setName(workflowInstanceState.toString());
+            stateToAxis.put(workflowInstanceState, series);
+            areaChart.getData().add(series);
         }
-//        areaChart.getXAxis().setAnimated(false);
-	}
-	
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("EngineLoadResult.fxml");
-	}
+        // areaChart.getXAxis().setAnimated(false);
+    }
 
-	private static final int MAX_DATA_POINTS = 30;
-	@Override
-	public void showFilteredResult(List<WorkflowStateSummary> filteredlist, EngineLoadFilterModel usedFilter) {
-		
-		WorkflowStateSummary copperLoadInfo = filteredlist.get(0);	
-		Date date = new Date();
-				//new SimpleDateFormat("HH:mm:ss").format(new Date());
-		
-		for (Entry<WorkflowInstanceState,Integer> entry: copperLoadInfo.getNumberOfWorkflowInstancesWithState().entrySet()){
-			Series<Number, Number> axis = stateToAxis.get(entry.getKey());
-			ObservableList<Data<Number, Number>> data = axis.getData();
-			data.add(new XYChart.Data<Number, Number>(date.getTime(), entry.getValue()));
-			if (data.size() > MAX_DATA_POINTS) {
-				data.remove(0);
-			}
-			
-			if (usedFilter.stateFilters.get(entry.getKey()).getValue()){
-				if (!areaChart.getData().contains(axis)){
-					areaChart.getData().add(axis);
-				}
-			} else {
-				areaChart.getData().remove(axis);
-			}
-		}
-		
-		ComponentUtil.setupXAxis((NumberAxis)areaChart.getXAxis(),areaChart.getData());
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("EngineLoadResult.fxml");
+    }
 
+    private static final int MAX_DATA_POINTS = 30;
 
-	@Override
-	public List<WorkflowStateSummary> applyFilterInBackgroundThread(EngineLoadFilterModel filter) {
-		return Arrays.asList(copperDataProvider.getCopperLoadInfo(filter.selectedEngine.getValue()));
-	}
+    @Override
+    public void showFilteredResult(List<WorkflowStateSummary> filteredlist, EngineLoadFilterModel usedFilter) {
 
-	@Override
-	public boolean supportsClear() {
-		return true;
-	}
+        WorkflowStateSummary copperLoadInfo = filteredlist.get(0);
+        Date date = new Date();
+        // new SimpleDateFormat("HH:mm:ss").format(new Date());
 
-	@Override
-	public void clear() {
-		areaChart.getData().clear();
-		initChart();
-	}
+        for (Entry<WorkflowInstanceState, Integer> entry : copperLoadInfo.getNumberOfWorkflowInstancesWithState().entrySet()) {
+            Series<Number, Number> axis = stateToAxis.get(entry.getKey());
+            ObservableList<Data<Number, Number>> data = axis.getData();
+            data.add(new XYChart.Data<Number, Number>(date.getTime(), entry.getValue()));
+            if (data.size() > MAX_DATA_POINTS) {
+                data.remove(0);
+            }
+
+            if (usedFilter.stateFilters.get(entry.getKey()).getValue()) {
+                if (!areaChart.getData().contains(axis)) {
+                    areaChart.getData().add(axis);
+                }
+            } else {
+                areaChart.getData().remove(axis);
+            }
+        }
+
+        ComponentUtil.setupXAxis((NumberAxis) areaChart.getXAxis(), areaChart.getData());
+    }
+
+    @Override
+    public List<WorkflowStateSummary> applyFilterInBackgroundThread(EngineLoadFilterModel filter) {
+        return Arrays.asList(copperDataProvider.getCopperLoadInfo(filter.selectedEngine.getValue()));
+    }
+
+    @Override
+    public boolean supportsClear() {
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        areaChart.getData().clear();
+        initChart();
+    }
 }

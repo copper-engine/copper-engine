@@ -16,27 +16,32 @@
 package de.scoopgmbh.copper.monitoring.client.form.issuereporting;
 
 /**
- * 
  * workaround for a bug in javafx 2.2 (not possible to define uncougtexception handler)
  * http://stackoverflow.com/questions/12318861/javafx-2-catching-all-runtime-exceptions
  * https://javafx-jira.kenai.com/browse/RT-15332
  */
 public interface IssueReporter {
-	public void reportError(Throwable e);
-	public void reportError(String message, Throwable e);
-	/**
-	 * @param message
-	 * @param e
-	 * @param finishAction action executed when ok button is clicked/ message is procceded
-	 */
-	public void reportError(String message, Throwable e, Runnable finishAction);
-	
-	public void reportWarning(Throwable e);
-	public void reportWarning(String message, Throwable e);
-	/**
-	 * @param message
-	 * @param e
-	 * @param finishAction action executed when ok button is clicked/ message is procceded
-	 */
-	public void reportWarning(String message, Throwable e, Runnable finishAction);
+    public void reportError(Throwable e);
+
+    public void reportError(String message, Throwable e);
+
+    /**
+     * @param message
+     * @param e
+     * @param finishAction
+     *            action executed when ok button is clicked/ message is procceded
+     */
+    public void reportError(String message, Throwable e, Runnable finishAction);
+
+    public void reportWarning(Throwable e);
+
+    public void reportWarning(String message, Throwable e);
+
+    /**
+     * @param message
+     * @param e
+     * @param finishAction
+     *            action executed when ok button is clicked/ message is procceded
+     */
+    public void reportWarning(String message, Throwable e, Runnable finishAction);
 }

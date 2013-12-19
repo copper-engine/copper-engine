@@ -18,89 +18,88 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class SystemResourcesInfo implements Serializable, MonitoringData{
-	private static final long serialVersionUID = 1248127727507816766L;
-	
-	Date timestamp;
-	double systemCpuLoad;
-	long freePhysicalMemorySize;
-	double processCpuLoad;
-	double heapMemoryUsage;
-	long liveThreadsCount;
-	long totalLoadedClassCount;
-	
-	public SystemResourcesInfo(Date timestamp, double systemCpuLoad, long freePhysicalMemorySize, double processCpuLoad, 
-			double heapMemoryUsage, long liveThreadsCount, long totalLoadedClassCount) {
-		super();
-		this.timestamp = timestamp;
-		this.systemCpuLoad = systemCpuLoad;
-		this.freePhysicalMemorySize = freePhysicalMemorySize;
-		this.processCpuLoad = processCpuLoad;
-		this.heapMemoryUsage = heapMemoryUsage;
-		this.liveThreadsCount = liveThreadsCount;
-		this.totalLoadedClassCount = totalLoadedClassCount;
-	}
+public class SystemResourcesInfo implements Serializable, MonitoringData {
+    private static final long serialVersionUID = 1248127727507816766L;
 
-	public SystemResourcesInfo() {
-		super();
-	}
+    Date timestamp;
+    double systemCpuLoad;
+    long freePhysicalMemorySize;
+    double processCpuLoad;
+    double heapMemoryUsage;
+    long liveThreadsCount;
+    long totalLoadedClassCount;
 
+    public SystemResourcesInfo(Date timestamp, double systemCpuLoad, long freePhysicalMemorySize, double processCpuLoad,
+            double heapMemoryUsage, long liveThreadsCount, long totalLoadedClassCount) {
+        super();
+        this.timestamp = timestamp;
+        this.systemCpuLoad = systemCpuLoad;
+        this.freePhysicalMemorySize = freePhysicalMemorySize;
+        this.processCpuLoad = processCpuLoad;
+        this.heapMemoryUsage = heapMemoryUsage;
+        this.liveThreadsCount = liveThreadsCount;
+        this.totalLoadedClassCount = totalLoadedClassCount;
+    }
 
-	public long getLiveThreadsCount() {
-		return liveThreadsCount;
-	}
+    public SystemResourcesInfo() {
+        super();
+    }
 
-	public void setLiveThreadsCount(long liveThreadsCount) {
-		this.liveThreadsCount = liveThreadsCount;
-	}
+    public long getLiveThreadsCount() {
+        return liveThreadsCount;
+    }
 
-	public long getTotalLoadedClassCount() {
-		return totalLoadedClassCount;
-	}
+    public void setLiveThreadsCount(long liveThreadsCount) {
+        this.liveThreadsCount = liveThreadsCount;
+    }
 
-	public void setTotalLoadedClassCount(long totalLoadedClassCount) {
-		this.totalLoadedClassCount = totalLoadedClassCount;
-	}
+    public long getTotalLoadedClassCount() {
+        return totalLoadedClassCount;
+    }
 
-	@Override
-	public Date getTimeStamp() {
-		return timestamp;
-	}
+    public void setTotalLoadedClassCount(long totalLoadedClassCount) {
+        this.totalLoadedClassCount = totalLoadedClassCount;
+    }
 
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
+    @Override
+    public Date getTimeStamp() {
+        return timestamp;
+    }
 
-	public double getSystemCpuLoad() {
-		return systemCpuLoad;
-	}
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
 
-	public void setSystemCpuLoad(double systemCpuLoad) {
-		this.systemCpuLoad = systemCpuLoad;
-	}
+    public double getSystemCpuLoad() {
+        return systemCpuLoad;
+    }
 
-	public long getFreePhysicalMemorySize() {
-		return freePhysicalMemorySize;
-	}
+    public void setSystemCpuLoad(double systemCpuLoad) {
+        this.systemCpuLoad = systemCpuLoad;
+    }
 
-	public void setFreePhysicalMemorySize(long freePhysicalMemorySize) {
-		this.freePhysicalMemorySize = freePhysicalMemorySize;
-	}
+    public long getFreePhysicalMemorySize() {
+        return freePhysicalMemorySize;
+    }
 
-	public double getProcessCpuLoad() {
-		return processCpuLoad;
-	}
+    public void setFreePhysicalMemorySize(long freePhysicalMemorySize) {
+        this.freePhysicalMemorySize = freePhysicalMemorySize;
+    }
 
-	public void setProcessCpuLoad(double processCpuLoad) {
-		this.processCpuLoad = processCpuLoad;
-	}
+    public double getProcessCpuLoad() {
+        return processCpuLoad;
+    }
 
-	public double getHeapMemoryUsage() {
-		return heapMemoryUsage;
-	}
+    public void setProcessCpuLoad(double processCpuLoad) {
+        this.processCpuLoad = processCpuLoad;
+    }
 
-	public void setHeapMemoryUsage(double heapMemoryUsage) {
-		this.heapMemoryUsage = heapMemoryUsage;
-	}
-	
+    public double getHeapMemoryUsage() {
+        return heapMemoryUsage;
+    }
+
+    public void setHeapMemoryUsage(double heapMemoryUsage) {
+        this.heapMemoryUsage = heapMemoryUsage;
+    }
+
 }

@@ -17,7 +17,6 @@ package de.scoopgmbh.copper.monitoring.client.ui.manage;
 
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 
-public class HotfixModel extends EnginePoolFilterModel{
-	
+public class HotfixModel extends EnginePoolFilterModel {
 
 }

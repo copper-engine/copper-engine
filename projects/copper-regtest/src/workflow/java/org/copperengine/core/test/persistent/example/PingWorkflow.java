@@ -22,30 +22,26 @@ import org.copperengine.core.InterruptException;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.PersistentWorkflow;
-import org.copperengine.core.test.persistent.example.PingAdapter;
-import org.copperengine.core.test.persistent.example.PingData;
-
-
 
 public class PingWorkflow extends PersistentWorkflow<PingData> {
 
-	private PingAdapter pingAdapter;
-	
-	// The pingAdapter is injected my the engine due to the AutoWire annotation 
-	@AutoWire
-	public void setPingAdapter(PingAdapter pingAdapter) {
-		this.pingAdapter = pingAdapter;
-	}
+    private PingAdapter pingAdapter;
 
-	@Override
-	public void main() throws InterruptException {
-		System.out.println("started");
-		// Asynchronous call of the ping service  
-		String correlationId = pingAdapter.ping(getData().pingMessage);
-		// Wait up to 60 seconds for the response
-		wait(WaitMode.ALL, 60000, TimeUnit.MILLISECONDS, correlationId);
-		// get and remove the response from the engine using the correlationId
-		Response<String> response = getAndRemoveResponse(correlationId);
-		System.out.println("finished, response="+response.getResponse());
-	}
+    // The pingAdapter is injected my the engine due to the AutoWire annotation
+    @AutoWire
+    public void setPingAdapter(PingAdapter pingAdapter) {
+        this.pingAdapter = pingAdapter;
+    }
+
+    @Override
+    public void main() throws InterruptException {
+        System.out.println("started");
+        // Asynchronous call of the ping service
+        String correlationId = pingAdapter.ping(getData().pingMessage);
+        // Wait up to 60 seconds for the response
+        wait(WaitMode.ALL, 60000, TimeUnit.MILLISECONDS, correlationId);
+        // get and remove the response from the engine using the correlationId
+        Response<String> response = getAndRemoveResponse(correlationId);
+        System.out.println("finished, response=" + response.getResponse());
+    }
 }

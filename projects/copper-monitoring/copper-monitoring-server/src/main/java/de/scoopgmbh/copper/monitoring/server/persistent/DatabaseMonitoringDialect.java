@@ -28,25 +28,25 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 
 public interface DatabaseMonitoringDialect {
 
-	public abstract WorkflowStateSummary selectTotalWorkflowStateSummary(Connection con);
+    public abstract WorkflowStateSummary selectTotalWorkflowStateSummary(Connection con);
 
-	public abstract List<AuditTrailInfo> selectAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level,
-			long resultRowLimit, Connection con);
+    public abstract List<AuditTrailInfo> selectAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level,
+            long resultRowLimit, Connection con);
 
-	public abstract String selectAuditTrailMessage(long id, Connection con);
+    public abstract String selectAuditTrailMessage(long id, Connection con);
 
-	public abstract List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname, Connection con);
+    public abstract List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname, Connection con);
 
-	public abstract List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
-			WorkflowInstanceState state, Integer priority, Date form, Date to, String instanceId, long resultRowLimit, Connection con);
+    public abstract List<WorkflowInstanceInfo> selectWorkflowInstanceList(String poolid, String classname,
+            WorkflowInstanceState state, Integer priority, Date form, Date to, String instanceId, long resultRowLimit, Connection con);
 
-	public abstract List<String[]> executeMonitoringQuery(String query, long resultRowLimit, Connection con);
+    public abstract List<String[]> executeMonitoringQuery(String query, long resultRowLimit, Connection con);
 
-	public abstract List<MessageInfo> selectMessages(boolean ignoreProcessed, long resultRowLimit, Connection con);
-	
-	public String selectDatabaseMonitoringHtmlReport(Connection con);
-	
-	public String selectDatabaseMonitoringHtmlDetailReport(String sqlid, Connection con);
-	
-	public String getRecommendationsReport(String sqlid, Connection con);
+    public abstract List<MessageInfo> selectMessages(boolean ignoreProcessed, long resultRowLimit, Connection con);
+
+    public String selectDatabaseMonitoringHtmlReport(Connection con);
+
+    public String selectDatabaseMonitoringHtmlDetailReport(String sqlid, Connection con);
+
+    public String getRecommendationsReport(String sqlid, Connection con);
 }

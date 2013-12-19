@@ -23,62 +23,63 @@ import java.util.List;
 
 import org.copperengine.core.persistent.EntityPersister.PostSelectedCallback;
 
-
 /**
- * An inmplementation for the {@link DefaultWorkflowPersistencePlugin}. The workers are assumed to be created via {@link DefaultEntityPersisterFactory}.  
+ * An inmplementation for the {@link DefaultWorkflowPersistencePlugin}. The workers are assumed to be created via
+ * {@link DefaultEntityPersisterFactory}.
+ * 
  * @author Roland Scheel
- *
  * @param <E>
  * @param <P>
  */
 public abstract class DefaultPersistenceWorker<E, P extends EntityPersister<E>> {
-	
-	public static enum OperationType {
-		INSERT,
-		UPDATE,
-		SELECT,
-		DELETE
-	}
-	
-	final OperationType operationType;
-	
-	public DefaultPersistenceWorker(OperationType operationType) {
-		if (operationType == null)
-			throw new NullPointerException("operationType");
-		this.operationType = operationType;
-	}
-	
-	protected abstract void doExec(
-			Connection connection, List<WorkflowAndEntity<E>> theWork) throws SQLException;
-	
-	public static class WorkflowAndEntity<E> {
-		public WorkflowAndEntity(final PersistentWorkflow<?> workflow,final E entity, final PostSelectedCallback<E> callback) {
-			this.workflow = workflow;
-			this.entity   = entity;
-			this.callback = callback;
-		}
-		public final PersistentWorkflow<?>   workflow;
-		public final E                       entity;
-		public final PostSelectedCallback<E> callback;
-	}
-	
-	private ArrayList<WorkflowAndEntity<E>> theWork = new ArrayList<WorkflowAndEntity<E>>(); 
-	
-	public void addSelect(final PersistentWorkflow<?> workflow,final E entity,final PostSelectedCallback<E> callback) {
-		theWork.add(new WorkflowAndEntity<E>(workflow, entity, callback));
-	}
 
-	public void addDml(final PersistentWorkflow<?> workflow,final E entity) {
-		theWork.add(new WorkflowAndEntity<E>(workflow, entity, null));
-	}
+    public static enum OperationType {
+        INSERT,
+        UPDATE,
+        SELECT,
+        DELETE
+    }
 
-	public void flush(Connection connection) throws SQLException {
-		if (!theWork.isEmpty())
-			doExec(connection, Collections.unmodifiableList(theWork));
-		theWork.clear();
-	}
+    final OperationType operationType;
 
-	public OperationType getOperationType() {
-		return operationType;
-	}
+    public DefaultPersistenceWorker(OperationType operationType) {
+        if (operationType == null)
+            throw new NullPointerException("operationType");
+        this.operationType = operationType;
+    }
+
+    protected abstract void doExec(
+            Connection connection, List<WorkflowAndEntity<E>> theWork) throws SQLException;
+
+    public static class WorkflowAndEntity<E> {
+        public WorkflowAndEntity(final PersistentWorkflow<?> workflow, final E entity, final PostSelectedCallback<E> callback) {
+            this.workflow = workflow;
+            this.entity = entity;
+            this.callback = callback;
+        }
+
+        public final PersistentWorkflow<?> workflow;
+        public final E entity;
+        public final PostSelectedCallback<E> callback;
+    }
+
+    private ArrayList<WorkflowAndEntity<E>> theWork = new ArrayList<WorkflowAndEntity<E>>();
+
+    public void addSelect(final PersistentWorkflow<?> workflow, final E entity, final PostSelectedCallback<E> callback) {
+        theWork.add(new WorkflowAndEntity<E>(workflow, entity, callback));
+    }
+
+    public void addDml(final PersistentWorkflow<?> workflow, final E entity) {
+        theWork.add(new WorkflowAndEntity<E>(workflow, entity, null));
+    }
+
+    public void flush(Connection connection) throws SQLException {
+        if (!theWork.isEmpty())
+            doExec(connection, Collections.unmodifiableList(theWork));
+        theWork.clear();
+    }
+
+    public OperationType getOperationType() {
+        return operationType;
+    }
 }

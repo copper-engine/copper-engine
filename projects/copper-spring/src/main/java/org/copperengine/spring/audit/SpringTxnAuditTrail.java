@@ -21,9 +21,9 @@ import java.util.Collection;
 
 import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.audit.AuditTrailEvent;
-import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.audit.BatchInsertIntoAutoTrail.Command;
 import org.copperengine.core.audit.BatchInsertIntoAutoTrail.Executor;
+import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.batcher.NullCallback;
 import org.copperengine.spring.SpringTransaction;
@@ -32,46 +32,42 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-
 public class SpringTxnAuditTrail extends BatchingAuditTrail {
 
-	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(SpringTxnAuditTrail.class);
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(SpringTxnAuditTrail.class);
 
-	private PlatformTransactionManager transactionManager;
+    private PlatformTransactionManager transactionManager;
 
-	public void setTransactionManager(PlatformTransactionManager transactionManager) {
-		this.transactionManager = transactionManager;
-	}
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
 
-	@Override
-	public void synchLog(final AuditTrailEvent e) {
-		if ( isEnabled(e.getLogLevel()) ) {
-			logger.debug("doLog({})",e);
-			e.setMessage(messagePostProcessor.serialize(e.getMessage()));
-			try {
-				new SpringTransaction() {
-					@Override
-					protected void execute(Connection con) throws Exception {
-						@SuppressWarnings("unchecked")
-						BatchCommand<Executor, Command> cmd = createBatchCommand(e, true, NullCallback.instance);
-						@SuppressWarnings("unchecked")
-						Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>>asList(cmd);
-						cmd.executor().doExec(cmdList, con);
-					}
-				}.run(transactionManager, getDataSource(), createTransactionDefinition());
-			}
-			catch(RuntimeException ex) {
-				throw ex;
-			}
-			catch(Exception ex) {
-				throw new CopperRuntimeException(ex);
-			}
-		}
-	}
+    @Override
+    public void synchLog(final AuditTrailEvent e) {
+        if (isEnabled(e.getLogLevel())) {
+            logger.debug("doLog({})", e);
+            e.setMessage(messagePostProcessor.serialize(e.getMessage()));
+            try {
+                new SpringTransaction() {
+                    @Override
+                    protected void execute(Connection con) throws Exception {
+                        @SuppressWarnings("unchecked")
+                        BatchCommand<Executor, Command> cmd = createBatchCommand(e, true, NullCallback.instance);
+                        @SuppressWarnings("unchecked")
+                        Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>> asList(cmd);
+                        cmd.executor().doExec(cmdList, con);
+                    }
+                }.run(transactionManager, getDataSource(), createTransactionDefinition());
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                throw new CopperRuntimeException(ex);
+            }
+        }
+    }
 
-	protected TransactionDefinition createTransactionDefinition() {
-		return new DefaultTransactionDefinition();
-	}
-
+    protected TransactionDefinition createTransactionDefinition() {
+        return new DefaultTransactionDefinition();
+    }
 
 }

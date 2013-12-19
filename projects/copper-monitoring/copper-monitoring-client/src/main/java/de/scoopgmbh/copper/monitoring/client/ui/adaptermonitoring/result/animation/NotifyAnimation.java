@@ -17,13 +17,12 @@ package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animat
 
 import javafx.scene.paint.Color;
 
-
 public class NotifyAnimation extends EventAnimationBase {
-	
-	public static final Color ADAPTER_NOTIFY_COLOR = Color.CORNFLOWERBLUE;
 
-	public NotifyAnimation(AnimationPartParameter animationPartBaseParameter) {
-		super(ADAPTER_NOTIFY_COLOR,animationPartBaseParameter);
-	}
+    public static final Color ADAPTER_NOTIFY_COLOR = Color.CORNFLOWERBLUE;
+
+    public NotifyAnimation(AnimationPartParameter animationPartBaseParameter) {
+        super(ADAPTER_NOTIFY_COLOR, animationPartBaseParameter);
+    }
 
 }

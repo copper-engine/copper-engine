@@ -20,5 +20,5 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowCl
 import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
 
 public interface WorkflowRepositoryDependencyFactory {
-	public WorkflowClassesTreeController createWorkflowClassesTreeController(TreeView<DisplayWorkflowClassesModel> workflowView);
+    public WorkflowClassesTreeController createWorkflowClassesTreeController(TreeView<DisplayWorkflowClassesModel> workflowView);
 }

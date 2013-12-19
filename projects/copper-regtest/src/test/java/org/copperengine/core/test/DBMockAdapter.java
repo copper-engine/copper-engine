@@ -28,79 +28,76 @@ import org.copperengine.core.db.utility.RetryingTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class DBMockAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(DBMockAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(DBMockAdapter.class);
 
-	private ScheduledExecutorService pool;
-	private int delay=500;
-	private PersistentProcessingEngine engine;
-	private AtomicInteger invokationCounter = new AtomicInteger(0);
-	private DataSource dataSource;
+    private ScheduledExecutorService pool;
+    private int delay = 500;
+    private PersistentProcessingEngine engine;
+    private AtomicInteger invokationCounter = new AtomicInteger(0);
+    private DataSource dataSource;
 
-	public void setEngine(PersistentProcessingEngine engine) {
-		this.engine = engine;
-	}
-	
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
+    public void setEngine(PersistentProcessingEngine engine) {
+        this.engine = engine;
+    }
 
-	public void setDelayMSec(int delay) {
-		this.delay = delay;
-	}
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
-	// do some work; delayed response to engine object
-	public void foo(final String param, final String cid) {
-		invokationCounter.incrementAndGet();
-		if (delay <= 0) {
-			doNotify(param, cid);
-		}
-		else {
-			pool.schedule(new Runnable() {
-				@Override
-				public void run() {
-					doNotify(param, cid);
-				}
-			}, delay, TimeUnit.MILLISECONDS);
-		}
-	}
-	
+    public void setDelayMSec(int delay) {
+        this.delay = delay;
+    }
 
-	public synchronized void shutdown() {
-		logger.info("Shutting down...");
-		this.pool.shutdown();
-	}
+    // do some work; delayed response to engine object
+    public void foo(final String param, final String cid) {
+        invokationCounter.incrementAndGet();
+        if (delay <= 0) {
+            doNotify(param, cid);
+        }
+        else {
+            pool.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    doNotify(param, cid);
+                }
+            }, delay, TimeUnit.MILLISECONDS);
+        }
+    }
 
-	public int getInvokationCounter() {
-		return invokationCounter.get();
-	}
+    public synchronized void shutdown() {
+        logger.info("Shutting down...");
+        this.pool.shutdown();
+    }
 
-	public synchronized void startup() {
-		logger.info("Starting up...");
-		pool = Executors.newScheduledThreadPool(2);
-	}
+    public int getInvokationCounter() {
+        return invokationCounter.get();
+    }
 
-	// generate and return the correlation id
-	public String foo(String param) {
-		final String cid = engine.createUUID();
-		this.foo(param, cid);
-		return cid;
-	}
+    public synchronized void startup() {
+        logger.info("Starting up...");
+        pool = Executors.newScheduledThreadPool(2);
+    }
 
-	void doNotify(final String param, final String cid) {
-		try {
-			new RetryingTransaction<Void>(dataSource) {
-				@Override
-				protected Void execute() throws Exception {
-					engine.notify(new Response<String>(cid, param, null), this.getConnection());
-					return null;
-				}
-			}.run();
-		} 
-		catch (Exception e) {
-			logger.error("notify failed",e);
-		}
-	}
+    // generate and return the correlation id
+    public String foo(String param) {
+        final String cid = engine.createUUID();
+        this.foo(param, cid);
+        return cid;
+    }
+
+    void doNotify(final String param, final String cid) {
+        try {
+            new RetryingTransaction<Void>(dataSource) {
+                @Override
+                protected Void execute() throws Exception {
+                    engine.notify(new Response<String>(cid, param, null), this.getConnection());
+                    return null;
+                }
+            }.run();
+        } catch (Exception e) {
+            logger.error("notify failed", e);
+        }
+    }
 }

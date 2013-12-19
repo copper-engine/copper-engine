@@ -18,26 +18,26 @@ package org.copperengine.core.persistent.alpha.generator;
 import org.copperengine.core.persistent.PersistentEntity;
 
 public class TEMPLATE extends PersistentEntity {
-	
-	private static final long serialVersionUID = 1L;
 
-	transient String name;
-	transient int    intValue;
+    private static final long serialVersionUID = 1L;
 
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public int getIntValue() {
-		return intValue;
-	}
-	public void setIntValue(int intValue) {
-		this.intValue = intValue;
-	}
-	
+    transient String name;
+    transient int intValue;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getIntValue() {
+        return intValue;
+    }
+
+    public void setIntValue(int intValue) {
+        this.intValue = intValue;
+    }
 
 }
-
-

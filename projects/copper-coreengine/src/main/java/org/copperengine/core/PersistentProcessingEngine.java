@@ -22,61 +22,74 @@ import java.util.List;
  * Adds some persistence specific methods to the ProcessingEngine interface.
  * 
  * @author austermann
- *
  */
 public interface PersistentProcessingEngine extends ProcessingEngine {
-	
-	/**
-	 * Enqueues the specified list of workflow instances into the engine for execution.  
-	 * @param wfInstanceDescr workflow instance descriptions to run
-	 * @param con connection used for the inserting the workflow to the database 
-	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
-	 * @throws DuplicateIdException if a workflow instance with the same id already exists
-	 */
-	public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws DuplicateIdException, CopperException;
-	
-	/**
-	 * Enqueues the specified list of workflow instances into the engine for execution.  
-	 * @param wfInstanceDescr the list of workflow instance descriptions to run
-	 * @param con connection used for the inserting the workflow to the database 
-	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
-	 * @throws DuplicateIdException if a workflow instance with the same id already exists
-	 */
-	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr, Connection con) throws DuplicateIdException, CopperException;
-	
-	
-	/**
-	 * Trigger restart a workflow instance that is in the error state.
-	 * 
-	 * @param workflowInstanceId
-	 * @throws Exception
-	 */
-	public void restart(final String workflowInstanceId) throws Exception;
-	
-	/**
-	 * Trigger restart of all workflow instances that are in error state.
-	 * 
-	 * @throws Exception
-	 */
-	public void restartAll() throws Exception;	
-	
-	/**
-	 * Adds a response to the engine, using the provided jdbc connection. The engine will subsequently try to find the 
-	 * corresponding workflow instance that is waiting for the response. Depending on the workflow instances waitmode and 
-	 * the number of open responses, the workflow may or may not be resumed.
-	 * 
-	 * @param response the reponse
-	 * @throws CopperRuntimeException
-	 */
-	public void notify(Response<?> response, Connection c) throws CopperRuntimeException;
-	
-	/**
-	 * Adds a list of responses to the engine, using the provided jdbc connection. The engine will subsequently try to find the 
-	 * corresponding workflow instance that is waiting for the response. Depending on the workflow instances waitmode and 
-	 * the number of open responses, the workflow may or may not be resumed.
-	 * 
-	 * @param responses the list of reponses
-	 * @throws CopperRuntimeException
-	 */
-	public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException;
+
+    /**
+     * Enqueues the specified list of workflow instances into the engine for execution.
+     * 
+     * @param wfInstanceDescr
+     *            workflow instance descriptions to run
+     * @param con
+     *            connection used for the inserting the workflow to the database
+     * @throws CopperException
+     *             if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     * @throws DuplicateIdException
+     *             if a workflow instance with the same id already exists
+     */
+    public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws DuplicateIdException, CopperException;
+
+    /**
+     * Enqueues the specified list of workflow instances into the engine for execution.
+     * 
+     * @param wfInstanceDescr
+     *            the list of workflow instance descriptions to run
+     * @param con
+     *            connection used for the inserting the workflow to the database
+     * @throws CopperException
+     *             if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     * @throws DuplicateIdException
+     *             if a workflow instance with the same id already exists
+     */
+    public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr, Connection con) throws DuplicateIdException, CopperException;
+
+    /**
+     * Trigger restart a workflow instance that is in the error state.
+     * 
+     * @param workflowInstanceId
+     * @throws Exception
+     */
+    public void restart(final String workflowInstanceId) throws Exception;
+
+    /**
+     * Trigger restart of all workflow instances that are in error state.
+     * 
+     * @throws Exception
+     */
+    public void restartAll() throws Exception;
+
+    /**
+     * Adds a response to the engine, using the provided jdbc connection. The engine will subsequently try to find the
+     * corresponding workflow instance that is waiting for the response. Depending on the workflow instances waitmode
+     * and
+     * the number of open responses, the workflow may or may not be resumed.
+     * 
+     * @param response
+     *            the reponse
+     * @throws CopperRuntimeException
+     */
+    public void notify(Response<?> response, Connection c) throws CopperRuntimeException;
+
+    /**
+     * Adds a list of responses to the engine, using the provided jdbc connection. The engine will subsequently try to
+     * find the
+     * corresponding workflow instance that is waiting for the response. Depending on the workflow instances waitmode
+     * and
+     * the number of open responses, the workflow may or may not be resumed.
+     * 
+     * @param responses
+     *            the list of reponses
+     * @throws CopperRuntimeException
+     */
+    public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException;
 }

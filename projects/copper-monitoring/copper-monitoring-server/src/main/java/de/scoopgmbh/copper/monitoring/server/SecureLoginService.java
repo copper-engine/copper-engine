@@ -31,92 +31,93 @@ import org.slf4j.LoggerFactory;
 
 import de.scoopgmbh.copper.monitoring.core.LoginService;
 
-public class SecureLoginService implements LoginService{
-	private static final long serialVersionUID = 8412747004504683148L;
-	static final Logger logger = LoggerFactory.getLogger(SpringRemotingServer.class);
-	
-	public SecureLoginService(Realm realm) {
-		super();
-		SecurityUtils.setSecurityManager(new DefaultSecurityManager(realm));
-	}
+public class SecureLoginService implements LoginService {
+    private static final long serialVersionUID = 8412747004504683148L;
+    static final Logger logger = LoggerFactory.getLogger(SpringRemotingServer.class);
 
-	@Override
-	public String doLogin(String username, String password) throws RemoteException {
-		// get the currently executing user:
-		Subject currentUser = SecurityUtils.getSubject();
-		// Session session = currentUser.getSession(true);
-		// log.info(session.getId().toString());
+    public SecureLoginService(Realm realm) {
+        super();
+        SecurityUtils.setSecurityManager(new DefaultSecurityManager(realm));
+    }
 
-		// let's log in the current user so we can check against roles and permissions:
-		if (!currentUser.isAuthenticated()) {
-			UsernamePasswordToken token = new UsernamePasswordToken(username, password);
-			token.setRememberMe(true);
-			try {
+    @Override
+    public String doLogin(String username, String password) throws RemoteException {
+        // get the currently executing user:
+        Subject currentUser = SecurityUtils.getSubject();
+        // Session session = currentUser.getSession(true);
+        // log.info(session.getId().toString());
 
-				currentUser.login(token);
-				token.clear();
+        // let's log in the current user so we can check against roles and permissions:
+        if (!currentUser.isAuthenticated()) {
+            UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+            token.setRememberMe(true);
+            try {
 
-				// if (this.concurrentSessionControl == true) {
-				// removeConcurrentSessions(currentUser);
-				// }
+                currentUser.login(token);
+                token.clear();
 
-				String sessionId = currentUser.getSession(false).getId().toString();
-				currentUser.getSession(false).setTimeout(1000*60*60*24);
-				logger.info(sessionId);
-				return sessionId;
-			} catch (UnknownAccountException uae) {
-				logger.info("There is no user with username of " + token.getPrincipal());
-			} catch (IncorrectCredentialsException ice) {
-				logger.info("Password for account " + token.getPrincipal() + " was incorrect!");
-			} catch (LockedAccountException lae) {
-				logger.info("The account for username " + token.getPrincipal() + " is locked.  "
-						+ "Please contact your administrator to unlock it.");
-			} catch (AuthenticationException ae) {
-				logger.info(null, ae);
-			}
-			return null;
-		} else {
-			return currentUser.getSession(false).getId().toString();
-		}
-	}
-	
-//	private void removeConcurrentSessions(Subject currentUser) throws InvalidSessionException, CacheException {
-//		String cacheName = ((CachingSessionDAO) ((DefaultSessionManager) securityManager.getSessionManager()).getSessionDAO())
-//				.getActiveSessionsCacheName();
-//		Cache cache = securityManager.getCacheManager().getCache(cacheName);
-//		log.debug("using cache: " + cacheName);
-//		Iterator iter = cache.keys().iterator();
-//		while (iter.hasNext()) {
-//			String sess = (String) iter.next();
-//			log.debug("key: " + sess);
-//			if (sess.equals(currentUser.getSession(false).getId())) {
-//				log.debug("removeConcurrentSessions: skip current session");
-//				continue;
-//			}
-//			Object objKeys = cache.get(sess);
-//			Session objSess = (Session) objKeys;
-//			// Collection<Object> keys = objSess.getAttributeKeys();
-//			if (objSess != null) {
-//				Collection keys = objSess.getAttributeKeys();
-//				for (Object obj : keys) {
-//					log.debug("key name: " + obj.toString());
-//					// SessionSubjectBinder.AUTHENTICATED_SESSION_KEY - bolean
-//					// SessionSubjectBinder.PRINCIPALS_SESSION_KEY - PrincipalCollection
-//				}
-//				PrincipalCollection principalCollection = (PrincipalCollection) objSess
-//						.getAttribute(SessionSubjectBinder.PRINCIPALS_SESSION_KEY);
-//				if (principalCollection != null) {
-//					for (Object obj : principalCollection.asList()) {
-//						log.debug("principal name: " + obj.toString());
-//						if (obj.toString().equals("user1")) {
-//							log.debug("user user1 already logged in. remove its previous session");
-//							cache.remove(sess);
-//						}
-//					}
-//				}
-//			}
-//			log.debug("");
-//		}
-//	}
-	
+                // if (this.concurrentSessionControl == true) {
+                // removeConcurrentSessions(currentUser);
+                // }
+
+                String sessionId = currentUser.getSession(false).getId().toString();
+                currentUser.getSession(false).setTimeout(1000 * 60 * 60 * 24);
+                logger.info(sessionId);
+                return sessionId;
+            } catch (UnknownAccountException uae) {
+                logger.info("There is no user with username of " + token.getPrincipal());
+            } catch (IncorrectCredentialsException ice) {
+                logger.info("Password for account " + token.getPrincipal() + " was incorrect!");
+            } catch (LockedAccountException lae) {
+                logger.info("The account for username " + token.getPrincipal() + " is locked.  "
+                        + "Please contact your administrator to unlock it.");
+            } catch (AuthenticationException ae) {
+                logger.info(null, ae);
+            }
+            return null;
+        } else {
+            return currentUser.getSession(false).getId().toString();
+        }
+    }
+
+    // private void removeConcurrentSessions(Subject currentUser) throws InvalidSessionException, CacheException {
+    // String cacheName = ((CachingSessionDAO) ((DefaultSessionManager)
+    // securityManager.getSessionManager()).getSessionDAO())
+    // .getActiveSessionsCacheName();
+    // Cache cache = securityManager.getCacheManager().getCache(cacheName);
+    // log.debug("using cache: " + cacheName);
+    // Iterator iter = cache.keys().iterator();
+    // while (iter.hasNext()) {
+    // String sess = (String) iter.next();
+    // log.debug("key: " + sess);
+    // if (sess.equals(currentUser.getSession(false).getId())) {
+    // log.debug("removeConcurrentSessions: skip current session");
+    // continue;
+    // }
+    // Object objKeys = cache.get(sess);
+    // Session objSess = (Session) objKeys;
+    // // Collection<Object> keys = objSess.getAttributeKeys();
+    // if (objSess != null) {
+    // Collection keys = objSess.getAttributeKeys();
+    // for (Object obj : keys) {
+    // log.debug("key name: " + obj.toString());
+    // // SessionSubjectBinder.AUTHENTICATED_SESSION_KEY - bolean
+    // // SessionSubjectBinder.PRINCIPALS_SESSION_KEY - PrincipalCollection
+    // }
+    // PrincipalCollection principalCollection = (PrincipalCollection) objSess
+    // .getAttribute(SessionSubjectBinder.PRINCIPALS_SESSION_KEY);
+    // if (principalCollection != null) {
+    // for (Object obj : principalCollection.asList()) {
+    // log.debug("principal name: " + obj.toString());
+    // if (obj.toString().equals("user1")) {
+    // log.debug("user user1 already logged in. remove its previous session");
+    // cache.remove(sess);
+    // }
+    // }
+    // }
+    // }
+    // log.debug("");
+    // }
+    // }
+
 }

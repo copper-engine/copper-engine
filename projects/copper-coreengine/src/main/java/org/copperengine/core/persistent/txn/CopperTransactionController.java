@@ -19,36 +19,35 @@ import javax.sql.DataSource;
 
 import org.copperengine.core.db.utility.RetryingTransaction;
 
-
 /**
- * Implementation of the {@link TransactionController} interface that internally uses COPPERs {@link RetryingTransaction} for transaction management
- *  
+ * Implementation of the {@link TransactionController} interface that internally uses COPPERs
+ * {@link RetryingTransaction} for transaction management
+ * 
  * @author austermann
- *
  */
 public class CopperTransactionController implements TransactionController {
-	
-	private DataSource dataSource;
-	
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T> T run(final DatabaseTransaction<T> txn) throws Exception {
-		final T[] t = (T[]) new Object[1];
-		new RetryingTransaction<Void>(dataSource) {
-			@Override
-			protected Void execute() throws Exception {
-				t[0] = txn.run(getConnection());
-				return null;
-			}
-		}.run();
-		return t[0];
-	}
 
-	@Override
-	public <T> T run(Transaction<T> txn) throws Exception {
-		return txn.run();
-	}
+    private DataSource dataSource;
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T run(final DatabaseTransaction<T> txn) throws Exception {
+        final T[] t = (T[]) new Object[1];
+        new RetryingTransaction<Void>(dataSource) {
+            @Override
+            protected Void execute() throws Exception {
+                t[0] = txn.run(getConnection());
+                return null;
+            }
+        }.run();
+        return t[0];
+    }
+
+    @Override
+    public <T> T run(Transaction<T> txn) throws Exception {
+        return txn.run();
+    }
 }

@@ -15,12 +15,11 @@
  */
 package de.scoopgmbh.copper.monitoring.example.adapter;
 
-
 public interface BillAdapter {
-	
-	public static String BILLABLE_SERVICE ="billable_service";
-	public static String BILL_TIME="bill_time";
 
-	public void publishBill(Bill bill);
+    public static String BILLABLE_SERVICE = "billable_service";
+    public static String BILL_TIME = "bill_time";
+
+    public void publishBill(Bill bill);
 
 }

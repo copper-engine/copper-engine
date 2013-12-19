@@ -31,43 +31,41 @@ import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.core.test.backchannel.BackChannelQueue;
 import org.copperengine.core.test.backchannel.WorkflowResult;
 
-
 public class SimpleTestParentWorkflow extends PersistentWorkflow<String> {
 
-	private static final long serialVersionUID = 1L;
-	
-	private transient BackChannelQueue backChannelQueue;
-	
-	@AutoWire
-	public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
-		this.backChannelQueue = backChannelQueue;
-	}
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public void main() throws InterruptException {
-		try {
-			// create and launch the children
-			final String id = getEngine().createUUID();
+    private transient BackChannelQueue backChannelQueue;
 
-			getEngine().run(new WorkflowInstanceDescr<String>(SimpleTestChildWorkflow.class.getName(), "12345", id, null, null));
+    @AutoWire
+    public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
+        this.backChannelQueue = backChannelQueue;
+    }
 
-			// wait for the child to finish
-			wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, id); 
-			
-			// collect the response
-			Response<String> r = getAndRemoveResponse(id);
-			assertNotNull(r);
-			assertNotNull(r.getResponse());
-			assertNull(r.getException());
-			assertFalse(r.isTimeout());
-			assertEquals("54321", r.getResponse());
-			
-			backChannelQueue.enqueue(new WorkflowResult(null, null));
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			backChannelQueue.enqueue(new WorkflowResult(null, e));
-		}
-	}
+    @Override
+    public void main() throws InterruptException {
+        try {
+            // create and launch the children
+            final String id = getEngine().createUUID();
+
+            getEngine().run(new WorkflowInstanceDescr<String>(SimpleTestChildWorkflow.class.getName(), "12345", id, null, null));
+
+            // wait for the child to finish
+            wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, id);
+
+            // collect the response
+            Response<String> r = getAndRemoveResponse(id);
+            assertNotNull(r);
+            assertNotNull(r.getResponse());
+            assertNull(r.getException());
+            assertFalse(r.isTimeout());
+            assertEquals("54321", r.getResponse());
+
+            backChannelQueue.enqueue(new WorkflowResult(null, null));
+        } catch (Exception e) {
+            e.printStackTrace();
+            backChannelQueue.enqueue(new WorkflowResult(null, e));
+        }
+    }
 
 }

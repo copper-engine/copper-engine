@@ -20,14 +20,13 @@ import java.util.List;
 
 import javafx.beans.property.SimpleStringProperty;
 
-
 public class SqlResultModel {
-	public final List<SimpleStringProperty> rows = new ArrayList<SimpleStringProperty>();
-	
-	public SqlResultModel(String... rows){
-		for (String row: rows){
-			this.rows.add(new SimpleStringProperty(row));
-		}
-	}
-	
+    public final List<SimpleStringProperty> rows = new ArrayList<SimpleStringProperty>();
+
+    public SqlResultModel(String... rows) {
+        for (String row : rows) {
+            this.rows.add(new SimpleStringProperty(row));
+        }
+    }
+
 }

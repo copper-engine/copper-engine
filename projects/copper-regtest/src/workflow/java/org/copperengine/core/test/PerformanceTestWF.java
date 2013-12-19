@@ -18,33 +18,28 @@ package org.copperengine.core.test;
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.InterruptException;
 import org.copperengine.core.Workflow;
-import org.copperengine.core.test.MockAdapter;
-import org.copperengine.core.test.TransientPerformanceTestInputChannel;
-
 
 public class PerformanceTestWF extends Workflow<String> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private int idx;
-	private MockAdapter mockAdapter;
-	private long createTS=System.currentTimeMillis();
-	
-	@AutoWire
-	public void setMockAdapter(MockAdapter mockAdapter) {
-		this.mockAdapter = mockAdapter;
-	}
-	
-	@Override
-	public void main() throws InterruptException {
-		for (idx=0; idx<10; idx++) {
-			waitForAll(mockAdapter.foo("foo"));
-			//resubmit();
-		}
-		TransientPerformanceTestInputChannel.addMP(System.currentTimeMillis() - createTS);
-		TransientPerformanceTestInputChannel.increment();
-	}
-	
+    private int idx;
+    private MockAdapter mockAdapter;
+    private long createTS = System.currentTimeMillis();
 
+    @AutoWire
+    public void setMockAdapter(MockAdapter mockAdapter) {
+        this.mockAdapter = mockAdapter;
+    }
+
+    @Override
+    public void main() throws InterruptException {
+        for (idx = 0; idx < 10; idx++) {
+            waitForAll(mockAdapter.foo("foo"));
+            // resubmit();
+        }
+        TransientPerformanceTestInputChannel.addMP(System.currentTimeMillis() - createTS);
+        TransientPerformanceTestInputChannel.increment();
+    }
 
 }

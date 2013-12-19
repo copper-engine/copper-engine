@@ -19,38 +19,36 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import org.copperengine.core.audit.CompressedBase64PostProcessor;
 import org.junit.Test;
 
 public class CompressedBase64PostProcessorTest {
 
-	@Test
-	public void testSimple() throws Exception {
-		simpleTest("");
-		simpleTest("1");
-		simpleTest("1234567890");
-		simpleTest("1234567890abcdefghij");
-	}
+    @Test
+    public void testSimple() throws Exception {
+        simpleTest("");
+        simpleTest("1");
+        simpleTest("1234567890");
+        simpleTest("1234567890abcdefghij");
+    }
 
-	@Test
-	public void testNull() {
-		CompressedBase64PostProcessor compressor = new CompressedBase64PostProcessor();
+    @Test
+    public void testNull() {
+        CompressedBase64PostProcessor compressor = new CompressedBase64PostProcessor();
 
-		compressor.deserialize(null);
+        compressor.deserialize(null);
 
-		String nullSerialization = compressor.serialize(null);
-		assertNull("Serialized null must be null.", nullSerialization);
-		String nullDeserialization = compressor.deserialize(nullSerialization);
-		assertNull("Deserialized repsesentation of null must be null again.", nullDeserialization);
-	}
+        String nullSerialization = compressor.serialize(null);
+        assertNull("Serialized null must be null.", nullSerialization);
+        String nullDeserialization = compressor.deserialize(nullSerialization);
+        assertNull("Deserialized repsesentation of null must be null again.", nullDeserialization);
+    }
 
-
-	private void simpleTest(String msg) {
-		CompressedBase64PostProcessor compressor = new CompressedBase64PostProcessor();
-		String nmsgSerialization = compressor.serialize(msg);
-		assertNotNull("Serialized '" + msg + "' must not be null.", nmsgSerialization);
-		String msgDeserialization = compressor.deserialize(nmsgSerialization);
-		assertEquals("Deserialized repsesentation of '" + msgDeserialization + "' must be '" + msg + "' again.", msg, msgDeserialization);
-	}
+    private void simpleTest(String msg) {
+        CompressedBase64PostProcessor compressor = new CompressedBase64PostProcessor();
+        String nmsgSerialization = compressor.serialize(msg);
+        assertNotNull("Serialized '" + msg + "' must not be null.", nmsgSerialization);
+        String msgDeserialization = compressor.deserialize(nmsgSerialization);
+        assertEquals("Deserialized repsesentation of '" + msgDeserialization + "' must be '" + msg + "' again.", msg, msgDeserialization);
+    }
 
 }

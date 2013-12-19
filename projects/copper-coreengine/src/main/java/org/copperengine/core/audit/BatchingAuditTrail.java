@@ -35,261 +35,262 @@ import org.copperengine.management.AuditTrailMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Fast db based audit trail implementation. It is possible to extend the COPPER audit trail with custom attributes.
- *
  * See JUnitTest {@code BatchingAuditTrailTest.testCustomTable()} for an example.
  * 
  * @author austermann
  */
 public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
-	
-	private static final Logger logger = LoggerFactory.getLogger(BatchingAuditTrail.class);
-	
-	public static final class Property2ColumnMapping {
-		String columnName;
-		String propertyName;
 
-		public Property2ColumnMapping() {
-		}
-		
-		public Property2ColumnMapping(String propertyName,String columnName) {
-			this.columnName = columnName;
-			this.propertyName = propertyName;
-		}
+    private static final Logger logger = LoggerFactory.getLogger(BatchingAuditTrail.class);
 
-		public String getColumnName() {
-			return columnName;
-		}
-		public String getPropertyName() {
-			return propertyName;
-		}
-		public void setColumnName(String columnName) {
-			this.columnName = columnName;
-		}
-		public void setPropertyName(String propertyName) {
-			this.propertyName = propertyName;
-		}
-	}
+    public static final class Property2ColumnMapping {
+        String columnName;
+        String propertyName;
 
-	private Batcher batcher;
-	//TODO: Move datasource to SpringTxnAudit trail, then do not explore the database type, set it as an parameter (isOracle)
-	private DataSource dataSource;
-	private int level = 5;
-	protected MessagePostProcessor messagePostProcessor = new DummyPostProcessor();
-	private Class<?> auditTrailEventClass;
-	private String dbTable = "COP_AUDIT_TRAIL_EVENT";
-	private List<Property2ColumnMapping> mapping;
+        public Property2ColumnMapping() {
+        }
 
-	private final List<Method> propertyGetters = new ArrayList<Method>();
-	//TODO: do not explore the database type, set it as an parameter (isOracle)
-	private boolean isOracle;
-	private String sqlStmt;
-	
-	public BatchingAuditTrail() {
-		mapping = createDefaultMapping();
-		auditTrailEventClass = AuditTrailEvent.class;
-	}
-	
+        public Property2ColumnMapping(String propertyName, String columnName) {
+            this.columnName = columnName;
+            this.propertyName = propertyName;
+        }
 
-	public static List<Property2ColumnMapping> createDefaultMapping() {
-		List<Property2ColumnMapping> mapping = new ArrayList<BatchingAuditTrail.Property2ColumnMapping>();
-		mapping.add(new Property2ColumnMapping("logLevel", "LOGLEVEL"));
-		mapping.add(new Property2ColumnMapping("occurrence", "OCCURRENCE"));
-		mapping.add(new Property2ColumnMapping("conversationId", "CONVERSATION_ID"));
-		mapping.add(new Property2ColumnMapping("context", "CONTEXT"));
-		mapping.add(new Property2ColumnMapping("instanceId", "INSTANCE_ID"));
-		mapping.add(new Property2ColumnMapping("correlationId", "CORRELATION_ID"));
-		mapping.add(new Property2ColumnMapping("transactionId", "TRANSACTION_ID"));
-		mapping.add(new Property2ColumnMapping("messageType", "MESSAGE_TYPE"));
-		mapping.add(new Property2ColumnMapping("message", "LONG_MESSAGE"));
-		return mapping;
-	}
+        public String getColumnName() {
+            return columnName;
+        }
 
-	public void setMessagePostProcessor(MessagePostProcessor messagePostProcessor) {
-		this.messagePostProcessor = messagePostProcessor;
-	}
+        public String getPropertyName() {
+            return propertyName;
+        }
 
-	public void setBatcher(Batcher batcher) {
-		this.batcher = batcher;
-	}
+        public void setColumnName(String columnName) {
+            this.columnName = columnName;
+        }
 
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
+        public void setPropertyName(String propertyName) {
+            this.propertyName = propertyName;
+        }
+    }
 
-	public void setLevel (int level) {
-		this.level = level;
-	}
-	
-	public void setAuditTrailEventClass(Class<?> auditTrailEventClass) {
-		this.auditTrailEventClass = auditTrailEventClass;
-	}
-	
-	public void setDbTable(String dbTable) {
-		this.dbTable = dbTable;
-	}
+    private Batcher batcher;
+    // TODO: Move datasource to SpringTxnAudit trail, then do not explore the database type, set it as an parameter
+    // (isOracle)
+    private DataSource dataSource;
+    private int level = 5;
+    protected MessagePostProcessor messagePostProcessor = new DummyPostProcessor();
+    private Class<?> auditTrailEventClass;
+    private String dbTable = "COP_AUDIT_TRAIL_EVENT";
+    private List<Property2ColumnMapping> mapping;
 
-	public String getDbTable() {
-		return dbTable;
-	}
+    private final List<Method> propertyGetters = new ArrayList<Method>();
+    // TODO: do not explore the database type, set it as an parameter (isOracle)
+    private boolean isOracle;
+    private String sqlStmt;
 
-	public void setMapping(List<Property2ColumnMapping> mapping) {
-		this.mapping = mapping;
-	}
+    public BatchingAuditTrail() {
+        mapping = createDefaultMapping();
+        auditTrailEventClass = AuditTrailEvent.class;
+    }
 
-	public void setAdditionalMapping(List<Property2ColumnMapping> mapping) {
-		ArrayList<Property2ColumnMapping> newMapping = new ArrayList<BatchingAuditTrail.Property2ColumnMapping>();
-		newMapping.addAll(mapping);
-		newMapping.addAll(this.mapping);
-		this.mapping = newMapping;
-	}
-	
-	public void startup() throws Exception {
-		logger.info("Starting up...");
-		final Connection con = dataSource.getConnection();
-		try {
-			isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
-		}
-		finally {
-			JdbcUtils.closeConnection(con);
-		}
-		sqlStmt = createSqlStmt();
-	}
+    public static List<Property2ColumnMapping> createDefaultMapping() {
+        List<Property2ColumnMapping> mapping = new ArrayList<BatchingAuditTrail.Property2ColumnMapping>();
+        mapping.add(new Property2ColumnMapping("logLevel", "LOGLEVEL"));
+        mapping.add(new Property2ColumnMapping("occurrence", "OCCURRENCE"));
+        mapping.add(new Property2ColumnMapping("conversationId", "CONVERSATION_ID"));
+        mapping.add(new Property2ColumnMapping("context", "CONTEXT"));
+        mapping.add(new Property2ColumnMapping("instanceId", "INSTANCE_ID"));
+        mapping.add(new Property2ColumnMapping("correlationId", "CORRELATION_ID"));
+        mapping.add(new Property2ColumnMapping("transactionId", "TRANSACTION_ID"));
+        mapping.add(new Property2ColumnMapping("messageType", "MESSAGE_TYPE"));
+        mapping.add(new Property2ColumnMapping("message", "LONG_MESSAGE"));
+        return mapping;
+    }
 
-	private String createSqlStmt() throws IntrospectionException {
-		final BeanInfo beanInfo = Introspector.getBeanInfo(auditTrailEventClass);
-		final StringBuilder sql = new StringBuilder();
-		sql.append("INSERT INTO ").append(dbTable).append(" (");
-		int numbOfParams = 0;
-		if (isOracle) {
-			sql.append("SEQ_ID");
-			numbOfParams++;
-		}
-		for (Property2ColumnMapping entry : mapping) {
-			if (numbOfParams > 0) {
-				sql.append(",");
-			}
-			sql.append(entry.getColumnName());
-			
-			boolean found = false;
-			for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-				if (pd.getName().equals(entry.getPropertyName())) {
-					propertyGetters.add(pd.getReadMethod());
-					found = true;
-					break;
-				}
-			}
-			if (!found) throw new IllegalArgumentException("Cannot find read method for property '"+entry.getPropertyName()+"' in class '"+auditTrailEventClass+"'");			
-			numbOfParams++;
-		}
-		sql.append(") VALUES (");
-		if (isOracle) {
-			sql.append("NVL(?,COP_SEQ_AUDIT_TRAIL.NEXTVAL),");
-			numbOfParams--;
-		}
-		for (int i=0; i<numbOfParams; i++) {
-			if (i > 0) {
-				sql.append(",");
-			}
-			sql.append("?");
-		}
-		sql.append(")");
-		return sql.toString();
-	}
-	
-	String getSqlStmt() {
-		return sqlStmt;
-	}
-	
-	
-	@Override
-	public int getLevel() {
-		return level;
-	}
+    public void setMessagePostProcessor(MessagePostProcessor messagePostProcessor) {
+        this.messagePostProcessor = messagePostProcessor;
+    }
 
-	@Override
-	public boolean isEnabled (int level) {
-		return this.level >= level;
-	}
+    public void setBatcher(Batcher batcher) {
+        this.batcher = batcher;
+    }
 
-	@Override
-	public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String _message, String messageType) {
-		this.synchLog(new AuditTrailEvent(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, _message, messageType, null));
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
-	}
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
-	@Override
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String _message, String messageType) {
-		this.asynchLog(new AuditTrailEvent(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, _message, messageType, null));
-	}
+    public void setAuditTrailEventClass(Class<?> auditTrailEventClass) {
+        this.auditTrailEventClass = auditTrailEventClass;
+    }
 
-	@Override
-	public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String _message, String messageType, final AuditTrailCallback cb) {
-		this.asynchLog(new AuditTrailEvent(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, _message, messageType, null), cb);
-	}
+    public void setDbTable(String dbTable) {
+        this.dbTable = dbTable;
+    }
 
-	@Override
-	public void asynchLog(AuditTrailEvent e) {
-		doLog(e, new Acknowledge.BestEffortAcknowledge(), false);
-	}
+    public String getDbTable() {
+        return dbTable;
+    }
 
-	private boolean doLog(AuditTrailEvent e, final Acknowledge ack, boolean immediate) {
-		CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
-				@Override
-				public void commandCompleted() {
-					ack.onSuccess();
-				}
-				@Override
-				public void unhandledException(Exception e) {
-					ack.onException(e);
-				}
-			};
-		return doLog(e,immediate,callback);
-	}
+    public void setMapping(List<Property2ColumnMapping> mapping) {
+        this.mapping = mapping;
+    }
 
-	private boolean doLog(AuditTrailEvent e, boolean immediate, CommandCallback<BatchInsertIntoAutoTrail.Command> callback) {
-		if ( isEnabled(e.logLevel) ) {
-			logger.debug("doLog({})",e);
-			e.setMessage(messagePostProcessor.serialize(e.message));
-			batcher.submitBatchCommand(createBatchCommand(e, immediate, callback));
-			return true;
-		}
-		return false;
-	}
+    public void setAdditionalMapping(List<Property2ColumnMapping> mapping) {
+        ArrayList<Property2ColumnMapping> newMapping = new ArrayList<BatchingAuditTrail.Property2ColumnMapping>();
+        newMapping.addAll(mapping);
+        newMapping.addAll(this.mapping);
+        this.mapping = newMapping;
+    }
 
-	protected BatchInsertIntoAutoTrail.Command createBatchCommand(AuditTrailEvent e, boolean immediate,
-			CommandCallback<BatchInsertIntoAutoTrail.Command> callback) {
-		return new BatchInsertIntoAutoTrail.Command(e, isOracle, sqlStmt, propertyGetters, callback, immediate?0:250);
-	}
+    public void startup() throws Exception {
+        logger.info("Starting up...");
+        final Connection con = dataSource.getConnection();
+        try {
+            isOracle = con.getMetaData().getDatabaseProductName().equalsIgnoreCase("oracle");
+        } finally {
+            JdbcUtils.closeConnection(con);
+        }
+        sqlStmt = createSqlStmt();
+    }
 
-	@Override
-	public void asynchLog(final AuditTrailEvent e, final AuditTrailCallback cb) {
-		CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
-			@Override
-			public void commandCompleted() {
-				cb.done();
-			}
-			@Override
-			public void unhandledException(Exception e) {
-				cb.error(e);
-			}
-		};
-		doLog(e, false, callback);
-	}
+    private String createSqlStmt() throws IntrospectionException {
+        final BeanInfo beanInfo = Introspector.getBeanInfo(auditTrailEventClass);
+        final StringBuilder sql = new StringBuilder();
+        sql.append("INSERT INTO ").append(dbTable).append(" (");
+        int numbOfParams = 0;
+        if (isOracle) {
+            sql.append("SEQ_ID");
+            numbOfParams++;
+        }
+        for (Property2ColumnMapping entry : mapping) {
+            if (numbOfParams > 0) {
+                sql.append(",");
+            }
+            sql.append(entry.getColumnName());
 
+            boolean found = false;
+            for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+                if (pd.getName().equals(entry.getPropertyName())) {
+                    propertyGetters.add(pd.getReadMethod());
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                throw new IllegalArgumentException("Cannot find read method for property '" + entry.getPropertyName() + "' in class '" + auditTrailEventClass + "'");
+            numbOfParams++;
+        }
+        sql.append(") VALUES (");
+        if (isOracle) {
+            sql.append("NVL(?,COP_SEQ_AUDIT_TRAIL.NEXTVAL),");
+            numbOfParams--;
+        }
+        for (int i = 0; i < numbOfParams; i++) {
+            if (i > 0) {
+                sql.append(",");
+            }
+            sql.append("?");
+        }
+        sql.append(")");
+        return sql.toString();
+    }
 
-	@Override
-	public void synchLog(final AuditTrailEvent event) {
-		Acknowledge.DefaultAcknowledge ack = new Acknowledge.DefaultAcknowledge();
-		if (doLog(event, ack, true)) {
-			ack.waitForAcknowledge();
-		}
-	}
-	
-	protected DataSource getDataSource() {
-		return dataSource;
-	}
+    String getSqlStmt() {
+        return sqlStmt;
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public boolean isEnabled(int level) {
+        return this.level >= level;
+    }
+
+    @Override
+    public void synchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String _message, String messageType) {
+        this.synchLog(new AuditTrailEvent(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, _message, messageType, null));
+
+    }
+
+    @Override
+    public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String _message, String messageType) {
+        this.asynchLog(new AuditTrailEvent(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, _message, messageType, null));
+    }
+
+    @Override
+    public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String _message, String messageType, final AuditTrailCallback cb) {
+        this.asynchLog(new AuditTrailEvent(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, _message, messageType, null), cb);
+    }
+
+    @Override
+    public void asynchLog(AuditTrailEvent e) {
+        doLog(e, new Acknowledge.BestEffortAcknowledge(), false);
+    }
+
+    private boolean doLog(AuditTrailEvent e, final Acknowledge ack, boolean immediate) {
+        CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
+            @Override
+            public void commandCompleted() {
+                ack.onSuccess();
+            }
+
+            @Override
+            public void unhandledException(Exception e) {
+                ack.onException(e);
+            }
+        };
+        return doLog(e, immediate, callback);
+    }
+
+    private boolean doLog(AuditTrailEvent e, boolean immediate, CommandCallback<BatchInsertIntoAutoTrail.Command> callback) {
+        if (isEnabled(e.logLevel)) {
+            logger.debug("doLog({})", e);
+            e.setMessage(messagePostProcessor.serialize(e.message));
+            batcher.submitBatchCommand(createBatchCommand(e, immediate, callback));
+            return true;
+        }
+        return false;
+    }
+
+    protected BatchInsertIntoAutoTrail.Command createBatchCommand(AuditTrailEvent e, boolean immediate,
+            CommandCallback<BatchInsertIntoAutoTrail.Command> callback) {
+        return new BatchInsertIntoAutoTrail.Command(e, isOracle, sqlStmt, propertyGetters, callback, immediate ? 0 : 250);
+    }
+
+    @Override
+    public void asynchLog(final AuditTrailEvent e, final AuditTrailCallback cb) {
+        CommandCallback<BatchInsertIntoAutoTrail.Command> callback = new CommandCallback<BatchInsertIntoAutoTrail.Command>() {
+            @Override
+            public void commandCompleted() {
+                cb.done();
+            }
+
+            @Override
+            public void unhandledException(Exception e) {
+                cb.error(e);
+            }
+        };
+        doLog(e, false, callback);
+    }
+
+    @Override
+    public void synchLog(final AuditTrailEvent event) {
+        Acknowledge.DefaultAcknowledge ack = new Acknowledge.DefaultAcknowledge();
+        if (doLog(event, ack, true)) {
+            ack.waitForAcknowledge();
+        }
+    }
+
+    protected DataSource getDataSource() {
+        return dataSource;
+    }
 
 }

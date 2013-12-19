@@ -20,9 +20,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 final class Clazz {
-	File classfile;
-	String classname;
-	String superClassname;
-	Set<String> interruptableMethods = new HashSet<String>();
-	Set<String> aggregatedInterruptableMethods = new HashSet<String>();
+    File classfile;
+    String classname;
+    String superClassname;
+    Set<String> interruptableMethods = new HashSet<String>();
+    Set<String> aggregatedInterruptableMethods = new HashSet<String>();
 }

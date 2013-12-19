@@ -42,73 +42,71 @@ import org.copperengine.core.persistent.ScottyDBStorage;
 import org.copperengine.core.persistent.txn.CopperTransactionController;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 
-
 public class PersistentEngineFactory {
 
-	private DatabaseDialect createDialect(DataSource ds, WorkflowRepository wfRepository, EngineIdProvider engineIdProvider) throws SQLException {
-		Connection c = ds.getConnection();
-		try {
-			String name = c.getMetaData().getDatabaseProductName();
-			if ("oracle".equalsIgnoreCase(name)) {
-				OracleDialect dialect = new OracleDialect();
-				dialect.setWfRepository(wfRepository);
-				dialect.setEngineIdProvider(engineIdProvider);
-				dialect.setMultiEngineMode(false);
-				return dialect;
-			}
-			if ("Apache Derby".equalsIgnoreCase(name)) {
-				DerbyDbDialect dialect = new DerbyDbDialect();
-				dialect.setDataSource(ds);
-				dialect.setWfRepository(wfRepository);
-				return dialect;
-			}
-			throw new Error("No dialect available for DBMS "+name);
-		}
-		finally {
-			c.close();
-		}
-	}
+    private DatabaseDialect createDialect(DataSource ds, WorkflowRepository wfRepository, EngineIdProvider engineIdProvider) throws SQLException {
+        Connection c = ds.getConnection();
+        try {
+            String name = c.getMetaData().getDatabaseProductName();
+            if ("oracle".equalsIgnoreCase(name)) {
+                OracleDialect dialect = new OracleDialect();
+                dialect.setWfRepository(wfRepository);
+                dialect.setEngineIdProvider(engineIdProvider);
+                dialect.setMultiEngineMode(false);
+                return dialect;
+            }
+            if ("Apache Derby".equalsIgnoreCase(name)) {
+                DerbyDbDialect dialect = new DerbyDbDialect();
+                dialect.setDataSource(ds);
+                dialect.setWfRepository(wfRepository);
+                return dialect;
+            }
+            throw new Error("No dialect available for DBMS " + name);
+        } finally {
+            c.close();
+        }
+    }
 
-	public PersistentProcessingEngine createEngine(DataSource dataSource, String wfRepoSourceDir, String wfRepoTargetDir, DependencyInjector dependencyInjector) throws Exception {
-		EngineIdProvider engineIdProvider = new EngineIdProviderBean("default");
-		FileBasedWorkflowRepository wfRepository = new FileBasedWorkflowRepository();
-		wfRepository.setSourceDirs(Collections.singletonList(wfRepoSourceDir));
-		wfRepository.setTargetDir(wfRepoTargetDir);
-		wfRepository.start();
+    public PersistentProcessingEngine createEngine(DataSource dataSource, String wfRepoSourceDir, String wfRepoTargetDir, DependencyInjector dependencyInjector) throws Exception {
+        EngineIdProvider engineIdProvider = new EngineIdProviderBean("default");
+        FileBasedWorkflowRepository wfRepository = new FileBasedWorkflowRepository();
+        wfRepository.setSourceDirs(Collections.singletonList(wfRepoSourceDir));
+        wfRepository.setTargetDir(wfRepoTargetDir);
+        wfRepository.start();
 
-		CopperTransactionController txnController = new CopperTransactionController();
-		txnController.setDataSource(dataSource);
+        CopperTransactionController txnController = new CopperTransactionController();
+        txnController.setDataSource(dataSource);
 
-		DatabaseDialect dialect = createDialect(dataSource, wfRepository, engineIdProvider);
-		dialect.startup();
+        DatabaseDialect dialect = createDialect(dataSource, wfRepository, engineIdProvider);
+        dialect.startup();
 
-		@SuppressWarnings("rawtypes")
-		RetryingTxnBatchRunner batchRunner = new RetryingTxnBatchRunner();
-		batchRunner.setDataSource(dataSource);
-		BatcherImpl batcher = new BatcherImpl(4);
-		batcher.setBatchRunner(batchRunner);
-		batcher.startup();
+        @SuppressWarnings("rawtypes")
+        RetryingTxnBatchRunner batchRunner = new RetryingTxnBatchRunner();
+        batchRunner.setDataSource(dataSource);
+        BatcherImpl batcher = new BatcherImpl(4);
+        batcher.setBatchRunner(batchRunner);
+        batcher.startup();
 
-		ScottyDBStorage dbStorage = new ScottyDBStorage();
-		dbStorage.setDialect(dialect);
-		dbStorage.setTransactionController(txnController);
-		dbStorage.setBatcher(batcher);
+        ScottyDBStorage dbStorage = new ScottyDBStorage();
+        dbStorage.setDialect(dialect);
+        dbStorage.setTransactionController(txnController);
+        dbStorage.setBatcher(batcher);
 
-		PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, txnController);
-		List<PersistentProcessorPool> pools = new ArrayList<PersistentProcessorPool>();
-		pools.add(ppool);
-		DefaultProcessorPoolManager<PersistentProcessorPool> processorPoolManager = new DefaultProcessorPoolManager<PersistentProcessorPool>();
-		processorPoolManager.setProcessorPools(pools);
+        PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, txnController);
+        List<PersistentProcessorPool> pools = new ArrayList<PersistentProcessorPool>();
+        pools.add(ppool);
+        DefaultProcessorPoolManager<PersistentProcessorPool> processorPoolManager = new DefaultProcessorPoolManager<PersistentProcessorPool>();
+        processorPoolManager.setProcessorPools(pools);
 
-		PersistentScottyEngine engine = new PersistentScottyEngine();
-		engine.setDbStorage(dbStorage);
-		engine.setWfRepository(wfRepository);
-		engine.setEngineIdProvider(engineIdProvider);
-		engine.setIdFactory(new JdkRandomUUIDFactory());
-		engine.setProcessorPoolManager(processorPoolManager);
-		engine.setDependencyInjector(dependencyInjector);
+        PersistentScottyEngine engine = new PersistentScottyEngine();
+        engine.setDbStorage(dbStorage);
+        engine.setWfRepository(wfRepository);
+        engine.setEngineIdProvider(engineIdProvider);
+        engine.setIdFactory(new JdkRandomUUIDFactory());
+        engine.setProcessorPoolManager(processorPoolManager);
+        engine.setDependencyInjector(dependencyInjector);
 
-		return engine;
-	}
-	
+        return engine;
+    }
+
 }

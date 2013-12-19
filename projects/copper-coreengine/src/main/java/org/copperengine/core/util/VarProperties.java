@@ -15,7 +15,6 @@
  */
 package org.copperengine.core.util;
 
-
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,38 +28,39 @@ import java.util.regex.Pattern;
  */
 public class VarProperties extends Properties
 {
-	private static final long serialVersionUID = 1L;
-	
-    private static final Pattern p = Pattern.compile("\\$\\{([^{}]+)\\}" );
-    //private static final Pattern p = Pattern.compile("\\$\\{.+\\}" );
+    private static final long serialVersionUID = 1L;
+
+    private static final Pattern p = Pattern.compile("\\$\\{([^{}]+)\\}");
+
+    // private static final Pattern p = Pattern.compile("\\$\\{.+\\}" );
 
     public String getProperty(String key)
     {
         String vorher = super.getProperty(key);
         String nachher = null;
-        while(vorher != null && !vorher.equals(nachher = doReplacements(vorher)))
+        while (vorher != null && !vorher.equals(nachher = doReplacements(vorher)))
         {
             vorher = nachher;
         }
         return nachher;
     }
 
-    private String  doReplacements(String value)
+    private String doReplacements(String value)
     {
-        if(value == null)
+        if (value == null)
             return null;
         Matcher m = p.matcher(value);
         StringBuffer sb = new StringBuffer();
         String replacement = null;
-        while(m.find())
+        while (m.find())
         {
-            if(replacement == null)
+            if (replacement == null)
             {
                 replacement = System.getProperty(m.group(1));
-                if(replacement != null)
+                if (replacement != null)
                     replacement = replacement.replaceAll("\\$", "\\\\\\$");
             }
-            if(replacement != null && replacement.length() > 0)
+            if (replacement != null && replacement.length() > 0)
             {
                 m = m.appendReplacement(sb, replacement);
             }

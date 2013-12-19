@@ -18,22 +18,22 @@ package de.scoopgmbh.copper.monitoring.server.provider;
 import de.scoopgmbh.copper.monitoring.core.util.PerformanceMonitor;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
-public class SystemRessourceDataProvider extends RepeatingMonitoringDataProviderBase{
+public class SystemRessourceDataProvider extends RepeatingMonitoringDataProviderBase {
 
-	private final PerformanceMonitor performanceMonitor;
-	
-	public SystemRessourceDataProvider(MonitoringDataCollector monitoringDataCollector, PerformanceMonitor performanceMonitor) {
-		super(monitoringDataCollector);
-		this.performanceMonitor = performanceMonitor;
-	}
-	
-	public SystemRessourceDataProvider(MonitoringDataCollector monitoringDataCollector) {
-		this(monitoringDataCollector,new PerformanceMonitor());
-	}
+    private final PerformanceMonitor performanceMonitor;
 
-	@Override
-	protected void provideData() {
-		monitoringDataCollector.submitSystemRessource(performanceMonitor.createRessourcenInfo());
-	}
+    public SystemRessourceDataProvider(MonitoringDataCollector monitoringDataCollector, PerformanceMonitor performanceMonitor) {
+        super(monitoringDataCollector);
+        this.performanceMonitor = performanceMonitor;
+    }
+
+    public SystemRessourceDataProvider(MonitoringDataCollector monitoringDataCollector) {
+        this(monitoringDataCollector, new PerformanceMonitor());
+    }
+
+    @Override
+    protected void provideData() {
+        monitoringDataCollector.submitSystemRessource(performanceMonitor.createRessourcenInfo());
+    }
 
 }

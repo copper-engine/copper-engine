@@ -37,73 +37,95 @@ import javafx.util.Callback;
 import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 
 public class SettingsController implements Initializable, FxmlController {
-	private final SettingsModel settingsModel;
-	public SettingsController(SettingsModel settingsModel) {
-		super();
-		this.settingsModel=settingsModel;
-	}
+    private final SettingsModel settingsModel;
 
-    @FXML //  fx:id="addButton"
+    public SettingsController(SettingsModel settingsModel) {
+        super();
+        this.settingsModel = settingsModel;
+    }
+
+    @FXML
+    // fx:id="addButton"
     private Button addButton; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="colorColumn"
+    @FXML
+    // fx:id="colorColumn"
     private TableColumn<AuditralColorMapping, Color> colorColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="colorDetail"
+    @FXML
+    // fx:id="colorDetail"
     private ColorPicker colorDetail; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="colorTable"
+    @FXML
+    // fx:id="colorTable"
     private TableView<AuditralColorMapping> colorTable; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="conversationIdColumn"
+    @FXML
+    // fx:id="conversationIdColumn"
     private TableColumn<AuditralColorMapping, String> conversationIdColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="conversionidDetail"
+    @FXML
+    // fx:id="conversionidDetail"
     private TextField conversionidDetail; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="correlationIdColumn"
+    @FXML
+    // fx:id="correlationIdColumn"
     private TableColumn<AuditralColorMapping, String> correlationIdColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="correlationidDetail"
+    @FXML
+    // fx:id="correlationidDetail"
     private TextField correlationidDetail; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="idColumn"
+    @FXML
+    // fx:id="idColumn"
     private TableColumn<AuditralColorMapping, String> idColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="idDetail"
+    @FXML
+    // fx:id="idDetail"
     private TextField idDetail; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="loglevelColumn"
+    @FXML
+    // fx:id="loglevelColumn"
     private TableColumn<AuditralColorMapping, String> loglevelColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="loglevelDetail"
+    @FXML
+    // fx:id="loglevelDetail"
     private TextField loglevelDetail; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="messageTypDetail"
+    @FXML
+    // fx:id="messageTypDetail"
     private TextField messageTypDetail; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="messageTypeColumn"
+    @FXML
+    // fx:id="messageTypeColumn"
     private TableColumn<AuditralColorMapping, String> messageTypeColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="occurrenceColumn"
+    @FXML
+    // fx:id="occurrenceColumn"
     private TableColumn<AuditralColorMapping, String> occurrenceColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="occurrenceDetail"
+    @FXML
+    // fx:id="occurrenceDetail"
     private TextField occurrenceDetail; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="removeButton"
+    @FXML
+    // fx:id="removeButton"
     private Button removeButton; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="transactionIdColumn"
+    @FXML
+    // fx:id="transactionIdColumn"
     private TableColumn<AuditralColorMapping, String> transactionIdColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="workflowInstanceIdColumn"
+    @FXML
+    // fx:id="workflowInstanceIdColumn"
     private TableColumn<AuditralColorMapping, String> workflowInstanceIdColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="workflowidDetail"
+    @FXML
+    // fx:id="workflowidDetail"
     private TextField workflowidDetail; // Value injected by FXMLLoader
 
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert addButton != null : "fx:id=\"addButton\" was not injected: check your FXML file 'Settings.fxml'.";
         assert colorColumn != null : "fx:id=\"colorColumn\" was not injected: check your FXML file 'Settings.fxml'.";
@@ -126,147 +148,147 @@ public class SettingsController implements Initializable, FxmlController {
         assert workflowInstanceIdColumn != null : "fx:id=\"workflowInstanceIdColumn\" was not injected: check your FXML file 'Settings.fxml'.";
         assert workflowidDetail != null : "fx:id=\"workflowidDetail\" was not injected: check your FXML file 'Settings.fxml'.";
 
-        
-        colorColumn.setCellFactory(new Callback<TableColumn<AuditralColorMapping,Color>, TableCell<AuditralColorMapping,Color>>() {
-			@Override
-			public TableCell<AuditralColorMapping, Color> call(TableColumn<AuditralColorMapping, Color> param) {
-				return new TextFieldTableCell<AuditralColorMapping, Color>(){
-					@Override
-					public void updateItem(Color color, boolean empty) {
-						if (color != null) {
-							this.setTextFill(color);
-						}
-						super.updateItem(color, empty);
-					}
-				};
-			}
-		});
-        
+        colorColumn.setCellFactory(new Callback<TableColumn<AuditralColorMapping, Color>, TableCell<AuditralColorMapping, Color>>() {
+            @Override
+            public TableCell<AuditralColorMapping, Color> call(TableColumn<AuditralColorMapping, Color> param) {
+                return new TextFieldTableCell<AuditralColorMapping, Color>() {
+                    @Override
+                    public void updateItem(Color color, boolean empty) {
+                        if (color != null) {
+                            this.setTextFill(color);
+                        }
+                        super.updateItem(color, empty);
+                    }
+                };
+            }
+        });
+
         loglevelColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditralColorMapping, String> p) {
-				return p.getValue().loglevelRegEx;
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditralColorMapping, String> p) {
+                return p.getValue().loglevelRegEx;
+            }
+        });
+
         colorColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, Color>, ObservableValue<Color>>() {
-			@Override
-			public ObservableValue<Color> call(
-					CellDataFeatures<AuditralColorMapping, Color> p) {
-				return p.getValue().color;
-			}
-		});
-		
+            @Override
+            public ObservableValue<Color> call(
+                    CellDataFeatures<AuditralColorMapping, Color> p) {
+                return p.getValue().color;
+            }
+        });
+
         conversationIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditralColorMapping, String> p) {
-				return p.getValue().conversationIdRegEx;
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditralColorMapping, String> p) {
+                return p.getValue().conversationIdRegEx;
+            }
+        });
+
         correlationIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditralColorMapping, String> p) {
-				return p.getValue().correlationIdRegEx;
-			}
-		});
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditralColorMapping, String> p) {
+                return p.getValue().correlationIdRegEx;
+            }
+        });
 
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditralColorMapping, String> p) {
-				return p.getValue().idRegEx;
-			}
-		});
-        
-        messageTypeColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditralColorMapping, String> p) {
-				return p.getValue().messageTypeRegEx;
-			}
-		});
-        
-        occurrenceColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditralColorMapping, String> p) {
-				return p.getValue().occurrenceRegEx;
-			}
-		});
-        
-        transactionIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditralColorMapping, String> p) {
-				return p.getValue().transactionIdRegEx;
-			}
-		});
-        
-        workflowInstanceIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditralColorMapping, String> p) {
-				return p.getValue().workflowInstanceIdRegEx;
-			}
-		});
-        
-		colorTable.setItems(settingsModel.auditralColorMappings);
-		
-		addButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				AuditralColorMapping newItem = new AuditralColorMapping();
-				newItem.color.setValue(Color.rgb(255, 128, 128));
-				colorTable.getItems().add(newItem);
-			}
-		});
-		
-		removeButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				colorTable.getItems().remove(colorTable.getSelectionModel().getSelectedIndex());
-			}
-		});
-		removeButton.disableProperty().bind(colorTable.getSelectionModel().selectedIndexProperty().greaterThan(-1).not());
-	
-		colorTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<AuditralColorMapping>() {
-			@Override
-			public void changed(ObservableValue<? extends AuditralColorMapping> observable, AuditralColorMapping oldValue,
-					AuditralColorMapping newValue) {
-				if (oldValue!=null){
-					colorDetail.valueProperty().unbindBidirectional(oldValue.color);
-					occurrenceDetail.textProperty().unbindBidirectional(oldValue.occurrenceRegEx);
-					loglevelDetail.textProperty().unbindBidirectional(oldValue.loglevelRegEx);
-					workflowidDetail.textProperty().unbindBidirectional(oldValue.workflowInstanceIdRegEx);
-					correlationidDetail.textProperty().unbindBidirectional(oldValue.correlationIdRegEx);
-					conversionidDetail.textProperty().unbindBidirectional(oldValue.conversationIdRegEx);
-					messageTypDetail.textProperty().unbindBidirectional(oldValue.messageTypeRegEx);
-					idDetail.textProperty().unbindBidirectional(oldValue.idRegEx);
-					
-				}
-				if (newValue!=null){
-					colorDetail.valueProperty().bindBidirectional(newValue.color);
-					occurrenceDetail.textProperty().bindBidirectional(newValue.occurrenceRegEx);
-					loglevelDetail.textProperty().bindBidirectional(newValue.loglevelRegEx);
-					workflowidDetail.textProperty().bindBidirectional(newValue.workflowInstanceIdRegEx);
-					correlationidDetail.textProperty().bindBidirectional(newValue.correlationIdRegEx);
-					conversionidDetail.textProperty().bindBidirectional(newValue.conversationIdRegEx);
-					messageTypDetail.textProperty().bindBidirectional(newValue.messageTypeRegEx);
-					idDetail.textProperty().bindBidirectional(newValue.idRegEx);
-					colorDetail.fireEvent(new ActionEvent());//javafx bug workaround else color chooser wont update http://javafx-jira.kenai.com/browse/RT-26633
-				} 
-			}
-		});
-		colorTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		
-	}
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditralColorMapping, String> p) {
+                return p.getValue().idRegEx;
+            }
+        });
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("Settings.fxml");
-	}
+        messageTypeColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditralColorMapping, String> p) {
+                return p.getValue().messageTypeRegEx;
+            }
+        });
+
+        occurrenceColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditralColorMapping, String> p) {
+                return p.getValue().occurrenceRegEx;
+            }
+        });
+
+        transactionIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditralColorMapping, String> p) {
+                return p.getValue().transactionIdRegEx;
+            }
+        });
+
+        workflowInstanceIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditralColorMapping, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditralColorMapping, String> p) {
+                return p.getValue().workflowInstanceIdRegEx;
+            }
+        });
+
+        colorTable.setItems(settingsModel.auditralColorMappings);
+
+        addButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                AuditralColorMapping newItem = new AuditralColorMapping();
+                newItem.color.setValue(Color.rgb(255, 128, 128));
+                colorTable.getItems().add(newItem);
+            }
+        });
+
+        removeButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                colorTable.getItems().remove(colorTable.getSelectionModel().getSelectedIndex());
+            }
+        });
+        removeButton.disableProperty().bind(colorTable.getSelectionModel().selectedIndexProperty().greaterThan(-1).not());
+
+        colorTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<AuditralColorMapping>() {
+            @Override
+            public void changed(ObservableValue<? extends AuditralColorMapping> observable, AuditralColorMapping oldValue,
+                    AuditralColorMapping newValue) {
+                if (oldValue != null) {
+                    colorDetail.valueProperty().unbindBidirectional(oldValue.color);
+                    occurrenceDetail.textProperty().unbindBidirectional(oldValue.occurrenceRegEx);
+                    loglevelDetail.textProperty().unbindBidirectional(oldValue.loglevelRegEx);
+                    workflowidDetail.textProperty().unbindBidirectional(oldValue.workflowInstanceIdRegEx);
+                    correlationidDetail.textProperty().unbindBidirectional(oldValue.correlationIdRegEx);
+                    conversionidDetail.textProperty().unbindBidirectional(oldValue.conversationIdRegEx);
+                    messageTypDetail.textProperty().unbindBidirectional(oldValue.messageTypeRegEx);
+                    idDetail.textProperty().unbindBidirectional(oldValue.idRegEx);
+
+                }
+                if (newValue != null) {
+                    colorDetail.valueProperty().bindBidirectional(newValue.color);
+                    occurrenceDetail.textProperty().bindBidirectional(newValue.occurrenceRegEx);
+                    loglevelDetail.textProperty().bindBidirectional(newValue.loglevelRegEx);
+                    workflowidDetail.textProperty().bindBidirectional(newValue.workflowInstanceIdRegEx);
+                    correlationidDetail.textProperty().bindBidirectional(newValue.correlationIdRegEx);
+                    conversionidDetail.textProperty().bindBidirectional(newValue.conversationIdRegEx);
+                    messageTypDetail.textProperty().bindBidirectional(newValue.messageTypeRegEx);
+                    idDetail.textProperty().bindBidirectional(newValue.idRegEx);
+                    colorDetail.fireEvent(new ActionEvent());// javafx bug workaround else color chooser wont update
+                                                             // http://javafx-jira.kenai.com/browse/RT-26633
+                }
+            }
+        });
+        colorTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+    }
+
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("Settings.fxml");
+    }
 }

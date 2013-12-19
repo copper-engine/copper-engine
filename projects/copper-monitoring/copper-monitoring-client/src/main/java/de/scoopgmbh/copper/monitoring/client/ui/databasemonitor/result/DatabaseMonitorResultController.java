@@ -34,116 +34,114 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.EmptyFilterModel;
 import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerBase;
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 
-public class DatabaseMonitorResultController extends FilterResultControllerBase<EmptyFilterModel,String> implements Initializable {
-	private final GuiCopperDataProvider copperDataProvider;
-	
-	public DatabaseMonitorResultController(GuiCopperDataProvider copperDataProvider) {
-		super();
-		this.copperDataProvider = copperDataProvider;
-	}
+public class DatabaseMonitorResultController extends FilterResultControllerBase<EmptyFilterModel, String> implements Initializable {
+    private final GuiCopperDataProvider copperDataProvider;
 
-	@FXML
-	// fx:id="detailView"
-	private WebView detailView; // Value injected by FXMLLoader
+    public DatabaseMonitorResultController(GuiCopperDataProvider copperDataProvider) {
+        super();
+        this.copperDataProvider = copperDataProvider;
+    }
 
-	@FXML
-	// fx:id="listView"
-	private WebView listView; // Value injected by FXMLLoader
+    @FXML
+    // fx:id="detailView"
+    private WebView detailView; // Value injected by FXMLLoader
 
-	@FXML
-	// fx:id="showDeatils"
-	private Button showDeatils; // Value injected by FXMLLoader
+    @FXML
+    // fx:id="listView"
+    private WebView listView; // Value injected by FXMLLoader
 
-	@FXML
-	// fx:id="showTuning"
-	private Button showTuning; // Value injected by FXMLLoader
+    @FXML
+    // fx:id="showDeatils"
+    private Button showDeatils; // Value injected by FXMLLoader
 
-	@FXML
-	// fx:id="sqlId"
-	private TextField sqlId; // Value injected by FXMLLoader
+    @FXML
+    // fx:id="showTuning"
+    private Button showTuning; // Value injected by FXMLLoader
 
-	@FXML
-	// fx:id="stackpane"
-	private StackPane stackpane; // Value injected by FXMLLoader
+    @FXML
+    // fx:id="sqlId"
+    private TextField sqlId; // Value injected by FXMLLoader
 
-	@Override
-	// This method is called by the FXMLLoader when initialization is complete
-	public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-		assert detailView != null : "fx:id=\"detailView\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
-		assert listView != null : "fx:id=\"listView\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
-		assert showDeatils != null : "fx:id=\"showDeatils\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
-		assert showTuning != null : "fx:id=\"showTuning\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
-		assert sqlId != null : "fx:id=\"sqlId\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
-		assert stackpane != null : "fx:id=\"stackpane\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
+    @FXML
+    // fx:id="stackpane"
+    private StackPane stackpane; // Value injected by FXMLLoader
+
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
+    public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
+        assert detailView != null : "fx:id=\"detailView\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
+        assert listView != null : "fx:id=\"listView\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
+        assert showDeatils != null : "fx:id=\"showDeatils\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
+        assert showTuning != null : "fx:id=\"showTuning\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
+        assert sqlId != null : "fx:id=\"sqlId\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
+        assert stackpane != null : "fx:id=\"stackpane\" was not injected: check your FXML file 'DatabaseMonitorResult.fxml'.";
 
         showDeatils.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				ComponentUtil.executeWithProgressDialogInBackground(new Runnable() {
-					@Override
-					public void run() {
-						final String text = copperDataProvider.getDatabaseMonitoringHtmlDetailReport(sqlId.getText());
-						Platform.runLater(new Runnable() {
-							@Override
-							public void run() {
-								detailView.getEngine().loadContent(text);
-							}
-						});
-					}
-				}, stackpane, "");
-			}
-		});
+            @Override
+            public void handle(ActionEvent event) {
+                ComponentUtil.executeWithProgressDialogInBackground(new Runnable() {
+                    @Override
+                    public void run() {
+                        final String text = copperDataProvider.getDatabaseMonitoringHtmlDetailReport(sqlId.getText());
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                detailView.getEngine().loadContent(text);
+                            }
+                        });
+                    }
+                }, stackpane, "");
+            }
+        });
         showDeatils.disableProperty().bind(sqlId.textProperty().isEqualTo(""));
-        
+
         showTuning.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				ComponentUtil.executeWithProgressDialogInBackground(new Runnable() {
-					@Override
-					public void run() {
-						String text = copperDataProvider.getDatabaseMonitoringRecommendationsReport(sqlId.getText());
-						text = text.replace("\n", "<br/>");
-						text = "<span style=\"font-family:courier new\">"+text+"</span>";
-						final String finalText =text;
-						Platform.runLater(new Runnable() {
-							@Override
-							public void run() {
-								detailView.getEngine().loadContent(finalText);
-							}
-						});
-					}
-				}, stackpane, "");
-				
-			}
-		});
+            @Override
+            public void handle(ActionEvent event) {
+                ComponentUtil.executeWithProgressDialogInBackground(new Runnable() {
+                    @Override
+                    public void run() {
+                        String text = copperDataProvider.getDatabaseMonitoringRecommendationsReport(sqlId.getText());
+                        text = text.replace("\n", "<br/>");
+                        text = "<span style=\"font-family:courier new\">" + text + "</span>";
+                        final String finalText = text;
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                detailView.getEngine().loadContent(finalText);
+                            }
+                        });
+                    }
+                }, stackpane, "");
+
+            }
+        });
         showTuning.disableProperty().bind(showDeatils.disableProperty());
     }
 
-	
-	
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("DatabaseMonitorResult.fxml");
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("DatabaseMonitorResult.fxml");
+    }
 
-	@Override
-	public void showFilteredResult(List<String> filteredlist, EmptyFilterModel usedFilter) {
-		listView.getEngine().loadContent(filteredlist.get(0));
-	
-	}
+    @Override
+    public void showFilteredResult(List<String> filteredlist, EmptyFilterModel usedFilter) {
+        listView.getEngine().loadContent(filteredlist.get(0));
 
-	@Override
-	public List<String> applyFilterInBackgroundThread(EmptyFilterModel filter) {
-		return Arrays.asList(copperDataProvider.getDatabaseMonitoringHtmlReport());
-	}
-	
-	@Override
-	public boolean supportsClear() {
-		return true;
-	}
+    }
 
-	@Override
-	public void clear() {
-		listView.getEngine().loadContent("");
-	}
+    @Override
+    public List<String> applyFilterInBackgroundThread(EmptyFilterModel filter) {
+        return Arrays.asList(copperDataProvider.getDatabaseMonitoringHtmlReport());
+    }
+
+    @Override
+    public boolean supportsClear() {
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        listView.getEngine().loadContent("");
+    }
 }

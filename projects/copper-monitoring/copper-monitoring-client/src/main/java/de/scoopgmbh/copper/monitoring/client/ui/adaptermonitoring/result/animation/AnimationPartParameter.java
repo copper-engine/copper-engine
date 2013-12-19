@@ -15,24 +15,23 @@
  */
 package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animation;
 
-
 public class AnimationPartParameter {
-	public long startTime;
-	public long endTime;
-	public String id;
-	public double startx;
-	public double starty;
-	public double endx;
-	public double endy;
+    public long startTime;
+    public long endTime;
+    public String id;
+    public double startx;
+    public double starty;
+    public double endx;
+    public double endy;
 
-	public AnimationPartParameter(long startTime, long endTime, String id, double startx, double starty, double endx,
-                                  double endy) {
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.id = id;
-		this.startx = startx;
-		this.starty = starty;
-		this.endx = endx;
-		this.endy = endy;
-	}
+    public AnimationPartParameter(long startTime, long endTime, String id, double startx, double starty, double endx,
+            double endy) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.id = id;
+        this.startx = startx;
+        this.starty = starty;
+        this.endx = endx;
+        this.endy = endy;
+    }
 }

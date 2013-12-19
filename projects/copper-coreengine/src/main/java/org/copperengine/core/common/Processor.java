@@ -23,86 +23,81 @@ import org.copperengine.core.instrument.Transformed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * A COPPER Processor is a thread executing {@link Workflow} instances.
  * 
  * @author austermann
- *
  */
 public abstract class Processor extends Thread {
-	
-	protected static final Logger logger = LoggerFactory.getLogger(Processor.class);
-	protected final Queue<Workflow<?>> queue;
-	protected volatile boolean shutdown = false;
-	protected final ProcessingEngine engine;
+
+    protected static final Logger logger = LoggerFactory.getLogger(Processor.class);
+    protected final Queue<Workflow<?>> queue;
+    protected volatile boolean shutdown = false;
+    protected final ProcessingEngine engine;
     protected ProcessingHook processingHook = new MDCProcessingHook();
 
-	public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
-		super(name);
-		this.queue = queue;
-		this.setPriority(prio);
-		this.engine = engine;
-	}
+    public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
+        super(name);
+        this.queue = queue;
+        this.setPriority(prio);
+        this.engine = engine;
+    }
 
     public void setProcessingHook(ProcessingHook processingHook) {
         this.processingHook = processingHook;
     }
-    
-	public synchronized void shutdown() {
-		if (shutdown)
-			return;
-		logger.info("Stopping processor '"+getName()+"'...");
-		shutdown = true;
-		interrupt();
-	}
-	
-	@Override
-	public void run() {
-		logger.info("started");
-		while (!shutdown) {
-			try {
-				Workflow<?> wf = null;
-				synchronized (queue) {
-					wf = queue.poll();
-					if (wf == null) {
-						//logger.info("queue is empty - waiting");
-						queue.wait();
-						wf = queue.poll();
-					}
-				}
-				if (!shutdown && wf != null) {
-					if (wf.getClass().getAnnotation(Transformed.class) == null) {
-						throw new RuntimeException(wf.getClass().getName()+" has not been transformed");
-					}
+
+    public synchronized void shutdown() {
+        if (shutdown)
+            return;
+        logger.info("Stopping processor '" + getName() + "'...");
+        shutdown = true;
+        interrupt();
+    }
+
+    @Override
+    public void run() {
+        logger.info("started");
+        while (!shutdown) {
+            try {
+                Workflow<?> wf = null;
+                synchronized (queue) {
+                    wf = queue.poll();
+                    if (wf == null) {
+                        // logger.info("queue is empty - waiting");
+                        queue.wait();
+                        wf = queue.poll();
+                    }
+                }
+                if (!shutdown && wf != null) {
+                    if (wf.getClass().getAnnotation(Transformed.class) == null) {
+                        throw new RuntimeException(wf.getClass().getName() + " has not been transformed");
+                    }
                     preProcess(wf);
                     try {
-						process(wf);
-					}
-					finally {
+                        process(wf);
+                    } finally {
                         postProcess(wf);
                     }
-				}
-			}
-			catch(InterruptedException e) {
-				// ignore
-			}
-			catch(Throwable t) {
-				logger.error("",t);
-				t.printStackTrace();
-			}
-		}
-		logger.info("stopped");
-	}
+                }
+            } catch (InterruptedException e) {
+                // ignore
+            } catch (Throwable t) {
+                logger.error("", t);
+                t.printStackTrace();
+            }
+        }
+        logger.info("stopped");
+    }
 
     protected void postProcess(Workflow<?> wf) {
-        if(processingHook != null){
+        if (processingHook != null) {
             processingHook.postProcess(wf);
         }
     }
 
     protected void preProcess(Workflow<?> wf) {
-        if(processingHook != null){
+        if (processingHook != null) {
             processingHook.preProcess(wf);
         }
     }

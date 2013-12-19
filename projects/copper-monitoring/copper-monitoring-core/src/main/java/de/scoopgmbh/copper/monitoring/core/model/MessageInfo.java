@@ -18,58 +18,55 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class MessageInfo implements Serializable{
-	private static final long serialVersionUID = -7316596553420665952L;
-	
-	Date timeout;
-	Date timestamp;
-	String message;
-	String correlationId;
-	
-	public MessageInfo(Date timeout, String message, String correlationId) {
-		super();
-		this.timeout = timeout;
-		this.message = message;
-		this.correlationId = correlationId;
-	}
-	
-	public MessageInfo() {
-		super();
-	}
+public class MessageInfo implements Serializable {
+    private static final long serialVersionUID = -7316596553420665952L;
 
-	public Date getTimeout() {
-		return timeout;
-	}
+    Date timeout;
+    Date timestamp;
+    String message;
+    String correlationId;
 
-	public void setTimeout(Date timeout) {
-		this.timeout = timeout;
-	}
+    public MessageInfo(Date timeout, String message, String correlationId) {
+        super();
+        this.timeout = timeout;
+        this.message = message;
+        this.correlationId = correlationId;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public MessageInfo() {
+        super();
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public Date getTimeout() {
+        return timeout;
+    }
 
-	public String getCorrelationId() {
-		return correlationId;
-	}
+    public void setTimeout(Date timeout) {
+        this.timeout = timeout;
+    }
 
-	public void setCorrelationId(String correlationId) {
-		this.correlationId = correlationId;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public Date getTimestamp() {
-		return timestamp;
-	}
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
-	
-	
-	
-	
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
 }

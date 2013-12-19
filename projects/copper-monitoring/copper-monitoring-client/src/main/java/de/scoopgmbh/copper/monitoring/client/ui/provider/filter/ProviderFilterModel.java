@@ -18,9 +18,8 @@ package de.scoopgmbh.copper.monitoring.client.ui.provider.filter;
 import javafx.beans.property.SimpleStringProperty;
 import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.FromToMaxCountFilterModel;
 
+public class ProviderFilterModel extends FromToMaxCountFilterModel {
 
-public class ProviderFilterModel extends FromToMaxCountFilterModel{
-	
-	public final SimpleStringProperty id= new SimpleStringProperty();
+    public final SimpleStringProperty id = new SimpleStringProperty();
 
 }

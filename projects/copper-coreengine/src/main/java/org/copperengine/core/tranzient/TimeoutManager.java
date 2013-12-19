@@ -19,20 +19,24 @@ import java.util.List;
 
 import org.copperengine.core.ProcessingEngine;
 
-
 /**
  * public interface for a timeout manager used in a transient processing engine.
  * The timeout manager is responsible to wake up waiting workflow instances in case of a timeout.
  * 
  * @author austermann
- *
  */
 public interface TimeoutManager {
-	public void setEngine(ProcessingEngine engine);
-	public void registerTimeout(long timeoutTS, String correlationId);
-	public void registerTimeout(long timeoutTS, List<String> correlationIds);
-	public void unregisterTimeout(long timeoutTS, String correlationId);
-	public void unregisterTimeout(long timeoutTS, List<String> correlationIds);
-	public void startup();
-	public void shutdown();
+    public void setEngine(ProcessingEngine engine);
+
+    public void registerTimeout(long timeoutTS, String correlationId);
+
+    public void registerTimeout(long timeoutTS, List<String> correlationIds);
+
+    public void unregisterTimeout(long timeoutTS, String correlationId);
+
+    public void unregisterTimeout(long timeoutTS, List<String> correlationIds);
+
+    public void startup();
+
+    public void shutdown();
 }

@@ -15,24 +15,21 @@
  */
 package de.scoopgmbh.copper.monitoring.client.screenshotgen.view.workflowinstance;
 
-
+import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestFormContext;
-import javafx.scene.layout.BorderPane;
-
-
 
 public class WorkflowInstance extends ScreenshotPageBase {
-	
-	@Override
-	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createWorkflowInstanceListForm().show();
 
-	}
+    @Override
+    public void initGui(BorderPane pane, TestFormContext testFormContext) {
+        testFormContext.createWorkflowInstanceListForm().show();
 
-	@Override
-	public String getTitle() {
-		return "Workflowinstance list";
-	}
+    }
+
+    @Override
+    public String getTitle() {
+        return "Workflowinstance list";
+    }
 
 }

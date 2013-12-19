@@ -17,6 +17,6 @@ package org.copperengine.core.persistent;
 
 public interface SavepointAware {
 
-	public void onSave(PersistenceContext pc);
-	
+    public void onSave(PersistenceContext pc);
+
 }

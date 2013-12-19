@@ -35,48 +35,44 @@ import org.copperengine.core.test.backchannel.WorkflowResult;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
-
 public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowTest {
 
-	protected ConfigurableApplicationContext createContext(String dsContext) {
-		return new ClassPathXmlApplicationContext(new String[] {dsContext, "SpringTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml", "unittest-context.xml"});
-	}
+    protected ConfigurableApplicationContext createContext(String dsContext) {
+        return new ClassPathXmlApplicationContext(new String[] { dsContext, "SpringTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml", "unittest-context.xml" });
+    }
 
+    public void testSpringTxnUnitTestWorkflow(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        try {
+            engine.startup();
+            engine.run("org.copperengine.core.test.persistent.springtxn.SpringTxnUnitTestWorkflow", "TestData");
+            WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
+            assertNotNull(x);
+            assertNotNull(x.getResult());
+            assertNull(x.getException());
 
-	public void testSpringTxnUnitTestWorkflow(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-		try {
-			engine.startup();
-			engine.run("org.copperengine.core.test.persistent.springtxn.SpringTxnUnitTestWorkflow", "TestData");
-			WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-			assertNotNull(x);
-			assertNotNull(x.getResult());
-			assertNull(x.getException());
-
-			//check
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					Statement stmt = getConnection().createStatement();
-					ResultSet rs = stmt.executeQuery("select count(*) from cop_audit_trail_event");
-					assertTrue(rs.next());
-					int c = rs.getInt(1);
-					assertEquals(7, c);
-					rs.close();
-					stmt.close();
-					return null;
-				}
-			}.run();
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
-	}	
+            // check
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmt = getConnection().createStatement();
+                    ResultSet rs = stmt.executeQuery("select count(*) from cop_audit_trail_event");
+                    assertTrue(rs.next());
+                    int c = rs.getInt(1);
+                    assertEquals(7, c);
+                    rs.close();
+                    stmt.close();
+                    return null;
+                }
+            }.run();
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
 }

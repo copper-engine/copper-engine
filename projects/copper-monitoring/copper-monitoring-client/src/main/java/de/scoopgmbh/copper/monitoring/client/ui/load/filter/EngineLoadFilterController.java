@@ -32,45 +32,45 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class EngineLoadFilterController extends BaseEngineFilterController<EngineLoadFilterModel> implements Initializable, FxmlController {
-	public EngineLoadFilterController(List<ProcessingEngineInfo> availableEngines) {
-		super(availableEngines,new EngineLoadFilterModel());
-	}
+    public EngineLoadFilterController(List<ProcessingEngineInfo> availableEngines) {
+        super(availableEngines, new EngineLoadFilterModel());
+    }
 
-
-    @FXML //  fx:id="pane"
+    @FXML
+    // fx:id="pane"
     private HBox pane; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert pane != null : "fx:id=\"pane\" was not injected: check your FXML file 'EngineLoadFilter.fxml'.";
 
-        for (Entry<WorkflowInstanceState,SimpleBooleanProperty> entry: model.stateFilters.entrySet()){
-        	CheckBox checkBox  = new CheckBox();
-        	checkBox.setText(entry.getKey().toString());
-        	checkBox.selectedProperty().bindBidirectional(entry.getValue());
-        	pane.getChildren().add(checkBox);
+        for (Entry<WorkflowInstanceState, SimpleBooleanProperty> entry : model.stateFilters.entrySet()) {
+            CheckBox checkBox = new CheckBox();
+            checkBox.setText(entry.getKey().toString());
+            checkBox.selectedProperty().bindBidirectional(entry.getValue());
+            pane.getChildren().add(checkBox);
         }
-	}
+    }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("EngineLoadFilter.fxml");
-	}
-	
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
-	
-	@Override
-	public long getDefaultRefreshInterval() {
-		return 1500;
-	}
-	
-	@Override
-	public Node createAdditionalFilter() {
-		return null;
-	}
-	
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("EngineLoadFilter.fxml");
+    }
+
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
+
+    @Override
+    public long getDefaultRefreshInterval() {
+        return 1500;
+    }
+
+    @Override
+    public Node createAdditionalFilter() {
+        return null;
+    }
+
 }

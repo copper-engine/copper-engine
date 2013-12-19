@@ -18,28 +18,28 @@ package org.copperengine.core.test.tranzient.simple;
 import org.copperengine.core.InterruptException;
 
 public class IssueClassCastExceptionWorkflow extends AbstractIssueClassCastExceptionWorkflow {
-	
-	private static final long serialVersionUID = 1L;
-	
-	@Override
-	protected void callAbstractExceptionSimulation0(String partnerLink) {
-		throw new RuntimeException("Simulate exception.");
-	}
 
-	@Override
-	protected void callAbstractExceptionSimulation1() throws InterruptException {
-		throw new RuntimeException("Simulate exception.");
-	}
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	protected void callAbstractExceptionSimulation2(String partnerLink) {
-		throw new RuntimeException("Simulate exception.");
-	}
+    @Override
+    protected void callAbstractExceptionSimulation0(String partnerLink) {
+        throw new RuntimeException("Simulate exception.");
+    }
 
-	@Override
-	public void main() throws InterruptException {
-		this.callPartner(100);
-		getData().error = false;
-		getData().done = true;
-	}
+    @Override
+    protected void callAbstractExceptionSimulation1() throws InterruptException {
+        throw new RuntimeException("Simulate exception.");
+    }
+
+    @Override
+    protected void callAbstractExceptionSimulation2(String partnerLink) {
+        throw new RuntimeException("Simulate exception.");
+    }
+
+    @Override
+    public void main() throws InterruptException {
+        this.callPartner(100);
+        getData().error = false;
+        getData().done = true;
+    }
 }

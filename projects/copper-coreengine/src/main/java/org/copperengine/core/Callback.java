@@ -20,36 +20,39 @@ package org.copperengine.core;
  * There are two ways how the receiver of a response may pass it to a copper engine.
  * First, the receiver knows the engine and uses <code>engine.notify</code>.
  * Second, the receiver puts the response into a callback object, created and passed to it by the caller.
- * Callback objects are created using the <code>Workflow.createCallback()</code>.  
+ * Callback objects are created using the <code>Workflow.createCallback()</code>.
  * 
  * @author austermann
- *
  * @param <E>
  */
 public interface Callback<E> {
 
-	public String getCorrelationId();
+    public String getCorrelationId();
 
-	/**
-	 * This method is unsafe, the control may be returned to the caller irrespectively whether the notification has been safely delivered.
-	 * Use {@link Callback#notify(Object, Acknowledge)} instead
-	 * @param response
-	 */
-	@Deprecated
-	public void notify(E response);
+    /**
+     * This method is unsafe, the control may be returned to the caller irrespectively whether the notification has been
+     * safely delivered.
+     * Use {@link Callback#notify(Object, Acknowledge)} instead
+     * 
+     * @param response
+     */
+    @Deprecated
+    public void notify(E response);
 
-	/**
-	 * This method is unsafe, the control may be returned to the caller irrespectively whether the notification has been safely delivered.
-	 * Use {@link Callback#notify(Exception, Acknowledge)} instead
-	 * @param exception
-	 */
-	@Deprecated
-	public void notify(Exception exception);
+    /**
+     * This method is unsafe, the control may be returned to the caller irrespectively whether the notification has been
+     * safely delivered.
+     * Use {@link Callback#notify(Exception, Acknowledge)} instead
+     * 
+     * @param exception
+     */
+    @Deprecated
+    public void notify(Exception exception);
 
-	public void notify(E response, Acknowledge ack);
+    public void notify(E response, Acknowledge ack);
 
-	public void notify(Exception exception, Acknowledge ack);
+    public void notify(Exception exception, Acknowledge ack);
 
-	public Response<E> getResponse(Workflow<?> wf);
+    public Response<E> getResponse(Workflow<?> wf);
 
 }

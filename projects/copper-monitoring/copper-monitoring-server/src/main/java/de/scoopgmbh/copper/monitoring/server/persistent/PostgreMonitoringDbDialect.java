@@ -19,17 +19,15 @@ import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.audit.MessagePostProcessor;
 import org.copperengine.core.persistent.Serializer;
 
-
 public class PostgreMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 
-	public PostgreMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor,BatchingAuditTrail auditTrail) {
-		super(serializer, messagePostProcessor,auditTrail);
-	}
+    public PostgreMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor, BatchingAuditTrail auditTrail) {
+        super(serializer, messagePostProcessor, auditTrail);
+    }
 
-
-	@Override
-	public String getResultLimitingQuery(String query, long limit) {
-		return query+ " LIMIT "+limit;
-	}
+    @Override
+    public String getResultLimitingQuery(String query, long limit) {
+        return query + " LIMIT " + limit;
+    }
 
 }

@@ -35,21 +35,23 @@ import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
 
 public class SqlFilterController extends BaseFilterController<SqlFilterModel> implements Initializable, FxmlController {
-	private final SqlFilterModel model = new SqlFilterModel();
-	private final CodeMirrorFormatter codeMirrorFormatter;
+    private final SqlFilterModel model = new SqlFilterModel();
+    private final CodeMirrorFormatter codeMirrorFormatter;
 
-    @FXML //  fx:id="history"
+    @FXML
+    // fx:id="history"
     private ComboBox<String> history; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="sqlEditor"
+    @FXML
+    // fx:id="sqlEditor"
     private WebView sqlEditor; // Value injected by FXMLLoader
 
-
     public SqlFilterController(CodeMirrorFormatter codeMirrorFormatter) {
-		this.codeMirrorFormatter = codeMirrorFormatter;
-	}
+        this.codeMirrorFormatter = codeMirrorFormatter;
+    }
 
-	@Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert history != null : "fx:id=\"history\" was not injected: check your FXML file 'SqlFilter.fxml'.";
         assert sqlEditor != null : "fx:id=\"sqlEditor\" was not injected: check your FXML file 'SqlFilter.fxml'.";
@@ -61,59 +63,59 @@ public class SqlFilterController extends BaseFilterController<SqlFilterModel> im
         history.getItems().add("SELECT * FROM COP_QUEUE");
         history.getItems().add("SELECT * FROM COP_AUDIT_TRAIL_EVENT");
         history.getItems().add("SELECT * FROM COP_ENGINE");
-        final int fixSize=history.getItems().size();
-        
-        sqlEditor.getEngine().loadContent(codeMirrorFormatter.format("", CodeFormatLanguage.SQL,false));
+        final int fixSize = history.getItems().size();
+
+        sqlEditor.getEngine().loadContent(codeMirrorFormatter.format("", CodeFormatLanguage.SQL, false));
         sqlEditor.setOnKeyReleased(new EventHandler<Event>() {
-			@Override
-			public void handle(Event event) {
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						String query = (String )sqlEditor.getEngine().executeScript("editor.getValue();");
-						model.sqlQuery.setValue( query);
-						if (!query.isEmpty()){
-							history.getItems().add(query);
-							if (history.getItems().size()>fixSize+10){
-								history.getItems().remove(fixSize);
-							}
-						}
-					}
-				});
-			}
-		}); 
-        
+            @Override
+            public void handle(Event event) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        String query = (String) sqlEditor.getEngine().executeScript("editor.getValue();");
+                        model.sqlQuery.setValue(query);
+                        if (!query.isEmpty()) {
+                            history.getItems().add(query);
+                            if (history.getItems().size() > fixSize + 10) {
+                                history.getItems().remove(fixSize);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
         history.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				model.sqlQuery.setValue(history.getSelectionModel().getSelectedItem());
-				sqlEditor.getEngine().executeScript("editor.setValue('"+history.getSelectionModel().getSelectedItem()+"');");
-			}
-		});
-	}
+            @Override
+            public void handle(ActionEvent event) {
+                model.sqlQuery.setValue(history.getSelectionModel().getSelectedItem());
+                sqlEditor.getEngine().executeScript("editor.setValue('" + history.getSelectionModel().getSelectedItem() + "');");
+            }
+        });
+    }
 
-	@Override
-	public SqlFilterModel getFilter() {
-		return model;
-	}
+    @Override
+    public SqlFilterModel getFilter() {
+        return model;
+    }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("SqlFilter.fxml");
-	}
-	
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
-	
-	@Override
-	public long getDefaultRefreshInterval() {
-		return FilterController.DEFAULT_REFRESH_INTERVALL;
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("SqlFilter.fxml");
+    }
 
-	@Override
-	public Node createDefaultFilter() {
-		return new DefaultFilterFactory().createMaxCount(model);
-	}
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
+
+    @Override
+    public long getDefaultRefreshInterval() {
+        return FilterController.DEFAULT_REFRESH_INTERVALL;
+    }
+
+    @Override
+    public Node createDefaultFilter() {
+        return new DefaultFilterFactory().createMaxCount(model);
+    }
 }

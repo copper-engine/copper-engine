@@ -23,9 +23,9 @@ import org.copperengine.core.common.ProcessorPool;
  * Base interface for a {@link ProcessorPool} used in a transient {@link ProcessingEngine}
  * 
  * @author austermann
- *
  */
 public interface TransientProcessorPool extends ProcessorPool {
-	public static final String DEFAULT_POOL_ID = "T#DEFAULT";
-	public void enqueue(Workflow<?> wf);
+    public static final String DEFAULT_POOL_ID = "T#DEFAULT";
+
+    public void enqueue(Workflow<?> wf);
 }

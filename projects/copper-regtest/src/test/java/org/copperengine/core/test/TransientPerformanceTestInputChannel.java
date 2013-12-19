@@ -19,103 +19,100 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.copperengine.core.ProcessingEngine;
 
-
 public class TransientPerformanceTestInputChannel implements Runnable {
 
-	public static final int NUMB = 500000;
-	public static final AtomicInteger counter = new AtomicInteger(0);
+    public static final int NUMB = 500000;
+    public static final AtomicInteger counter = new AtomicInteger(0);
 
-	public static long min=Long.MAX_VALUE;
-	public static long max=Long.MIN_VALUE;
-	public static long sum=0;
-	public static long statCounter=0;
-	public static final Object mutex=new Object();
-	
-	private static final Object doneMutex = new Object();
-	private static boolean done = false;
-	
+    public static long min = Long.MAX_VALUE;
+    public static long max = Long.MIN_VALUE;
+    public static long sum = 0;
+    public static long statCounter = 0;
+    public static final Object mutex = new Object();
 
-	public static void report() {
-		System.out.println("counter="+counter);
-		System.out.println("min="+min);
-		System.out.println("max="+max);
-		System.out.println("avg="+(sum/statCounter));
-	}	
+    private static final Object doneMutex = new Object();
+    private static boolean done = false;
 
-	public static void addMP(long et) {
-		synchronized (mutex) {
-			sum += et;
-			statCounter++;
-			if (et < min) min=et;
-			if (et > max) max=et;
-		}
-	}
+    public static void report() {
+        System.out.println("counter=" + counter);
+        System.out.println("min=" + min);
+        System.out.println("max=" + max);
+        System.out.println("avg=" + (sum / statCounter));
+    }
 
-	public static void increment() {
-		if (counter.incrementAndGet() == NUMB) {
-			synchronized (doneMutex) {
-				done = true;
-				doneMutex.notify();
-			}
-		}
-	}
+    public static void addMP(long et) {
+        synchronized (mutex) {
+            sum += et;
+            statCounter++;
+            if (et < min)
+                min = et;
+            if (et > max)
+                max = et;
+        }
+    }
 
-	public static void wait4finish() {
-		synchronized (doneMutex) {
-			try {
-				while (!done) {
-					doneMutex.wait();
-				}
-			} 
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    public static void increment() {
+        if (counter.incrementAndGet() == NUMB) {
+            synchronized (doneMutex) {
+                done = true;
+                doneMutex.notify();
+            }
+        }
+    }
 
-	private ProcessingEngine engine;
+    public static void wait4finish() {
+        synchronized (doneMutex) {
+            try {
+                while (!done) {
+                    doneMutex.wait();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-	public void setEngine(ProcessingEngine engine) {
-		this.engine = engine;
-	}
+    private ProcessingEngine engine;
 
+    public void setEngine(ProcessingEngine engine) {
+        this.engine = engine;
+    }
 
-	@Override
-	public void run() {
-		try {
-			for (int x=0; x<100; x++) {
+    @Override
+    public void run() {
+        try {
+            for (int x = 0; x < 100; x++) {
 
-				long startTS = System.currentTimeMillis();
-				counter.set(0);
-				for (int i=0; i<NUMB; i++) {
-					engine.run("org.copperengine.core.test.PerformanceTestWF",null);
-				}
-				wait4finish();
+                long startTS = System.currentTimeMillis();
+                counter.set(0);
+                for (int i = 0; i < NUMB; i++) {
+                    engine.run("org.copperengine.core.test.PerformanceTestWF", null);
+                }
+                wait4finish();
 
-				long diff = System.currentTimeMillis() - startTS;
-				System.out.println("Elapsed time is "+diff+" msec.");
+                long diff = System.currentTimeMillis() - startTS;
+                System.out.println("Elapsed time is " + diff + " msec.");
 
-				long reqPerSec = NUMB*1000L / diff;
-				System.out.println("throughput = "+reqPerSec);
-				
-				Thread.sleep(5000);
-			}
+                long reqPerSec = NUMB * 1000L / diff;
+                System.out.println("throughput = " + reqPerSec);
 
-			engine.shutdown();
+                Thread.sleep(5000);
+            }
 
-			report();
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		System.exit(0);
-	}
+            engine.shutdown();
 
-	public void startup() {
-		new Thread(this).start();
-	}
+            report();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.exit(0);
+    }
 
-	public void shutdown() {
+    public void startup() {
+        new Thread(this).start();
+    }
 
-	}
+    public void shutdown() {
+
+    }
 }

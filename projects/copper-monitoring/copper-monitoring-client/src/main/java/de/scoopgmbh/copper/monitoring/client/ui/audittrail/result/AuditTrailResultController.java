@@ -51,65 +51,80 @@ import de.scoopgmbh.copper.monitoring.client.util.CSSHelper;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter;
 import de.scoopgmbh.copper.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
 
-public class AuditTrailResultController extends FilterResultControllerBase<AuditTrailFilterModel,AuditTrailResultModel> implements Initializable {
-	private final GuiCopperDataProvider copperDataProvider;
-	private final SettingsModel settingsModel;
-	private final CodeMirrorFormatter codeMirrorFormatter;
-	
-	public AuditTrailResultController(GuiCopperDataProvider copperDataProvider, SettingsModel settingsModel, CodeMirrorFormatter codeMirrorFormatter) {
-		super();
-		this.copperDataProvider = copperDataProvider;
-		this.settingsModel = settingsModel;
-		this.codeMirrorFormatter = codeMirrorFormatter;
-	}
+public class AuditTrailResultController extends FilterResultControllerBase<AuditTrailFilterModel, AuditTrailResultModel> implements Initializable {
+    private final GuiCopperDataProvider copperDataProvider;
+    private final SettingsModel settingsModel;
+    private final CodeMirrorFormatter codeMirrorFormatter;
 
+    public AuditTrailResultController(GuiCopperDataProvider copperDataProvider, SettingsModel settingsModel, CodeMirrorFormatter codeMirrorFormatter) {
+        super();
+        this.copperDataProvider = copperDataProvider;
+        this.settingsModel = settingsModel;
+        this.codeMirrorFormatter = codeMirrorFormatter;
+    }
 
-    @FXML //  fx:id="conversationIdColumn"
+    @FXML
+    // fx:id="conversationIdColumn"
     private TableColumn<AuditTrailResultModel, String> conversationIdColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="correlationIdColumn"
+    @FXML
+    // fx:id="correlationIdColumn"
     private TableColumn<AuditTrailResultModel, String> correlationIdColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="htmlMessageView"
+    @FXML
+    // fx:id="htmlMessageView"
     private WebView htmlMessageView; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="idColumn"
+    @FXML
+    // fx:id="idColumn"
     private TableColumn<AuditTrailResultModel, String> idColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="loglevelColumn"
+    @FXML
+    // fx:id="loglevelColumn"
     private TableColumn<AuditTrailResultModel, String> loglevelColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="messageTypeColumn"
+    @FXML
+    // fx:id="messageTypeColumn"
     private TableColumn<AuditTrailResultModel, String> messageTypeColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="occurrenceColumn"
+    @FXML
+    // fx:id="occurrenceColumn"
     private TableColumn<AuditTrailResultModel, String> occurrenceColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="resultTable"
+    @FXML
+    // fx:id="resultTable"
     private TableView<AuditTrailResultModel> resultTable; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="textMessageView"
+    @FXML
+    // fx:id="textMessageView"
     private TextArea textMessageView; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="transactionIdColumn"
+    @FXML
+    // fx:id="transactionIdColumn"
     private TableColumn<AuditTrailResultModel, String> transactionIdColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="workflowInstanceIdColumn"
+    @FXML
+    // fx:id="workflowInstanceIdColumn"
     private TableColumn<AuditTrailResultModel, String> workflowInstanceIdColumn; // Value injected by FXMLLoader
-    
-    @FXML //  fx:id="detailstackPane"
+
+    @FXML
+    // fx:id="detailstackPane"
     private StackPane detailstackPane; // Value injected by FXMLLoader
-    
-    @FXML //  fx:id="resultTextarea"
+
+    @FXML
+    // fx:id="resultTextarea"
     private TextArea resultTextarea; // Value injected by FXMLLoader
-    
-    @FXML //  fx:id="searchField"
+
+    @FXML
+    // fx:id="searchField"
     private TextField searchField; // Value injected by FXMLLoader
-    
-    @FXML //  fx:id="copyButton"
+
+    @FXML
+    // fx:id="copyButton"
     private Button copyButton; // Value injected by FXMLLoader
 
-	@Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert conversationIdColumn != null : "fx:id=\"conversationIdColumn\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
         assert correlationIdColumn != null : "fx:id=\"correlationIdColumn\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
@@ -128,229 +143,229 @@ public class AuditTrailResultController extends FilterResultControllerBase<Audit
         assert copyButton != null : "fx:id=\"copyButton\" was not injected: check your FXML file 'AuditTrailResult.fxml'.";
 
         resultTable.setRowFactory(new Callback<TableView<AuditTrailResultModel>, TableRow<AuditTrailResultModel>>() {
-			@Override
-			public TableRow<AuditTrailResultModel> call(TableView<AuditTrailResultModel> param) {
-				return new TableRow<AuditTrailResultModel>(){
-					@Override
-					protected void updateItem(AuditTrailResultModel item, boolean empty) {
-						if (item!=null ){
-							for (int i=0;i<settingsModel.auditralColorMappings.size();i++){
-								AuditralColorMapping auditralColorMapping = settingsModel.auditralColorMappings.get(i);
-								if (auditralColorMapping.match(item)){
-									this.setStyle(
-											"-fx-control-inner-background: "+CSSHelper.toCssColor(auditralColorMapping.color.get())+";"
-												  );
+            @Override
+            public TableRow<AuditTrailResultModel> call(TableView<AuditTrailResultModel> param) {
+                return new TableRow<AuditTrailResultModel>() {
+                    @Override
+                    protected void updateItem(AuditTrailResultModel item, boolean empty) {
+                        if (item != null) {
+                            for (int i = 0; i < settingsModel.auditralColorMappings.size(); i++) {
+                                AuditralColorMapping auditralColorMapping = settingsModel.auditralColorMappings.get(i);
+                                if (auditralColorMapping.match(item)) {
+                                    this.setStyle(
+                                            "-fx-control-inner-background: " + CSSHelper.toCssColor(auditralColorMapping.color.get()) + ";"
+                                            );
 
-								} else {
-									this.setStyle("");
-								}
-							}
-						}
-						super.updateItem(item, empty);
-					}
-				};
-			}
-		});
-        
+                                } else {
+                                    this.setStyle("");
+                                }
+                            }
+                        }
+                        super.updateItem(item, empty);
+                    }
+                };
+            }
+        });
 
         loglevelColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditTrailResultModel, String> p) {
-				return p.getValue().loglevel.asString();
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditTrailResultModel, String> p) {
+                return p.getValue().loglevel.asString();
+            }
+        });
+
         conversationIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditTrailResultModel, String> p) {
-				return p.getValue().conversationId;
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditTrailResultModel, String> p) {
+                return p.getValue().conversationId;
+            }
+        });
+
         correlationIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditTrailResultModel, String> p) {
-				return p.getValue().correlationId;
-			}
-		});
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditTrailResultModel, String> p) {
+                return p.getValue().correlationId;
+            }
+        });
 
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditTrailResultModel, String> p) {
-				return p.getValue().id.asString();
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditTrailResultModel, String> p) {
+                return p.getValue().id.asString();
+            }
+        });
+
         messageTypeColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditTrailResultModel, String> p) {
-				return p.getValue().messageType;
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditTrailResultModel, String> p) {
+                return p.getValue().messageType;
+            }
+        });
+
         occurrenceColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditTrailResultModel, String> p) {
-				return p.getValue().occurrence;
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditTrailResultModel, String> p) {
+                return p.getValue().occurrence;
+            }
+        });
+
         transactionIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditTrailResultModel, String> p) {
-				return p.getValue().transactionId;
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditTrailResultModel, String> p) {
+                return p.getValue().transactionId;
+            }
+        });
+
         workflowInstanceIdColumn.setCellValueFactory(new Callback<CellDataFeatures<AuditTrailResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<AuditTrailResultModel, String> p) {
-				return p.getValue().workflowInstanceId;
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<AuditTrailResultModel, String> p) {
+                return p.getValue().workflowInstanceId;
+            }
+        });
+
         resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        
-		initTable();
-		
-		searchField.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				if (resultTextarea.getText()!=null && searchField.getText()!=null){
-					int from = resultTextarea.getText().indexOf(searchField.getText(),resultTextarea.getSelection().getEnd());
-					resultTextarea.selectRange(from,from+searchField.getText().length());
-					
-				}
-			}
-		});
-		
-		copyButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				final Clipboard clipboard = Clipboard.getSystemClipboard();
-			    final ClipboardContent content = new ClipboardContent();
-			    content.putString(resultTextarea.getText());
-			    clipboard.setContent(content);
-			}
-		});
+
+        initTable();
+
+        searchField.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (resultTextarea.getText() != null && searchField.getText() != null) {
+                    int from = resultTextarea.getText().indexOf(searchField.getText(), resultTextarea.getSelection().getEnd());
+                    resultTextarea.selectRange(from, from + searchField.getText().length());
+
+                }
+            }
+        });
+
+        copyButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                final Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(resultTextarea.getText());
+                clipboard.setContent(content);
+            }
+        });
     }
 
-	private void initTable() {
-		resultTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<AuditTrailResultModel>() {
-			private void updateView(String message, final AuditTrailResultModel newValue){
-				CodeFormatLanguage mode = CodeFormatLanguage.XML;
-				if (newValue.messageType.getValue()!=null && newValue.messageType.getValue().toLowerCase().equals("json")){
-					mode=CodeFormatLanguage.JAVASCRIPT;
-				}
-				String formatedMessage = codeMirrorFormatter.format(message, mode,true);
-				
-				htmlMessageView.getEngine().loadContent(formatedMessage);
-				textMessageView.setText(message);
-			}
-			
-			@Override
-			public void changed(ObservableValue<? extends AuditTrailResultModel> observable, AuditTrailResultModel oldValue,
-					final AuditTrailResultModel newValue) {
-				//richtext support will is not available in current javafx (plante for 8) for now this is a workaround with a javascriptlib+webview
-				if (newValue!=null){
-					
-					final ProgressIndicator bar = new ProgressIndicator();
-					detailstackPane.getChildren().add(bar);
-					Thread thread = new Thread(new Runnable() {
-						@Override
-						public void run() {
-							final String message = copperDataProvider.getAuditTrailMessage(newValue.id);
+    private void initTable() {
+        resultTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<AuditTrailResultModel>() {
+            private void updateView(String message, final AuditTrailResultModel newValue) {
+                CodeFormatLanguage mode = CodeFormatLanguage.XML;
+                if (newValue.messageType.getValue() != null && newValue.messageType.getValue().toLowerCase().equals("json")) {
+                    mode = CodeFormatLanguage.JAVASCRIPT;
+                }
+                String formatedMessage = codeMirrorFormatter.format(message, mode, true);
 
-							Platform.runLater(new Runnable() {
-								@Override
-								public void run() {
-									detailstackPane.getChildren().remove(bar);
-									updateView(message,newValue);
-								}
-							});
-						}
-					});
-					thread.setDaemon(true);
-					thread.start();
+                htmlMessageView.getEngine().loadContent(formatedMessage);
+                textMessageView.setText(message);
+            }
 
-				} else {
-					htmlMessageView.getEngine().loadContent("");
-					textMessageView.setText("");
-				}
-				
-			}
-		});
-		
-	}
+            @Override
+            public void changed(ObservableValue<? extends AuditTrailResultModel> observable, AuditTrailResultModel oldValue,
+                    final AuditTrailResultModel newValue) {
+                // richtext support will is not available in current javafx (plante for 8) for now this is a workaround
+                // with a javascriptlib+webview
+                if (newValue != null) {
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("AuditTrailResult.fxml");
-	}
+                    final ProgressIndicator bar = new ProgressIndicator();
+                    detailstackPane.getChildren().add(bar);
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final String message = copperDataProvider.getAuditTrailMessage(newValue.id);
 
-	@Override
-	public void showFilteredResult(List<AuditTrailResultModel> filteredResult, AuditTrailFilterModel usedFilter) {
-		ObservableList<AuditTrailResultModel> content = FXCollections.observableList(new ArrayList<AuditTrailResultModel>());
-		content.addAll(filteredResult);
-		resultTable.setItems(content);
-		
-		StringBuilder textresult = new StringBuilder();
-		textresult.append("id");
-		textresult.append("\t");
-		textresult.append("loglevel");
-		textresult.append("\t");
-		textresult.append("occurrence");
-		textresult.append("\t");
-		textresult.append("workflowInstanceId");
-		textresult.append("\t");
-		textresult.append("correlationId");
-		textresult.append("\t");
-		textresult.append("messageType");
-		textresult.append("\t");
-		textresult.append("transactionId");
-		textresult.append("\n");
-		
-		for (AuditTrailResultModel row: filteredResult){
-			
-			textresult.append(row.id.getValue());
-			textresult.append("\t");
-			textresult.append(row.loglevel.getValue());
-			textresult.append("\t");
-			textresult.append(row.occurrence.getValue());
-			textresult.append("\t");
-			textresult.append(row.workflowInstanceId.getValue());
-			textresult.append("\t");
-			textresult.append(row.correlationId.getValue());
-			textresult.append("\t");
-			textresult.append(row.messageType.getValue());
-			textresult.append("\t");
-			textresult.append(row.transactionId.getValue());
-			textresult.append("\n");
-		}
-		resultTextarea.setText(textresult.toString());
-	}
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    detailstackPane.getChildren().remove(bar);
+                                    updateView(message, newValue);
+                                }
+                            });
+                        }
+                    });
+                    thread.setDaemon(true);
+                    thread.start();
 
-	@Override
-	public List<AuditTrailResultModel> applyFilterInBackgroundThread(AuditTrailFilterModel filter) {
-		return copperDataProvider.getAuditTrails(filter,filter.getMaxCount());
-	}
+                } else {
+                    htmlMessageView.getEngine().loadContent("");
+                    textMessageView.setText("");
+                }
 
-	@Override
-	public boolean supportsClear() {
-		return true;
-	}
+            }
+        });
 
-	@Override
-	public void clear() {
-		resultTable.getItems().clear();
-	}
+    }
+
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("AuditTrailResult.fxml");
+    }
+
+    @Override
+    public void showFilteredResult(List<AuditTrailResultModel> filteredResult, AuditTrailFilterModel usedFilter) {
+        ObservableList<AuditTrailResultModel> content = FXCollections.observableList(new ArrayList<AuditTrailResultModel>());
+        content.addAll(filteredResult);
+        resultTable.setItems(content);
+
+        StringBuilder textresult = new StringBuilder();
+        textresult.append("id");
+        textresult.append("\t");
+        textresult.append("loglevel");
+        textresult.append("\t");
+        textresult.append("occurrence");
+        textresult.append("\t");
+        textresult.append("workflowInstanceId");
+        textresult.append("\t");
+        textresult.append("correlationId");
+        textresult.append("\t");
+        textresult.append("messageType");
+        textresult.append("\t");
+        textresult.append("transactionId");
+        textresult.append("\n");
+
+        for (AuditTrailResultModel row : filteredResult) {
+
+            textresult.append(row.id.getValue());
+            textresult.append("\t");
+            textresult.append(row.loglevel.getValue());
+            textresult.append("\t");
+            textresult.append(row.occurrence.getValue());
+            textresult.append("\t");
+            textresult.append(row.workflowInstanceId.getValue());
+            textresult.append("\t");
+            textresult.append(row.correlationId.getValue());
+            textresult.append("\t");
+            textresult.append(row.messageType.getValue());
+            textresult.append("\t");
+            textresult.append(row.transactionId.getValue());
+            textresult.append("\n");
+        }
+        resultTextarea.setText(textresult.toString());
+    }
+
+    @Override
+    public List<AuditTrailResultModel> applyFilterInBackgroundThread(AuditTrailFilterModel filter) {
+        return copperDataProvider.getAuditTrails(filter, filter.getMaxCount());
+    }
+
+    @Override
+    public boolean supportsClear() {
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        resultTable.getItems().clear();
+    }
 
 }

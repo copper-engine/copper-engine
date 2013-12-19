@@ -15,23 +15,20 @@
  */
 package de.scoopgmbh.copper.monitoring.client.screenshotgen.view.settings;
 
-
+import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestFormContext;
-import javafx.scene.layout.BorderPane;
-
-
 
 public class Settings extends ScreenshotPageBase {
-	
-	@Override
-	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createSettingsForm().show();
-	}
 
-	@Override
-	public String getTitle() {
-		return "Settings";
-	}
+    @Override
+    public void initGui(BorderPane pane, TestFormContext testFormContext) {
+        testFormContext.createSettingsForm().show();
+    }
+
+    @Override
+    public String getTitle() {
+        return "Settings";
+    }
 
 }

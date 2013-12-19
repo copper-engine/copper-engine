@@ -19,84 +19,84 @@ import java.io.Serializable;
 
 public class WorkflowClassInfo implements Serializable {
 
-	private static final long serialVersionUID = -2322677004796387402L;
-	
-	private String classname;
-	private String alias;
-	private Long majorVersion;
-	private Long minorVersion;
-	private Long patchLevel;
-	private String sourceCode;
-	
-	public WorkflowClassInfo() {
-	}
-	
-	public WorkflowClassInfo(String classname, String alias, Long majorVersion, Long minorVersion, Long patchLevel, String sourceCode) {
-		this.classname = classname;
-		this.alias = alias;
-		this.majorVersion = majorVersion;
-		this.minorVersion = minorVersion;
-		this.patchLevel = patchLevel;
-		this.sourceCode = sourceCode;
-	}
+    private static final long serialVersionUID = -2322677004796387402L;
 
-	public String getClassname() {
-		return classname;
-	}
+    private String classname;
+    private String alias;
+    private Long majorVersion;
+    private Long minorVersion;
+    private Long patchLevel;
+    private String sourceCode;
 
-	public void setClassname(String classname) {
-		this.classname = classname;
-	}
+    public WorkflowClassInfo() {
+    }
 
-	public String getAlias() {
-		return alias;
-	}
+    public WorkflowClassInfo(String classname, String alias, Long majorVersion, Long minorVersion, Long patchLevel, String sourceCode) {
+        this.classname = classname;
+        this.alias = alias;
+        this.majorVersion = majorVersion;
+        this.minorVersion = minorVersion;
+        this.patchLevel = patchLevel;
+        this.sourceCode = sourceCode;
+    }
 
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
+    public String getClassname() {
+        return classname;
+    }
 
-	public Long getMajorVersion() {
-		return majorVersion;
-	}
+    public void setClassname(String classname) {
+        this.classname = classname;
+    }
 
-	public void setMajorVersion(Long majorVersion) {
-		this.majorVersion = majorVersion;
-	}
+    public String getAlias() {
+        return alias;
+    }
 
-	public Long getMinorVersion() {
-		return minorVersion;
-	}
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 
-	public void setMinorVersion(Long minorVersion) {
-		this.minorVersion = minorVersion;
-	}
+    public Long getMajorVersion() {
+        return majorVersion;
+    }
 
-	public Long getPatchLevel() {
-		return patchLevel;
-	}
+    public void setMajorVersion(Long majorVersion) {
+        this.majorVersion = majorVersion;
+    }
 
-	public void setPatchLevel(Long patchLevel) {
-		this.patchLevel = patchLevel;
-	}
+    public Long getMinorVersion() {
+        return minorVersion;
+    }
 
-	public String getSourceCode() {
-		return sourceCode;
-	}
+    public void setMinorVersion(Long minorVersion) {
+        this.minorVersion = minorVersion;
+    }
 
-	public void setSourceCode(String sourceCode) {
-		this.sourceCode = sourceCode;
-	}
+    public Long getPatchLevel() {
+        return patchLevel;
+    }
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
+    public void setPatchLevel(Long patchLevel) {
+        this.patchLevel = patchLevel;
+    }
 
-	@Override
-	public String toString() {
-		return "WorkflowClassInfo [classname=" + classname + ", alias=" + alias
-				+ ", majorVersion=" + majorVersion + ", minorVersion="
-				+ minorVersion + ", patchLevel=" + patchLevel + "]";
-	}
-	
+    public String getSourceCode() {
+        return sourceCode;
+    }
+
+    public void setSourceCode(String sourceCode) {
+        this.sourceCode = sourceCode;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
+
+    @Override
+    public String toString() {
+        return "WorkflowClassInfo [classname=" + classname + ", alias=" + alias
+                + ", majorVersion=" + majorVersion + ", minorVersion="
+                + minorVersion + ", patchLevel=" + patchLevel + "]";
+    }
+
 }

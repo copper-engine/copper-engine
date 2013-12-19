@@ -19,6 +19,7 @@ import org.copperengine.core.Workflow;
 
 public interface ProcessingHook {
 
-     void postProcess(Workflow<?> wf);
-     void preProcess(Workflow<?> wf);
+    void postProcess(Workflow<?> wf);
+
+    void preProcess(Workflow<?> wf);
 }

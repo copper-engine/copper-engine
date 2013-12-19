@@ -18,65 +18,61 @@ package org.copperengine.core.audit;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.copperengine.core.audit.AuditTrail;
-import org.copperengine.core.audit.AuditTrailCallback;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class TestBatchingAuditTrail {
-	
-	
 
-	public static void main(String[] args) throws Exception {
-		final ApplicationContext ctx = new FileSystemXmlApplicationContext("src/test/resources/persistent-engine-application-context.xml");
-		AuditTrail auditTrail = ctx.getBean(AuditTrail.class);
-		for (int i=0; i<100; i++) {
-			auditTrail.asynchLog(2, new Date(), "conv12345678901234567890123456789012", "ctx", "proc12345678901234567890123456789012", "corr12345678901234567890123456789012", null, "TEXT", "testMessage");
-		}
-		Thread.sleep(2000);
-		
-		test(createTestMessage(100), auditTrail, 20000);
-		test(createTestMessage(100), auditTrail, 20000);
-		test(createTestMessage(500), auditTrail, 10000);
-		test(createTestMessage(1000), auditTrail, 5000);
-		test(createTestMessage(4000), auditTrail, 5000);
-		test(createTestMessage(8000), auditTrail, 2000);
-		test(createTestMessage(16000), auditTrail, 1000);
+    public static void main(String[] args) throws Exception {
+        final ApplicationContext ctx = new FileSystemXmlApplicationContext("src/test/resources/persistent-engine-application-context.xml");
+        AuditTrail auditTrail = ctx.getBean(AuditTrail.class);
+        for (int i = 0; i < 100; i++) {
+            auditTrail.asynchLog(2, new Date(), "conv12345678901234567890123456789012", "ctx", "proc12345678901234567890123456789012", "corr12345678901234567890123456789012", null, "TEXT", "testMessage");
+        }
+        Thread.sleep(2000);
 
-		System.exit(0);
-	}
+        test(createTestMessage(100), auditTrail, 20000);
+        test(createTestMessage(100), auditTrail, 20000);
+        test(createTestMessage(500), auditTrail, 10000);
+        test(createTestMessage(1000), auditTrail, 5000);
+        test(createTestMessage(4000), auditTrail, 5000);
+        test(createTestMessage(8000), auditTrail, 2000);
+        test(createTestMessage(16000), auditTrail, 1000);
 
-	private static String createTestMessage(int size) {
-		final StringBuilder sb = new StringBuilder(4000);
-		for (int i=0; i<(size/10); i++) {
-			sb.append("0123456789");
-		}
-		final String msg = sb.toString();
-		return msg;
-	}
+        System.exit(0);
+    }
 
-	private static void test(final String msg, AuditTrail auditTrail, final int max) throws InterruptedException {
-		;
-		final AtomicInteger x= new AtomicInteger();
-		AuditTrailCallback cb = new AuditTrailCallback() {
-			@Override
-			public void error(Exception e) {
-				x.incrementAndGet();
-			}
-			
-			@Override
-			public void done() {
-				x.incrementAndGet();
-			}
-		};
-		long startTS=System.currentTimeMillis();
-		for (int i=0; i<max; i++) {
-			auditTrail.asynchLog(2, new Date(), "conv12345678901234567890123456789012", "ctx", "proc12345678901234567890123456789012", "corr12345678901234567890123456789012", null, msg, "TEXT", cb);
-		}
-		while (x.get() != max) {
-			Thread.sleep(5);
-		}
-		long et = System.currentTimeMillis()-startTS;
-		System.out.println("et="+et+" mesc for "+max+" records, recordSize="+msg.length());
-	}
+    private static String createTestMessage(int size) {
+        final StringBuilder sb = new StringBuilder(4000);
+        for (int i = 0; i < (size / 10); i++) {
+            sb.append("0123456789");
+        }
+        final String msg = sb.toString();
+        return msg;
+    }
+
+    private static void test(final String msg, AuditTrail auditTrail, final int max) throws InterruptedException {
+        ;
+        final AtomicInteger x = new AtomicInteger();
+        AuditTrailCallback cb = new AuditTrailCallback() {
+            @Override
+            public void error(Exception e) {
+                x.incrementAndGet();
+            }
+
+            @Override
+            public void done() {
+                x.incrementAndGet();
+            }
+        };
+        long startTS = System.currentTimeMillis();
+        for (int i = 0; i < max; i++) {
+            auditTrail.asynchLog(2, new Date(), "conv12345678901234567890123456789012", "ctx", "proc12345678901234567890123456789012", "corr12345678901234567890123456789012", null, msg, "TEXT", cb);
+        }
+        while (x.get() != max) {
+            Thread.sleep(5);
+        }
+        long et = System.currentTimeMillis() - startTS;
+        System.out.println("et=" + et + " mesc for " + max + " records, recordSize=" + msg.length());
+    }
 }

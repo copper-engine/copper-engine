@@ -15,22 +15,20 @@
  */
 package de.scoopgmbh.copper.monitoring.client.screenshotgen.view.logs;
 
+import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestFormContext;
-import javafx.scene.layout.BorderPane;
-
-
 
 public class Logs extends ScreenshotPageBase {
-	
-	@Override
-	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createLogsForm().show();
-	}
 
-	@Override
-	public String getTitle() {
-		return "Log4j view";
-	}
+    @Override
+    public void initGui(BorderPane pane, TestFormContext testFormContext) {
+        testFormContext.createLogsForm().show();
+    }
+
+    @Override
+    public String getTitle() {
+        return "Log4j view";
+    }
 
 }

@@ -28,73 +28,70 @@ import org.copperengine.core.persistent.PersistenceContext;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.core.persistent.SavepointAware;
 
-
 public class AdapterStubFactory {
-	
-	static final Method savepointAwareOnSaveMethod;
-	static {
-		try {
-			savepointAwareOnSaveMethod = SavepointAware.class.getMethod("onSave", new Class<?>[]{PersistenceContext.class});
-		} catch (Exception e) {
-			if (e instanceof RuntimeException)
-				throw (RuntimeException)e;
-			throw new RuntimeException(e);
-		}
-	}
-	
-	
-	@SuppressWarnings("unchecked")
-	public <A> A createAdapter(Class<A> adapterClass) {
-		ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>(Arrays.asList(adapterClass.getInterfaces()));
-		if (adapterClass.isInterface())
-			interfaces.add(adapterClass);
-		return (A)Proxy.newProxyInstance (adapterClass.getClassLoader(), interfaces.toArray(new Class[0]), createInvocationHandler(adapterClass.getName()));
-	}
-	
-	static InvocationHandler createInvocationHandler(final String adapterId) {
-		InvocationHandler h = new InvocationHandler() {
-			
-			Collection<AdapterCall> calls;
-			
-			@Override
-			public Object invoke(Object proxy, Method method, Object[] args) {
-				if (method == savepointAwareOnSaveMethod) { 
-					onSave((PersistenceContext)args[0]);
-					return null;
-				}
-				String correlationId = UUID.randomUUID().toString();
-				Object ret = Void.class;
-				if (method.getReturnType() == void.class)
-					ret = null;
-				if (method.getReturnType() == String.class)
-					ret = correlationId;
-				if (method.getReturnType() == AdapterCall.class) {
-					AdapterCall c = new AdapterCall(adapterId, correlationId, method, args);
-					if (calls == null) {
-						calls = new ArrayList<AdapterCall>();
-						calls.add(c);
-					}
-					ret = c;					
-				}
-				if (ret == Void.class)
-					throw new RuntimeException("Only return types void, String and AdapterCall allowed");
-						return ret;
-			}
 
-			public void onSave(PersistenceContext pc) {
-				if (calls == null)
-					return;
-				PersistentWorkflow<?> wf = pc.getWorkflow();
-				EntityPersister<AdapterCall> persister = pc.getPersister(AdapterCall.class);
-				for (AdapterCall call : calls) {
-					call.setWorkflowData(wf.getId(), wf.getPriority());
-					persister.insert(call);
-				}
-			}
+    static final Method savepointAwareOnSaveMethod;
+    static {
+        try {
+            savepointAwareOnSaveMethod = SavepointAware.class.getMethod("onSave", new Class<?>[] { PersistenceContext.class });
+        } catch (Exception e) {
+            if (e instanceof RuntimeException)
+                throw (RuntimeException) e;
+            throw new RuntimeException(e);
+        }
+    }
 
-		};
-		return h;
-	}
+    @SuppressWarnings("unchecked")
+    public <A> A createAdapter(Class<A> adapterClass) {
+        ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>(Arrays.asList(adapterClass.getInterfaces()));
+        if (adapterClass.isInterface())
+            interfaces.add(adapterClass);
+        return (A) Proxy.newProxyInstance(adapterClass.getClassLoader(), interfaces.toArray(new Class[0]), createInvocationHandler(adapterClass.getName()));
+    }
 
+    static InvocationHandler createInvocationHandler(final String adapterId) {
+        InvocationHandler h = new InvocationHandler() {
+
+            Collection<AdapterCall> calls;
+
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) {
+                if (method == savepointAwareOnSaveMethod) {
+                    onSave((PersistenceContext) args[0]);
+                    return null;
+                }
+                String correlationId = UUID.randomUUID().toString();
+                Object ret = Void.class;
+                if (method.getReturnType() == void.class)
+                    ret = null;
+                if (method.getReturnType() == String.class)
+                    ret = correlationId;
+                if (method.getReturnType() == AdapterCall.class) {
+                    AdapterCall c = new AdapterCall(adapterId, correlationId, method, args);
+                    if (calls == null) {
+                        calls = new ArrayList<AdapterCall>();
+                        calls.add(c);
+                    }
+                    ret = c;
+                }
+                if (ret == Void.class)
+                    throw new RuntimeException("Only return types void, String and AdapterCall allowed");
+                return ret;
+            }
+
+            public void onSave(PersistenceContext pc) {
+                if (calls == null)
+                    return;
+                PersistentWorkflow<?> wf = pc.getWorkflow();
+                EntityPersister<AdapterCall> persister = pc.getPersister(AdapterCall.class);
+                for (AdapterCall call : calls) {
+                    call.setWorkflowData(wf.getId(), wf.getPriority());
+                    persister.insert(call);
+                }
+            }
+
+        };
+        return h;
+    }
 
 }

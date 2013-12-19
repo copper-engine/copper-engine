@@ -34,188 +34,184 @@ import org.slf4j.LoggerFactory;
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class NonTransactionalAdapterQueue {
-	
-	private static final Logger logger = LoggerFactory.getLogger(ReloadThread.class);
 
-	final int transientQueueLength;
-	final int triggerReloadQueueLength;
-	final AdapterCallPersisterFactory persistence;
-	final TransactionController ctrl;
-	final Collection<String> adapterIds;
-	final PriorityBlockingQueue<AdapterCall> queue;
-	volatile boolean run = true;
-	volatile boolean stopped = false;
-	final Object reloadLock = new Object();
-	final Set<Thread> waitingThreads = new HashSet<Thread>();
-	final ReloadThread reloadThread;
-	final Batcher batcher;
-	
-	class ReloadThread extends Thread {
-		
-		{
-			setDaemon(true);
-		}
+    private static final Logger logger = LoggerFactory.getLogger(ReloadThread.class);
 
-		long waitMillis;
-		static final long MAX_WAIT_MILLIS = 2000;
+    final int transientQueueLength;
+    final int triggerReloadQueueLength;
+    final AdapterCallPersisterFactory persistence;
+    final TransactionController ctrl;
+    final Collection<String> adapterIds;
+    final PriorityBlockingQueue<AdapterCall> queue;
+    volatile boolean run = true;
+    volatile boolean stopped = false;
+    final Object reloadLock = new Object();
+    final Set<Thread> waitingThreads = new HashSet<Thread>();
+    final ReloadThread reloadThread;
+    final Batcher batcher;
 
-		
-		@Override
-		public void run() {
-			waitMillis = 1;
-			loop: while (run) {
-				synchronized (reloadLock) {
-					try {
-						waitMillis *= 4;
-						if (waitMillis > MAX_WAIT_MILLIS)
-							waitMillis = MAX_WAIT_MILLIS;
-						reloadLock.wait(waitMillis);
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-						continue loop;
-					}
-				}
-				if (run && queue.size() < triggerReloadQueueLength) {
-					try {
-						List<AdapterCall> newElements = ctrl.run(new DatabaseTransaction<List<AdapterCall>>() {
-							@Override
-							public List<AdapterCall> run(Connection con) throws Exception {
-								Selector s = persistence.createSelector();
-								return s.dequeue(con, adapterIds, transientQueueLength-queue.size());
-							}
-						});
-						if (!newElements.isEmpty())
-							waitMillis = 1;
-						queue.addAll(
-							newElements
-						);
-					} catch (Exception e) {
-						logger.error("Dequeue error",e);
-					}
-				}
-			}
-			stopped = true;
-			synchronized (waitingThreads) {
-				for (Thread t : waitingThreads) {
-					t.interrupt();
-				}
-			}
-		}
-	}
-	
+    class ReloadThread extends Thread {
 
-	public NonTransactionalAdapterQueue(Collection<String> adapterIds, AdapterCallPersisterFactory persistence, int transientQueueLength, TransactionController ctrl, Batcher batcher) {
-		this (adapterIds, persistence, transientQueueLength, transientQueueLength, ctrl, batcher);
-	}
-	
-	@SuppressWarnings("SC_START_IN_CTOR")
-	public NonTransactionalAdapterQueue(Collection<String> adapterIds, AdapterCallPersisterFactory persistence, int transientQueueLength, int triggerReloadQueueLength, TransactionController ctrl, Batcher batcher) {
-		this.transientQueueLength = transientQueueLength;
-		this.triggerReloadQueueLength = triggerReloadQueueLength;
-		this.persistence = persistence;
-		this.adapterIds = new ArrayList<String>(adapterIds);
-		this.ctrl = ctrl;
-		this.batcher = batcher;
-		this.queue = new PriorityBlockingQueue<AdapterCall>(transientQueueLength, new Comparator<AdapterCall>() {
+        {
+            setDaemon(true);
+        }
 
-			@Override
-			public int compare(AdapterCall o1, AdapterCall o2) {
-				if (o1.getPriority() < o2.getPriority())
-					return -1;
-				if (o1.getPriority() > o2.getPriority())
-					return 1;
-				return 0;
-			}
-			
-		});
-		this.reloadThread = new ReloadThread();
-		this.reloadThread.start();
-		this.triggerReload();
-	}
-	
-	
-	public AdapterCall dequeue() throws InterruptedException {
-		synchronized (waitingThreads) {
-			waitingThreads.add(Thread.currentThread());
-		}
-		AdapterCall c = null;
-		try {
-			while (run) {
-				try {
-					c = queue.take();
-					break;
-				} catch (InterruptedException ex) {
-					if (isRunning()) /* interrupt from unknown origin */
-						continue;
-				}
-			} 
-			
-			if (c == null) {
-				c = queue.poll();
-				if (c == null)
-					throw new InterruptedException();
-			}
-		} finally {
-			synchronized (waitingThreads) {
-				waitingThreads.remove(Thread.currentThread());
-			}
-		}
-		if (queue.size() < triggerReloadQueueLength && run)
-			triggerReload();
-		return c;
-	}
-	
-	public void finished(AdapterCall c) {
-		batcher.submitBatchCommand(persistence.createDeleteCommand(c));
-	}
-	
-	protected boolean isRunning() {
-		return !stopped;
-	}
-	
-	public void shutdown() {
-		run = false;
-		reloadThread.interrupt();
-		try {
-			reloadThread.join();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-	}
+        long waitMillis;
+        static final long MAX_WAIT_MILLIS = 2000;
 
-	private void triggerReload() {
-		synchronized (reloadLock) {
-			reloadLock.notify();
-		}
-	}
-	
-	
-	public static abstract class DefaultWorkerThread extends Thread {
-		
-		final NonTransactionalAdapterQueue queue;
-		
-		public DefaultWorkerThread(NonTransactionalAdapterQueue queue) {
-			this.queue = queue;
-		}
-		
-		@Override
-		public void run() {
-			while (queue.isRunning()) {
-				try {
-					AdapterCall c = queue.dequeue();
-					try {
-						handle(c);
-					} finally {
-						queue.finished(c);
-					}
-				} catch (InterruptedException e) {
-				}
-			}
-			
-		}
+        @Override
+        public void run() {
+            waitMillis = 1;
+            loop: while (run) {
+                synchronized (reloadLock) {
+                    try {
+                        waitMillis *= 4;
+                        if (waitMillis > MAX_WAIT_MILLIS)
+                            waitMillis = MAX_WAIT_MILLIS;
+                        reloadLock.wait(waitMillis);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        continue loop;
+                    }
+                }
+                if (run && queue.size() < triggerReloadQueueLength) {
+                    try {
+                        List<AdapterCall> newElements = ctrl.run(new DatabaseTransaction<List<AdapterCall>>() {
+                            @Override
+                            public List<AdapterCall> run(Connection con) throws Exception {
+                                Selector s = persistence.createSelector();
+                                return s.dequeue(con, adapterIds, transientQueueLength - queue.size());
+                            }
+                        });
+                        if (!newElements.isEmpty())
+                            waitMillis = 1;
+                        queue.addAll(
+                                newElements
+                                );
+                    } catch (Exception e) {
+                        logger.error("Dequeue error", e);
+                    }
+                }
+            }
+            stopped = true;
+            synchronized (waitingThreads) {
+                for (Thread t : waitingThreads) {
+                    t.interrupt();
+                }
+            }
+        }
+    }
 
-		protected abstract void handle(AdapterCall c);
-		
-	}
+    public NonTransactionalAdapterQueue(Collection<String> adapterIds, AdapterCallPersisterFactory persistence, int transientQueueLength, TransactionController ctrl, Batcher batcher) {
+        this(adapterIds, persistence, transientQueueLength, transientQueueLength, ctrl, batcher);
+    }
+
+    @SuppressWarnings("SC_START_IN_CTOR")
+    public NonTransactionalAdapterQueue(Collection<String> adapterIds, AdapterCallPersisterFactory persistence, int transientQueueLength, int triggerReloadQueueLength, TransactionController ctrl, Batcher batcher) {
+        this.transientQueueLength = transientQueueLength;
+        this.triggerReloadQueueLength = triggerReloadQueueLength;
+        this.persistence = persistence;
+        this.adapterIds = new ArrayList<String>(adapterIds);
+        this.ctrl = ctrl;
+        this.batcher = batcher;
+        this.queue = new PriorityBlockingQueue<AdapterCall>(transientQueueLength, new Comparator<AdapterCall>() {
+
+            @Override
+            public int compare(AdapterCall o1, AdapterCall o2) {
+                if (o1.getPriority() < o2.getPriority())
+                    return -1;
+                if (o1.getPriority() > o2.getPriority())
+                    return 1;
+                return 0;
+            }
+
+        });
+        this.reloadThread = new ReloadThread();
+        this.reloadThread.start();
+        this.triggerReload();
+    }
+
+    public AdapterCall dequeue() throws InterruptedException {
+        synchronized (waitingThreads) {
+            waitingThreads.add(Thread.currentThread());
+        }
+        AdapterCall c = null;
+        try {
+            while (run) {
+                try {
+                    c = queue.take();
+                    break;
+                } catch (InterruptedException ex) {
+                    if (isRunning()) /* interrupt from unknown origin */
+                        continue;
+                }
+            }
+
+            if (c == null) {
+                c = queue.poll();
+                if (c == null)
+                    throw new InterruptedException();
+            }
+        } finally {
+            synchronized (waitingThreads) {
+                waitingThreads.remove(Thread.currentThread());
+            }
+        }
+        if (queue.size() < triggerReloadQueueLength && run)
+            triggerReload();
+        return c;
+    }
+
+    public void finished(AdapterCall c) {
+        batcher.submitBatchCommand(persistence.createDeleteCommand(c));
+    }
+
+    protected boolean isRunning() {
+        return !stopped;
+    }
+
+    public void shutdown() {
+        run = false;
+        reloadThread.interrupt();
+        try {
+            reloadThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private void triggerReload() {
+        synchronized (reloadLock) {
+            reloadLock.notify();
+        }
+    }
+
+    public static abstract class DefaultWorkerThread extends Thread {
+
+        final NonTransactionalAdapterQueue queue;
+
+        public DefaultWorkerThread(NonTransactionalAdapterQueue queue) {
+            this.queue = queue;
+        }
+
+        @Override
+        public void run() {
+            while (queue.isRunning()) {
+                try {
+                    AdapterCall c = queue.dequeue();
+                    try {
+                        handle(c);
+                    } finally {
+                        queue.finished(c);
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+
+        }
+
+        protected abstract void handle(AdapterCall c);
+
+    }
 
 }

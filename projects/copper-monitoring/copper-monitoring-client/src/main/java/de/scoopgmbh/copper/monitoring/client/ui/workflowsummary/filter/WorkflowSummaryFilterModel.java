@@ -19,8 +19,8 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.MaxCountF
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
-public class WorkflowSummaryFilterModel extends EnginePoolFilterModel{
-	public final WorkflowVersion version = new WorkflowVersion();
-	public final MaxCountFilterModel maxCountFilterModel = new MaxCountFilterModel();
+public class WorkflowSummaryFilterModel extends EnginePoolFilterModel {
+    public final WorkflowVersion version = new WorkflowVersion();
+    public final MaxCountFilterModel maxCountFilterModel = new MaxCountFilterModel();
 
 }

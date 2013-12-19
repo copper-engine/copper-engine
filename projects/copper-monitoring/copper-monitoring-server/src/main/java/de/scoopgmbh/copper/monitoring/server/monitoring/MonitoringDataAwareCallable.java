@@ -20,23 +20,24 @@ import java.util.concurrent.Callable;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder;
 
+public abstract class MonitoringDataAwareCallable<T> implements Callable<T> {
+    protected MonitoringDataAccesor monitoringDataAccesor;
+    protected MonitoringDataAdder monitoringDataAdder;
 
-public abstract class MonitoringDataAwareCallable<T> implements Callable<T>{
-	protected MonitoringDataAccesor monitoringDataAccesor;
-	protected MonitoringDataAdder monitoringDataAdder;
-	
-	public MonitoringDataAccesor getMonitoringDataAccesor() {
-		return monitoringDataAccesor;
-	}
-	public void setMonitoringDataAccesor(MonitoringDataAccesor monitoringDataAccesor) {
-		this.monitoringDataAccesor = monitoringDataAccesor;
-	}
-	public MonitoringDataAdder getMonitoringDataAdder() {
-		return monitoringDataAdder;
-	}
-	public void setMonitoringDataAdder(MonitoringDataAdder monitoringDataAdder) {
-		this.monitoringDataAdder = monitoringDataAdder;
-	}
-	
-	
+    public MonitoringDataAccesor getMonitoringDataAccesor() {
+        return monitoringDataAccesor;
+    }
+
+    public void setMonitoringDataAccesor(MonitoringDataAccesor monitoringDataAccesor) {
+        this.monitoringDataAccesor = monitoringDataAccesor;
+    }
+
+    public MonitoringDataAdder getMonitoringDataAdder() {
+        return monitoringDataAdder;
+    }
+
+    public void setMonitoringDataAdder(MonitoringDataAdder monitoringDataAdder) {
+        this.monitoringDataAdder = monitoringDataAdder;
+    }
+
 }

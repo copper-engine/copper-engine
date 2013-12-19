@@ -24,36 +24,36 @@ import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.Text;
 
 public class WorkflowAnimation extends AnimationPartBase {
-	
-	public static final Color WORKFLOW_COLOR = Color.GOLD;
-	public static final int WIDTH = EventAnimationBase.EVENT_WIDTH+20;
-	String workflowClass;
 
-	public WorkflowAnimation(String workflowClass, AnimationPartParameter animationPartBaseParameter) {
-		super(animationPartBaseParameter);
-		this.workflowClass = workflowClass;
-	}
+    public static final Color WORKFLOW_COLOR = Color.GOLD;
+    public static final int WIDTH = EventAnimationBase.EVENT_WIDTH + 20;
+    String workflowClass;
 
-	@Override
-	public Node createVisualRepresentation() {
-		Pane pane = new Pane();
-		final Rectangle workflowRectangle = new Rectangle(WIDTH+20, EventAnimationBase.EVENT_HEIGHT+15);
-		workflowRectangle.setFill(WORKFLOW_COLOR);
-		workflowRectangle.setArcHeight(25);
-		workflowRectangle.setArcWidth(25);
-		final Text classText = new Text(workflowClass);
-		classText.setFontSmoothingType(FontSmoothingType.LCD);
-		classText.xProperty().bind(workflowRectangle.xProperty().add(workflowRectangle.getWidth()/2).subtract(classText.getBoundsInLocal().getWidth()/2));
-		classText.yProperty().bind(workflowRectangle.yProperty().subtract(16));
-		final Text instanceIdText = new Text(id);
-		instanceIdText.setFont(Font.font(Font.getDefault().getName(),10));
-		instanceIdText.setFontSmoothingType(FontSmoothingType.LCD);
-		instanceIdText.xProperty().bind(workflowRectangle.xProperty().add(workflowRectangle.getWidth()/2).subtract(classText.getBoundsInLocal().getWidth()/2));
-		instanceIdText.yProperty().bind(workflowRectangle.yProperty().subtract(3));
-		pane.getChildren().add(workflowRectangle);
-		pane.getChildren().add(classText);
-		pane.getChildren().add(instanceIdText);
-		return pane;
-	}
+    public WorkflowAnimation(String workflowClass, AnimationPartParameter animationPartBaseParameter) {
+        super(animationPartBaseParameter);
+        this.workflowClass = workflowClass;
+    }
+
+    @Override
+    public Node createVisualRepresentation() {
+        Pane pane = new Pane();
+        final Rectangle workflowRectangle = new Rectangle(WIDTH + 20, EventAnimationBase.EVENT_HEIGHT + 15);
+        workflowRectangle.setFill(WORKFLOW_COLOR);
+        workflowRectangle.setArcHeight(25);
+        workflowRectangle.setArcWidth(25);
+        final Text classText = new Text(workflowClass);
+        classText.setFontSmoothingType(FontSmoothingType.LCD);
+        classText.xProperty().bind(workflowRectangle.xProperty().add(workflowRectangle.getWidth() / 2).subtract(classText.getBoundsInLocal().getWidth() / 2));
+        classText.yProperty().bind(workflowRectangle.yProperty().subtract(16));
+        final Text instanceIdText = new Text(id);
+        instanceIdText.setFont(Font.font(Font.getDefault().getName(), 10));
+        instanceIdText.setFontSmoothingType(FontSmoothingType.LCD);
+        instanceIdText.xProperty().bind(workflowRectangle.xProperty().add(workflowRectangle.getWidth() / 2).subtract(classText.getBoundsInLocal().getWidth() / 2));
+        instanceIdText.yProperty().bind(workflowRectangle.yProperty().subtract(3));
+        pane.getChildren().add(workflowRectangle);
+        pane.getChildren().add(classText);
+        pane.getChildren().add(instanceIdText);
+        return pane;
+    }
 
 }

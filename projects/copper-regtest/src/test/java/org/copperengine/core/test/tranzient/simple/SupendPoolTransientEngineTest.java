@@ -26,40 +26,38 @@ import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
 public class SupendPoolTransientEngineTest {
 
-	@Test
-	public void testWorkflow() throws Exception {
-		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
-		TransientProcessorPool processorPool = (TransientProcessorPool) context.getBean("T_ProcessorPool_DEFAULT");
-		assertEquals(EngineState.STARTED,engine.getEngineState());
-		
-		try {
-			final BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
-			Thread.sleep(10);
-			assertFalse(brr.isResponseReceived());
-			
-			processorPool.suspend();
-			
-			engine.run("org.copperengine.core.test.tranzient.simple.NopTransientWorkflow", brr);
+    @Test
+    public void testWorkflow() throws Exception {
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
+        TransientProcessorPool processorPool = (TransientProcessorPool) context.getBean("T_ProcessorPool_DEFAULT");
+        assertEquals(EngineState.STARTED, engine.getEngineState());
 
-			brr.wait4response(100L);
-			
-			assertFalse(brr.isResponseReceived());
+        try {
+            final BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
+            Thread.sleep(10);
+            assertFalse(brr.isResponseReceived());
 
-			processorPool.resume();
-			
-			brr.wait4response(100L);
-			
-			assertEquals(1,brr.getResponse().intValue());
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
-	}
-	
+            processorPool.suspend();
+
+            engine.run("org.copperengine.core.test.tranzient.simple.NopTransientWorkflow", brr);
+
+            brr.wait4response(100L);
+
+            assertFalse(brr.isResponseReceived());
+
+            processorPool.resume();
+
+            brr.wait4response(100L);
+
+            assertEquals(1, brr.getResponse().intValue());
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+
+    }
+
 }

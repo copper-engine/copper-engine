@@ -18,43 +18,42 @@ package de.scoopgmbh.copper.monitoring.client.form;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
- *
- * @param <C> target component to display the form
+ * @param <C>
+ *            target component to display the form
  */
 public abstract class Form<C> implements Widget {
 
-	private final SimpleStringProperty displayTitle;
-	protected SimpleStringProperty staticTitle;
-	private final ShowFormStrategy<?> showFormStrategy;
-	protected final C controller;
-	
+    private final SimpleStringProperty displayTitle;
+    protected SimpleStringProperty staticTitle;
+    private final ShowFormStrategy<?> showFormStrategy;
+    protected final C controller;
 
-	public Form(String staticTitle, ShowFormStrategy<?> showFormStrategy, C controller) {
-		super();
-		this.staticTitle = new SimpleStringProperty(staticTitle);
-		this.displayTitle = new SimpleStringProperty(staticTitle);
-		this.showFormStrategy = showFormStrategy;
-		this.controller = controller;
-	}
+    public Form(String staticTitle, ShowFormStrategy<?> showFormStrategy, C controller) {
+        super();
+        this.staticTitle = new SimpleStringProperty(staticTitle);
+        this.displayTitle = new SimpleStringProperty(staticTitle);
+        this.showFormStrategy = showFormStrategy;
+        this.controller = controller;
+    }
 
-	public SimpleStringProperty displayedTitleProperty(){
-		return displayTitle;
-	}
-	
-	public SimpleStringProperty staticTitleProperty(){
-		return staticTitle;
-	}
-	
-	public void show(){
-		showFormStrategy.show(this);
-	}
+    public SimpleStringProperty displayedTitleProperty() {
+        return displayTitle;
+    }
 
-	public C getController(){
-		return controller;
-	}
+    public SimpleStringProperty staticTitleProperty() {
+        return staticTitle;
+    }
 
-	public void setStaticTitle(String staticTitle) {
-		this.staticTitle.set(staticTitle);
-	}
-	
+    public void show() {
+        showFormStrategy.show(this);
+    }
+
+    public C getController() {
+        return controller;
+    }
+
+    public void setStaticTitle(String staticTitle) {
+        this.staticTitle.set(staticTitle);
+    }
+
 }

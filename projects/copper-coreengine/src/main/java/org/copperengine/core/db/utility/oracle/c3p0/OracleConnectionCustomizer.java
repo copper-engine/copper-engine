@@ -24,15 +24,15 @@ import com.mchange.v2.c3p0.AbstractConnectionCustomizer;
 
 public class OracleConnectionCustomizer extends AbstractConnectionCustomizer {
 
-	private static final Logger logger = LoggerFactory.getLogger(OracleConnectionCustomizer.class);
+    private static final Logger logger = LoggerFactory.getLogger(OracleConnectionCustomizer.class);
 
-	@Override
-	public void onAcquire(Connection c, String parentDataSourceIdentityToken) throws Exception {
-		logger.info("Customizing OracleConnection "+c);
-		c.setAutoCommit(false);
-		//        OracleConnection oc = (OracleConnection)c;
-		//        oc.setImplicitCachingEnabled(true);
-		//        oc.setStatementCacheSize(20);
-		//        oc.setDefaultRowPrefetch(50);
-	}
+    @Override
+    public void onAcquire(Connection c, String parentDataSourceIdentityToken) throws Exception {
+        logger.info("Customizing OracleConnection " + c);
+        c.setAutoCommit(false);
+        // OracleConnection oc = (OracleConnection)c;
+        // oc.setImplicitCachingEnabled(true);
+        // oc.setStatementCacheSize(20);
+        // oc.setDefaultRowPrefetch(50);
+    }
 }

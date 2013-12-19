@@ -26,66 +26,60 @@ import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
 public class ExceptionHandlingTest {
 
-	@Test
-	public void testExceptionHandlingTestWF() throws Exception {
-		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
-		assertEquals(EngineState.STARTED,engine.getEngineState());
-		
-		try {
-			String data = "data";
+    @Test
+    public void testExceptionHandlingTestWF() throws Exception {
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
+        assertEquals(EngineState.STARTED, engine.getEngineState());
 
-			
-			final WorkflowInstanceDescr<String> descr = new WorkflowInstanceDescr<String>("org.copperengine.core.test.ExceptionHandlingTestWF");
-			descr.setId("1234456");
-			descr.setData(data);
-			
-			engine.run(descr);
-			
-			Thread.sleep(1000L);
-			
-			WorkflowInfo info = engine.queryWorkflowInstance(descr.getId());
-			
-			assertNull(info);
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
-	}
+        try {
+            String data = "data";
 
+            final WorkflowInstanceDescr<String> descr = new WorkflowInstanceDescr<String>("org.copperengine.core.test.ExceptionHandlingTestWF");
+            descr.setId("1234456");
+            descr.setData(data);
 
-	@Test
-	public void testIssueClassCastExceptionWorkflow3() throws Exception {
-		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
-		assertEquals(EngineState.STARTED,engine.getEngineState());
-		
-		try {
-			String data = "data";
+            engine.run(descr);
 
-			
-			final WorkflowInstanceDescr<String> descr = new WorkflowInstanceDescr<String>("org.copperengine.core.test.IssueClassCastExceptionWorkflow3");
-			descr.setId("1234456");
-			descr.setData(data);
-			
-			engine.run(descr);
-			
-			Thread.sleep(1000L);
-			
-			WorkflowInfo info = engine.queryWorkflowInstance(descr.getId());
-			
-			assertNull(info);
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		
-	}
-	
+            Thread.sleep(1000L);
+
+            WorkflowInfo info = engine.queryWorkflowInstance(descr.getId());
+
+            assertNull(info);
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+
+    }
+
+    @Test
+    public void testIssueClassCastExceptionWorkflow3() throws Exception {
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
+        assertEquals(EngineState.STARTED, engine.getEngineState());
+
+        try {
+            String data = "data";
+
+            final WorkflowInstanceDescr<String> descr = new WorkflowInstanceDescr<String>("org.copperengine.core.test.IssueClassCastExceptionWorkflow3");
+            descr.setId("1234456");
+            descr.setData(data);
+
+            engine.run(descr);
+
+            Thread.sleep(1000L);
+
+            WorkflowInfo info = engine.queryWorkflowInstance(descr.getId());
+
+            assertNull(info);
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+
+    }
+
 }

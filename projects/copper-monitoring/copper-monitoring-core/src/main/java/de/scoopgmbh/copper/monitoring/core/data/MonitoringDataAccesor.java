@@ -27,63 +27,63 @@ import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataStorageInfo;
 import de.scoopgmbh.copper.monitoring.core.statistic.StatisticCreator;
 
 /**
-
  * warpper for {@link MonitoringDataStorage } to read data
  */
-public class MonitoringDataAccesor implements Serializable, MonitoringDataQuerys{
-	private static final long serialVersionUID = 1L;
+public class MonitoringDataAccesor implements Serializable, MonitoringDataQuerys {
+    private static final long serialVersionUID = 1L;
 
-	MonitoringDataStorage monitoringDataStorage; 
-	public MonitoringDataAccesor(MonitoringDataStorage readableInput) {
-		this.monitoringDataStorage = readableInput;
-	}
-	
-	@Override
-	public <T> List<T> getList(final MonitoringDataFilter<T> filter, Date from, Date to, long maxCount){
-		ArrayList<T> result = new ArrayList<T>();
-		int counter=0;
-		final Iterable<MonitoringData> read = monitoringDataStorage.readReverse(from,to);
-		for (MonitoringData data: read){
-			if (filter.isValid(data)){
-				result.add(filter.castValid(data));
-				counter++;
-			}
-			if (counter>=maxCount){
-				break;
-			}
-		}
-		return result;
-	}
-	
-	@Override
-	public Date getMonitoringDataMinDate(){
-		return monitoringDataStorage.getMinDate();
-	}
-	
-	@Override
-	public Date getMonitoringDataMaxDate(){
-		return monitoringDataStorage.getMaxDate();	
-	}
+    MonitoringDataStorage monitoringDataStorage;
 
-	@Override
-	public <T, R extends Serializable> List<List<R>> createStatistic(MonitoringDataFilter<T> filter,
-			List<StatisticCreator<T, R>> statisticCreators, Date from, Date to) throws RemoteException {
-		final Iterable<MonitoringData> read = monitoringDataStorage.read(from,to);
-		for (MonitoringData data: read){
-			if (filter.isValid(data)){
-				for (StatisticCreator<T,R> statisticCreator: statisticCreators){
-					statisticCreator.add(filter.castValid(data));
-				}
-			}
-		}
-		List<List<R>> result = new ArrayList<List<R>>();
-		for (StatisticCreator<T,R> statisticCreator: statisticCreators){
-			result.add(statisticCreator.getAggregatedResult());
-		}
-		return result;
-	}
+    public MonitoringDataAccesor(MonitoringDataStorage readableInput) {
+        this.monitoringDataStorage = readableInput;
+    }
 
-	public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
-		return monitoringDataStorage.getMonitroingDataStorageInfo();
-	}
+    @Override
+    public <T> List<T> getList(final MonitoringDataFilter<T> filter, Date from, Date to, long maxCount) {
+        ArrayList<T> result = new ArrayList<T>();
+        int counter = 0;
+        final Iterable<MonitoringData> read = monitoringDataStorage.readReverse(from, to);
+        for (MonitoringData data : read) {
+            if (filter.isValid(data)) {
+                result.add(filter.castValid(data));
+                counter++;
+            }
+            if (counter >= maxCount) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Date getMonitoringDataMinDate() {
+        return monitoringDataStorage.getMinDate();
+    }
+
+    @Override
+    public Date getMonitoringDataMaxDate() {
+        return monitoringDataStorage.getMaxDate();
+    }
+
+    @Override
+    public <T, R extends Serializable> List<List<R>> createStatistic(MonitoringDataFilter<T> filter,
+            List<StatisticCreator<T, R>> statisticCreators, Date from, Date to) throws RemoteException {
+        final Iterable<MonitoringData> read = monitoringDataStorage.read(from, to);
+        for (MonitoringData data : read) {
+            if (filter.isValid(data)) {
+                for (StatisticCreator<T, R> statisticCreator : statisticCreators) {
+                    statisticCreator.add(filter.castValid(data));
+                }
+            }
+        }
+        List<List<R>> result = new ArrayList<List<R>>();
+        for (StatisticCreator<T, R> statisticCreator : statisticCreators) {
+            result.add(statisticCreator.getAggregatedResult());
+        }
+        return result;
+    }
+
+    public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
+        return monitoringDataStorage.getMonitroingDataStorageInfo();
+    }
 }

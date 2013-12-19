@@ -18,6 +18,6 @@ package org.copperengine.core.test;
 import org.copperengine.core.util.BlockingResponseReceiver;
 
 public class SwitchCaseTestData {
-	public BlockingResponseReceiver<Integer> asyncResponseReceiver;
-	public TestEnum testEnumValue;
+    public BlockingResponseReceiver<Integer> asyncResponseReceiver;
+    public TestEnum testEnumValue;
 }

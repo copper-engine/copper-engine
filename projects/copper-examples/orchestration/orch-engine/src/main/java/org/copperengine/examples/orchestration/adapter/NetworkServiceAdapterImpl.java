@@ -31,47 +31,47 @@ import org.copperengine.network.mobile.services.SendSmsRequest;
         wsdlLocation = "classpath:wsdl/MobileNetworkServices.wsdl",
         endpointInterface = "org.copperengine.network.mobile.services.AsyncNetworkServiceResponseReceiver")
 public class NetworkServiceAdapterImpl implements NetworkServiceAdapter, AsyncNetworkServiceResponseReceiver {
-	
-	private ProcessingEngine engine;
-	private String callbachURI;
-	private NetworkServiceProvider networkServiceProvider;
-	
-	public void setEngine(ProcessingEngine engine) {
-		this.engine = engine;
-	}
-	
-	public void setCallbachURI(String callbachURI) {
-		this.callbachURI = callbachURI;
-	}
-	
-	public void setNetworkServiceProvider(NetworkServiceProvider networkServiceProvider) {
-		this.networkServiceProvider = networkServiceProvider;
-	}
 
-	@Override
-	public String resetMailbox(String msisdn) {
-		ResetMailboxRequest parameters = new ResetMailboxRequest();
-		parameters.setMsisdn(msisdn);
-		parameters.setCallback(callbachURI);
-		ResetMailboxAcknowledge rv = networkServiceProvider.asyncResetMailbox(parameters );
-		return rv.getCorrelationId();
-	}
+    private ProcessingEngine engine;
+    private String callbachURI;
+    private NetworkServiceProvider networkServiceProvider;
 
-	@Override
-	public void resetMailboxResponse(String correlationId, boolean success, int returnCode) {
-		ResetMailboxResponse payload = new ResetMailboxResponse(success, returnCode);
-		Response<ResetMailboxResponse> response = new Response<ResetMailboxResponse>(correlationId, payload, null);
-		Acknowledge.DefaultAcknowledge ack = new Acknowledge.DefaultAcknowledge(); 
-		engine.notify(response, ack);
-		ack.waitForAcknowledge();
-	}
+    public void setEngine(ProcessingEngine engine) {
+        this.engine = engine;
+    }
 
-	@Override
-	public void sendSMS(String msisdn, String msg) {
-		SendSmsRequest parameters = new SendSmsRequest();
-		parameters.setMessage(msg);
-		parameters.setMsisdn(msisdn);
-		networkServiceProvider.sendSMS(parameters);
-	}
+    public void setCallbachURI(String callbachURI) {
+        this.callbachURI = callbachURI;
+    }
+
+    public void setNetworkServiceProvider(NetworkServiceProvider networkServiceProvider) {
+        this.networkServiceProvider = networkServiceProvider;
+    }
+
+    @Override
+    public String resetMailbox(String msisdn) {
+        ResetMailboxRequest parameters = new ResetMailboxRequest();
+        parameters.setMsisdn(msisdn);
+        parameters.setCallback(callbachURI);
+        ResetMailboxAcknowledge rv = networkServiceProvider.asyncResetMailbox(parameters);
+        return rv.getCorrelationId();
+    }
+
+    @Override
+    public void resetMailboxResponse(String correlationId, boolean success, int returnCode) {
+        ResetMailboxResponse payload = new ResetMailboxResponse(success, returnCode);
+        Response<ResetMailboxResponse> response = new Response<ResetMailboxResponse>(correlationId, payload, null);
+        Acknowledge.DefaultAcknowledge ack = new Acknowledge.DefaultAcknowledge();
+        engine.notify(response, ack);
+        ack.waitForAcknowledge();
+    }
+
+    @Override
+    public void sendSMS(String msisdn, String msg) {
+        SendSmsRequest parameters = new SendSmsRequest();
+        parameters.setMessage(msg);
+        parameters.setMsisdn(msisdn);
+        networkServiceProvider.sendSMS(parameters);
+    }
 
 }

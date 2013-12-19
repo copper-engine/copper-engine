@@ -20,55 +20,56 @@ import java.net.URL;
 
 import javafx.scene.Node;
 
-public class GenericFilterController<T> extends BaseFilterController<T>{
-	
-	public static final URL EMPTY_DUMMY_URL;
-	static{
-		try {
-			EMPTY_DUMMY_URL = new URL("http://a");
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	private final T filter;
-	private long refereshIntervall;
-	public GenericFilterController(T filter,long refereshIntervall) {
-		super();
-		this.filter = filter;
-		this.refereshIntervall = refereshIntervall;
-	}
-	
-	public GenericFilterController(T filter) {
-		this(filter,FilterController.DEFAULT_REFRESH_INTERVALL);
-	}
-	
-	public GenericFilterController(long refereshIntervall) {
-		this(null,refereshIntervall);
-	}
+public class GenericFilterController<T> extends BaseFilterController<T> {
 
-	@Override
-	public URL getFxmlResource() {
-		return EMPTY_DUMMY_URL;
-	}
+    public static final URL EMPTY_DUMMY_URL;
+    static {
+        try {
+            EMPTY_DUMMY_URL = new URL("http://a");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Override
-	public T getFilter() {
-		return filter;
-	}
+    private final T filter;
+    private long refereshIntervall;
 
-	@Override
-	public boolean supportsFiltering() {
-		return filter!=null;
-	}
-	
-	@Override
-	public long getDefaultRefreshInterval() {
-		return refereshIntervall;
-	}
+    public GenericFilterController(T filter, long refereshIntervall) {
+        super();
+        this.filter = filter;
+        this.refereshIntervall = refereshIntervall;
+    }
 
-	@Override
-	public Node createDefaultFilter() {
-		return null;
-	}
+    public GenericFilterController(T filter) {
+        this(filter, FilterController.DEFAULT_REFRESH_INTERVALL);
+    }
+
+    public GenericFilterController(long refereshIntervall) {
+        this(null, refereshIntervall);
+    }
+
+    @Override
+    public URL getFxmlResource() {
+        return EMPTY_DUMMY_URL;
+    }
+
+    @Override
+    public T getFilter() {
+        return filter;
+    }
+
+    @Override
+    public boolean supportsFiltering() {
+        return filter != null;
+    }
+
+    @Override
+    public long getDefaultRefreshInterval() {
+        return refereshIntervall;
+    }
+
+    @Override
+    public Node createDefaultFilter() {
+        return null;
+    }
 }

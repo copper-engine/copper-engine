@@ -20,26 +20,24 @@ import java.util.Map;
 
 /**
  * A builder for {@link DefaultPersistenceContextFactoryConfiguration}.
+ * 
  * @author Roland Scheel
- *
  */
 public class DefaultPersistenceContextFactoryConfigurationBuilder {
-	
-	Map<Class<?>, DefaultEntityPersisterFactory<?,?>> persisterFactories 
-	    = new HashMap<Class<?>, DefaultEntityPersisterFactory<?,?>>();
-	
-	public <E, F extends DefaultEntityPersisterFactory<E, ? extends DefaultEntityPersister<E>>> DefaultPersistenceContextFactoryConfigurationBuilder addPersisterFactory(
-			F persisterFactory) {
-		DefaultEntityPersisterFactory<?,?> oldValue = persisterFactories.put(persisterFactory.getEntityClass(), persisterFactory);
-		if (oldValue != null && oldValue != persisterFactory) {
-			throw new RuntimeException("Only one persister factory per entity class is allowed");
-		}
-		return this;
-	}
-	
-	public DefaultPersistenceContextFactoryConfiguration compile() {
-		return new DefaultPersistenceContextFactoryConfiguration(persisterFactories);
-	}
-	
+
+    Map<Class<?>, DefaultEntityPersisterFactory<?, ?>> persisterFactories = new HashMap<Class<?>, DefaultEntityPersisterFactory<?, ?>>();
+
+    public <E, F extends DefaultEntityPersisterFactory<E, ? extends DefaultEntityPersister<E>>> DefaultPersistenceContextFactoryConfigurationBuilder addPersisterFactory(
+            F persisterFactory) {
+        DefaultEntityPersisterFactory<?, ?> oldValue = persisterFactories.put(persisterFactory.getEntityClass(), persisterFactory);
+        if (oldValue != null && oldValue != persisterFactory) {
+            throw new RuntimeException("Only one persister factory per entity class is allowed");
+        }
+        return this;
+    }
+
+    public DefaultPersistenceContextFactoryConfiguration compile() {
+        return new DefaultPersistenceContextFactoryConfiguration(persisterFactories);
+    }
 
 }

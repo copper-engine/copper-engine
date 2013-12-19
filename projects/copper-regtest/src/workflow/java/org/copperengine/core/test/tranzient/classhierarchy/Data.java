@@ -18,14 +18,16 @@ package org.copperengine.core.test.tranzient.classhierarchy;
 import org.copperengine.core.util.BlockingResponseReceiver;
 
 public class Data {
-	public int data;
-	public BlockingResponseReceiver<Data> responseReceiver;
-	public Data(int data, BlockingResponseReceiver<Data> responseReceiver) {
-		super();
-		this.data = data;
-		this.responseReceiver = responseReceiver;
-	}
-	public void reply() {
-		responseReceiver.setResponse(this);
-	}
+    public int data;
+    public BlockingResponseReceiver<Data> responseReceiver;
+
+    public Data(int data, BlockingResponseReceiver<Data> responseReceiver) {
+        super();
+        this.data = data;
+        this.responseReceiver = responseReceiver;
+    }
+
+    public void reply() {
+        responseReceiver.setResponse(this);
+    }
 }

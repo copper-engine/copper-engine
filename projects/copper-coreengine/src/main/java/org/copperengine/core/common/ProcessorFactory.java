@@ -15,7 +15,6 @@
  */
 package org.copperengine.core.common;
 
-
 import java.util.Queue;
 
 import org.copperengine.core.ProcessingEngine;

@@ -22,24 +22,23 @@ import java.util.Collection;
  * Abstract base implementation of the {@link BatchExecutorBase} interface.
  * 
  * @author austermann
- *
  * @param <E>
  * @param <T>
  */
-public abstract class BatchExecutor<E extends BatchExecutor<E,T>, T extends BatchCommand<E,T>> implements BatchExecutorBase<E,T> {
+public abstract class BatchExecutor<E extends BatchExecutor<E, T>, T extends BatchCommand<E, T>> implements BatchExecutorBase<E, T> {
 
-	private final String id = this.getClass().getName();
+    private final String id = this.getClass().getName();
 
-	@Override
-	public abstract void doExec(Collection<BatchCommand<E,T>> commands, Connection connection) throws Exception;
+    @Override
+    public abstract void doExec(Collection<BatchCommand<E, T>> commands, Connection connection) throws Exception;
 
-	public boolean prioritize() {
-		return false;
-	}
+    public boolean prioritize() {
+        return false;
+    }
 
-	@Override
-	public String id() {
-		return id;
-	}
+    @Override
+    public String id() {
+        return id;
+    }
 
 }

@@ -21,60 +21,54 @@ import org.copperengine.core.InterruptException;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.persistent.PersistentWorkflow;
-import org.copperengine.core.test.versioning.compatibility.CompatibilityCheckWorkflowDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /**
  * Incompatible change example E001
- * 
  * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
- * 
  * adding a new parameter to a directly or indirectly waiting method
- *
+ * 
  * @author austermann
- *
  */
-@WorkflowDescription(alias=CompatibilityCheckWorkflowDef.NAME,majorVersion=1,minorVersion=1,patchLevelVersion=0001)
+@WorkflowDescription(alias = CompatibilityCheckWorkflowDef.NAME, majorVersion = 1, minorVersion = 1, patchLevelVersion = 0001)
 public class CompatibilityCheckWorkflow_E001 extends PersistentWorkflow<Serializable> {
-	
-	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_E001.class);
 
-	private static final long serialVersionUID = 1L;
-	
-	private String aString;
-	private String bString;
-	
-	@Override
-	public void main() throws InterruptException {
-		aString = "A";
-		int localIntValue = 1;
-		directlyWaitingMethod(aString, localIntValue, "NEW_PARAM");
-		bString = "B";
-		localIntValue++;
-		indirectlyWaitingMethod(bString, localIntValue);
-	}
-	
-	protected void directlyWaitingMethod(String strValue, int intValue, String NEW_PARAMETER) throws InterruptException {
-		neverWaitingMethod(strValue, intValue);
-		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
-	}
-	
-	protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
-		final Object localObject = 10867L;
-		directlyWaitingMethod(strValue, intValue, "NEW_PARAM");
-		logger.debug("{}", localObject);
-	}
-	
-	protected void neverWaitingMethod(String strValue, int intValue) {
-		logger.debug("strValue="+strValue+", intValue="+intValue);
-		anotherNeverWaitingMethod(strValue, intValue);
-	}
-	
-	protected void anotherNeverWaitingMethod(String strValue, int intValue) {
-		logger.debug("strValue="+strValue+", intValue="+intValue);
-	}
+    private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_E001.class);
+
+    private static final long serialVersionUID = 1L;
+
+    private String aString;
+    private String bString;
+
+    @Override
+    public void main() throws InterruptException {
+        aString = "A";
+        int localIntValue = 1;
+        directlyWaitingMethod(aString, localIntValue, "NEW_PARAM");
+        bString = "B";
+        localIntValue++;
+        indirectlyWaitingMethod(bString, localIntValue);
+    }
+
+    protected void directlyWaitingMethod(String strValue, int intValue, String NEW_PARAMETER) throws InterruptException {
+        neverWaitingMethod(strValue, intValue);
+        this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
+    }
+
+    protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+        final Object localObject = 10867L;
+        directlyWaitingMethod(strValue, intValue, "NEW_PARAM");
+        logger.debug("{}", localObject);
+    }
+
+    protected void neverWaitingMethod(String strValue, int intValue) {
+        logger.debug("strValue=" + strValue + ", intValue=" + intValue);
+        anotherNeverWaitingMethod(strValue, intValue);
+    }
+
+    protected void anotherNeverWaitingMethod(String strValue, int intValue) {
+        logger.debug("strValue=" + strValue + ", intValue=" + intValue);
+    }
 
 }

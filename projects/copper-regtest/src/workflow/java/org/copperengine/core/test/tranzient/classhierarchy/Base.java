@@ -25,63 +25,69 @@ import org.copperengine.core.Workflow;
 import org.copperengine.core.test.MockAdapter;
 import org.copperengine.core.util.BlockingResponseReceiver;
 
-
 public abstract class Base extends Workflow<BlockingResponseReceiver<Integer>> {
 
-	private static final long serialVersionUID = 1L;
-	
-	protected int counter = 0;
-	protected int i;
-	private String cid; 
-	private String cid1; 
-	private String cid2; 
-	private long startTS;
-	
-	protected MockAdapter mockAdapter;
-	
-	@AutoWire
-	public void setMockAdapter(MockAdapter mockAdapter) {
-		this.mockAdapter = mockAdapter;
-	}
-	
+    private static final long serialVersionUID = 1L;
 
-	protected void doubleWait() throws InterruptException {
-		// test double call
-		cid1 = getEngine().createUUID();
-		cid2 = getEngine().createUUID();
-		mockAdapter.foo("foo", cid1);
-		mockAdapter.foo("foo", cid2);
-		wait(WaitMode.ALL, 5000, TimeUnit.MILLISECONDS, cid1, cid2);
-		Response<String> x1 = getAndRemoveResponse(cid1);
-		Response<String> x2 = getAndRemoveResponse(cid2);
-		if (x1 == null) throw new AssertionError();
-		if (x2 == null) throw new AssertionError();
-		if (!x1.getCorrelationId().equals(cid1)) throw new AssertionError();
-		if (!x2.getCorrelationId().equals(cid2)) throw new AssertionError();
-		if (getAndRemoveResponse(cid1) != null) throw new AssertionError();
-		if (getAndRemoveResponse(cid2) != null) throw new AssertionError();
-		if (!x1.getResponse().equals("foo")) throw new AssertionError();
-		if (!x2.getResponse().equals("foo")) throw new AssertionError();
-	}
+    protected int counter = 0;
+    protected int i;
+    private String cid;
+    private String cid1;
+    private String cid2;
+    private long startTS;
 
-	protected void simulateTimeout() throws InterruptException {
-		// simulate timeout
-		startTS = System.currentTimeMillis();
-		wait(WaitMode.FIRST, 500, TimeUnit.MILLISECONDS, getEngine().createUUID(), getEngine().createUUID());
-		assert (System.currentTimeMillis() > startTS+490L);
-	}
+    protected MockAdapter mockAdapter;
 
-	protected void mockAsync() throws InterruptException {
-		cid = getEngine().createUUID();
-		mockAdapter.incrementSync(counter, cid);
-		waitForAll(cid);
-		counter = ((Integer)getAndRemoveResponse(cid).getResponse()).intValue();
-	}
+    @AutoWire
+    public void setMockAdapter(MockAdapter mockAdapter) {
+        this.mockAdapter = mockAdapter;
+    }
 
-	protected void mockSync() throws InterruptException {
-		cid = getEngine().createUUID();
-		mockAdapter.incrementAsync(counter, cid);
-		waitForAll(cid);
-		counter = ((Integer)getAndRemoveResponse(cid).getResponse()).intValue();
-	}
+    protected void doubleWait() throws InterruptException {
+        // test double call
+        cid1 = getEngine().createUUID();
+        cid2 = getEngine().createUUID();
+        mockAdapter.foo("foo", cid1);
+        mockAdapter.foo("foo", cid2);
+        wait(WaitMode.ALL, 5000, TimeUnit.MILLISECONDS, cid1, cid2);
+        Response<String> x1 = getAndRemoveResponse(cid1);
+        Response<String> x2 = getAndRemoveResponse(cid2);
+        if (x1 == null)
+            throw new AssertionError();
+        if (x2 == null)
+            throw new AssertionError();
+        if (!x1.getCorrelationId().equals(cid1))
+            throw new AssertionError();
+        if (!x2.getCorrelationId().equals(cid2))
+            throw new AssertionError();
+        if (getAndRemoveResponse(cid1) != null)
+            throw new AssertionError();
+        if (getAndRemoveResponse(cid2) != null)
+            throw new AssertionError();
+        if (!x1.getResponse().equals("foo"))
+            throw new AssertionError();
+        if (!x2.getResponse().equals("foo"))
+            throw new AssertionError();
+    }
+
+    protected void simulateTimeout() throws InterruptException {
+        // simulate timeout
+        startTS = System.currentTimeMillis();
+        wait(WaitMode.FIRST, 500, TimeUnit.MILLISECONDS, getEngine().createUUID(), getEngine().createUUID());
+        assert (System.currentTimeMillis() > startTS + 490L);
+    }
+
+    protected void mockAsync() throws InterruptException {
+        cid = getEngine().createUUID();
+        mockAdapter.incrementSync(counter, cid);
+        waitForAll(cid);
+        counter = ((Integer) getAndRemoveResponse(cid).getResponse()).intValue();
+    }
+
+    protected void mockSync() throws InterruptException {
+        cid = getEngine().createUUID();
+        mockAdapter.incrementAsync(counter, cid);
+        waitForAll(cid);
+        counter = ((Integer) getAndRemoveResponse(cid).getResponse()).intValue();
+    }
 }

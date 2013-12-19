@@ -15,16 +15,15 @@
  */
 package org.copperengine.core.audit;
 
-
 public class DummyPostProcessor implements MessagePostProcessor {
-	
-	@Override
-	public String serialize(String msg) {
-		return msg;
-	}
-	
-	@Override
-	public String deserialize(String msg) {
-		return msg;
-	}
+
+    @Override
+    public String serialize(String msg) {
+        return msg;
+    }
+
+    @Override
+    public String deserialize(String msg) {
+        return msg;
+    }
 }

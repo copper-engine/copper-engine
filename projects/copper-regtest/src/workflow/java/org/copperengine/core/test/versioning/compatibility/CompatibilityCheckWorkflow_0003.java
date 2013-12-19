@@ -21,81 +21,75 @@ import org.copperengine.core.InterruptException;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.persistent.PersistentWorkflow;
-import org.copperengine.core.test.versioning.compatibility.CompatibilityCheckWorkflowDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /**
  * Compatible change example 0003
- * 
  * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
- * 
  * Adding a new method and using it somewhere/everywhere within the workflow
- *
- * Important: The new method does not use COPPERs wait directly or indirectly and it does not declare to throw InterruptException
+ * Important: The new method does not use COPPERs wait directly or indirectly and it does not declare to throw
+ * InterruptException
  * 
  * @author austermann
- *
  */
-@WorkflowDescription(alias=CompatibilityCheckWorkflowDef.NAME,majorVersion=1,minorVersion=0,patchLevelVersion=0003)
+@WorkflowDescription(alias = CompatibilityCheckWorkflowDef.NAME, majorVersion = 1, minorVersion = 0, patchLevelVersion = 0003)
 public class CompatibilityCheckWorkflow_0003 extends PersistentWorkflow<Serializable> {
-	
-	private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_0003.class);
 
-	private static final long serialVersionUID = 1L;
-	
-	private String aString;
-	private String bString;
-	
-	@Override
-	public void main() throws InterruptException {
-		NEW_NeverWaitingMethod("test",1);
-		aString = "A";
-		NEW_NeverWaitingMethod("test",1);
-		int localIntValue = 1;
-		NEW_NeverWaitingMethod("test",1);
-		directlyWaitingMethod(aString, localIntValue);
-		NEW_NeverWaitingMethod("test",1);
-		bString = "B";
-		NEW_NeverWaitingMethod("test",1);
-		localIntValue++;
-		NEW_NeverWaitingMethod("test",1);
-		indirectlyWaitingMethod(bString, localIntValue);
-		NEW_NeverWaitingMethod("test",1);
-	}
-	
-	protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
-		NEW_NeverWaitingMethod("test",1);
-		neverWaitingMethod(strValue, intValue);
-		NEW_NeverWaitingMethod("test",1);
-		this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
-		NEW_NeverWaitingMethod("test",1);
-	}
-	
-	protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
-		NEW_NeverWaitingMethod("test",1);
-		final Object localObject = 10867L;
-		NEW_NeverWaitingMethod("test",1);
-		directlyWaitingMethod(strValue, intValue);
-		NEW_NeverWaitingMethod("test",1);
-		logger.debug("{}", localObject);
-		NEW_NeverWaitingMethod("test",1);
-	}
-	
-	protected void neverWaitingMethod(String strValue, int intValue) {
-		logger.debug("strValue="+strValue+", intValue="+intValue);
-		anotherNeverWaitingMethod(strValue, intValue);
-		NEW_NeverWaitingMethod("test",1);
-	}
-	
-	protected void anotherNeverWaitingMethod(String strValue, int intValue) {
-		logger.debug("strValue="+strValue+", intValue="+intValue);
-	}
+    private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_0003.class);
 
-	protected void NEW_NeverWaitingMethod(String strValue, int intValue) {
-		logger.debug("NEW strValue="+strValue+", intValue="+intValue);
-	}
+    private static final long serialVersionUID = 1L;
+
+    private String aString;
+    private String bString;
+
+    @Override
+    public void main() throws InterruptException {
+        NEW_NeverWaitingMethod("test", 1);
+        aString = "A";
+        NEW_NeverWaitingMethod("test", 1);
+        int localIntValue = 1;
+        NEW_NeverWaitingMethod("test", 1);
+        directlyWaitingMethod(aString, localIntValue);
+        NEW_NeverWaitingMethod("test", 1);
+        bString = "B";
+        NEW_NeverWaitingMethod("test", 1);
+        localIntValue++;
+        NEW_NeverWaitingMethod("test", 1);
+        indirectlyWaitingMethod(bString, localIntValue);
+        NEW_NeverWaitingMethod("test", 1);
+    }
+
+    protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+        NEW_NeverWaitingMethod("test", 1);
+        neverWaitingMethod(strValue, intValue);
+        NEW_NeverWaitingMethod("test", 1);
+        this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
+        NEW_NeverWaitingMethod("test", 1);
+    }
+
+    protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+        NEW_NeverWaitingMethod("test", 1);
+        final Object localObject = 10867L;
+        NEW_NeverWaitingMethod("test", 1);
+        directlyWaitingMethod(strValue, intValue);
+        NEW_NeverWaitingMethod("test", 1);
+        logger.debug("{}", localObject);
+        NEW_NeverWaitingMethod("test", 1);
+    }
+
+    protected void neverWaitingMethod(String strValue, int intValue) {
+        logger.debug("strValue=" + strValue + ", intValue=" + intValue);
+        anotherNeverWaitingMethod(strValue, intValue);
+        NEW_NeverWaitingMethod("test", 1);
+    }
+
+    protected void anotherNeverWaitingMethod(String strValue, int intValue) {
+        logger.debug("strValue=" + strValue + ", intValue=" + intValue);
+    }
+
+    protected void NEW_NeverWaitingMethod(String strValue, int intValue) {
+        logger.debug("NEW strValue=" + strValue + ", intValue=" + intValue);
+    }
 
 }

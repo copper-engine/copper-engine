@@ -30,32 +30,31 @@ import org.slf4j.LoggerFactory;
         endpointInterface = "org.copperengine.orchestration.OrchestrationService")
 public class OrchestrationInputAdapter implements OrchestrationService {
 
-	private static final Logger logger = LoggerFactory.getLogger(OrchestrationInputAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrchestrationInputAdapter.class);
 
-	private ProcessingEngine engine;
-	private String wfName = ResetMailboxDef.NAME;
+    private ProcessingEngine engine;
+    private String wfName = ResetMailboxDef.NAME;
 
-	public void setWfName(String wfName) {
-		this.wfName = wfName;
-	}
+    public void setWfName(String wfName) {
+        this.wfName = wfName;
+    }
 
-	public void setEngine(ProcessingEngine engine) {
-		this.engine = engine;
-	}
+    public void setEngine(ProcessingEngine engine) {
+        this.engine = engine;
+    }
 
-	@Override
-	public void resetMailbox(String msisdn, String secret) {
-		try {
-			logger.info("resetMailbox(msisdn={}, secret={})", msisdn, secret);
-			ResetMailboxData data = new ResetMailboxData();
-			data.setMsisdn(msisdn);
-			data.setSecret(secret);
-			engine.run(wfName, data);
-			logger.info("Workflow instance {} launched", wfName);
-		}
-		catch(Exception e) {
-			logger.error("resetMailbox failed",e);
-		}
-	}
+    @Override
+    public void resetMailbox(String msisdn, String secret) {
+        try {
+            logger.info("resetMailbox(msisdn={}, secret={})", msisdn, secret);
+            ResetMailboxData data = new ResetMailboxData();
+            data.setMsisdn(msisdn);
+            data.setSecret(secret);
+            engine.run(wfName, data);
+            logger.info("Workflow instance {} launched", wfName);
+        } catch (Exception e) {
+            logger.error("resetMailbox failed", e);
+        }
+    }
 
 }

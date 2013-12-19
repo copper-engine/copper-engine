@@ -20,20 +20,19 @@ import java.io.ObjectStreamClass;
 
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 
-
 public class TestWorkflowRepository extends FileBasedWorkflowRepository {
 
-	String triggerClassname = null; 
-	String overrideClassname = null;
-	
-	@Override
-	public Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-		if (triggerClassname == null || overrideClassname == null || !desc.getName().equals(triggerClassname)) {
-			return super.resolveClass(desc);
-		}
-		else {
-			return Class.forName(overrideClassname,false,super.getClassLoader());
-		}
-	}
+    String triggerClassname = null;
+    String overrideClassname = null;
+
+    @Override
+    public Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+        if (triggerClassname == null || overrideClassname == null || !desc.getName().equals(triggerClassname)) {
+            return super.resolveClass(desc);
+        }
+        else {
+            return Class.forName(overrideClassname, false, super.getClassLoader());
+        }
+    }
 
 }

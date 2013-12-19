@@ -23,82 +23,77 @@ import org.copperengine.core.batcher.BatchExecutor;
 import org.copperengine.core.batcher.CommandCallback;
 import org.copperengine.core.batcher.NullCallback;
 import org.copperengine.core.batcher.RetryingTxnBatchRunner;
-import org.copperengine.core.batcher.impl.BatcherImpl;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class BatcherImplTest {
-	
-	private static final Logger logger = LoggerFactory.getLogger(BatcherImplTest.class);
-	
-	static final class TestBatchCommand implements BatchCommand<TestBatchExecutor, TestBatchCommand> {
 
-		long targetTime = System.currentTimeMillis() + 1000;
-		String data;
-		
-		public TestBatchCommand(String data) {
-			this.data = data;
-		}
-		
-		@Override
-		public CommandCallback<TestBatchCommand> callback() {
-			return new NullCallback<TestBatchCommand>();
-		}
+    private static final Logger logger = LoggerFactory.getLogger(BatcherImplTest.class);
 
-		@Override
-		public TestBatchExecutor executor() {
-			return TestBatchExecutor.INSTANCE;
-		}
+    static final class TestBatchCommand implements BatchCommand<TestBatchExecutor, TestBatchCommand> {
 
-		@Override
-		public long targetTime() {
-			return targetTime;
-		}
-	};
-	
-	static final class TestBatchExecutor extends BatchExecutor<TestBatchExecutor, TestBatchCommand> {
-		
-		public static TestBatchExecutor INSTANCE = new TestBatchExecutor();
+        long targetTime = System.currentTimeMillis() + 1000;
+        String data;
 
-		@Override
-		public void doExec(final Collection<BatchCommand<TestBatchExecutor, TestBatchCommand>> commands, final Connection con) throws Exception {
-			logger.debug("new batch:");
-			for (BatchCommand<TestBatchExecutor, TestBatchCommand> cmd : commands) {
-				logger.debug(((TestBatchCommand)cmd).data);
-			}
-		}
+        public TestBatchCommand(String data) {
+            this.data = data;
+        }
 
-		@Override
-		public int maximumBatchSize() {
-			return 100;
-		}
+        @Override
+        public CommandCallback<TestBatchCommand> callback() {
+            return new NullCallback<TestBatchCommand>();
+        }
 
-		@Override
-		public int preferredBatchSize() {
-			return 50;
-		}
-		
-	}
-	
-	
+        @Override
+        public TestBatchExecutor executor() {
+            return TestBatchExecutor.INSTANCE;
+        }
 
-	@SuppressWarnings("rawtypes")
-	@Test
-	public final void testSubmitBatchCommand() throws InterruptedException {
-		BatcherImpl batcher = new BatcherImpl(2);
-		batcher.setBatchRunner(new RetryingTxnBatchRunner());
-		batcher.startup();
-		try {
-			for (int i=0; i<100; i++) {
-				batcher.submitBatchCommand(new TestBatchCommand("Test#"+i));
-			}
-			Thread.sleep(5000);
-		}
-		finally {
-			batcher.shutdown();
-		}
-	}
+        @Override
+        public long targetTime() {
+            return targetTime;
+        }
+    };
+
+    static final class TestBatchExecutor extends BatchExecutor<TestBatchExecutor, TestBatchCommand> {
+
+        public static TestBatchExecutor INSTANCE = new TestBatchExecutor();
+
+        @Override
+        public void doExec(final Collection<BatchCommand<TestBatchExecutor, TestBatchCommand>> commands, final Connection con) throws Exception {
+            logger.debug("new batch:");
+            for (BatchCommand<TestBatchExecutor, TestBatchCommand> cmd : commands) {
+                logger.debug(((TestBatchCommand) cmd).data);
+            }
+        }
+
+        @Override
+        public int maximumBatchSize() {
+            return 100;
+        }
+
+        @Override
+        public int preferredBatchSize() {
+            return 50;
+        }
+
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Test
+    public final void testSubmitBatchCommand() throws InterruptedException {
+        BatcherImpl batcher = new BatcherImpl(2);
+        batcher.setBatchRunner(new RetryingTxnBatchRunner());
+        batcher.startup();
+        try {
+            for (int i = 0; i < 100; i++) {
+                batcher.submitBatchCommand(new TestBatchCommand("Test#" + i));
+            }
+            Thread.sleep(5000);
+        } finally {
+            batcher.shutdown();
+        }
+    }
 
 }

@@ -19,30 +19,30 @@ import java.io.Serializable;
 
 /**
  * Base class for persistent entities that will be used by the default entity sql code generator.
+ * 
  * @author Roland Scheel
- *
  */
 public class PersistentEntity implements Serializable, Cloneable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	String entityId;		
+    String entityId;
 
-	public void setEntityId(String entityId) {
-		this.entityId = entityId;
-	}
-	
-	public String getEntityId() {
-		return entityId;
-	}
-	
-	@Override
-	public PersistentEntity clone() {
-		try {
-			return (PersistentEntity)super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
+    }
+
+    public String getEntityId() {
+        return entityId;
+    }
+
+    @Override
+    public PersistentEntity clone() {
+        try {
+            return (PersistentEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

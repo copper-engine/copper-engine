@@ -25,68 +25,68 @@ import ch.qos.logback.core.AppenderBase;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
-public class MonitoringLogbackDataProvider extends AppenderBase<ILoggingEvent> implements MonitoringDataProvider{
-	
-	public static final String APPENDER_NAME="MonitoringLogDataProviderAppender";
-	
-	MonitoringDataCollector monitoringDataCollector;
-	
-	
-	public MonitoringLogbackDataProvider(MonitoringDataCollector monitoringDataCollector) {
-		super();
-		this.monitoringDataCollector = monitoringDataCollector;
-		
-		this.setName(APPENDER_NAME);
-	}
+public class MonitoringLogbackDataProvider extends AppenderBase<ILoggingEvent> implements MonitoringDataProvider {
 
-	public void addToRootLogger() {
-		Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-		setContext(root.getLoggerContext());
-		root.addAppender(this);
-		start();
-	}
-	
-	public void removeFromRootLogger() {
-		stop();
-		Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-		setContext(root.getLoggerContext());
-		root.detachAppender(this);
-	}
+    public static final String APPENDER_NAME = "MonitoringLogDataProviderAppender";
 
-	@Override
-	protected void append(ILoggingEvent event) {
-		final StackTraceElement stackTraceElement = event.getCallerData()[0];
-		monitoringDataCollector.submitLogEvent(new Date(event.getTimeStamp()),event.getLevel().toString(),
-				stackTraceElement.getClassName()+":"+stackTraceElement.getLineNumber()
-				,event.getFormattedMessage());
-	}
-	
-	public Status status=Status.CREATED;
-	@Override
-	public void startProvider() {
-		status=Status.STARTED;
-		addToRootLogger();
-	}
+    MonitoringDataCollector monitoringDataCollector;
 
-	@Override
-	public void stopProvider() {
-		removeFromRootLogger();
-		status=Status.STOPPED;
-	}
+    public MonitoringLogbackDataProvider(MonitoringDataCollector monitoringDataCollector) {
+        super();
+        this.monitoringDataCollector = monitoringDataCollector;
 
-	@Override
-	public Status getProviderStatus() {
-		return status;
-	}
+        this.setName(APPENDER_NAME);
+    }
 
-	@Override
-	public String getProviderName() {
-		return getClass().getSimpleName();
-	}
-	
-	@Override
-	public MonitoringDataProviderInfo createInfo() {
-		return new MonitoringDataProviderInfo(getProviderName(),getProviderStatus().toString());
-	}
+    public void addToRootLogger() {
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        setContext(root.getLoggerContext());
+        root.addAppender(this);
+        start();
+    }
+
+    public void removeFromRootLogger() {
+        stop();
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        setContext(root.getLoggerContext());
+        root.detachAppender(this);
+    }
+
+    @Override
+    protected void append(ILoggingEvent event) {
+        final StackTraceElement stackTraceElement = event.getCallerData()[0];
+        monitoringDataCollector.submitLogEvent(new Date(event.getTimeStamp()), event.getLevel().toString(),
+                stackTraceElement.getClassName() + ":" + stackTraceElement.getLineNumber()
+                , event.getFormattedMessage());
+    }
+
+    public Status status = Status.CREATED;
+
+    @Override
+    public void startProvider() {
+        status = Status.STARTED;
+        addToRootLogger();
+    }
+
+    @Override
+    public void stopProvider() {
+        removeFromRootLogger();
+        status = Status.STOPPED;
+    }
+
+    @Override
+    public Status getProviderStatus() {
+        return status;
+    }
+
+    @Override
+    public String getProviderName() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
+    public MonitoringDataProviderInfo createInfo() {
+        return new MonitoringDataProviderInfo(getProviderName(), getProviderStatus().toString());
+    }
 
 }

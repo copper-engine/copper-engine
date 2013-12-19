@@ -19,42 +19,53 @@ import java.io.Serializable;
 
 public class JKWorkflowData implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
-	public enum Status {
-		OK,WARN,ERROR
-	}
-	private Status status;
-	private int errorNo;
-	private String errorMessage;
-	@Override
-	public String toString() {
-		return "JKWorkflowData [status=" + status + ", errorNo=" + errorNo
-				+ ", errorMessage=" + errorMessage + ", data=" + data + "]";
-	}
-	public Status getStatus() {
-		return status;
-	}
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-	public int getErrorNo() {
-		return errorNo;
-	}
-	public void setErrorNo(int errorNo) {
-		this.errorNo = errorNo;
-	}
-	public String getErrorMessage() {
-		return errorMessage;
-	}
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-	}
-	public String getData() {
-		return data;
-	}
-	public void setData(String data) {
-		this.data = data;
-	}
-	private String data;
+    private static final long serialVersionUID = 1L;
+
+    public enum Status {
+        OK, WARN, ERROR
+    }
+
+    private Status status;
+    private int errorNo;
+    private String errorMessage;
+
+    @Override
+    public String toString() {
+        return "JKWorkflowData [status=" + status + ", errorNo=" + errorNo
+                + ", errorMessage=" + errorMessage + ", data=" + data + "]";
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public int getErrorNo() {
+        return errorNo;
+    }
+
+    public void setErrorNo(int errorNo) {
+        this.errorNo = errorNo;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    private String data;
 }

@@ -19,6 +19,6 @@ import java.io.Serializable;
 
 public class PingData implements Serializable {
 
-	String pingMessage;
+    String pingMessage;
 
 }

@@ -21,10 +21,10 @@ import org.copperengine.core.util.AsyncResponseReceiver;
 
 public class NopTransientWorkflow extends Workflow<AsyncResponseReceiver<Integer>> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public void main() throws InterruptException {
-		getData().setResponse(Integer.valueOf(1));
-	}
+    @Override
+    public void main() throws InterruptException {
+        getData().setResponse(Integer.valueOf(1));
+    }
 }

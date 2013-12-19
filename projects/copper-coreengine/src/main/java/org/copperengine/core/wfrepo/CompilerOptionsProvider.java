@@ -18,5 +18,5 @@ package org.copperengine.core.wfrepo;
 import java.util.Collection;
 
 public interface CompilerOptionsProvider {
-	public Collection<String> getOptions();
+    public Collection<String> getOptions();
 }

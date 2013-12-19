@@ -18,18 +18,16 @@ package org.copperengine.core.test.versioning;
 import org.copperengine.core.InterruptException;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowDescription;
-import org.copperengine.core.test.versioning.VersionTestWorkflowDef;
 import org.copperengine.core.util.BlockingResponseReceiver;
 
-
-@WorkflowDescription(alias=VersionTestWorkflowDef.NAME,majorVersion=14,minorVersion=5,patchLevelVersion=67)
+@WorkflowDescription(alias = VersionTestWorkflowDef.NAME, majorVersion = 14, minorVersion = 5, patchLevelVersion = 67)
 public class VersionTestWorkflow_14_5_67 extends Workflow<BlockingResponseReceiver<String>> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public void main() throws InterruptException {
-		getData().setResponse(this.getClass().getName());
-	}
+    @Override
+    public void main() throws InterruptException {
+        getData().setResponse(this.getClass().getName());
+    }
 
 }

@@ -17,39 +17,37 @@ package de.scoopgmbh.copper.monitoring.core.model;
 
 import java.io.Serializable;
 
-public class StorageInfo implements Serializable{
-	private static final long serialVersionUID = 8298167440433882270L;
-	
-	String description;
-	BatcherInfo batcher;
+public class StorageInfo implements Serializable {
+    private static final long serialVersionUID = 8298167440433882270L;
 
-	public StorageInfo(String description, BatcherInfo batcher) {
-		super();
-		this.description = description;
-		this.batcher = batcher;
-	}
+    String description;
+    BatcherInfo batcher;
 
-	public BatcherInfo getBatcher() {
-		return batcher;
-	}
+    public StorageInfo(String description, BatcherInfo batcher) {
+        super();
+        this.description = description;
+        this.batcher = batcher;
+    }
 
-	public void setBatcher(BatcherInfo batcher) {
-		this.batcher = batcher;
-	}
+    public BatcherInfo getBatcher() {
+        return batcher;
+    }
 
-	public StorageInfo() {
-		super();
-		batcher= new BatcherInfo();
-	}
+    public void setBatcher(BatcherInfo batcher) {
+        this.batcher = batcher;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public StorageInfo() {
+        super();
+        batcher = new BatcherInfo();
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
-	
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
 }

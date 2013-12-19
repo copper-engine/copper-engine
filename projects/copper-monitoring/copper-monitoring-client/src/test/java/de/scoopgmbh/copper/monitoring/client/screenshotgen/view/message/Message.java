@@ -15,23 +15,20 @@
  */
 package de.scoopgmbh.copper.monitoring.client.screenshotgen.view.message;
 
-
+import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestFormContext;
-import javafx.scene.layout.BorderPane;
-
-
 
 public class Message extends ScreenshotPageBase {
-	
-	@Override
-	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createMessageForm().show();
-	}
 
-	@Override
-	public String getTitle() {
-		return "Messages";
-	}
+    @Override
+    public void initGui(BorderPane pane, TestFormContext testFormContext) {
+        testFormContext.createMessageForm().show();
+    }
+
+    @Override
+    public String getTitle() {
+        return "Messages";
+    }
 
 }

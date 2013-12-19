@@ -18,25 +18,25 @@ package de.scoopgmbh.copper.monitoring.client.ui.adaptermonitoring.result.animat
 import javafx.scene.Node;
 
 public abstract class AnimationPartBase {
-	public long startTime;
-	public long endTime;
-	public String id;
-	
-	public double startx;
-	public double starty;
-	public double endx;
-	public double endy;
+    public long startTime;
+    public long endTime;
+    public String id;
 
-	public AnimationPartBase(AnimationPartParameter parameterObject) {
-		super();
-		this.startTime = parameterObject.startTime;
-		this.endTime = parameterObject.endTime;
-		this.id = parameterObject.id;
-		this.startx = parameterObject.startx;
-		this.starty = parameterObject.starty;
-		this.endx = parameterObject.endx;
-		this.endy = parameterObject.endy;
-	}
-	
-	public abstract Node createVisualRepresentation();
+    public double startx;
+    public double starty;
+    public double endx;
+    public double endy;
+
+    public AnimationPartBase(AnimationPartParameter parameterObject) {
+        super();
+        this.startTime = parameterObject.startTime;
+        this.endTime = parameterObject.endTime;
+        this.id = parameterObject.id;
+        this.startx = parameterObject.startx;
+        this.starty = parameterObject.starty;
+        this.endx = parameterObject.endx;
+        this.endy = parameterObject.endy;
+    }
+
+    public abstract Node createVisualRepresentation();
 }

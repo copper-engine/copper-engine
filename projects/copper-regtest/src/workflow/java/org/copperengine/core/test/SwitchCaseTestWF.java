@@ -17,46 +17,41 @@ package org.copperengine.core.test;
 
 import org.copperengine.core.InterruptException;
 import org.copperengine.core.Workflow;
-import org.copperengine.core.test.SwitchCaseTestData;
 import org.junit.Assert;
-
-
 
 public class SwitchCaseTestWF extends Workflow<SwitchCaseTestData> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public void main() throws InterruptException {
-		try {
-			doSwitch();
-			getData().asyncResponseReceiver.setResponse(0);
-		}
-		catch(Exception e) {
-			getData().asyncResponseReceiver.setException(e);
-		}
-		catch(Error e) {
-			getData().asyncResponseReceiver.setException(new RuntimeException(e));
-		}
-	}
+    @Override
+    public void main() throws InterruptException {
+        try {
+            doSwitch();
+            getData().asyncResponseReceiver.setResponse(0);
+        } catch (Exception e) {
+            getData().asyncResponseReceiver.setException(e);
+        } catch (Error e) {
+            getData().asyncResponseReceiver.setException(new RuntimeException(e));
+        }
+    }
 
-	private void doSwitch() {
-		switch (getData().testEnumValue) {
-		case A:
-			Assert.fail();
-			break;
-		case B:
-			Assert.fail();
-			break;
-		case C:
-			break;
-		case D:
-			Assert.fail();
-			break;
-		default:
-			Assert.fail();
-			break;
-		}
-	}
+    private void doSwitch() {
+        switch (getData().testEnumValue) {
+            case A:
+                Assert.fail();
+                break;
+            case B:
+                Assert.fail();
+                break;
+            case C:
+                break;
+            case D:
+                Assert.fail();
+                break;
+            default:
+                Assert.fail();
+                break;
+        }
+    }
 
 }

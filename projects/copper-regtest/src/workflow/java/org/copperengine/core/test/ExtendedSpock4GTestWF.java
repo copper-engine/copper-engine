@@ -19,38 +19,35 @@ import org.copperengine.core.InterruptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ExtendedSpock4GTestWF extends Spock4GTestWF {
-	private static final Logger logger = LoggerFactory.getLogger(ExtendedSpock4GTestWF.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExtendedSpock4GTestWF.class);
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public void main() throws InterruptException {
-		logger.debug("started");
+    @Override
+    public void main() throws InterruptException {
+        logger.debug("started");
 
-		doSomething01();
+        doSomething01();
 
-		doSomething02();
+        doSomething02();
 
-		doSomething03();
+        doSomething03();
 
-		doSomething04();
+        doSomething04();
 
-		logger.debug("finished");
-	}
+        logger.debug("finished");
+    }
 
-	public ExtendedSpock4GTestWF() {
-	}
+    public ExtendedSpock4GTestWF() {
+    }
 
-	@Override
-	protected void abstractPartnersystemCall() throws InterruptException {
-		//resubmitt();
-		//changeProcessPool("PARNERSYSTEM_MOCK");
+    @Override
+    protected void abstractPartnersystemCall() throws InterruptException {
+        // resubmitt();
+        // changeProcessPool("PARNERSYSTEM_MOCK");
 
-
-
-		//changeProcessPool("DEFAULT");
-	}
+        // changeProcessPool("DEFAULT");
+    }
 
 }

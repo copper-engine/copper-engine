@@ -20,44 +20,44 @@ import java.util.List;
 
 public class ClassInfo implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
-	final List<MethodInfo> methodInfos;
-	      ClassInfo        superClassInfo;
-	      byte[]           sourceCode;
-	
-	public ClassInfo(List<MethodInfo> methodInfos) {
-		this.methodInfos = methodInfos;
-	}
-	
-	public void setSuperClassInfo(ClassInfo superClassInfo) {
-		this.superClassInfo = superClassInfo;
-	}
-	
-	public void setSourceCode(byte[] sourceCode) {
-		this.sourceCode = sourceCode;
-	}
-	
-	public List<MethodInfo> getMethodInfos() {
-		return methodInfos;
-	}
-	
-	public ClassInfo getSuperClassInfo() {
-		return superClassInfo;
-	}
-	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(2000);
-		sb.append("methods: \n");
-		for (MethodInfo info : methodInfos) {
-			sb.append("\t").append(info).append('\n');
-		}
-		return sb.toString();
-	}
+    private static final long serialVersionUID = 1L;
 
-	public byte[] getSourceCode() {
-		return sourceCode;
-	}
-	
+    final List<MethodInfo> methodInfos;
+    ClassInfo superClassInfo;
+    byte[] sourceCode;
+
+    public ClassInfo(List<MethodInfo> methodInfos) {
+        this.methodInfos = methodInfos;
+    }
+
+    public void setSuperClassInfo(ClassInfo superClassInfo) {
+        this.superClassInfo = superClassInfo;
+    }
+
+    public void setSourceCode(byte[] sourceCode) {
+        this.sourceCode = sourceCode;
+    }
+
+    public List<MethodInfo> getMethodInfos() {
+        return methodInfos;
+    }
+
+    public ClassInfo getSuperClassInfo() {
+        return superClassInfo;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(2000);
+        sb.append("methods: \n");
+        for (MethodInfo info : methodInfos) {
+            sb.append("\t").append(info).append('\n');
+        }
+        return sb.toString();
+    }
+
+    public byte[] getSourceCode() {
+        return sourceCode;
+    }
+
 }

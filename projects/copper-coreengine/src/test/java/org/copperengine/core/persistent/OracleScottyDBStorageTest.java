@@ -17,20 +17,19 @@ package org.copperengine.core.persistent;
 
 import static org.junit.Assert.assertTrue;
 
-import org.copperengine.core.persistent.OracleDialect;
 import org.junit.Test;
 
 public class OracleScottyDBStorageTest {
 
-	@Test
-	public void testcomputeLockId() {
-		assertTrue(OracleDialect.computeLockId("polygenelubricants") >= 0);
-		assertTrue(OracleDialect.computeLockId("polygenelubricants") < 1073741823);
+    @Test
+    public void testcomputeLockId() {
+        assertTrue(OracleDialect.computeLockId("polygenelubricants") >= 0);
+        assertTrue(OracleDialect.computeLockId("polygenelubricants") < 1073741823);
 
-		assertTrue(OracleDialect.computeLockId("234234") >= 0);
-		assertTrue(OracleDialect.computeLockId("234234") < 1073741823);
+        assertTrue(OracleDialect.computeLockId("234234") >= 0);
+        assertTrue(OracleDialect.computeLockId("234234") < 1073741823);
 
-		assertTrue(OracleDialect.computeLockId("test") >= 0);
-		assertTrue(OracleDialect.computeLockId("test") < 1073741823);
-}
+        assertTrue(OracleDialect.computeLockId("test") >= 0);
+        assertTrue(OracleDialect.computeLockId("test") < 1073741823);
+    }
 }

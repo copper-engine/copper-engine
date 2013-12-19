@@ -20,23 +20,22 @@ import org.copperengine.core.WaitMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ExtendedSpock2GTestWF extends Spock2GTestWF {
 
-	private static final Logger logger = LoggerFactory.getLogger(ExtendedSpock2GTestWF.class);
-	private static final long serialVersionUID = 1L;
-	private String correlationId;
-	
-	public ExtendedSpock2GTestWF() {
-	}
+    private static final Logger logger = LoggerFactory.getLogger(ExtendedSpock2GTestWF.class);
+    private static final long serialVersionUID = 1L;
+    private String correlationId;
 
-	@Override
-	protected void abstractPartnersystemCall() throws InterruptException {
-		correlationId = "ThisIsACustomCorrelationId"+System.nanoTime();
-		mockAdapter.foo("foo", correlationId);
-		logger.debug("Request sent, waiting...");
-		wait(WaitMode.ALL, 250, correlationId);
-		logger.debug("Waking up again, response="+super.getAndRemoveResponse(correlationId));
-	}
-	
+    public ExtendedSpock2GTestWF() {
+    }
+
+    @Override
+    protected void abstractPartnersystemCall() throws InterruptException {
+        correlationId = "ThisIsACustomCorrelationId" + System.nanoTime();
+        mockAdapter.foo("foo", correlationId);
+        logger.debug("Request sent, waiting...");
+        wait(WaitMode.ALL, 250, correlationId);
+        logger.debug("Waking up again, response=" + super.getAndRemoveResponse(correlationId));
+    }
+
 }

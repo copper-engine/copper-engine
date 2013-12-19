@@ -19,14 +19,16 @@ import java.util.List;
 
 import org.copperengine.management.model.MeasurePointData;
 
-
 public interface StatisticsCollectorMXBean {
-	
-	public void reset();
-	public String print();
-	public String print(String measurePointId);
-	public List<MeasurePointData> queryAll();
-	public MeasurePointData query(String measurePointId);
-	
-	
+
+    public void reset();
+
+    public String print();
+
+    public String print(String measurePointId);
+
+    public List<MeasurePointData> queryAll();
+
+    public MeasurePointData query(String measurePointId);
+
 }

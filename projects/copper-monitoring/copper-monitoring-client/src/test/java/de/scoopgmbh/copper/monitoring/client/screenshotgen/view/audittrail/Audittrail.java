@@ -15,23 +15,20 @@
  */
 package de.scoopgmbh.copper.monitoring.client.screenshotgen.view.audittrail;
 
-
+import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestFormContext;
-import javafx.scene.layout.BorderPane;
-
-
 
 public class Audittrail extends ScreenshotPageBase {
-	
-	@Override
-	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createAudittrailForm().show();
-	}
 
-	@Override
-	public String getTitle() {
-		return "Audittrail";
-	}
+    @Override
+    public void initGui(BorderPane pane, TestFormContext testFormContext) {
+        testFormContext.createAudittrailForm().show();
+    }
+
+    @Override
+    public String getTitle() {
+        return "Audittrail";
+    }
 
 }

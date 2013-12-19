@@ -56,694 +56,664 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
-@WorkflowDescription(alias="org.copperengine.core.test.persistent.BasePersistentWorkflowTest", majorVersion=1, minorVersion=2, patchLevelVersion=3)
+@WorkflowDescription(alias = "org.copperengine.core.test.persistent.BasePersistentWorkflowTest", majorVersion = 1, minorVersion = 2, patchLevelVersion = 3)
 public class BasePersistentWorkflowTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(BasePersistentWorkflowTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(BasePersistentWorkflowTest.class);
 
-	static final String PersistentUnitTestWorkflow_NAME = "org.copperengine.core.test.persistent.PersistentUnitTestWorkflow";
+    static final String PersistentUnitTestWorkflow_NAME = "org.copperengine.core.test.persistent.PersistentUnitTestWorkflow";
 
-	public final void testDummy() {
-		// for junit only
-	}
-	
-	protected boolean skipTests() {
-		return false;
-	}
+    public final void testDummy() {
+        // for junit only
+    }
 
-	void cleanDB(DataSource ds) throws Exception {
-		new RetryingTransaction<Void>(ds) {
-			@Override
-			protected Void execute() throws Exception {
-				Statement stmt = createStatement(getConnection());
-				stmt.execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
-				stmt.close();
-				stmt = createStatement(getConnection());
-				stmt.execute("DELETE FROM COP_WAIT");
-				stmt.close();
-				stmt = createStatement(getConnection());
-				stmt.execute("DELETE FROM COP_RESPONSE");
-				stmt.close();
-				stmt = createStatement(getConnection());
-				stmt.execute("DELETE FROM COP_QUEUE");
-				stmt.close();
-				stmt = createStatement(getConnection());
-				stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE");
-				stmt.close();
-				stmt = createStatement(getConnection());
-				stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
-				stmt.close();
-				return null;
-			}
-		}.run();
-	}
-	
-	private Statement createStatement(Connection con) throws SQLException {
-		return con.createStatement(
-		ResultSet.TYPE_SCROLL_INSENSITIVE,
-		ResultSet.CONCUR_READ_ONLY,
-		ResultSet.CLOSE_CURSORS_AT_COMMIT);
-	}
+    protected boolean skipTests() {
+        return false;
+    }
 
-	final String createTestData(int length) {
-		StringBuilder dataSB = new StringBuilder(length);
-		for (int i=0; i<length; i++) {
-			int pos = (int)(Math.random()*70.0);
-			dataSB.append("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!§$%&/()=?".substring(pos,pos+1));
-		}
-		return dataSB.toString(); 
-	}
+    void cleanDB(DataSource ds) throws Exception {
+        new RetryingTransaction<Void>(ds) {
+            @Override
+            protected Void execute() throws Exception {
+                Statement stmt = createStatement(getConnection());
+                stmt.execute("DELETE FROM COP_AUDIT_TRAIL_EVENT");
+                stmt.close();
+                stmt = createStatement(getConnection());
+                stmt.execute("DELETE FROM COP_WAIT");
+                stmt.close();
+                stmt = createStatement(getConnection());
+                stmt.execute("DELETE FROM COP_RESPONSE");
+                stmt.close();
+                stmt = createStatement(getConnection());
+                stmt.execute("DELETE FROM COP_QUEUE");
+                stmt.close();
+                stmt = createStatement(getConnection());
+                stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE");
+                stmt.close();
+                stmt = createStatement(getConnection());
+                stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
+                stmt.close();
+                return null;
+            }
+        }.run();
+    }
 
+    private Statement createStatement(Connection con) throws SQLException {
+        return con.createStatement(
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT);
+    }
 
-	public void testAsnychResponse(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testAsnychResponse");
-		final int NUMB = 50;
-		final String DATA = createTestData(50);
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		engine.startup();
-		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-		try {
-			assertEquals(EngineState.STARTED,engine.getEngineState());
+    final String createTestData(int length) {
+        StringBuilder dataSB = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int pos = (int) (Math.random() * 70.0);
+            dataSB.append("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!§$%&/()=?".substring(pos, pos + 1));
+        }
+        return dataSB.toString();
+    }
 
-			for (int i=0; i<NUMB; i++) {
-				engine.run(PersistentUnitTestWorkflow_NAME, DATA);
-			}
+    public void testAsnychResponse(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testAsnychResponse");
+        final int NUMB = 50;
+        final String DATA = createTestData(50);
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        engine.startup();
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        try {
+            assertEquals(EngineState.STARTED, engine.getEngineState());
 
-			for (int i=0; i<NUMB; i++) {
-				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				assertNotNull(x);
-				assertNotNull(x.getResult());
-				assertNotNull(x.getResult().toString().length() == DATA.length());
-				assertNull(x.getException());
-			}
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
+            for (int i = 0; i < NUMB; i++) {
+                engine.run(PersistentUnitTestWorkflow_NAME, DATA);
+            }
 
-	}
-	
-	public void testFailOnDuplicateInsert(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testFailOnDuplicateInsert");
-		final String DATA = createTestData(50);
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		context.getBean(DatabaseDialect.class).setRemoveWhenFinished(false);
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		engine.startup();
-		try {
-			WorkflowInstanceDescr<String> desc = new WorkflowInstanceDescr<String>(PersistentUnitTestWorkflow_NAME, DATA, "DUPLICATE#ID", 1, null);
-			engine.run(desc);
-			engine.run(desc);
-			org.junit.Assert.fail("expected an DuplicateIdException");
-		}
-		catch(DuplicateIdException e) {
-			// ok
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
+            for (int i = 0; i < NUMB; i++) {
+                WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
+                assertNotNull(x);
+                assertNotNull(x.getResult());
+                assertNotNull(x.getResult().toString().length() == DATA.length());
+                assertNull(x.getException());
+            }
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
 
-	}	
+    }
 
-	protected void closeContext(final ConfigurableApplicationContext context) {
-		context.close();
-	}
+    public void testFailOnDuplicateInsert(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testFailOnDuplicateInsert");
+        final String DATA = createTestData(50);
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        context.getBean(DatabaseDialect.class).setRemoveWhenFinished(false);
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        engine.startup();
+        try {
+            WorkflowInstanceDescr<String> desc = new WorkflowInstanceDescr<String>(PersistentUnitTestWorkflow_NAME, DATA, "DUPLICATE#ID", 1, null);
+            engine.run(desc);
+            engine.run(desc);
+            org.junit.Assert.fail("expected an DuplicateIdException");
+        } catch (DuplicateIdException e) {
+            // ok
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
 
-	public void testAsnychResponseLargeData(String dsContext, int dataSize) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testAsnychResponse");
-		final int NUMB = 20;
-		final String DATA = createTestData(dataSize);
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		engine.startup();
-		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-		try {
-			assertEquals(EngineState.STARTED,engine.getEngineState());
+    }
 
-			for (int i=0; i<NUMB; i++) {
-				engine.run(PersistentUnitTestWorkflow_NAME, DATA);
-			}
+    protected void closeContext(final ConfigurableApplicationContext context) {
+        context.close();
+    }
 
-			for (int i=0; i<NUMB; i++) {
-				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				assertNotNull(x);
-				assertNotNull(x.getResult());
-				assertNotNull(x.getResult().toString().length() == DATA.length());
-				assertNull(x.getException());
-			}
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
+    public void testAsnychResponseLargeData(String dsContext, int dataSize) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testAsnychResponse");
+        final int NUMB = 20;
+        final String DATA = createTestData(dataSize);
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        engine.startup();
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        try {
+            assertEquals(EngineState.STARTED, engine.getEngineState());
 
-	}
+            for (int i = 0; i < NUMB; i++) {
+                engine.run(PersistentUnitTestWorkflow_NAME, DATA);
+            }
 
-	protected ConfigurableApplicationContext createContext(String dsContext) {
-		//Thread.interrupted();
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {dsContext, "/CopperTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml"});
-		return context;
-	}
+            for (int i = 0; i < NUMB; i++) {
+                WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
+                assertNotNull(x);
+                assertNotNull(x.getResult());
+                assertNotNull(x.getResult().toString().length() == DATA.length());
+                assertNull(x.getException());
+            }
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
 
+    }
 
-	public void testWithConnection(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testWithConnection");
-		final int NUMB = 20;
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		final DataSource ds = context.getBean(DataSource.class);
-		cleanDB(ds);
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		engine.startup();
-		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-		try {
-			assertEquals(EngineState.STARTED,engine.getEngineState());
+    protected ConfigurableApplicationContext createContext(String dsContext) {
+        // Thread.interrupted();
+        final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { dsContext, "/CopperTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml" });
+        return context;
+    }
 
-			new RetryingTransaction<Void>(ds) {
-				@Override
-				protected Void execute() throws Exception {
-					for (int i=0; i<NUMB; i++) {
-						engine.run("org.copperengine.core.test.persistent.DBMockAdapterUsingPersistentUnitTestWorkflow", null);
-					}
-					return null;
-				}
-			}.run();
+    public void testWithConnection(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testWithConnection");
+        final int NUMB = 20;
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        final DataSource ds = context.getBean(DataSource.class);
+        cleanDB(ds);
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        engine.startup();
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        try {
+            assertEquals(EngineState.STARTED, engine.getEngineState());
 
-			for (int i=0; i<NUMB; i++) {
-				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				assertNotNull(x);
-				assertNull(x.getResult());
-				assertNull(x.getException());
-			}
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
+            new RetryingTransaction<Void>(ds) {
+                @Override
+                protected Void execute() throws Exception {
+                    for (int i = 0; i < NUMB; i++) {
+                        engine.run("org.copperengine.core.test.persistent.DBMockAdapterUsingPersistentUnitTestWorkflow", null);
+                    }
+                    return null;
+                }
+            }.run();
 
-	}
+            for (int i = 0; i < NUMB; i++) {
+                WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
+                assertNotNull(x);
+                assertNull(x.getResult());
+                assertNull(x.getException());
+            }
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
 
+    }
 
-	public void testWithConnectionBulkInsert(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testWithConnectionBulkInsert");
-		final int NUMB = 50;
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		final DataSource ds = context.getBean(DataSource.class);
-		cleanDB(ds);
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		engine.startup();
-		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-		try {
-			assertEquals(EngineState.STARTED,engine.getEngineState());
+    public void testWithConnectionBulkInsert(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testWithConnectionBulkInsert");
+        final int NUMB = 50;
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        final DataSource ds = context.getBean(DataSource.class);
+        cleanDB(ds);
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        engine.startup();
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        try {
+            assertEquals(EngineState.STARTED, engine.getEngineState());
 
-			final List<Workflow<?>> list = new ArrayList<Workflow<?>>();
-			for (int i=0; i<NUMB; i++) {
-				WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_NAME);
-				Workflow<?> wf = wfFactory.newInstance();
-				list.add(wf);
-			}
+            final List<Workflow<?>> list = new ArrayList<Workflow<?>>();
+            for (int i = 0; i < NUMB; i++) {
+                WorkflowFactory<?> wfFactory = engine.createWorkflowFactory(PersistentUnitTestWorkflow_NAME);
+                Workflow<?> wf = wfFactory.newInstance();
+                list.add(wf);
+            }
 
-			new RetryingTransaction<Void>(ds) {
-				@Override
-				protected Void execute() throws Exception {
-					engine.run(list,getConnection());
-					return null;
-				}
-			}.run();
+            new RetryingTransaction<Void>(ds) {
+                @Override
+                protected Void execute() throws Exception {
+                    engine.run(list, getConnection());
+                    return null;
+                }
+            }.run();
 
-			for (int i=0; i<NUMB; i++) {
-				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				assertNotNull(x);
-				assertNull(x.getResult());
-				assertNull(x.getException());
-			}
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
+            for (int i = 0; i < NUMB; i++) {
+                WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
+                assertNotNull(x);
+                assertNull(x.getResult());
+                assertNull(x.getException());
+            }
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
 
-	}
+    }
 
+    public void testTimeouts(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testTimeouts");
+        final int NUMB = 10;
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        engine.startup();
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        try {
+            assertEquals(EngineState.STARTED, engine.getEngineState());
 
-	public void testTimeouts(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testTimeouts");
-		final int NUMB = 10;
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		engine.startup();
-		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-		try {
-			assertEquals(EngineState.STARTED,engine.getEngineState());
+            for (int i = 0; i < NUMB; i++) {
+                engine.run("org.copperengine.core.test.persistent.TimingOutPersistentUnitTestWorkflow", null);
+            }
 
-			for (int i=0; i<NUMB; i++) {
-				engine.run("org.copperengine.core.test.persistent.TimingOutPersistentUnitTestWorkflow", null);
-			}
+            for (int i = 0; i < NUMB; i++) {
+                WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
+                assertNotNull(x);
+                assertNull(x.getResult());
+                assertNull(x.getException());
+            }
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
 
-			for (int i=0; i<NUMB; i++) {
-				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				assertNotNull(x);
-				assertNull(x.getResult());
-				assertNull(x.getException());
-			}
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
+    }
 
-	}
+    public void testErrorHandlingInCoreEngine(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        try {
+            engine.startup();
+            final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
+            wfInstanceDescr.setId(engine.createUUID());
+            engine.run(wfInstanceDescr);
+            Thread.sleep(5000);
+            // check
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmt = createStatement(getConnection());
+                    ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
+                    assertTrue(rs.next());
+                    assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+                    assertNotNull(rs.getString("EXCEPTION"));
+                    assertFalse(rs.next());
+                    rs.close();
+                    stmt.close();
+                    return null;
+                }
+            }.run();
+            engine.restart(wfInstanceDescr.getId());
+            Thread.sleep(5000);
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmt = createStatement(getConnection());
+                    ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
+                    assertTrue(rs.next());
+                    assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+                    assertNotNull(rs.getString("EXCEPTION"));
+                    assertTrue(rs.next());
+                    assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+                    assertNotNull(rs.getString("EXCEPTION"));
+                    assertFalse(rs.next());
+                    rs.close();
+                    stmt.close();
+                    return null;
+                }
+            }.run();
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
 
+    public void testErrorHandlingInCoreEngine_restartAll(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        try {
+            engine.startup();
+            final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
+            wfInstanceDescr.setId(engine.createUUID());
+            engine.run(wfInstanceDescr);
+            Thread.sleep(5000);
+            // check
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmt = createStatement(getConnection());
+                    ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
+                    assertTrue(rs.next());
+                    assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+                    assertNotNull(rs.getString("EXCEPTION"));
+                    assertFalse(rs.next());
+                    rs.close();
+                    stmt.close();
+                    return null;
+                }
+            }.run();
+            engine.restartAll();
+            Thread.sleep(5000);
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmt = createStatement(getConnection());
+                    ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
+                    assertTrue(rs.next());
+                    assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+                    assertNotNull(rs.getString("EXCEPTION"));
+                    assertTrue(rs.next());
+                    assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+                    assertNotNull(rs.getString("EXCEPTION"));
+                    assertFalse(rs.next());
+                    rs.close();
+                    stmt.close();
+                    return null;
+                }
+            }.run();
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
 
-	public void testErrorHandlingInCoreEngine(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		try {
-			engine.startup();
-			final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
-			wfInstanceDescr.setId(engine.createUUID());
-			engine.run(wfInstanceDescr);
-			Thread.sleep(5000);
-			//check
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					Statement stmt = createStatement(getConnection());
-					ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
-					assertTrue(rs.next());
-					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
-					assertNotNull(rs.getString("EXCEPTION"));
-					assertFalse(rs.next());
-					rs.close();
-					stmt.close();
-					return null;
-				}
-			}.run();
-			engine.restart(wfInstanceDescr.getId());
-			Thread.sleep(5000);
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					Statement stmt = createStatement(getConnection());
-					ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
-					assertTrue(rs.next());
-					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
-					assertNotNull(rs.getString("EXCEPTION"));
-					assertTrue(rs.next());
-					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
-					assertNotNull(rs.getString("EXCEPTION"));
-					assertFalse(rs.next());
-					rs.close();
-					stmt.close();
-					return null;
-				}
-			}.run();
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
-	}
+    public void testParentChildWorkflow(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testParentChildWorkflow");
+        final int NUMB = 20;
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        engine.startup();
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        try {
+            assertEquals(EngineState.STARTED, engine.getEngineState());
 
+            for (int i = 0; i < NUMB; i++) {
+                engine.run("org.copperengine.core.test.persistent.subworkflow.TestParentWorkflow", null);
+            }
 
-	public void testErrorHandlingInCoreEngine_restartAll(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		try {
-			engine.startup();
-			final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
-			wfInstanceDescr.setId(engine.createUUID());
-			engine.run(wfInstanceDescr);
-			Thread.sleep(5000);
-			//check
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					Statement stmt = createStatement(getConnection());
-					ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
-					assertTrue(rs.next());
-					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
-					assertNotNull(rs.getString("EXCEPTION"));
-					assertFalse(rs.next());
-					rs.close();
-					stmt.close();
-					return null;
-				}
-			}.run();
-			engine.restartAll();
-			Thread.sleep(5000);
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					Statement stmt = createStatement(getConnection());
-					ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
-					assertTrue(rs.next());
-					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
-					assertNotNull(rs.getString("EXCEPTION"));
-					assertTrue(rs.next());
-					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
-					assertNotNull(rs.getString("EXCEPTION"));
-					assertFalse(rs.next());
-					rs.close();
-					stmt.close();
-					return null;
-				}
-			}.run();
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
-	}
+            for (int i = 0; i < NUMB; i++) {
+                WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
+                assertNotNull(x);
+                assertNull(x.getResult());
+                assertNull(x.getException());
+            }
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
 
+    public void testErrorKeepWorkflowInstanceInDB(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testErrorKeepWorkflowInstanceInDB");
+        final int NUMB = 20;
+        final String DATA = createTestData(50);
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        final ScottyDBStorageInterface dbStorageInterface = context.getBean(ScottyDBStorageInterface.class);
+        dbStorageInterface.setRemoveWhenFinished(false);
+        engine.startup();
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        try {
+            assertEquals(EngineState.STARTED, engine.getEngineState());
 
-	public void testParentChildWorkflow(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testParentChildWorkflow");
-		final int NUMB = 20;
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		engine.startup();
-		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-		try {
-			assertEquals(EngineState.STARTED,engine.getEngineState());
+            for (int i = 0; i < NUMB; i++) {
+                engine.run(PersistentUnitTestWorkflow_NAME, DATA);
+            }
 
-			for (int i=0; i<NUMB; i++) {
-				engine.run("org.copperengine.core.test.persistent.subworkflow.TestParentWorkflow",null);
-			}
+            for (int i = 0; i < NUMB; i++) {
+                WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
+                assertNotNull(x);
+                assertNotNull(x.getResult());
+                assertNotNull(x.getResult().toString().length() == DATA.length());
+                assertNull(x.getException());
+            }
 
-			for (int i=0; i<NUMB; i++) {
-				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				assertNotNull(x);
-				assertNull(x.getResult());
-				assertNull(x.getException());
-			}
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
-	}
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmt = createStatement(getConnection());
+                    ResultSet rs = stmt.executeQuery("select count(*) from cop_workflow_instance");
+                    assertTrue(rs.next());
+                    int x = rs.getInt(1);
+                    assertEquals(NUMB, x);
+                    rs.close();
+                    stmt.close();
+                    return null;
+                }
+            }.run();
 
-	public void testErrorKeepWorkflowInstanceInDB(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testErrorKeepWorkflowInstanceInDB");
-		final int NUMB = 20;
-		final String DATA = createTestData(50);
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		final ScottyDBStorageInterface dbStorageInterface = context.getBean(ScottyDBStorageInterface.class);
-		dbStorageInterface.setRemoveWhenFinished(false);
-		engine.startup();
-		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-		try {
-			assertEquals(EngineState.STARTED,engine.getEngineState());
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
 
-			for (int i=0; i<NUMB; i++) {
-				engine.run(PersistentUnitTestWorkflow_NAME, DATA);
-			}
+    public void testCompressedAuditTrail(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testCompressedAuditTrail");
+        final int NUMB = 20;
+        final String DATA = createTestData(50);
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        context.getBean(BatchingAuditTrail.class).setMessagePostProcessor(new CompressedBase64PostProcessor());
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        engine.startup();
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        try {
+            assertEquals(EngineState.STARTED, engine.getEngineState());
 
-			for (int i=0; i<NUMB; i++) {
-				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				assertNotNull(x);
-				assertNotNull(x.getResult());
-				assertNotNull(x.getResult().toString().length() == DATA.length());
-				assertNull(x.getException());
-			}
+            for (int i = 0; i < NUMB; i++) {
+                engine.run(PersistentUnitTestWorkflow_NAME, DATA);
+            }
 
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					Statement stmt = createStatement(getConnection());
-					ResultSet rs = stmt.executeQuery("select count(*) from cop_workflow_instance");
-					assertTrue(rs.next());
-					int x = rs.getInt(1);
-					assertEquals(NUMB, x);
-					rs.close();
-					stmt.close();
-					return null;
-				}
-			}.run();
+            for (int i = 0; i < NUMB; i++) {
+                WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
+                assertNotNull(x);
+                assertNotNull(x.getResult());
+                assertNotNull(x.getResult().toString().length() == DATA.length());
+                assertNull(x.getException());
+            }
+            Thread.sleep(1000);
 
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
-	}
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmt = createStatement(getConnection());
+                    ResultSet rs = stmt.executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from cop_audit_trail_event) order by 1 asc");
+                    assertTrue(rs.next());
+                    // logger.info("\""+new CompressedBase64PostProcessor().deserialize(rs.getString(1))+"\"");
+                    // System.out.println(new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
+                    assertEquals("finished", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
+                    assertTrue(rs.next());
+                    assertEquals("foo successfully called", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
+                    // System.out.println(new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
+                    assertFalse(rs.next());
+                    rs.close();
+                    stmt.close();
+                    return null;
+                }
+            }.run();
 
+        } catch (Exception e) {
+            logger.error("testCompressedAuditTrail failed", e);
+            throw e;
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
 
-	public void testCompressedAuditTrail(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testCompressedAuditTrail");
-		final int NUMB = 20;
-		final String DATA = createTestData(50);
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		context.getBean(BatchingAuditTrail.class).setMessagePostProcessor(new CompressedBase64PostProcessor());
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		engine.startup();
-		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-		try {
-			assertEquals(EngineState.STARTED,engine.getEngineState());
+    }
 
-			for (int i=0; i<NUMB; i++) {
-				engine.run(PersistentUnitTestWorkflow_NAME, DATA);
-			}
+    public void testAutoCommit(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testAutoCommit");
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        try {
+            DataSource ds = context.getBean(DataSource.class);
+            new RetryingTransaction<Void>(ds) {
+                @Override
+                protected Void execute() throws Exception {
+                    assertFalse(getConnection().getAutoCommit());
+                    return null;
+                }
+            };
+        } finally {
+            closeContext(context);
+        }
+    }
 
-			for (int i=0; i<NUMB; i++) {
-				WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
-				assertNotNull(x);
-				assertNotNull(x.getResult());
-				assertNotNull(x.getResult().toString().length() == DATA.length());
-				assertNull(x.getException());
-			}
-			Thread.sleep(1000);
-			
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					Statement stmt = createStatement(getConnection());
-					ResultSet rs = stmt.executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from cop_audit_trail_event) order by 1 asc");
-					assertTrue(rs.next());
-					//logger.info("\""+new CompressedBase64PostProcessor().deserialize(rs.getString(1))+"\"");
-					//System.out.println(new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
-					assertEquals("finished", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
-					assertTrue(rs.next());
-					assertEquals("foo successfully called", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
-					//System.out.println(new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
-					assertFalse(rs.next());
-					rs.close();
-					stmt.close();
-					return null;
-				}
-			}.run();
+    private static String createTestMessage(int size) {
+        final StringBuilder sb = new StringBuilder(4000);
+        for (int i = 0; i < (size / 10); i++) {
+            sb.append("0123456789");
+        }
+        final String msg = sb.toString();
+        return msg;
+    }
 
-		}
-		catch(Exception e) {
-			logger.error("testCompressedAuditTrail failed",e);
-			throw e;
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
+    public void testAuditTrailUncompressed(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testAuditTrailSmallData");
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        try {
+            org.copperengine.core.audit.BatchingAuditTrail auditTrail = context.getBean(org.copperengine.core.audit.BatchingAuditTrail.class);
+            auditTrail.setMessagePostProcessor(new DummyPostProcessor());
+            auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", null, "TEXT");
+            auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(500), "TEXT");
+            auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(5000), "TEXT");
+            auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT");
+        } finally {
+            closeContext(context);
+        }
+    }
 
-	}
+    public void testErrorHandlingWithWaitHook(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        try {
+            engine.startup();
+            final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.ErrorWaitHookUnitTestWorkflow");
+            wfInstanceDescr.setId(engine.createUUID());
+            engine.run(wfInstanceDescr, null);
+            Thread.sleep(2500);
+            // check
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmt = createStatement(getConnection());
+                    ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
+                    assertTrue(rs.next());
+                    assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+                    assertNotNull(rs.getString("EXCEPTION"));
+                    assertFalse(rs.next());
+                    rs.close();
+                    stmt.close();
+                    return null;
+                }
+            }.run();
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
 
+    public void testAuditTrailCustomSeqNr(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testAuditTrailCustomSeqNr");
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        try {
+            cleanDB(context.getBean(DataSource.class));
+            org.copperengine.core.audit.BatchingAuditTrail auditTrail = context.getBean(org.copperengine.core.audit.BatchingAuditTrail.class);
+            auditTrail.setMessagePostProcessor(new DummyPostProcessor());
+            long seqNr = 1;
+            auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", null, "TEXT", seqNr++));
+            auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(500), "TEXT", seqNr++));
+            auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(5000), "TEXT", seqNr++));
+            auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT", seqNr++));
+            // check
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmt = createStatement(getConnection());
+                    ResultSet rs = stmt.executeQuery("select seq_id from cop_audit_trail_event order by seq_id");
+                    assertTrue(rs.next());
+                    assertEquals(1, rs.getLong(1));
+                    assertTrue(rs.next());
+                    assertEquals(2, rs.getLong(1));
+                    assertTrue(rs.next());
+                    assertEquals(3, rs.getLong(1));
+                    assertTrue(rs.next());
+                    assertEquals(4, rs.getLong(1));
+                    assertFalse(rs.next());
+                    rs.close();
+                    stmt.close();
+                    return null;
+                }
+            }.run();
+        } finally {
+            closeContext(context);
+        }
+    }
 
+    public void testNotifyWithoutEarlyResponseHandling(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testNotifyWithoutEarlyResponseHandling");
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        try {
+            engine.startup();
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    try {
+                        Response<?> response = new Response<String>("CID#withEarlyResponse", "TEST", null);
+                        engine.notify(response, getConnection());
+                        Statement stmt = createStatement(getConnection());
+                        ResultSet rs = stmt.executeQuery("select * from cop_response");
+                        assertTrue(rs.next());
+                        assertEquals(response.getCorrelationId(), rs.getString("CORRELATION_ID"));
+                        assertFalse(rs.next());
+                        getConnection().rollback();
 
-	public void testAutoCommit(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testAutoCommit");
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		try {
-			DataSource ds = context.getBean(DataSource.class);
-			new RetryingTransaction<Void>(ds) {
-				@Override
-				protected Void execute() throws Exception {
-					assertFalse(getConnection().getAutoCommit());
-					return null;
-				}
-			};
-		}
-		finally {
-			closeContext(context);
-		}
-	}
+                        response = new Response<String>("CID#withoutEarlyResponse", "TEST", null);
+                        response.setEarlyResponseHandling(false);
+                        engine.notify(response, getConnection());
+                        rs = stmt.executeQuery("select * from cop_response");
+                        assertFalse(rs.next());
+                        rs.close();
+                        stmt.close();
+                        getConnection().rollback();
+                    } catch (Exception e) {
+                        logger.error("testNotifyWithoutEarlyResponseHandling failed", e);
+                        throw e;
+                    }
+                    return null;
+                }
+            }.run();
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
 
-	private static String createTestMessage(int size) {
-		final StringBuilder sb = new StringBuilder(4000);
-		for (int i=0; i<(size/10); i++) {
-			sb.append("0123456789");
-		}
-		final String msg = sb.toString();
-		return msg;
-	}
-
-	public void testAuditTrailUncompressed(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testAuditTrailSmallData");
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		try {
-			org.copperengine.core.audit.BatchingAuditTrail auditTrail = context.getBean(org.copperengine.core.audit.BatchingAuditTrail.class);
-			auditTrail.setMessagePostProcessor(new DummyPostProcessor());
-			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", null, "TEXT");
-			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(500), "TEXT");
-			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(5000), "TEXT");
-			auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT");
-		}
-		finally {
-			closeContext(context);
-		}
-	}
-
-	public void testErrorHandlingWithWaitHook(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		try {
-			engine.startup();
-			final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.ErrorWaitHookUnitTestWorkflow");
-			wfInstanceDescr.setId(engine.createUUID());
-			engine.run(wfInstanceDescr, null);
-			Thread.sleep(2500);
-			//check
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					Statement stmt = createStatement(getConnection());
-					ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
-					assertTrue(rs.next());
-					assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
-					assertNotNull(rs.getString("EXCEPTION"));
-					assertFalse(rs.next());
-					rs.close();
-					stmt.close();
-					return null;
-				}
-			}.run();
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
-	}
-
-	public void testAuditTrailCustomSeqNr(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testAuditTrailCustomSeqNr");
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		try {
-			cleanDB(context.getBean(DataSource.class));
-			org.copperengine.core.audit.BatchingAuditTrail auditTrail = context.getBean(org.copperengine.core.audit.BatchingAuditTrail.class);
-			auditTrail.setMessagePostProcessor(new DummyPostProcessor());
-			long seqNr = 1;
-			auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", null, "TEXT", seqNr++));
-			auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(500), "TEXT", seqNr++));
-			auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(5000), "TEXT", seqNr++));
-			auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT", seqNr++));
-			//check
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					Statement stmt = createStatement(getConnection());
-					ResultSet rs = stmt.executeQuery("select seq_id from cop_audit_trail_event order by seq_id");
-					assertTrue(rs.next());
-					assertEquals(1, rs.getLong(1));
-					assertTrue(rs.next());
-					assertEquals(2, rs.getLong(1));
-					assertTrue(rs.next());
-					assertEquals(3, rs.getLong(1));
-					assertTrue(rs.next());
-					assertEquals(4, rs.getLong(1));
-					assertFalse(rs.next());
-					rs.close();
-					stmt.close();
-					return null;
-				}
-			}.run();
-		}
-		finally {
-			closeContext(context);
-		}
-	}
-
-	public void testNotifyWithoutEarlyResponseHandling(String dsContext) throws Exception {
-		assumeFalse(skipTests());
-		logger.info("running testNotifyWithoutEarlyResponseHandling");
-		final ConfigurableApplicationContext context = createContext(dsContext);
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-		try {
-			engine.startup();
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					try {
-						Response<?> response = new Response<String>("CID#withEarlyResponse", "TEST", null);
-						engine.notify(response, getConnection());
-						Statement stmt = createStatement(getConnection());
-						ResultSet rs = stmt.executeQuery("select * from cop_response");
-						assertTrue(rs.next());
-						assertEquals(response.getCorrelationId(), rs.getString("CORRELATION_ID"));
-						assertFalse(rs.next());
-						getConnection().rollback();
-
-						response = new Response<String>("CID#withoutEarlyResponse", "TEST", null);
-						response.setEarlyResponseHandling(false);
-						engine.notify(response, getConnection());
-						rs = stmt.executeQuery("select * from cop_response");
-						assertFalse(rs.next());
-						rs.close();
-						stmt.close();
-						getConnection().rollback();
-					}
-					catch(Exception e) {
-						logger.error("testNotifyWithoutEarlyResponseHandling failed",e);
-						throw e;
-					}
-					return null;
-				}
-			}.run();
-		}
-		finally {
-			closeContext(context);
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
-		assertEquals(0,engine.getNumberOfWorkflowInstances());
-
-	}		
+    }
 }

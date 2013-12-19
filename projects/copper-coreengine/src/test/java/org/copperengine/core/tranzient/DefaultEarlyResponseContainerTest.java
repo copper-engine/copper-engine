@@ -15,17 +15,15 @@
  */
 package org.copperengine.core.tranzient;
 
-import org.copperengine.core.tranzient.DefaultEarlyResponseContainer;
 import org.copperengine.core.tranzient.DefaultEarlyResponseContainer.EarlyResponse;
 import org.junit.Test;
 
-
 public class DefaultEarlyResponseContainerTest {
 
-	@Test
-	public void test() {
-		EarlyResponse x = new DefaultEarlyResponseContainer.EarlyResponse(null, Long.MAX_VALUE-100);
-		org.junit.Assert.assertEquals(x.ts, Long.MAX_VALUE);
-	}
+    @Test
+    public void test() {
+        EarlyResponse x = new DefaultEarlyResponseContainer.EarlyResponse(null, Long.MAX_VALUE - 100);
+        org.junit.Assert.assertEquals(x.ts, Long.MAX_VALUE);
+    }
 
 }

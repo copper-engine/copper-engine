@@ -18,5 +18,5 @@ package de.scoopgmbh.copper.monitoring.client.form;
 import java.net.URL;
 
 public interface FxmlController {
-	public URL getFxmlResource();
+    public URL getFxmlResource();
 }

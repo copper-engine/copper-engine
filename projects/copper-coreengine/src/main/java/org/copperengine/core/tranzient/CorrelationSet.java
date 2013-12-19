@@ -22,58 +22,56 @@ import java.util.List;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 
-
 /**
  * Internally used class.
  * 
  * @author austermann
- *
  */
 class CorrelationSet {
-	
-	private String workflowId;
-	private List<String> correlationIds;
-	private List<String> missingCorrelationIds;
-	private WaitMode mode;
-	private Long timeoutTS;
-	
-	public CorrelationSet(Workflow<?> workflow, List<String> missingCorrelationIds, WaitMode mode, Long timeoutTS) {
-		this.workflowId = workflow.getId();
-		this.missingCorrelationIds = new LinkedList<String>(missingCorrelationIds);
-		this.correlationIds = new ArrayList<String>(this.missingCorrelationIds);
-		this.mode = mode;
-		this.timeoutTS = timeoutTS;
-	}
 
-	public CorrelationSet(Workflow<?> workflow, String[] missingCorrelationIds, WaitMode mode, Long timeoutTS) {
-		this.workflowId = workflow.getId();
-		this.missingCorrelationIds = new LinkedList<String>();
-		for (String s : missingCorrelationIds) {
-			this.missingCorrelationIds.add(s);
-		}
-		this.correlationIds = new ArrayList<String>(this.missingCorrelationIds);
-		this.mode = mode;
-		this.timeoutTS = timeoutTS;
-	}
+    private String workflowId;
+    private List<String> correlationIds;
+    private List<String> missingCorrelationIds;
+    private WaitMode mode;
+    private Long timeoutTS;
 
-	public String getWorkflowId() {
-		return workflowId;
-	}
+    public CorrelationSet(Workflow<?> workflow, List<String> missingCorrelationIds, WaitMode mode, Long timeoutTS) {
+        this.workflowId = workflow.getId();
+        this.missingCorrelationIds = new LinkedList<String>(missingCorrelationIds);
+        this.correlationIds = new ArrayList<String>(this.missingCorrelationIds);
+        this.mode = mode;
+        this.timeoutTS = timeoutTS;
+    }
 
-	public List<String> getMissingCorrelationIds() {
-		return missingCorrelationIds;
-	}
+    public CorrelationSet(Workflow<?> workflow, String[] missingCorrelationIds, WaitMode mode, Long timeoutTS) {
+        this.workflowId = workflow.getId();
+        this.missingCorrelationIds = new LinkedList<String>();
+        for (String s : missingCorrelationIds) {
+            this.missingCorrelationIds.add(s);
+        }
+        this.correlationIds = new ArrayList<String>(this.missingCorrelationIds);
+        this.mode = mode;
+        this.timeoutTS = timeoutTS;
+    }
 
-	public WaitMode getMode() {
-		return mode;
-	}
-	
-	public Long getTimeoutTS() {
-		return timeoutTS;
-	}
-	
-	public List<String> getCorrelationIds() {
-		return correlationIds;
-	}
-	
+    public String getWorkflowId() {
+        return workflowId;
+    }
+
+    public List<String> getMissingCorrelationIds() {
+        return missingCorrelationIds;
+    }
+
+    public WaitMode getMode() {
+        return mode;
+    }
+
+    public Long getTimeoutTS() {
+        return timeoutTS;
+    }
+
+    public List<String> getCorrelationIds() {
+        return correlationIds;
+    }
+
 }

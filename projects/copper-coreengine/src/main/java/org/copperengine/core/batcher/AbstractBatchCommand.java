@@ -15,35 +15,33 @@
  */
 package org.copperengine.core.batcher;
 
-
 /**
  * Abstract base implementation of {@link BatchCommand}
  * 
  * @author austermann
- *
  * @param <E>
  * @param <T>
  */
-public abstract class AbstractBatchCommand<E extends BatchExecutor<E,T>, T extends AbstractBatchCommand<E,T>> implements BatchCommand<E, T> {
-	
-	final CommandCallback<T> callback;
-	long targetTime;
+public abstract class AbstractBatchCommand<E extends BatchExecutor<E, T>, T extends AbstractBatchCommand<E, T>> implements BatchCommand<E, T> {
 
-	public AbstractBatchCommand(CommandCallback<T> callback) {
-		this(callback, System.currentTimeMillis());
-	}
+    final CommandCallback<T> callback;
+    long targetTime;
 
-	public AbstractBatchCommand(CommandCallback<T> callback, long targetTime) {
-		this.callback = callback;
-		this.targetTime = targetTime;
-	}
+    public AbstractBatchCommand(CommandCallback<T> callback) {
+        this(callback, System.currentTimeMillis());
+    }
 
-	public CommandCallback<T> callback() {
-		return callback;
-	}
-	
-	public long targetTime() {
-		return targetTime;
-	}
+    public AbstractBatchCommand(CommandCallback<T> callback, long targetTime) {
+        this.callback = callback;
+        this.targetTime = targetTime;
+    }
+
+    public CommandCallback<T> callback() {
+        return callback;
+    }
+
+    public long targetTime() {
+        return targetTime;
+    }
 
 }

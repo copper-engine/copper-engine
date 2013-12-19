@@ -22,19 +22,16 @@ import javafx.beans.property.SimpleStringProperty;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 
 public class MessageResultModel {
-	public final SimpleObjectProperty<Date> timeout;
-	public final SimpleObjectProperty<Date> time;
-	public final SimpleStringProperty  message;
-	public final SimpleStringProperty  correlationId;
+    public final SimpleObjectProperty<Date> timeout;
+    public final SimpleObjectProperty<Date> time;
+    public final SimpleStringProperty message;
+    public final SimpleStringProperty correlationId;
 
-	public MessageResultModel(MessageInfo messageInfo) {
-		this.timeout = new SimpleObjectProperty<Date>(messageInfo.getTimeout());
-		this.time = new SimpleObjectProperty<Date>(messageInfo.getTimestamp());
-		this.message = new SimpleStringProperty(messageInfo.getMessage());
-		this.correlationId = new SimpleStringProperty(messageInfo.getCorrelationId());
-	}
-	
-	
-	
-	
+    public MessageResultModel(MessageInfo messageInfo) {
+        this.timeout = new SimpleObjectProperty<Date>(messageInfo.getTimeout());
+        this.time = new SimpleObjectProperty<Date>(messageInfo.getTimestamp());
+        this.message = new SimpleStringProperty(messageInfo.getMessage());
+        this.correlationId = new SimpleStringProperty(messageInfo.getCorrelationId());
+    }
+
 }

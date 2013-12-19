@@ -16,22 +16,22 @@
 package org.copperengine.core.test.backchannel;
 
 public class WorkflowResult {
-	
-	private final Object result;
-	private final Exception exception;
-	
-	public WorkflowResult(Object result, Exception exception) {
-		super();
-		this.result = result;
-		this.exception = exception;
-	}
-	
-	public Exception getException() {
-		return exception;
-	}
-	
-	public Object getResult() {
-		return result;
-	}
-	
+
+    private final Object result;
+    private final Exception exception;
+
+    public WorkflowResult(Object result, Exception exception) {
+        super();
+        this.result = result;
+        this.exception = exception;
+    }
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public Object getResult() {
+        return result;
+    }
+
 }

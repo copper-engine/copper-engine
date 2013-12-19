@@ -19,11 +19,10 @@ package org.copperengine.core;
  * Wait mode for the asynch <code>Workflow.wait</code> method.
  * 
  * @author austermann
- *
  */
 public enum WaitMode {
-	/** Wait for all passed correlation ids*/ 
-	ALL, 
-	/** Wait for the first of all passed correlationd ids*/
-	FIRST
+    /** Wait for all passed correlation ids */
+    ALL,
+    /** Wait for the first of all passed correlationd ids */
+    FIRST
 }

@@ -51,54 +51,61 @@ import de.scoopgmbh.copper.monitoring.client.ui.logs.result.LogsResultModel.Logs
 import de.scoopgmbh.copper.monitoring.client.util.CSSHelper;
 import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 
-public class LogsResultController extends FilterResultControllerBase<LogsFilterModel,LogsResultModel> implements Initializable {
-	private final GuiCopperDataProvider copperDataProvider;
+public class LogsResultController extends FilterResultControllerBase<LogsFilterModel, LogsResultModel> implements Initializable {
+    private final GuiCopperDataProvider copperDataProvider;
 
-	
-	public LogsResultController(GuiCopperDataProvider copperDataProvider) {
-		super();
-		this.copperDataProvider = copperDataProvider;
-	}
+    public LogsResultController(GuiCopperDataProvider copperDataProvider) {
+        super();
+        this.copperDataProvider = copperDataProvider;
+    }
 
-
-    @FXML //  fx:id="copyButton"
+    @FXML
+    // fx:id="copyButton"
     private Button copyButton; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="detailstackPane"
+    @FXML
+    // fx:id="detailstackPane"
     private StackPane detailstackPane; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="idColumn"
+    @FXML
+    // fx:id="idColumn"
     private TableColumn<LogsRowModel, Date> timeColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="logConfig"
+    @FXML
+    // fx:id="logConfig"
     private TextArea logConfig; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="loglevelColumn"
+    @FXML
+    // fx:id="loglevelColumn"
     private TableColumn<LogsRowModel, String> loglevelColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="occurrenceColumn"
+    @FXML
+    // fx:id="occurrenceColumn"
     private TableColumn<LogsRowModel, String> messageColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="resultTable"
+    @FXML
+    // fx:id="resultTable"
     private TableView<LogsRowModel> resultTable; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="resultTextarea"
+    @FXML
+    // fx:id="resultTextarea"
     private TextArea resultTextarea; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="searchField"
+    @FXML
+    // fx:id="searchField"
     private TextField searchField; // Value injected by FXMLLoader
-    
-    @FXML 
+
+    @FXML
     private BorderPane tableBorderPane;
-    
-    @FXML 
+
+    @FXML
     private Button updateConfig;
-    
-    @FXML 
+
+    @FXML
     private TableColumn<LogsRowModel, String> locationColumn;
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert copyButton != null : "fx:id=\"copyButton\" was not injected: check your FXML file 'LogsResult.fxml'.";
         assert detailstackPane != null : "fx:id=\"detailstackPane\" was not injected: check your FXML file 'LogsResult.fxml'.";
@@ -109,166 +116,164 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'LogsResult.fxml'.";
         assert resultTextarea != null : "fx:id=\"resultTextarea\" was not injected: check your FXML file 'LogsResult.fxml'.";
         assert searchField != null : "fx:id=\"searchField\" was not injected: check your FXML file 'LogsResult.fxml'.";
-        assert tableBorderPane != null ;
-        assert updateConfig != null ;
-        assert locationColumn != null ;
-        
+        assert tableBorderPane != null;
+        assert updateConfig != null;
+        assert locationColumn != null;
+
         resultTable.setRowFactory(new Callback<TableView<LogsRowModel>, TableRow<LogsRowModel>>() {
-			@Override
-			public TableRow<LogsRowModel> call(TableView<LogsRowModel> param) {
-				return new TableRow<LogsRowModel>(){
-					@Override
-					protected void updateItem(LogsRowModel item, boolean empty) {
-						if (item!=null ){
-							if ("ERROR".equals(item.level.get())){
-								this.setStyle("-fx-control-inner-background: "+CSSHelper.toCssColor(Color.rgb(255, 128, 128))+";");
-							} else  {
-								this.setStyle("");
-							}
-							
-						}
-						super.updateItem(item, empty);
-					}
-				};
-			}
-		});
+            @Override
+            public TableRow<LogsRowModel> call(TableView<LogsRowModel> param) {
+                return new TableRow<LogsRowModel>() {
+                    @Override
+                    protected void updateItem(LogsRowModel item, boolean empty) {
+                        if (item != null) {
+                            if ("ERROR".equals(item.level.get())) {
+                                this.setStyle("-fx-control-inner-background: " + CSSHelper.toCssColor(Color.rgb(255, 128, 128)) + ";");
+                            } else {
+                                this.setStyle("");
+                            }
+
+                        }
+                        super.updateItem(item, empty);
+                    }
+                };
+            }
+        });
 
         loglevelColumn.setCellValueFactory(new Callback<CellDataFeatures<LogsRowModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<LogsRowModel, String> p) {
-				return p.getValue().level;
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<LogsRowModel, String> p) {
+                return p.getValue().level;
+            }
+        });
+
         tableBorderPane.setBottom(createTabelControlls(resultTable));
-       
 
         timeColumn.setCellValueFactory(new Callback<CellDataFeatures<LogsRowModel, Date>, ObservableValue<Date>>() {
-			@Override
-			public ObservableValue<Date> call(
-					CellDataFeatures<LogsRowModel, Date> p) {
-				return p.getValue().time;
-			}
-		});
+            @Override
+            public ObservableValue<Date> call(
+                    CellDataFeatures<LogsRowModel, Date> p) {
+                return p.getValue().time;
+            }
+        });
         TableColumnHelper.setConverterCellFactory(timeColumn, new DateStringConverter("dd.MM.yyyy HH:mm:ss,SSS"));
-        
+
         locationColumn.setCellValueFactory(new Callback<CellDataFeatures<LogsRowModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<LogsRowModel, String> p) {
-				return p.getValue().locationInformation;
-			}
-		});
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<LogsRowModel, String> p) {
+                return p.getValue().locationInformation;
+            }
+        });
         TableColumnHelper.setTextOverrunCellFactory(locationColumn, OverrunStyle.LEADING_ELLIPSIS);
-        
+
         messageColumn.setCellValueFactory(new Callback<CellDataFeatures<LogsRowModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<LogsRowModel, String> p) {
-				return p.getValue().message;
-			}
-		});
-        messageColumn.setCellFactory(new Callback<TableColumn<LogsRowModel,String>, TableCell<LogsRowModel,String>>() {
-			@Override
-			public TableCell<LogsRowModel, String> call(TableColumn<LogsRowModel, String> param) {
-				final TextFieldTableCell<LogsRowModel, String> textFieldTableCell = new TextFieldTableCell<LogsRowModel, String>();
-				textFieldTableCell.getStyleClass().add("consoleFont");
-				return textFieldTableCell;
-			}
-		});
-        
-		searchField.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				if (resultTextarea.getText()!=null && searchField.getText()!=null){
-					int from = resultTextarea.getText().indexOf(searchField.getText(),resultTextarea.getSelection().getEnd());
-					resultTextarea.selectRange(from,from+searchField.getText().length());
-					
-				}
-			}
-		});
-		
-		copyButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				final Clipboard clipboard = Clipboard.getSystemClipboard();
-			    final ClipboardContent content = new ClipboardContent();
-			    content.putString(resultTextarea.getText());
-			    clipboard.setContent(content);
-			}
-		});
-		
-		timeColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.15));
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<LogsRowModel, String> p) {
+                return p.getValue().message;
+            }
+        });
+        messageColumn.setCellFactory(new Callback<TableColumn<LogsRowModel, String>, TableCell<LogsRowModel, String>>() {
+            @Override
+            public TableCell<LogsRowModel, String> call(TableColumn<LogsRowModel, String> param) {
+                final TextFieldTableCell<LogsRowModel, String> textFieldTableCell = new TextFieldTableCell<LogsRowModel, String>();
+                textFieldTableCell.getStyleClass().add("consoleFont");
+                return textFieldTableCell;
+            }
+        });
+
+        searchField.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (resultTextarea.getText() != null && searchField.getText() != null) {
+                    int from = resultTextarea.getText().indexOf(searchField.getText(), resultTextarea.getSelection().getEnd());
+                    resultTextarea.selectRange(from, from + searchField.getText().length());
+
+                }
+            }
+        });
+
+        copyButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                final Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(resultTextarea.getText());
+                clipboard.setContent(content);
+            }
+        });
+
+        timeColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.15));
         loglevelColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.05));
         locationColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.05));
         messageColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.73));
-        
+
         updateConfig.getStyleClass().add("copperActionButton");
         updateConfig.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				copperDataProvider.updateLogConfig(logConfig.getText());
-			}
-		});
+            @Override
+            public void handle(ActionEvent event) {
+                copperDataProvider.updateLogConfig(logConfig.getText());
+            }
+        });
         logConfig.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				updateConfig.setDisable(false);
-			}
-		});
-        
-        
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                updateConfig.setDisable(false);
+            }
+        });
+
         resultTextarea.getStyleClass().add("consoleFont");
         resultTextarea.setWrapText(false);
     }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("LogsResult.fxml");
-	}
-	
-	@Override
-	public void showFilteredResult(List<LogsResultModel> filteredResult, LogsFilterModel usedFilter) {
-		LogsResultModel resultModel = filteredResult.get(0);
-		
-		resultTable.getItems().clear();
-		resultTable.setItems(resultModel.logs);
-		
-		StringBuilder textresult = new StringBuilder();
-		textresult.append("Time");
-		textresult.append("\t");
-		textresult.append("Level");
-		textresult.append("\t");
-		textresult.append("message");
-		textresult.append("\t");
-		textresult.append("Location");
-		textresult.append("\n");
-		
-		for (LogsRowModel row: resultModel.logs){
-			row.fillString(textresult);
-		}
-		resultTextarea.setText(textresult.toString());
-		
-		logConfig.setText(resultModel.config.get());
-		updateConfig.setDisable(true);
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("LogsResult.fxml");
+    }
 
-	@Override
-	public List<LogsResultModel> applyFilterInBackgroundThread(LogsFilterModel filter) {
-		return Arrays.asList(copperDataProvider.getLogData(filter.fromToFilterModel.from.get(),filter.fromToFilterModel.to.get(),filter.maxCountFilterModel.getMaxCount()));
-	}
+    @Override
+    public void showFilteredResult(List<LogsResultModel> filteredResult, LogsFilterModel usedFilter) {
+        LogsResultModel resultModel = filteredResult.get(0);
 
-	@Override
-	public boolean supportsClear() {
-		return true;
-	}
+        resultTable.getItems().clear();
+        resultTable.setItems(resultModel.logs);
 
-	@Override
-	public void clear() {
-		resultTable.getItems().clear();
-		resultTextarea.clear();
-		logConfig.clear();
-	}
+        StringBuilder textresult = new StringBuilder();
+        textresult.append("Time");
+        textresult.append("\t");
+        textresult.append("Level");
+        textresult.append("\t");
+        textresult.append("message");
+        textresult.append("\t");
+        textresult.append("Location");
+        textresult.append("\n");
+
+        for (LogsRowModel row : resultModel.logs) {
+            row.fillString(textresult);
+        }
+        resultTextarea.setText(textresult.toString());
+
+        logConfig.setText(resultModel.config.get());
+        updateConfig.setDisable(true);
+    }
+
+    @Override
+    public List<LogsResultModel> applyFilterInBackgroundThread(LogsFilterModel filter) {
+        return Arrays.asList(copperDataProvider.getLogData(filter.fromToFilterModel.from.get(), filter.fromToFilterModel.to.get(), filter.maxCountFilterModel.getMaxCount()));
+    }
+
+    @Override
+    public boolean supportsClear() {
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        resultTable.getItems().clear();
+        resultTextarea.clear();
+        logConfig.clear();
+    }
 
 }

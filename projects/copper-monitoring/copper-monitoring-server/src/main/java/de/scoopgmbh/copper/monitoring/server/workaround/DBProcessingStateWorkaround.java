@@ -21,40 +21,43 @@ import java.util.Map;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public enum DBProcessingStateWorkaround {
-	ENQUEUED(0), 
-	PROCESSING(1) /* so far unused */, 
-	WAITING(2), 
-	FINISHED(3), 
-	INVALID(4), 
-	ERROR(5);
-	
-	static final Map<Integer, DBProcessingStateWorkaround> states = new HashMap<Integer, DBProcessingStateWorkaround>();
-	static {
-		for (DBProcessingStateWorkaround state: DBProcessingStateWorkaround.values()) {
-			states.put(state.key(), state);
-		}
-	}
+    ENQUEUED(0),
+    PROCESSING(1) /* so far unused */,
+    WAITING(2),
+    FINISHED(3),
+    INVALID(4),
+    ERROR(5);
 
-	final int key;
-	DBProcessingStateWorkaround(int key) {
-		this.key = key;
-	}
-	public int key() {
-		return key;
-	}
-	public WorkflowInstanceState asWorkflowInstanceState() {
-		return WorkflowInstanceState.valueOf(name());
-	}
-	
-	public static DBProcessingStateWorkaround fromKey(int key) {
-		DBProcessingStateWorkaround state = states.get(key);
-		if (state == null)
-			throw new IllegalArgumentException("No value for "+key);
-		return state;
-	}
-	
-	public static DBProcessingStateWorkaround fromWorkflowInstanceState(WorkflowInstanceState workflowInstanceState) {
-		return DBProcessingStateWorkaround.valueOf(workflowInstanceState.name());
-	}
-	
+    static final Map<Integer, DBProcessingStateWorkaround> states = new HashMap<Integer, DBProcessingStateWorkaround>();
+    static {
+        for (DBProcessingStateWorkaround state : DBProcessingStateWorkaround.values()) {
+            states.put(state.key(), state);
+        }
+    }
+
+    final int key;
+
+    DBProcessingStateWorkaround(int key) {
+        this.key = key;
+    }
+
+    public int key() {
+        return key;
+    }
+
+    public WorkflowInstanceState asWorkflowInstanceState() {
+        return WorkflowInstanceState.valueOf(name());
+    }
+
+    public static DBProcessingStateWorkaround fromKey(int key) {
+        DBProcessingStateWorkaround state = states.get(key);
+        if (state == null)
+            throw new IllegalArgumentException("No value for " + key);
+        return state;
+    }
+
+    public static DBProcessingStateWorkaround fromWorkflowInstanceState(WorkflowInstanceState workflowInstanceState) {
+        return DBProcessingStateWorkaround.valueOf(workflowInstanceState.name());
+    }
+
 }

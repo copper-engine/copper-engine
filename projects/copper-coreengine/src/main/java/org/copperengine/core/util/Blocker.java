@@ -16,34 +16,34 @@
 package org.copperengine.core.util;
 
 public class Blocker {
-	
-	private volatile boolean blocked = false;
-	private final Object mutex = new Object();
-	
-	public Blocker(boolean blocked) {
-		this.blocked = blocked;
-	}
-	
-	public void block() {
-		synchronized (mutex) {
-			blocked = true;
-		}
-	}
-	
-	public void unblock() {
-		synchronized (mutex) {
-			blocked = false;
-			mutex.notifyAll();
-		}
-	}
-	
-	public void pass() throws InterruptedException {
-		if (blocked) {
-			synchronized (mutex) {
-				while (blocked) {
-					mutex.wait();
-				}
-			}
-		}
-	}
+
+    private volatile boolean blocked = false;
+    private final Object mutex = new Object();
+
+    public Blocker(boolean blocked) {
+        this.blocked = blocked;
+    }
+
+    public void block() {
+        synchronized (mutex) {
+            blocked = true;
+        }
+    }
+
+    public void unblock() {
+        synchronized (mutex) {
+            blocked = false;
+            mutex.notifyAll();
+        }
+    }
+
+    public void pass() throws InterruptedException {
+        if (blocked) {
+            synchronized (mutex) {
+                while (blocked) {
+                    mutex.wait();
+                }
+            }
+        }
+    }
 }

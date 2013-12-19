@@ -23,31 +23,30 @@ import java.util.Collection;
  * A batcher is responsible to collect a batch of commands and call their executor to execute the batch.
  * 
  * @author austermann
- *
  * @param <T>
  */
-public interface BatchExecutorBase<E extends BatchExecutorBase<E,T>, T extends BatchCommand<E,T>> {
-	
-	/**
-	 * Executes a batch of commands
-	 */
-	void doExec(Collection<BatchCommand<E,T>> commands, Connection connection) throws Exception;
+public interface BatchExecutorBase<E extends BatchExecutorBase<E, T>, T extends BatchCommand<E, T>> {
 
-	/**
-	 * Preferred batch size of this executor
-	 */
-	int  preferredBatchSize();
-	
-	/**
-	 * @return the maximum batch size of this executor
-	 */
-	int  maximumBatchSize();
-	
-	boolean prioritize();
-	
-	/**
-	 * Unique ID of this batcher.
-	 */
-	String id();
+    /**
+     * Executes a batch of commands
+     */
+    void doExec(Collection<BatchCommand<E, T>> commands, Connection connection) throws Exception;
+
+    /**
+     * Preferred batch size of this executor
+     */
+    int preferredBatchSize();
+
+    /**
+     * @return the maximum batch size of this executor
+     */
+    int maximumBatchSize();
+
+    boolean prioritize();
+
+    /**
+     * Unique ID of this batcher.
+     */
+    String id();
 
 }

@@ -16,11 +16,11 @@
 package org.copperengine.management;
 
 public interface BatcherMXBean {
-	
-	public String getDescription();
-	
-	public int getNumThreads();
-	
-	public void setNumThreads(int numThreads);
+
+    public String getDescription();
+
+    public int getNumThreads();
+
+    public void setNumThreads(int numThreads);
 
 }

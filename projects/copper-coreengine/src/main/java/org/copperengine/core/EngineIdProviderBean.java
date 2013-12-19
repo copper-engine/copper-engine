@@ -17,31 +17,32 @@ package org.copperengine.core;
 
 /**
  * Simple java bean implementation if the {@link EngineIdProvider} interface.
- *  
+ * 
  * @author austermann
- *
  */
 public class EngineIdProviderBean implements EngineIdProvider {
 
-	private String engineId;
-	
-	public EngineIdProviderBean() {
-		
-	}
-	
-	public EngineIdProviderBean(String engineId) {
-		if (engineId == null) throw new NullPointerException();
-		this.engineId = engineId;
-	}
-	
-	public void setEngineId(String engineId) {
-		if (engineId == null) throw new NullPointerException();
-		this.engineId = engineId;
-	}
-	
-	@Override
-	public String getEngineId() {
-		return engineId;
-	}
+    private String engineId;
+
+    public EngineIdProviderBean() {
+
+    }
+
+    public EngineIdProviderBean(String engineId) {
+        if (engineId == null)
+            throw new NullPointerException();
+        this.engineId = engineId;
+    }
+
+    public void setEngineId(String engineId) {
+        if (engineId == null)
+            throw new NullPointerException();
+        this.engineId = engineId;
+    }
+
+    @Override
+    public String getEngineId() {
+        return engineId;
+    }
 
 }

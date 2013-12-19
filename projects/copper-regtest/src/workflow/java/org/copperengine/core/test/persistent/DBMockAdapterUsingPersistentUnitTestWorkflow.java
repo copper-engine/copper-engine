@@ -35,62 +35,60 @@ import org.copperengine.core.test.backchannel.WorkflowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
-	private static final long serialVersionUID = 1L;
-	
-	private static final Logger logger = LoggerFactory.getLogger(PersistentUnitTestWorkflow.class);
+    private static final long serialVersionUID = 1L;
 
-	private transient BackChannelQueue backChannelQueue;
-	private transient DBMockAdapter dbMockAdapter;
-	private transient AuditTrail auditTrail;
+    private static final Logger logger = LoggerFactory.getLogger(PersistentUnitTestWorkflow.class);
 
-	@AutoWire
-	public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
-		this.backChannelQueue = backChannelQueue;
-	}
+    private transient BackChannelQueue backChannelQueue;
+    private transient DBMockAdapter dbMockAdapter;
+    private transient AuditTrail auditTrail;
 
-	@AutoWire
-	public void setDbMockAdapter(DBMockAdapter dbMockAdapter) {
-		this.dbMockAdapter = dbMockAdapter;
-	}
-	
-	@AutoWire
-	public void setAuditTrail(AuditTrail auditTrail) {
-		this.auditTrail = auditTrail;
-	}
+    @AutoWire
+    public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
+        this.backChannelQueue = backChannelQueue;
+    }
 
-	@Override
-	public void main() throws InterruptException {
-		try {
-			for (int i=0; i<10; i++) {
-				callFoo();
-				assertNotNull(this.getCreationTS());
-			}
-			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", null);
-			backChannelQueue.enqueue(new WorkflowResult(getData(), null));
-		}
-		catch(Exception e) {
-			logger.error("execution failed",e);
-			backChannelQueue.enqueue(new WorkflowResult(null, e));
-		}
-//		finally {
-//			System.out.println("xxx");
-//		}
-	}
+    @AutoWire
+    public void setDbMockAdapter(DBMockAdapter dbMockAdapter) {
+        this.dbMockAdapter = dbMockAdapter;
+    }
 
-	private void callFoo() throws InterruptException {
-		String cid = getEngine().createUUID();
-		dbMockAdapter.foo(getData(), cid);
-		wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
-		Response<?> res = getAndRemoveResponse(cid);
-		logger.info(res.toString());
-		assertNotNull(res);
-		assertFalse(res.isTimeout());
-		assertEquals(getData(), res.getResponse());
-		assertNull(res.getException());
-		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
-	}
+    @AutoWire
+    public void setAuditTrail(AuditTrail auditTrail) {
+        this.auditTrail = auditTrail;
+    }
+
+    @Override
+    public void main() throws InterruptException {
+        try {
+            for (int i = 0; i < 10; i++) {
+                callFoo();
+                assertNotNull(this.getCreationTS());
+            }
+            auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", null);
+            backChannelQueue.enqueue(new WorkflowResult(getData(), null));
+        } catch (Exception e) {
+            logger.error("execution failed", e);
+            backChannelQueue.enqueue(new WorkflowResult(null, e));
+        }
+        // finally {
+        // System.out.println("xxx");
+        // }
+    }
+
+    private void callFoo() throws InterruptException {
+        String cid = getEngine().createUUID();
+        dbMockAdapter.foo(getData(), cid);
+        wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
+        Response<?> res = getAndRemoveResponse(cid);
+        logger.info(res.toString());
+        assertNotNull(res);
+        assertFalse(res.isTimeout());
+        assertEquals(getData(), res.getResponse());
+        assertNull(res.getException());
+        auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
+    }
 
 }

@@ -24,58 +24,58 @@ import java.util.Date;
 
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 
-public class PerformanceMonitor { 
+public class PerformanceMonitor {
 
     private Method method_getProcessCpuLoad;
-	private Method method_getSystemCpuLoad;
-	private Method method_getFreePhysicalMemorySize;
-	
-	public PerformanceMonitor(){
-		OperatingSystemMXBean operatingSystemMXBean= ManagementFactory.getOperatingSystemMXBean();
-		try {
-			method_getProcessCpuLoad = operatingSystemMXBean.getClass().getMethod("getProcessCpuLoad");
-			method_getSystemCpuLoad = operatingSystemMXBean.getClass().getMethod("getSystemCpuLoad");
-			method_getFreePhysicalMemorySize = operatingSystemMXBean.getClass().getMethod("getFreePhysicalMemorySize");
-			method_getProcessCpuLoad.setAccessible(true);
-			method_getSystemCpuLoad.setAccessible(true);
-			method_getFreePhysicalMemorySize.setAccessible(true);
-		} catch (Exception e) {
-    		//workaround to support legacy java versions the 
-    		//Exception means no support
-    	}
-	}
+    private Method method_getSystemCpuLoad;
+    private Method method_getFreePhysicalMemorySize;
 
-	private double boundValue(double value){
-    	return Math.max(value, 0);
+    public PerformanceMonitor() {
+        OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+        try {
+            method_getProcessCpuLoad = operatingSystemMXBean.getClass().getMethod("getProcessCpuLoad");
+            method_getSystemCpuLoad = operatingSystemMXBean.getClass().getMethod("getSystemCpuLoad");
+            method_getFreePhysicalMemorySize = operatingSystemMXBean.getClass().getMethod("getFreePhysicalMemorySize");
+            method_getProcessCpuLoad.setAccessible(true);
+            method_getSystemCpuLoad.setAccessible(true);
+            method_getFreePhysicalMemorySize.setAccessible(true);
+        } catch (Exception e) {
+            // workaround to support legacy java versions the
+            // Exception means no support
+        }
     }
-    
-    //http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
-    public SystemResourcesInfo createRessourcenInfo(){
-    	OperatingSystemMXBean operatingSystemMXBean= ManagementFactory.getOperatingSystemMXBean();
-    	MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-    	java.lang.management.ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-    	ClassLoadingMXBean classLoadingMXBean  = ManagementFactory.getClassLoadingMXBean();
-    	
-    	double processCpuLoad=0;
-    	double systemCpuLoad=0;
-    	long freePhysicalMemorySize=0;
-    	if (method_getProcessCpuLoad!=null && method_getSystemCpuLoad!=null && method_getFreePhysicalMemorySize!=null){
-    		try {
-    			processCpuLoad = (Double)method_getProcessCpuLoad.invoke(operatingSystemMXBean);
-    			systemCpuLoad = (Double)method_getSystemCpuLoad.invoke(operatingSystemMXBean);
-    			freePhysicalMemorySize = (Long)method_getFreePhysicalMemorySize.invoke(operatingSystemMXBean);
-    		} catch (Exception e) {
-    			//workaround to support legacy java versions the 
-    			//Exception means no support
-    		}
-    	}
-    	return new SystemResourcesInfo(new Date(),
-    			boundValue(systemCpuLoad),
-    			freePhysicalMemorySize,
-    			boundValue(processCpuLoad),
-    			memoryMXBean.getHeapMemoryUsage().getUsed(),
-    			threadMXBean.getThreadCount(),
-    			classLoadingMXBean.getTotalLoadedClassCount());
+
+    private double boundValue(double value) {
+        return Math.max(value, 0);
+    }
+
+    // http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
+    public SystemResourcesInfo createRessourcenInfo() {
+        OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+        java.lang.management.ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+        ClassLoadingMXBean classLoadingMXBean = ManagementFactory.getClassLoadingMXBean();
+
+        double processCpuLoad = 0;
+        double systemCpuLoad = 0;
+        long freePhysicalMemorySize = 0;
+        if (method_getProcessCpuLoad != null && method_getSystemCpuLoad != null && method_getFreePhysicalMemorySize != null) {
+            try {
+                processCpuLoad = (Double) method_getProcessCpuLoad.invoke(operatingSystemMXBean);
+                systemCpuLoad = (Double) method_getSystemCpuLoad.invoke(operatingSystemMXBean);
+                freePhysicalMemorySize = (Long) method_getFreePhysicalMemorySize.invoke(operatingSystemMXBean);
+            } catch (Exception e) {
+                // workaround to support legacy java versions the
+                // Exception means no support
+            }
+        }
+        return new SystemResourcesInfo(new Date(),
+                boundValue(systemCpuLoad),
+                freePhysicalMemorySize,
+                boundValue(processCpuLoad),
+                memoryMXBean.getHeapMemoryUsage().getUsed(),
+                threadMXBean.getThreadCount(),
+                classLoadingMXBean.getTotalLoadedClassCount());
     }
 
 }

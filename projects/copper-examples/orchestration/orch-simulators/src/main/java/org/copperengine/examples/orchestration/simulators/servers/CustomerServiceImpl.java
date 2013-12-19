@@ -29,24 +29,26 @@ import org.slf4j.LoggerFactory;
         targetNamespace = "http://customerservice.copperengine.org/",
         wsdlLocation = "classpath:wsdl/CustomerService.wsdl",
         endpointInterface = "org.copperengine.customerservice.CustomerService")
-                      
 public class CustomerServiceImpl implements CustomerService {
-	
-	private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
-    /* (non-Javadoc)
-     * @see de.scoopgmbh.customerservice.CustomerService#getCustomersByMsisdn(de.scoopgmbh.customerservice.GetCustomersByMsisdnRequest  parameters )*
+    private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see de.scoopgmbh.customerservice.CustomerService#getCustomersByMsisdn(de.scoopgmbh.customerservice.
+     * GetCustomersByMsisdnRequest parameters )*
      */
     @Override
-	public GetCustomersByMsisdnResponse getCustomersByMsisdn(GetCustomersByMsisdnRequest parameters) {
-    	logger.info("getCustomersByMsisdn(msisdn={})", parameters.getMsisdn());
-    	GetCustomersByMsisdnResponse response = new GetCustomersByMsisdnResponse();
-    	response.setReturn(new Customer());
-    	response.getReturn().setContractNumber(Long.toHexString(Long.parseLong(parameters.getMsisdn())));
-    	response.getReturn().setMsisdn(parameters.getMsisdn());
-    	response.getReturn().setType(Long.parseLong(parameters.getMsisdn()) % 2 == 0 ? CustomerType.BUSINESS : CustomerType.PRIVATE);
-    	response.getReturn().setSecret("sc00p");
-    	return response;
+    public GetCustomersByMsisdnResponse getCustomersByMsisdn(GetCustomersByMsisdnRequest parameters) {
+        logger.info("getCustomersByMsisdn(msisdn={})", parameters.getMsisdn());
+        GetCustomersByMsisdnResponse response = new GetCustomersByMsisdnResponse();
+        response.setReturn(new Customer());
+        response.getReturn().setContractNumber(Long.toHexString(Long.parseLong(parameters.getMsisdn())));
+        response.getReturn().setMsisdn(parameters.getMsisdn());
+        response.getReturn().setType(Long.parseLong(parameters.getMsisdn()) % 2 == 0 ? CustomerType.BUSINESS : CustomerType.PRIVATE);
+        response.getReturn().setSecret("sc00p");
+        return response;
     }
 
 }

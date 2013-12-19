@@ -19,8 +19,7 @@ package org.copperengine.core;
  * State of a COPPER engine.
  * 
  * @author austermann
- *
  */
 public enum EngineState {
-	RAW, STARTED, SHUTTING_DOWN, STOPPED;
+    RAW, STARTED, SHUTTING_DOWN, STOPPED;
 }

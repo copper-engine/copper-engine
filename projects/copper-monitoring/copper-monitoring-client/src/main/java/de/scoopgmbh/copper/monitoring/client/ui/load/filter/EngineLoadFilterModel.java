@@ -24,14 +24,13 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePool
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class EngineLoadFilterModel extends EnginePoolFilterModel {
-	public final Map<WorkflowInstanceState,SimpleBooleanProperty> stateFilters = new HashMap<WorkflowInstanceState,SimpleBooleanProperty>();
-	public final MaxCountFilterModel maxCountFilterModel = new MaxCountFilterModel();
-	
-	
-	public EngineLoadFilterModel(){
-		for (WorkflowInstanceState workflowInstanceState: WorkflowInstanceState.values()){
-			stateFilters.put(workflowInstanceState,new SimpleBooleanProperty(true));
-		}
-	}
-	
+    public final Map<WorkflowInstanceState, SimpleBooleanProperty> stateFilters = new HashMap<WorkflowInstanceState, SimpleBooleanProperty>();
+    public final MaxCountFilterModel maxCountFilterModel = new MaxCountFilterModel();
+
+    public EngineLoadFilterModel() {
+        for (WorkflowInstanceState workflowInstanceState : WorkflowInstanceState.values()) {
+            stateFilters.put(workflowInstanceState, new SimpleBooleanProperty(true));
+        }
+    }
+
 }

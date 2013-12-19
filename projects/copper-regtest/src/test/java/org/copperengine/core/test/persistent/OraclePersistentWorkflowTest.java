@@ -37,205 +37,198 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
-
 public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 
-	private static final String DS_CONTEXT = "/datasources/datasource-oracle.xml";
-	private static final Logger logger = LoggerFactory.getLogger(OraclePersistentWorkflowTest.class);
+    private static final String DS_CONTEXT = "/datasources/datasource-oracle.xml";
+    private static final Logger logger = LoggerFactory.getLogger(OraclePersistentWorkflowTest.class);
 
-	private static boolean dbmsAvailable = false;
+    private static boolean dbmsAvailable = false;
 
-	static {
-		if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
-			dbmsAvailable = true;
-		}
-		else {
-			final ConfigurableApplicationContext context = new OraclePersistentWorkflowTest().createContext(DS_CONTEXT);
-			try {
-				DataSource ds = context.getBean(DataSource.class);
-				ds.setLoginTimeout(10);
-				ds.getConnection();
-				dbmsAvailable = true;
-			}
-			catch(Exception e) {
-				logger.error("Oracle DBMS not available! Skipping Oracle unit tests.",e);
-				e.printStackTrace();
-			}
-			finally {
-				context.close();
-			}
-		}
-	}	
+    static {
+        if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
+            dbmsAvailable = true;
+        }
+        else {
+            final ConfigurableApplicationContext context = new OraclePersistentWorkflowTest().createContext(DS_CONTEXT);
+            try {
+                DataSource ds = context.getBean(DataSource.class);
+                ds.setLoginTimeout(10);
+                ds.getConnection();
+                dbmsAvailable = true;
+            } catch (Exception e) {
+                logger.error("Oracle DBMS not available! Skipping Oracle unit tests.", e);
+                e.printStackTrace();
+            } finally {
+                context.close();
+            }
+        }
+    }
 
-	@Override
-	protected boolean skipTests() {
-		return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
-	}
+    @Override
+    protected boolean skipTests() {
+        return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
+    }
 
-	@Test
-	public void testAsnychResponse() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testAsnychResponse(DS_CONTEXT);
-	}
+    @Test
+    public void testAsnychResponse() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testAsnychResponse(DS_CONTEXT);
+    }
 
-	@Test
-	public void testAsnychResponseLargeData() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testAsnychResponseLargeData(DS_CONTEXT,65536);
-	}
+    @Test
+    public void testAsnychResponseLargeData() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testAsnychResponseLargeData(DS_CONTEXT, 65536);
+    }
 
-	@Test
-	public void testWithConnection() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testWithConnection(DS_CONTEXT);
-	}
+    @Test
+    public void testWithConnection() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testWithConnection(DS_CONTEXT);
+    }
 
-	@Test
-	public void testWithConnectionBulkInsert() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testWithConnectionBulkInsert(DS_CONTEXT);
-	}
+    @Test
+    public void testWithConnectionBulkInsert() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testWithConnectionBulkInsert(DS_CONTEXT);
+    }
 
-	@Test
-	public void testTimeouts() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testTimeouts(DS_CONTEXT);
-	}
+    @Test
+    public void testTimeouts() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testTimeouts(DS_CONTEXT);
+    }
 
-	@Test
-	public void testMultipleEngines() throws Exception {
-		assumeFalse(skipTests());
-		
-		assertTrue("DBMS not available",dbmsAvailable);
+    @Test
+    public void testMultipleEngines() throws Exception {
+        assumeFalse(skipTests());
 
-		logger.info("running testMultipleEngines");
-		final int NUMB = 50;
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"/CopperTxnPersistentWorkflowTest/multiengine-oracle-unittest-context.xml"});
-		cleanDB(context.getBean(DataSource.class));
-		final PersistentScottyEngine engineRed = context.getBean("persistent.engine.red",PersistentScottyEngine.class);
-		final PersistentScottyEngine engineBlue = context.getBean("persistent.engine.blue",PersistentScottyEngine.class);
-		final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-		engineRed.startup();
-		engineBlue.startup();
-		try {
-			assertEquals(EngineState.STARTED,engineRed.getEngineState());
-			assertEquals(EngineState.STARTED,engineBlue.getEngineState());
+        assertTrue("DBMS not available", dbmsAvailable);
 
-			for (int i=0; i<NUMB; i++) {
-				ProcessingEngine engine = i % 2 == 0 ? engineRed : engineBlue;
-				engine.run(PersistentUnitTestWorkflow_NAME,null);
-			}
+        logger.info("running testMultipleEngines");
+        final int NUMB = 50;
+        final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "/CopperTxnPersistentWorkflowTest/multiengine-oracle-unittest-context.xml" });
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engineRed = context.getBean("persistent.engine.red", PersistentScottyEngine.class);
+        final PersistentScottyEngine engineBlue = context.getBean("persistent.engine.blue", PersistentScottyEngine.class);
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        engineRed.startup();
+        engineBlue.startup();
+        try {
+            assertEquals(EngineState.STARTED, engineRed.getEngineState());
+            assertEquals(EngineState.STARTED, engineBlue.getEngineState());
 
-			int x=0;
-			long startTS = System.currentTimeMillis();
-			while (x < NUMB && startTS+60000 > System.currentTimeMillis()) {
-				WorkflowResult wfr = backChannelQueue.poll();
-				if (wfr != null) {
-					assertNull(wfr.getResult());
-					assertNull(wfr.getException());
-					x++;
-				}
-				else {
-					Thread.sleep(50);
-				}
-			}
-			assertSame("Test failed - Timeout - "+x+" responses so far",x, NUMB);
+            for (int i = 0; i < NUMB; i++) {
+                ProcessingEngine engine = i % 2 == 0 ? engineRed : engineBlue;
+                engine.run(PersistentUnitTestWorkflow_NAME, null);
+            }
 
-			Thread.sleep(1000);
+            int x = 0;
+            long startTS = System.currentTimeMillis();
+            while (x < NUMB && startTS + 60000 > System.currentTimeMillis()) {
+                WorkflowResult wfr = backChannelQueue.poll();
+                if (wfr != null) {
+                    assertNull(wfr.getResult());
+                    assertNull(wfr.getException());
+                    x++;
+                }
+                else {
+                    Thread.sleep(50);
+                }
+            }
+            assertSame("Test failed - Timeout - " + x + " responses so far", x, NUMB);
 
-			// check for late queue entries
-			assertNull(backChannelQueue.poll());
+            Thread.sleep(1000);
 
-			// check AuditTrail Log
-			new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-				@Override
-				protected Void execute() throws Exception {
-					ResultSet rs = getConnection().createStatement().executeQuery("SELECT count(*) FROM COP_AUDIT_TRAIL_EVENT");
-					rs.next();
-					int count = rs.getInt(1);
-					assertEquals(NUMB*6, count);
-					rs.close();
-					return null;
-				}
-			}.run();
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engineRed.getEngineState());
-		assertEquals(EngineState.STOPPED,engineBlue.getEngineState());
-		assertEquals(0,engineRed.getNumberOfWorkflowInstances());
-		assertEquals(0,engineBlue.getNumberOfWorkflowInstances());
+            // check for late queue entries
+            assertNull(backChannelQueue.poll());
 
-	}
+            // check AuditTrail Log
+            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+                @Override
+                protected Void execute() throws Exception {
+                    ResultSet rs = getConnection().createStatement().executeQuery("SELECT count(*) FROM COP_AUDIT_TRAIL_EVENT");
+                    rs.next();
+                    int count = rs.getInt(1);
+                    assertEquals(NUMB * 6, count);
+                    rs.close();
+                    return null;
+                }
+            }.run();
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engineRed.getEngineState());
+        assertEquals(EngineState.STOPPED, engineBlue.getEngineState());
+        assertEquals(0, engineRed.getNumberOfWorkflowInstances());
+        assertEquals(0, engineBlue.getNumberOfWorkflowInstances());
 
-	@Test
-	public void testErrorHandlingInCoreEngine() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testErrorHandlingInCoreEngine(DS_CONTEXT);
-	}
+    }
 
-	@Test
-	public void testParentChildWorkflow() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testParentChildWorkflow(DS_CONTEXT);
-	}
+    @Test
+    public void testErrorHandlingInCoreEngine() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testErrorHandlingInCoreEngine(DS_CONTEXT);
+    }
 
-	@Test
-	public void testErrorKeepWorkflowInstanceInDB() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
-	}
+    @Test
+    public void testParentChildWorkflow() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testParentChildWorkflow(DS_CONTEXT);
+    }
 
-	@Test
-	public void testErrorHandlingInCoreEngine_restartAll() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testErrorHandlingInCoreEngine_restartAll(DS_CONTEXT);
-	}
+    @Test
+    public void testErrorKeepWorkflowInstanceInDB() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
+    }
 
-	@Test
-	public void testCompressedAuditTrail() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testCompressedAuditTrail(DS_CONTEXT);
-	}
+    @Test
+    public void testErrorHandlingInCoreEngine_restartAll() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testErrorHandlingInCoreEngine_restartAll(DS_CONTEXT);
+    }
 
-	@Test
-	public void testAutoCommit() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testAutoCommit(DS_CONTEXT);
-	}
+    @Test
+    public void testCompressedAuditTrail() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testCompressedAuditTrail(DS_CONTEXT);
+    }
 
-	@Test
-	public void testAuditTrailUncompressed() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testAuditTrailUncompressed(DS_CONTEXT);
-	}
+    @Test
+    public void testAutoCommit() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testAutoCommit(DS_CONTEXT);
+    }
 
-	@Test
-	public void testErrorHandlingWithWaitHook() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testErrorHandlingWithWaitHook(DS_CONTEXT);
-	}
+    @Test
+    public void testAuditTrailUncompressed() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testAuditTrailUncompressed(DS_CONTEXT);
+    }
 
-	@Test
-	public void testAuditTrailCustomSeqNr() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testAuditTrailCustomSeqNr(DS_CONTEXT);
-	}
+    @Test
+    public void testErrorHandlingWithWaitHook() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testErrorHandlingWithWaitHook(DS_CONTEXT);
+    }
 
-	@Test
-	public void testNotifyWithoutEarlyResponseHandling() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
-	}
-	
-	@Test
-	public void testFailOnDuplicateInsert() throws Exception {
-		assertTrue("DBMS not available",dbmsAvailable);
-		super.testFailOnDuplicateInsert(DS_CONTEXT);
-	}
-	
-	
+    @Test
+    public void testAuditTrailCustomSeqNr() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testAuditTrailCustomSeqNr(DS_CONTEXT);
+    }
+
+    @Test
+    public void testNotifyWithoutEarlyResponseHandling() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testNotifyWithoutEarlyResponseHandling(DS_CONTEXT);
+    }
+
+    @Test
+    public void testFailOnDuplicateInsert() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testFailOnDuplicateInsert(DS_CONTEXT);
+    }
 
 }

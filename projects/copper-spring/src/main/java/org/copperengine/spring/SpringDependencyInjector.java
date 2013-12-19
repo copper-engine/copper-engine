@@ -21,46 +21,44 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-
 /**
- * Connects SPRING to COPPER. Enables COPPER to inject dependencies into workflow instances using a spring container/context.
+ * Connects SPRING to COPPER. Enables COPPER to inject dependencies into workflow instances using a spring
+ * container/context.
  * 
  * @author austermann
- *
  */
 public class SpringDependencyInjector extends AbstractDependencyInjector implements ApplicationContextAware {
-	
-	private ApplicationContext context;
-	
-	public SpringDependencyInjector() {
-	}
-	
-	public SpringDependencyInjector(ApplicationContext context) {
-		this.context = context;
-	}
 
-	@Override
-	public String getType() {
-		return "SPRING";
-	}
-	
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		context = applicationContext;
-	}
+    private ApplicationContext context;
 
-	@Override
-	protected Object getBean(String beanId) {
-		Object firsttry = context.getBean(beanId);
-		if (firsttry instanceof SavepointAware){
-			Object secoundtry = context.getBean(beanId);
-			if (firsttry==secoundtry){
-				throw new IllegalStateException(beanId+" scope is not prototype");
-			}
-		}
-		return firsttry;
-				
-	}
+    public SpringDependencyInjector() {
+    }
+
+    public SpringDependencyInjector(ApplicationContext context) {
+        this.context = context;
+    }
+
+    @Override
+    public String getType() {
+        return "SPRING";
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        context = applicationContext;
+    }
+
+    @Override
+    protected Object getBean(String beanId) {
+        Object firsttry = context.getBean(beanId);
+        if (firsttry instanceof SavepointAware) {
+            Object secoundtry = context.getBean(beanId);
+            if (firsttry == secoundtry) {
+                throw new IllegalStateException(beanId + " scope is not prototype");
+            }
+        }
+        return firsttry;
+
+    }
 
 }
-

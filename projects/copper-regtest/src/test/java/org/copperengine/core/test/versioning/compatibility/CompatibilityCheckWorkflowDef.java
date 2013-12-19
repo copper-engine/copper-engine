@@ -16,5 +16,5 @@
 package org.copperengine.core.test.versioning.compatibility;
 
 public interface CompatibilityCheckWorkflowDef {
-	public static final String NAME = "org.copperengine.core.test.versioning.compatibility.CompatibilityCheckWorkflow";
+    public static final String NAME = "org.copperengine.core.test.versioning.compatibility.CompatibilityCheckWorkflow";
 }

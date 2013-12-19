@@ -25,24 +25,22 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
 public abstract class SpringTransaction {
-	
-	protected abstract void execute(Connection con) throws Exception;
-	
-	public void run(PlatformTransactionManager transactionManager, DataSource dataSource, TransactionDefinition def) throws Exception {
-		TransactionStatus txnStatus = transactionManager.getTransaction(def);
-		try {
-			Connection con = DataSourceUtils.getConnection(dataSource);
-			try {
-				execute(con);
-			}
-			finally {
-				DataSourceUtils.releaseConnection(con, dataSource);
-			}
-		}
-		catch(Exception e) {
-			transactionManager.rollback(txnStatus);
-			throw e;
-		}
-		transactionManager.commit(txnStatus);
-	}
+
+    protected abstract void execute(Connection con) throws Exception;
+
+    public void run(PlatformTransactionManager transactionManager, DataSource dataSource, TransactionDefinition def) throws Exception {
+        TransactionStatus txnStatus = transactionManager.getTransaction(def);
+        try {
+            Connection con = DataSourceUtils.getConnection(dataSource);
+            try {
+                execute(con);
+            } finally {
+                DataSourceUtils.releaseConnection(con, dataSource);
+            }
+        } catch (Exception e) {
+            transactionManager.rollback(txnStatus);
+            throw e;
+        }
+        transactionManager.commit(txnStatus);
+    }
 }

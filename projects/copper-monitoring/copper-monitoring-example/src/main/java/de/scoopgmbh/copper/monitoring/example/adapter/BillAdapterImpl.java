@@ -23,70 +23,69 @@ import org.copperengine.core.Response;
 
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
-public class BillAdapterImpl implements BillAdapter{
-	
-	private ProcessingEngine engine;
-	private final MonitoringDataCollector monitoringDataCollector;
-	
-	long lastBilltime=System.currentTimeMillis();
-	long lastServicetime=System.currentTimeMillis();
-	
-	public BillAdapterImpl(MonitoringDataCollector monitoringDataCollector){
-		this.monitoringDataCollector = monitoringDataCollector;
-	}
-	
-	public void initWithEngine(ProcessingEngine enginepar){
-		this.engine = enginepar;
-		Thread servicesCreator = new Thread("servicesCreator"){
-			@Override
-			public void run() {
-				while(true){
-					long now = System.currentTimeMillis();
-					if (lastServicetime+700<now){
-						engine.notify(new Response<BillableService>(BILLABLE_SERVICE, new BillableService(new BigDecimal("5")),null), new Acknowledge.BestEffortAcknowledge());
-						lastServicetime=now;
-					}
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			};
-		};
-		servicesCreator.setDaemon(true);
-		servicesCreator.start();
-		
-		Thread billScheduler = new Thread("billScheduler"){
-			@Override
-			public void run() {
-				while(true){
-					long now = System.currentTimeMillis();
-					if (lastBilltime+5000<now){
-						engine.notify(new Response<Bill>(BILL_TIME,new Bill(),null), new Acknowledge.BestEffortAcknowledge());
-						lastBilltime=now;
-					}
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			};
-		};
-		billScheduler.setDaemon(true);
-		billScheduler.start();
-	}
-	
-	@Override
-	public void publishBill(final Bill bill){
-		monitoringDataCollector.measureTimePeriod("publishBill", new Runnable() {
-			@Override
-			public void run() {
-				System.out.println("Bill, sum:"+bill.getTotalAmount());
-			}
-		});
-	}
+public class BillAdapterImpl implements BillAdapter {
+
+    private ProcessingEngine engine;
+    private final MonitoringDataCollector monitoringDataCollector;
+
+    long lastBilltime = System.currentTimeMillis();
+    long lastServicetime = System.currentTimeMillis();
+
+    public BillAdapterImpl(MonitoringDataCollector monitoringDataCollector) {
+        this.monitoringDataCollector = monitoringDataCollector;
+    }
+
+    public void initWithEngine(ProcessingEngine enginepar) {
+        this.engine = enginepar;
+        Thread servicesCreator = new Thread("servicesCreator") {
+            @Override
+            public void run() {
+                while (true) {
+                    long now = System.currentTimeMillis();
+                    if (lastServicetime + 700 < now) {
+                        engine.notify(new Response<BillableService>(BILLABLE_SERVICE, new BillableService(new BigDecimal("5")), null), new Acknowledge.BestEffortAcknowledge());
+                        lastServicetime = now;
+                    }
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            };
+        };
+        servicesCreator.setDaemon(true);
+        servicesCreator.start();
+
+        Thread billScheduler = new Thread("billScheduler") {
+            @Override
+            public void run() {
+                while (true) {
+                    long now = System.currentTimeMillis();
+                    if (lastBilltime + 5000 < now) {
+                        engine.notify(new Response<Bill>(BILL_TIME, new Bill(), null), new Acknowledge.BestEffortAcknowledge());
+                        lastBilltime = now;
+                    }
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            };
+        };
+        billScheduler.setDaemon(true);
+        billScheduler.start();
+    }
+
+    @Override
+    public void publishBill(final Bill bill) {
+        monitoringDataCollector.measureTimePeriod("publishBill", new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("Bill, sum:" + bill.getTotalAmount());
+            }
+        });
+    }
 
 }
-

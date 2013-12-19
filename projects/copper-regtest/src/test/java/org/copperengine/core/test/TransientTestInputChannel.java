@@ -19,37 +19,33 @@ import org.copperengine.core.ProcessingEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class TransientTestInputChannel implements Runnable {
 
-	private static final Logger logger = LoggerFactory.getLogger(TransientTestInputChannel.class);
-	private ProcessingEngine engine;
+    private static final Logger logger = LoggerFactory.getLogger(TransientTestInputChannel.class);
+    private ProcessingEngine engine;
 
-	public void setEngine(ProcessingEngine engine) {
-		this.engine = engine;
-	}
+    public void setEngine(ProcessingEngine engine) {
+        this.engine = engine;
+    }
 
-	public void run() {
-		try {
-			for (;;) {
-				engine.run("org.copperengine.core.test.ExtendedSpock2GTestWF",null);
-				Thread.sleep(15000);
-				engine.shutdown();
-				return;
-			}
-		}
-		catch(Exception e) {
-			logger.error("run failed",e);
-		}
-	}
+    public void run() {
+        try {
+            for (;;) {
+                engine.run("org.copperengine.core.test.ExtendedSpock2GTestWF", null);
+                Thread.sleep(15000);
+                engine.shutdown();
+                return;
+            }
+        } catch (Exception e) {
+            logger.error("run failed", e);
+        }
+    }
 
+    public void startup() {
+        new Thread(this).start();
+    }
 
-	public void startup() {
-		new Thread(this).start();
-	}
-	
-	public void shutdown() {
-		
-	}	
+    public void shutdown() {
+
+    }
 }
-

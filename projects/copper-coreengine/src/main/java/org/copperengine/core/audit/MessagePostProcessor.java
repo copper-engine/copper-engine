@@ -16,6 +16,7 @@
 package org.copperengine.core.audit;
 
 public interface MessagePostProcessor {
-	public String serialize(String msg);
-	public String deserialize(String msg);
+    public String serialize(String msg);
+
+    public String deserialize(String msg);
 }

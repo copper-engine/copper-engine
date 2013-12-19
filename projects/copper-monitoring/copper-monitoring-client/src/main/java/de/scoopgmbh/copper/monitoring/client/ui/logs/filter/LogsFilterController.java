@@ -27,44 +27,41 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.defaultfilter.DefaultFi
 
 public class LogsFilterController extends BaseFilterController<LogsFilterModel> implements Initializable, FxmlController {
 
-	private LogsFilterModel model = new LogsFilterModel();
-	public LogsFilterController() {
-		super();
-	}
+    private LogsFilterModel model = new LogsFilterModel();
 
+    public LogsFilterController() {
+        super();
+    }
 
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
- 
 
-	}
+    }
 
-	@Override
-	public LogsFilterModel getFilter() {
-		return model;
-	}
+    @Override
+    public LogsFilterModel getFilter() {
+        return model;
+    }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("LogsFilter.fxml");
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("LogsFilter.fxml");
+    }
 
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
 
-	@Override
-	public long getDefaultRefreshInterval() {
-		return FilterController.DEFAULT_REFRESH_INTERVALL;
-	}
+    @Override
+    public long getDefaultRefreshInterval() {
+        return FilterController.DEFAULT_REFRESH_INTERVALL;
+    }
 
+    @Override
+    public Node createDefaultFilter() {
+        return new DefaultFilterFactory().createFromToMaxCount(model);
+    }
 
-	@Override
-	public Node createDefaultFilter() {
-		return new DefaultFilterFactory().createFromToMaxCount(model);
-	}
-	
-	
-	
 }

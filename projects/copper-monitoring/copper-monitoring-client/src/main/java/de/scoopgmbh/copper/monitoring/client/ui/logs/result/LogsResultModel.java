@@ -25,49 +25,48 @@ import javafx.collections.ObservableList;
 import de.scoopgmbh.copper.monitoring.core.model.LogEvent;
 
 public class LogsResultModel {
-	
-	public static class LogsRowModel{
-		public final SimpleObjectProperty<Date> time;
-		public final SimpleStringProperty message;
-		public final SimpleStringProperty level;
-		public final SimpleStringProperty locationInformation;
-		
-		public LogsRowModel(LogEvent logEvent) {
-			time = new SimpleObjectProperty<Date>(logEvent.getTimeStamp());
-			message = new SimpleStringProperty(logEvent.getMessage());
-			level = new SimpleStringProperty(logEvent.getLevel());
-			locationInformation = new SimpleStringProperty(logEvent.getLocationInformation());
-		}
-		
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder();
-			fillString(builder);
-			return builder.toString();
-		}
-		
-		public void fillString(StringBuilder builder) {
-			builder.append(time.get());
-			builder.append("\t");
-			builder.append(level.get());
-			builder.append("\t");
-			builder.append(String.format("%-100s", message.get()));
-			builder.append("\t|");
-			builder.append(locationInformation.get());
-			builder.append("\n");
-		}
-	}
-	
-	public final SimpleStringProperty config;
-	public final ObservableList<LogsRowModel> logs = FXCollections.observableArrayList();
-	
-	
-	public LogsResultModel(String config, List<LogEvent> logevents) {
-		super();
-		this.config = new SimpleStringProperty(config);
-		for (LogEvent logEvent: logevents){
-			logs.add(new LogsRowModel(logEvent));
-		}
-	}
-	
+
+    public static class LogsRowModel {
+        public final SimpleObjectProperty<Date> time;
+        public final SimpleStringProperty message;
+        public final SimpleStringProperty level;
+        public final SimpleStringProperty locationInformation;
+
+        public LogsRowModel(LogEvent logEvent) {
+            time = new SimpleObjectProperty<Date>(logEvent.getTimeStamp());
+            message = new SimpleStringProperty(logEvent.getMessage());
+            level = new SimpleStringProperty(logEvent.getLevel());
+            locationInformation = new SimpleStringProperty(logEvent.getLocationInformation());
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            fillString(builder);
+            return builder.toString();
+        }
+
+        public void fillString(StringBuilder builder) {
+            builder.append(time.get());
+            builder.append("\t");
+            builder.append(level.get());
+            builder.append("\t");
+            builder.append(String.format("%-100s", message.get()));
+            builder.append("\t|");
+            builder.append(locationInformation.get());
+            builder.append("\n");
+        }
+    }
+
+    public final SimpleStringProperty config;
+    public final ObservableList<LogsRowModel> logs = FXCollections.observableArrayList();
+
+    public LogsResultModel(String config, List<LogEvent> logevents) {
+        super();
+        this.config = new SimpleStringProperty(config);
+        for (LogEvent logEvent : logevents) {
+            logs.add(new LogsRowModel(logEvent));
+        }
+    }
+
 }

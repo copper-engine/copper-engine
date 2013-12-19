@@ -36,72 +36,71 @@ import org.copperengine.core.test.backchannel.WorkflowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class SpringTxnUnitTestWorkflow extends PersistentWorkflow<String> {
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger logger = LoggerFactory.getLogger(SpringTxnUnitTestWorkflow.class);
-	
-	private transient BackChannelQueue backChannelQueue;
-	private transient MockAdapter mockAdapter;
-	private transient AuditTrail auditTrail;
-	
-	@AutoWire
-	public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
-		this.backChannelQueue = backChannelQueue;
-	}
+    private static final long serialVersionUID = 1L;
+    private static final Logger logger = LoggerFactory.getLogger(SpringTxnUnitTestWorkflow.class);
 
-	@AutoWire
-	public void setMockAdapter(MockAdapter mockAdapter) {
-		this.mockAdapter = mockAdapter;
-	}
-	
-	@AutoWire
-	public void setAuditTrail(AuditTrail auditTrail) {
-		this.auditTrail = auditTrail;
-	}
+    private transient BackChannelQueue backChannelQueue;
+    private transient MockAdapter mockAdapter;
+    private transient AuditTrail auditTrail;
 
-	@Override
-	public void main() throws InterruptException {
-		try {
-			for (int i=0; i<3; i++) {
-				callFoo();
-				assertNotNull(this.getCreationTS());
-			}
-			backChannelQueue.enqueue(new WorkflowResult(getData(), null));
-			backChannelQueue = null;
-			throw new RuntimeException("test exception to abort execution!!!");
-		}
-		catch(RuntimeException e) {
-			logger.error("execution failed",e);
-			if (backChannelQueue != null) backChannelQueue.enqueue(new WorkflowResult(null, e));
-			throw e;
-		}
-	}
+    @AutoWire
+    public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
+        this.backChannelQueue = backChannelQueue;
+    }
 
-	private void callFoo() throws InterruptException {
-		String cid = getEngine().createUUID();
-		// This is running within the current DB transaction
-		auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "beforeFoo", getId(), cid, cid, "beforeFoo", "String", null));
-		
-		mockAdapter.foo(getData(), cid);
-		
-		// current Txn ends here
-		wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
-		// new Txn starts here
-		
-		Response<?> res = getAndRemoveResponse(cid);
-		logger.info(res.toString());
+    @AutoWire
+    public void setMockAdapter(MockAdapter mockAdapter) {
+        this.mockAdapter = mockAdapter;
+    }
 
-		auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "afterFoo", getId(), cid, cid, "afterFoo - result = "+res.toString(), "String", null));
-		
-		assertNotNull(res);
-		assertFalse(res.isTimeout());
-		assertEquals(getData(), res.getResponse());
-		assertNull(res.getException());
-		
-		// This is also running within the current DB transaction
-		auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "Assertions checked", getId(), cid, cid, "Assertions checked", "String", null));
-	}
-	
+    @AutoWire
+    public void setAuditTrail(AuditTrail auditTrail) {
+        this.auditTrail = auditTrail;
+    }
+
+    @Override
+    public void main() throws InterruptException {
+        try {
+            for (int i = 0; i < 3; i++) {
+                callFoo();
+                assertNotNull(this.getCreationTS());
+            }
+            backChannelQueue.enqueue(new WorkflowResult(getData(), null));
+            backChannelQueue = null;
+            throw new RuntimeException("test exception to abort execution!!!");
+        } catch (RuntimeException e) {
+            logger.error("execution failed", e);
+            if (backChannelQueue != null)
+                backChannelQueue.enqueue(new WorkflowResult(null, e));
+            throw e;
+        }
+    }
+
+    private void callFoo() throws InterruptException {
+        String cid = getEngine().createUUID();
+        // This is running within the current DB transaction
+        auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "beforeFoo", getId(), cid, cid, "beforeFoo", "String", null));
+
+        mockAdapter.foo(getData(), cid);
+
+        // current Txn ends here
+        wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
+        // new Txn starts here
+
+        Response<?> res = getAndRemoveResponse(cid);
+        logger.info(res.toString());
+
+        auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "afterFoo", getId(), cid, cid, "afterFoo - result = " + res.toString(), "String", null));
+
+        assertNotNull(res);
+        assertFalse(res.isTimeout());
+        assertEquals(getData(), res.getResponse());
+        assertNull(res.getException());
+
+        // This is also running within the current DB transaction
+        auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "Assertions checked", getId(), cid, cid, "Assertions checked", "String", null));
+    }
+
 }

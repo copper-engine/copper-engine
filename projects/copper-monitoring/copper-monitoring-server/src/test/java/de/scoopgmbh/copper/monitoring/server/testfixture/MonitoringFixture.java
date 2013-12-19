@@ -19,17 +19,17 @@ import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueu
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAwareCallable;
 
 public class MonitoringFixture {
-	
-	public MonitoringFixture waitUntilMonitoringDataProcessed(MonitoringDataAccessQueue monitoringEventQueue){
 
-		monitoringEventQueue.callAndWait(new MonitoringDataAwareCallable<Object>() {
-			@Override
-			public Object call() throws Exception {
-				return new Object();
-			}
-		});
-		
-		return this;
-	}
+    public MonitoringFixture waitUntilMonitoringDataProcessed(MonitoringDataAccessQueue monitoringEventQueue) {
+
+        monitoringEventQueue.callAndWait(new MonitoringDataAwareCallable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                return new Object();
+            }
+        });
+
+        return this;
+    }
 
 }

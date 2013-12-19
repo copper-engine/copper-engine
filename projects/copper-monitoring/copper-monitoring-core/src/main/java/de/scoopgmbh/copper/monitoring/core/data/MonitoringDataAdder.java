@@ -18,20 +18,20 @@ package de.scoopgmbh.copper.monitoring.core.data;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringData;
 
 /**
- * wrapper for {@link MonitoringDataStorage} to add Data 
+ * wrapper for {@link MonitoringDataStorage} to add Data
  */
-public class MonitoringDataAdder{
-	
-	MonitoringDataStorage monitoringDataStorage;
-	
-	public MonitoringDataAdder(MonitoringDataStorage monitoringDataStorage) {
-		super();
-		
-		this.monitoringDataStorage = monitoringDataStorage;
-	}
+public class MonitoringDataAdder {
 
-	public void addMonitoringData(MonitoringData object) {
-		monitoringDataStorage.write(object);
-	}
-	
+    MonitoringDataStorage monitoringDataStorage;
+
+    public MonitoringDataAdder(MonitoringDataStorage monitoringDataStorage) {
+        super();
+
+        this.monitoringDataStorage = monitoringDataStorage;
+    }
+
+    public void addMonitoringData(MonitoringData object) {
+        monitoringDataStorage.write(object);
+    }
+
 }

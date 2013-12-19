@@ -31,52 +31,53 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 
 public class MessageFilterController extends BaseEngineFilterController<MessageFilterModel> implements Initializable, FxmlController {
-	
-	public MessageFilterController(List<ProcessingEngineInfo> availableEngines) {
-		super(availableEngines,new MessageFilterModel());
-	}
 
-	public class EmptySelectionWorkaround{
-		public WorkflowInstanceState value;
-		public String text;
-		public EmptySelectionWorkaround(WorkflowInstanceState value, String text) {
-			super();
-			this.value = value;
-			this.text = text;
-		}
-		
-	}
+    public MessageFilterController(List<ProcessingEngineInfo> availableEngines) {
+        super(availableEngines, new MessageFilterModel());
+    }
 
-    @FXML //  fx:id="ignoreProcessed"
+    public class EmptySelectionWorkaround {
+        public WorkflowInstanceState value;
+        public String text;
+
+        public EmptySelectionWorkaround(WorkflowInstanceState value, String text) {
+            super();
+            this.value = value;
+            this.text = text;
+        }
+
+    }
+
+    @FXML
+    // fx:id="ignoreProcessed"
     private CheckBox ignoreProcessed; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert ignoreProcessed != null : "fx:id=\"ignoreProcessed\" was not injected: check your FXML file 'MessageFilter.fxml'.";
-       
-        
+
         ignoreProcessed.selectedProperty().bindBidirectional(model.ignoreProcessed);
-	}
+    }
 
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("MessageFilter.fxml");
-	}
-	
-	@Override
-	public boolean supportsFiltering() {
-		return true;
-	}
-	
-	@Override
-	public long getDefaultRefreshInterval() {
-		return FilterController.DEFAULT_REFRESH_INTERVALL;
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("MessageFilter.fxml");
+    }
 
-	@Override
-	public Node createAdditionalFilter() {
-		return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
-	}
-	
+    @Override
+    public boolean supportsFiltering() {
+        return true;
+    }
+
+    @Override
+    public long getDefaultRefreshInterval() {
+        return FilterController.DEFAULT_REFRESH_INTERVALL;
+    }
+
+    @Override
+    public Node createAdditionalFilter() {
+        return new DefaultFilterFactory().createMaxCount(model.maxCountFilterModel);
+    }
+
 }

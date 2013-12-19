@@ -20,30 +20,28 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
- * Simple utility class to load and run a Spring FileSystemXmlApplicationContext. 
+ * Simple utility class to load and run a Spring FileSystemXmlApplicationContext.
  * 
  * @author austermann
- *
  */
 public class SpringEngineStarter {
 
-	private static final Logger logger = LoggerFactory.getLogger(SpringEngineStarter.class);
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		if (args.length == 0) {
-			System.out.println("Usage: "+SpringEngineStarter.class.getName()+" <configLocations>");
-			System.exit(-2);
-		}
-		try {
-			new FileSystemXmlApplicationContext(args);
-		}
-		catch(Exception e) {
-			logger.error("Startup failed",e);
-			System.exit(-1);
-		}
-	}
+    private static final Logger logger = LoggerFactory.getLogger(SpringEngineStarter.class);
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        if (args.length == 0) {
+            System.out.println("Usage: " + SpringEngineStarter.class.getName() + " <configLocations>");
+            System.exit(-2);
+        }
+        try {
+            new FileSystemXmlApplicationContext(args);
+        } catch (Exception e) {
+            logger.error("Startup failed", e);
+            System.exit(-1);
+        }
+    }
 
 }

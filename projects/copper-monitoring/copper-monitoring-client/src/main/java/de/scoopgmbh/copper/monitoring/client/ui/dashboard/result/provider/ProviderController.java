@@ -30,35 +30,39 @@ import de.scoopgmbh.copper.monitoring.client.form.FxmlController;
 import de.scoopgmbh.copper.monitoring.core.model.MonitoringDataProviderInfo;
 
 public class ProviderController implements Initializable, FxmlController {
-	private final GuiCopperDataProvider dataProvider;
-	private final FormContext context;
-	private final MonitoringDataProviderInfo dataProviderInfo;
-	
-    public ProviderController(MonitoringDataProviderInfo dataProviderInfo, FormContext context, GuiCopperDataProvider dataProvider) {
-    	this.dataProvider = dataProvider;
-    	this.context = context;
-    	this.dataProviderInfo = dataProviderInfo;
-	}
-    
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("Provider.fxml");
-	}
+    private final GuiCopperDataProvider dataProvider;
+    private final FormContext context;
+    private final MonitoringDataProviderInfo dataProviderInfo;
 
-    @FXML //  fx:id="name"
+    public ProviderController(MonitoringDataProviderInfo dataProviderInfo, FormContext context, GuiCopperDataProvider dataProvider) {
+        this.dataProvider = dataProvider;
+        this.context = context;
+        this.dataProviderInfo = dataProviderInfo;
+    }
+
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("Provider.fxml");
+    }
+
+    @FXML
+    // fx:id="name"
     private TextField name; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="start"
+    @FXML
+    // fx:id="start"
     private Button start; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="status"
+    @FXML
+    // fx:id="status"
     private TextField status; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="stop"
+    @FXML
+    // fx:id="stop"
     private Button stop; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert name != null : "fx:id=\"name\" was not injected: check your FXML file 'Provider.fxml'.";
         assert start != null : "fx:id=\"start\" was not injected: check your FXML file 'Provider.fxml'.";
@@ -67,45 +71,45 @@ public class ProviderController implements Initializable, FxmlController {
 
         name.setText(dataProviderInfo.getName());
         status.setText(dataProviderInfo.getStatus());
-        
+
         start.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				dataProvider.startMonitoringDataProvider(dataProviderInfo.getName());
-				context.createDashboardForm().refresh();
-			}
-		});
+            @Override
+            public void handle(ActionEvent event) {
+                dataProvider.startMonitoringDataProvider(dataProviderInfo.getName());
+                context.createDashboardForm().refresh();
+            }
+        });
         start.getStyleClass().add("copperActionButton");
         start.disableProperty().bind(status.textProperty().isEqualTo("STARTED"));
-        
+
         stop.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				dataProvider.stopMonitoringDataProvider(dataProviderInfo.getName());
-				context.createDashboardForm().refresh();
-			}
-		});
+            @Override
+            public void handle(ActionEvent event) {
+                dataProvider.stopMonitoringDataProvider(dataProviderInfo.getName());
+                context.createDashboardForm().refresh();
+            }
+        });
         stop.getStyleClass().add("copperActionButton");
         stop.disableProperty().bind(status.textProperty().isEqualTo("STOPPED"));
-	}
+    }
 
     public TextField getName() {
-		return name;
-	}
-    
+        return name;
+    }
+
     public Button getStart() {
-		return start;
-	}
-    
+        return start;
+    }
+
     public TextField getStatus() {
-		return status;
-	}
-    
+        return status;
+    }
+
     public GuiCopperDataProvider getDataProvider() {
-		return dataProvider;
-	}
-    
+        return dataProvider;
+    }
+
     public MonitoringDataProviderInfo getDataProviderInfo() {
-		return dataProviderInfo;
-	}
+        return dataProviderInfo;
+    }
 }

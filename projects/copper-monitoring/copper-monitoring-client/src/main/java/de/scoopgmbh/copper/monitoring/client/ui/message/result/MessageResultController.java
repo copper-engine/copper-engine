@@ -39,33 +39,39 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerB
 import de.scoopgmbh.copper.monitoring.client.ui.message.filter.MessageFilterModel;
 import de.scoopgmbh.copper.monitoring.client.util.TableColumnHelper;
 
-public class MessageResultController extends FilterResultControllerBase<MessageFilterModel,MessageResultModel> implements Initializable {
-	private final GuiCopperDataProvider copperDataProvider;
-	
-	public MessageResultController(GuiCopperDataProvider copperDataProvider) {
-		super();
-		this.copperDataProvider = copperDataProvider;
-	}
-	
-    @FXML //  fx:id="borderPane"
+public class MessageResultController extends FilterResultControllerBase<MessageFilterModel, MessageResultModel> implements Initializable {
+    private final GuiCopperDataProvider copperDataProvider;
+
+    public MessageResultController(GuiCopperDataProvider copperDataProvider) {
+        super();
+        this.copperDataProvider = copperDataProvider;
+    }
+
+    @FXML
+    // fx:id="borderPane"
     private BorderPane borderPane;
 
-    @FXML //  fx:id="idColumn"
+    @FXML
+    // fx:id="idColumn"
     private TableColumn<MessageResultModel, String> idColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="resultTable"
+    @FXML
+    // fx:id="resultTable"
     private TableView<MessageResultModel> resultTable; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="stateColumn"
+    @FXML
+    // fx:id="stateColumn"
     private TableColumn<MessageResultModel, String> messageColumn; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="timeColumn"
+    @FXML
+    // fx:id="timeColumn"
     private TableColumn<MessageResultModel, Date> timeColumn; // Value injected by FXMLLoader
-    
-    @FXML 
+
+    @FXML
     private TableColumn<MessageResultModel, Date> timeout; // Value injected by FXMLLoader
 
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert idColumn != null : "fx:id=\"idColumn\" was not injected: check your FXML file 'MessageResult.fxml'.";
         assert messageColumn != null : "fx:id=\"messageColumn\" was not injected: check your FXML file 'MessageResult.fxml'.";
@@ -73,78 +79,77 @@ public class MessageResultController extends FilterResultControllerBase<MessageF
         assert timeColumn != null : "fx:id=\"timeColumn\" was not injected: check your FXML file 'MessageResult.fxml'.";
         assert timeout != null;
         assert borderPane != null;
-        
+
         final HBox createTabelControlls = createTabelControlls(resultTable);
         BorderPane.setMargin(createTabelControlls, new Insets(3));
-		borderPane.setBottom(createTabelControlls);
+        borderPane.setBottom(createTabelControlls);
 
         timeColumn.setCellValueFactory(new Callback<CellDataFeatures<MessageResultModel, Date>, ObservableValue<Date>>() {
-				@Override
-     			public ObservableValue<Date> call(
-     					CellDataFeatures<MessageResultModel, Date> p) {
-     				return p.getValue().time;
-     			}
-     		});
+            @Override
+            public ObservableValue<Date> call(
+                    CellDataFeatures<MessageResultModel, Date> p) {
+                return p.getValue().time;
+            }
+        });
         TableColumnHelper.setConverterCellFactory(timeColumn, new DateStringConverter("dd.MM.yyyy HH:mm:ss:SSS"));
         timeout.setCellValueFactory(new Callback<CellDataFeatures<MessageResultModel, Date>, ObservableValue<Date>>() {
-				@Override
-     			public ObservableValue<Date> call(
-     					CellDataFeatures<MessageResultModel, Date> p) {
-     				return p.getValue().timeout;
-     			}
-     		});
+            @Override
+            public ObservableValue<Date> call(
+                    CellDataFeatures<MessageResultModel, Date> p) {
+                return p.getValue().timeout;
+            }
+        });
         TableColumnHelper.setConverterCellFactory(timeout, new DateStringConverter("dd.MM.yyyy HH:mm:ss:SSS"));
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<MessageResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<MessageResultModel, String> p) {
-				return p.getValue().correlationId;
-			}
-		});
-        
-        messageColumn.setCellValueFactory(new Callback<CellDataFeatures<MessageResultModel, String>, ObservableValue<String>>() {
-			@Override
-			public ObservableValue<String> call(
-					CellDataFeatures<MessageResultModel, String> p) {
-				return p.getValue().message;
-			}
-		});
-        
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<MessageResultModel, String> p) {
+                return p.getValue().correlationId;
+            }
+        });
 
-//        resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        
+        messageColumn.setCellValueFactory(new Callback<CellDataFeatures<MessageResultModel, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    CellDataFeatures<MessageResultModel, String> p) {
+                return p.getValue().message;
+            }
+        });
+
+        // resultTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         timeColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.15));
         timeout.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.15));
         messageColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.45));
         idColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.25));
 
     }
-    
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("MessageResult.fxml");
-	}
 
-	@Override
-	public void showFilteredResult(List<MessageResultModel> filteredResult, MessageFilterModel usedFilter) {
-		ObservableList<MessageResultModel> content = FXCollections.observableList(new ArrayList<MessageResultModel>());
-		content.addAll(filteredResult);
-		resultTable.setItems(content);
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("MessageResult.fxml");
+    }
 
-	@Override
-	public List<MessageResultModel> applyFilterInBackgroundThread(MessageFilterModel filter) {
-		return copperDataProvider.getMessageList(filter,filter.maxCountFilterModel.getMaxCount());  
-	}
-	
-	@Override
-	public boolean supportsClear() {
-		return true;
-	}
+    @Override
+    public void showFilteredResult(List<MessageResultModel> filteredResult, MessageFilterModel usedFilter) {
+        ObservableList<MessageResultModel> content = FXCollections.observableList(new ArrayList<MessageResultModel>());
+        content.addAll(filteredResult);
+        resultTable.setItems(content);
+    }
 
-	@Override
-	public void clear() {
-		resultTable.getItems().clear();
-	}
+    @Override
+    public List<MessageResultModel> applyFilterInBackgroundThread(MessageFilterModel filter) {
+        return copperDataProvider.getMessageList(filter, filter.maxCountFilterModel.getMaxCount());
+    }
+
+    @Override
+    public boolean supportsClear() {
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        resultTable.getItems().clear();
+    }
 
 }

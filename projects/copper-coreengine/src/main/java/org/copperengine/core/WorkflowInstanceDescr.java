@@ -16,77 +16,78 @@
 package org.copperengine.core;
 
 public class WorkflowInstanceDescr<T> {
-	
-	private final String wfName;
-	private T data;
-	private Integer priority;
-	private String processorPoolId;
-	private String id;
-	private WorkflowVersion workflowVersion;
-	
-	public WorkflowInstanceDescr(String wfName) {
-		this(wfName,null,null,null,null);
-	}
-	
-	public WorkflowInstanceDescr(String wfName, T data) {
-		this(wfName,data,null,null,null);
-	}
-	
-	public WorkflowInstanceDescr(String wfName, T data, String id, Integer priority, String processorPoolId) {
-		if (wfName == null) throw new IllegalArgumentException("wfName is null");
-		this.wfName = wfName;
-		this.data = data;
-		this.priority = priority;
-		this.processorPoolId = processorPoolId;
-		this.id = id;
-	}
-	
-	public WorkflowInstanceDescr(String wfName, T data, String id, Integer priority, String processorPoolId, WorkflowVersion workflowVersion) {
-		this(wfName,data,id,priority,processorPoolId);
-		this.workflowVersion = workflowVersion;
-	}	
 
-	public String getWfName() {
-		return wfName;
-	}
+    private final String wfName;
+    private T data;
+    private Integer priority;
+    private String processorPoolId;
+    private String id;
+    private WorkflowVersion workflowVersion;
 
-	public T getData() {
-		return data;
-	}
+    public WorkflowInstanceDescr(String wfName) {
+        this(wfName, null, null, null, null);
+    }
 
-	public Integer getPriority() {
-		return priority;
-	}
+    public WorkflowInstanceDescr(String wfName, T data) {
+        this(wfName, data, null, null, null);
+    }
 
-	public String getProcessorPoolId() {
-		return processorPoolId;
-	}
-	
-	public String getId() {
-		return id;
-	}
+    public WorkflowInstanceDescr(String wfName, T data, String id, Integer priority, String processorPoolId) {
+        if (wfName == null)
+            throw new IllegalArgumentException("wfName is null");
+        this.wfName = wfName;
+        this.data = data;
+        this.priority = priority;
+        this.processorPoolId = processorPoolId;
+        this.id = id;
+    }
 
-	public void setData(T data) {
-		this.data = data;
-	}
+    public WorkflowInstanceDescr(String wfName, T data, String id, Integer priority, String processorPoolId, WorkflowVersion workflowVersion) {
+        this(wfName, data, id, priority, processorPoolId);
+        this.workflowVersion = workflowVersion;
+    }
 
-	public void setPriority(Integer priority) {
-		this.priority = priority;
-	}
+    public String getWfName() {
+        return wfName;
+    }
 
-	public void setProcessorPoolId(String processorPoolId) {
-		this.processorPoolId = processorPoolId;
-	}
+    public T getData() {
+        return data;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
-	
-	public WorkflowVersion getVersion() {
-		return workflowVersion;
-	}
-	
-	public void setVersion(WorkflowVersion workflowVersion) {
-		this.workflowVersion = workflowVersion;
-	}
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public String getProcessorPoolId() {
+        return processorPoolId;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public void setProcessorPoolId(String processorPoolId) {
+        this.processorPoolId = processorPoolId;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public WorkflowVersion getVersion() {
+        return workflowVersion;
+    }
+
+    public void setVersion(WorkflowVersion workflowVersion) {
+        this.workflowVersion = workflowVersion;
+    }
 }

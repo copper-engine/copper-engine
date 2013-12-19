@@ -23,39 +23,36 @@ import org.copperengine.core.WaitHook;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 
-
 /**
- * Simple class that bundles the input parameters of a call to {@link ScottyDBStorageInterface#registerCallback} 
+ * Simple class that bundles the input parameters of a call to {@link ScottyDBStorageInterface#registerCallback}
  * 
  * @author austermann
- *
  */
 public class RegisterCall {
-	
-	public Workflow<?> workflow;
-	public WaitMode waitMode;
-	public Long timeout;
-	public String[] correlationIds;
-	public Timestamp timeoutTS;
-	public List<WaitHook> waitHooks;
-	
-	public RegisterCall(Workflow<?> workflow, WaitMode waitMode, Long timeout, String[] correlationIds, List<WaitHook> waitHooks) {
-		super();
-		this.waitMode = waitMode;
-		this.timeout = timeout;
-		this.correlationIds = correlationIds;
-		this.workflow = workflow;
-		this.timeoutTS = timeout != null ? new Timestamp(System.currentTimeMillis()+timeout) : null;
-		this.waitHooks = waitHooks;
-	}
 
-	@Override
-	public String toString() {
-		return "RegisterCall [correlationIds="
-				+ Arrays.toString(correlationIds) + ", timeout=" + timeout
-				+ ", timeoutTS=" + timeoutTS + ", waitMode=" + waitMode + ", waitHooks.size="+waitHooks.size()
-				+ ", workflow=" + workflow + "]";
-	}
+    public Workflow<?> workflow;
+    public WaitMode waitMode;
+    public Long timeout;
+    public String[] correlationIds;
+    public Timestamp timeoutTS;
+    public List<WaitHook> waitHooks;
 
+    public RegisterCall(Workflow<?> workflow, WaitMode waitMode, Long timeout, String[] correlationIds, List<WaitHook> waitHooks) {
+        super();
+        this.waitMode = waitMode;
+        this.timeout = timeout;
+        this.correlationIds = correlationIds;
+        this.workflow = workflow;
+        this.timeoutTS = timeout != null ? new Timestamp(System.currentTimeMillis() + timeout) : null;
+        this.waitHooks = waitHooks;
+    }
+
+    @Override
+    public String toString() {
+        return "RegisterCall [correlationIds="
+                + Arrays.toString(correlationIds) + ", timeout=" + timeout
+                + ", timeoutTS=" + timeoutTS + ", waitMode=" + waitMode + ", waitHooks.size=" + waitHooks.size()
+                + ", workflow=" + workflow + "]";
+    }
 
 }

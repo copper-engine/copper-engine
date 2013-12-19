@@ -17,39 +17,36 @@ package de.scoopgmbh.copper.monitoring.core.model;
 
 import java.io.Serializable;
 
-public class BatcherInfo implements Serializable{
-	private static final long serialVersionUID = 7907179275571625622L;
-	
-	String description;
-	int numThreads;
-	
-	public BatcherInfo(String description, int numThreads) {
-		super();
-		this.description = description;
-		this.numThreads = numThreads;
-	}
+public class BatcherInfo implements Serializable {
+    private static final long serialVersionUID = 7907179275571625622L;
 
-	public String getDescription() {
-		return description;
-	}
+    String description;
+    int numThreads;
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public BatcherInfo(String description, int numThreads) {
+        super();
+        this.description = description;
+        this.numThreads = numThreads;
+    }
 
-	public int getNumThreads() {
-		return numThreads;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setNumThreads(int numThreads) {
-		this.numThreads = numThreads;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public BatcherInfo() {
-		super();
-	}
+    public int getNumThreads() {
+        return numThreads;
+    }
 
-	
-	
+    public void setNumThreads(int numThreads) {
+        this.numThreads = numThreads;
+    }
+
+    public BatcherInfo() {
+        super();
+    }
 
 }

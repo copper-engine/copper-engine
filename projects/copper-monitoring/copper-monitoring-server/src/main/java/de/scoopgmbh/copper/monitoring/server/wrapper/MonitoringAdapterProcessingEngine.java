@@ -32,104 +32,102 @@ import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
 /**
  * Add Monitoring for ProcessingEngine for a specific adapter
+ * 
  * @author hbrackmann
- *
  */
-public class MonitoringAdapterProcessingEngine implements ProcessingEngine{
-	
-	private final ProcessingEngine processingEngine;
-	private final MonitoringDataCollector monitoringDataCollector;
-	private Object adapter;
-	
-	public MonitoringAdapterProcessingEngine(ProcessingEngine processingEngine, MonitoringDataCollector monitoringDataCollector) {
-		this(new Object(),processingEngine,monitoringDataCollector);
-	}
-	
-	public MonitoringAdapterProcessingEngine(Object adapter,ProcessingEngine processingEngine, MonitoringDataCollector monitoringDataCollector) {
-		super();
-		this.adapter = adapter;
-		this.processingEngine = processingEngine;
-		this.monitoringDataCollector = monitoringDataCollector;
-	}
-	
-	public void setAdapter(Object adapter){
-		this.adapter = adapter;
-	}
+public class MonitoringAdapterProcessingEngine implements ProcessingEngine {
 
-	@Override
-	public void startup() throws CopperRuntimeException {
-		processingEngine.startup();
-	}
+    private final ProcessingEngine processingEngine;
+    private final MonitoringDataCollector monitoringDataCollector;
+    private Object adapter;
 
-	@Override
-	public void shutdown() throws CopperRuntimeException {
-		processingEngine.shutdown();
-	}
+    public MonitoringAdapterProcessingEngine(ProcessingEngine processingEngine, MonitoringDataCollector monitoringDataCollector) {
+        this(new Object(), processingEngine, monitoringDataCollector);
+    }
 
-	@Override
-	public void addShutdownObserver(Runnable observer) {
-		processingEngine.addShutdownObserver(observer);
-	}
+    public MonitoringAdapterProcessingEngine(Object adapter, ProcessingEngine processingEngine, MonitoringDataCollector monitoringDataCollector) {
+        super();
+        this.adapter = adapter;
+        this.processingEngine = processingEngine;
+        this.monitoringDataCollector = monitoringDataCollector;
+    }
 
-	@Override
-	public void registerCallbacks(Workflow<?> w, WaitMode mode, long timeoutMsec, String... correlationIds) throws CopperRuntimeException {
-		processingEngine.registerCallbacks(w, mode, timeoutMsec, correlationIds);
-	}
+    public void setAdapter(Object adapter) {
+        this.adapter = adapter;
+    }
 
-	@Override
-	@Deprecated
-	public void notify(Response<?> response) throws CopperRuntimeException {
-		monitoringDataCollector.submitAdapterWfNotify(response.getCorrelationId(), response.getResponse(),adapter);
-		processingEngine.notify(response);
-	}
+    @Override
+    public void startup() throws CopperRuntimeException {
+        processingEngine.startup();
+    }
 
-	@Override
-	public String createUUID() {
-		return processingEngine.createUUID();
-	}
+    @Override
+    public void shutdown() throws CopperRuntimeException {
+        processingEngine.shutdown();
+    }
 
-	@Override
-	public void run(String wfname, Object data) throws CopperException {
-		monitoringDataCollector.submitAdapterWfLaunch(wfname,adapter);
-		processingEngine.run(wfname,data);
-	}
+    @Override
+    public void addShutdownObserver(Runnable observer) {
+        processingEngine.addShutdownObserver(observer);
+    }
 
-	@Override
-	public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
-		monitoringDataCollector.submitAdapterWfLaunch(wfInstanceDescr.getWfName(),adapter);
-		processingEngine.run(wfInstanceDescr);
-	}
+    @Override
+    public void registerCallbacks(Workflow<?> w, WaitMode mode, long timeoutMsec, String... correlationIds) throws CopperRuntimeException {
+        processingEngine.registerCallbacks(w, mode, timeoutMsec, correlationIds);
+    }
 
-	@Override
-	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr) throws CopperException {
-		for (WorkflowInstanceDescr<?> wfInstanceDesc: wfInstanceDescr){
-			monitoringDataCollector.submitAdapterWfLaunch(wfInstanceDesc.getWfName(),adapter);
-		}
-		processingEngine.runBatch(wfInstanceDescr);
-	}
+    @Override
+    @Deprecated
+    public void notify(Response<?> response) throws CopperRuntimeException {
+        monitoringDataCollector.submitAdapterWfNotify(response.getCorrelationId(), response.getResponse(), adapter);
+        processingEngine.notify(response);
+    }
 
-	@Override
-	public EngineState getEngineState() {
-		return processingEngine.getEngineState();
-	}
+    @Override
+    public String createUUID() {
+        return processingEngine.createUUID();
+    }
 
-	@Override
-	public String getEngineId() {
-		return processingEngine.getEngineId();
-	}
+    @Override
+    public void run(String wfname, Object data) throws CopperException {
+        monitoringDataCollector.submitAdapterWfLaunch(wfname, adapter);
+        processingEngine.run(wfname, data);
+    }
 
-	@Override
-	public void addWaitHook(String wfInstanceId, WaitHook waitHook) {
-		processingEngine.addWaitHook(wfInstanceId, waitHook);
-	}
+    @Override
+    public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
+        monitoringDataCollector.submitAdapterWfLaunch(wfInstanceDescr.getWfName(), adapter);
+        processingEngine.run(wfInstanceDescr);
+    }
 
-	@Override
-	public void notify(Response<?> response, Acknowledge ack)
-			throws CopperRuntimeException {
-		monitoringDataCollector.submitAdapterWfNotify(response.getCorrelationId(), response.getResponse(),adapter);
-		processingEngine.notify(response, ack);
-	}
+    @Override
+    public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr) throws CopperException {
+        for (WorkflowInstanceDescr<?> wfInstanceDesc : wfInstanceDescr) {
+            monitoringDataCollector.submitAdapterWfLaunch(wfInstanceDesc.getWfName(), adapter);
+        }
+        processingEngine.runBatch(wfInstanceDescr);
+    }
 
-	
+    @Override
+    public EngineState getEngineState() {
+        return processingEngine.getEngineState();
+    }
+
+    @Override
+    public String getEngineId() {
+        return processingEngine.getEngineId();
+    }
+
+    @Override
+    public void addWaitHook(String wfInstanceId, WaitHook waitHook) {
+        processingEngine.addWaitHook(wfInstanceId, waitHook);
+    }
+
+    @Override
+    public void notify(Response<?> response, Acknowledge ack)
+            throws CopperRuntimeException {
+        monitoringDataCollector.submitAdapterWfNotify(response.getCorrelationId(), response.getResponse(), adapter);
+        processingEngine.notify(response, ack);
+    }
 
 }

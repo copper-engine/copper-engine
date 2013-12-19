@@ -20,81 +20,79 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.copperengine.core.AbstractDependencyInjector;
 
-
 public class PojoDependencyInjector extends AbstractDependencyInjector {
 
-	private Map<String, Provider<?>> map = new ConcurrentHashMap<String, Provider<?>>();
+    private Map<String, Provider<?>> map = new ConcurrentHashMap<String, Provider<?>>();
 
-	@Override
-	public String getType() {
-		return "POJO";
-	}
-	
-	@Override
-	protected Object getBean(String beanId) {
-		Provider<?> p = map.get(beanId);
-		return p.get();
-	}
-	
-	public <T> void register(String beanId, T bean) {
-		register(beanId, new BeanProvider<T>(bean));
-	}
-	
-	public <T> void register(String beanId, Provider<T> provider) {
-		map.put(beanId, provider);
-	}
-	
-	public static interface Provider<T> {
+    @Override
+    public String getType() {
+        return "POJO";
+    }
 
-		public T get();
-		
-	}
+    @Override
+    protected Object getBean(String beanId) {
+        Provider<?> p = map.get(beanId);
+        return p.get();
+    }
 
-	public static class BeanProvider<T> implements Provider<T> {
-		
-		T bean;
-		
-		public BeanProvider(T bean) {
-			this.bean = bean;
-		}
+    public <T> void register(String beanId, T bean) {
+        register(beanId, new BeanProvider<T>(bean));
+    }
 
-		public T get() {
-			return bean;
-		}
-		
-	}
-	
+    public <T> void register(String beanId, Provider<T> provider) {
+        map.put(beanId, provider);
+    }
 
-	public static abstract class Factory<T> implements Provider<T> {
+    public static interface Provider<T> {
 
-		@Override
-		public T get() {
-			return create();
-		}
+        public T get();
 
-		public abstract T create();
-		
-	}
-	
-	public static class SimpleFactory<T> extends Factory<T> {
-		
-		Class<? extends T> clazz;
-		
-		public SimpleFactory(Class<? extends T> clazz) {
-			this.clazz = clazz;
-		}
+    }
 
-		@Override
-		public T create() {
-			try {
-				return clazz.newInstance();
-			} catch (InstantiationException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		
-	}
+    public static class BeanProvider<T> implements Provider<T> {
+
+        T bean;
+
+        public BeanProvider(T bean) {
+            this.bean = bean;
+        }
+
+        public T get() {
+            return bean;
+        }
+
+    }
+
+    public static abstract class Factory<T> implements Provider<T> {
+
+        @Override
+        public T get() {
+            return create();
+        }
+
+        public abstract T create();
+
+    }
+
+    public static class SimpleFactory<T> extends Factory<T> {
+
+        Class<? extends T> clazz;
+
+        public SimpleFactory(Class<? extends T> clazz) {
+            this.clazz = clazz;
+        }
+
+        @Override
+        public T create() {
+            try {
+                return clazz.newInstance();
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
 
 }

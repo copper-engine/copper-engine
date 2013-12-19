@@ -33,78 +33,81 @@ import de.scoopgmbh.copper.monitoring.client.form.filter.FilterResultControllerB
 import de.scoopgmbh.copper.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 import de.scoopgmbh.copper.monitoring.core.model.MeasurePointData;
 
-public class MeasurePointResultController extends FilterResultControllerBase<EnginePoolFilterModel,MeasurePointData> implements Initializable {
-	private final GuiCopperDataProvider copperDataProvider;
-	
-	public MeasurePointResultController(GuiCopperDataProvider copperDataProvider) {
-		super();
-		this.copperDataProvider = copperDataProvider;
-	}
+public class MeasurePointResultController extends FilterResultControllerBase<EnginePoolFilterModel, MeasurePointData> implements Initializable {
+    private final GuiCopperDataProvider copperDataProvider;
 
-    @FXML //  fx:id="chart"
+    public MeasurePointResultController(GuiCopperDataProvider copperDataProvider) {
+        super();
+        this.copperDataProvider = copperDataProvider;
+    }
+
+    @FXML
+    // fx:id="chart"
     private BarChart<String, Number> chart; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="reset"
+    @FXML
+    // fx:id="reset"
     private Button reset; // Value injected by FXMLLoader
 
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert chart != null : "fx:id=\"chart\" was not injected: check your FXML file 'MeasurePointResult.fxml'.";
         assert reset != null : "fx:id=\"reset\" was not injected: check your FXML file 'MeasurePointResult.fxml'.";
 
         reset.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				copperDataProvider.resetMeasurePoints();
-				clear();
-			}
-		});
+            @Override
+            public void handle(ActionEvent event) {
+                copperDataProvider.resetMeasurePoints();
+                clear();
+            }
+        });
         reset.getStyleClass().add("copperActionButton");
 
         initChart();
     }
 
-	private void initChart() {
-		axis = new XYChart.Series<String, Number>();
-		axis.setName("Measuring points");
-		chart.getData().add(axis);
-		chart.getYAxis().setLabel("average micro seconds"); 
-	}
-	
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("MeasurePointResult.fxml");
-	}
+    private void initChart() {
+        axis = new XYChart.Series<String, Number>();
+        axis.setName("Measuring points");
+        chart.getData().add(axis);
+        chart.getYAxis().setLabel("average micro seconds");
+    }
 
-	private XYChart.Series<String, Number> axis;
-	
-	@Override
-	public void showFilteredResult(List<MeasurePointData> filteredlist, EnginePoolFilterModel usedFilter) {
-		clear();
-		for (MeasurePointData measurePointData: filteredlist){
-			ObservableList<Data<String, Number>> data = axis.getData();
-			if (measurePointData.getCount()!=0){
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("MeasurePointResult.fxml");
+    }
+
+    private XYChart.Series<String, Number> axis;
+
+    @Override
+    public void showFilteredResult(List<MeasurePointData> filteredlist, EnginePoolFilterModel usedFilter) {
+        clear();
+        for (MeasurePointData measurePointData : filteredlist) {
+            ObservableList<Data<String, Number>> data = axis.getData();
+            if (measurePointData.getCount() != 0) {
                 String text = measurePointData.getMeasurePointId();
-                if (text!=null){
-                    text=text.replace("de.scoopgmbh.copper.persistent","");
+                if (text != null) {
+                    text = text.replace("de.scoopgmbh.copper.persistent", "");
                 }
-				data.add(new XYChart.Data<String, Number>(text, measurePointData.getElapsedTimeMicros()/measurePointData.getCount()));
-			}
-		}
-	}
-	
-	@Override
-	public List<MeasurePointData> applyFilterInBackgroundThread(EnginePoolFilterModel filter) {
-		return copperDataProvider.getMeasurePoints(filter);
-	}
-	
-	@Override
-	public boolean supportsClear() {
-		return true;
-	}
+                data.add(new XYChart.Data<String, Number>(text, measurePointData.getElapsedTimeMicros() / measurePointData.getCount()));
+            }
+        }
+    }
 
-	@Override
-	public void clear() {
-		axis.getData().clear();
-	}
+    @Override
+    public List<MeasurePointData> applyFilterInBackgroundThread(EnginePoolFilterModel filter) {
+        return copperDataProvider.getMeasurePoints(filter);
+    }
+
+    @Override
+    public boolean supportsClear() {
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        axis.getData().clear();
+    }
 }

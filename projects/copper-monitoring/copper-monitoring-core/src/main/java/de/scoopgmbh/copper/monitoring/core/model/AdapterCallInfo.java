@@ -18,40 +18,46 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class AdapterCallInfo extends AdapterEventBase implements Serializable{
-	private static final long serialVersionUID = 6386090675365126626L;
-	
-	String method;
-	String parameter;
-	WorkflowInstanceInfo workflow;
-	
-	public AdapterCallInfo() {
-		super();
-	}
-	public AdapterCallInfo(String method, String parameter, Date timestamp, String adapterName,WorkflowInstanceInfo workflow) {
-		super(adapterName,timestamp);
-		this.method = method;
-		this.parameter = parameter;
-		this.workflow = workflow;
-	}
-	public String getMethod() {
-		return method;
-	}
-	public void setMethod(String method) {
-		this.method = method;
-	}
-	public String getParameter() {
-		return parameter;
-	}
-	public void setParameter(String parameter) {
-		this.parameter = parameter;
-	}
-	public WorkflowInstanceInfo getWorkflow() {
-		return workflow;
-	}
-	public void setWorkflow(WorkflowInstanceInfo workflow) {
-		this.workflow = workflow;
-	}
-	
+public class AdapterCallInfo extends AdapterEventBase implements Serializable {
+    private static final long serialVersionUID = 6386090675365126626L;
+
+    String method;
+    String parameter;
+    WorkflowInstanceInfo workflow;
+
+    public AdapterCallInfo() {
+        super();
+    }
+
+    public AdapterCallInfo(String method, String parameter, Date timestamp, String adapterName, WorkflowInstanceInfo workflow) {
+        super(adapterName, timestamp);
+        this.method = method;
+        this.parameter = parameter;
+        this.workflow = workflow;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public String getParameter() {
+        return parameter;
+    }
+
+    public void setParameter(String parameter) {
+        this.parameter = parameter;
+    }
+
+    public WorkflowInstanceInfo getWorkflow() {
+        return workflow;
+    }
+
+    public void setWorkflow(WorkflowInstanceInfo workflow) {
+        this.workflow = workflow;
+    }
 
 }

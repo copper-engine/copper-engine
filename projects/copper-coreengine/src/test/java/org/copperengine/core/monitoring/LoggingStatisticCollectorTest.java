@@ -17,25 +17,24 @@ package org.copperengine.core.monitoring;
 
 import java.util.concurrent.TimeUnit;
 
-import org.copperengine.core.monitoring.LoggingStatisticCollector;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoggingStatisticCollectorTest{
-	
-	private static final Logger logger = LoggerFactory.getLogger(LoggingStatisticCollector.class);
+public class LoggingStatisticCollectorTest {
 
-	@Test
-	public final void testPrint() {
-		LoggingStatisticCollector collector = new LoggingStatisticCollector();
-		collector.submit("insertIntoA", 100, 20, TimeUnit.MILLISECONDS);
-		collector.submit("insertIntoA", 101, 21, TimeUnit.MILLISECONDS);
-		collector.submit("insertIntoA", 102, 22, TimeUnit.MILLISECONDS);
-		collector.submit("insertIntoB45", 102, 0, TimeUnit.MILLISECONDS);
-		
-		String x = collector.print();
-		logger.debug(x);
-	}
+    private static final Logger logger = LoggerFactory.getLogger(LoggingStatisticCollector.class);
+
+    @Test
+    public final void testPrint() {
+        LoggingStatisticCollector collector = new LoggingStatisticCollector();
+        collector.submit("insertIntoA", 100, 20, TimeUnit.MILLISECONDS);
+        collector.submit("insertIntoA", 101, 21, TimeUnit.MILLISECONDS);
+        collector.submit("insertIntoA", 102, 22, TimeUnit.MILLISECONDS);
+        collector.submit("insertIntoB45", 102, 0, TimeUnit.MILLISECONDS);
+
+        String x = collector.print();
+        logger.debug(x);
+    }
 
 }

@@ -31,76 +31,78 @@ import de.scoopgmbh.copper.monitoring.client.ui.worklowinstancedetail.result.Wor
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 
 public final class DetailLoadService extends Service<Void> {
-	private WorkflowInstanceResultModel workflowInstanceResultModel;
-	private StackPane stackDetailPane;
-	private FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,WorkflowInstanceDetailResultModel>> detailForm;
-	private final WorkflowInstanceFilterModel usedFilter;
-	private final IssueReporter issueReporter;
-	
-	public DetailLoadService(
-			WorkflowInstanceFilterModel usedFilter, 
-			WorkflowInstanceResultModel workflowInstanceResultModel,
-			StackPane stackDetailPane,
-			FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,
-			WorkflowInstanceDetailResultModel>> detailForm,
-			IssueReporter issueReporter) {
-		this.workflowInstanceResultModel = workflowInstanceResultModel;
-		this.stackDetailPane = stackDetailPane;
-		this.detailForm = detailForm;
-		this.usedFilter = usedFilter;
-		this.issueReporter = issueReporter;
-	}
-	
-	public WorkflowInstanceResultModel getWorkflowInstanceResultModel() {
-		return workflowInstanceResultModel;
-	}
+    private WorkflowInstanceResultModel workflowInstanceResultModel;
+    private StackPane stackDetailPane;
+    private FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> detailForm;
+    private final WorkflowInstanceFilterModel usedFilter;
+    private final IssueReporter issueReporter;
 
-	public void setWorkflowInstanceResultModel(WorkflowInstanceResultModel workflowInstanceResultModel) {
-		this.workflowInstanceResultModel = workflowInstanceResultModel;
-	}
+    public DetailLoadService(
+            WorkflowInstanceFilterModel usedFilter,
+            WorkflowInstanceResultModel workflowInstanceResultModel,
+            StackPane stackDetailPane,
+            FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,
+            WorkflowInstanceDetailResultModel>> detailForm,
+            IssueReporter issueReporter) {
+        this.workflowInstanceResultModel = workflowInstanceResultModel;
+        this.stackDetailPane = stackDetailPane;
+        this.detailForm = detailForm;
+        this.usedFilter = usedFilter;
+        this.issueReporter = issueReporter;
+    }
 
-	@Override
-	protected Task<Void> createTask() {
-		return new Task<Void>() {
-			final Node indicator = ComponentUtil.createProgressIndicator();
-			private WorkflowInstanceDetailFilterModel filter;
-			private List<WorkflowInstanceDetailResultModel> result;
-			@Override
-			protected Void call() throws Exception {
-				Platform.runLater(new Runnable() {
-	                 @Override public void run() {
-	                	 stackDetailPane.getChildren().add(indicator);
-	                 }
-	             });
-				filter = new WorkflowInstanceDetailFilterModel(workflowInstanceResultModel.id.getValue(),usedFilter.selectedEngine.get());
-				filter.workflowInstanceId.setValue(workflowInstanceResultModel.id.getValue());
-				try {
-					result = detailForm.getController().applyFilterInBackgroundThread(filter);
-				} catch (Exception e){
-					issueReporter.reportError(e);
-				}
-				return null;
-			}
-			
-			@Override 
-			protected void succeeded() {
-				detailForm.getController().showFilteredResult(result, filter);
-				stackDetailPane.getChildren().remove(indicator);
-				if (getException()!=null){
-					throw new RuntimeException(this.getException());
-				}
-				super.succeeded();
-			}
-			
-			@Override 
-			protected void failed() {
-				stackDetailPane.getChildren().remove(indicator);
-				if (getException()!=null){
-					throw new RuntimeException(this.getException());
-				}
-				super.failed();
-			}
-			
-		};
-	}
+    public WorkflowInstanceResultModel getWorkflowInstanceResultModel() {
+        return workflowInstanceResultModel;
+    }
+
+    public void setWorkflowInstanceResultModel(WorkflowInstanceResultModel workflowInstanceResultModel) {
+        this.workflowInstanceResultModel = workflowInstanceResultModel;
+    }
+
+    @Override
+    protected Task<Void> createTask() {
+        return new Task<Void>() {
+            final Node indicator = ComponentUtil.createProgressIndicator();
+            private WorkflowInstanceDetailFilterModel filter;
+            private List<WorkflowInstanceDetailResultModel> result;
+
+            @Override
+            protected Void call() throws Exception {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        stackDetailPane.getChildren().add(indicator);
+                    }
+                });
+                filter = new WorkflowInstanceDetailFilterModel(workflowInstanceResultModel.id.getValue(), usedFilter.selectedEngine.get());
+                filter.workflowInstanceId.setValue(workflowInstanceResultModel.id.getValue());
+                try {
+                    result = detailForm.getController().applyFilterInBackgroundThread(filter);
+                } catch (Exception e) {
+                    issueReporter.reportError(e);
+                }
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                detailForm.getController().showFilteredResult(result, filter);
+                stackDetailPane.getChildren().remove(indicator);
+                if (getException() != null) {
+                    throw new RuntimeException(this.getException());
+                }
+                super.succeeded();
+            }
+
+            @Override
+            protected void failed() {
+                stackDetailPane.getChildren().remove(indicator);
+                if (getException() != null) {
+                    throw new RuntimeException(this.getException());
+                }
+                super.failed();
+            }
+
+        };
+    }
 }

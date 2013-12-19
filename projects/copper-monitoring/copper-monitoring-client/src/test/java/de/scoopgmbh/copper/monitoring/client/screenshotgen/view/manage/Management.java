@@ -15,22 +15,20 @@
  */
 package de.scoopgmbh.copper.monitoring.client.screenshotgen.view.manage;
 
+import javafx.scene.layout.BorderPane;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import de.scoopgmbh.copper.monitoring.client.screenshotgen.view.fixture.TestFormContext;
-import javafx.scene.layout.BorderPane;
-
-
 
 public class Management extends ScreenshotPageBase {
-	
-	@Override
-	public void initGui(BorderPane pane, TestFormContext testFormContext) {
-		testFormContext.createHotfixForm().show();
-	}
 
-	@Override
-	public String getTitle() {
-		return "Management";
-	}
+    @Override
+    public void initGui(BorderPane pane, TestFormContext testFormContext) {
+        testFormContext.createHotfixForm().show();
+    }
+
+    @Override
+    public String getTitle() {
+        return "Management";
+    }
 
 }

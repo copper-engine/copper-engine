@@ -25,45 +25,46 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A simple transaction implementation for COPPER applications. Retrying means that the user's implementation of
- * execute() will automatically be retried in case of technical failures. 
+ * execute() will automatically be retried in case of technical failures.
  * 
  * @author austermann
- *
  */
-public abstract class RetryingTransaction<R> implements Transaction<R>  {
+public abstract class RetryingTransaction<R> implements Transaction<R> {
 
     private static final Logger logger = LoggerFactory.getLogger(RetryingTransaction.class);
     private static final ThreadLocal<RetryingTransaction<?>> currentTransaction = new ThreadLocal<RetryingTransaction<?>>();
     private static SQLExceptionProcessor defaultSQLExceptionProcessor = new MockSQLExceptionProcessor();
-    
 
     public static RetryingTransaction<?> getCurrent() {
         return currentTransaction.get();
     }
 
     public static void setDefaultSQLExceptionProcessor(SQLExceptionProcessor defaultSQLExceptionProcessor) {
-        if (defaultSQLExceptionProcessor == null) throw new NullPointerException();
+        if (defaultSQLExceptionProcessor == null)
+            throw new NullPointerException();
         RetryingTransaction.defaultSQLExceptionProcessor = defaultSQLExceptionProcessor;
     }
-    
+
     private final String name;
     private final boolean modificatory;
     private final DataSource ds;
     private Connection connection;
     private int maxConnectRetries = Integer.MAX_VALUE;
     private SQLExceptionProcessor sqlExceptionProcessor;
-    
+
     public RetryingTransaction(String name, DataSource ds) {
-        this(name, ds ,true);
+        this(name, ds, true);
     }
 
     public RetryingTransaction(DataSource ds) {
-        this("anonym", ds ,true);
+        this("anonym", ds, true);
     }
 
     public RetryingTransaction(String name, DataSource ds, boolean modificatory) {
-        if (name == null) throw new NullPointerException();
-        if (ds == null) throw new NullPointerException();
+        if (name == null)
+            throw new NullPointerException();
+        if (ds == null)
+            throw new NullPointerException();
         this.name = name;
         this.modificatory = modificatory;
         this.ds = ds;
@@ -71,10 +72,11 @@ public abstract class RetryingTransaction<R> implements Transaction<R>  {
     }
 
     public void setSqlExceptionProcessor(SQLExceptionProcessor sqlExceptionProcessor) {
-        if (sqlExceptionProcessor == null) throw new NullPointerException();
+        if (sqlExceptionProcessor == null)
+            throw new NullPointerException();
         this.sqlExceptionProcessor = sqlExceptionProcessor;
     }
-    
+
     /**
      * This function is to be implemented by anonymous inner classes. Usage
      * should look like this: <code>...
@@ -100,93 +102,93 @@ public abstract class RetryingTransaction<R> implements Transaction<R>  {
      */
     public final R run() throws Exception {
         if (getCurrent() != null) {
-            if (logger.isDebugEnabled()) logger.debug("Starting new inner transaction "+name);
+            if (logger.isDebugEnabled())
+                logger.debug("Starting new inner transaction " + name);
             connection = getCurrent().connection;
             try {
                 return execute();
-            }
-            finally {
+            } finally {
                 connection = null;
-                if (logger.isDebugEnabled()) logger.debug("Finished inner transaction "+name);
+                if (logger.isDebugEnabled())
+                    logger.debug("Finished inner transaction " + name);
             }
         }
         else {
             try {
-                if (logger.isDebugEnabled()) logger.debug("Starting new transaction "+name);
+                if (logger.isDebugEnabled())
+                    logger.debug("Starting new transaction " + name);
                 R result = null;
                 currentTransaction.set(this);
                 connection = aquireConnection(false);
-                for(int seqNr=1;;seqNr++) {
+                for (int seqNr = 1;; seqNr++) {
                     try {
                         result = execute();
-                        if (modificatory) { 
+                        if (modificatory) {
                             logger.debug("Trying to commit");
                             connection.commit();
                             logger.debug("Transaction {} commited", name);
                         }
                         else {
-                        	logger.debug("Txn is read only - rolling back");
-                        	connection.rollback();
+                            logger.debug("Txn is read only - rolling back");
+                            connection.rollback();
                             logger.debug("Transaction {} rolled back", name);
                         }
                         break;
-                    }
-                    catch(SQLException e) {
-                        if (logger.isDebugEnabled()) logger.debug("Transaction "+name+" will be rolled back due to SQLException: "+e.toString(),e);
+                    } catch (SQLException e) {
+                        if (logger.isDebugEnabled())
+                            logger.debug("Transaction " + name + " will be rolled back due to SQLException: " + e.toString(), e);
                         try {
-                        	connection.rollback();
-                        }
-                        catch(SQLException e2) {
-                        	logger.warn("Rollback failed:"+e2.toString(),e2);
+                            connection.rollback();
+                        } catch (SQLException e2) {
+                            logger.warn("Rollback failed:" + e2.toString(), e2);
                         }
                         final RetryAction ra = check4retry(e, seqNr);
-                        if (logger.isDebugEnabled()) logger.debug("RetryAction="+ra);
+                        if (logger.isDebugEnabled())
+                            logger.debug("RetryAction=" + ra);
                         if (ra == RetryAction.noRetry) {
                             throw e;
                         }
                         else if (ra == RetryAction.retryWithNewConnection) {
-                            logger.warn("Transaction "+name+" will be retried with new connection due to SQLException "+e.toString());
+                            logger.warn("Transaction " + name + " will be retried with new connection due to SQLException " + e.toString());
                             try {
-                            	connection.close();
-                            }
-                            catch(SQLException e2) {
-                            	logger.warn("close failed:"+e2.toString(),e2);
+                                connection.close();
+                            } catch (SQLException e2) {
+                                logger.warn("close failed:" + e2.toString(), e2);
                             }
                             connection = aquireConnection(true);
                         }
                         else {
-                            logger.error("Unexpected RetryAction "+ra);
-                            assert false : "Unexpected RetryAction "+ra;
+                            logger.error("Unexpected RetryAction " + ra);
+                            assert false : "Unexpected RetryAction " + ra;
                         }
-                    }
-                    catch(Exception e) {
-                        if (logger.isDebugEnabled()) logger.debug("Transaction "+name+" will be rolled back due to Exception: "+e.toString(),e);
+                    } catch (Exception e) {
+                        if (logger.isDebugEnabled())
+                            logger.debug("Transaction " + name + " will be rolled back due to Exception: " + e.toString(), e);
                         try {
-                        	connection.rollback();
-                        }
-                        catch(SQLException e2) {
-                        	logger.warn("Rollback failed:"+e2.toString(),e2);
+                            connection.rollback();
+                        } catch (SQLException e2) {
+                            logger.warn("Rollback failed:" + e2.toString(), e2);
                         }
                         throw e;
                     }
                 }
                 return result;
-            }
-            finally {
+            } finally {
                 currentTransaction.remove();
-                if (connection != null) { 
+                if (connection != null) {
                     connection.close();
                 }
-                if (logger.isDebugEnabled()) logger.debug("Finished transaction "+name);
+                if (logger.isDebugEnabled())
+                    logger.debug("Finished transaction " + name);
             }
         }
     }
-    
+
     protected RetryAction check4retry(SQLException e, int seqNr) {
         if (!sqlExceptionProcessor.retryPossible(e)) {
             return RetryAction.noRetry;
         }
-        
+
         if (seqNr == 1) {
             return RetryAction.retryWithNewConnection;
         }
@@ -203,26 +205,25 @@ public abstract class RetryingTransaction<R> implements Transaction<R>  {
                 Connection c = ds.getConnection();
                 c.setAutoCommit(false);
                 if (validateNewConnection) {
-                	c.rollback();
+                    c.rollback();
                 }
                 c.setAutoCommit(false);
                 return c;
-            }
-            catch(SQLException e) {
+            } catch (SQLException e) {
                 if (counter == maxConnectRetries) {
                     throw e;
                 }
-                logger.error("Unable to get connection: "+e.toString());
+                logger.error("Unable to get connection: " + e.toString());
                 logger.error("Retrying...");
             }
             ++counter;
         }
     }
-    
+
     public int getMaxConnectRetries() {
         return maxConnectRetries;
     }
-    
+
     public Transaction<R> setMaxConnectRetries(int maxConnectRetries) {
         if (maxConnectRetries < 0) {
             throw new IllegalArgumentException();

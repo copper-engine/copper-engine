@@ -28,72 +28,73 @@ import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
 /**
  * Add Monitoring for DependencyInjector
+ * 
  * @author hbrackmann
- *
  */
-public class MonitoringDependencyInjector extends AbstractDependencyInjector{
-	
-	private final AbstractDependencyInjector abstractDependencyInjector;
-	private final MonitoringDataCollector monitoringDataCollector;
-	
-	public MonitoringDependencyInjector(AbstractDependencyInjector abstractDependencyInjector, MonitoringDataCollector monitoringDataCollector) {
-		super();
-		this.abstractDependencyInjector = abstractDependencyInjector;
-		this.monitoringDataCollector = monitoringDataCollector;
-	}
+public class MonitoringDependencyInjector extends AbstractDependencyInjector {
 
-	@Override
-	public String getType() {
-		return (abstractDependencyInjector != null) ? abstractDependencyInjector.getType() : "MONITORING";
-	}
-	
-	WorkflowInstanceInfo lastWorkflow;
-	@Override
-	public void inject(Workflow<?> workflow) {
-		lastWorkflow = new WorkflowInstanceInfo();
-		lastWorkflow.setId(workflow.getId());
-		lastWorkflow.setClassname(workflow.getClass().getName());
-		super.inject(workflow);
-	}
+    private final AbstractDependencyInjector abstractDependencyInjector;
+    private final MonitoringDataCollector monitoringDataCollector;
 
-	@Override
-	protected Object getBean(String beanId) {
-		//protected Workaround
-		Object adapter;
-		try {
-			final Method method = abstractDependencyInjector.getClass().getDeclaredMethod("getBean", String.class);
-			method.setAccessible(true);
-			adapter = method.invoke(abstractDependencyInjector,beanId);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	    if (adapter!=null && adapter.getClass().getInterfaces().length>0){
-	    	return java.lang.reflect.Proxy.newProxyInstance(adapter.getClass().getClassLoader(), adapter.getClass().getInterfaces(), new DependencyHandler(adapter,monitoringDataCollector,lastWorkflow));
-	    } else {
-	    	return adapter;
-	    }
-	}	
+    public MonitoringDependencyInjector(AbstractDependencyInjector abstractDependencyInjector, MonitoringDataCollector monitoringDataCollector) {
+        super();
+        this.abstractDependencyInjector = abstractDependencyInjector;
+        this.monitoringDataCollector = monitoringDataCollector;
+    }
 
-	private static class DependencyHandler implements InvocationHandler {
-		private final Object adapter;
-		private final MonitoringDataCollector monitoringDataCollector;
-		private final WorkflowInstanceInfo workflow;
-		
-		public DependencyHandler(Object adapter, MonitoringDataCollector monitoringDataCollector, WorkflowInstanceInfo workflow) {
-			this.adapter = adapter;
-			this.monitoringDataCollector = monitoringDataCollector;
-			this.workflow = workflow;
-		}
+    @Override
+    public String getType() {
+        return (abstractDependencyInjector != null) ? abstractDependencyInjector.getType() : "MONITORING";
+    }
 
-		@Override
-		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-			monitoringDataCollector.submitAdapterCalls(method, args, adapter,workflow);
-			return monitoringDataCollector.<Object>measureTimePeriod(adapter.getClass()+"#"+method.getName(), new Callable<Object>() {
-				@Override
-				public Object call() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-					return method.invoke(adapter, args);
-				}
-			});
-		}
-	}
+    WorkflowInstanceInfo lastWorkflow;
+
+    @Override
+    public void inject(Workflow<?> workflow) {
+        lastWorkflow = new WorkflowInstanceInfo();
+        lastWorkflow.setId(workflow.getId());
+        lastWorkflow.setClassname(workflow.getClass().getName());
+        super.inject(workflow);
+    }
+
+    @Override
+    protected Object getBean(String beanId) {
+        // protected Workaround
+        Object adapter;
+        try {
+            final Method method = abstractDependencyInjector.getClass().getDeclaredMethod("getBean", String.class);
+            method.setAccessible(true);
+            adapter = method.invoke(abstractDependencyInjector, beanId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if (adapter != null && adapter.getClass().getInterfaces().length > 0) {
+            return java.lang.reflect.Proxy.newProxyInstance(adapter.getClass().getClassLoader(), adapter.getClass().getInterfaces(), new DependencyHandler(adapter, monitoringDataCollector, lastWorkflow));
+        } else {
+            return adapter;
+        }
+    }
+
+    private static class DependencyHandler implements InvocationHandler {
+        private final Object adapter;
+        private final MonitoringDataCollector monitoringDataCollector;
+        private final WorkflowInstanceInfo workflow;
+
+        public DependencyHandler(Object adapter, MonitoringDataCollector monitoringDataCollector, WorkflowInstanceInfo workflow) {
+            this.adapter = adapter;
+            this.monitoringDataCollector = monitoringDataCollector;
+            this.workflow = workflow;
+        }
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            monitoringDataCollector.submitAdapterCalls(method, args, adapter, workflow);
+            return monitoringDataCollector.<Object> measureTimePeriod(adapter.getClass() + "#" + method.getName(), new Callable<Object>() {
+                @Override
+                public Object call() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                    return method.invoke(adapter, args);
+                }
+            });
+        }
+    }
 }

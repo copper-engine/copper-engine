@@ -24,11 +24,11 @@ import com.mchange.v2.c3p0.AbstractConnectionCustomizer;
 
 public class MySqlConnectionCustomizer extends AbstractConnectionCustomizer {
 
-	private static final Logger logger = LoggerFactory.getLogger(MySqlConnectionCustomizer.class);
+    private static final Logger logger = LoggerFactory.getLogger(MySqlConnectionCustomizer.class);
 
-	@Override
-	public void onAcquire(Connection c, String parentDataSourceIdentityToken) throws Exception {
-		logger.info("Customizing MySqlConnection "+c);
-		c.setAutoCommit(false);
-	}
+    @Override
+    public void onAcquire(Connection c, String parentDataSourceIdentityToken) throws Exception {
+        logger.info("Customizing MySqlConnection " + c);
+        c.setAutoCommit(false);
+    }
 }

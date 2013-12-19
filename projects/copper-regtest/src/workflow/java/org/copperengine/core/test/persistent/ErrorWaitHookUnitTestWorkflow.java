@@ -25,21 +25,20 @@ import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.persistent.PersistentWorkflow;
 
-
 public class ErrorWaitHookUnitTestWorkflow extends PersistentWorkflow<Serializable> {
 
-	private static final long serialVersionUID = 1L;
-	
-	@Override
-	public void main() throws InterruptException {
-		wait(WaitMode.ALL,50, TimeUnit.MILLISECONDS,getEngine().createUUID());
-		getEngine().addWaitHook(this.getId(), new WaitHook() {
-			@Override
-			public void onWait(Workflow<?> wf, Connection con) throws Exception {
-				throw new RuntimeException("TEST Exception");
-			}
-		});
-		wait(WaitMode.ALL,50, TimeUnit.MILLISECONDS,getEngine().createUUID());
-	}
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public void main() throws InterruptException {
+        wait(WaitMode.ALL, 50, TimeUnit.MILLISECONDS, getEngine().createUUID());
+        getEngine().addWaitHook(this.getId(), new WaitHook() {
+            @Override
+            public void onWait(Workflow<?> wf, Connection con) throws Exception {
+                throw new RuntimeException("TEST Exception");
+            }
+        });
+        wait(WaitMode.ALL, 50, TimeUnit.MILLISECONDS, getEngine().createUUID());
+    }
 
 }

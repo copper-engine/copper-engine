@@ -15,24 +15,23 @@
  */
 package org.copperengine.management;
 
-
 public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean {
-	
-	/**
-	 * Trigger restart a workflow instance that is in the error state.
-	 * 
-	 * @param workflowInstanceId
-	 * @throws Exception
-	 */
-	public void restart(String workflowInstanceId) throws Exception;
 
-	/**
-	 * Trigger restart all workflow instances that are in error state.
-	 * 
-	 * @throws Exception
-	 */
-	public void restartAll() throws Exception;
-	
-	public DBStorageMXBean getDBStorage();
+    /**
+     * Trigger restart a workflow instance that is in the error state.
+     * 
+     * @param workflowInstanceId
+     * @throws Exception
+     */
+    public void restart(String workflowInstanceId) throws Exception;
+
+    /**
+     * Trigger restart all workflow instances that are in error state.
+     * 
+     * @throws Exception
+     */
+    public void restartAll() throws Exception;
+
+    public DBStorageMXBean getDBStorage();
 
 }

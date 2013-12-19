@@ -31,149 +31,150 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import de.scoopgmbh.copper.monitoring.core.model.ProcessorPoolInfo;
 
-public class EngineSelectionWidget implements Widget{
-	private final EnginePoolFilterModel model;
-	private final List<ProcessingEngineInfo> engineList;
-	
-	public EngineSelectionWidget(EnginePoolFilterModel model, List<ProcessingEngineInfo> engineList){
-		this.model=model;
-		this.engineList = engineList;
-	}
+public class EngineSelectionWidget implements Widget {
+    private final EnginePoolFilterModel model;
+    private final List<ProcessingEngineInfo> engineList;
 
-	@Override
-	public Node createContent() {
-		HBox pane = new HBox();
-		pane.setAlignment(Pos.CENTER_LEFT);
-		pane.setSpacing(3);
-		final ChoiceBox<ProcessingEngineInfo> engineChoicebox = createEngineChoicebox();
+    public EngineSelectionWidget(EnginePoolFilterModel model, List<ProcessingEngineInfo> engineList) {
+        this.model = model;
+        this.engineList = engineList;
+    }
 
-		final ChoiceBox<ProcessorPoolInfo> poolChoicebox = createPoolChoicebox();
-		pane.getChildren().add(new Label("Engine"));
-		pane.getChildren().add(engineChoicebox);
-		pane.getChildren().add(new Label("Pool"));
-		pane.getChildren().add(poolChoicebox);
-		
-		engineChoicebox.getSelectionModel().selectFirst();
-		return pane;
-	}
+    @Override
+    public Node createContent() {
+        HBox pane = new HBox();
+        pane.setAlignment(Pos.CENTER_LEFT);
+        pane.setSpacing(3);
+        final ChoiceBox<ProcessingEngineInfo> engineChoicebox = createEngineChoicebox();
 
-	public ChoiceBox<ProcessingEngineInfo> createEngineChoicebox() {
-		final ChoiceBox<ProcessingEngineInfo> engineChoicebox = new ChoiceBox<ProcessingEngineInfo>();
-		engineChoicebox.setTooltip(new Tooltip("ProcessingEngine"));
-		for (ProcessingEngineInfo engineFilter: engineList){
-			engineChoicebox.getItems().add(engineFilter);
-		}
-		engineChoicebox.setConverter(new StringConverter<ProcessingEngineInfo>() {
-			@Override
-			public String toString(ProcessingEngineInfo object) {
-				return object.getId()+"("+(object.getTyp()==EngineTyp.PERSISTENT?"P":"T")+")";
-			}
-			
-			@Override
-			public ProcessingEngineInfo fromString(String string) {
-				return null;
-			}
-		});
-		engineChoicebox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ProcessingEngineInfo>() {
-			@Override
-			public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue,
-					ProcessingEngineInfo newValue) {
-				model.selectedEngine.setValue(newValue);
-			}
-		});
-		model.selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
-			@Override
-			public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue,
-					ProcessingEngineInfo newValue) {
-				updateEngineChoicebox(engineChoicebox, newValue);
-			}
-		});
-		updateEngineChoicebox(engineChoicebox, model.selectedEngine.get());
-		
-		return engineChoicebox;
-	}
+        final ChoiceBox<ProcessorPoolInfo> poolChoicebox = createPoolChoicebox();
+        pane.getChildren().add(new Label("Engine"));
+        pane.getChildren().add(engineChoicebox);
+        pane.getChildren().add(new Label("Pool"));
+        pane.getChildren().add(poolChoicebox);
 
-	public ChoiceBox<ProcessorPoolInfo> createPoolChoicebox() {
-		final ChoiceBox<ProcessorPoolInfo> poolChoicebox = new ChoiceBox<ProcessorPoolInfo>();
-		poolChoicebox.setTooltip(new Tooltip("ProcessorPool"));
-		
-		model.selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
-			@Override
-			public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue, ProcessingEngineInfo newValue) {
-				updatePoolChoiceBox(poolChoicebox, newValue);
-			}
-		});
-		updatePoolChoiceBox(poolChoicebox,model.selectedEngine.get());
-		
-		poolChoicebox.setConverter(new StringConverter<ProcessorPoolInfo>() {
-			@Override
-			public String toString(ProcessorPoolInfo object) {
-				if (object==null) return "any";
-				return object.getId();
-			}
-			
-			@Override
-			public ProcessorPoolInfo fromString(String string) {
-				return null;
-			}
-		});
-		
-		poolChoicebox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ProcessorPoolInfo>() {
-			@Override
-			public void changed(ObservableValue<? extends ProcessorPoolInfo> observable, ProcessorPoolInfo oldValue,
-					ProcessorPoolInfo newValue) {
-				model.selectedPool.setValue(newValue);
-			}
-		});
-		
-		model.selectedPool.addListener(new ChangeListener<ProcessorPoolInfo>() {
-			@Override
-			public void changed(ObservableValue<? extends ProcessorPoolInfo> observable, ProcessorPoolInfo oldValue,
-					ProcessorPoolInfo newValue) {
-				updatePoolChoicebox(poolChoicebox, newValue);
-			}
-		});
-		
-		updatePoolChoicebox(poolChoicebox, model.selectedPool.get());
-		poolChoicebox.getSelectionModel().select(null);
-		return poolChoicebox;
-	}
-	
-	private void updateEngineChoicebox(final ChoiceBox<ProcessingEngineInfo> engineChoicebox, ProcessingEngineInfo newValue) {
-		if (newValue != null) {
-			for (ProcessingEngineInfo processingEngineInfo : engineChoicebox.getItems()) {
-				if (processingEngineInfo.getId() != null && processingEngineInfo.getId().equals(newValue.getId())) {
-					engineChoicebox.getSelectionModel().select(processingEngineInfo);
-				}
-			}
-		} else {
-			engineChoicebox.getSelectionModel().clearSelection();
-		}
-	}
-	
-	private void updatePoolChoicebox(final ChoiceBox<ProcessorPoolInfo> poolChoicebox, ProcessorPoolInfo newValue) {
-		if (newValue!=null){
-			for (ProcessorPoolInfo pool: poolChoicebox.getItems()){
-				if (pool!=null && pool.getId()!=null && pool.getId().equals(newValue.getId())){
-					poolChoicebox.getSelectionModel().select(pool);
-				}
-			} 
-		} else {
-			poolChoicebox.getSelectionModel().clearSelection();
-		}
-	}
-	
-	private void updatePoolChoiceBox(final ChoiceBox<ProcessorPoolInfo> poolChoicebox, ProcessingEngineInfo newValue) {
-		if (newValue!=null){
-			poolChoicebox.getItems().clear();
-			poolChoicebox.getItems().add(null);
-			for (ProcessorPoolInfo processorPoolInfo: newValue.getPools()){
-				poolChoicebox.getItems().add(processorPoolInfo);
-			}
-			model.selectedPool.set(null);
-			if (!newValue.getPools().isEmpty()){
-				model.selectedPool.set(newValue.getPools().get(0));
-			}
-		}
-	}
+        engineChoicebox.getSelectionModel().selectFirst();
+        return pane;
+    }
+
+    public ChoiceBox<ProcessingEngineInfo> createEngineChoicebox() {
+        final ChoiceBox<ProcessingEngineInfo> engineChoicebox = new ChoiceBox<ProcessingEngineInfo>();
+        engineChoicebox.setTooltip(new Tooltip("ProcessingEngine"));
+        for (ProcessingEngineInfo engineFilter : engineList) {
+            engineChoicebox.getItems().add(engineFilter);
+        }
+        engineChoicebox.setConverter(new StringConverter<ProcessingEngineInfo>() {
+            @Override
+            public String toString(ProcessingEngineInfo object) {
+                return object.getId() + "(" + (object.getTyp() == EngineTyp.PERSISTENT ? "P" : "T") + ")";
+            }
+
+            @Override
+            public ProcessingEngineInfo fromString(String string) {
+                return null;
+            }
+        });
+        engineChoicebox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ProcessingEngineInfo>() {
+            @Override
+            public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue,
+                    ProcessingEngineInfo newValue) {
+                model.selectedEngine.setValue(newValue);
+            }
+        });
+        model.selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
+            @Override
+            public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue,
+                    ProcessingEngineInfo newValue) {
+                updateEngineChoicebox(engineChoicebox, newValue);
+            }
+        });
+        updateEngineChoicebox(engineChoicebox, model.selectedEngine.get());
+
+        return engineChoicebox;
+    }
+
+    public ChoiceBox<ProcessorPoolInfo> createPoolChoicebox() {
+        final ChoiceBox<ProcessorPoolInfo> poolChoicebox = new ChoiceBox<ProcessorPoolInfo>();
+        poolChoicebox.setTooltip(new Tooltip("ProcessorPool"));
+
+        model.selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
+            @Override
+            public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue, ProcessingEngineInfo newValue) {
+                updatePoolChoiceBox(poolChoicebox, newValue);
+            }
+        });
+        updatePoolChoiceBox(poolChoicebox, model.selectedEngine.get());
+
+        poolChoicebox.setConverter(new StringConverter<ProcessorPoolInfo>() {
+            @Override
+            public String toString(ProcessorPoolInfo object) {
+                if (object == null)
+                    return "any";
+                return object.getId();
+            }
+
+            @Override
+            public ProcessorPoolInfo fromString(String string) {
+                return null;
+            }
+        });
+
+        poolChoicebox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ProcessorPoolInfo>() {
+            @Override
+            public void changed(ObservableValue<? extends ProcessorPoolInfo> observable, ProcessorPoolInfo oldValue,
+                    ProcessorPoolInfo newValue) {
+                model.selectedPool.setValue(newValue);
+            }
+        });
+
+        model.selectedPool.addListener(new ChangeListener<ProcessorPoolInfo>() {
+            @Override
+            public void changed(ObservableValue<? extends ProcessorPoolInfo> observable, ProcessorPoolInfo oldValue,
+                    ProcessorPoolInfo newValue) {
+                updatePoolChoicebox(poolChoicebox, newValue);
+            }
+        });
+
+        updatePoolChoicebox(poolChoicebox, model.selectedPool.get());
+        poolChoicebox.getSelectionModel().select(null);
+        return poolChoicebox;
+    }
+
+    private void updateEngineChoicebox(final ChoiceBox<ProcessingEngineInfo> engineChoicebox, ProcessingEngineInfo newValue) {
+        if (newValue != null) {
+            for (ProcessingEngineInfo processingEngineInfo : engineChoicebox.getItems()) {
+                if (processingEngineInfo.getId() != null && processingEngineInfo.getId().equals(newValue.getId())) {
+                    engineChoicebox.getSelectionModel().select(processingEngineInfo);
+                }
+            }
+        } else {
+            engineChoicebox.getSelectionModel().clearSelection();
+        }
+    }
+
+    private void updatePoolChoicebox(final ChoiceBox<ProcessorPoolInfo> poolChoicebox, ProcessorPoolInfo newValue) {
+        if (newValue != null) {
+            for (ProcessorPoolInfo pool : poolChoicebox.getItems()) {
+                if (pool != null && pool.getId() != null && pool.getId().equals(newValue.getId())) {
+                    poolChoicebox.getSelectionModel().select(pool);
+                }
+            }
+        } else {
+            poolChoicebox.getSelectionModel().clearSelection();
+        }
+    }
+
+    private void updatePoolChoiceBox(final ChoiceBox<ProcessorPoolInfo> poolChoicebox, ProcessingEngineInfo newValue) {
+        if (newValue != null) {
+            poolChoicebox.getItems().clear();
+            poolChoicebox.getItems().add(null);
+            for (ProcessorPoolInfo processorPoolInfo : newValue.getPools()) {
+                poolChoicebox.getItems().add(processorPoolInfo);
+            }
+            model.selectedPool.set(null);
+            if (!newValue.getPools().isEmpty()) {
+                model.selectedPool.set(newValue.getPools().get(0));
+            }
+        }
+    }
 }

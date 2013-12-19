@@ -15,58 +15,52 @@
  */
 package org.copperengine.core.tranzient;
 
-import java.util.Queue;
-
-import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.common.PriorityProcessorPool;
-import org.copperengine.core.common.Processor;
 import org.copperengine.core.internal.WorkflowAccessor;
-
 
 /**
  * Default implementation of a {@link TransientProcessorPool}, backed by a priority queue and a configurable
  * amount of processor threads.
- *  
+ * 
  * @author austermann
- *
  */
 public class TransientPriorityProcessorPool extends PriorityProcessorPool implements TransientProcessorPool {
 
-	/**
-	 * Creates a new {@link TransientPriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
-	 * <code>id</code> needs to be initialized later using the setter.
-	 */
-	public TransientPriorityProcessorPool() {
+    /**
+     * Creates a new {@link TransientPriorityProcessorPool} with as many worker threads as processors available on the
+     * corresponding environment. <code>id</code> needs to be initialized later using the setter.
+     */
+    public TransientPriorityProcessorPool() {
         setProcessorFactory(new TransientProcessorFactory());
-	}
-	
-	/**
-	 * Creates a new {@link TransientPriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
-	 */
-	public TransientPriorityProcessorPool(String id) {
-		super(id);
-        setProcessorFactory(new TransientProcessorFactory());
-	}
-	
-	public TransientPriorityProcessorPool(String id, int numberOfThreads) {
-		super(id, numberOfThreads);
-        setProcessorFactory(new TransientProcessorFactory());
-	}
+    }
 
-	@Override
-	public void enqueue(Workflow<?> wf) {
-		if (wf == null)
-			throw new NullPointerException();
-		WorkflowAccessor.setProcessingState(wf, ProcessingState.ENQUEUED);
-		synchronized (queue) {
-			queue.add(wf);
-			if (!queue.isSuspended()) {
-				queue.notify();
-			}
-		}
-	}
+    /**
+     * Creates a new {@link TransientPriorityProcessorPool} with as many worker threads as processors available on the
+     * corresponding environment.
+     */
+    public TransientPriorityProcessorPool(String id) {
+        super(id);
+        setProcessorFactory(new TransientProcessorFactory());
+    }
 
+    public TransientPriorityProcessorPool(String id, int numberOfThreads) {
+        super(id, numberOfThreads);
+        setProcessorFactory(new TransientProcessorFactory());
+    }
+
+    @Override
+    public void enqueue(Workflow<?> wf) {
+        if (wf == null)
+            throw new NullPointerException();
+        WorkflowAccessor.setProcessingState(wf, ProcessingState.ENQUEUED);
+        synchronized (queue) {
+            queue.add(wf);
+            if (!queue.isSuspended()) {
+                queue.notify();
+            }
+        }
+    }
 
 }

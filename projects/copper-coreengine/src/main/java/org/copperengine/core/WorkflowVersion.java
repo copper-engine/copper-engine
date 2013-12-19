@@ -16,88 +16,88 @@
 package org.copperengine.core;
 
 public class WorkflowVersion {
-	
-	public static final class Comparator implements java.util.Comparator<WorkflowVersion> {
-		@Override
-		public int compare(WorkflowVersion o1, WorkflowVersion o2) {
-			if (!o1.isLargerThan(o2))
-				return -1;
-			if (o1.isLargerThan(o2))
-				return 1;
-			return 0;
-		}
-	}
-	
-	final long majorVersion;
-	final long minorVersion;
-	final long patchLevel;
-	final String formatted;
-	
-	public WorkflowVersion(long majorVersion, long minorVersion, long patchLevel) {
-		super();
-		this.majorVersion = majorVersion;
-		this.minorVersion = minorVersion;
-		this.patchLevel = patchLevel;
-		this.formatted = majorVersion + "." + minorVersion + "." + patchLevel;
-	}
 
-	public long getMajorVersion() {
-		return majorVersion;
-	}
+    public static final class Comparator implements java.util.Comparator<WorkflowVersion> {
+        @Override
+        public int compare(WorkflowVersion o1, WorkflowVersion o2) {
+            if (!o1.isLargerThan(o2))
+                return -1;
+            if (o1.isLargerThan(o2))
+                return 1;
+            return 0;
+        }
+    }
 
-	public long getMinorVersion() {
-		return minorVersion;
-	}
+    final long majorVersion;
+    final long minorVersion;
+    final long patchLevel;
+    final String formatted;
 
-	public long getPatchLevel() {
-		return patchLevel;
-	}
+    public WorkflowVersion(long majorVersion, long minorVersion, long patchLevel) {
+        super();
+        this.majorVersion = majorVersion;
+        this.minorVersion = minorVersion;
+        this.patchLevel = patchLevel;
+        this.formatted = majorVersion + "." + minorVersion + "." + patchLevel;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (majorVersion ^ (majorVersion >>> 32));
-		result = prime * result + (int) (minorVersion ^ (minorVersion >>> 32));
-		result = prime * result + (int) (patchLevel ^ (patchLevel >>> 32));
-		return result;
-	}
+    public long getMajorVersion() {
+        return majorVersion;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		WorkflowVersion other = (WorkflowVersion) obj;
-		if (majorVersion != other.majorVersion)
-			return false;
-		if (minorVersion != other.minorVersion)
-			return false;
-		if (patchLevel != other.patchLevel)
-			return false;
-		return true;
-	}
+    public long getMinorVersion() {
+        return minorVersion;
+    }
 
-	@Override
-	public String toString() {
-		return format();
-	}
-	
-	public String format() {
-		return formatted;
-	}
-	
-	public boolean isLargerThan(WorkflowVersion other) {
-		if (this.majorVersion > other.majorVersion)
-			return true;
-		if (this.majorVersion == other.majorVersion && this.minorVersion > other.minorVersion)
-			return true;
-		if (this.majorVersion == other.majorVersion && this.minorVersion == other.minorVersion && this.patchLevel > other.patchLevel)
-			return true;
-		return false;
-	}
-	
+    public long getPatchLevel() {
+        return patchLevel;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (majorVersion ^ (majorVersion >>> 32));
+        result = prime * result + (int) (minorVersion ^ (minorVersion >>> 32));
+        result = prime * result + (int) (patchLevel ^ (patchLevel >>> 32));
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        WorkflowVersion other = (WorkflowVersion) obj;
+        if (majorVersion != other.majorVersion)
+            return false;
+        if (minorVersion != other.minorVersion)
+            return false;
+        if (patchLevel != other.patchLevel)
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return format();
+    }
+
+    public String format() {
+        return formatted;
+    }
+
+    public boolean isLargerThan(WorkflowVersion other) {
+        if (this.majorVersion > other.majorVersion)
+            return true;
+        if (this.majorVersion == other.majorVersion && this.minorVersion > other.minorVersion)
+            return true;
+        if (this.majorVersion == other.majorVersion && this.minorVersion == other.minorVersion && this.patchLevel > other.patchLevel)
+            return true;
+        return false;
+    }
+
 }

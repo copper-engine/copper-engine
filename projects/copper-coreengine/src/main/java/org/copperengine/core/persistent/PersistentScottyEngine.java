@@ -49,385 +49,380 @@ import org.copperengine.management.model.WorkflowInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * COPPER processing engine that offers persistent workflow processing. 
- *  
+ * COPPER processing engine that offers persistent workflow processing.
+ * 
  * @author austermann
- *
  */
 public class PersistentScottyEngine extends AbstractProcessingEngine implements PersistentProcessingEngine, PersistentProcessingEngineMXBean {
 
-	private static final Logger logger = LoggerFactory.getLogger(PersistentScottyEngine.class);
+    private static final Logger logger = LoggerFactory.getLogger(PersistentScottyEngine.class);
 
-	private ScottyDBStorageInterface dbStorage;
-	private ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager;
-	private boolean notifyProcessorPoolsOnResponse = false;
-	private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
-	private final Map<String, List<WaitHook>> waitHookMap = new HashMap<String, List<WaitHook>>();
+    private ScottyDBStorageInterface dbStorage;
+    private ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager;
+    private boolean notifyProcessorPoolsOnResponse = false;
+    private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
+    private final Map<String, List<WaitHook>> waitHookMap = new HashMap<String, List<WaitHook>>();
 
-	/**
-	 * If true, the engine notifies all processor pools about a new reponse available.
-	 * This may lead to shorter latency times, but may also increase CPU load or database I/O,
-	 * so use with care
-	 * 
-	 * @param notifyProcessorPoolsOnResponse
-	 */
-	public void setNotifyProcessorPoolsOnResponse(boolean notifyProcessorPoolsOnResponse) {
-		this.notifyProcessorPoolsOnResponse = notifyProcessorPoolsOnResponse;
-	}
+    /**
+     * If true, the engine notifies all processor pools about a new reponse available.
+     * This may lead to shorter latency times, but may also increase CPU load or database I/O,
+     * so use with care
+     * 
+     * @param notifyProcessorPoolsOnResponse
+     */
+    public void setNotifyProcessorPoolsOnResponse(boolean notifyProcessorPoolsOnResponse) {
+        this.notifyProcessorPoolsOnResponse = notifyProcessorPoolsOnResponse;
+    }
 
-	public void setDbStorage(ScottyDBStorageInterface dbStorage) {
-		this.dbStorage = dbStorage;
-	}
+    public void setDbStorage(ScottyDBStorageInterface dbStorage) {
+        this.dbStorage = dbStorage;
+    }
 
-	public ScottyDBStorageInterface getDbStorage() {
-		return dbStorage;
-	}
+    public ScottyDBStorageInterface getDbStorage() {
+        return dbStorage;
+    }
 
-	public void setProcessorPoolManager(ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager) {
-		this.processorPoolManager = processorPoolManager;
-	}
+    public void setProcessorPoolManager(ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager) {
+        this.processorPoolManager = processorPoolManager;
+    }
 
+    @Override
+    public void notify(Response<?> response, Acknowledge ack) {
+        if (logger.isTraceEnabled())
+            logger.trace("notify(" + response + ")");
+        try {
+            if (response.getResponseId() == null) {
+                response.setResponseId(createUUID());
+            }
+            startupBlocker.pass();
+            dbStorage.notify(response, ack);
+            if (notifyProcessorPoolsOnResponse) {
+                for (PersistentProcessorPool ppp : processorPoolManager.processorPools()) {
+                    ppp.doNotify();
+                }
+            }
+        } catch (Exception e) {
+            throw new CopperRuntimeException("notify failed", e);
+        }
 
-	@Override
-	public void notify(Response<?> response, Acknowledge ack) {
-		if (logger.isTraceEnabled()) logger.trace("notify("+response+")");
-		try {
-			if (response.getResponseId() == null) {
-				response.setResponseId(createUUID());
-			}
-			startupBlocker.pass();
-			dbStorage.notify(response,ack);
-			if (notifyProcessorPoolsOnResponse) {
-				for (PersistentProcessorPool ppp : processorPoolManager.processorPools()) {
-					ppp.doNotify();
-				}
-			}
-		} 
-		catch (Exception e) {
-			throw new CopperRuntimeException("notify failed",e);
-		}
+    }
 
-	}
+    @Override
+    public synchronized void shutdown() {
+        if (engineState != EngineState.STARTED) {
+            logger.debug("engine is not running - shutdown aborted");
+            return;
+        }
+        logger.info("Engine is shutting down...");
+        engineState = EngineState.SHUTTING_DOWN;
+        processorPoolManager.shutdown();
+        dbStorage.shutdown();
+        super.shutdown();
+        logger.info("Engine is stopped");
+        engineState = EngineState.STOPPED;
+    }
 
-	@Override
-	public synchronized void shutdown() {
-		if (engineState != EngineState.STARTED) {
-			logger.debug("engine is not running - shutdown aborted");
-			return;
-		}
-		logger.info("Engine is shutting down...");
-		engineState = EngineState.SHUTTING_DOWN;
-		processorPoolManager.shutdown();
-		dbStorage.shutdown();
-		super.shutdown();
-		logger.info("Engine is stopped");
-		engineState = EngineState.STOPPED;
-	}
+    @Override
+    public synchronized void startup() {
+        if (engineState != EngineState.RAW)
+            throw new IllegalStateException();
+        try {
+            logger.info("starting up...");
 
-	@Override
-	public synchronized void startup() {
-		if (engineState != EngineState.RAW) throw new IllegalStateException();
-		try {
-			logger.info("starting up...");
+            processorPoolManager.setEngine(this);
+            dependencyInjector.setEngine(this);
 
-			processorPoolManager.setEngine(this);
-			dependencyInjector.setEngine(this);
+            wfRepository.start();
+            dbStorage.startup();
 
-			wfRepository.start();
-			dbStorage.startup();
+            processorPoolManager.startup();
+            startupBlocker.unblock();
+            engineState = EngineState.STARTED;
 
-			processorPoolManager.startup();
-			startupBlocker.unblock();
-			engineState = EngineState.STARTED;
+            logger.info("Engine is running");
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CopperRuntimeException("startup failed", e);
+        }
+    }
 
-			logger.info("Engine is running");
-		} 
-		catch(RuntimeException e) {
-			throw e;
-		}
-		catch(Exception e) {
-			throw new CopperRuntimeException("startup failed",e);
-		}
-	}
+    @Override
+    public void registerCallbacks(Workflow<?> w, WaitMode mode, long timeoutMsec, String... correlationIds) {
+        if (logger.isTraceEnabled())
+            logger.trace("registerCallbacks(" + w + ", " + mode + ", " + timeoutMsec + ", " + Arrays.asList(correlationIds) + ")");
+        if (correlationIds.length == 0)
+            throw new IllegalArgumentException("No correlationids given");
+        PersistentWorkflow<?> pw = (PersistentWorkflow<?>) w;
+        if (processorPoolManager.getProcessorPool(pw.getProcessorPoolId()) == null) {
+            logger.error("Unkown processor pool '" + pw.getProcessorPoolId() + "' - using default pool instead");
+            pw.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
+        }
+        pw.registerCall = new RegisterCall(w, mode, timeoutMsec > 0 ? timeoutMsec : null, correlationIds, getAndRemoveWaitHooks(pw));
+    }
 
-	@Override
-	public void registerCallbacks(Workflow<?> w, WaitMode mode, long timeoutMsec, String... correlationIds) {
-		if (logger.isTraceEnabled()) logger.trace("registerCallbacks("+w+", "+mode+", "+timeoutMsec+", "+Arrays.asList(correlationIds)+")");
-		if (correlationIds.length == 0) throw new IllegalArgumentException("No correlationids given");
-		PersistentWorkflow<?> pw = (PersistentWorkflow<?>)w;
-		if (processorPoolManager.getProcessorPool(pw.getProcessorPoolId()) == null) {
-			logger.error("Unkown processor pool '"+pw.getProcessorPoolId()+"' - using default pool instead");
-			pw.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
-		}
-		pw.registerCall = new RegisterCall(w, mode, timeoutMsec > 0 ? timeoutMsec : null, correlationIds, getAndRemoveWaitHooks(pw));
-	}
+    @Override
+    protected void run(Workflow<?> wf) throws CopperException {
+        run(wf, null);
+    }
 
-	@Override
-	protected void run(Workflow<?> wf) throws CopperException {
-		run(wf,null);
-	}
+    private void notifyProcessorPool(String ppoolId) {
+        PersistentProcessorPool pp = processorPoolManager.getProcessorPool(ppoolId);
+        if (pp == null) {
+            pp = processorPoolManager.getProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID);
+        }
+        if (pp != null) {
+            pp.doNotify();
+        }
+    }
 
-	private void notifyProcessorPool(String ppoolId) {
-		PersistentProcessorPool pp = processorPoolManager.getProcessorPool(ppoolId);
-		if (pp == null) {
-			pp = processorPoolManager.getProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID);
-		}
-		if (pp != null) {
-			pp.doNotify();
-		}
-	}
+    @Override
+    public void run(List<Workflow<?>> list) throws CopperException {
+        run(list, null);
+    }
 
-	@Override
-	public void run(List<Workflow<?>> list) throws CopperException {
-		run(list,null);
-	}
+    /**
+     * Enqueues the specified list of workflow instances into the engine for execution.
+     * 
+     * @param list
+     *            the list of workflow instances to run
+     * @param con
+     *            connection used for the inserting the workflow to the database
+     * @throws CopperException
+     *             if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     */
+    public void run(List<Workflow<?>> list, Connection con) throws CopperException {
+        if (logger.isTraceEnabled()) {
+            for (Workflow<?> w : list)
+                logger.trace("run(" + w + ")");
+        }
+        try {
+            startupBlocker.pass();
 
-	/**
-	 * Enqueues the specified list of workflow instances into the engine for execution.  
-	 * @param list the list of workflow instances to run
-	 * @param con connection used for the inserting the workflow to the database 
-	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
-	 */
-	public void run(List<Workflow<?>> list, Connection con) throws CopperException {
-		if (logger.isTraceEnabled()) {
-			for (Workflow<?> w : list)
-				logger.trace("run("+w+")");
-		}
-		try {
-			startupBlocker.pass();
+            Set<String> ppoolIds = new HashSet<String>();
+            for (Workflow<?> wf : list) {
+                if (!(wf instanceof PersistentWorkflow<?>)) {
+                    throw new IllegalArgumentException(wf.getClass() + " is no instance of PersistentWorkflow");
+                }
+                if (wf.getId() == null) {
+                    wf.setId(createUUID());
+                }
+                if (wf.getProcessorPoolId() == null) {
+                    wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
+                }
 
-			Set<String> ppoolIds = new HashSet<String>();
-			for (Workflow<?> wf : list) {
-				if (!(wf instanceof PersistentWorkflow<?>)) {
-					throw new IllegalArgumentException(wf.getClass()+" is no instance of PersistentWorkflow");
-				}
-				if (wf.getId() == null) {
-					wf.setId(createUUID());
-				}
-				if (wf.getProcessorPoolId() == null) {
-					wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
-				}
+                if (processorPoolManager.getProcessorPool(wf.getProcessorPoolId()) == null) {
+                    logger.error("Unkown processor pool '" + wf.getProcessorPoolId() + "' - using default pool instead");
+                    wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
+                }
 
-				if (processorPoolManager.getProcessorPool(wf.getProcessorPoolId()) == null) {
-					logger.error("Unkown processor pool '"+wf.getProcessorPoolId()+"' - using default pool instead");
-					wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
-				}
+                ppoolIds.add(wf.getProcessorPoolId());
+            }
+            dbStorage.insert(list, con);
+            for (String ppoolId : ppoolIds) {
+                notifyProcessorPool(ppoolId);
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (CopperException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CopperException("run failed", e);
+        }
+    }
 
-				ppoolIds.add(wf.getProcessorPoolId());
-			}
-			dbStorage.insert(list, con);
-			for (String ppoolId : ppoolIds) {
-				notifyProcessorPool(ppoolId);
-			}
-		}
-		catch(RuntimeException e) {
-			throw e;
-		}
-		catch(CopperException e) {
-			throw e;
-		}
-		catch(Exception e) {
-			throw new CopperException("run failed",e);
-		}
-	}
+    /**
+     * Enqueues the specified workflow instance into the engine for execution.
+     * 
+     * @param wf
+     *            the workflow instance to run
+     * @param con
+     *            connection used for the inserting the workflow to the database
+     * @throws CopperException
+     *             if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     */
+    public void run(Workflow<?> wf, Connection con) throws CopperException {
+        if (logger.isTraceEnabled())
+            logger.trace("run(" + wf + ")");
+        if (!(wf instanceof PersistentWorkflow<?>)) {
+            throw new IllegalArgumentException(wf.getClass() + " is no instance of PersistentWorkflow");
+        }
+        try {
+            startupBlocker.pass();
 
-	/**
-	 * Enqueues the specified workflow instance into the engine for execution.  
-	 * @param wf the workflow instance to run
-	 * @param con connection used for the inserting the workflow to the database 
-	 * @throws CopperException if the engine can not run the workflow, e.g. in case of a unkown processor pool id
-	 */
-	public void run(Workflow<?> wf, Connection con) throws CopperException {
-		if (logger.isTraceEnabled()) logger.trace("run("+wf+")");
-		if (!(wf instanceof PersistentWorkflow<?>)) {
-			throw new IllegalArgumentException(wf.getClass()+" is no instance of PersistentWorkflow");
-		}
-		try {
-			startupBlocker.pass();
+            if (wf.getId() == null) {
+                wf.setId(createUUID());
+            }
+            if (wf.getProcessorPoolId() == null) {
+                wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
+            }
+            if (processorPoolManager.getProcessorPool(wf.getProcessorPoolId()) == null) {
+                logger.error("Unkown processor pool '" + wf.getProcessorPoolId() + "' - using default pool instead");
+                wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
+            }
+            dbStorage.insert(wf, con);
+            notifyProcessorPool(wf.getProcessorPoolId());
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (CopperException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CopperException("run failed", e);
+        }
 
-			if (wf.getId() == null) {
-				wf.setId(createUUID());
-			}
-			if (wf.getProcessorPoolId() == null) {
-				wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
-			}
-			if (processorPoolManager.getProcessorPool(wf.getProcessorPoolId()) == null) {
-				logger.error("Unkown processor pool '"+wf.getProcessorPoolId()+"' - using default pool instead");
-				wf.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
-			}
-			dbStorage.insert(wf, con);
-			notifyProcessorPool(wf.getProcessorPoolId());
-		}
-		catch(RuntimeException e) {
-			throw e;
-		}
-		catch(CopperException e) {
-			throw e;
-		}
-		catch(Exception e) {
-			throw new CopperException("run failed",e);
-		}
+    }
 
-	}
+    @Override
+    public void restart(String workflowInstanceId) throws Exception {
+        dbStorage.restart(workflowInstanceId);
+    }
 
-	@Override
-	public void restart(String workflowInstanceId) throws Exception {
-		dbStorage.restart(workflowInstanceId);
-	}
+    @Override
+    public String getState() {
+        return getEngineState().name();
+    }
 
-	@Override
-	public String getState() {
-		return getEngineState().name();
-	}
+    @Override
+    public List<WorkflowInfo> queryWorkflowInstances() {
+        List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
+        for (Workflow<?> wf : workflowMap.values()) {
+            WorkflowInfo wfi = convert2Wfi(wf);
+            rv.add(wfi);
+        }
+        logger.info("queryWorkflowInstances returned " + rv.size() + " instance(s)");
+        return rv;
+    }
 
-	@Override
-	public List<WorkflowInfo> queryWorkflowInstances() {
-		List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>(); 
-		for (Workflow<?> wf : workflowMap.values()) {
-			WorkflowInfo wfi = convert2Wfi(wf);
-			rv.add(wfi);
-		}
-		logger.info("queryWorkflowInstances returned "+rv.size()+" instance(s)");
-		return rv;
-	}
+    @Override
+    public WorkflowInfo queryWorkflowInstance(String id) {
+        return convert2Wfi(workflowMap.get(id));
+    }
 
-	@Override
-	public WorkflowInfo queryWorkflowInstance(String id) {
-		return convert2Wfi(workflowMap.get(id));
-	}
+    void register(Workflow<?> wf) {
+        if (logger.isTraceEnabled())
+            logger.trace("register(" + wf.getId() + ")");
+        Workflow<?> existingWF = workflowMap.put(wf.getId(), wf);
+        assert existingWF == null;
+    }
 
+    void unregister(Workflow<?> wf) {
+        Workflow<?> existingWF = workflowMap.remove(wf.getId());
+        assert existingWF != null;
+        if (existingWF != null && existingWF.getProcessingState() == ProcessingState.FINISHED) {
+            statisticsCollector.submit(getEngineId() + "." + wf.getClass().getSimpleName() + ".ExecutionTime", 1, System.currentTimeMillis() - wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
+        }
+        getAndRemoveWaitHooks(wf); // Clean up...
+    }
 
-	void register(Workflow<?> wf) {
-		if (logger.isTraceEnabled()) logger.trace("register("+wf.getId()+")");
-		Workflow<?> existingWF = workflowMap.put(wf.getId(),wf);
-		assert existingWF == null;
-	}
+    public int getNumberOfWorkflowInstances() {
+        return workflowMap.size();
+    }
 
-	void unregister(Workflow<?> wf) { 
-		Workflow<?> existingWF = workflowMap.remove(wf.getId());
-		assert existingWF != null;
-		if (existingWF != null && existingWF.getProcessingState() == ProcessingState.FINISHED) {
-			statisticsCollector.submit(getEngineId()+"."+wf.getClass().getSimpleName()+".ExecutionTime", 1, System.currentTimeMillis()-wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
-		}
-		getAndRemoveWaitHooks(wf); // Clean up...
-	}
+    @Override
+    public void restartAll() throws Exception {
+        dbStorage.restartAll();
+    }
 
-	public int getNumberOfWorkflowInstances() {
-		return workflowMap.size();
-	}
+    @Override
+    public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws CopperException {
+        try {
+            this.run(createWorkflowInstance(wfInstanceDescr), con);
+        } catch (CopperException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CopperException("run failed", e);
+        }
+    }
 
-	@Override
-	public void restartAll() throws Exception {
-		dbStorage.restartAll();
-	}
+    @Override
+    public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr, Connection con) throws CopperException {
+        try {
+            List<Workflow<?>> wfList = new ArrayList<Workflow<?>>(wfInstanceDescr.size());
+            for (WorkflowInstanceDescr<?> wfInsDescr : wfInstanceDescr) {
+                wfList.add(createWorkflowInstance(wfInsDescr));
+            }
+            run(wfList, con);
+        } catch (CopperException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CopperException("run failed", e);
+        }
+    }
 
-	@Override
-	public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws CopperException {
-		try {
-			this.run(createWorkflowInstance(wfInstanceDescr), con);
-		}
-		catch(CopperException e) {
-			throw e;
-		}
-		catch(RuntimeException e) {
-			throw e;
-		}
-		catch(Exception e) {
-			throw new CopperException("run failed",e);
-		}
-	}
+    @Override
+    public void notify(Response<?> response, Connection c) throws CopperRuntimeException {
+        final List<Response<?>> list = new ArrayList<Response<?>>(1);
+        list.add(response);
+        this.notify(list, c);
+    }
 
-	@Override
-	public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr, Connection con) throws CopperException {
-		try {
-			List<Workflow<?>> wfList = new ArrayList<Workflow<?>>(wfInstanceDescr.size());
-			for (WorkflowInstanceDescr<?> wfInsDescr : wfInstanceDescr) {
-				wfList.add(createWorkflowInstance(wfInsDescr));
-			}
-			run(wfList, con);
-		}
-		catch(CopperException e) {
-			throw e;
-		}
-		catch(RuntimeException e) {
-			throw e;
-		}
-		catch(Exception e) {
-			throw new CopperException("run failed",e);
-		}
-	}
+    @Override
+    public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException {
+        try {
+            for (Response<?> r : responses) {
+                if (r.getResponseId() == null) {
+                    r.setResponseId(createUUID());
+                }
+            }
+            dbStorage.notify(responses, c);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CopperRuntimeException(e);
+        }
+    }
 
-	@Override
-	public void notify(Response<?> response, Connection c) throws CopperRuntimeException {
-		final List<Response<?>> list = new ArrayList<Response<?>>(1);
-		list.add(response);
-		this.notify(list, c);
-	}
+    @Override
+    public void addWaitHook(String wfInstanceId, WaitHook waitHook) {
+        if (wfInstanceId == null)
+            throw new NullPointerException();
+        if (waitHook == null)
+            throw new NullPointerException();
 
-	@Override
-	public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException {
-		try  {
-			for (Response<?> r : responses) {
-				if (r.getResponseId() == null) {
-					r.setResponseId(createUUID());
-				}
-			}
-			dbStorage.notify(responses,c);
-		}
-		catch(RuntimeException e) {
-			throw e;
-		}
-		catch(Exception e) {
-			throw new CopperRuntimeException(e);
-		}
-	}
+        synchronized (waitHookMap) {
+            if (!workflowMap.containsKey(wfInstanceId)) {
+                throw new CopperRuntimeException("Unkown workflow instance with id '" + wfInstanceId + "'");
+            }
+            List<WaitHook> l = waitHookMap.get(wfInstanceId);
+            if (l == null) {
+                l = new ArrayList<WaitHook>();
+                waitHookMap.put(wfInstanceId, l);
+            }
+            l.add(waitHook);
+        }
+    }
 
-	@Override
-	public void addWaitHook(String wfInstanceId, WaitHook waitHook) {
-		if (wfInstanceId == null) throw new NullPointerException();
-		if (waitHook == null) throw new NullPointerException();
-		
-		synchronized (waitHookMap) {
-			if (!workflowMap.containsKey(wfInstanceId)) {
-				throw new CopperRuntimeException("Unkown workflow instance with id '"+wfInstanceId+"'");
-			}
-			List<WaitHook> l = waitHookMap.get(wfInstanceId);
-			if (l == null) {
-				l = new ArrayList<WaitHook>();
-				waitHookMap.put(wfInstanceId, l);
-			}
-			l.add(waitHook);
-		}
-	}
-	
-	private List<WaitHook> getAndRemoveWaitHooks(Workflow<?> wf) {
-		synchronized (waitHookMap) {
-			List<WaitHook> l = waitHookMap.remove(wf.getId());
-			return l == null ? Collections.<WaitHook>emptyList() : l;
-		}
-	}
+    private List<WaitHook> getAndRemoveWaitHooks(Workflow<?> wf) {
+        synchronized (waitHookMap) {
+            List<WaitHook> l = waitHookMap.remove(wf.getId());
+            return l == null ? Collections.<WaitHook> emptyList() : l;
+        }
+    }
 
-	@Override
-	public List<ProcessorPoolMXBean> getProcessorPools() {
-		final List<ProcessorPoolMXBean> result = new ArrayList<ProcessorPoolMXBean>();
-		for (ProcessorPool pp : processorPoolManager.processorPools()) {
-			if (pp instanceof ProcessorPoolMXBean) {
-				result.add((ProcessorPoolMXBean) pp);
-			}
-		}
-		return result;
-	}
+    @Override
+    public List<ProcessorPoolMXBean> getProcessorPools() {
+        final List<ProcessorPoolMXBean> result = new ArrayList<ProcessorPoolMXBean>();
+        for (ProcessorPool pp : processorPoolManager.processorPools()) {
+            if (pp instanceof ProcessorPoolMXBean) {
+                result.add((ProcessorPoolMXBean) pp);
+            }
+        }
+        return result;
+    }
 
-	@Override
-	public EngineType getEngineType() {
-		return EngineType.persistent;
-	}
+    @Override
+    public EngineType getEngineType() {
+        return EngineType.persistent;
+    }
 
-	@Override
-	public DBStorageMXBean getDBStorage() {
-		return (DBStorageMXBean) (dbStorage instanceof DBStorageMXBean ? dbStorage : null);
-	}
+    @Override
+    public DBStorageMXBean getDBStorage() {
+        return (DBStorageMXBean) (dbStorage instanceof DBStorageMXBean ? dbStorage : null);
+    }
 
 }

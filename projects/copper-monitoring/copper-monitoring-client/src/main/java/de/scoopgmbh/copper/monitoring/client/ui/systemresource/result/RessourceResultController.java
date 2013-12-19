@@ -31,28 +31,32 @@ import de.scoopgmbh.copper.monitoring.client.ui.systemresource.filter.ResourceFi
 import de.scoopgmbh.copper.monitoring.client.util.ComponentUtil;
 import de.scoopgmbh.copper.monitoring.core.model.SystemResourcesInfo;
 
-public class RessourceResultController extends FilterResultControllerBase<ResourceFilterModel,SystemResourcesInfo> implements Initializable {
-	private final GuiCopperDataProvider copperDataProvider;
-	
-	public RessourceResultController(GuiCopperDataProvider copperDataProvider) {
-		super();
-		this.copperDataProvider = copperDataProvider;
-	}
+public class RessourceResultController extends FilterResultControllerBase<ResourceFilterModel, SystemResourcesInfo> implements Initializable {
+    private final GuiCopperDataProvider copperDataProvider;
 
-    @FXML //  fx:id="classesChart"
+    public RessourceResultController(GuiCopperDataProvider copperDataProvider) {
+        super();
+        this.copperDataProvider = copperDataProvider;
+    }
+
+    @FXML
+    // fx:id="classesChart"
     private AreaChart<Number, Number> classesChart; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="cpuChart"
+    @FXML
+    // fx:id="cpuChart"
     private AreaChart<Number, Number> cpuChart; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="memoryChart"
+    @FXML
+    // fx:id="memoryChart"
     private AreaChart<Number, Number> memoryChart; // Value injected by FXMLLoader
 
-    @FXML //  fx:id="threadChart"
+    @FXML
+    // fx:id="threadChart"
     private AreaChart<Number, Number> threadChart; // Value injected by FXMLLoader
 
-
-    @Override // This method is called by the FXMLLoader when initialization is complete
+    @Override
+    // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert classesChart != null : "fx:id=\"classesChart\" was not injected: check your FXML file 'ResourceResult.fxml'.";
         assert cpuChart != null : "fx:id=\"cpuChart\" was not injected: check your FXML file 'ResourceResult.fxml'.";
@@ -62,105 +66,104 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
         initChart();
     }
 
-	private void initChart() {
-		seriesSystemCpuLoad = new XYChart.Series<Number, Number>();
-		seriesSystemCpuLoad.setName("SystemCpuLoad");
+    private void initChart() {
+        seriesSystemCpuLoad = new XYChart.Series<Number, Number>();
+        seriesSystemCpuLoad.setName("SystemCpuLoad");
         cpuChart.getData().add(seriesSystemCpuLoad);
         seriesProcessCpuLoad = new XYChart.Series<Number, Number>();
         seriesProcessCpuLoad.setName("ProcessCpuLoad");
         cpuChart.getData().add(seriesProcessCpuLoad);
-		cpuChart.getXAxis().setAnimated(false);
-        
+        cpuChart.getXAxis().setAnimated(false);
+
         seriesThread = new XYChart.Series<Number, Number>();
         seriesThread.setName("Threads count");
         threadChart.getData().add(seriesThread);
         cpuChart.getXAxis().setAnimated(false);
-        
+
         seriesClasses = new XYChart.Series<Number, Number>();
         seriesClasses.setName("Total loaded classes");
         classesChart.getData().add(seriesClasses);
-        
+
         seriesMemory = new XYChart.Series<Number, Number>();
         seriesMemory.setName("Memory usage");
         memoryChart.getData().add(seriesMemory);
-        
-        seriesFreeSystemMem= new XYChart.Series<Number, Number>();
+
+        seriesFreeSystemMem = new XYChart.Series<Number, Number>();
         seriesFreeSystemMem.setName("Free System Memory");
         memoryChart.getData().add(seriesFreeSystemMem);
-        
+
         cpuChart.getXAxis().setAnimated(false);
         threadChart.getXAxis().setAnimated(false);
         classesChart.getXAxis().setAnimated(false);
         memoryChart.getXAxis().setAnimated(false);
-        
-        
-//        memoryChart.sett
-	}
-	
-	@Override
-	public URL getFxmlResource() {
-		return getClass().getResource("ResourceResult.fxml");
-	}
 
-	private XYChart.Series<Number, Number> seriesSystemCpuLoad;
-	private XYChart.Series<Number, Number> seriesProcessCpuLoad;
+        // memoryChart.sett
+    }
 
-	private XYChart.Series<Number, Number> seriesFreeSystemMem;
-	private XYChart.Series<Number, Number> seriesThread;
-	private XYChart.Series<Number, Number> seriesClasses;
-	private XYChart.Series<Number, Number> seriesMemory;
-	
-	@Override
-	public void showFilteredResult(List<SystemResourcesInfo> filteredlist, ResourceFilterModel usedFilter) {
-		clear();
-		for (SystemResourcesInfo systemRessourcesInfo: filteredlist){
-			Date date = systemRessourcesInfo.getTimeStamp();
-			updateChart(systemRessourcesInfo.getSystemCpuLoad(),date,seriesSystemCpuLoad);
-			updateChart(systemRessourcesInfo.getProcessCpuLoad(),date,seriesProcessCpuLoad);
-			
-			updateChart(systemRessourcesInfo.getLiveThreadsCount(),date,seriesThread);
-			updateChart(systemRessourcesInfo.getTotalLoadedClassCount(),date,seriesClasses);
-			updateChart(systemRessourcesInfo.getHeapMemoryUsage()/1000000,date,seriesMemory);
-			updateChart(systemRessourcesInfo.getFreePhysicalMemorySize()/1000000,date,seriesFreeSystemMem);
-			
-		}
-		ComponentUtil.setupXAxis((NumberAxis)cpuChart.getXAxis(),cpuChart.getData());
-		ComponentUtil.setupXAxis((NumberAxis)threadChart.getXAxis(),threadChart.getData());
-		ComponentUtil.setupXAxis((NumberAxis)classesChart.getXAxis(),classesChart.getData());
-		ComponentUtil.setupXAxis((NumberAxis)memoryChart.getXAxis(),memoryChart.getData());
-	}
-	
-	private void updateChart(Number value,Date date, XYChart.Series<Number, Number> series){
-		series.getData().add(new XYChart.Data<Number, Number>(date.getTime(), value));
-	}
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("ResourceResult.fxml");
+    }
 
-	@Override
-	public List<SystemResourcesInfo> applyFilterInBackgroundThread(ResourceFilterModel filter) {
-		return copperDataProvider.getSystemRessources(filter.fromToFilterModel.from.get(),filter.fromToFilterModel.to.get(),filter.maxCountFilterModel.getMaxCount());
-	}
-	
-	@Override
-	public boolean supportsClear() {
-		return true;
-	}
+    private XYChart.Series<Number, Number> seriesSystemCpuLoad;
+    private XYChart.Series<Number, Number> seriesProcessCpuLoad;
 
-	@Override
-	public void clear() {
+    private XYChart.Series<Number, Number> seriesFreeSystemMem;
+    private XYChart.Series<Number, Number> seriesThread;
+    private XYChart.Series<Number, Number> seriesClasses;
+    private XYChart.Series<Number, Number> seriesMemory;
+
+    @Override
+    public void showFilteredResult(List<SystemResourcesInfo> filteredlist, ResourceFilterModel usedFilter) {
+        clear();
+        for (SystemResourcesInfo systemRessourcesInfo : filteredlist) {
+            Date date = systemRessourcesInfo.getTimeStamp();
+            updateChart(systemRessourcesInfo.getSystemCpuLoad(), date, seriesSystemCpuLoad);
+            updateChart(systemRessourcesInfo.getProcessCpuLoad(), date, seriesProcessCpuLoad);
+
+            updateChart(systemRessourcesInfo.getLiveThreadsCount(), date, seriesThread);
+            updateChart(systemRessourcesInfo.getTotalLoadedClassCount(), date, seriesClasses);
+            updateChart(systemRessourcesInfo.getHeapMemoryUsage() / 1000000, date, seriesMemory);
+            updateChart(systemRessourcesInfo.getFreePhysicalMemorySize() / 1000000, date, seriesFreeSystemMem);
+
+        }
+        ComponentUtil.setupXAxis((NumberAxis) cpuChart.getXAxis(), cpuChart.getData());
+        ComponentUtil.setupXAxis((NumberAxis) threadChart.getXAxis(), threadChart.getData());
+        ComponentUtil.setupXAxis((NumberAxis) classesChart.getXAxis(), classesChart.getData());
+        ComponentUtil.setupXAxis((NumberAxis) memoryChart.getXAxis(), memoryChart.getData());
+    }
+
+    private void updateChart(Number value, Date date, XYChart.Series<Number, Number> series) {
+        series.getData().add(new XYChart.Data<Number, Number>(date.getTime(), value));
+    }
+
+    @Override
+    public List<SystemResourcesInfo> applyFilterInBackgroundThread(ResourceFilterModel filter) {
+        return copperDataProvider.getSystemRessources(filter.fromToFilterModel.from.get(), filter.fromToFilterModel.to.get(), filter.maxCountFilterModel.getMaxCount());
+    }
+
+    @Override
+    public boolean supportsClear() {
+        return true;
+    }
+
+    @Override
+    public void clear() {
         cpuChart.setAnimated(false);
         threadChart.setAnimated(false);
         classesChart.setAnimated(false);
         memoryChart.setAnimated(false);
-        
-		seriesSystemCpuLoad.getData().clear();
-		seriesProcessCpuLoad.getData().clear();
-		seriesThread.getData().clear();
-		seriesClasses.getData().clear();
-		seriesMemory.getData().clear();
-		seriesFreeSystemMem.getData().clear();
-		
+
+        seriesSystemCpuLoad.getData().clear();
+        seriesProcessCpuLoad.getData().clear();
+        seriesThread.getData().clear();
+        seriesClasses.getData().clear();
+        seriesMemory.getData().clear();
+        seriesFreeSystemMem.getData().clear();
+
         cpuChart.getXAxis().setAnimated(true);
         threadChart.getXAxis().setAnimated(true);
         classesChart.getXAxis().setAnimated(true);
         memoryChart.getXAxis().setAnimated(true);
-	}
+    }
 }

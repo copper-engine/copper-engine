@@ -19,56 +19,55 @@ import java.io.Serializable;
 
 class DefaultCallback<E> implements Callback<E>, Serializable {
 
-	private static final long serialVersionUID = -2978285750814814436L;
-	private final String correlationId;
-	private transient ProcessingEngine engine;
-	private Response<E> response;
-	
-	public DefaultCallback(ProcessingEngine engine) {
-		super();
-		this.engine = engine;
-		this.correlationId = engine.createUUID();
-	}
-	
-	public void setEngine(ProcessingEngine engine) {
-		this.engine = engine;
-	}
+    private static final long serialVersionUID = -2978285750814814436L;
+    private final String correlationId;
+    private transient ProcessingEngine engine;
+    private Response<E> response;
 
-	@Override
-	public String getCorrelationId() {
-		return correlationId;
-	}
+    public DefaultCallback(ProcessingEngine engine) {
+        super();
+        this.engine = engine;
+        this.correlationId = engine.createUUID();
+    }
 
-	@Override
-	@Deprecated
-	public void notify(E response) {
-		engine.notify(new Response<E>(correlationId, response, null), new Acknowledge.BestEffortAcknowledge());
-	}
+    public void setEngine(ProcessingEngine engine) {
+        this.engine = engine;
+    }
 
-	@Override
-	@Deprecated
-	public void notify(Exception exception) {
-		engine.notify(new Response<E>(correlationId, null, exception), new Acknowledge.BestEffortAcknowledge());
-	}
+    @Override
+    public String getCorrelationId() {
+        return correlationId;
+    }
 
-	@Override
-	public void notify(E response, Acknowledge ack) {
-		engine.notify(new Response<E>(correlationId, response, null), ack);
-	}
+    @Override
+    @Deprecated
+    public void notify(E response) {
+        engine.notify(new Response<E>(correlationId, response, null), new Acknowledge.BestEffortAcknowledge());
+    }
 
-	@Override
-	public void notify(Exception exception, Acknowledge ack) {
-		engine.notify(new Response<E>(correlationId, null, exception), ack);
-	}
+    @Override
+    @Deprecated
+    public void notify(Exception exception) {
+        engine.notify(new Response<E>(correlationId, null, exception), new Acknowledge.BestEffortAcknowledge());
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Response<E> getResponse(final Workflow<?> wf) {
-		if (response == null) {
-			response = (Response<E>) wf.getAndRemoveResponse(correlationId);
-		}
-		return response;
-	}
+    @Override
+    public void notify(E response, Acknowledge ack) {
+        engine.notify(new Response<E>(correlationId, response, null), ack);
+    }
 
+    @Override
+    public void notify(Exception exception, Acknowledge ack) {
+        engine.notify(new Response<E>(correlationId, null, exception), ack);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Response<E> getResponse(final Workflow<?> wf) {
+        if (response == null) {
+            response = (Response<E>) wf.getAndRemoveResponse(correlationId);
+        }
+        return response;
+    }
 
 }

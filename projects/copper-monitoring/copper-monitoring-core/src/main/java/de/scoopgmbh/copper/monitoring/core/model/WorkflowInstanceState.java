@@ -15,17 +15,13 @@
  */
 package de.scoopgmbh.copper.monitoring.core.model;
 
-
 public enum WorkflowInstanceState {
 
-	ENQUEUED, 
-	PROCESSING, 
-	WAITING, 
-	FINISHED, 
-	INVALID, 
-	ERROR;
-	
-	
-	
-	
+    ENQUEUED,
+    PROCESSING,
+    WAITING,
+    FINISHED,
+    INVALID,
+    ERROR;
+
 }

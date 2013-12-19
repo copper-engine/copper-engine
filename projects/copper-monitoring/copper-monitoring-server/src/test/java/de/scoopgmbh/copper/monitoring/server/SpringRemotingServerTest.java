@@ -39,123 +39,121 @@ import de.scoopgmbh.copper.monitoring.server.testfixture.LogbackFixture;
 import de.scoopgmbh.copper.monitoring.server.testfixture.LogbackFixture.NoErrorLogContentAssertion;
 
 public class SpringRemotingServerTest {
-	
-	private static final String LOGIN_SERVICE = "http://localhost:8087/loginService";
-	private static final String COPPER_MONITORING_SERVICE = "http://localhost:8087/copperMonitoringService";
 
+    private static final String LOGIN_SERVICE = "http://localhost:8087/loginService";
+    private static final String COPPER_MONITORING_SERVICE = "http://localhost:8087/copperMonitoringService";
 
-	@BeforeClass
-	public static void before(){
-		LogManager.getRootLogger().setLevel(Level.INFO);
-		new LogbackFixture().assertNoError(new NoErrorLogContentAssertion(){
-			SpringRemotingServer springRemotingServer;
-			@Override
-			public void executeLogCreatingAction() {
-				FutureTask<Void> futureTask = new FutureTask<Void>(new Runnable() {
-					@Override
-					public void run() {
-						final SimpleAccountRealm realm = new SimpleAccountRealm();
-						realm.addAccount("user1", "pass1");
-						springRemotingServer = new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(Mockito.mock(CopperMonitoringService.class))  ,8087,"localhost", new SecureLoginService(realm));
-						springRemotingServer.start();
-					}
-				},null);
-				
-				Thread thread=new Thread(futureTask);
-				thread.start();
-				
-				try {
-					futureTask.get();//dont swallow exception instead fail test
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				} catch (ExecutionException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		});
-	}
-	
-	@Test
-	public void test_with_valid_user() throws Exception{
-		
-		String sessionId;
-		{
-			HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-			httpInvokerProxyFactoryBean.setServiceInterface(LoginService.class);
-			httpInvokerProxyFactoryBean.setServiceUrl(LOGIN_SERVICE);
-			httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
-			httpInvokerProxyFactoryBean.afterPropertiesSet();
-			LoginService loginService = (LoginService)httpInvokerProxyFactoryBean.getObject();
-			sessionId = loginService.doLogin("user1", "pass1");
-		}
-	
-		{
-			final HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-			httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
-			httpInvokerProxyFactoryBean.setServiceUrl(COPPER_MONITORING_SERVICE);
-			httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory(sessionId));
-			httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
-			httpInvokerProxyFactoryBean.afterPropertiesSet();
-			
-			
-			CopperMonitoringService copperMonitorService = (CopperMonitoringService)httpInvokerProxyFactoryBean.getObject();
-			assertNotNull(copperMonitorService);
-			try {
-				copperMonitorService.getSettings();
-			} catch (RemoteException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	
-	}
-	
-	@Test(expected=RemoteAccessException.class)
-	public void test_with_invalid_user() throws Exception{
-		
-		String sessionId;
-		{
-			HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-			httpInvokerProxyFactoryBean.setServiceInterface(LoginService.class);
-			httpInvokerProxyFactoryBean.setServiceUrl(LOGIN_SERVICE);
-			httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
-			httpInvokerProxyFactoryBean.afterPropertiesSet();
-			LoginService loginService = (LoginService)httpInvokerProxyFactoryBean.getObject();
-			sessionId = loginService.doLogin("userXXXX", "passXXXX");
-			assertNull(sessionId);
-		}
-	
-		{
-			final HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-			httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
-			httpInvokerProxyFactoryBean.setServiceUrl(COPPER_MONITORING_SERVICE);
-			httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory(sessionId));
-			httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
-			httpInvokerProxyFactoryBean.afterPropertiesSet();
-			
-			
-			CopperMonitoringService copperMonitorService = (CopperMonitoringService)httpInvokerProxyFactoryBean.getObject();
-			assertNotNull(copperMonitorService);
-			try {
-				copperMonitorService.getSettings();
-			} catch (RemoteException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	
-	}
-	
-	
-	@Test(expected=RemoteAccessException.class)
-	public void test_without_user() throws RemoteException{
-		HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-		httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
-		httpInvokerProxyFactoryBean.setServiceUrl(COPPER_MONITORING_SERVICE);;
-		httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory("dgfdgdg"));
-		httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
-		httpInvokerProxyFactoryBean.afterPropertiesSet();
-	    
-		CopperMonitoringService copperMonitorService = (CopperMonitoringService)httpInvokerProxyFactoryBean.getObject();
-		assertNotNull(copperMonitorService);
-		copperMonitorService.getSettings();
-	}
+    @BeforeClass
+    public static void before() {
+        LogManager.getRootLogger().setLevel(Level.INFO);
+        new LogbackFixture().assertNoError(new NoErrorLogContentAssertion() {
+            SpringRemotingServer springRemotingServer;
+
+            @Override
+            public void executeLogCreatingAction() {
+                FutureTask<Void> futureTask = new FutureTask<Void>(new Runnable() {
+                    @Override
+                    public void run() {
+                        final SimpleAccountRealm realm = new SimpleAccountRealm();
+                        realm.addAccount("user1", "pass1");
+                        springRemotingServer = new SpringRemotingServer(CopperMonitorServiceSecurityProxy.secure(Mockito.mock(CopperMonitoringService.class)), 8087, "localhost", new SecureLoginService(realm));
+                        springRemotingServer.start();
+                    }
+                }, null);
+
+                Thread thread = new Thread(futureTask);
+                thread.start();
+
+                try {
+                    futureTask.get();// dont swallow exception instead fail test
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    @Test
+    public void test_with_valid_user() throws Exception {
+
+        String sessionId;
+        {
+            HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+            httpInvokerProxyFactoryBean.setServiceInterface(LoginService.class);
+            httpInvokerProxyFactoryBean.setServiceUrl(LOGIN_SERVICE);
+            httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+            httpInvokerProxyFactoryBean.afterPropertiesSet();
+            LoginService loginService = (LoginService) httpInvokerProxyFactoryBean.getObject();
+            sessionId = loginService.doLogin("user1", "pass1");
+        }
+
+        {
+            final HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+            httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
+            httpInvokerProxyFactoryBean.setServiceUrl(COPPER_MONITORING_SERVICE);
+            httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory(sessionId));
+            httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+            httpInvokerProxyFactoryBean.afterPropertiesSet();
+
+            CopperMonitoringService copperMonitorService = (CopperMonitoringService) httpInvokerProxyFactoryBean.getObject();
+            assertNotNull(copperMonitorService);
+            try {
+                copperMonitorService.getSettings();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+    @Test(expected = RemoteAccessException.class)
+    public void test_with_invalid_user() throws Exception {
+
+        String sessionId;
+        {
+            HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+            httpInvokerProxyFactoryBean.setServiceInterface(LoginService.class);
+            httpInvokerProxyFactoryBean.setServiceUrl(LOGIN_SERVICE);
+            httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+            httpInvokerProxyFactoryBean.afterPropertiesSet();
+            LoginService loginService = (LoginService) httpInvokerProxyFactoryBean.getObject();
+            sessionId = loginService.doLogin("userXXXX", "passXXXX");
+            assertNull(sessionId);
+        }
+
+        {
+            final HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+            httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
+            httpInvokerProxyFactoryBean.setServiceUrl(COPPER_MONITORING_SERVICE);
+            httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory(sessionId));
+            httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+            httpInvokerProxyFactoryBean.afterPropertiesSet();
+
+            CopperMonitoringService copperMonitorService = (CopperMonitoringService) httpInvokerProxyFactoryBean.getObject();
+            assertNotNull(copperMonitorService);
+            try {
+                copperMonitorService.getSettings();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+    @Test(expected = RemoteAccessException.class)
+    public void test_without_user() throws RemoteException {
+        HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
+        httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
+        httpInvokerProxyFactoryBean.setServiceUrl(COPPER_MONITORING_SERVICE);
+        ;
+        httpInvokerProxyFactoryBean.setRemoteInvocationFactory(new SecureRemoteInvocationFactory("dgfdgdg"));
+        httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(new CommonsHttpInvokerRequestExecutor());
+        httpInvokerProxyFactoryBean.afterPropertiesSet();
+
+        CopperMonitoringService copperMonitorService = (CopperMonitoringService) httpInvokerProxyFactoryBean.getObject();
+        assertNotNull(copperMonitorService);
+        copperMonitorService.getSettings();
+    }
 }

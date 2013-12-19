@@ -21,18 +21,15 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 
 public class WorkflowSummaryResultModel {
-	public final WorkflowVersion version;
-	public final SimpleStringProperty totalcount;
-	public final WorkflowStateSummary workflowStateSummery;
+    public final WorkflowVersion version;
+    public final SimpleStringProperty totalcount;
+    public final WorkflowStateSummary workflowStateSummery;
 
-	public WorkflowSummaryResultModel(WorkflowSummary workflowSummery) {
-		this.totalcount = new SimpleStringProperty(""+workflowSummery.getTotalcount());
-		this.version = new WorkflowVersion(workflowSummery.getClassDescription());
-		this.workflowStateSummery = workflowSummery.getStateSummary();
-		
-	}
-	
-	
-	
-	
+    public WorkflowSummaryResultModel(WorkflowSummary workflowSummery) {
+        this.totalcount = new SimpleStringProperty("" + workflowSummery.getTotalcount());
+        this.version = new WorkflowVersion(workflowSummery.getClassDescription());
+        this.workflowStateSummery = workflowSummery.getStateSummary();
+
+    }
+
 }

@@ -29,42 +29,40 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 
 public class EngineFilterAbleForm<F extends EnginePoolFilterModel, R> extends FilterAbleForm<F, R> {
 
+    public EngineFilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
+            final Form<FilterController<F>> filterForm, Form<FilterResultController<F, R>> resultForm, IssueReporter exceptionHandler) {
+        super(messageProvider, showFormStrategie, filterForm, resultForm, exceptionHandler);
 
-	public EngineFilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
-			final Form<FilterController<F>> filterForm, Form<FilterResultController<F, R>> resultForm, IssueReporter exceptionHandler) {
-		super(messageProvider, showFormStrategie, filterForm, resultForm, exceptionHandler);
-		
-		filterForm.getController().getFilter().selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
-			@Override
-			public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue,
-					ProcessingEngineInfo newValue) {
-				if (newValue!=null){
-					createTitle(newValue);
-				}
-			}
-		});
-		
-		
-		filterForm.getController().getFilter().selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
-			@Override
-			public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue, ProcessingEngineInfo newValue) {
-				if (newValue!=null){
-					createTitle(newValue);
-				}
-			}
-		});
-		staticTitleProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (newValue!=null){
-					createTitle(filterForm.getController().getFilter().selectedEngine.get());
-				}
-			}
-		});
-	}
-	
-	private void createTitle(ProcessingEngineInfo engine) {
-		displayedTitleProperty().set(staticTitleProperty().get()+": "+engine.getId()+"("+(engine.getTyp()==EngineTyp.PERSISTENT?"P":"T")+")");
-	}
+        filterForm.getController().getFilter().selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
+            @Override
+            public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue,
+                    ProcessingEngineInfo newValue) {
+                if (newValue != null) {
+                    createTitle(newValue);
+                }
+            }
+        });
+
+        filterForm.getController().getFilter().selectedEngine.addListener(new ChangeListener<ProcessingEngineInfo>() {
+            @Override
+            public void changed(ObservableValue<? extends ProcessingEngineInfo> observable, ProcessingEngineInfo oldValue, ProcessingEngineInfo newValue) {
+                if (newValue != null) {
+                    createTitle(newValue);
+                }
+            }
+        });
+        staticTitleProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue != null) {
+                    createTitle(filterForm.getController().getFilter().selectedEngine.get());
+                }
+            }
+        });
+    }
+
+    private void createTitle(ProcessingEngineInfo engine) {
+        displayedTitleProperty().set(staticTitleProperty().get() + ": " + engine.getId() + "(" + (engine.getTyp() == EngineTyp.PERSISTENT ? "P" : "T") + ")");
+    }
 
 }

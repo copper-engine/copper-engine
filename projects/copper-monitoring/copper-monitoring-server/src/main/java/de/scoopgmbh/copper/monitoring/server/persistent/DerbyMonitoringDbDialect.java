@@ -24,19 +24,16 @@ import org.copperengine.core.persistent.Serializer;
  * Apache Derby implementation of the {@link DatabaseDialect} interface.
  * 
  * @author austermann
- *
  */
 public class DerbyMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 
-	public DerbyMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor,BatchingAuditTrail auditTrail) {
-		super(serializer, messagePostProcessor,auditTrail);
-	}
+    public DerbyMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor, BatchingAuditTrail auditTrail) {
+        super(serializer, messagePostProcessor, auditTrail);
+    }
 
-	@Override
-	public String getResultLimitingQuery(String query, long limit) {
-		return query +" FETCH FIRST "+limit+" ROWS ONLY";
-	}
+    @Override
+    public String getResultLimitingQuery(String query, long limit) {
+        return query + " FETCH FIRST " + limit + " ROWS ONLY";
+    }
 
 }
-	
-

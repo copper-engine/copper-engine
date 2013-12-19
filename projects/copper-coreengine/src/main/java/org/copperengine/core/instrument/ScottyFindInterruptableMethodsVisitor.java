@@ -25,57 +25,57 @@ import org.objectweb.asm.Opcodes;
 
 public class ScottyFindInterruptableMethodsVisitor extends ClassVisitor implements Opcodes {
 
-	private final Set<String> interruptableMethods = new HashSet<String>();
-	private String method = null;
-	private String classname;
-	private String superClassname;
+    private final Set<String> interruptableMethods = new HashSet<String>();
+    private String method = null;
+    private String classname;
+    private String superClassname;
 
-	public ScottyFindInterruptableMethodsVisitor() {
-		super(ASM4);
-	}
+    public ScottyFindInterruptableMethodsVisitor() {
+        super(ASM4);
+    }
 
-	public void reset() {
-		method = null;
-	}
+    public void reset() {
+        method = null;
+    }
 
-	public Set<String> getInterruptableMethods() {
-		return interruptableMethods;
-	}
-	
-	public String getSuperClassname() {
-		return superClassname;
-	}
-	
-	public String getClassname() {
-		return classname;
-	}
+    public Set<String> getInterruptableMethods() {
+        return interruptableMethods;
+    }
 
-	@Override
-	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-		this.classname = name;
-		this.superClassname = superName;
-		super.visit(version, access, name, signature, superName, interfaces);
-	}
+    public String getSuperClassname() {
+        return superClassname;
+    }
 
-	@Override
-	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-		method = name+desc;
-		if (exceptions != null && exceptions.length > 0) {
-			for (String e : exceptions) {
-				if ("org/copperengine/core/InterruptException".equals(e)) {
-					interruptableMethods.add(method);
-				}
-			}
-		}
-		return new MethodVisitor(ASM4, super.visitMethod(access, name, desc, signature, exceptions)) {
-			@Override
-			public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
-				if ("org/copperengine/core/InterruptException".equals(type)) {
-					throw new RuntimeException("InterruptException must not be handled!");
-				}
-				super.visitTryCatchBlock(start, end, handler, type);
-			}			
-		};
-	}
+    public String getClassname() {
+        return classname;
+    }
+
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        this.classname = name;
+        this.superClassname = superName;
+        super.visit(version, access, name, signature, superName, interfaces);
+    }
+
+    @Override
+    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+        method = name + desc;
+        if (exceptions != null && exceptions.length > 0) {
+            for (String e : exceptions) {
+                if ("org/copperengine/core/InterruptException".equals(e)) {
+                    interruptableMethods.add(method);
+                }
+            }
+        }
+        return new MethodVisitor(ASM4, super.visitMethod(access, name, desc, signature, exceptions)) {
+            @Override
+            public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+                if ("org/copperengine/core/InterruptException".equals(type)) {
+                    throw new RuntimeException("InterruptException must not be handled!");
+                }
+                super.visitTryCatchBlock(start, end, handler, type);
+            }
+        };
+    }
 
 }

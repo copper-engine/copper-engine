@@ -28,78 +28,74 @@ import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
 public class VersioningTest {
 
-	@Test
-	public void testFindLatest() throws Exception {
-		final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		try {
-			final WorkflowRepository repo = context.getBean(WorkflowRepository.class);
-			WorkflowVersion v = repo.findLatestMajorVersion(VersionTestWorkflowDef.NAME, 9);
-			assertEquals(new WorkflowVersion(9, 3, 1), v);
-			
-			v = repo.findLatestMinorVersion(VersionTestWorkflowDef.NAME, 9, 1);
-			assertEquals(new WorkflowVersion(9, 1, 1), v);
-		}
-		finally {
-			context.close();
-		}
-	}
+    @Test
+    public void testFindLatest() throws Exception {
+        final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        try {
+            final WorkflowRepository repo = context.getBean(WorkflowRepository.class);
+            WorkflowVersion v = repo.findLatestMajorVersion(VersionTestWorkflowDef.NAME, 9);
+            assertEquals(new WorkflowVersion(9, 3, 1), v);
 
-	@Test
-	public void testLatest() throws Exception {
-		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		TransientScottyEngine _engine = (TransientScottyEngine) context.getBean("transientEngine");
-		assertEquals(EngineState.STARTED,_engine.getEngineState());
-		ProcessingEngine engine = _engine;
+            v = repo.findLatestMinorVersion(VersionTestWorkflowDef.NAME, 9, 1);
+            assertEquals(new WorkflowVersion(9, 1, 1), v);
+        } finally {
+            context.close();
+        }
+    }
 
-		try {
-			final BlockingResponseReceiver<String> brr = new BlockingResponseReceiver<String>();
-			final WorkflowInstanceDescr<BlockingResponseReceiver<String>> descr = new WorkflowInstanceDescr<BlockingResponseReceiver<String>>(VersionTestWorkflowDef.NAME);
-			descr.setData(brr);
+    @Test
+    public void testLatest() throws Exception {
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        TransientScottyEngine _engine = (TransientScottyEngine) context.getBean("transientEngine");
+        assertEquals(EngineState.STARTED, _engine.getEngineState());
+        ProcessingEngine engine = _engine;
 
-			engine.run(descr);
+        try {
+            final BlockingResponseReceiver<String> brr = new BlockingResponseReceiver<String>();
+            final WorkflowInstanceDescr<BlockingResponseReceiver<String>> descr = new WorkflowInstanceDescr<BlockingResponseReceiver<String>>(VersionTestWorkflowDef.NAME);
+            descr.setData(brr);
 
-			brr.wait4response(5000);
-			final String workflowClassname = brr.getResponse();
+            engine.run(descr);
 
-			assertEquals("org.copperengine.core.test.versioning.VersionTestWorkflow_14_5_67", workflowClassname);
+            brr.wait4response(5000);
+            final String workflowClassname = brr.getResponse();
 
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
+            assertEquals("org.copperengine.core.test.versioning.VersionTestWorkflow_14_5_67", workflowClassname);
 
-	}
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
 
-	@Test
-	public void testVersion() throws Exception {
-		ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml"});
-		TransientScottyEngine _engine = (TransientScottyEngine) context.getBean("transientEngine");
-		assertEquals(EngineState.STARTED,_engine.getEngineState());
-		ProcessingEngine engine = _engine;
+    }
 
-		try {
-			final BlockingResponseReceiver<String> brr = new BlockingResponseReceiver<String>();
-			final WorkflowInstanceDescr<BlockingResponseReceiver<String>> descr = new WorkflowInstanceDescr<BlockingResponseReceiver<String>>(VersionTestWorkflowDef.NAME);
-			descr.setVersion(new WorkflowVersion(1, 0, 1));
-			descr.setData(brr);
+    @Test
+    public void testVersion() throws Exception {
+        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
+        TransientScottyEngine _engine = (TransientScottyEngine) context.getBean("transientEngine");
+        assertEquals(EngineState.STARTED, _engine.getEngineState());
+        ProcessingEngine engine = _engine;
 
-			engine.run(descr);
+        try {
+            final BlockingResponseReceiver<String> brr = new BlockingResponseReceiver<String>();
+            final WorkflowInstanceDescr<BlockingResponseReceiver<String>> descr = new WorkflowInstanceDescr<BlockingResponseReceiver<String>>(VersionTestWorkflowDef.NAME);
+            descr.setVersion(new WorkflowVersion(1, 0, 1));
+            descr.setData(brr);
 
-			brr.wait4response(5000);
-			final String workflowClassname = brr.getResponse();
+            engine.run(descr);
 
-			assertEquals("org.copperengine.core.test.versioning.VersionTestWorkflow_1_0_1", workflowClassname);
+            brr.wait4response(5000);
+            final String workflowClassname = brr.getResponse();
 
-		}
-		finally {
-			context.close();
-		}
-		assertEquals(EngineState.STOPPED,engine.getEngineState());
+            assertEquals("org.copperengine.core.test.versioning.VersionTestWorkflow_1_0_1", workflowClassname);
 
-	}	
+        } finally {
+            context.close();
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+
+    }
 
 }

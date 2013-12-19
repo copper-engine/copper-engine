@@ -31,48 +31,48 @@ import de.scoopgmbh.copper.monitoring.client.ui.workflowclasssesctree.WorkflowCl
 import de.scoopgmbh.copper.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterController;
 import de.scoopgmbh.copper.monitoring.client.util.WorkflowVersion;
 
-public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController>{
+public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController> {
 
-	private WorkflowSummaryFilterController filterController;
-	private final TreeView<DisplayWorkflowClassesModel> workflowView;
-	private final GuiCopperDataProvider copperDataProvider;
-	
-	public WorkflowClassesTreeForm(String dynamicTitle, ShowFormStrategy<?> showFormStrategie,
-			WorkflowClassesTreeController controller,WorkflowSummaryFilterController filterController,
-			TreeView<DisplayWorkflowClassesModel> workflowView, GuiCopperDataProvider copperDataProvider) {
-		super(dynamicTitle, showFormStrategie, controller);
-		this.filterController = filterController;
-		this.workflowView = workflowView;
-		this.copperDataProvider = copperDataProvider;
-	}
+    private WorkflowSummaryFilterController filterController;
+    private final TreeView<DisplayWorkflowClassesModel> workflowView;
+    private final GuiCopperDataProvider copperDataProvider;
 
-	@Override
-	public Node createContent() {
-		BorderPane pane = new BorderPane();
-		workflowView.setPrefWidth(600);
-		pane.setCenter(workflowView);
-		Button refreshButton  = new Button("Refresh");
-		BorderPane.setMargin(refreshButton, new Insets(5));
-		pane.setBottom(refreshButton);
-		controller.refresh(copperDataProvider.getWorkflowClassesList(filterController.getFilter().selectedEngine.get().getId()));
-		
-		controller.selectedItem.addListener(new ChangeListener<WorkflowVersion>() {
-			@Override
-			public void changed(ObservableValue<? extends WorkflowVersion> observable, WorkflowVersion oldValue, WorkflowVersion newValue) {
-				if (newValue!=null){
-					filterController.setFilter(newValue);
-					filterController.startValueSetAnimation();
-				}
-			}
-		});
-		
-		refreshButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent actionEvent) {
-				controller.refresh(copperDataProvider.getWorkflowClassesList(filterController.getFilter().selectedEngine.get().getId()));
-			}
-		});
-		return pane;
-	}
+    public WorkflowClassesTreeForm(String dynamicTitle, ShowFormStrategy<?> showFormStrategie,
+            WorkflowClassesTreeController controller, WorkflowSummaryFilterController filterController,
+            TreeView<DisplayWorkflowClassesModel> workflowView, GuiCopperDataProvider copperDataProvider) {
+        super(dynamicTitle, showFormStrategie, controller);
+        this.filterController = filterController;
+        this.workflowView = workflowView;
+        this.copperDataProvider = copperDataProvider;
+    }
+
+    @Override
+    public Node createContent() {
+        BorderPane pane = new BorderPane();
+        workflowView.setPrefWidth(600);
+        pane.setCenter(workflowView);
+        Button refreshButton = new Button("Refresh");
+        BorderPane.setMargin(refreshButton, new Insets(5));
+        pane.setBottom(refreshButton);
+        controller.refresh(copperDataProvider.getWorkflowClassesList(filterController.getFilter().selectedEngine.get().getId()));
+
+        controller.selectedItem.addListener(new ChangeListener<WorkflowVersion>() {
+            @Override
+            public void changed(ObservableValue<? extends WorkflowVersion> observable, WorkflowVersion oldValue, WorkflowVersion newValue) {
+                if (newValue != null) {
+                    filterController.setFilter(newValue);
+                    filterController.startValueSetAnimation();
+                }
+            }
+        });
+
+        refreshButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                controller.refresh(copperDataProvider.getWorkflowClassesList(filterController.getFilter().selectedEngine.get().getId()));
+            }
+        });
+        return pane;
+    }
 
 }

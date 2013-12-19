@@ -19,26 +19,24 @@ import org.copperengine.core.persistent.StandardJavaSerializer;
 
 public class CompressedBase64PostProcessor implements MessagePostProcessor {
 
-	private StandardJavaSerializer serializer = new StandardJavaSerializer();
-	
-	@Override
-	public String serialize(String msg) {
-		try {
-			return serializer.serializeObject(msg);
-		} 
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    private StandardJavaSerializer serializer = new StandardJavaSerializer();
 
-	@Override
-	public String deserialize(String msg) {
-		try {
-			return (String) serializer.deserializeObject(msg);
-		} 
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    @Override
+    public String serialize(String msg) {
+        try {
+            return serializer.serializeObject(msg);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String deserialize(String msg) {
+        try {
+            return (String) serializer.deserializeObject(msg);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

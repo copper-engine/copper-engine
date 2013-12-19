@@ -19,21 +19,20 @@ package org.copperengine.core.common;
  * Id factory used by COPPER for creating unique IDs, e.g. for workflow instance ids or correlation id.
  * 
  * @author austermann
- *
  */
 public interface IdFactory {
-	/**
-	 * creates a new id 
-	 */
-	public String createId();
-	
-	/**
-	 * startup of the factory
-	 */
-	public void startup();
-	
-	/**
-	 * shutdown of the factory
-	 */
-	public void shutdown();
+    /**
+     * creates a new id
+     */
+    public String createId();
+
+    /**
+     * startup of the factory
+     */
+    public void startup();
+
+    /**
+     * shutdown of the factory
+     */
+    public void shutdown();
 }

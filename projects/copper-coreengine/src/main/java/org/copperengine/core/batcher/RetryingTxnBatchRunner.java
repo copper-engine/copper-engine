@@ -25,52 +25,50 @@ import org.copperengine.core.db.utility.RetryingTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+public class RetryingTxnBatchRunner<E extends BatchExecutorBase<E, T>, T extends BatchCommand<E, T>> implements BatchRunner<E, T> {
 
-public class RetryingTxnBatchRunner<E extends BatchExecutorBase<E,T>, T extends BatchCommand<E,T>> implements BatchRunner<E, T> {
+    private static final Logger logger = LoggerFactory.getLogger(RetryingTxnBatchRunner.class);
 
-	private static final Logger logger = LoggerFactory.getLogger(RetryingTxnBatchRunner.class);
+    private DataSource dataSource;
 
-	private DataSource dataSource;
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
+    public void run(final Collection<BatchCommand<E, T>> commands, final BatchExecutorBase<E, T> base) {
+        if (commands.isEmpty())
+            return;
 
-	public void run(final Collection<BatchCommand<E,T>> commands, final BatchExecutorBase<E,T> base) {
-		if (commands.isEmpty())
-			return;
-
-		try {
-			if (dataSource == null) {
-				base.doExec(commands, null);
-			}
-			else {
-				new RetryingTransaction<Void>(dataSource) {
-					@Override
-					protected Void execute() throws Exception {
-						base.doExec(commands, getConnection());
-						return null;
-					}
-				}.run();
-			}
-			for (BatchCommand<?,?> cmd : commands) {
-				cmd.callback().commandCompleted();
-			}
-		} 
-		catch (Exception e) {
-			if (commands.size() == 1) {
-				BatchCommand<?,?> cmd = commands.iterator().next();
-				cmd.callback().unhandledException(e);
-			}
-			else {
-				logger.warn("batch execution failed - trying execution of separate commands ",e);
-				for (BatchCommand<E,T> cmd : commands) {
-					List<BatchCommand<E,T>> l = new ArrayList<BatchCommand<E,T>>();
-					l.add(cmd);
-					run(l, base);
-				}
-			}
-		}
-	}
+        try {
+            if (dataSource == null) {
+                base.doExec(commands, null);
+            }
+            else {
+                new RetryingTransaction<Void>(dataSource) {
+                    @Override
+                    protected Void execute() throws Exception {
+                        base.doExec(commands, getConnection());
+                        return null;
+                    }
+                }.run();
+            }
+            for (BatchCommand<?, ?> cmd : commands) {
+                cmd.callback().commandCompleted();
+            }
+        } catch (Exception e) {
+            if (commands.size() == 1) {
+                BatchCommand<?, ?> cmd = commands.iterator().next();
+                cmd.callback().unhandledException(e);
+            }
+            else {
+                logger.warn("batch execution failed - trying execution of separate commands ", e);
+                for (BatchCommand<E, T> cmd : commands) {
+                    List<BatchCommand<E, T>> l = new ArrayList<BatchCommand<E, T>>();
+                    l.add(cmd);
+                    run(l, base);
+                }
+            }
+        }
+    }
 
 }

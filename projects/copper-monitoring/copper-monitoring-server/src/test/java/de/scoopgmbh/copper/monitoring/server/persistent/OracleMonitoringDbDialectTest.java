@@ -33,75 +33,70 @@ import org.junit.Test;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-
-
 @Ignore
-public class OracleMonitoringDbDialectTest extends MonitoringDbDialectTestBase{
+public class OracleMonitoringDbDialectTest extends MonitoringDbDialectTestBase {
 
-	@Override
-	void intit() {
-	
-		ComboPooledDataSource datasource_oracle = new ComboPooledDataSource();
-		try {
-			datasource_oracle.setDriverClass("oracle.jdbc.OracleDriver");
-			datasource_oracle.setJdbcUrl("jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:HM");
-			datasource_oracle.setMinPoolSize(1);
-			datasource_oracle.setMaxPoolSize(8);
-			datasource_oracle.setConnectionTesterClassName("org.copperengine.core.core.db.utility.oracle.c3p0.OracleConnectionTester");
-			datasource_oracle.setConnectionCustomizerClassName("org.copperengine.core.core.db.utility.oracle.c3p0.OracleConnectionCustomizer");
-			datasource_oracle.setIdleConnectionTestPeriod(15);
-		} catch (PropertyVetoException e1) {
-			throw new RuntimeException(e1);
-		}
-		this.datasource=datasource_oracle;
-		
-		cleanDB(datasource);
+    @Override
+    void intit() {
 
-		final OracleDialect oracleDialect = new OracleDialect();
-//		oracleDialect.setWfRepository(workflowRepository);
-		oracleDialect.setDbBatchingLatencyMSec(0);
-		oracleDialect.setEngineIdProvider(new EngineIdProviderBean("a"));
-		oracleDialect.startup();
-		this.databaseDialect = oracleDialect;
-		
-		
-		OracleMonitoringDbDialect derbyMonitoringDbDialect = new OracleMonitoringDbDialect(new StandardJavaSerializer(), new DummyPostProcessor(),new BatchingAuditTrail());
-		this.monitoringDbDialect = derbyMonitoringDbDialect;
-	}
-	
-	@Test
-	public void getRecommendationsReport(){
-		
-		try {
-			PreparedStatement selectStmt = null;
-			PreparedStatement identifyStmt = null;
-			String sqlId="";
-			try {
-				String sqltext="SELECT /*+ MONITOR */  * FROM DUAL";
-				selectStmt = datasource.getConnection().prepareStatement(sqltext);
-				selectStmt.executeQuery();
-				
-				identifyStmt = datasource.getConnection().prepareStatement(
-						"select sql_id, plan_hash_value, exact_matching_signature, sql_plan_baseline from v$sql where sql_text = '"+sqltext+"'");
-				ResultSet resultSet = identifyStmt.executeQuery();
-				while (resultSet.next()) {
-					sqlId = resultSet.getString(1);
-				}
-				resultSet.close();
-				
-			}  finally {
-				JdbcUtils.closeStatement(selectStmt);
-				JdbcUtils.closeStatement(identifyStmt);
-			}
-			
-			
-			
-			String report=monitoringDbDialect.getRecommendationsReport(sqlId, datasource.getConnection());
-			assertFalse(report.contains("java.sql.SQLSyntaxErrorException"));
-			assertFalse(report.contains("java.sql.SQLException"));
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
+        ComboPooledDataSource datasource_oracle = new ComboPooledDataSource();
+        try {
+            datasource_oracle.setDriverClass("oracle.jdbc.OracleDriver");
+            datasource_oracle.setJdbcUrl("jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:HM");
+            datasource_oracle.setMinPoolSize(1);
+            datasource_oracle.setMaxPoolSize(8);
+            datasource_oracle.setConnectionTesterClassName("org.copperengine.core.core.db.utility.oracle.c3p0.OracleConnectionTester");
+            datasource_oracle.setConnectionCustomizerClassName("org.copperengine.core.core.db.utility.oracle.c3p0.OracleConnectionCustomizer");
+            datasource_oracle.setIdleConnectionTestPeriod(15);
+        } catch (PropertyVetoException e1) {
+            throw new RuntimeException(e1);
+        }
+        this.datasource = datasource_oracle;
+
+        cleanDB(datasource);
+
+        final OracleDialect oracleDialect = new OracleDialect();
+        // oracleDialect.setWfRepository(workflowRepository);
+        oracleDialect.setDbBatchingLatencyMSec(0);
+        oracleDialect.setEngineIdProvider(new EngineIdProviderBean("a"));
+        oracleDialect.startup();
+        this.databaseDialect = oracleDialect;
+
+        OracleMonitoringDbDialect derbyMonitoringDbDialect = new OracleMonitoringDbDialect(new StandardJavaSerializer(), new DummyPostProcessor(), new BatchingAuditTrail());
+        this.monitoringDbDialect = derbyMonitoringDbDialect;
+    }
+
+    @Test
+    public void getRecommendationsReport() {
+
+        try {
+            PreparedStatement selectStmt = null;
+            PreparedStatement identifyStmt = null;
+            String sqlId = "";
+            try {
+                String sqltext = "SELECT /*+ MONITOR */  * FROM DUAL";
+                selectStmt = datasource.getConnection().prepareStatement(sqltext);
+                selectStmt.executeQuery();
+
+                identifyStmt = datasource.getConnection().prepareStatement(
+                        "select sql_id, plan_hash_value, exact_matching_signature, sql_plan_baseline from v$sql where sql_text = '" + sqltext + "'");
+                ResultSet resultSet = identifyStmt.executeQuery();
+                while (resultSet.next()) {
+                    sqlId = resultSet.getString(1);
+                }
+                resultSet.close();
+
+            } finally {
+                JdbcUtils.closeStatement(selectStmt);
+                JdbcUtils.closeStatement(identifyStmt);
+            }
+
+            String report = monitoringDbDialect.getRecommendationsReport(sqlId, datasource.getConnection());
+            assertFalse(report.contains("java.sql.SQLSyntaxErrorException"));
+            assertFalse(report.contains("java.sql.SQLException"));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

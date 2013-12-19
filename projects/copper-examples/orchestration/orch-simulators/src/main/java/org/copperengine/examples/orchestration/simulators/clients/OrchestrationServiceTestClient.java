@@ -26,18 +26,18 @@ public final class OrchestrationServiceTestClient {
 
     private static final QName SERVICE_NAME = new QName("http://orchestration.copperengine.org/", "OrchestrationService");
 
-	private OrchestrationServiceTestClient() {
-	}
+    private OrchestrationServiceTestClient() {
+    }
 
-	public static void main(String args[]) throws java.lang.Exception {
-		URL wsdlURL = new URL(args[0]);
+    public static void main(String args[]) throws java.lang.Exception {
+        URL wsdlURL = new URL(args[0]);
 
-		OrchestrationService_Service ss = new OrchestrationService_Service(wsdlURL, SERVICE_NAME);
-		OrchestrationService port = ss.getOrchestrationServicePort();  
+        OrchestrationService_Service ss = new OrchestrationService_Service(wsdlURL, SERVICE_NAME);
+        OrchestrationService port = ss.getOrchestrationServicePort();
 
-		String resetMailbox_msisdn = args[1];
-		String resetMailbox_secret = args[2];
-		port.resetMailbox(resetMailbox_msisdn, resetMailbox_secret);
-	}
+        String resetMailbox_msisdn = args[1];
+        String resetMailbox_secret = args[2];
+        port.resetMailbox(resetMailbox_msisdn, resetMailbox_secret);
+    }
 
 }

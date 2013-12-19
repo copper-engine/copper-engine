@@ -21,11 +21,10 @@ import java.util.List;
 
 import org.copperengine.core.db.utility.SQLExceptionProcessor;
 
-
 public class OracleSQLExceptionProcessor implements SQLExceptionProcessor {
-    
+
     private List<Integer> noRetryErrorCodes = Collections.emptyList();
-    
+
     public void setNoRetryErrorCodes(List<Integer> noRetryErrorCodes) {
         this.noRetryErrorCodes = noRetryErrorCodes;
     }

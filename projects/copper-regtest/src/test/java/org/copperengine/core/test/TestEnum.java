@@ -16,5 +16,5 @@
 package org.copperengine.core.test;
 
 public enum TestEnum {
-	A, B, C, D
+    A, B, C, D
 }

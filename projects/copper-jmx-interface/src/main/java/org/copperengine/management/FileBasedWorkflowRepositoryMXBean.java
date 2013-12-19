@@ -18,10 +18,11 @@ package org.copperengine.management;
 import java.util.List;
 
 public interface FileBasedWorkflowRepositoryMXBean extends WorkflowRepositoryMXBean {
-	
-	/**
-	 * Returns the configured local directory/directories
-	 */	
-	public List<String> getSourceDirs();
-	public List<String> getSourceArchiveUrls();
+
+    /**
+     * Returns the configured local directory/directories
+     */
+    public List<String> getSourceDirs();
+
+    public List<String> getSourceArchiveUrls();
 }

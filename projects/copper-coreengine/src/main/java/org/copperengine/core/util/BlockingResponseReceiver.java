@@ -17,58 +17,56 @@ package org.copperengine.core.util;
 
 public class BlockingResponseReceiver<E> implements AsyncResponseReceiver<E> {
 
-	private E response;
-	private Exception exception;
-	private boolean responseReceived = false;
+    private E response;
+    private Exception exception;
+    private boolean responseReceived = false;
 
-	@Override
-	public void setException(Exception exception) {
-		synchronized (this) {
-			if (responseReceived)
-				return;
-			this.exception = exception;
-			this.responseReceived = true;
-			this.notifyAll();
-		}
-	}
+    @Override
+    public void setException(Exception exception) {
+        synchronized (this) {
+            if (responseReceived)
+                return;
+            this.exception = exception;
+            this.responseReceived = true;
+            this.notifyAll();
+        }
+    }
 
-	@Override
-	public void setResponse(E response) {
-		synchronized (this) {
-			if (responseReceived)
-				return;
-			this.response = response;
-			this.responseReceived = true;
-			this.notifyAll();
-		}
-	}
+    @Override
+    public void setResponse(E response) {
+        synchronized (this) {
+            if (responseReceived)
+                return;
+            this.response = response;
+            this.responseReceived = true;
+            this.notifyAll();
+        }
+    }
 
-	public void wait4response(long timeoutMSec) throws InterruptedException {
-		synchronized (this) {
-			if(!responseReceived) {
-				this.wait(timeoutMSec);
-			}
-		}
-	}
+    public void wait4response(long timeoutMSec) throws InterruptedException {
+        synchronized (this) {
+            if (!responseReceived) {
+                this.wait(timeoutMSec);
+            }
+        }
+    }
 
-	public boolean isResponseReceived() {
-		synchronized (this) {
-			return responseReceived;
-		}
-	}
+    public boolean isResponseReceived() {
+        synchronized (this) {
+            return responseReceived;
+        }
+    }
 
+    public Exception getException() {
+        synchronized (this) {
+            return exception;
+        }
+    }
 
-	public Exception getException() {
-		synchronized (this) {
-			return exception;
-		}
-	}
-
-	public E getResponse() {
-		synchronized (this) {
-			return response;
-		}
-	}
-
+    public E getResponse() {
+        synchronized (this) {
+            return response;
+        }
+    }
 
 }

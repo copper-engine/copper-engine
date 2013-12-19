@@ -17,22 +17,22 @@ package org.copperengine.core;
 
 public class CopperException extends Exception {
 
-	private static final long serialVersionUID = 3327862123204410565L;
+    private static final long serialVersionUID = 3327862123204410565L;
 
-	public CopperException() {
-		super();
-	}
+    public CopperException() {
+        super();
+    }
 
-	public CopperException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public CopperException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public CopperException(String message) {
-		super(message);
-	}
+    public CopperException(String message) {
+        super(message);
+    }
 
-	public CopperException(Throwable cause) {
-		super(cause);
-	}
-	
+    public CopperException(Throwable cause) {
+        super(cause);
+    }
+
 }

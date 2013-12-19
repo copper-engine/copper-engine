@@ -18,63 +18,55 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 
 public class WorkflowSummary implements Serializable {
-	private static final long serialVersionUID = 4867510351238162279L;
-	
-	private String alias;
-	private int totalcount;
-	private WorkflowStateSummary stateSummery;
-	private WorkflowClassMetaData classDescription;
-	
-	public WorkflowSummary() {
-		super();
-	}
+    private static final long serialVersionUID = 4867510351238162279L;
 
-	public WorkflowSummary(String alias, int totalcount, WorkflowClassMetaData classDescription, WorkflowStateSummary stateSummery) {
-		super();
-		this.alias = alias;
-		this.totalcount = totalcount;
-		this.stateSummery = stateSummery;
-		this.classDescription = classDescription;
-	}
+    private String alias;
+    private int totalcount;
+    private WorkflowStateSummary stateSummery;
+    private WorkflowClassMetaData classDescription;
 
-	public String getAlias() {
-		return alias;
-	}
+    public WorkflowSummary() {
+        super();
+    }
 
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
+    public WorkflowSummary(String alias, int totalcount, WorkflowClassMetaData classDescription, WorkflowStateSummary stateSummery) {
+        super();
+        this.alias = alias;
+        this.totalcount = totalcount;
+        this.stateSummery = stateSummery;
+        this.classDescription = classDescription;
+    }
 
-	public int getTotalcount() {
-		return totalcount;
-	}
+    public String getAlias() {
+        return alias;
+    }
 
-	public void setTotalcount(int totalcount) {
-		this.totalcount = totalcount;
-	}
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 
-	public WorkflowStateSummary getStateSummary() {
-		return stateSummery;
-	}
+    public int getTotalcount() {
+        return totalcount;
+    }
 
-	public void setStateSummary(WorkflowStateSummary stateSummery) {
-		this.stateSummery = stateSummery;
-	}
+    public void setTotalcount(int totalcount) {
+        this.totalcount = totalcount;
+    }
 
-	public WorkflowClassMetaData getClassDescription() {
-		return classDescription;
-	}
+    public WorkflowStateSummary getStateSummary() {
+        return stateSummery;
+    }
 
-	public void setClassDescription(WorkflowClassMetaData classDescription) {
-		this.classDescription = classDescription;
-	}
+    public void setStateSummary(WorkflowStateSummary stateSummery) {
+        this.stateSummery = stateSummery;
+    }
 
+    public WorkflowClassMetaData getClassDescription() {
+        return classDescription;
+    }
 
-	
+    public void setClassDescription(WorkflowClassMetaData classDescription) {
+        this.classDescription = classDescription;
+    }
 
-
-	
-	
-	
-	
 }

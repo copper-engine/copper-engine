@@ -19,30 +19,28 @@ import org.copperengine.core.ProcessingEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class PersistentTimeoutTestInputChannel implements Runnable {
 
-	private static final Logger logger = LoggerFactory.getLogger(PersistentTestInputChannel.class);
-	private ProcessingEngine engine;
+    private static final Logger logger = LoggerFactory.getLogger(PersistentTestInputChannel.class);
+    private ProcessingEngine engine;
 
-	public void setEngine(ProcessingEngine engine) {
-		this.engine = engine;
-	}
+    public void setEngine(ProcessingEngine engine) {
+        this.engine = engine;
+    }
 
-	public void run() {
-		try {
-			engine.run("org.copperengine.core.test.PersistentTimeoutTestWF",null);
-		}
-		catch(Exception e) {
-			logger.error("run failed",e);
-		}
-	}
+    public void run() {
+        try {
+            engine.run("org.copperengine.core.test.PersistentTimeoutTestWF", null);
+        } catch (Exception e) {
+            logger.error("run failed", e);
+        }
+    }
 
-	public void startup() {
-		new Thread(this).start();
-	}
-	
-	public void shutdown() {
-		
-	}	
+    public void startup() {
+        new Thread(this).start();
+    }
+
+    public void shutdown() {
+
+    }
 }

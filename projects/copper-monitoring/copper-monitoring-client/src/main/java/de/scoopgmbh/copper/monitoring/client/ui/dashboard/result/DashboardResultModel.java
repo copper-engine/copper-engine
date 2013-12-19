@@ -26,25 +26,24 @@ import de.scoopgmbh.copper.monitoring.core.model.ProcessingEngineInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 
 public class DashboardResultModel {
-	
-	public final List<ProcessingEngineInfo> engines = new ArrayList<ProcessingEngineInfo>();
-	private Map<String,WorkflowStateSummary> engineIdToStateSummery = new HashMap<String,WorkflowStateSummary>();
-	public List<MonitoringDataProviderInfo> providers = new ArrayList<MonitoringDataProviderInfo>();
-	public MonitoringDataStorageInfo monitoringDataStorageInfo;
-	
-	public DashboardResultModel(Map<String, WorkflowStateSummary> engineIdToStateSummery,
-			List<ProcessingEngineInfo> processingEngineInfo, 
-			List<MonitoringDataProviderInfo> providers, 
-			MonitoringDataStorageInfo monitoringDataStorageInfo){
-		this.engineIdToStateSummery.putAll(engineIdToStateSummery);
-		this.engines.addAll(processingEngineInfo);
-		this.providers = providers;
-		this.monitoringDataStorageInfo = monitoringDataStorageInfo;
-	}
-	
-	public WorkflowStateSummary getStateSummery(String engineId){
-		return engineIdToStateSummery.get(engineId);
-	}
-	
+
+    public final List<ProcessingEngineInfo> engines = new ArrayList<ProcessingEngineInfo>();
+    private Map<String, WorkflowStateSummary> engineIdToStateSummery = new HashMap<String, WorkflowStateSummary>();
+    public List<MonitoringDataProviderInfo> providers = new ArrayList<MonitoringDataProviderInfo>();
+    public MonitoringDataStorageInfo monitoringDataStorageInfo;
+
+    public DashboardResultModel(Map<String, WorkflowStateSummary> engineIdToStateSummery,
+            List<ProcessingEngineInfo> processingEngineInfo,
+            List<MonitoringDataProviderInfo> providers,
+            MonitoringDataStorageInfo monitoringDataStorageInfo) {
+        this.engineIdToStateSummery.putAll(engineIdToStateSummery);
+        this.engines.addAll(processingEngineInfo);
+        this.providers = providers;
+        this.monitoringDataStorageInfo = monitoringDataStorageInfo;
+    }
+
+    public WorkflowStateSummary getStateSummery(String engineId) {
+        return engineIdToStateSummery.get(engineId);
+    }
 
 }

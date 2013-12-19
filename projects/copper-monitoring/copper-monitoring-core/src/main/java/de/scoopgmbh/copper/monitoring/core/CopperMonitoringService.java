@@ -38,73 +38,75 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 
 public interface CopperMonitoringService extends Remote, Serializable, MonitoringDataQuerys {
 
-	public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname) throws RemoteException;
+    public List<WorkflowSummary> getWorkflowSummary(final String poolid, final String classname) throws RemoteException;
 
-	public List<WorkflowInstanceInfo> getWorkflowInstanceList(final String poolid, final String classname,
-			final WorkflowInstanceState state, final Integer priority, Date from, Date to, long resultRowLimit) throws RemoteException;
+    public List<WorkflowInstanceInfo> getWorkflowInstanceList(final String poolid, final String classname,
+            final WorkflowInstanceState state, final Integer priority, Date from, Date to, long resultRowLimit) throws RemoteException;
 
-	public List<AuditTrailInfo> getAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level, long resultRowLimit) throws RemoteException;
+    public List<AuditTrailInfo> getAuditTrails(String workflowClass, String workflowInstanceId, String correlationId, Integer level, long resultRowLimit) throws RemoteException;
 
-	public String getAuditTrailMessage(long id) throws RemoteException;
-	
-	public List<WorkflowClassMetaData> getWorkflowClassesList(final String engineId) throws RemoteException;
-	
-	public WorkflowInstanceMetaData getWorkflowInstanceDetails(String workflowInstanceId, String engineId)  throws RemoteException;
+    public String getAuditTrailMessage(long id) throws RemoteException;
 
-	public WorkflowStateSummary getAggregatedWorkflowStateSummary(String engineid) throws RemoteException;
-	
-	public CopperInterfaceSettings getSettings() throws RemoteException;
+    public List<WorkflowClassMetaData> getWorkflowClassesList(final String engineId) throws RemoteException;
 
-	/**
-	 * Executes an sql query on the database of the copper runtime this monitor interface is connected to.
-	 * @param query sql query
-	 * @param resultRowLimit maximum number of rows to return
-	 * @return the query result as a list of rows, each row is a String array.
-	 * @throws RemoteException
-	 */
-	public List<String[]> executeSqlQuery(String query, long resultRowLimit) throws RemoteException;
-	
-	/**
-	 * Trigger restart of a workflow instance that is in the error state.
-	 */
-	public void restartWorkflowInstance(String workflowInstanceId, String engineid) throws RemoteException;
+    public WorkflowInstanceMetaData getWorkflowInstanceDetails(String workflowInstanceId, String engineId) throws RemoteException;
 
-	/**
-	 * Trigger restart of all workflow instances that are in error state.
-	 */
-	public void restartAllErroneousInstances(String engineid) throws RemoteException;
-	
-	public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads) throws RemoteException;
-	
-	public void setThreadPriority(String engineid, String processorPoolId, int threadPriority) throws RemoteException;
-	
-	public List<ProcessingEngineInfo> getProccessingEngineList() throws RemoteException;
-	
-	public List<MeasurePointData> getMeasurePoints(String engineid) throws RemoteException;
-	
-	public void resetMeasurePoints() throws RemoteException;
-	
-	public void setBatcherNumThreads(int numThread, String engineid) throws RemoteException;
-	
-	public List<MessageInfo> getMessageList(final boolean ignoreProcessed, long resultRowLimit) throws RemoteException;
-	
-	public String getLogConfig() throws RemoteException;
+    public WorkflowStateSummary getAggregatedWorkflowStateSummary(String engineid) throws RemoteException;
 
-	public void updateLogConfig(String config) throws RemoteException;
-	
-	public String getDatabaseMonitoringHtmlReport() throws RemoteException;
-	
-	public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException;
-	
-	public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException;
-	
-	public List<MonitoringDataProviderInfo> getMonitoringDataProviderInfos() throws RemoteException;
+    public CopperInterfaceSettings getSettings() throws RemoteException;
 
-	public void startMonitoringDataProvider(String name) throws RemoteException;
+    /**
+     * Executes an sql query on the database of the copper runtime this monitor interface is connected to.
+     * 
+     * @param query
+     *            sql query
+     * @param resultRowLimit
+     *            maximum number of rows to return
+     * @return the query result as a list of rows, each row is a String array.
+     * @throws RemoteException
+     */
+    public List<String[]> executeSqlQuery(String query, long resultRowLimit) throws RemoteException;
 
-	public void stopMonitoringDataProvider(String name) throws RemoteException;
-	
-	public MonitoringDataStorageInfo getMonitroingDataStorageInfo() throws RemoteException;
+    /**
+     * Trigger restart of a workflow instance that is in the error state.
+     */
+    public void restartWorkflowInstance(String workflowInstanceId, String engineid) throws RemoteException;
+
+    /**
+     * Trigger restart of all workflow instances that are in error state.
+     */
+    public void restartAllErroneousInstances(String engineid) throws RemoteException;
+
+    public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads) throws RemoteException;
+
+    public void setThreadPriority(String engineid, String processorPoolId, int threadPriority) throws RemoteException;
+
+    public List<ProcessingEngineInfo> getProccessingEngineList() throws RemoteException;
+
+    public List<MeasurePointData> getMeasurePoints(String engineid) throws RemoteException;
+
+    public void resetMeasurePoints() throws RemoteException;
+
+    public void setBatcherNumThreads(int numThread, String engineid) throws RemoteException;
+
+    public List<MessageInfo> getMessageList(final boolean ignoreProcessed, long resultRowLimit) throws RemoteException;
+
+    public String getLogConfig() throws RemoteException;
+
+    public void updateLogConfig(String config) throws RemoteException;
+
+    public String getDatabaseMonitoringHtmlReport() throws RemoteException;
+
+    public String getDatabaseMonitoringHtmlDetailReport(String sqlid) throws RemoteException;
+
+    public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException;
+
+    public List<MonitoringDataProviderInfo> getMonitoringDataProviderInfos() throws RemoteException;
+
+    public void startMonitoringDataProvider(String name) throws RemoteException;
+
+    public void stopMonitoringDataProvider(String name) throws RemoteException;
+
+    public MonitoringDataStorageInfo getMonitroingDataStorageInfo() throws RemoteException;
 
 }
-

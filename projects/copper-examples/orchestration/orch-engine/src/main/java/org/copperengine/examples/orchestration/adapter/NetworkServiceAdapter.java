@@ -16,13 +16,12 @@
 package org.copperengine.examples.orchestration.adapter;
 
 public interface NetworkServiceAdapter {
-	
-	/**
-	 * 
-	 * @param msisdn
-	 * @return correlationId
-	 */
-	public String resetMailbox(String msisdn);
-	
-	public void sendSMS(String msisdn, String msg);
+
+    /**
+     * @param msisdn
+     * @return correlationId
+     */
+    public String resetMailbox(String msisdn);
+
+    public void sendSMS(String msisdn, String msg);
 }

@@ -18,27 +18,24 @@ package de.scoopgmbh.copper.monitoring.core.model;
 import java.io.Serializable;
 
 public class CopperInterfaceSettings implements Serializable {
-	private static final long serialVersionUID = 943485236197137124L;
-	private boolean canExecuteSql;
-	
-	public CopperInterfaceSettings(boolean canExecuteSql) {
-		super();
-		this.canExecuteSql = canExecuteSql;
-	}
+    private static final long serialVersionUID = 943485236197137124L;
+    private boolean canExecuteSql;
 
-	public boolean isCanExecuteSql() {
-		return canExecuteSql;
-	}
+    public CopperInterfaceSettings(boolean canExecuteSql) {
+        super();
+        this.canExecuteSql = canExecuteSql;
+    }
 
-	public void setCanExecuteSql(boolean canExecuteSql) {
-		this.canExecuteSql = canExecuteSql;
-	}
+    public boolean isCanExecuteSql() {
+        return canExecuteSql;
+    }
 
-	public CopperInterfaceSettings() {
-		super();
-	}
+    public void setCanExecuteSql(boolean canExecuteSql) {
+        this.canExecuteSql = canExecuteSql;
+    }
 
-	
-	
+    public CopperInterfaceSettings() {
+        super();
+    }
 
 }

@@ -16,20 +16,25 @@
 package org.copperengine.management;
 
 public interface PersistentPriorityProcessorPoolMXBean extends ProcessorPoolMXBean {
-	
-	public void setLowerThreshold(int lowerThreshold);
-	public int getLowerThreshold();
-	
-	public void setUpperThreshold(int upperThreshold);
-	public int getUpperThreshold();
-	
-	public int getUpperThresholdReachedWaitMSec();
-	public void setUpperThresholdReachedWaitMSec(int upperThresholdReachedWaitMSec);
-	
-	public int getEmptyQueueWaitMSec();
-	public void setEmptyQueueWaitMSec(int emptyQueueWaitMSec);
-	
-	public int getDequeueBulkSize();
-	public void setDequeueBulkSize(int dequeueBulkSize);
+
+    public void setLowerThreshold(int lowerThreshold);
+
+    public int getLowerThreshold();
+
+    public void setUpperThreshold(int upperThreshold);
+
+    public int getUpperThreshold();
+
+    public int getUpperThresholdReachedWaitMSec();
+
+    public void setUpperThresholdReachedWaitMSec(int upperThresholdReachedWaitMSec);
+
+    public int getEmptyQueueWaitMSec();
+
+    public void setEmptyQueueWaitMSec(int emptyQueueWaitMSec);
+
+    public int getDequeueBulkSize();
+
+    public void setDequeueBulkSize(int dequeueBulkSize);
 
 }

@@ -24,16 +24,15 @@ import org.copperengine.core.persistent.Serializer;
  * MySQL implementation of the {@link DatabaseDialect} interface.
  * 
  * @author austermann
- *
  */
 public class MySqlMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 
-	public MySqlMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor,BatchingAuditTrail auditTrail) {
-		super(serializer, messagePostProcessor,auditTrail);
-	}
+    public MySqlMonitoringDbDialect(Serializer serializer, MessagePostProcessor messagePostProcessor, BatchingAuditTrail auditTrail) {
+        super(serializer, messagePostProcessor, auditTrail);
+    }
 
-	@Override
-	public String getResultLimitingQuery(String query, long limit) {
-		return query+ " LIMIT "+limit;
-	}
+    @Override
+    public String getResultLimitingQuery(String query, long limit) {
+        return query + " LIMIT " + limit;
+    }
 }

@@ -15,7 +15,6 @@
  */
 package org.copperengine.core.tranzient;
 
-
 import java.util.Queue;
 
 import org.copperengine.core.ProcessingEngine;
@@ -25,11 +24,10 @@ import org.copperengine.core.common.ProcessorFactory;
 
 public class TransientProcessorFactory implements ProcessorFactory {
 
-    public TransientProcessorFactory(){
+    public TransientProcessorFactory() {
     }
 
-
-    public Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine){
-        return new TransientProcessor(id,queue,threadPrioriry,engine);
+    public Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine) {
+        return new TransientProcessor(id, queue, threadPrioriry, engine);
     }
 }

@@ -19,40 +19,39 @@ import org.copperengine.core.ProcessingEngine;
 
 /**
  * A processor pool is a set of {@link Processor} threads executing workflow instances.
- * It is  
+ * It is
  * 
  * @author austermann
- *
  */
 public interface ProcessorPool {
-	
-	/**
-	 * Called internally by COPPER during initialization 
-	 */
-	public void setEngine(ProcessingEngine engine);
 
-	/**
-	 * returns the processor pools identifier 
-	 */
-	public String getId();
-	
-	/**
-	 * Starts up the processor pool
-	 */
-	public void startup();
-	
-	/**
-	 * Shuts down the processor pool
-	 */
-	public void shutdown();
-	
-	/**
-	 * Suspend processing of workflows.
-	 */
-	public void suspend();
-	
-	/**
-	 * Resume processing of workflows
-	 */
-	public void resume();
+    /**
+     * Called internally by COPPER during initialization
+     */
+    public void setEngine(ProcessingEngine engine);
+
+    /**
+     * returns the processor pools identifier
+     */
+    public String getId();
+
+    /**
+     * Starts up the processor pool
+     */
+    public void startup();
+
+    /**
+     * Shuts down the processor pool
+     */
+    public void shutdown();
+
+    /**
+     * Suspend processing of workflows.
+     */
+    public void suspend();
+
+    /**
+     * Resume processing of workflows
+     */
+    public void resume();
 }

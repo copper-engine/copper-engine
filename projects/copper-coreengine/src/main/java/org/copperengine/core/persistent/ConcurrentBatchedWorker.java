@@ -26,108 +26,108 @@ import org.slf4j.LoggerFactory;
 
 abstract class ConcurrentBatchedWorker {
 
-	private static final Logger logger = LoggerFactory.getLogger(ConcurrentBatchedWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConcurrentBatchedWorker.class);
 
-	private Thread worker;
-	private Queue<List<PersistentWorkflow<?>>> queue = new LinkedList<List<PersistentWorkflow<?>>>();
-	int flushSize = 50;
-	private boolean shutdown = false;
-	private List<PersistentWorkflow<?>> currentList = new ArrayList<PersistentWorkflow<?>>(flushSize);
-	private static final List<PersistentWorkflow<?>> TOKEN = Collections.unmodifiableList(new ArrayList<PersistentWorkflow<?>>());
+    private Thread worker;
+    private Queue<List<PersistentWorkflow<?>>> queue = new LinkedList<List<PersistentWorkflow<?>>>();
+    int flushSize = 50;
+    private boolean shutdown = false;
+    private List<PersistentWorkflow<?>> currentList = new ArrayList<PersistentWorkflow<?>>(flushSize);
+    private static final List<PersistentWorkflow<?>> TOKEN = Collections.unmodifiableList(new ArrayList<PersistentWorkflow<?>>());
 
-	public void setFlushSize(int flushSize) {
-		this.flushSize = flushSize;
-	}
+    public void setFlushSize(int flushSize) {
+        this.flushSize = flushSize;
+    }
 
-	public void start() {
-		if (worker != null) throw new IllegalStateException();
-		worker = new Thread("") {
-			@Override
-			public void run() {
-				doRun();
-			}
-		};
-		worker.start();
-		logger.info("Started!");
-	}
+    public void start() {
+        if (worker != null)
+            throw new IllegalStateException();
+        worker = new Thread("") {
+            @Override
+            public void run() {
+                doRun();
+            }
+        };
+        worker.start();
+        logger.info("Started!");
+    }
 
-	public void shutdown() {
-		if (!shutdown) {
-			shutdown = true;
-			worker.interrupt();
-		}
-		logger.info("Stopped!");
-	}
+    public void shutdown() {
+        if (!shutdown) {
+            shutdown = true;
+            worker.interrupt();
+        }
+        logger.info("Stopped!");
+    }
 
-	public void beginTxn() {
+    public void beginTxn() {
 
-	}
+    }
 
-	public void endTxn() {
-		logger.trace("endTxn...");
-		if (currentList.size() > 0) {
-			synchronized (queue) {
-				queue.add(currentList);
-				queue.notify();
-			}
-			currentList = new ArrayList<PersistentWorkflow<?>>(flushSize);
-		}
-		synchronized (queue) {
-			queue.add(TOKEN);
-			queue.notify();
-			while (queue.size() > 0) {
-				try {
-					queue.wait(1000);
-				} 
-				catch (InterruptedException e) {
-					// ignore
-				}
-			}
-		}
-		logger.trace("endTxn done");
-	}
-	
-	public void enqueue(PersistentWorkflow<?> wf) {
-		if (wf == null) throw new NullPointerException();
-		currentList.add(wf);
-		if (currentList.size() >= flushSize) {
-			synchronized (queue) {
-				queue.add(currentList);
-				queue.notify();
-			}
-			currentList = new ArrayList<PersistentWorkflow<?>>(flushSize);
-		}
-	}
+    public void endTxn() {
+        logger.trace("endTxn...");
+        if (currentList.size() > 0) {
+            synchronized (queue) {
+                queue.add(currentList);
+                queue.notify();
+            }
+            currentList = new ArrayList<PersistentWorkflow<?>>(flushSize);
+        }
+        synchronized (queue) {
+            queue.add(TOKEN);
+            queue.notify();
+            while (queue.size() > 0) {
+                try {
+                    queue.wait(1000);
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+            }
+        }
+        logger.trace("endTxn done");
+    }
 
-	private void doRun() {
-		while (!shutdown) {
-			try {
-				List<PersistentWorkflow<?>> list = null;
-				synchronized (queue) {
-					list = queue.poll();
-					while (list == null) {
-						queue.wait();
-						list = queue.poll();
-					}
-					if (list == TOKEN) {
-						logger.trace("Found token");
-						queue.notify();
-					}
-				}
-				if (list != TOKEN) {
-					if (logger.isTraceEnabled()) logger.trace("Calling process for list with "+list.size()+" element(s");
-					process(list);
-				}
-			}
-			catch(InterruptedException e) {
-				// ignore
-			}
-			catch(Exception e) {
-				logger.error("iteration failed",e);
-			}
-		}
-	}
+    public void enqueue(PersistentWorkflow<?> wf) {
+        if (wf == null)
+            throw new NullPointerException();
+        currentList.add(wf);
+        if (currentList.size() >= flushSize) {
+            synchronized (queue) {
+                queue.add(currentList);
+                queue.notify();
+            }
+            currentList = new ArrayList<PersistentWorkflow<?>>(flushSize);
+        }
+    }
 
-	abstract void process(List<PersistentWorkflow<?>> list);
-	
+    private void doRun() {
+        while (!shutdown) {
+            try {
+                List<PersistentWorkflow<?>> list = null;
+                synchronized (queue) {
+                    list = queue.poll();
+                    while (list == null) {
+                        queue.wait();
+                        list = queue.poll();
+                    }
+                    if (list == TOKEN) {
+                        logger.trace("Found token");
+                        queue.notify();
+                    }
+                }
+                if (list != TOKEN) {
+                    if (logger.isTraceEnabled())
+                        logger.trace("Calling process for list with " + list.size() + " element(s");
+                    process(list);
+                }
+            } catch (InterruptedException e) {
+                // ignore
+            } catch (Exception e) {
+                logger.error("iteration failed", e);
+            }
+        }
+    }
+
+    abstract void process(List<PersistentWorkflow<?>> list);
+
 }

@@ -15,29 +15,25 @@
  */
 package org.copperengine.core.wfrepo;
 
-import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
-import org.copperengine.core.wfrepo.URLClassloaderClasspathProvider;
 import org.junit.Test;
 
 public class URLClassloaderClasspathProviderTest {
 
-	@Test
-	public void testGetOptions() {
-		FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
-		try {
-			repo.addSourceDir("src/workflow/java");
-			repo.setTargetDir("build/compiled_workflow");
-			repo.addCompilerOptionsProvider(new URLClassloaderClasspathProvider());
-			repo.start();
-		}
-		finally {
-			try {
-				repo.shutdown();
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    @Test
+    public void testGetOptions() {
+        FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
+        try {
+            repo.addSourceDir("src/workflow/java");
+            repo.setTargetDir("build/compiled_workflow");
+            repo.addCompilerOptionsProvider(new URLClassloaderClasspathProvider());
+            repo.start();
+        } finally {
+            try {
+                repo.shutdown();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }

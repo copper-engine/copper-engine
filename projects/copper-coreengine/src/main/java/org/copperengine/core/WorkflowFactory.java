@@ -20,9 +20,8 @@ package org.copperengine.core;
  * A WorkflowFactory is requested a the corresponding engine.
  * 
  * @author austermann
- *
  * @param <D>
  */
 public interface WorkflowFactory<D> {
-	public Workflow<D> newInstance() throws InstantiationException, IllegalAccessException;
+    public Workflow<D> newInstance() throws InstantiationException, IllegalAccessException;
 }

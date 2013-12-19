@@ -23,29 +23,28 @@ import org.slf4j.LoggerFactory;
  * Successful command executions are ignored, exceptions are logged.
  * 
  * @author austermann
- *
  * @param <T>
  */
-public class NullCallback<T extends BatchCommand<?,T>> implements CommandCallback<T> {
-	
-	static final Logger logger = LoggerFactory.getLogger(NullCallback.class);
-	
-	@SuppressWarnings("rawtypes")
-	public static final NullCallback instance = new NullCallback();
+public class NullCallback<T extends BatchCommand<?, T>> implements CommandCallback<T> {
 
-	@Override
-	public void commandCompleted() {
-	}
+    static final Logger logger = LoggerFactory.getLogger(NullCallback.class);
 
-	@SuppressWarnings("unchecked")
-	public static <X extends BatchCommand<?, X>> CommandCallback<X> get() {
-		return (CommandCallback<X>)instance;
-	}
+    @SuppressWarnings("rawtypes")
+    public static final NullCallback instance = new NullCallback();
 
-	@Override
-	public void unhandledException(Exception e) {
-		logger.error("Unhandled exception occurred",e);
-		
-	}
+    @Override
+    public void commandCompleted() {
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <X extends BatchCommand<?, X>> CommandCallback<X> get() {
+        return (CommandCallback<X>) instance;
+    }
+
+    @Override
+    public void unhandledException(Exception e) {
+        logger.error("Unhandled exception occurred", e);
+
+    }
 
 }

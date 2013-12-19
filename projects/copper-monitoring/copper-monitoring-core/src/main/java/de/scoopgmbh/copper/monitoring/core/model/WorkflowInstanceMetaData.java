@@ -19,32 +19,28 @@ import java.io.Serializable;
 
 import de.scoopgmbh.copper.monitoring.core.debug.WorkflowInstanceDetailedInfo;
 
-public class WorkflowInstanceMetaData implements Serializable{
-	private static final long serialVersionUID = -3474254791751446121L;
-	
-	private WorkflowClassMetaData workflowClassMetaData;
-	final WorkflowInstanceDetailedInfo workflowInstanceDetailedInfo;
+public class WorkflowInstanceMetaData implements Serializable {
+    private static final long serialVersionUID = -3474254791751446121L;
 
-	public WorkflowInstanceMetaData(WorkflowClassMetaData workflowClassMetaData, WorkflowInstanceDetailedInfo workflowInstanceDetailedInfo) {
-		super();
-		this.workflowClassMetaData = workflowClassMetaData;
-		this.workflowInstanceDetailedInfo = workflowInstanceDetailedInfo;
-	}
+    private WorkflowClassMetaData workflowClassMetaData;
+    final WorkflowInstanceDetailedInfo workflowInstanceDetailedInfo;
 
-	public WorkflowClassMetaData getWorkflowClassMetaData() {
-		return workflowClassMetaData;
-	}
+    public WorkflowInstanceMetaData(WorkflowClassMetaData workflowClassMetaData, WorkflowInstanceDetailedInfo workflowInstanceDetailedInfo) {
+        super();
+        this.workflowClassMetaData = workflowClassMetaData;
+        this.workflowInstanceDetailedInfo = workflowInstanceDetailedInfo;
+    }
 
-	public void setWorkflowClassMetaData(WorkflowClassMetaData workflowClassMetaData) {
-		this.workflowClassMetaData = workflowClassMetaData;
-	}
+    public WorkflowClassMetaData getWorkflowClassMetaData() {
+        return workflowClassMetaData;
+    }
 
-	public WorkflowInstanceDetailedInfo getWorkflowInstanceDetailedInfo() {
-		return workflowInstanceDetailedInfo;
-	}
-	
-	
-	
-	
+    public void setWorkflowClassMetaData(WorkflowClassMetaData workflowClassMetaData) {
+        this.workflowClassMetaData = workflowClassMetaData;
+    }
+
+    public WorkflowInstanceDetailedInfo getWorkflowInstanceDetailedInfo() {
+        return workflowInstanceDetailedInfo;
+    }
 
 }

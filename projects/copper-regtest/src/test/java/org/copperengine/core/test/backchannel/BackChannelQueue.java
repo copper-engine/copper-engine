@@ -21,17 +21,17 @@ import java.util.concurrent.TimeUnit;
 
 public class BackChannelQueue {
 
-	private BlockingQueue<WorkflowResult> queue = new LinkedBlockingQueue<WorkflowResult>();
-	
-	public void enqueue(WorkflowResult wfr) {
-		queue.add(wfr);
-	}
-	
-	public WorkflowResult dequeue(long timeout, TimeUnit unit) throws InterruptedException {
-		return queue.poll(timeout, unit);
-	}
-	
-	public WorkflowResult poll() {
-		return queue.poll();
-	}
+    private BlockingQueue<WorkflowResult> queue = new LinkedBlockingQueue<WorkflowResult>();
+
+    public void enqueue(WorkflowResult wfr) {
+        queue.add(wfr);
+    }
+
+    public WorkflowResult dequeue(long timeout, TimeUnit unit) throws InterruptedException {
+        return queue.poll(timeout, unit);
+    }
+
+    public WorkflowResult poll() {
+        return queue.poll();
+    }
 }

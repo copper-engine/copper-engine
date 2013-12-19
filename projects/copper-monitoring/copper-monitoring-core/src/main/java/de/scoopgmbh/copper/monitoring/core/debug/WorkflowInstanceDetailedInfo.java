@@ -20,23 +20,23 @@ import java.util.Collections;
 import java.util.List;
 
 public class WorkflowInstanceDetailedInfo implements Serializable {
-	
-	private static final long serialVersionUID = 1L;
 
-	String workflowInstanceId;
-	List<StackFrame> stack;
+    private static final long serialVersionUID = 1L;
 
-	public String getWorkflowInstanceId() {
-		return workflowInstanceId;
-	}
+    String workflowInstanceId;
+    List<StackFrame> stack;
 
-	public List<StackFrame> getStack() {
-		return Collections.unmodifiableList(stack);
-	}
+    public String getWorkflowInstanceId() {
+        return workflowInstanceId;
+    }
 
-	public WorkflowInstanceDetailedInfo(String workflowInstanceId, List<StackFrame> stack) {
-		this.workflowInstanceId = workflowInstanceId;
-		this.stack = stack;
-	}
+    public List<StackFrame> getStack() {
+        return Collections.unmodifiableList(stack);
+    }
+
+    public WorkflowInstanceDetailedInfo(String workflowInstanceId, List<StackFrame> stack) {
+        this.workflowInstanceId = workflowInstanceId;
+        this.stack = stack;
+    }
 
 }

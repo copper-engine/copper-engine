@@ -18,18 +18,18 @@ package de.scoopgmbh.copper.monitoring.client.util;
 import java.util.ResourceBundle;
 
 public class MessageProvider {
-	private ResourceBundle bundle;
-	
-	public MessageProvider(ResourceBundle bundle) {
-		super();
-		this.bundle = bundle;
-	}
-	
-	public String getText(MessageKey key) {
-		return bundle.getString(key.toString());
-	}
+    private ResourceBundle bundle;
 
-	public ResourceBundle getBundle() {
-		return bundle;
-	}
+    public MessageProvider(ResourceBundle bundle) {
+        super();
+        this.bundle = bundle;
+    }
+
+    public String getText(MessageKey key) {
+        return bundle.getString(key.toString());
+    }
+
+    public ResourceBundle getBundle() {
+        return bundle;
+    }
 }

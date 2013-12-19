@@ -20,8 +20,11 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WorkflowDescription {
-	String alias();
-	long majorVersion() default 1;
-	long minorVersion() default 0;
-	long patchLevelVersion() default 0;
+    String alias();
+
+    long majorVersion() default 1;
+
+    long minorVersion() default 0;
+
+    long patchLevelVersion() default 0;
 }

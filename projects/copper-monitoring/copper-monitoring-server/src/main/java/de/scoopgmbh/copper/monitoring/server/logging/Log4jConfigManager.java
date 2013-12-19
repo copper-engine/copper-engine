@@ -39,105 +39,104 @@ import de.scoopgmbh.copper.monitoring.server.provider.MonitoringLog4jDataProvide
 import de.scoopgmbh.copper.monitoring.server.util.FileUtil;
 
 public class Log4jConfigManager implements LogConfigManager {
-	
-	private final MonitoringLog4jDataProvider monitoringLog4jDataProvider;
-	public Log4jConfigManager(MonitoringLog4jDataProvider monitoringLog4jDataProvider){
-		this.monitoringLog4jDataProvider = monitoringLog4jDataProvider;
-	}
 
-	@Override
-	public void updateLogConfig(String config) {
-		Properties props = new Properties();
-		StringReader reader = null;
-		try {
-			reader = new StringReader(config);
-			try {
-				props.load(reader);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		} finally {
-			if (reader != null) {
-				reader.close();
-			}
-		}
-		monitoringLog4jDataProvider.removeFromRootLogger();
-		
-		org.apache.log4j.LogManager.resetConfiguration();
-		logProperty = config;
-		if (isXml(config)) {
-			try {
-				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-				Document doc = dBuilder.parse(new InputSource(new StringReader(config)));
-				DOMConfigurator.configure(doc.getDocumentElement());
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		} else {
-			PropertyConfigurator.configure(props);
-		}
-		monitoringLog4jDataProvider.addToRootLogger();
-	}
+    private final MonitoringLog4jDataProvider monitoringLog4jDataProvider;
 
-	String logProperty;
+    public Log4jConfigManager(MonitoringLog4jDataProvider monitoringLog4jDataProvider) {
+        this.monitoringLog4jDataProvider = monitoringLog4jDataProvider;
+    }
 
-	public boolean isXml(String text) {
-		try {
-			XMLReader parser = XMLReaderFactory.createXMLReader();
-			parser.setContentHandler(new DefaultHandler());
-			InputSource source = new InputSource(new StringReader(text));
-			parser.parse(source);
-			return true;
-		} catch (Exception ioe) {
-			return false;
-		}
-	}
+    @Override
+    public void updateLogConfig(String config) {
+        Properties props = new Properties();
+        StringReader reader = null;
+        try {
+            reader = new StringReader(config);
+            try {
+                props.load(reader);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+        monitoringLog4jDataProvider.removeFromRootLogger();
 
-	@Override
-	public String getLogConfig() {
-		String propertylocation = System.getProperty("log4j.configuration");
-		if (propertylocation == null) {
-			propertylocation = "log4j.properties";
-		}
-		InputStream input = null;
+        org.apache.log4j.LogManager.resetConfiguration();
+        logProperty = config;
+        if (isXml(config)) {
+            try {
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document doc = dBuilder.parse(new InputSource(new StringReader(config)));
+                DOMConfigurator.configure(doc.getDocumentElement());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            PropertyConfigurator.configure(props);
+        }
+        monitoringLog4jDataProvider.addToRootLogger();
+    }
 
-		String config = "";
-		if (logProperty == null) {
-			try {
-				final URL resource = Loader.getResource(propertylocation);
-				if (resource != null) {
-					try {
-						input = resource.openStream();
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-				if (input == null) {
-					try {
-						input = new FileInputStream(propertylocation);
-					} catch (FileNotFoundException e) {
-						// ignore
-					}
-				}
-				if (input != null) {
-					logProperty = FileUtil.convertStreamToString(input);
-				}
-			} finally {
-				if (input != null) {
-					try {
-						input.close();
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
-		}
-		config = logProperty;
+    String logProperty;
 
-		return config;
-	}
+    public boolean isXml(String text) {
+        try {
+            XMLReader parser = XMLReaderFactory.createXMLReader();
+            parser.setContentHandler(new DefaultHandler());
+            InputSource source = new InputSource(new StringReader(text));
+            parser.parse(source);
+            return true;
+        } catch (Exception ioe) {
+            return false;
+        }
+    }
 
+    @Override
+    public String getLogConfig() {
+        String propertylocation = System.getProperty("log4j.configuration");
+        if (propertylocation == null) {
+            propertylocation = "log4j.properties";
+        }
+        InputStream input = null;
 
+        String config = "";
+        if (logProperty == null) {
+            try {
+                final URL resource = Loader.getResource(propertylocation);
+                if (resource != null) {
+                    try {
+                        input = resource.openStream();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                if (input == null) {
+                    try {
+                        input = new FileInputStream(propertylocation);
+                    } catch (FileNotFoundException e) {
+                        // ignore
+                    }
+                }
+                if (input != null) {
+                    logProperty = FileUtil.convertStreamToString(input);
+                }
+            } finally {
+                if (input != null) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        config = logProperty;
+
+        return config;
+    }
 
 }

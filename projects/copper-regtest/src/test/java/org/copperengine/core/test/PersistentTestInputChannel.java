@@ -19,43 +19,41 @@ import org.copperengine.core.ProcessingEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class PersistentTestInputChannel implements Runnable {
 
-	private static final Logger logger = LoggerFactory.getLogger(PersistentTestInputChannel.class);
-	private ProcessingEngine engine;
+    private static final Logger logger = LoggerFactory.getLogger(PersistentTestInputChannel.class);
+    private ProcessingEngine engine;
 
-	public void setEngine(ProcessingEngine engine) {
-		this.engine = engine;
-	}
+    public void setEngine(ProcessingEngine engine) {
+        this.engine = engine;
+    }
 
-	public void run() {
-		try {
-			final int SIZE = 20*10;
-			StringBuilder dataSB = new StringBuilder(SIZE);
-			for (int i=0; i<SIZE; i++) {
-				int pos = (int)(Math.random()*70.0);
-				dataSB.append("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!§$%&/()=?".substring(pos,pos+1));
-			}
-			final String data = dataSB.toString(); 
-			
-			for (int i=0; i<200; i++) {
-				engine.run("org.copperengine.core.test.PersistentSpock2GTestWF", data);
-			}
-//			Thread.sleep(15000);
-//			engine.shutdown();
+    public void run() {
+        try {
+            final int SIZE = 20 * 10;
+            StringBuilder dataSB = new StringBuilder(SIZE);
+            for (int i = 0; i < SIZE; i++) {
+                int pos = (int) (Math.random() * 70.0);
+                dataSB.append("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!§$%&/()=?".substring(pos, pos + 1));
+            }
+            final String data = dataSB.toString();
 
-		}
-		catch(Exception e) {
-			logger.error("run failed",e);
-		}
-	}
+            for (int i = 0; i < 200; i++) {
+                engine.run("org.copperengine.core.test.PersistentSpock2GTestWF", data);
+            }
+            // Thread.sleep(15000);
+            // engine.shutdown();
 
-	public void startup() {
-		new Thread(this).start();
-	}
-	
-	public void shutdown() {
-		
-	}
+        } catch (Exception e) {
+            logger.error("run failed", e);
+        }
+    }
+
+    public void startup() {
+        new Thread(this).start();
+    }
+
+    public void shutdown() {
+
+    }
 }

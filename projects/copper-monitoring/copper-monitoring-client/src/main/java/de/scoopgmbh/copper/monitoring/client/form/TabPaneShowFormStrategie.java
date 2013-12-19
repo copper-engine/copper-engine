@@ -23,61 +23,59 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.Region;
 
 public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
-	boolean transparentHeader=false;
-	private Tab tab;
-	private boolean forceTabSizeTocontentesize;
+    boolean transparentHeader = false;
+    private Tab tab;
+    private boolean forceTabSizeTocontentesize;
 
-	public TabPaneShowFormStrategie(TabPane component) {
-		super(component);
-		
-		tab = new Tab();
-		tab.setText("new tab");
-	}
-	
-	public TabPaneShowFormStrategie(TabPane component, boolean forceTabSizeTocontentesize) {
-		this(component);
-		this.forceTabSizeTocontentesize=forceTabSizeTocontentesize;
-	}
-	
+    public TabPaneShowFormStrategie(TabPane component) {
+        super(component);
 
-	@Override
-	public void show(final Form<?> form){
-		if (tab.getContent()==null){
-			tab.setContent(form.createContent());
-			tab.textProperty().bind(form.displayedTitleProperty());
-			tab.getContent().setStyle("-fx-background-color: transparent;");
-			component.getTabs().add(tab);
-		} else {
-			if (!component.getTabs().contains(tab)){
-				component.getTabs().add(tab);
-			}
-		}
-		if (forceTabSizeTocontentesize){
-			if (tab.getContent() instanceof Region){
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						component.setMinWidth(((Region)tab.getContent()).getPrefWidth());
-						component.setMinHeight(((Region)tab.getContent()).getPrefHeight()+42);
-					}
-				});
-			}
-		}
-		component.getSelectionModel().select(tab);
-		
+        tab = new Tab();
+        tab.setText("new tab");
+    }
 
-		tab.setOnClosed(new EventHandler<Event>() {
-			@Override
-			public void handle(Event event) {
-				//workaround for javafx memeoryleaks RT-25652, RT-32087
-				onCloseListener.closed(form);
-				onCloseListener=null;
-				tab.setContent(null);
-				tab.setContent(null);
-				tab.textProperty().unbind();
-				tab.setOnClosed(null);
-			}
-		});
-		
-	}
+    public TabPaneShowFormStrategie(TabPane component, boolean forceTabSizeTocontentesize) {
+        this(component);
+        this.forceTabSizeTocontentesize = forceTabSizeTocontentesize;
+    }
+
+    @Override
+    public void show(final Form<?> form) {
+        if (tab.getContent() == null) {
+            tab.setContent(form.createContent());
+            tab.textProperty().bind(form.displayedTitleProperty());
+            tab.getContent().setStyle("-fx-background-color: transparent;");
+            component.getTabs().add(tab);
+        } else {
+            if (!component.getTabs().contains(tab)) {
+                component.getTabs().add(tab);
+            }
+        }
+        if (forceTabSizeTocontentesize) {
+            if (tab.getContent() instanceof Region) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        component.setMinWidth(((Region) tab.getContent()).getPrefWidth());
+                        component.setMinHeight(((Region) tab.getContent()).getPrefHeight() + 42);
+                    }
+                });
+            }
+        }
+        component.getSelectionModel().select(tab);
+
+        tab.setOnClosed(new EventHandler<Event>() {
+            @Override
+            public void handle(Event event) {
+                // workaround for javafx memeoryleaks RT-25652, RT-32087
+                onCloseListener.closed(form);
+                onCloseListener = null;
+                tab.setContent(null);
+                tab.setContent(null);
+                tab.textProperty().unbind();
+                tab.setOnClosed(null);
+            }
+        });
+
+    }
 }

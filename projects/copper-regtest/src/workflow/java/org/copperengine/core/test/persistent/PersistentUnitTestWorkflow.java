@@ -42,196 +42,194 @@ import org.copperengine.core.test.backchannel.WorkflowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static final Logger logger = LoggerFactory.getLogger(PersistentUnitTestWorkflow.class);
+    private static final Logger logger = LoggerFactory.getLogger(PersistentUnitTestWorkflow.class);
 
-	private transient BackChannelQueue backChannelQueue;
-	private transient MockAdapter mockAdapter;
-	private transient AuditTrail auditTrail;
-	private transient DataHolder dataHolder;
+    private transient BackChannelQueue backChannelQueue;
+    private transient MockAdapter mockAdapter;
+    private transient AuditTrail auditTrail;
+    private transient DataHolder dataHolder;
 
-	@AutoWire
-	public void setDataHolder(DataHolder dataHolder) {
-		this.dataHolder = dataHolder;
-	}
+    @AutoWire
+    public void setDataHolder(DataHolder dataHolder) {
+        this.dataHolder = dataHolder;
+    }
 
-	@AutoWire
-	public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
-		this.backChannelQueue = backChannelQueue;
-	}
+    @AutoWire
+    public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
+        this.backChannelQueue = backChannelQueue;
+    }
 
-	@AutoWire
-	public void setMockAdapter(MockAdapter mockAdapter) {
-		this.mockAdapter = mockAdapter;
-	}
+    @AutoWire
+    public void setMockAdapter(MockAdapter mockAdapter) {
+        this.mockAdapter = mockAdapter;
+    }
 
-	@AutoWire
-	public void setAuditTrail(AuditTrail auditTrail) {
-		this.auditTrail = auditTrail;
-	}
+    @AutoWire
+    public void setAuditTrail(AuditTrail auditTrail) {
+        this.auditTrail = auditTrail;
+    }
 
-	@Override
-	public void main() throws InterruptException {
-		try {
-			//testWaitAllMultiResponseAndTimeout();
-			
-			testWaitFirstMultiResponse();
+    @Override
+    public void main() throws InterruptException {
+        try {
+            // testWaitAllMultiResponseAndTimeout();
 
-			testWaitFirst();
+            testWaitFirstMultiResponse();
 
-			for (int i=0; i<5; i++) {
-				callFoo();
-				assertNotNull(this.getCreationTS());
-			}
+            testWaitFirst();
 
-			callFooWithWaitHook();
-			
-			auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", "TEXT");
-			backChannelQueue.enqueue(new WorkflowResult(getData(), null));
-		}
-		catch(Exception e) {
-			logger.error("execution failed",e);
-			backChannelQueue.enqueue(new WorkflowResult(null, e));
-		}
-	}
+            for (int i = 0; i < 5; i++) {
+                callFoo();
+                assertNotNull(this.getCreationTS());
+            }
 
-	private void callFoo() throws InterruptException {
-		String cid = getEngine().createUUID();
-		mockAdapter.fooWithMultiResponse(getData(), cid, 3);
-		List<Response<Object>> responseList = new ArrayList<Response<Object>>();
-		long waitUntil = System.currentTimeMillis()+20000;
-		while (responseList.size() < 3 && System.currentTimeMillis() < waitUntil) {
-			wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
-			List<Response<Object>> tmpResponses = getAndRemoveResponses(cid); 
-			assertNotNull(tmpResponses);
-			responseList.addAll(tmpResponses);
-		}
-		assertEquals(3, responseList.size());
-		for (Response<Object> res : responseList) {
-			logger.info(res.toString());
-			assertNotNull(res);
-			assertFalse(res.isTimeout());
-			assertEquals(getData(), res.getResponse());
-			assertNull(res.getException());
-		}
-		auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
-	}
+            callFooWithWaitHook();
 
-	private void callFooWithWaitHook() throws InterruptException {
-		final String cid = getEngine().createUUID();
-		mockAdapter.foo(getData(), cid);
+            auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", "TEXT");
+            backChannelQueue.enqueue(new WorkflowResult(getData(), null));
+        } catch (Exception e) {
+            logger.error("execution failed", e);
+            backChannelQueue.enqueue(new WorkflowResult(null, e));
+        }
+    }
 
-		dataHolder.clear(cid);
-		getEngine().addWaitHook(this.getId(), new WaitHook() {
-			@Override
-			public void onWait(Workflow<?> wf, Connection con) throws Exception {
-				assertNotNull(wf);
-				assertNotNull(con);
-				dataHolder.put(cid,wf.getId());
-			}
-		});
-		wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
-		assertEquals(getId(), dataHolder.get(cid));
-		dataHolder.clear(cid);
+    private void callFoo() throws InterruptException {
+        String cid = getEngine().createUUID();
+        mockAdapter.fooWithMultiResponse(getData(), cid, 3);
+        List<Response<Object>> responseList = new ArrayList<Response<Object>>();
+        long waitUntil = System.currentTimeMillis() + 20000;
+        while (responseList.size() < 3 && System.currentTimeMillis() < waitUntil) {
+            wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
+            List<Response<Object>> tmpResponses = getAndRemoveResponses(cid);
+            assertNotNull(tmpResponses);
+            responseList.addAll(tmpResponses);
+        }
+        assertEquals(3, responseList.size());
+        for (Response<Object> res : responseList) {
+            logger.info(res.toString());
+            assertNotNull(res);
+            assertFalse(res.isTimeout());
+            assertEquals(getData(), res.getResponse());
+            assertNull(res.getException());
+        }
+        auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
+    }
 
-		Response<?> res = getAndRemoveResponse(cid);
-		logger.info(res.toString());
-		assertNotNull(res);
-		assertFalse(res.isTimeout());
-		assertEquals(getData(),res.getResponse());
-		assertNull(res.getException());
-	}
+    private void callFooWithWaitHook() throws InterruptException {
+        final String cid = getEngine().createUUID();
+        mockAdapter.foo(getData(), cid);
 
-	private void testWaitFirst() throws InterruptException {
-		final String cidEarly = getEngine().createUUID();
-		final String cidLate = getEngine().createUUID();
-		mockAdapter.foo(getData(), cidEarly, 50);
+        dataHolder.clear(cid);
+        getEngine().addWaitHook(this.getId(), new WaitHook() {
+            @Override
+            public void onWait(Workflow<?> wf, Connection con) throws Exception {
+                assertNotNull(wf);
+                assertNotNull(con);
+                dataHolder.put(cid, wf.getId());
+            }
+        });
+        wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
+        assertEquals(getId(), dataHolder.get(cid));
+        dataHolder.clear(cid);
 
-		wait(WaitMode.FIRST, 5000, TimeUnit.MILLISECONDS, cidEarly, cidLate);
+        Response<?> res = getAndRemoveResponse(cid);
+        logger.info(res.toString());
+        assertNotNull(res);
+        assertFalse(res.isTimeout());
+        assertEquals(getData(), res.getResponse());
+        assertNull(res.getException());
+    }
 
-		Response<?> resEarly = getAndRemoveResponse(cidEarly);
-		logger.info(resEarly.toString());
-		assertNotNull(resEarly);
-		assertFalse(resEarly.isTimeout());
-		assertEquals(getData(),resEarly.getResponse());
-		assertNull(resEarly.getException());
+    private void testWaitFirst() throws InterruptException {
+        final String cidEarly = getEngine().createUUID();
+        final String cidLate = getEngine().createUUID();
+        mockAdapter.foo(getData(), cidEarly, 50);
 
-		Response<?> resLate = getAndRemoveResponse(cidLate);
-		assertNull(resLate);
+        wait(WaitMode.FIRST, 5000, TimeUnit.MILLISECONDS, cidEarly, cidLate);
 
-		mockAdapter.foo(getData(), cidLate,  50);
+        Response<?> resEarly = getAndRemoveResponse(cidEarly);
+        logger.info(resEarly.toString());
+        assertNotNull(resEarly);
+        assertFalse(resEarly.isTimeout());
+        assertEquals(getData(), resEarly.getResponse());
+        assertNull(resEarly.getException());
 
-		wait(WaitMode.ALL, 5000, TimeUnit.MILLISECONDS, cidLate);
+        Response<?> resLate = getAndRemoveResponse(cidLate);
+        assertNull(resLate);
 
-		resEarly = getAndRemoveResponse(cidEarly);
-		assertNull(resEarly);
+        mockAdapter.foo(getData(), cidLate, 50);
 
-		resLate = getAndRemoveResponse(cidLate);
-		assertNotNull(resLate);
-		assertFalse(resLate.isTimeout());
-	}	
-	
-	private void testWaitFirstMultiResponse() throws InterruptException {
-		final String cidWithResponse = getEngine().createUUID();
-		final String cidNoResponse = getEngine().createUUID();
-		mockAdapter.fooWithMultiResponse(getData(), cidWithResponse, 2);
+        wait(WaitMode.ALL, 5000, TimeUnit.MILLISECONDS, cidLate);
 
-		wait(WaitMode.FIRST, 10000, TimeUnit.MILLISECONDS, cidWithResponse, cidNoResponse);
+        resEarly = getAndRemoveResponse(cidEarly);
+        assertNull(resEarly);
 
-		Response<?> response = getAndRemoveResponse(cidWithResponse);
-		assertNotNull(response);
-		assertFalse(response.isTimeout());
-		assertEquals(getData(),response.getResponse());
-		assertNull(response.getException());
-		
-		response = getAndRemoveResponse(cidWithResponse);
-		if (response == null) {
-			wait(WaitMode.FIRST, 10000, TimeUnit.MILLISECONDS, cidWithResponse, cidNoResponse);
-			response = getAndRemoveResponse(cidWithResponse);
-		}
-		
-		assertNotNull(response);
-		assertFalse(response.isTimeout());
-		assertEquals(getData(),response.getResponse());
-		assertNull(response.getException());
-		
-		response = getAndRemoveResponse(cidWithResponse);
-		assertNull(response);
+        resLate = getAndRemoveResponse(cidLate);
+        assertNotNull(resLate);
+        assertFalse(resLate.isTimeout());
+    }
 
-		Response<?> timedOutResponse = getAndRemoveResponse(cidNoResponse);
-		assertNull(timedOutResponse);
-	}	
+    private void testWaitFirstMultiResponse() throws InterruptException {
+        final String cidWithResponse = getEngine().createUUID();
+        final String cidNoResponse = getEngine().createUUID();
+        mockAdapter.fooWithMultiResponse(getData(), cidWithResponse, 2);
 
-	private void testWaitAllMultiResponseAndTimeout() throws InterruptException {
-		final String cidWithResponse = getEngine().createUUID();
-		final String cidNoResponse = getEngine().createUUID();
-		mockAdapter.fooWithMultiResponse(getData(), cidWithResponse, 2);
+        wait(WaitMode.FIRST, 10000, TimeUnit.MILLISECONDS, cidWithResponse, cidNoResponse);
 
-		wait(WaitMode.ALL, 200, TimeUnit.MILLISECONDS, cidWithResponse, cidNoResponse);
+        Response<?> response = getAndRemoveResponse(cidWithResponse);
+        assertNotNull(response);
+        assertFalse(response.isTimeout());
+        assertEquals(getData(), response.getResponse());
+        assertNull(response.getException());
 
-		Response<?> response = getAndRemoveResponse(cidWithResponse);
-		assertNotNull(response);
-		assertFalse(response.isTimeout());
-		assertEquals(getData(),response.getResponse());
-		assertNull(response.getException());
-		
-		response = getAndRemoveResponse(cidWithResponse);
-		assertNotNull(response);
-		assertFalse(response.isTimeout());
-		assertEquals(getData(),response.getResponse());
-		assertNull(response.getException());
-		
-		response = getAndRemoveResponse(cidWithResponse);
-		assertNull(response);
+        response = getAndRemoveResponse(cidWithResponse);
+        if (response == null) {
+            wait(WaitMode.FIRST, 10000, TimeUnit.MILLISECONDS, cidWithResponse, cidNoResponse);
+            response = getAndRemoveResponse(cidWithResponse);
+        }
 
-		Response<?> timedOutResponse = getAndRemoveResponse(cidNoResponse);
-		assertNotNull(timedOutResponse);
-		assertTrue(timedOutResponse.isTimeout());
-		assertNull(timedOutResponse.getResponse());
-		assertNull(timedOutResponse.getException());
-	}	
+        assertNotNull(response);
+        assertFalse(response.isTimeout());
+        assertEquals(getData(), response.getResponse());
+        assertNull(response.getException());
+
+        response = getAndRemoveResponse(cidWithResponse);
+        assertNull(response);
+
+        Response<?> timedOutResponse = getAndRemoveResponse(cidNoResponse);
+        assertNull(timedOutResponse);
+    }
+
+    private void testWaitAllMultiResponseAndTimeout() throws InterruptException {
+        final String cidWithResponse = getEngine().createUUID();
+        final String cidNoResponse = getEngine().createUUID();
+        mockAdapter.fooWithMultiResponse(getData(), cidWithResponse, 2);
+
+        wait(WaitMode.ALL, 200, TimeUnit.MILLISECONDS, cidWithResponse, cidNoResponse);
+
+        Response<?> response = getAndRemoveResponse(cidWithResponse);
+        assertNotNull(response);
+        assertFalse(response.isTimeout());
+        assertEquals(getData(), response.getResponse());
+        assertNull(response.getException());
+
+        response = getAndRemoveResponse(cidWithResponse);
+        assertNotNull(response);
+        assertFalse(response.isTimeout());
+        assertEquals(getData(), response.getResponse());
+        assertNull(response.getException());
+
+        response = getAndRemoveResponse(cidWithResponse);
+        assertNull(response);
+
+        Response<?> timedOutResponse = getAndRemoveResponse(cidNoResponse);
+        assertNotNull(timedOutResponse);
+        assertTrue(timedOutResponse.isTimeout());
+        assertNull(timedOutResponse.getResponse());
+        assertNull(timedOutResponse.getException());
+    }
 }

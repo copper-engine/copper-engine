@@ -17,18 +17,18 @@ package de.scoopgmbh.copper.monitoring.core.data.filter;
 
 import de.scoopgmbh.copper.monitoring.core.model.GenericMonitoringData;
 
-public class ProviderDataFilter extends MonitoringDataFilter<GenericMonitoringData>{
-	private static final long serialVersionUID = 2315338256970970754L;
-	public String id;
-	
-	public ProviderDataFilter(String id) {
-		super(GenericMonitoringData.class);
-		this.id = id;
-	}
+public class ProviderDataFilter extends MonitoringDataFilter<GenericMonitoringData> {
+    private static final long serialVersionUID = 2315338256970970754L;
+    public String id;
 
-	@Override
-	protected boolean isValidImpl(GenericMonitoringData value) {
-		return id==null || id.isEmpty() || id.equals(value.getCreatorId());
-	}
+    public ProviderDataFilter(String id) {
+        super(GenericMonitoringData.class);
+        this.id = id;
+    }
+
+    @Override
+    protected boolean isValidImpl(GenericMonitoringData value) {
+        return id == null || id.isEmpty() || id.equals(value.getCreatorId());
+    }
 
 }

@@ -15,7 +15,6 @@
  */
 package org.copperengine.core.persistent;
 
-
 import java.util.Queue;
 
 import org.copperengine.core.ProcessingEngine;
@@ -26,22 +25,20 @@ import org.copperengine.core.persistent.txn.TransactionController;
 
 public class PersistentProcessorFactory implements ProcessorFactory {
 
-
     private TransactionController transactionController;
 
-    public PersistentProcessorFactory(TransactionController transactionController){
+    public PersistentProcessorFactory(TransactionController transactionController) {
         this.transactionController = transactionController;
     }
 
-    public PersistentProcessorFactory(){
+    public PersistentProcessorFactory() {
     }
-
 
     public void setTransactionController(TransactionController transactionController) {
         this.transactionController = transactionController;
     }
 
-    public Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine){
+    public Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine) {
         return new PersistentProcessor(id, queue, threadPrioriry, engine, transactionController);
     }
 }
