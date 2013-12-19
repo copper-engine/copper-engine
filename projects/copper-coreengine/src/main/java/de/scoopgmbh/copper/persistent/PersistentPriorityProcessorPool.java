@@ -21,11 +21,9 @@ import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.ProcessingState;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.PriorityProcessorPool;
-import de.scoopgmbh.copper.common.Processor;
 import de.scoopgmbh.copper.common.WfPriorityQueue;
 import de.scoopgmbh.copper.internal.WorkflowAccessor;
 import de.scoopgmbh.copper.management.PersistentPriorityProcessorPoolMXBean;
@@ -40,7 +38,7 @@ import de.scoopgmbh.copper.persistent.txn.TransactionController;
 public class PersistentPriorityProcessorPool extends PriorityProcessorPool implements PersistentProcessorPool, PersistentPriorityProcessorPoolMXBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(PersistentPriorityProcessorPool.class);
-	
+
 	private TransactionController transactionController;
 	
 	private Thread thread;
@@ -59,6 +57,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	 */
 	public PersistentPriorityProcessorPool() {
 		super();
+        processorFactory = new PersistentProcessorFactory();
 	}
 
 	/**
@@ -67,20 +66,18 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 	public PersistentPriorityProcessorPool(String id, TransactionController transactionController) {
 		super(id);
 		this.transactionController = transactionController;
+        processorFactory = new PersistentProcessorFactory(transactionController);
 	}
 	
 	public PersistentPriorityProcessorPool(String id, TransactionController transactionController, int numberOfThreads) {
 		super(id, numberOfThreads);
 		this.transactionController = transactionController;
+        processorFactory = new PersistentProcessorFactory(transactionController);
 	}
 
 	public void setTransactionController(TransactionController transactionController) {
 		this.transactionController = transactionController;
-	}
-	
-	@Override
-	protected Processor newProcessor(String name, Queue<Workflow<?>> queue, int threadPriority, ProcessingEngine engine) {
-		return new PersistentProcessor(name, queue, threadPriority, engine, transactionController);
+        ((PersistentProcessorFactory)processorFactory).setTransactionController(transactionController);
 	}
 	
 	@Override
