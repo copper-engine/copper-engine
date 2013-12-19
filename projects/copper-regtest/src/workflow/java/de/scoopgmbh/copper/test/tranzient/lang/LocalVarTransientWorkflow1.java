@@ -95,8 +95,6 @@ public class LocalVarTransientWorkflow1 extends Workflow<String> {
 			resubmit();
 		}
 		
-		reply();
-		
 		try {
 			x = execute(getEngine().createUUID(),timeout);
 			logger.debug("{}",x);

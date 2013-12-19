@@ -35,7 +35,7 @@ public class LocalVarTest {
 
 	@Test
 	public void testWorkflow() throws Exception {
-		doTest("de.scoopgmbh.copper.test.tranzient.lang.LocalVarTransientWorkflow1",5);		
+		doTest("de.scoopgmbh.copper.test.tranzient.lang.LocalVarTransientWorkflow1",15);		
 	}
 	
 	@Test
