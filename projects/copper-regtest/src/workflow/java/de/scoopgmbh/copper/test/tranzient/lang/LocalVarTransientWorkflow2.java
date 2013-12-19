@@ -148,11 +148,8 @@ public class LocalVarTransientWorkflow2 extends Workflow<String> {
 			if (getAndRemoveResponse(cid2) != null) throw new AssertionError();
 			if (!x1.getResponse().equals("foo")) throw new AssertionError();
 			if (!x2.getResponse().equals("foo")) throw new AssertionError();
-
 			
 			testMultiResponse();
-
-			reply();
 		}
 		catch(Exception e) {
 			logger.error("",e);
