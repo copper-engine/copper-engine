@@ -20,8 +20,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
-import de.scoopgmbh.copper.AbstractDependencyInjector;
-import de.scoopgmbh.copper.Workflow;
+import org.copperengine.core.AbstractDependencyInjector;
+import org.copperengine.core.Workflow;
+
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 

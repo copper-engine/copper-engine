@@ -17,16 +17,17 @@ package de.scoopgmbh.copper.monitoring.server.wrapper;
 
 import java.util.List;
 
-import de.scoopgmbh.copper.Acknowledge;
-import de.scoopgmbh.copper.CopperException;
-import de.scoopgmbh.copper.CopperRuntimeException;
-import de.scoopgmbh.copper.EngineState;
-import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.Response;
-import de.scoopgmbh.copper.WaitHook;
-import de.scoopgmbh.copper.WaitMode;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowInstanceDescr;
+import org.copperengine.core.Acknowledge;
+import org.copperengine.core.CopperException;
+import org.copperengine.core.CopperRuntimeException;
+import org.copperengine.core.EngineState;
+import org.copperengine.core.ProcessingEngine;
+import org.copperengine.core.Response;
+import org.copperengine.core.WaitHook;
+import org.copperengine.core.WaitMode;
+import org.copperengine.core.Workflow;
+import org.copperengine.core.WorkflowInstanceDescr;
+
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
 /**

@@ -17,10 +17,10 @@ package de.scoopgmbh.copper.monitoring.server.workaround;
 
 import static org.junit.Assert.assertEquals;
 
+import org.copperengine.core.persistent.DBProcessingState;
 import org.junit.Test;
 
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
-import de.scoopgmbh.copper.persistent.DBProcessingState;
 
 
 public class DBProcessingStateWorkaroundTest {

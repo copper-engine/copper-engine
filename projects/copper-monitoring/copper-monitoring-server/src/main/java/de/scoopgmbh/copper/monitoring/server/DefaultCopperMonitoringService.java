@@ -24,20 +24,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.copperengine.management.BatcherMXBean;
+import org.copperengine.management.DBStorageMXBean;
+import org.copperengine.management.FileBasedWorkflowRepositoryMXBean;
+import org.copperengine.management.PersistentPriorityProcessorPoolMXBean;
+import org.copperengine.management.PersistentProcessingEngineMXBean;
+import org.copperengine.management.ProcessingEngineMXBean;
+import org.copperengine.management.ProcessorPoolMXBean;
+import org.copperengine.management.ScottyDBStorageMXBean;
+import org.copperengine.management.StatisticsCollectorMXBean;
+import org.copperengine.management.WorkflowRepositoryMXBean;
+import org.copperengine.management.model.EngineType;
+import org.copperengine.management.model.WorkflowClassInfo;
+
 import com.google.common.base.Optional;
 
-import de.scoopgmbh.copper.management.BatcherMXBean;
-import de.scoopgmbh.copper.management.DBStorageMXBean;
-import de.scoopgmbh.copper.management.FileBasedWorkflowRepositoryMXBean;
-import de.scoopgmbh.copper.management.PersistentPriorityProcessorPoolMXBean;
-import de.scoopgmbh.copper.management.PersistentProcessingEngineMXBean;
-import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
-import de.scoopgmbh.copper.management.ProcessorPoolMXBean;
-import de.scoopgmbh.copper.management.ScottyDBStorageMXBean;
-import de.scoopgmbh.copper.management.StatisticsCollectorMXBean;
-import de.scoopgmbh.copper.management.WorkflowRepositoryMXBean;
-import de.scoopgmbh.copper.management.model.EngineType;
-import de.scoopgmbh.copper.management.model.WorkflowClassInfo;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.data.filter.MonitoringDataFilter;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
@@ -239,7 +240,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService{
 	@Override
 	public List<MeasurePointData> getMeasurePoints(String engineid) throws RemoteException {
 		List<MeasurePointData> result = new ArrayList<MeasurePointData>();
-		for (de.scoopgmbh.copper.management.model.MeasurePointData jmxmeasurePointData: statisticsCollectorMXBean.queryAll()){
+		for (org.copperengine.management.model.MeasurePointData jmxmeasurePointData: statisticsCollectorMXBean.queryAll()){
 			result.add(new MeasurePointData(
 					jmxmeasurePointData.getMpId(),
 					jmxmeasurePointData.getElementCount(),

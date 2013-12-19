@@ -33,7 +33,7 @@
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
     </bean>
     
-    <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton" init-method="start" destroy-method="shutdown">
+    <bean id="wfRepository" class="org.copperengine.core.core.wfrepo.FileBasedWorkflowRepository" scope="singleton" init-method="start" destroy-method="shutdown">
     	<property name="sourceDirs"><list>
     		<value>src/workflow/java</value>
     	</list></property>
@@ -44,41 +44,41 @@
     	<property name="databaseName" value="./build/copperExampleDB;create=true"/>
 	</bean>
 	
-	<bean id="dbDialect" class="de.scoopgmbh.copper.persistent.DerbyDbDialect" scope="singleton" init-method="startup">
+	<bean id="dbDialect" class="org.copperengine.core.core.persistent.DerbyDbDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>
 		
-	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.ScottyDBStorage" scope="singleton">
+	<bean id="persistent.dbStorage" class="org.copperengine.core.core.persistent.ScottyDBStorage" scope="singleton">
 		<property name="transactionController" ref="txnController"/>
 		<property name="dialect" ref="dbDialect"/>
 		<property name="batcher" ref="batcher"/>
 		<property name="checkDbConsistencyAtStartup" value="true"/>
 	</bean>
 	
-	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.CopperTransactionController" scope="singleton">
+	<bean id="txnController" class="org.copperengine.core.core.persistent.txn.CopperTransactionController" scope="singleton">
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>	
 	
-	<bean id="statisticsCollector" class="de.scoopgmbh.copper.monitoring.LoggingStatisticCollector" init-method="start" destroy-method="shutdown"/>
+	<bean id="statisticsCollector" class="org.copperengine.core.core.monitoring.LoggingStatisticCollector" init-method="start" destroy-method="shutdown"/>
 	
-	<bean id="batcher" class="de.scoopgmbh.copper.batcher.impl.BatcherImpl" scope="singleton" init-method="startup" destroy-method="shutdown">
+	<bean id="batcher" class="org.copperengine.core.core.batcher.impl.BatcherImpl" scope="singleton" init-method="startup" destroy-method="shutdown">
     	<constructor-arg type="int"><value>3</value></constructor-arg>
     	<property name="statisticsCollector" ref="statisticsCollector"/>
     	<property name="batchRunner">
-    		<bean class="de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner">
+    		<bean class="org.copperengine.core.core.batcher.RetryingTxnBatchRunner">
 		    	<property name="dataSource" ref="datasource_default"/>
     		</bean>
     	</property>
 	</bean>
 	
-    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    <bean id="persistent.ProcessorPool.default" class="org.copperengine.core.core.persistent.PersistentPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>
-    	<constructor-arg type="de.scoopgmbh.copper.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
+    	<constructor-arg type="org.copperengine.core.core.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
     </bean>
            
-	<bean id="persistent.PPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">
+	<bean id="persistent.PPManager" class="org.copperengine.core.core.common.DefaultProcessorPoolManager" scope="singleton">
 		<property name="processorPools">
     		<list>
     			<ref bean="persistent.ProcessorPool.default" />
@@ -87,37 +87,37 @@
   		<property name="engine" ref="persistent.engine"/>
 	</bean>
 	
-	<bean id="persistent.engine" class="de.scoopgmbh.copper.persistent.PersistentScottyEngine" scope="singleton" init-method="startup" destroy-method="shutdown">
+	<bean id="persistent.engine" class="org.copperengine.core.core.persistent.PersistentScottyEngine" scope="singleton" init-method="startup" destroy-method="shutdown">
 		<property name="idFactory">
-			<bean class = "de.scoopgmbh.copper.common.JdkRandomUUIDFactory"></bean>
+			<bean class = "org.copperengine.core.core.common.JdkRandomUUIDFactory"></bean>
 		</property>
 		<property name="processorPoolManager" ref="persistent.PPManager"/>
 		<property name="dependencyInjector">
-			<bean class="de.scoopgmbh.copper.spring.SpringDependencyInjector"></bean>
+			<bean class="org.copperengine.core.core.spring.SpringDependencyInjector"></bean>
 		</property>
 		<property name="dbStorage" ref="persistent.dbStorage"/>
 		<property name="wfRepository" ref="wfRepository"/>
     	<property name="statisticsCollector" ref="statisticsCollector"/>
 	</bean>
 	
-	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton">
+	<bean id="auditTrail" class="org.copperengine.core.core.audit.BatchingAuditTrail" scope="singleton">
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
 		<property name="messagePostProcessor">
-			<bean class="de.scoopgmbh.copper.audit.CompressedBase64PostProcessor"/>
+			<bean class="org.copperengine.core.core.audit.CompressedBase64PostProcessor"/>
 		</property>
 	</bean>
 		
-	<bean class="de.scoopgmbh.copper.spring.JmxExporter" init-method="startup" destroy-method="shutdown"/>    
+	<bean class="org.copperengine.core.core.spring.JmxExporter" init-method="startup" destroy-method="shutdown"/>    
 
 
-	<beans:bean id="networkServiceAdapter" class="de.scoopgmbh.copper.examples.orechstration.adapter.NetworkServiceAdapterImpl">
+	<beans:bean id="networkServiceAdapter" class="org.copperengine.core.core.examples.orechstration.adapter.NetworkServiceAdapterImpl">
 		<beans:property name="engine" ref="persistent.engine"/>
 		<beans:property name="callbachURI" value="http://localhost:9090/asyncNetworkServiceResponseReceiver?wsdl"/>
 		<beans:property name="networkServiceProvider" ref="networkServiceProvider"/>
 	</beans:bean>
 	
-	<beans:bean id="OrchestrationInputAdapter" class="de.scoopgmbh.copper.examples.orechstration.adapter.OrchestrationInputAdapter">
+	<beans:bean id="OrchestrationInputAdapter" class="org.copperengine.core.core.examples.orechstration.adapter.OrchestrationInputAdapter">
 		<beans:property name="engine" ref="persistent.engine"/>
 	</beans:bean>
 

@@ -19,23 +19,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.copperengine.core.StackEntry;
+import org.copperengine.core.Workflow;
+import org.copperengine.core.common.WorkflowRepository;
+import org.copperengine.core.instrument.ClassInfo;
+import org.copperengine.core.instrument.MethodInfo;
+import org.copperengine.core.instrument.MethodInfo.LabelInfo;
+import org.copperengine.core.instrument.MethodInfo.LocalVariable;
+import org.copperengine.core.instrument.MethodInfo.SerializableType;
+import org.copperengine.core.persistent.ScottyDBStorageInterface;
 import org.objectweb.asm.Type;
 
-import de.scoopgmbh.copper.StackEntry;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.common.WorkflowRepository;
-import de.scoopgmbh.copper.instrument.ClassInfo;
-import de.scoopgmbh.copper.instrument.MethodInfo;
-import de.scoopgmbh.copper.instrument.MethodInfo.LabelInfo;
-import de.scoopgmbh.copper.instrument.MethodInfo.LocalVariable;
-import de.scoopgmbh.copper.instrument.MethodInfo.SerializableType;
 import de.scoopgmbh.copper.monitoring.core.debug.Data;
 import de.scoopgmbh.copper.monitoring.core.debug.DataTool;
 import de.scoopgmbh.copper.monitoring.core.debug.Member;
 import de.scoopgmbh.copper.monitoring.core.debug.Method;
 import de.scoopgmbh.copper.monitoring.core.debug.StackFrame;
 import de.scoopgmbh.copper.monitoring.core.debug.WorkflowInstanceDetailedInfo;
-import de.scoopgmbh.copper.persistent.ScottyDBStorageInterface;
 
 public class WorkflowInstanceIntrospector {
 

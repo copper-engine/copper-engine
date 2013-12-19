@@ -19,17 +19,18 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 
-import de.scoopgmbh.copper.AutoWire;
-import de.scoopgmbh.copper.InterruptException;
-import de.scoopgmbh.copper.Response;
-import de.scoopgmbh.copper.WaitMode;
-import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.WorkflowDescription;
-import de.scoopgmbh.copper.audit.AuditTrail;
+import org.copperengine.core.AutoWire;
+import org.copperengine.core.InterruptException;
+import org.copperengine.core.Response;
+import org.copperengine.core.WaitMode;
+import org.copperengine.core.Workflow;
+import org.copperengine.core.WorkflowDescription;
+import org.copperengine.core.audit.AuditTrail;
+import org.copperengine.core.persistent.PersistentWorkflow;
+
 import de.scoopgmbh.copper.monitoring.example.adapter.Bill;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillAdapter;
 import de.scoopgmbh.copper.monitoring.example.adapter.BillableService;
-import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 @WorkflowDescription(alias="BillWorkflow", majorVersion=1, minorVersion=0, patchLevelVersion=0)
 public class BillWorkflow extends PersistentWorkflow<String> {

@@ -15,9 +15,10 @@
  */
 package de.scoopgmbh.copper.examples.orechstration.adapter;
 
-import de.scoopgmbh.copper.Acknowledge;
-import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.Response;
+import org.copperengine.core.Acknowledge;
+import org.copperengine.core.ProcessingEngine;
+import org.copperengine.core.Response;
+
 import de.scoopgmbh.network.mobile.services.AsyncNetworkServiceResponseReceiver;
 import de.scoopgmbh.network.mobile.services.NetworkServiceProvider;
 import de.scoopgmbh.network.mobile.services.ResetMailboxAcknowledge;

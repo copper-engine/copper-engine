@@ -14,7 +14,7 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
         
-    <bean id="mockAdapter" class="de.scoopgmbh.copper.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
+    <bean id="mockAdapter" class="org.copperengine.core.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
     	<property name="engine" ref="transientEngine"></property>
     </bean>
     

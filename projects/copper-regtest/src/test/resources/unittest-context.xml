@@ -14,13 +14,13 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
-    <bean id="backChannelQueue" class="de.scoopgmbh.copper.test.backchannel.BackChannelQueue" scope="singleton"/>
+    <bean id="backChannelQueue" class="org.copperengine.core.test.backchannel.BackChannelQueue" scope="singleton"/>
     
-	<bean id="mockAdapter" class="de.scoopgmbh.copper.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
+	<bean id="mockAdapter" class="org.copperengine.core.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
 		<property name="engine" ref="persistent.engine"/>
 	</bean>
 		
-	<bean id="dataHolder" class="de.scoopgmbh.copper.test.DataHolder" scope="singleton">
+	<bean id="dataHolder" class="org.copperengine.core.test.DataHolder" scope="singleton">
 	</bean>
 </beans>          
 

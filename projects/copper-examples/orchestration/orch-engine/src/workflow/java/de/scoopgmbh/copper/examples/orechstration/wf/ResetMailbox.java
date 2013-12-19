@@ -15,18 +15,18 @@
  */
 package de.scoopgmbh.copper.examples.orechstration.wf;
 
+import org.copperengine.core.AutoWire;
+import org.copperengine.core.InterruptException;
+import org.copperengine.core.Response;
+import org.copperengine.core.WaitMode;
+import org.copperengine.core.WorkflowDescription;
+import org.copperengine.core.persistent.PersistentWorkflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.AutoWire;
-import de.scoopgmbh.copper.InterruptException;
-import de.scoopgmbh.copper.Response;
-import de.scoopgmbh.copper.WaitMode;
-import de.scoopgmbh.copper.WorkflowDescription;
 import de.scoopgmbh.copper.examples.orechstration.adapter.NetworkServiceAdapter;
 import de.scoopgmbh.copper.examples.orechstration.adapter.ResetMailboxResponse;
 import de.scoopgmbh.copper.examples.orechstration.data.ResetMailboxData;
-import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 import de.scoopgmbh.customerservice.CustomerService;
 import de.scoopgmbh.customerservice.GetCustomersByMsisdnRequest;
 import de.scoopgmbh.customerservice.GetCustomersByMsisdnResponse;

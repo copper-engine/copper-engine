@@ -27,13 +27,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.copperengine.core.Response;
+import org.copperengine.core.audit.BatchingAuditTrail;
+import org.copperengine.core.audit.MessagePostProcessor;
+import org.copperengine.core.db.utility.JdbcUtils;
+import org.copperengine.core.persistent.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.Response;
-import de.scoopgmbh.copper.audit.BatchingAuditTrail;
-import de.scoopgmbh.copper.audit.MessagePostProcessor;
-import de.scoopgmbh.copper.db.utility.JdbcUtils;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowClassMetaData;
@@ -42,7 +43,6 @@ import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
 import de.scoopgmbh.copper.monitoring.server.workaround.DBProcessingStateWorkaround;
-import de.scoopgmbh.copper.persistent.Serializer;
 
 /**
  * Base implementation of the {@link DatabaseMonitoringDialect} for SQL databases
@@ -81,7 +81,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			de.scoopgmbh.copper.db.utility.JdbcUtils.closeStatement(selectStmt);
+			org.copperengine.core.db.utility.JdbcUtils.closeStatement(selectStmt);
 		}
 	}
 

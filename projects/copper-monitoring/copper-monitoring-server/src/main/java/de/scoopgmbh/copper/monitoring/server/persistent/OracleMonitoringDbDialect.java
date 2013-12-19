@@ -20,16 +20,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.copperengine.core.audit.BatchingAuditTrail;
+import org.copperengine.core.audit.MessagePostProcessor;
+import org.copperengine.core.db.utility.JdbcUtils;
+import org.copperengine.core.persistent.DatabaseDialect;
+import org.copperengine.core.persistent.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
 
-import de.scoopgmbh.copper.audit.BatchingAuditTrail;
-import de.scoopgmbh.copper.audit.MessagePostProcessor;
-import de.scoopgmbh.copper.db.utility.JdbcUtils;
-import de.scoopgmbh.copper.persistent.DatabaseDialect;
-import de.scoopgmbh.copper.persistent.Serializer;
 
 /**
  * Oracle implementation of the {@link DatabaseDialect} interface

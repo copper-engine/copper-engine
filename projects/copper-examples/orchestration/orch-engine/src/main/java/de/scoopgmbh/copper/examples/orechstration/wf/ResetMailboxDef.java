@@ -16,5 +16,5 @@
 package de.scoopgmbh.copper.examples.orechstration.wf;
 
 public interface ResetMailboxDef {
-	public static final String NAME = "de.scoopgmbh.copper.examples.orechstration.wf.ResetMailbox";
+	public static final String NAME = "org.copperengine.core.core.examples.orechstration.wf.ResetMailbox";
 }

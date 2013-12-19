@@ -23,7 +23,7 @@
     	<property name="minPoolSize" value="2"/>
 	</bean>
 	
-	<bean id="dbDialect" class="de.scoopgmbh.copper.persistent.PostgreSQLDialect" scope="singleton" init-method="startup">
+	<bean id="dbDialect" class="org.copperengine.core.persistent.PostgreSQLDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
 	</bean>

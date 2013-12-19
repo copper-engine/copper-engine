@@ -17,9 +17,10 @@ package de.scoopgmbh.copper.monitoring.example.adapter;
 
 import java.math.BigDecimal;
 
-import de.scoopgmbh.copper.Acknowledge;
-import de.scoopgmbh.copper.ProcessingEngine;
-import de.scoopgmbh.copper.Response;
+import org.copperengine.core.Acknowledge;
+import org.copperengine.core.ProcessingEngine;
+import org.copperengine.core.Response;
+
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
 
 public class BillAdapterImpl implements BillAdapter{

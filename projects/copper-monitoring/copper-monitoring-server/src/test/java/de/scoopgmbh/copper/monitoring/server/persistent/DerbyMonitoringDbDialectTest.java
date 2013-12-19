@@ -19,12 +19,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
+import org.copperengine.core.audit.BatchingAuditTrail;
+import org.copperengine.core.audit.DummyPostProcessor;
+import org.copperengine.core.persistent.DerbyDbDialect;
+import org.copperengine.core.persistent.StandardJavaSerializer;
 
-import de.scoopgmbh.copper.audit.BatchingAuditTrail;
-import de.scoopgmbh.copper.audit.DummyPostProcessor;
 import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
-import de.scoopgmbh.copper.persistent.DerbyDbDialect;
-import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
 
 
 public class DerbyMonitoringDbDialectTest extends MonitoringDbDialectTestBase{

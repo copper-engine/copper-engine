@@ -33,7 +33,7 @@
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
     </bean>
     
-    <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton" init-method="start" destroy-method="shutdown">
+    <bean id="wfRepository" class="org.copperengine.core.core.wfrepo.FileBasedWorkflowRepository" scope="singleton" init-method="start" destroy-method="shutdown">
     	<property name="sourceDirs"><list>
     		<value>src/workflow/java</value>
     	</list></property>
@@ -44,41 +44,41 @@
     	<property name="databaseName" value="./build/copperExampleDB;create=true"/>
 	</bean>
 	
-	<bean id="dbDialect" class="de.scoopgmbh.copper.persistent.DerbyDbDialect" scope="singleton" init-method="startup">
+	<bean id="dbDialect" class="org.copperengine.core.core.persistent.DerbyDbDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>
 		
-	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.ScottyDBStorage" scope="singleton">
+	<bean id="persistent.dbStorage" class="org.copperengine.core.core.persistent.ScottyDBStorage" scope="singleton">
 		<property name="transactionController" ref="txnController"/>
 		<property name="dialect" ref="dbDialect"/>
 		<property name="batcher" ref="batcher"/>
 		<property name="checkDbConsistencyAtStartup" value="true"/>
 	</bean>
 	
-	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.CopperTransactionController" scope="singleton">
+	<bean id="txnController" class="org.copperengine.core.core.persistent.txn.CopperTransactionController" scope="singleton">
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>	
 	
-	<bean id="statisticsCollector" class="de.scoopgmbh.copper.monitoring.LoggingStatisticCollector" init-method="start" destroy-method="shutdown"/>
+	<bean id="statisticsCollector" class="org.copperengine.core.core.monitoring.LoggingStatisticCollector" init-method="start" destroy-method="shutdown"/>
 	
-	<bean id="batcher" class="de.scoopgmbh.copper.batcher.impl.BatcherImpl" scope="singleton" init-method="startup" destroy-method="shutdown">
+	<bean id="batcher" class="org.copperengine.core.core.batcher.impl.BatcherImpl" scope="singleton" init-method="startup" destroy-method="shutdown">
     	<constructor-arg type="int"><value>3</value></constructor-arg>
     	<property name="statisticsCollector" ref="statisticsCollector"/>
     	<property name="batchRunner">
-    		<bean class="de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner">
+    		<bean class="org.copperengine.core.core.batcher.RetryingTxnBatchRunner">
 		    	<property name="dataSource" ref="datasource_default"/>
     		</bean>
     	</property>
 	</bean>
 	
-    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    <bean id="persistent.ProcessorPool.default" class="org.copperengine.core.core.persistent.PersistentPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>
-    	<constructor-arg type="de.scoopgmbh.copper.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
+    	<constructor-arg type="org.copperengine.core.core.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
     </bean>
            
-	<bean id="persistent.PPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">
+	<bean id="persistent.PPManager" class="org.copperengine.core.core.common.DefaultProcessorPoolManager" scope="singleton">
 		<property name="processorPools">
     		<list>
     			<ref bean="persistent.ProcessorPool.default" />
@@ -87,9 +87,9 @@
   		<property name="engine" ref="persistent.engine"/>
 	</bean>
 	
-	<bean id="persistent.engine" class="de.scoopgmbh.copper.persistent.PersistentScottyEngine" scope="singleton" init-method="startup" destroy-method="shutdown">
+	<bean id="persistent.engine" class="org.copperengine.core.core.persistent.PersistentScottyEngine" scope="singleton" init-method="startup" destroy-method="shutdown">
 		<property name="idFactory">
-			<bean class = "de.scoopgmbh.copper.common.JdkRandomUUIDFactory"></bean>
+			<bean class = "org.copperengine.core.core.common.JdkRandomUUIDFactory"></bean>
 		</property>
 		<property name="processorPoolManager" ref="persistent.PPManager"/>
 		<property name="dependencyInjector" ref="monitoringDependencyInjector"/>
@@ -98,54 +98,54 @@
     	<property name="statisticsCollector" ref="statisticsCollector"/>
 	</bean>
 	
-	<bean id="compressedBase64PostProcessor" class="de.scoopgmbh.copper.audit.CompressedBase64PostProcessor"/>
+	<bean id="compressedBase64PostProcessor" class="org.copperengine.core.core.audit.CompressedBase64PostProcessor"/>
 	
-	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton">
+	<bean id="auditTrail" class="org.copperengine.core.core.audit.BatchingAuditTrail" scope="singleton">
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
 		<property name="messagePostProcessor" ref="compressedBase64PostProcessor"/>
 	</bean>
 	
-	<bean id="dependencyInjector" class="de.scoopgmbh.copper.spring.SpringDependencyInjector">
+	<bean id="dependencyInjector" class="org.copperengine.core.core.spring.SpringDependencyInjector">
 	</bean>
 
 	
-	<bean id="monitoringDataStorage" class="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage">
+	<bean id="monitoringDataStorage" class="org.copperengine.core.core.monitoring.core.data.MonitoringDataStorage">
 	</bean>
 	
-	<bean id="monitoringDataAdder" class="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder">
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage"><ref bean="monitoringDataStorage"/></constructor-arg>
+	<bean id="monitoringDataAdder" class="org.copperengine.core.core.monitoring.core.data.MonitoringDataAdder">
+		<constructor-arg type="org.copperengine.core.core.monitoring.core.data.MonitoringDataStorage"><ref bean="monitoringDataStorage"/></constructor-arg>
 	</bean>
 	
-	<bean id="monitoringDataAccesor" class="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor">
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataStorage"><ref bean="monitoringDataStorage"/></constructor-arg>
+	<bean id="monitoringDataAccesor" class="org.copperengine.core.core.monitoring.core.data.MonitoringDataAccesor">
+		<constructor-arg type="org.copperengine.core.core.monitoring.core.data.MonitoringDataStorage"><ref bean="monitoringDataStorage"/></constructor-arg>
 	</bean>
 	
-	<bean id="monitoringDataAccessQueue" class="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue">
+	<bean id="monitoringDataAccessQueue" class="org.copperengine.core.core.monitoring.server.monitoring.MonitoringDataAccessQueue">
 		<constructor-arg index="0" value="10000" />
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAdder"><ref bean="monitoringDataAdder"/></constructor-arg>
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor"><ref bean="monitoringDataAccesor"/></constructor-arg>
+		<constructor-arg type="org.copperengine.core.core.monitoring.core.data.MonitoringDataAdder"><ref bean="monitoringDataAdder"/></constructor-arg>
+		<constructor-arg type="org.copperengine.core.core.monitoring.core.data.MonitoringDataAccesor"><ref bean="monitoringDataAccesor"/></constructor-arg>
 	</bean>
 	
-	<bean id="monitoringDataCollector" class="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector">
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue"><ref bean="monitoringDataAccessQueue"/></constructor-arg>
+	<bean id="monitoringDataCollector" class="org.copperengine.core.core.monitoring.server.monitoring.MonitoringDataCollector">
+		<constructor-arg type="org.copperengine.core.core.monitoring.server.monitoring.MonitoringDataAccessQueue"><ref bean="monitoringDataAccessQueue"/></constructor-arg>
 	</bean>
 	
-	<bean id="monitoringDependencyInjector" class="de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringDependencyInjector">
-		<constructor-arg type="de.scoopgmbh.copper.AbstractDependencyInjector"><ref bean="dependencyInjector"/></constructor-arg>
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
+	<bean id="monitoringDependencyInjector" class="org.copperengine.core.core.monitoring.server.wrapper.MonitoringDependencyInjector">
+		<constructor-arg type="org.copperengine.core.core.AbstractDependencyInjector"><ref bean="dependencyInjector"/></constructor-arg>
+		<constructor-arg type="org.copperengine.core.core.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 	</bean>
 	
-	<bean id="systemRessourceDataProvider" class="de.scoopgmbh.copper.monitoring.server.provider.SystemRessourceDataProvider"  lazy-init="false">
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
+	<bean id="systemRessourceDataProvider" class="org.copperengine.core.core.monitoring.server.provider.SystemRessourceDataProvider"  lazy-init="false">
+		<constructor-arg type="org.copperengine.core.core.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 	</bean>
-	<bean id="monitoringLog4jDataProvider" class="de.scoopgmbh.copper.monitoring.server.provider.MonitoringLog4jDataProvider"  lazy-init="false">
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
+	<bean id="monitoringLog4jDataProvider" class="org.copperengine.core.core.monitoring.server.provider.MonitoringLog4jDataProvider"  lazy-init="false">
+		<constructor-arg type="org.copperengine.core.core.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 	</bean>
-	<bean id="log4jConfigManager" class="de.scoopgmbh.copper.monitoring.server.logging.Log4jConfigManager">
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.provider.MonitoringLog4jDataProvider"><ref bean="monitoringLog4jDataProvider"/></constructor-arg>
+	<bean id="log4jConfigManager" class="org.copperengine.core.core.monitoring.server.logging.Log4jConfigManager">
+		<constructor-arg type="org.copperengine.core.core.monitoring.server.provider.MonitoringLog4jDataProvider"><ref bean="monitoringLog4jDataProvider"/></constructor-arg>
 	</bean>	
-	<bean id="monitoringDataProviderManager" class="de.scoopgmbh.copper.monitoring.server.provider.MonitoringDataProviderManager"  lazy-init="false" init-method="startAll">
+	<bean id="monitoringDataProviderManager" class="org.copperengine.core.core.monitoring.server.provider.MonitoringDataProviderManager"  lazy-init="false" init-method="startAll">
         <constructor-arg type="java.util.List">
 	        <list>
 				<ref bean="systemRessourceDataProvider"/>
@@ -154,50 +154,50 @@
         </constructor-arg>
 	</bean>
 	
-	<bean id="workflowInstanceIntrospector" class="de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector"  lazy-init="false">
-		<constructor-arg type="de.scoopgmbh.copper.persistent.ScottyDBStorageInterface"><ref bean="persistent.dbStorage"/></constructor-arg>
-		<constructor-arg type="de.scoopgmbh.copper.common.WorkflowRepository"><ref bean="wfRepository"/></constructor-arg>
+	<bean id="workflowInstanceIntrospector" class="org.copperengine.core.core.monitoring.server.debug.WorkflowInstanceIntrospector"  lazy-init="false">
+		<constructor-arg type="org.copperengine.core.core.persistent.ScottyDBStorageInterface"><ref bean="persistent.dbStorage"/></constructor-arg>
+		<constructor-arg type="org.copperengine.core.core.common.WorkflowRepository"><ref bean="wfRepository"/></constructor-arg>
 	</bean>
 
 	
-	<bean id="serializer" class="de.scoopgmbh.copper.persistent.StandardJavaSerializer"/>
+	<bean id="serializer" class="org.copperengine.core.core.persistent.StandardJavaSerializer"/>
   
-	<bean id="databaseMonitoringDialect" class="de.scoopgmbh.copper.monitoring.server.persistent.DerbyMonitoringDbDialect">
-	    <constructor-arg type="de.scoopgmbh.copper.persistent.Serializer"><ref bean="serializer"/></constructor-arg>
-	    <constructor-arg type="de.scoopgmbh.copper.audit.MessagePostProcessor"><ref bean="compressedBase64PostProcessor"/></constructor-arg>
+	<bean id="databaseMonitoringDialect" class="org.copperengine.core.core.monitoring.server.persistent.DerbyMonitoringDbDialect">
+	    <constructor-arg type="org.copperengine.core.core.persistent.Serializer"><ref bean="serializer"/></constructor-arg>
+	    <constructor-arg type="org.copperengine.core.core.audit.MessagePostProcessor"><ref bean="compressedBase64PostProcessor"/></constructor-arg>
 	</bean>
 	
-	<bean id="monitoringDbStorage" class="de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage">
-	    <constructor-arg type="de.scoopgmbh.copper.monitoring.server.persistent.DatabaseMonitoringDialect"><ref bean="databaseMonitoringDialect"/></constructor-arg>
-	    <constructor-arg type="de.scoopgmbh.copper.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
+	<bean id="monitoringDbStorage" class="org.copperengine.core.core.monitoring.server.persistent.MonitoringDbStorage">
+	    <constructor-arg type="org.copperengine.core.core.monitoring.server.persistent.DatabaseMonitoringDialect"><ref bean="databaseMonitoringDialect"/></constructor-arg>
+	    <constructor-arg type="org.copperengine.core.core.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
 	</bean>
 	
-	<bean id="copperMonitoringService" class="de.scoopgmbh.copper.monitoring.server.DefaultCopperMonitoringService">
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbStorage"><ref bean="monitoringDbStorage"/></constructor-arg>
-		<constructor-arg type="de.scoopgmbh.copper.management.StatisticsCollectorMXBean"><ref bean="statisticsCollector"/></constructor-arg>
+	<bean id="copperMonitoringService" class="org.copperengine.core.core.monitoring.server.DefaultCopperMonitoringService">
+		<constructor-arg type="org.copperengine.core.core.monitoring.server.persistent.MonitoringDbStorage"><ref bean="monitoringDbStorage"/></constructor-arg>
+		<constructor-arg type="org.copperengine.core.core.management.StatisticsCollectorMXBean"><ref bean="statisticsCollector"/></constructor-arg>
 		<constructor-arg type="java.util.List">
 		        <list>
 		                <ref bean="persistent.engine"/>
 		        </list>
 		</constructor-arg>
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataAccessQueue"><ref bean="monitoringDataAccessQueue"/></constructor-arg>
+		<constructor-arg type="org.copperengine.core.core.monitoring.server.monitoring.MonitoringDataAccessQueue"><ref bean="monitoringDataAccessQueue"/></constructor-arg>
 		<constructor-arg index="4"><value>true</value></constructor-arg>
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.debug.WorkflowInstanceIntrospector"><ref bean="workflowInstanceIntrospector"/></constructor-arg>
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.logging.LogConfigManager"><ref bean="log4jConfigManager"/></constructor-arg>
-		<constructor-arg type="de.scoopgmbh.copper.monitoring.server.provider.MonitoringDataProviderManager"><ref bean="monitoringDataProviderManager"/></constructor-arg>
+		<constructor-arg type="org.copperengine.core.core.monitoring.server.debug.WorkflowInstanceIntrospector"><ref bean="workflowInstanceIntrospector"/></constructor-arg>
+		<constructor-arg type="org.copperengine.core.core.monitoring.server.logging.LogConfigManager"><ref bean="log4jConfigManager"/></constructor-arg>
+		<constructor-arg type="org.copperengine.core.core.monitoring.server.provider.MonitoringDataProviderManager"><ref bean="monitoringDataProviderManager"/></constructor-arg>
 	</bean>
 	  
-	<bean id="securedCopperMonitoringService" class="de.scoopgmbh.copper.monitoring.server.CopperMonitorServiceSecurityProxy">
-	     <constructor-arg type="de.scoopgmbh.copper.monitoring.core.CopperMonitoringService"><ref bean="copperMonitoringService"/></constructor-arg>
+	<bean id="securedCopperMonitoringService" class="org.copperengine.core.core.monitoring.server.CopperMonitorServiceSecurityProxy">
+	     <constructor-arg type="org.copperengine.core.core.monitoring.core.CopperMonitoringService"><ref bean="copperMonitoringService"/></constructor-arg>
 	</bean>
 	  
-	<bean id="loginService" class="de.scoopgmbh.copper.monitoring.server.DefaultLoginService" scope="prototype">
+	<bean id="loginService" class="org.copperengine.core.core.monitoring.server.DefaultLoginService" scope="prototype">
 		<constructor-arg type="org.apache.shiro.realm.Realm"><ref bean="realm"/></constructor-arg>
 	</bean>
 	
 	
 	
-	<bean id="springRemotingServer" class="de.scoopgmbh.copper.monitoring.server.SpringRemotingServer" init-method="start">
+	<bean id="springRemotingServer" class="org.copperengine.core.core.monitoring.server.SpringRemotingServer" init-method="start">
 		<constructor-arg index="0"><ref bean="copperMonitoringService"/></constructor-arg>
 		<constructor-arg index="1"><value>8080</value></constructor-arg>
 		<constructor-arg index="2"><value>localhost</value></constructor-arg>
@@ -219,14 +219,14 @@
 	</bean>
 
 		
-	<bean class="de.scoopgmbh.copper.spring.JmxExporter" init-method="startup" destroy-method="shutdown"/>    
+	<bean class="org.copperengine.core.core.spring.JmxExporter" init-method="startup" destroy-method="shutdown"/>    
 
 
-	<beans:bean id="networkServiceAdapter" class="de.scoopgmbh.copper.examples.orechstration.adapter.NetworkServiceAdapterImpl">
+	<beans:bean id="networkServiceAdapter" class="org.copperengine.core.core.examples.orechstration.adapter.NetworkServiceAdapterImpl">
 		<property name="engine">	
-			<bean class="de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringAdapterProcessingEngine">
-				<constructor-arg type="de.scoopgmbh.copper.ProcessingEngine"><ref bean="persistent.engine"/></constructor-arg>
-				<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
+			<bean class="org.copperengine.core.core.monitoring.server.wrapper.MonitoringAdapterProcessingEngine">
+				<constructor-arg type="org.copperengine.core.core.ProcessingEngine"><ref bean="persistent.engine"/></constructor-arg>
+				<constructor-arg type="org.copperengine.core.core.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 				<beans:property name="adapter" ref="networkServiceAdapter"/>
 			</bean>
 		</property>
@@ -234,11 +234,11 @@
 		<beans:property name="networkServiceProvider" ref="networkServiceProvider"/>
 	</beans:bean>
 	
-	<beans:bean id="OrchestrationInputAdapter" class="de.scoopgmbh.copper.examples.orechstration.adapter.OrchestrationInputAdapter">
+	<beans:bean id="OrchestrationInputAdapter" class="org.copperengine.core.core.examples.orechstration.adapter.OrchestrationInputAdapter">
 		<property name="engine">	
-			<bean class="de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringAdapterProcessingEngine">
-				<constructor-arg type="de.scoopgmbh.copper.ProcessingEngine"><ref bean="persistent.engine"/></constructor-arg>
-				<constructor-arg type="de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
+			<bean class="org.copperengine.core.core.monitoring.server.wrapper.MonitoringAdapterProcessingEngine">
+				<constructor-arg type="org.copperengine.core.core.ProcessingEngine"><ref bean="persistent.engine"/></constructor-arg>
+				<constructor-arg type="org.copperengine.core.core.monitoring.server.monitoring.MonitoringDataCollector"><ref bean="monitoringDataCollector"/></constructor-arg>
 				<beans:property name="adapter" ref="OrchestrationInputAdapter"/>
 			</bean>
 		</property>

@@ -16,12 +16,12 @@
         
     <import resource="persistent-engine-application-context.xml"/>
     
-    <bean id="mockAdapter" class="de.scoopgmbh.copper.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
+    <bean id="mockAdapter" class="org.copperengine.core.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
     	<property name="engine" ref="persistent.engine"></property>
     	<property name="delayMSec" value="700"></property>
     </bean>
     
-    <bean class="de.scoopgmbh.copper.test.PersistentPerformanceTestInputChannel" scope="singleton" init-method="startup" destroy-method="shutdown">
+    <bean class="org.copperengine.core.test.PersistentPerformanceTestInputChannel" scope="singleton" init-method="startup" destroy-method="shutdown">
     	<property name="engine" ref="persistent.engine"></property>
     </bean>
 

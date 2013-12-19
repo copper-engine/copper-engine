@@ -29,24 +29,24 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.copperengine.core.InterruptException;
+import org.copperengine.core.Response;
+import org.copperengine.core.audit.BatchingAuditTrail;
+import org.copperengine.core.batcher.RetryingTxnBatchRunner;
+import org.copperengine.core.batcher.impl.BatcherImpl;
+import org.copperengine.core.db.utility.RetryingTransaction;
+import org.copperengine.core.instrument.Transformed;
+import org.copperengine.core.persistent.DatabaseDialect;
+import org.copperengine.core.persistent.PersistentWorkflow;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.scoopgmbh.copper.InterruptException;
-import de.scoopgmbh.copper.Response;
-import de.scoopgmbh.copper.audit.BatchingAuditTrail;
-import de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner;
-import de.scoopgmbh.copper.batcher.impl.BatcherImpl;
-import de.scoopgmbh.copper.db.utility.RetryingTransaction;
-import de.scoopgmbh.copper.instrument.Transformed;
 import de.scoopgmbh.copper.monitoring.core.model.AuditTrailInfo;
 import de.scoopgmbh.copper.monitoring.core.model.MessageInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceState;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowStateSummary;
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowSummary;
-import de.scoopgmbh.copper.persistent.DatabaseDialect;
-import de.scoopgmbh.copper.persistent.PersistentWorkflow;
 
 
 public abstract class MonitoringDbDialectTestBase {
@@ -164,10 +164,10 @@ public abstract class MonitoringDbDialectTestBase {
 			List<WorkflowSummary> selectSummary = monitoringDbDialect.selectWorkflowStateSummary(null, null, datasource.getConnection());
 			assertEquals(2, selectSummary.size());
 			
-			assertEquals("de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbDialectTestBase$DummyPersistentWorkflow1",selectSummary.get(0).getClassDescription().getClassname());
+			assertEquals("org.copperengine.core.core.monitoring.server.persistent.MonitoringDbDialectTestBase$DummyPersistentWorkflow1",selectSummary.get(0).getClassDescription().getClassname());
 			assertEquals(2,selectSummary.get(0).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
 			
-			assertEquals("de.scoopgmbh.copper.monitoring.server.persistent.MonitoringDbDialectTestBase$DummyPersistentWorkflow2",selectSummary.get(1).getClassDescription().getClassname());
+			assertEquals("org.copperengine.core.core.monitoring.server.persistent.MonitoringDbDialectTestBase$DummyPersistentWorkflow2",selectSummary.get(1).getClassDescription().getClassname());
 			assertEquals(1,selectSummary.get(1).getStateSummary().getCount(WorkflowInstanceState.ENQUEUED));
 		} catch (SQLException e) {
 			throw new RuntimeException(e);

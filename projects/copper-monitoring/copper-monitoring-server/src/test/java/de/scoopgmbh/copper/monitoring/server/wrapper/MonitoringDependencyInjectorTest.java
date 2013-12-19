@@ -19,12 +19,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
 
+import org.copperengine.core.util.PojoDependencyInjector;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import de.scoopgmbh.copper.monitoring.core.model.WorkflowInstanceInfo;
 import de.scoopgmbh.copper.monitoring.server.monitoring.MonitoringDataCollector;
-import de.scoopgmbh.copper.util.PojoDependencyInjector;
 
 
 public class MonitoringDependencyInjectorTest {

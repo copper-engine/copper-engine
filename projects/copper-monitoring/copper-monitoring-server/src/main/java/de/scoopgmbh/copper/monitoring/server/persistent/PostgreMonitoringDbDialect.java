@@ -15,9 +15,9 @@
  */
 package de.scoopgmbh.copper.monitoring.server.persistent;
 
-import de.scoopgmbh.copper.audit.BatchingAuditTrail;
-import de.scoopgmbh.copper.audit.MessagePostProcessor;
-import de.scoopgmbh.copper.persistent.Serializer;
+import org.copperengine.core.audit.BatchingAuditTrail;
+import org.copperengine.core.audit.MessagePostProcessor;
+import org.copperengine.core.persistent.Serializer;
 
 
 public class PostgreMonitoringDbDialect extends BaseDatabaseMonitoringDialect {

@@ -19,12 +19,12 @@
     	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/>
     	<property name="minPoolSize" value="1"/>
     	<property name="maxPoolSize" value="8"/>
-    	<property name="connectionTesterClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester"/>
-    	<property name="connectionCustomizerClassName" value="de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionCustomizer"/>
+    	<property name="connectionTesterClassName" value="org.copperengine.core.db.utility.oracle.c3p0.OracleConnectionTester"/>
+    	<property name="connectionCustomizerClassName" value="org.copperengine.core.db.utility.oracle.c3p0.OracleConnectionCustomizer"/>
     	<property name="idleConnectionTestPeriod" value="15"/>
 	</bean>
 
-	<bean id="dbDialect" class="de.scoopgmbh.copper.persistent.OracleDialect" scope="singleton" init-method="startup">
+	<bean id="dbDialect" class="org.copperengine.core.persistent.OracleDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
 		<property name="engineIdProvider" ref="engineId_RED"/>

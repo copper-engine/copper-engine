@@ -22,17 +22,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.copperengine.core.EngineIdProviderBean;
+import org.copperengine.core.audit.BatchingAuditTrail;
+import org.copperengine.core.audit.DummyPostProcessor;
+import org.copperengine.core.db.utility.JdbcUtils;
+import org.copperengine.core.persistent.OracleDialect;
+import org.copperengine.core.persistent.StandardJavaSerializer;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-import de.scoopgmbh.copper.EngineIdProviderBean;
-import de.scoopgmbh.copper.audit.BatchingAuditTrail;
-import de.scoopgmbh.copper.audit.DummyPostProcessor;
-import de.scoopgmbh.copper.db.utility.JdbcUtils;
-import de.scoopgmbh.copper.persistent.OracleDialect;
-import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
 
 
 @Ignore
@@ -47,8 +47,8 @@ public class OracleMonitoringDbDialectTest extends MonitoringDbDialectTestBase{
 			datasource_oracle.setJdbcUrl("jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:HM");
 			datasource_oracle.setMinPoolSize(1);
 			datasource_oracle.setMaxPoolSize(8);
-			datasource_oracle.setConnectionTesterClassName("de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester");
-			datasource_oracle.setConnectionCustomizerClassName("de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionCustomizer");
+			datasource_oracle.setConnectionTesterClassName("org.copperengine.core.core.db.utility.oracle.c3p0.OracleConnectionTester");
+			datasource_oracle.setConnectionCustomizerClassName("org.copperengine.core.core.db.utility.oracle.c3p0.OracleConnectionCustomizer");
 			datasource_oracle.setIdleConnectionTestPeriod(15);
 		} catch (PropertyVetoException e1) {
 			throw new RuntimeException(e1);

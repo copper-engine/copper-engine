@@ -18,7 +18,7 @@
     	<property name="databaseName" value="./target/copperUnitTestDB;create=true"/>
 	</bean>
 	
-	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.DerbyDbScottyDbStorage" scope="singleton">
+	<bean id="persistent.dbStorage" class="org.copperengine.core.persistent.DerbyDbScottyDbStorage" scope="singleton">
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
 		<property name="wfRepository" ref="wfRepository"/>

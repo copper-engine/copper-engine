@@ -15,10 +15,10 @@
  */
 package de.scoopgmbh.copper.examples.orechstration.adapter;
 
+import org.copperengine.core.ProcessingEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.examples.orechstration.data.ResetMailboxData;
 import de.scoopgmbh.copper.examples.orechstration.wf.ResetMailboxDef;
 import de.scoopgmbh.orchestration.OrchestrationService;

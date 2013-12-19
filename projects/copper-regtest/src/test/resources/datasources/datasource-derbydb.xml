@@ -18,7 +18,7 @@
     	<property name="databaseName" value="./build/copperUnitTestDB;create=true"/>
 	</bean>
 	
-	<bean id="dbDialect" class="de.scoopgmbh.copper.persistent.DerbyDbDialect" scope="singleton" init-method="startup">
+	<bean id="dbDialect" class="org.copperengine.core.persistent.DerbyDbDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
 		<property name="dataSource" ref="datasource_default"/>

@@ -30,22 +30,33 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.shiro.realm.SimpleAccountRealm;
 import org.apache.shiro.spring.remoting.SecureRemoteInvocationExecutor;
+import org.copperengine.core.CopperException;
+import org.copperengine.core.EngineIdProviderBean;
+import org.copperengine.core.audit.BatchingAuditTrail;
+import org.copperengine.core.audit.CompressedBase64PostProcessor;
+import org.copperengine.core.batcher.RetryingTxnBatchRunner;
+import org.copperengine.core.batcher.impl.BatcherImpl;
+import org.copperengine.core.common.DefaultProcessorPoolManager;
+import org.copperengine.core.common.JdkRandomUUIDFactory;
+import org.copperengine.core.common.WorkflowRepository;
+import org.copperengine.core.monitoring.LoggingStatisticCollector;
+import org.copperengine.core.persistent.DatabaseDialect;
+import org.copperengine.core.persistent.DerbyDbDialect;
+import org.copperengine.core.persistent.OracleDialect;
+import org.copperengine.core.persistent.PersistentPriorityProcessorPool;
+import org.copperengine.core.persistent.PersistentProcessorPool;
+import org.copperengine.core.persistent.PersistentScottyEngine;
+import org.copperengine.core.persistent.ScottyDBStorage;
+import org.copperengine.core.persistent.StandardJavaSerializer;
+import org.copperengine.core.persistent.txn.CopperTransactionController;
+import org.copperengine.core.util.PojoDependencyInjector;
+import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
+import org.copperengine.management.ProcessingEngineMXBean;
 import org.springframework.remoting.support.DefaultRemoteInvocationExecutor;
 import org.springframework.remoting.support.RemoteInvocationExecutor;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-import de.scoopgmbh.copper.CopperException;
-import de.scoopgmbh.copper.EngineIdProviderBean;
-import de.scoopgmbh.copper.audit.BatchingAuditTrail;
-import de.scoopgmbh.copper.audit.CompressedBase64PostProcessor;
-import de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner;
-import de.scoopgmbh.copper.batcher.impl.BatcherImpl;
-import de.scoopgmbh.copper.common.DefaultProcessorPoolManager;
-import de.scoopgmbh.copper.common.JdkRandomUUIDFactory;
-import de.scoopgmbh.copper.common.WorkflowRepository;
-import de.scoopgmbh.copper.management.ProcessingEngineMXBean;
-import de.scoopgmbh.copper.monitoring.LoggingStatisticCollector;
 import de.scoopgmbh.copper.monitoring.core.CopperMonitoringService;
 import de.scoopgmbh.copper.monitoring.core.LoginService;
 import de.scoopgmbh.copper.monitoring.core.data.MonitoringDataAccesor;
@@ -72,17 +83,6 @@ import de.scoopgmbh.copper.monitoring.server.provider.SystemRessourceDataProvide
 import de.scoopgmbh.copper.monitoring.server.util.DerbyCleanDbUtil;
 import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringAdapterProcessingEngine;
 import de.scoopgmbh.copper.monitoring.server.wrapper.MonitoringDependencyInjector;
-import de.scoopgmbh.copper.persistent.DatabaseDialect;
-import de.scoopgmbh.copper.persistent.DerbyDbDialect;
-import de.scoopgmbh.copper.persistent.OracleDialect;
-import de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool;
-import de.scoopgmbh.copper.persistent.PersistentProcessorPool;
-import de.scoopgmbh.copper.persistent.PersistentScottyEngine;
-import de.scoopgmbh.copper.persistent.ScottyDBStorage;
-import de.scoopgmbh.copper.persistent.StandardJavaSerializer;
-import de.scoopgmbh.copper.persistent.txn.CopperTransactionController;
-import de.scoopgmbh.copper.util.PojoDependencyInjector;
-import de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository;
 
 public class MonitoringExampleMain {
 	
@@ -127,8 +127,8 @@ public class MonitoringExampleMain {
 			datasource_oracle.setJdbcUrl("jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:HM");
 			datasource_oracle.setMinPoolSize(1);
 			datasource_oracle.setMaxPoolSize(8);
-			datasource_oracle.setConnectionTesterClassName("de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionTester");
-			datasource_oracle.setConnectionCustomizerClassName("de.scoopgmbh.copper.db.utility.oracle.c3p0.OracleConnectionCustomizer");
+			datasource_oracle.setConnectionTesterClassName("org.copperengine.core.core.db.utility.oracle.c3p0.OracleConnectionTester");
+			datasource_oracle.setConnectionCustomizerClassName("org.copperengine.core.core.db.utility.oracle.c3p0.OracleConnectionCustomizer");
 			datasource_oracle.setIdleConnectionTestPeriod(15);
 		} catch (PropertyVetoException e1) {
 			throw new RuntimeException(e1);
