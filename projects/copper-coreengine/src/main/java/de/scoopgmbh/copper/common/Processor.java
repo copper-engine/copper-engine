@@ -19,12 +19,10 @@ import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.instrument.Transformed;
-import de.scoopgmbh.copper.util.MDCConstants;
 
 /**
  * A COPPER Processor is a thread executing {@link Workflow} instances.
@@ -40,17 +38,17 @@ public abstract class Processor extends Thread {
 	protected final ProcessingEngine engine;
     protected IProcessingHook processingHook = new MDCProcessingHook();
 
-    public void setProcessingHook(IProcessingHook processingHook) {
-        this.processingHook = processingHook;
-    }
-
 	public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
 		super(name);
 		this.queue = queue;
 		this.setPriority(prio);
 		this.engine = engine;
 	}
-	
+
+    public void setProcessingHook(IProcessingHook processingHook) {
+        this.processingHook = processingHook;
+    }
+    
 	public synchronized void shutdown() {
 		if (shutdown)
 			return;
