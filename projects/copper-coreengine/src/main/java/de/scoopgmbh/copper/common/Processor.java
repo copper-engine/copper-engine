@@ -19,12 +19,10 @@ import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.instrument.Transformed;
-import de.scoopgmbh.copper.util.MDCConstants;
 
 /**
  * A COPPER Processor is a thread executing {@link Workflow} instances.
@@ -38,14 +36,19 @@ public abstract class Processor extends Thread {
 	protected final Queue<Workflow<?>> queue;
 	protected volatile boolean shutdown = false;
 	protected final ProcessingEngine engine;
-	
+    protected IProcessingHook processingHook = new MDCProcessingHook();
+
 	public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
 		super(name);
 		this.queue = queue;
 		this.setPriority(prio);
 		this.engine = engine;
 	}
-	
+
+    public void setProcessingHook(IProcessingHook processingHook) {
+        this.processingHook = processingHook;
+    }
+    
 	public synchronized void shutdown() {
 		if (shutdown)
 			return;
@@ -72,13 +75,13 @@ public abstract class Processor extends Thread {
 					if (wf.getClass().getAnnotation(Transformed.class) == null) {
 						throw new RuntimeException(wf.getClass().getName()+" has not been transformed");
 					}
-					MDC.put(MDCConstants.REQUEST, wf.getId());
-					try {
+                    preProcess(wf);
+                    try {
 						process(wf);
 					}
 					finally {
-						MDC.remove(MDCConstants.REQUEST);
-					}
+                        postProcess(wf);
+                    }
 				}
 			}
 			catch(InterruptedException e) {
@@ -91,6 +94,18 @@ public abstract class Processor extends Thread {
 		}
 		logger.info("stopped");
 	}
-	
-	protected abstract void process(Workflow<?> wf);
+
+    protected void postProcess(Workflow<?> wf) {
+        if(processingHook != null){
+            processingHook.postProcess(wf);
+        }
+    }
+
+    protected void preProcess(Workflow<?> wf) {
+        if(processingHook != null){
+            processingHook.preProcess(wf);
+        }
+    }
+
+    protected abstract void process(Workflow<?> wf);
 }
