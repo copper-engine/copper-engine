@@ -36,7 +36,7 @@ public abstract class Processor extends Thread {
 	protected final Queue<Workflow<?>> queue;
 	protected volatile boolean shutdown = false;
 	protected final ProcessingEngine engine;
-    protected IProcessingHook processingHook = new MDCProcessingHook();
+    protected ProcessingHook processingHook = new MDCProcessingHook();
 
 	public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
 		super(name);
@@ -45,7 +45,7 @@ public abstract class Processor extends Thread {
 		this.engine = engine;
 	}
 
-    public void setProcessingHook(IProcessingHook processingHook) {
+    public void setProcessingHook(ProcessingHook processingHook) {
         this.processingHook = processingHook;
     }
     

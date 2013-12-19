@@ -17,13 +17,13 @@ package de.scoopgmbh.copper.persistent;
 
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
-import de.scoopgmbh.copper.common.IProcessorFactory;
+import de.scoopgmbh.copper.common.ProcessorFactory;
 import de.scoopgmbh.copper.common.Processor;
 import de.scoopgmbh.copper.persistent.txn.TransactionController;
 
 import java.util.Queue;
 
-public class PersistentProcessorFactory implements IProcessorFactory {
+public class PersistentProcessorFactory implements ProcessorFactory {
 
 
     private TransactionController transactionController;

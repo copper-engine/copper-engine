@@ -18,11 +18,11 @@ package de.scoopgmbh.copper.tranzient;
 import de.scoopgmbh.copper.ProcessingEngine;
 import de.scoopgmbh.copper.Workflow;
 import de.scoopgmbh.copper.common.Processor;
-import de.scoopgmbh.copper.common.IProcessorFactory;
+import de.scoopgmbh.copper.common.ProcessorFactory;
 
 import java.util.Queue;
 
-public class TransientProcessorFactory implements IProcessorFactory {
+public class TransientProcessorFactory implements ProcessorFactory {
 
     public TransientProcessorFactory(){
     }

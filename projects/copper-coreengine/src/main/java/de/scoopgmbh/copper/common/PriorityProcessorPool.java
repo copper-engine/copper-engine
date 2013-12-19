@@ -49,7 +49,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 	private boolean started = false;
 	private boolean shutdown = false;
 
-    protected IProcessorFactory processorFactory;
+    protected ProcessorFactory processorFactory;
 
 	/**
 	 * Creates a new {@link PriorityProcessorPool} with as many worker threads as processors available on the corresponding environment.
@@ -225,7 +225,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 		}
 	}
 
-    public void setProcessorFactory(IProcessorFactory processorFactory) {
+    public void setProcessorFactory(ProcessorFactory processorFactory) {
         this.processorFactory = processorFactory;
     }
 
