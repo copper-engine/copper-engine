@@ -38,7 +38,12 @@ public abstract class Processor extends Thread {
 	protected final Queue<Workflow<?>> queue;
 	protected volatile boolean shutdown = false;
 	protected final ProcessingEngine engine;
-	
+    protected IProcessingHook processingHook = new MDCProcessingHook();
+
+    public void setProcessingHook(IProcessingHook processingHook) {
+        this.processingHook = processingHook;
+    }
+
 	public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
 		super(name);
 		this.queue = queue;
@@ -72,13 +77,13 @@ public abstract class Processor extends Thread {
 					if (wf.getClass().getAnnotation(Transformed.class) == null) {
 						throw new RuntimeException(wf.getClass().getName()+" has not been transformed");
 					}
-					MDC.put(MDCConstants.REQUEST, wf.getId());
-					try {
+                    preProcess(wf);
+                    try {
 						process(wf);
 					}
 					finally {
-						MDC.remove(MDCConstants.REQUEST);
-					}
+                        postProcess(wf);
+                    }
 				}
 			}
 			catch(InterruptedException e) {
@@ -91,6 +96,18 @@ public abstract class Processor extends Thread {
 		}
 		logger.info("stopped");
 	}
-	
-	protected abstract void process(Workflow<?> wf);
+
+    protected void postProcess(Workflow<?> wf) {
+        if(processingHook != null){
+            processingHook.postProcess(wf);
+        }
+    }
+
+    protected void preProcess(Workflow<?> wf) {
+        if(processingHook != null){
+            processingHook.preProcess(wf);
+        }
+    }
+
+    protected abstract void process(Workflow<?> wf);
 }
