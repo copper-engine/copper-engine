@@ -175,7 +175,7 @@ public class ScreenshotGeneratorMain {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    };
+    }
 
     protected SceneDock scene;
 

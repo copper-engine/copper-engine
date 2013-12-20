@@ -44,7 +44,7 @@ public class SystemResource extends ScreenshotPageBase {
                             filterAbleFormFixture.refresh();
                         }
                     });
-                };
+                }
             }.start();
         }
     }

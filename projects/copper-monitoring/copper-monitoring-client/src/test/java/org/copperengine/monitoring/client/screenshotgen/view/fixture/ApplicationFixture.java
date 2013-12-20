@@ -47,7 +47,7 @@ public class ApplicationFixture extends Application {
     }
 
     public static void launchWorkaround() {
-        Application.launch(new String[] {});
+        Application.launch(new String[]{ });
     }
 
     public static Stage getStage() {

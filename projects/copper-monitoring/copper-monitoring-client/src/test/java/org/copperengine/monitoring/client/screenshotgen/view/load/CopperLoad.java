@@ -44,7 +44,7 @@ public class CopperLoad extends ScreenshotPageBase {
                             filterAbleFormFixture.refresh();
                         }
                     });
-                };
+                }
             }.start();
         }
     }

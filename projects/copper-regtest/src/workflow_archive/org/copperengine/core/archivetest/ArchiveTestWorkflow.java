@@ -24,24 +24,24 @@ import org.copperengine.core.util.AsyncResponseReceiver;
 
 public class ArchiveTestWorkflow extends Workflow<AsyncResponseReceiver<Integer>> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private int i;
-	private MockAdapter mockAdapter;
-	
-	@AutoWire
-	public void setMockAdapter(MockAdapter mockAdapter) {
-		this.mockAdapter = mockAdapter;
-	}
-	
-	@Override
-	public void main() throws InterruptException {
-		System.out.println("started");
-		for (i=0; i<3; i++) {
-			final String cid = mockAdapter.foo("foo");
-			wait(WaitMode.ALL, 0, cid);
-		}
-		System.out.println("finished");
-		getData().setResponse(Integer.valueOf(1));
-	}
+    private int i;
+    private MockAdapter mockAdapter;
+
+    @AutoWire
+    public void setMockAdapter(MockAdapter mockAdapter) {
+        this.mockAdapter = mockAdapter;
+    }
+
+    @Override
+    public void main() throws InterruptException {
+        System.out.println("started");
+        for (i = 0; i < 3; i++) {
+            final String cid = mockAdapter.foo("foo");
+            wait(WaitMode.ALL, 0, cid);
+        }
+        System.out.println("finished");
+        getData().setResponse(Integer.valueOf(1));
+    }
 }

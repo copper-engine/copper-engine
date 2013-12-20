@@ -265,8 +265,8 @@ public class TestDataProvider implements CopperMonitoringService {
     @Override
     public List<String[]> executeSqlQuery(String query, long resultRowLimit) {
         List<String[]> result = new ArrayList<String[]>();
-        result.add(new String[] { "column1", "column2", "colum3", query });
-        result.add(new String[] { "content1", "content2", "conten3", query });
+        result.add(new String[]{ "column1", "column2", "colum3", query });
+        result.add(new String[]{ "content1", "content2", "conten3", query });
         return result;
     }
 
@@ -301,7 +301,7 @@ public class TestDataProvider implements CopperMonitoringService {
         return Arrays.asList(
                 new ProcessingEngineInfo(EngineTyp.PERSISTENT, "peId1", repositoryInfo, new DependencyInjectorInfo("POJO"), "None", new StorageInfo(), new ProcessorPoolInfo("poId1", ProcessorPoolTyp.PERSISTENT)),
                 new ProcessingEngineInfo(EngineTyp.TRANSIENT, "peId2", repositoryInfo, new DependencyInjectorInfo("POJO"), "None", new StorageInfo(), new ProcessorPoolInfo("poId2", ProcessorPoolTyp.TRANSIENT), new ProcessorPoolInfo("poId3", ProcessorPoolTyp.TRANSIENT))
-                );
+        );
     }
 
     @Override

@@ -52,7 +52,7 @@ public class StandardJavaSerializerCompatibilityTest {
         StandardJavaSerializer standardJavaSerializer = new StandardJavaSerializer();
 
         FileBasedWorkflowRepository wfRepo = new FileBasedWorkflowRepository();
-        wfRepo.setSourceDirs(Arrays.asList(new String[] { "src/workflow/java" }));
+        wfRepo.setSourceDirs(Arrays.asList(new String[]{ "src/workflow/java" }));
         wfRepo.setTargetDir("build/compiled_workflow");
         wfRepo.start();
         try {
@@ -65,8 +65,7 @@ public class StandardJavaSerializerCompatibilityTest {
                     // sw.setData(readFile(new File(directory, f.getName().replace(".state", ".data"))));
                     Workflow<?> wf = standardJavaSerializer.deserializeWorkflow(sw, wfRepo);
                     org.junit.Assert.assertNotNull(wf);
-                }
-                else if (zipEntry.getName().indexOf("response_") != -1) {
+                } else if (zipEntry.getName().indexOf("response_") != -1) {
                     // System.out.println("Checking " + zipEntry.getName());
                     Response<?> r = standardJavaSerializer.deserializeResponse(readFile(zipIS));
                     org.junit.Assert.assertNotNull(r);
