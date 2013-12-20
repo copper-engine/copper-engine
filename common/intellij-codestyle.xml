@@ -56,6 +56,7 @@
         <option name="HTML_KEEP_WHITESPACES_INSIDE" value="span,pre,td" />
         <option name="HTML_INLINE_ELEMENTS" value="a,abbr,acronym,b,basefont,bdo,big,br,cite,cite,code,dfn,em,font,i,img,input,kbd,label,q,s,samp,select,span,strike,strong,sub,sup,textarea,tt,u,var,button" />
         <option name="HTML_DONT_ADD_BREAKS_IF_INLINE_CONTENT" value="title,h1,h2,h3,h4,h5,h6,p,td,th" />
+        <option name="WRAP_COMMENTS" value="true" />
         <XML>
           <option name="XML_ATTRIBUTE_WRAP" value="0" />
           <option name="XML_TEXT_WRAP" value="0" />
