@@ -17,7 +17,7 @@ package org.copperengine.core;
 
 /**
  * An object (workflow instance of reponse) with the same id already exists
- * 
+ *
  * @author austermann
  */
 public class DuplicateIdException extends CopperRuntimeException {

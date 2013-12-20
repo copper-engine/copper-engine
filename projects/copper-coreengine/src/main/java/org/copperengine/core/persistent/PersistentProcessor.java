@@ -58,11 +58,9 @@ public class PersistentProcessor extends Processor {
                             WorkflowAccessor.setProcessingState(pw, ProcessingState.FINISHED);
                             engine.getDbStorage().finish(pw, new Acknowledge.BestEffortAcknowledge());
                             assert pw.get__stack().isEmpty() : "Stack must be empty";
-                        }
-                        catch (InterruptException e) {
+                        } catch (InterruptException e) {
                             assert pw.get__stack().size() > 0;
-                        }
-                        finally {
+                        } finally {
                             engine.unregister(pw);
                         }
                         if (pw.registerCall != null) {

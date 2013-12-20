@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Collects runtime statistics and logs average processing times to the logging system in a
  * configurable time interval.
- * 
+ *
  * @author austermann
  */
 public class LoggingStatisticCollector implements RuntimeStatisticsCollector, StatisticsCollectorMXBean {
@@ -92,11 +92,9 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
                         if (resetAfterLogging) {
                             reset();
                         }
-                    }
-                    catch (InterruptedException e) {
+                    } catch (InterruptedException e) {
                         // ignore
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         logger.error("", e);
                     }
                 }
@@ -175,8 +173,7 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
         StatSet ss = localMap.get(mpId);
         if (ss == null) {
             return "-";
-        }
-        else {
+        } else {
             return toString(ss);
         }
     }

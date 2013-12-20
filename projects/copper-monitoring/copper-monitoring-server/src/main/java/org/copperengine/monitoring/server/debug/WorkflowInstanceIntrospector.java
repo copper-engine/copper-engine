@@ -70,7 +70,7 @@ public class WorkflowInstanceIntrospector {
             Method method = new Method(currentMethod.getDefiningClass(), currentMethod.getDeclaration());
             List<LabelInfo> labelInfos = currentMethod.getLabelInfos();
             LabelInfo lf = labelInfos.size() >= en.jumpNo ?
-                    new LabelInfo(en.jumpNo, -1, Collections.<String> emptyList(), Collections.<Type> emptyList(), Collections.<Type> emptyList(), Collections.<Type> emptyList(), "INCOMPATIBLE_STACKINFO_OUTPUT_ABORTED", "()V")
+                    new LabelInfo(en.jumpNo, -1, Collections.<String>emptyList(), Collections.<Type>emptyList(), Collections.<Type>emptyList(), Collections.<Type>emptyList(), "INCOMPATIBLE_STACKINFO_OUTPUT_ABORTED", "()V")
                     : labelInfos.get(en.jumpNo);
             StackFrame sf = new StackFrame(method, lf.getLineNo(), definingClass[0].getSourceCode());
             for (int i = 0; i < lf.getLocals().length; ++i) {

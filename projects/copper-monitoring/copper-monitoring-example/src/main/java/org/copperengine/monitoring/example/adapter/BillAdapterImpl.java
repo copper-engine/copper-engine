@@ -51,7 +51,7 @@ public class BillAdapterImpl implements BillAdapter {
                         throw new RuntimeException(e);
                     }
                 }
-            };
+            }
         };
         servicesCreator.setDaemon(true);
         servicesCreator.start();
@@ -71,7 +71,7 @@ public class BillAdapterImpl implements BillAdapter {
                         throw new RuntimeException(e);
                     }
                 }
-            };
+            }
         };
         billScheduler.setDaemon(true);
         billScheduler.start();

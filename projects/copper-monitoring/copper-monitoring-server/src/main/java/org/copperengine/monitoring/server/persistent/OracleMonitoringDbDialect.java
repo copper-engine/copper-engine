@@ -32,7 +32,7 @@ import com.google.common.base.Throwables;
 
 /**
  * Oracle implementation of the {@link DatabaseDialect} interface
- * 
+ *
  * @author austermann
  */
 public class OracleMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
@@ -135,7 +135,7 @@ public class OracleMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
                             "  sql_id       => ?,\n" +
                             "  type         => 'HTML',\n" +
                             "  report_level => 'ALL') AS report FROM dual"
-                    );
+            );
             selectStmt.setString(1, sqlid);
             ResultSet resultSet = selectStmt.executeQuery();
 
@@ -170,7 +170,7 @@ public class OracleMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
                             "description => 'Tuning task for statement 19v5guvsgcd1v in AWR.');\r\n" +
                             "\r\n" +
                             "END;"
-                    );
+            );
             selectStmt.setString(1, sqlid);
             selectStmt.execute();
             JdbcUtils.closeStatement(selectStmt);

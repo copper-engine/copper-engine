@@ -19,7 +19,7 @@ import java.io.Serializable;
 
 /**
  * Base class for persistent entities that will be used by the default entity sql code generator.
- * 
+ *
  * @author Roland Scheel
  */
 public class PersistentEntity implements Serializable, Cloneable {

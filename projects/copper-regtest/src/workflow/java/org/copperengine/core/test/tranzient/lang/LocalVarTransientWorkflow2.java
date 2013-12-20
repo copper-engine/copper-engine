@@ -76,22 +76,18 @@ public class LocalVarTransientWorkflow2 extends Workflow<String> {
                 ccid = getEngine().createUUID();
                 x = execute(ccid, timeout);
                 logger.debug("{}", x);
-            }
-            else {
+            } else {
                 if (counter != 0) {
                     ccid = getEngine().createUUID();
                     x = execute(ccid, timeout);
                     logger.debug("{}", x);
-                }
-                else {
+                } else {
                     if (counter != 0) {
 
-                    }
-                    else {
+                    } else {
                         if (counter != 0) {
 
-                        }
-                        else {
+                        } else {
                             ccid = getEngine().createUUID();
                             x = execute(ccid, timeout);
                             logger.debug("{}", x);

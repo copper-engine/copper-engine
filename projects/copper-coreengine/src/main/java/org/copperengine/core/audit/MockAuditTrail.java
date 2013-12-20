@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Mock implementation of an audit trail.
- * 
+ *
  * @author austermann
  */
 public class MockAuditTrail implements AuditTrail {

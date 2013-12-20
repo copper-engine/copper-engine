@@ -21,9 +21,9 @@ import java.util.Collection;
 /**
  * Base interface of a BatchExecutor. A batch executor is responsible to process a batch of {@link BatchCommand}s.
  * A batcher is responsible to collect a batch of commands and call their executor to execute the batch.
- * 
- * @author austermann
+ *
  * @param <T>
+ * @author austermann
  */
 public interface BatchExecutorBase<E extends BatchExecutorBase<E, T>, T extends BatchCommand<E, T>> {
 

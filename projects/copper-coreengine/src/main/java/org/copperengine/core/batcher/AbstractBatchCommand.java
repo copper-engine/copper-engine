@@ -17,10 +17,10 @@ package org.copperengine.core.batcher;
 
 /**
  * Abstract base implementation of {@link BatchCommand}
- * 
- * @author austermann
+ *
  * @param <E>
  * @param <T>
+ * @author austermann
  */
 public abstract class AbstractBatchCommand<E extends BatchExecutor<E, T>, T extends AbstractBatchCommand<E, T>> implements BatchCommand<E, T> {
 

@@ -46,8 +46,7 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
             final String name,
             final String signature,
             final String superName,
-            final String[] interfaces)
-    {
+            final String[] interfaces) {
         currentClassName = name;
         logger.info("Transforming " + currentClassName);
         super.visit(version, access, name, signature, superName, interfaces);

@@ -38,7 +38,7 @@ public class DefaultPersisterSimpleCRUDSharedRessources<E, P extends DefaultEnti
     @SuppressWarnings("unchecked")
     @Override
     public Iterable<DefaultPersistenceWorker<E, P>> getWorkers() {
-        return Arrays.<DefaultPersistenceWorker<E, P>> asList(new DefaultPersistenceWorker[] {
+        return Arrays.<DefaultPersistenceWorker<E, P>>asList(new DefaultPersistenceWorker[] {
                 selectWorker, insertWorker, updateWorker, deleteWorker
         });
     }

@@ -31,7 +31,7 @@ import org.copperengine.monitoring.server.monitoring.MonitoringDataCollector;
 
 /**
  * Add Monitoring for ProcessingEngine for a specific adapter
- * 
+ *
  * @author hbrackmann
  */
 public class MonitoringAdapterProcessingEngine implements ProcessingEngine {

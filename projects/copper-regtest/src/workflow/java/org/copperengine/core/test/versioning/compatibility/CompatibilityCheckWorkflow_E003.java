@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * adding and using a new directly waiting method somewhere before an existing COPPER wait or a method that uses
  * directly or indirectly COPPER wait
- * 
+ *
  * @author austermann
  */
 @WorkflowDescription(alias = CompatibilityCheckWorkflowDef.NAME, majorVersion = 1, minorVersion = 1, patchLevelVersion = 003)

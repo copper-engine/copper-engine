@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Default implementation of the {@link TicketPoolManager} interface, using a java maps.
  * This implementation is thread safe.
- * 
+ *
  * @author austermann
  */
 public class DefaultTicketPoolManager implements TicketPoolManager {
@@ -106,7 +106,7 @@ public class DefaultTicketPoolManager implements TicketPoolManager {
 
     /**
      * For testing..
-     * 
+     *
      * @param wf
      */
     public String obtainAndReturnTicketPoolId(Workflow<?> wf) {

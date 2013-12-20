@@ -43,7 +43,7 @@ public final class DetailLoadService extends Service<Void> {
             WorkflowInstanceResultModel workflowInstanceResultModel,
             StackPane stackDetailPane,
             FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel,
-            WorkflowInstanceDetailResultModel>> detailForm,
+                    WorkflowInstanceDetailResultModel>> detailForm,
             IssueReporter issueReporter) {
         this.workflowInstanceResultModel = workflowInstanceResultModel;
         this.stackDetailPane = stackDetailPane;

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * Incompatible change example E001
  * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * adding a new parameter to a directly or indirectly waiting method
- * 
+ *
  * @author austermann
  */
 @WorkflowDescription(alias = CompatibilityCheckWorkflowDef.NAME, majorVersion = 1, minorVersion = 1, patchLevelVersion = 0001)

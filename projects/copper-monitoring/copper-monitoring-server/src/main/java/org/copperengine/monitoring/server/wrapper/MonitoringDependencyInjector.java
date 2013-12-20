@@ -27,7 +27,7 @@ import org.copperengine.monitoring.server.monitoring.MonitoringDataCollector;
 
 /**
  * Add Monitoring for DependencyInjector
- * 
+ *
  * @author hbrackmann
  */
 public class MonitoringDependencyInjector extends AbstractDependencyInjector {
@@ -88,7 +88,7 @@ public class MonitoringDependencyInjector extends AbstractDependencyInjector {
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             monitoringDataCollector.submitAdapterCalls(method, args, adapter, workflow);
-            return monitoringDataCollector.<Object> measureTimePeriod(adapter.getClass() + "#" + method.getName(), new Callable<Object>() {
+            return monitoringDataCollector.<Object>measureTimePeriod(adapter.getClass() + "#" + method.getName(), new Callable<Object>() {
                 @Override
                 public Object call() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
                     return method.invoke(adapter, args);

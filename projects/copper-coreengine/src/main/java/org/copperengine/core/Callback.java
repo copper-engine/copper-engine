@@ -21,9 +21,9 @@ package org.copperengine.core;
  * First, the receiver knows the engine and uses <code>engine.notify</code>.
  * Second, the receiver puts the response into a callback object, created and passed to it by the caller.
  * Callback objects are created using the <code>Workflow.createCallback()</code>.
- * 
- * @author austermann
+ *
  * @param <E>
+ * @author austermann
  */
 public interface Callback<E> {
 
@@ -33,7 +33,7 @@ public interface Callback<E> {
      * This method is unsafe, the control may be returned to the caller irrespectively whether the notification has been
      * safely delivered.
      * Use {@link Callback#notify(Object, Acknowledge)} instead
-     * 
+     *
      * @param response
      */
     @Deprecated
@@ -43,7 +43,7 @@ public interface Callback<E> {
      * This method is unsafe, the control may be returned to the caller irrespectively whether the notification has been
      * safely delivered.
      * Use {@link Callback#notify(Exception, Acknowledge)} instead
-     * 
+     *
      * @param exception
      */
     @Deprecated

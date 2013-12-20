@@ -100,12 +100,10 @@ public class BatchInsertIntoAutoTrail {
                     if (isOracle) {
                         if (data.getSequenceId() == null) {
                             preparedStmt.setNull(idx++, Types.NUMERIC);
-                        }
-                        else {
+                        } else {
                             preparedStmt.setLong(idx++, data.getSequenceId().longValue());
                         }
-                    }
-                    else {
+                    } else {
                         if (data.getSequenceId() != null) {
                             throw new UnsupportedOperationException("Custom SequenceId currently not supported for this DBMS");
                         }
@@ -121,8 +119,7 @@ public class BatchInsertIntoAutoTrail {
                                     value = new Timestamp(((Date) value).getTime());
                                 }
                                 preparedStmt.setObject(idx++, value, guessJdbcType(m));
-                            }
-                            else {
+                            } else {
                                 preparedStmt.setNull(idx++, guessJdbcType(m));
                             }
                         } catch (SQLException e) {

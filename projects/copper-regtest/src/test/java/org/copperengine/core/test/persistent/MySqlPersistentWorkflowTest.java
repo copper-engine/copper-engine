@@ -34,8 +34,7 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
     static {
         if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
             dbmsAvailable = true;
-        }
-        else {
+        } else {
             final ConfigurableApplicationContext context = new MySqlPersistentWorkflowTest().createContext(DS_CONTEXT);
             try {
                 DataSource ds = context.getBean(DataSource.class);

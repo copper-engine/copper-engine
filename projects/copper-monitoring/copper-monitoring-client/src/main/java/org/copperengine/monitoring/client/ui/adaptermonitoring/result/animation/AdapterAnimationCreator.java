@@ -104,7 +104,7 @@ public class AdapterAnimationCreator {
         if (animationOpt.isPresent()) {
             animationOpt.get().endTime = time + DEFAULT_TOTAL_ANNIMATION_TIME;
         } else {
-            Optional<Double> ypos = getFreeYslot(time, time + DEFAULT_TOTAL_ANNIMATION_TIME, AdapterAnimation.ADAPTER_HEIGHT + 20, false, Arrays.<Class<? extends AnimationPartBase>> asList(AdapterAnimation.class));
+            Optional<Double> ypos = getFreeYslot(time, time + DEFAULT_TOTAL_ANNIMATION_TIME, AdapterAnimation.ADAPTER_HEIGHT + 20, false, Arrays.<Class<? extends AnimationPartBase>>asList(AdapterAnimation.class));
             if (ypos.isPresent()) {
                 double xpos = animationPane.getWidth() / 2 - AdapterAnimation.ADAPTER_WIDTH / 2;
 
@@ -144,7 +144,7 @@ public class AdapterAnimationCreator {
     }
 
     private void addNotifyEventAnimation(long time, String id, String adapterId) {
-        Optional<Double> ypos = getFreeYslot(time, time + DEFAULT_TOTAL_ANNIMATION_TIME, 60, true, Arrays.<Class<? extends AnimationPartBase>> asList(NotifyAnimation.class, LaunchAnimation.class));
+        Optional<Double> ypos = getFreeYslot(time, time + DEFAULT_TOTAL_ANNIMATION_TIME, 60, true, Arrays.<Class<? extends AnimationPartBase>>asList(NotifyAnimation.class, LaunchAnimation.class));
         if (ypos.isPresent()) {
             Optional<AnimationPartBase> adapterAnimation = searchAnimationRunningAt(adapterId, time, time + DEFAULT_TOTAL_ANNIMATION_TIME);
             if (adapterAnimation.isPresent()) {
@@ -163,7 +163,7 @@ public class AdapterAnimationCreator {
     }
 
     private void addLaunchEventAnimation(long time, String id, String adapterId) {
-        Optional<Double> ypos = getFreeYslot(time, time + DEFAULT_TOTAL_ANNIMATION_TIME, 60, true, Arrays.<Class<? extends AnimationPartBase>> asList(NotifyAnimation.class, LaunchAnimation.class));
+        Optional<Double> ypos = getFreeYslot(time, time + DEFAULT_TOTAL_ANNIMATION_TIME, 60, true, Arrays.<Class<? extends AnimationPartBase>>asList(NotifyAnimation.class, LaunchAnimation.class));
         if (ypos.isPresent()) {
             Optional<AnimationPartBase> adapterAnimation = searchAnimationRunningAt(adapterId, time, time + DEFAULT_TOTAL_ANNIMATION_TIME);
             if (adapterAnimation.isPresent()) {
@@ -286,7 +286,7 @@ public class AdapterAnimationCreator {
         }
 
         ArrayList<KeyFrame> keyFrames = new ArrayList<KeyFrame>();// Performance optimization adding single keyframes
-                                                                  // directly is too slow
+        // directly is too slow
         for (AnimationPartBase animation : animations) {
             addAnimation(keyFrames, animation, min);
         }
@@ -298,7 +298,7 @@ public class AdapterAnimationCreator {
         if (animationOpt.isPresent()) {
             animationOpt.get().endTime = time + DEFAULT_TOTAL_ANNIMATION_TIME;
         } else {
-            Optional<Double> ypos = getFreeYslot(time, time + DEFAULT_TOTAL_ANNIMATION_TIME, EventAnimationBase.EVENT_HEIGHT + 15 + 35, false, Arrays.<Class<? extends AnimationPartBase>> asList(WorkflowAnimation.class));
+            Optional<Double> ypos = getFreeYslot(time, time + DEFAULT_TOTAL_ANNIMATION_TIME, EventAnimationBase.EVENT_HEIGHT + 15 + 35, false, Arrays.<Class<? extends AnimationPartBase>>asList(WorkflowAnimation.class));
             if (ypos.isPresent()) {
                 double xpos = animationPane.getWidth() / 2 - animationPane.getWidth() / 4 - WorkflowAnimation.WIDTH / 2;
 

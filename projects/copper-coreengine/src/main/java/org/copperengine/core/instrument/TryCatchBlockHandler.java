@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Adds "if (e instanceof InterruptException) throw (InterruptException)e;" to each catch block.
  * This prevent COPPERs InterruptExceptions thrown by the COPPER wait calls to be handled in the exception handlers.
- * 
+ *
  * @author austermann
  */
 public class TryCatchBlockHandler {

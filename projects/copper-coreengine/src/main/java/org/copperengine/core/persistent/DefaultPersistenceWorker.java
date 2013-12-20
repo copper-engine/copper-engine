@@ -26,10 +26,10 @@ import org.copperengine.core.persistent.EntityPersister.PostSelectedCallback;
 /**
  * An inmplementation for the {@link DefaultWorkflowPersistencePlugin}. The workers are assumed to be created via
  * {@link DefaultEntityPersisterFactory}.
- * 
- * @author Roland Scheel
+ *
  * @param <E>
  * @param <P>
+ * @author Roland Scheel
  */
 public abstract class DefaultPersistenceWorker<E, P extends EntityPersister<E>> {
 

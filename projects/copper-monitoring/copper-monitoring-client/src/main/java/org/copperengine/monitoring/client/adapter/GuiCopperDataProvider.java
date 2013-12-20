@@ -216,10 +216,10 @@ public class GuiCopperDataProvider {
             final AggregateFunction<SystemResourcesInfo, SystemResourcesInfo> aggregateFunction = new AggregateSystemRessourceAvg();
             final TimeConverter<SystemResourcesInfo> dateConverter = new SystemResourcesInfoDateConverter();
 
-            final StatisticCreator<SystemResourcesInfo, SystemResourcesInfo> statisticCreator = new StatisticCreator<SystemResourcesInfo, SystemResourcesInfo>(TimeframeGroup.<SystemResourcesInfo, SystemResourcesInfo> createGroups(
+            final StatisticCreator<SystemResourcesInfo, SystemResourcesInfo> statisticCreator = new StatisticCreator<SystemResourcesInfo, SystemResourcesInfo>(TimeframeGroup.<SystemResourcesInfo, SystemResourcesInfo>createGroups(
                     groupCount, from, to, aggregateFunction, dateConverter));
             List<List<SystemResourcesInfo>> statisticCreators = copperMonitoringService.createStatistic(
-                    new TypeFilter<SystemResourcesInfo>(SystemResourcesInfo.class), Arrays.<StatisticCreator<SystemResourcesInfo, SystemResourcesInfo>> asList(statisticCreator), from, to);
+                    new TypeFilter<SystemResourcesInfo>(SystemResourcesInfo.class), Arrays.<StatisticCreator<SystemResourcesInfo, SystemResourcesInfo>>asList(statisticCreator), from, to);
             return statisticCreators.get(0);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
@@ -361,27 +361,27 @@ public class GuiCopperDataProvider {
             }
 
             final AvgAggregateFunction<MeasurePointData> avgFunction = new AvgAggregateFunction<MeasurePointData>(new MeasurePointDataDoubleConverter());
-            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> avgCreator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>> createGroups(
+            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> avgCreator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
                     count, from, to, avgFunction, new MeasurePointDataDateConverter()));
 
             final CountAggregateFunction<MeasurePointData> countFunction = new CountAggregateFunction<MeasurePointData>();
-            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> countCreator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>> createGroups(
+            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> countCreator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
                     count, from, to, countFunction, new MeasurePointDataDateConverter()));
 
             final QuantilAggregateFunction<MeasurePointData> quantil50Function = new QuantilAggregateFunction<MeasurePointData>(0.5, new MeasurePointDataDoubleConverter());
-            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> quantil50Creator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>> createGroups(
+            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> quantil50Creator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
                     count, from, to, quantil50Function, new MeasurePointDataDateConverter()));
 
             final QuantilAggregateFunction<MeasurePointData> quantil90Function = new QuantilAggregateFunction<MeasurePointData>(0.9, new MeasurePointDataDoubleConverter());
-            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> quantil90Creator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>> createGroups(
+            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> quantil90Creator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
                     count, from, to, quantil90Function, new MeasurePointDataDateConverter()));
 
             final QuantilAggregateFunction<MeasurePointData> quantil99Function = new QuantilAggregateFunction<MeasurePointData>(0.99, new MeasurePointDataDoubleConverter());
-            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> quantil99Creator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>> createGroups(
+            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> quantil99Creator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
                     count, from, to, quantil99Function, new MeasurePointDataDateConverter()));
 
             final AvgAggregateFunction<MeasurePointData> avgCpuFunction = new AvgAggregateFunction<MeasurePointData>(new SystemResMeasurePointDataDoubleConverter());
-            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> avgCpuCreator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>> createGroups(
+            final StatisticCreator<MeasurePointData, TimeValuePair<Double>> avgCpuCreator = new StatisticCreator<MeasurePointData, TimeValuePair<Double>>(TimeframeGroup.<MeasurePointData, TimeValuePair<Double>>createGroups(
                     count, from, to, avgCpuFunction, new MeasurePointDataDateConverter()));
 
             final List<StatisticCreator<MeasurePointData, TimeValuePair<Double>>> statistics = Arrays.asList(
@@ -391,7 +391,7 @@ public class GuiCopperDataProvider {
                     quantil90Creator,
                     quantil99Creator,
                     avgCpuCreator
-                    );
+            );
 
             List<List<TimeValuePair<Double>>> result = copperMonitoringService.createStatistic(
                     new MeasurePointFilter(filter.measurePointId.get()),

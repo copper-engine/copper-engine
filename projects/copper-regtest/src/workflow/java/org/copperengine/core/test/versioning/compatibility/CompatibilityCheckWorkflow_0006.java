@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * Adding a new waiting method and calling it AFTER existing wait calls (directly or indirectly).
  * Adding a new wait call AFTER existing wait calls (directly or indirectly).
- * 
+ *
  * @author austermann
  */
 @WorkflowDescription(alias = CompatibilityCheckWorkflowDef.NAME, majorVersion = 1, minorVersion = 0, patchLevelVersion = 0006)

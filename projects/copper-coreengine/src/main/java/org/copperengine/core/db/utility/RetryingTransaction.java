@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A simple transaction implementation for COPPER applications. Retrying means that the user's implementation of
  * execute() will automatically be retried in case of technical failures.
- * 
+ *
  * @author austermann
  */
 public abstract class RetryingTransaction<R> implements Transaction<R> {
@@ -112,23 +112,21 @@ public abstract class RetryingTransaction<R> implements Transaction<R> {
                 if (logger.isDebugEnabled())
                     logger.debug("Finished inner transaction " + name);
             }
-        }
-        else {
+        } else {
             try {
                 if (logger.isDebugEnabled())
                     logger.debug("Starting new transaction " + name);
                 R result = null;
                 currentTransaction.set(this);
                 connection = aquireConnection(false);
-                for (int seqNr = 1;; seqNr++) {
+                for (int seqNr = 1; ; seqNr++) {
                     try {
                         result = execute();
                         if (modificatory) {
                             logger.debug("Trying to commit");
                             connection.commit();
                             logger.debug("Transaction {} commited", name);
-                        }
-                        else {
+                        } else {
                             logger.debug("Txn is read only - rolling back");
                             connection.rollback();
                             logger.debug("Transaction {} rolled back", name);
@@ -147,8 +145,7 @@ public abstract class RetryingTransaction<R> implements Transaction<R> {
                             logger.debug("RetryAction=" + ra);
                         if (ra == RetryAction.noRetry) {
                             throw e;
-                        }
-                        else if (ra == RetryAction.retryWithNewConnection) {
+                        } else if (ra == RetryAction.retryWithNewConnection) {
                             logger.warn("Transaction " + name + " will be retried with new connection due to SQLException " + e.toString());
                             try {
                                 connection.close();
@@ -156,8 +153,7 @@ public abstract class RetryingTransaction<R> implements Transaction<R> {
                                 logger.warn("close failed:" + e2.toString(), e2);
                             }
                             connection = aquireConnection(true);
-                        }
-                        else {
+                        } else {
                             logger.error("Unexpected RetryAction " + ra);
                             assert false : "Unexpected RetryAction " + ra;
                         }
@@ -200,7 +196,7 @@ public abstract class RetryingTransaction<R> implements Transaction<R> {
 
     protected Connection aquireConnection(boolean validateNewConnection) throws SQLException {
         int counter = 0;
-        for (;;) {
+        for (; ; ) {
             try {
                 Connection c = ds.getConnection();
                 c.setAutoCommit(false);

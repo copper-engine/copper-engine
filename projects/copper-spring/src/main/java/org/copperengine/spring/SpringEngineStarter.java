@@ -21,7 +21,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * Simple utility class to load and run a Spring FileSystemXmlApplicationContext.
- * 
+ *
  * @author austermann
  */
 public class SpringEngineStarter {

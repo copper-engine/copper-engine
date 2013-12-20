@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of the {@link ProcessorPoolManager} interface.
- * 
- * @author austermann
+ *
  * @param <T>
+ * @author austermann
  */
 public class DefaultProcessorPoolManager<T extends ProcessorPool> implements ProcessorPoolManager<T> {
 

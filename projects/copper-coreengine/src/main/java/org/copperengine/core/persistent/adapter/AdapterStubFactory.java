@@ -31,6 +31,7 @@ import org.copperengine.core.persistent.SavepointAware;
 public class AdapterStubFactory {
 
     static final Method savepointAwareOnSaveMethod;
+
     static {
         try {
             savepointAwareOnSaveMethod = SavepointAware.class.getMethod("onSave", new Class<?>[] { PersistenceContext.class });

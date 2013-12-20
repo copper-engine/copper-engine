@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A COPPER Processor is a thread executing {@link Workflow} instances.
- * 
+ *
  * @author austermann
  */
 public abstract class Processor extends Thread {

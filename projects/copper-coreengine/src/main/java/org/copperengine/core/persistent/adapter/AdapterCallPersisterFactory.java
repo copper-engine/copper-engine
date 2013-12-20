@@ -388,7 +388,7 @@ public abstract class AdapterCallPersisterFactory implements DefaultEntityPersis
         @SuppressWarnings("unchecked")
         @Override
         public Iterable<DefaultPersistenceWorker<E, P>> getWorkers() {
-            return Arrays.<DefaultPersistenceWorker<E, P>> asList(new DefaultPersistenceWorker[] {
+            return Arrays.<DefaultPersistenceWorker<E, P>>asList(new DefaultPersistenceWorker[] {
                     insertWorker
             });
         }

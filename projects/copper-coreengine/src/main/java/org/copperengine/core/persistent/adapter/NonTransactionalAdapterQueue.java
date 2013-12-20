@@ -62,7 +62,8 @@ public class NonTransactionalAdapterQueue {
         @Override
         public void run() {
             waitMillis = 1;
-            loop: while (run) {
+            loop:
+            while (run) {
                 synchronized (reloadLock) {
                     try {
                         waitMillis *= 4;
@@ -87,7 +88,7 @@ public class NonTransactionalAdapterQueue {
                             waitMillis = 1;
                         queue.addAll(
                                 newElements
-                                );
+                        );
                     } catch (Exception e) {
                         logger.error("Dequeue error", e);
                     }

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * {@link org.copperengine.core.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_Base}. The following
  * change(s) are applied:
  * Replacing method calls of methods that directly or indirectly use COPPER wait
- * 
+ *
  * @author austermann
  */
 public class CompatibilityCheckWorkflow_E101 extends PersistentWorkflow<Serializable> {

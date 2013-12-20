@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * Adding a new method and using it somewhere/everywhere within the workflow
  * Important: The new method does not use COPPERs wait directly or indirectly and it does not declare to throw
  * InterruptException
- * 
+ *
  * @author austermann
  */
 @WorkflowDescription(alias = CompatibilityCheckWorkflowDef.NAME, majorVersion = 1, minorVersion = 0, patchLevelVersion = 0003)

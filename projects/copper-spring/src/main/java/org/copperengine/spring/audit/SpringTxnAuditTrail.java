@@ -54,7 +54,7 @@ public class SpringTxnAuditTrail extends BatchingAuditTrail {
                         @SuppressWarnings("unchecked")
                         BatchCommand<Executor, Command> cmd = createBatchCommand(e, true, NullCallback.instance);
                         @SuppressWarnings("unchecked")
-                        Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>> asList(cmd);
+                        Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>>asList(cmd);
                         cmd.executor().doExec(cmdList, con);
                     }
                 }.run(transactionManager, getDataSource(), createTransactionDefinition());

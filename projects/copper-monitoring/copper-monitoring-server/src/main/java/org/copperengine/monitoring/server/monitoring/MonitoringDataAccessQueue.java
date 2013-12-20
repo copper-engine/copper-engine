@@ -81,7 +81,7 @@ public class MonitoringDataAccessQueue {
             while (run) {
                 work();
             }
-        };
+        }
 
         ArrayList<Runnable> elements = new ArrayList<Runnable>(100);
 
@@ -122,8 +122,8 @@ public class MonitoringDataAccessQueue {
     }
 
     /**
-     * @see java.util.concurrent.BlockingQueue#put
      * @param runnable
+     * @see java.util.concurrent.BlockingQueue#put
      */
     public void put(MonitoringDataAwareRunnable runnable) {
         runnable.setMonitoringDataAccesor(monitoringDataAccesor);

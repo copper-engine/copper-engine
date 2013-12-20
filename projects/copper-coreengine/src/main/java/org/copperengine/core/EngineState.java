@@ -17,7 +17,7 @@ package org.copperengine.core;
 
 /**
  * State of a COPPER engine.
- * 
+ *
  * @author austermann
  */
 public enum EngineState {

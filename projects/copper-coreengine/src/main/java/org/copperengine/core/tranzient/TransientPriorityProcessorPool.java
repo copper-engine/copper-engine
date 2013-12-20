@@ -23,7 +23,7 @@ import org.copperengine.core.internal.WorkflowAccessor;
 /**
  * Default implementation of a {@link TransientProcessorPool}, backed by a priority queue and a configurable
  * amount of processor threads.
- * 
+ *
  * @author austermann
  */
 public class TransientPriorityProcessorPool extends PriorityProcessorPool implements TransientProcessorPool {

@@ -127,24 +127,27 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
             logger.debug("localBefore: " + currentFrame.localsToString());
         currentFrame = new StackInfo(lastDeclaredFrame);
         switch (arg0) {
-            case F_SAME: // representing frame with exactly the same locals as the previous frame and with the empty
-                         // stack.
+            case F_SAME:
+                // representing frame with exactly the same locals as the previous frame and with the empty stack.
                 currentFrame.stack.clear();
                 break;
-            case F_SAME1: // representing frame with exactly the same locals as the previous frame and with single value
-                          // on the stack (nStack is 1 and stack[0] contains value for the type of the stack item).
+            case F_SAME1:
+                // representing frame with exactly the same locals as the previous frame and with single value
+                // on the stack (nStack is 1 and stack[0] contains value for the type of the stack item).
                 Type t = StackInfo.deferLocalDesc(arg4[0]);
                 currentFrame.stack.clear();
                 currentFrame.stack.push(t);
                 break;
-            case F_APPEND: // representing frame with current locals are the same as the locals in the previous frame,
-                           // except that additional locals are defined (nLocal is 1, 2 or 3 and local elements contains
-                           // values representing added types).
+            case F_APPEND:
+                // representing frame with current locals are the same as the locals in the previous frame,
+                // except that additional locals are defined (nLocal is 1, 2 or 3 and local elements contains
+                // values representing added types).
                 currentFrame.appendLocals(arg1, arg2);
                 break;
-            case F_CHOP: // �Opcodes.F_CHOP representing frame with current locals are the same as the locals in the
-                         // previous frame, except that the last 1-3 locals are absent and with the empty stack (nLocals
-                         // is 1, 2 or 3).
+            case F_CHOP:
+                // Opcodes.F_CHOP representing frame with current locals are the same as the locals in the
+                // previous frame, except that the last 1-3 locals are absent and with the empty stack (nLocals
+                // is 1, 2 or 3).
                 currentFrame.removeLocals(arg1);
                 currentFrame.stack.clear();
                 break;
@@ -788,7 +791,8 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
     @Override
     public String[] getLocalNames(int lineNo, int count) {
         String[] names = new String[count];
-        outerLoop: for (int index = 0; index < count; ++index) {
+        outerLoop:
+        for (int index = 0; index < count; ++index) {
             names[index] = "var" + index;
             for (LocalVariable var : localVariables) {
                 if (var.index == index && var.fromLine[0] <= lineNo && var.toLine[0] >= lineNo) {
@@ -803,7 +807,8 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
     @Override
     public Type[] getLocalDescriptors(int lineNo, int count) {
         Type[] types = new Type[count];
-        outerLoop: for (int index = 0; index < count; ++index) {
+        outerLoop:
+        for (int index = 0; index < count; ++index) {
             for (LocalVariable var : localVariables) {
                 if (var.index == index && var.fromLine[0] <= lineNo && var.toLine[0] >= lineNo) {
                     types[index] = Type.getType(var.declaredDescriptor);

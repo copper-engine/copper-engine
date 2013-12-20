@@ -198,8 +198,8 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
 
     @Override
     public void restartWorkflowInstance(final String workflowInstanceId, final String engineid) throws RemoteException {
-        if (engines.get(engineid) instanceof PersistentProcessingEngineMXBean) {// TODO why is that not implemented for
-                                                                                // Transient
+        if (engines.get(engineid) instanceof PersistentProcessingEngineMXBean) {
+            // TODO why is that not implemented for Transient
             try {
                 ((PersistentProcessingEngineMXBean) engines.get(engineid)).restart(workflowInstanceId);
             } catch (Exception e) {
@@ -210,8 +210,8 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
 
     @Override
     public void restartAllErroneousInstances(final String engineid) throws RemoteException {
-        if (engines.get(engineid) instanceof PersistentProcessingEngineMXBean) {// TODO why is that not implemented for
-                                                                                // Transient
+        if (engines.get(engineid) instanceof PersistentProcessingEngineMXBean) {
+            // TODO why is that not implemented for Transient
             try {
                 ((PersistentProcessingEngineMXBean) engines.get(engineid)).restartAll();
             } catch (Exception e) {
@@ -290,7 +290,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
             WorkflowRepositoryInfo workflowRepositoryInfo = new WorkflowRepositoryInfo();
             WorkflowRepositoryMXBean workflowRepository = engine.getWorkflowRepository();
             workflowRepositoryInfo.setName(workflowRepository.getDescription());
-            workflowRepositoryInfo.setSrcPaths(Collections.<String> emptyList());
+            workflowRepositoryInfo.setSrcPaths(Collections.<String>emptyList());
             workflowRepositoryInfo.setWorkflowRepositorTyp(WorkflowRepositorTyp.UNKOWN);
             if (workflowRepository instanceof FileBasedWorkflowRepositoryMXBean) {
                 workflowRepositoryInfo.setWorkflowRepositorTyp(WorkflowRepositorTyp.FILE);

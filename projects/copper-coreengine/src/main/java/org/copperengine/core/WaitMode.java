@@ -17,7 +17,7 @@ package org.copperengine.core;
 
 /**
  * Wait mode for the asynch <code>Workflow.wait</code> method.
- * 
+ *
  * @author austermann
  */
 public enum WaitMode {

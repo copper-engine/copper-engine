@@ -68,8 +68,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
         try {
             if (counter != 0) {
 
-            }
-            else {
+            } else {
                 final String rv = execute(getEngine().createUUID(), 1000);
                 System.out.println(rv);
             }

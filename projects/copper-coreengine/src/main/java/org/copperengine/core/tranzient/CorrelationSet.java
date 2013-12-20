@@ -24,7 +24,7 @@ import org.copperengine.core.Workflow;
 
 /**
  * Internally used class.
- * 
+ *
  * @author austermann
  */
 class CorrelationSet {

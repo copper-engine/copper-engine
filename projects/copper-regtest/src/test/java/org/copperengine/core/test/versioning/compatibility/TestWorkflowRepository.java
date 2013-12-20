@@ -28,8 +28,7 @@ public class TestWorkflowRepository extends FileBasedWorkflowRepository {
     public Class<?> resolveClass(String classname) throws IOException, ClassNotFoundException {
         if (triggerClassname == null || overrideClassname == null || !classname.equals(triggerClassname)) {
             return super.resolveClass(classname);
-        }
-        else {
+        } else {
             return Class.forName(overrideClassname, false, super.getClassLoader());
         }
     }

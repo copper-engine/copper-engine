@@ -79,8 +79,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
         x++;
 
         // do 3 calls with a callback object that obtains the response
-        for (idx = 0; idx < 3; idx++)
-        {
+        for (idx = 0; idx < 3; idx++) {
             cb = createCallback();
             mockAdapter.foo("foo", cb);
             logger.debug("Request sent, waiting...");

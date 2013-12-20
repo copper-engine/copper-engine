@@ -47,8 +47,7 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
     static {
         if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
             dbmsAvailable = true;
-        }
-        else {
+        } else {
             final ConfigurableApplicationContext context = new OraclePersistentWorkflowTest().createContext(DS_CONTEXT);
             try {
                 DataSource ds = context.getBean(DataSource.class);
@@ -131,8 +130,7 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
                     assertNull(wfr.getResult());
                     assertNull(wfr.getException());
                     x++;
-                }
-                else {
+                } else {
                     Thread.sleep(50);
                 }
             }

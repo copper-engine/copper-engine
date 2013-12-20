@@ -32,7 +32,7 @@ public class MonitoringLogbackDataProviderTest {
         org.slf4j.Logger logger = LoggerFactory.getLogger(MonitoringLogbackDataProviderTest.class);
         logger.info("Hello world.");
         Mockito.verify(mock).submitLogEvent(Mockito.any(Date.class), Mockito.eq("INFO"), Mockito.anyString(), Mockito.eq("Hello world."));
-    };
+    }
 
     @Test
     public void test_after_config_update() {
@@ -62,5 +62,5 @@ public class MonitoringLogbackDataProviderTest {
 
         logger.trace("Hello world.");
         Mockito.verifyNoMoreInteractions(mock);
-    };
+    }
 }

@@ -27,7 +27,7 @@ import org.copperengine.core.batcher.BatchCommand;
 
 /**
  * PostgreSQL implementation of the {@link ScottyDBStorageInterface}.
- * 
+ *
  * @author austermann
  */
 public class PostgreSQLDialect extends AbstractSqlDialect {

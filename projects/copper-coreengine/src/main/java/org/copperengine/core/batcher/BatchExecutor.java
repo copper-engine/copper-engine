@@ -20,10 +20,10 @@ import java.util.Collection;
 
 /**
  * Abstract base implementation of the {@link BatchExecutorBase} interface.
- * 
- * @author austermann
+ *
  * @param <E>
  * @param <T>
+ * @author austermann
  */
 public abstract class BatchExecutor<E extends BatchExecutor<E, T>, T extends BatchCommand<E, T>> implements BatchExecutorBase<E, T> {
 

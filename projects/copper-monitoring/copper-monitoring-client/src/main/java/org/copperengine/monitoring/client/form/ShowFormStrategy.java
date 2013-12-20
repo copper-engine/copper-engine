@@ -30,7 +30,7 @@ public abstract class ShowFormStrategy<E extends Node> {
 
     /**
      * called if form is closed
-     * 
+     *
      * @param closeListner
      */
     public void setOnCloseListener(CloseListener closeListner) {

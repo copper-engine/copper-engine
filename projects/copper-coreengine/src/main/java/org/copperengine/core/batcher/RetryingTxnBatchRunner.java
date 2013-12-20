@@ -42,8 +42,7 @@ public class RetryingTxnBatchRunner<E extends BatchExecutorBase<E, T>, T extends
         try {
             if (dataSource == null) {
                 base.doExec(commands, null);
-            }
-            else {
+            } else {
                 new RetryingTransaction<Void>(dataSource) {
                     @Override
                     protected Void execute() throws Exception {
@@ -59,8 +58,7 @@ public class RetryingTxnBatchRunner<E extends BatchExecutorBase<E, T>, T extends
             if (commands.size() == 1) {
                 BatchCommand<?, ?> cmd = commands.iterator().next();
                 cmd.callback().unhandledException(e);
-            }
-            else {
+            } else {
                 logger.warn("batch execution failed - trying execution of separate commands ", e);
                 for (BatchCommand<E, T> cmd : commands) {
                     List<BatchCommand<E, T>> l = new ArrayList<BatchCommand<E, T>>();

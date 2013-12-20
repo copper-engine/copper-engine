@@ -73,8 +73,7 @@ public class LocalVarTransientWorkflow1 extends Workflow<String> {
 
         if (counter != 0) {
 
-        }
-        else {
+        } else {
             String abc = "test";
             ccid = getEngine().createUUID() + abc;
             x = execute(ccid, timeout);
@@ -103,22 +102,18 @@ public class LocalVarTransientWorkflow1 extends Workflow<String> {
                 ccid = getEngine().createUUID();
                 x = execute(ccid, timeout);
                 logger.debug("{}", x);
-            }
-            else {
+            } else {
                 if (counter != 0) {
                     ccid = getEngine().createUUID();
                     x = execute(ccid, timeout);
                     logger.debug("{}", x);
-                }
-                else {
+                } else {
                     if (counter != 0) {
 
-                    }
-                    else {
+                    } else {
                         if (counter != 0) {
 
-                        }
-                        else {
+                        } else {
                             ccid = getEngine().createUUID();
                             x = execute(ccid, timeout);
                             logger.debug("{}", x);

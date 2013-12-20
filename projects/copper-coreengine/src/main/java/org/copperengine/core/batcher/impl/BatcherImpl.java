@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * COPPERs default implementation of the {@link Batcher} interface
- * 
+ *
  * @author austermann
  */
 public class BatcherImpl implements Batcher, BatcherMXBean {

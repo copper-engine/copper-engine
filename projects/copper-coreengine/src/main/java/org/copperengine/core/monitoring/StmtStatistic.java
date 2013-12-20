@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Helper class for collecting SQL statement related runtime statistics.
  * Offers a start and stop method, that encapsulate the measurement of the elapsed time.
- * 
+ *
  * @author austermann
  */
 public class StmtStatistic {
@@ -36,7 +36,7 @@ public class StmtStatistic {
 
     /**
      * creates a new StmtStatistic with a name only.
-     * 
+     *
      * @param measurePointId
      * @param runtimeStatisticsCollector
      */

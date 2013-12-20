@@ -19,10 +19,10 @@ package org.copperengine.core.persistent;
  * Default implementation of the {@link EntityPersister} interface. This implementation plugs in
  * DefaultPersistenceWorkers and is convenient to implement. On limitations see {@link DefaultWorkflowPersistencePlugin}
  * .
- * 
- * @author Roland Scheel
+ *
  * @param <E>
- *            The entity class this persister handles
+ *         The entity class this persister handles
+ * @author Roland Scheel
  */
 public class DefaultEntityPersister<E> implements EntityPersister<E> {
 
@@ -35,8 +35,7 @@ public class DefaultEntityPersister<E> implements EntityPersister<E> {
     public DefaultEntityPersister(PersistentWorkflow<?> workflow, DefaultPersistenceWorker<E, ? extends EntityPersister<E>> selectionWorker
             , DefaultPersistenceWorker<E, ? extends EntityPersister<E>> insertionWorker
             , DefaultPersistenceWorker<E, ? extends EntityPersister<E>> updateWorker
-            , DefaultPersistenceWorker<E, ? extends EntityPersister<E>> deletionWorker)
-    {
+            , DefaultPersistenceWorker<E, ? extends EntityPersister<E>> deletionWorker) {
         this.workflow = workflow;
         this.selectionWorker = selectionWorker;
         this.insertionWorker = insertionWorker;
@@ -44,8 +43,7 @@ public class DefaultEntityPersister<E> implements EntityPersister<E> {
         this.deletionWorker = deletionWorker;
     }
 
-    public DefaultEntityPersister(PersistentWorkflow<?> workflow, DefaultPersisterSimpleCRUDSharedRessources<E, ? extends DefaultEntityPersister<E>> sharedRessources)
-    {
+    public DefaultEntityPersister(PersistentWorkflow<?> workflow, DefaultPersisterSimpleCRUDSharedRessources<E, ? extends DefaultEntityPersister<E>> sharedRessources) {
         this.workflow = workflow;
         this.selectionWorker = sharedRessources.selectWorker;
         this.insertionWorker = sharedRessources.insertWorker;

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Fast db based audit trail implementation. It is possible to extend the COPPER audit trail with custom attributes.
  * See JUnitTest {@code BatchingAuditTrailTest.testCustomTable()} for an example.
- * 
+ *
  * @author austermann
  */
 public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {

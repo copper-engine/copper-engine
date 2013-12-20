@@ -33,7 +33,7 @@ class BatcherQueue {
 
     enum State {
         STARTED, STOPPING, STOPPED
-    };
+    }
 
     static class BatchInfo {
 
@@ -239,7 +239,8 @@ class BatcherQueue {
     public List<BatchCommand<?, ?>> poll() throws InterruptedException {
         lock.lockInterruptibly();
         try {
-            outerLoop: while (true) {
+            outerLoop:
+            while (true) {
                 ++numThreads;
                 Condition myCondition = null;
                 if (!unusedConditions.isEmpty())
@@ -252,7 +253,8 @@ class BatcherQueue {
                 } else {
                     freeConditions.add(myCondition);
                 }
-                waitLoop: while (true) {
+                waitLoop:
+                while (true) {
                     int queuePosition = findQueuePosition(myCondition);
                     if (queuePosition == -1) {
                         if (state == State.STOPPED) {

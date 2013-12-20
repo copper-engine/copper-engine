@@ -23,6 +23,7 @@ import javafx.scene.Node;
 public class GenericFilterController<T> extends BaseFilterController<T> {
 
     public static final URL EMPTY_DUMMY_URL;
+
     static {
         try {
             EMPTY_DUMMY_URL = new URL("http://a");

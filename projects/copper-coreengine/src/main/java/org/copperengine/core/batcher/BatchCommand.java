@@ -18,10 +18,10 @@ package org.copperengine.core.batcher;
 /**
  * A BatchCommand is one task executed in a Batch.
  * BatchCommands with the same executor are batched by the {@link Batcher}
- * 
- * @author austermann
+ *
  * @param <E>
  * @param <T>
+ * @author austermann
  */
 public interface BatchCommand<E extends BatchExecutorBase<E, T>, T extends BatchCommand<E, T>> {
 

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * Utility class to help find the delta to persist upon saving of a persistent workflow.
  * This class will work out-of-the-box for instances assignable to PersistenEntity. If user classes shall be handled,
  * override the methods {@link #equals(Object, Object)}, {@link #identifier(Object)} and {@link #clone(Object)}.
- * 
+ *
  * @author Roland Scheel
  */
 public class MementoUtil {
@@ -50,7 +50,7 @@ public class MementoUtil {
 
     /**
      * Remember this entity after loading
-     * 
+     *
      * @param entity
      */
     public void addMementoEntity(Object entity) {
@@ -59,7 +59,7 @@ public class MementoUtil {
 
     /**
      * Use this entity as the new
-     * 
+     *
      * @param entity
      */
     public void addCurrentEntity(Object entity) {

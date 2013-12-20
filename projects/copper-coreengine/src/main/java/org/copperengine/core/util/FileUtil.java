@@ -47,8 +47,7 @@ public class FileUtil {
         for (File f : files) {
             if (f.isDirectory()) {
                 processChecksum(f, crc32, fileSuffix);
-            }
-            else {
+            } else {
                 if (fileSuffix == null || f.getName().endsWith(fileSuffix)) {
                     crc32.update(Long.toString(f.lastModified()).getBytes());
                     crc32.update(f.getAbsolutePath().getBytes());
@@ -87,8 +86,7 @@ public class FileUtil {
             for (int i = 0; i < files.length; i++) {
                 if (files[i].isDirectory()) {
                     deleteDirectory(files[i]);
-                }
-                else {
+                } else {
                     files[i].delete();
                 }
             }

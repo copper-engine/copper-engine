@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the {@link PriorityProcessorPool} interface for use in the {@link PersistentScottyEngine}.
- * 
+ *
  * @author austermann
  */
 public class PersistentPriorityProcessorPool extends PriorityProcessorPool implements PersistentProcessorPool, PersistentPriorityProcessorPoolMXBean {
@@ -148,8 +148,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
                     if (logger.isTraceEnabled())
                         logger.trace("Dequeue returned nothing. Waiting...");
                     doWait(emptyQueueWaitMSec);
-                }
-                else {
+                } else {
                     if (logger.isTraceEnabled())
                         logger.trace("Dequeue returned " + rv.size() + " elements.");
                     for (Workflow<?> wf : rv) {

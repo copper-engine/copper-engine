@@ -21,7 +21,7 @@ import java.lang.reflect.InvocationTargetException;
  * Utiltiy class to signal detached execution states.
  * In most cases {@link DefaultAcknowledge#waitForAcknowledge} can be employed to obtain a safe result on the caller
  * side.
- * 
+ *
  * @author rscheel
  */
 public interface Acknowledge {

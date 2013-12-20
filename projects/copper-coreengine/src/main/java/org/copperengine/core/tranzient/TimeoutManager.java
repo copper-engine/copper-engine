@@ -22,7 +22,7 @@ import org.copperengine.core.ProcessingEngine;
 /**
  * public interface for a timeout manager used in a transient processing engine.
  * The timeout manager is responsible to wake up waiting workflow instances in case of a timeout.
- * 
+ *
  * @author austermann
  */
 public interface TimeoutManager {

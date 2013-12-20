@@ -18,7 +18,7 @@ package org.copperengine.core;
 /**
  * This exception class is for COPPER internal use only!!!
  * Do not try to throw or handle this exception!
- * 
+ *
  * @author austermann
  */
 public final class InterruptException extends Throwable {

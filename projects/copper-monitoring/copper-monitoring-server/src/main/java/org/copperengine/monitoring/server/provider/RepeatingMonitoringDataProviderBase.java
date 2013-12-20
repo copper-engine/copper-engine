@@ -21,6 +21,7 @@ public abstract class RepeatingMonitoringDataProviderBase extends MonitoringData
 
     private final class PollThread extends Thread {
         public volatile boolean stop;
+
         {
             setDaemon(true);
         }

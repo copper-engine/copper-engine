@@ -111,7 +111,7 @@ public class TestJavaSerializer extends StandardJavaSerializer {
             @Override
             protected java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException {
                 return wfRepo.resolveClass(desc.getName());
-            };
+            }
         } : new ObjectInputStream(bais);
         Serializable o = (Serializable) ois.readObject();
         ois.close();

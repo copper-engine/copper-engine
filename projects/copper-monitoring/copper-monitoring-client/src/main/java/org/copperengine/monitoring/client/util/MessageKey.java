@@ -42,7 +42,7 @@ public enum MessageKey {
     logsGroup_title("logsGroup.title"),
     logs_title("logs.title"),
     databaseMonitoring_title("databaseMonitoring.title"),
-    provider_title("provider.title"), ;
+    provider_title("provider.title");
 
     private final String value;
 

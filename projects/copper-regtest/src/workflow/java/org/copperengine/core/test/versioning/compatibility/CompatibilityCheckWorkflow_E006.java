@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * Incompatible change example E006
  * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * Adding a field that is not serializable and not transient (when using standard Java serialisation)
- * 
+ *
  * @author austermann
  */
 @WorkflowDescription(alias = CompatibilityCheckWorkflowDef.NAME, majorVersion = 1, minorVersion = 0, patchLevelVersion = 6)

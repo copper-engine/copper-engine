@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * A builder for {@link DefaultPersistenceContextFactoryConfiguration}.
- * 
+ *
  * @author Roland Scheel
  */
 public class DefaultPersistenceContextFactoryConfigurationBuilder {

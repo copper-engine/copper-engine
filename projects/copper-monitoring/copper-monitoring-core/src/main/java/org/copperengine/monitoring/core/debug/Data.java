@@ -59,7 +59,7 @@ public abstract class Data implements Serializable, DisplayableNode {
         @Override
         public String getDisplayValue() {
             return "<null>";
-        };
+        }
 
         /*
          * the compiler does not know about this special method. It is a fake method that alters the behaviour of

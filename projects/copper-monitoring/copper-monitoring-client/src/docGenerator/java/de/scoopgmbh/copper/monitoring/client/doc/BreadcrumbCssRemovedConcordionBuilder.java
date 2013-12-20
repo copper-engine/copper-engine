@@ -81,284 +81,284 @@ import org.concordion.internal.util.Check;
 
 public class BreadcrumbCssRemovedConcordionBuilder implements ConcordionExtender {
 
-	private Announcer<ConcordionBuildListener> listeners = Announcer.to(ConcordionBuildListener.class);
+    private Announcer<ConcordionBuildListener> listeners = Announcer.to(ConcordionBuildListener.class);
 
-	public static final String NAMESPACE_CONCORDION_2007 = "http://www.concordion.org/2007/concordion";
-	private static final String PROPERTY_OUTPUT_DIR = "concordion.output.dir";
-	private static final String PROPERTY_EXTENSIONS = "concordion.extensions";
+    public static final String NAMESPACE_CONCORDION_2007 = "http://www.concordion.org/2007/concordion";
+    private static final String PROPERTY_OUTPUT_DIR = "concordion.output.dir";
+    private static final String PROPERTY_EXTENSIONS = "concordion.extensions";
 //	private static final String EMBEDDED_STYLESHEET_RESOURCE = "/org/concordion/internal/resource/embedded.css";
 
-	private SpecificationLocator specificationLocator = new ClassNameBasedSpecificationLocator();
-	private Source source = new ClassPathSource();
-	private Target target = null;
-	private CommandRegistry commandRegistry = new CommandRegistry();
-	private DocumentParser documentParser = new DocumentParser(commandRegistry);
-	private SpecificationReader specificationReader;
-	private EvaluatorFactory evaluatorFactory = new SimpleEvaluatorFactory();
-	private SpecificationCommand specificationCommand = new SpecificationCommand();
-	private AssertEqualsCommand assertEqualsCommand = new AssertEqualsCommand();
-	private AssertTrueCommand assertTrueCommand = new AssertTrueCommand();
-	private AssertFalseCommand assertFalseCommand = new AssertFalseCommand();
-	private ExecuteCommand executeCommand = new ExecuteCommand();
-	private RunCommand runCommand = new RunCommand();
-	private VerifyRowsCommand verifyRowsCommand = new VerifyRowsCommand();
-	private EchoCommand echoCommand = new EchoCommand();
-	private ThrowableCaughtPublisher throwableListenerPublisher = new ThrowableCaughtPublisher();
-	private LinkedHashMap<String, Resource> resourceToCopyMap = new LinkedHashMap<String, Resource>();
-	private List<SpecificationProcessingListener> specificationProcessingListeners = new ArrayList<SpecificationProcessingListener>();
+    private SpecificationLocator specificationLocator = new ClassNameBasedSpecificationLocator();
+    private Source source = new ClassPathSource();
+    private Target target = null;
+    private CommandRegistry commandRegistry = new CommandRegistry();
+    private DocumentParser documentParser = new DocumentParser(commandRegistry);
+    private SpecificationReader specificationReader;
+    private EvaluatorFactory evaluatorFactory = new SimpleEvaluatorFactory();
+    private SpecificationCommand specificationCommand = new SpecificationCommand();
+    private AssertEqualsCommand assertEqualsCommand = new AssertEqualsCommand();
+    private AssertTrueCommand assertTrueCommand = new AssertTrueCommand();
+    private AssertFalseCommand assertFalseCommand = new AssertFalseCommand();
+    private ExecuteCommand executeCommand = new ExecuteCommand();
+    private RunCommand runCommand = new RunCommand();
+    private VerifyRowsCommand verifyRowsCommand = new VerifyRowsCommand();
+    private EchoCommand echoCommand = new EchoCommand();
+    private ThrowableCaughtPublisher throwableListenerPublisher = new ThrowableCaughtPublisher();
+    private LinkedHashMap<String, Resource> resourceToCopyMap = new LinkedHashMap<String, Resource>();
+    private List<SpecificationProcessingListener> specificationProcessingListeners = new ArrayList<SpecificationProcessingListener>();
 
-	public BreadcrumbCssRemovedConcordionBuilder() {
-		this.throwableListenerPublisher = new ThrowableCaughtPublisher();
-		withThrowableListener(new ThrowableRenderer());
+    public BreadcrumbCssRemovedConcordionBuilder() {
+        this.throwableListenerPublisher = new ThrowableCaughtPublisher();
+        withThrowableListener(new ThrowableRenderer());
 
-		commandRegistry.register("", "specification", specificationCommand);
-		withApprovedCommand(NAMESPACE_CONCORDION_2007, "run", runCommand);
-		withApprovedCommand(NAMESPACE_CONCORDION_2007, "execute", executeCommand);
-		withApprovedCommand(NAMESPACE_CONCORDION_2007, "set", new SetCommand());
-		withApprovedCommand(NAMESPACE_CONCORDION_2007, "assertEquals", assertEqualsCommand);
-		withApprovedCommand(NAMESPACE_CONCORDION_2007, "assertTrue", assertTrueCommand);
-		withApprovedCommand(NAMESPACE_CONCORDION_2007, "assertFalse", assertFalseCommand);
-		withApprovedCommand(NAMESPACE_CONCORDION_2007, "verifyRows", verifyRowsCommand);
-		withApprovedCommand(NAMESPACE_CONCORDION_2007, "echo", echoCommand);
+        commandRegistry.register("", "specification", specificationCommand);
+        withApprovedCommand(NAMESPACE_CONCORDION_2007, "run", runCommand);
+        withApprovedCommand(NAMESPACE_CONCORDION_2007, "execute", executeCommand);
+        withApprovedCommand(NAMESPACE_CONCORDION_2007, "set", new SetCommand());
+        withApprovedCommand(NAMESPACE_CONCORDION_2007, "assertEquals", assertEqualsCommand);
+        withApprovedCommand(NAMESPACE_CONCORDION_2007, "assertTrue", assertTrueCommand);
+        withApprovedCommand(NAMESPACE_CONCORDION_2007, "assertFalse", assertFalseCommand);
+        withApprovedCommand(NAMESPACE_CONCORDION_2007, "verifyRows", verifyRowsCommand);
+        withApprovedCommand(NAMESPACE_CONCORDION_2007, "echo", echoCommand);
 
-		AssertResultRenderer assertRenderer = new AssertResultRenderer();
-		withAssertEqualsListener(assertRenderer);
-		withAssertTrueListener(assertRenderer);
-		withAssertFalseListener(assertRenderer);
-		withVerifyRowsListener(new VerifyRowsResultRenderer());
-		withRunListener(new RunResultRenderer());
-		withDocumentParsingListener(new DocumentStructureImprover());
-		withDocumentParsingListener(new MetadataCreator());
+        AssertResultRenderer assertRenderer = new AssertResultRenderer();
+        withAssertEqualsListener(assertRenderer);
+        withAssertTrueListener(assertRenderer);
+        withAssertFalseListener(assertRenderer);
+        withVerifyRowsListener(new VerifyRowsResultRenderer());
+        withRunListener(new RunResultRenderer());
+        withDocumentParsingListener(new DocumentStructureImprover());
+        withDocumentParsingListener(new MetadataCreator());
 //		String stylesheetContent = IOUtil.readResourceAsString(EMBEDDED_STYLESHEET_RESOURCE);
-		//withEmbeddedCSS(stylesheetContent);
-	}
+        //withEmbeddedCSS(stylesheetContent);
+    }
 
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withSource(Source source) {
-		this.source = source;
-		return this;
-	}
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withSource(Source source) {
+        this.source = source;
+        return this;
+    }
 
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withTarget(Target target) {
-		this.target = target;
-		return this;
-	}
-
-
-	public BreadcrumbCssRemovedConcordionBuilder withEvaluatorFactory(EvaluatorFactory evaluatorFactory) {
-		this.evaluatorFactory = evaluatorFactory;
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withThrowableListener(ThrowableCaughtListener throwableListener) {
-		this.throwableListenerPublisher = new ThrowableCaughtPublisher();
-		throwableListenerPublisher.addThrowableListener(throwableListener);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withAssertEqualsListener(AssertEqualsListener listener) {
-		assertEqualsCommand.addAssertEqualsListener(listener);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withAssertTrueListener(AssertTrueListener listener) {
-		assertTrueCommand.addAssertListener(listener);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withAssertFalseListener(AssertFalseListener listener) {
-		assertFalseCommand.addAssertListener(listener);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withVerifyRowsListener(VerifyRowsListener listener) {
-		verifyRowsCommand.addVerifyRowsListener(listener);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withRunListener(RunListener listener) {
-		runCommand.addRunListener(listener);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withExecuteListener(ExecuteListener listener) {
-		executeCommand.addExecuteListener(listener);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withDocumentParsingListener(DocumentParsingListener listener) {
-		documentParser.addDocumentParsingListener(listener);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withSpecificationProcessingListener(SpecificationProcessingListener listener) {
-		specificationProcessingListeners.add(listener);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withBuildListener(ConcordionBuildListener listener) {
-		listeners.addListener(listener);
-		return this;
-	}
-
-	private BreadcrumbCssRemovedConcordionBuilder withApprovedCommand(String namespaceURI, String commandName, Command command) {
-		ThrowableCatchingDecorator throwableCatchingDecorator = new ThrowableCatchingDecorator(new LocalTextDecorator(command));
-		throwableCatchingDecorator.addThrowableListener(throwableListenerPublisher);
-		Command decoratedCommand = throwableCatchingDecorator;
-		commandRegistry.register(namespaceURI, commandName, decoratedCommand);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withCommand(String namespaceURI, String commandName, Command command) {
-		Check.notEmpty(namespaceURI, "Namespace URI is mandatory");
-		Check.notEmpty(commandName, "Command name is mandatory");
-		Check.notNull(command, "Command is null");
-		Check.isFalse(namespaceURI.contains("concordion.org"), "The namespace URI for user-contributed command '" + commandName + "' "
-				+ "must not contain 'concordion.org'. Use your own domain name instead.");
-		return withApprovedCommand(namespaceURI, commandName, command);
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withResource(String sourcePath, Resource targetResource) {
-		resourceToCopyMap.put(sourcePath, targetResource);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withEmbeddedCSS(String css) {
-		StylesheetEmbedder embedder = new StylesheetEmbedder(css);
-		withDocumentParsingListener(embedder);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withLinkedCSS(String cssPath, Resource targetResource) {
-		withResource(cssPath, targetResource);
-		StylesheetLinker cssLinker = new StylesheetLinker(targetResource);
-		withDocumentParsingListener(cssLinker);
-		withSpecificationProcessingListener(cssLinker);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withEmbeddedJavaScript(String javaScript) {
-		JavaScriptEmbedder embedder = new JavaScriptEmbedder(javaScript);
-		withDocumentParsingListener(embedder);
-		return this;
-	}
-
-	@Override
-	public BreadcrumbCssRemovedConcordionBuilder withLinkedJavaScript(String jsPath, Resource targetResource) {
-		withResource(jsPath, targetResource);
-		JavaScriptLinker javaScriptLinker = new JavaScriptLinker(targetResource);
-		withDocumentParsingListener(javaScriptLinker);
-		withSpecificationProcessingListener(javaScriptLinker);
-		return this;
-	}
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withTarget(Target target) {
+        this.target = target;
+        return this;
+    }
 
 
-	public Concordion build() {
-		if (target == null) {
-			target = new FileTarget(getBaseOutputDir());
-		}
-		XMLParser xmlParser = new XMLParser();
+    public BreadcrumbCssRemovedConcordionBuilder withEvaluatorFactory(EvaluatorFactory evaluatorFactory) {
+        this.evaluatorFactory = evaluatorFactory;
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withThrowableListener(ThrowableCaughtListener throwableListener) {
+        this.throwableListenerPublisher = new ThrowableCaughtPublisher();
+        throwableListenerPublisher.addThrowableListener(throwableListener);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withAssertEqualsListener(AssertEqualsListener listener) {
+        assertEqualsCommand.addAssertEqualsListener(listener);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withAssertTrueListener(AssertTrueListener listener) {
+        assertTrueCommand.addAssertListener(listener);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withAssertFalseListener(AssertFalseListener listener) {
+        assertFalseCommand.addAssertListener(listener);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withVerifyRowsListener(VerifyRowsListener listener) {
+        verifyRowsCommand.addVerifyRowsListener(listener);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withRunListener(RunListener listener) {
+        runCommand.addRunListener(listener);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withExecuteListener(ExecuteListener listener) {
+        executeCommand.addExecuteListener(listener);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withDocumentParsingListener(DocumentParsingListener listener) {
+        documentParser.addDocumentParsingListener(listener);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withSpecificationProcessingListener(SpecificationProcessingListener listener) {
+        specificationProcessingListeners.add(listener);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withBuildListener(ConcordionBuildListener listener) {
+        listeners.addListener(listener);
+        return this;
+    }
+
+    private BreadcrumbCssRemovedConcordionBuilder withApprovedCommand(String namespaceURI, String commandName, Command command) {
+        ThrowableCatchingDecorator throwableCatchingDecorator = new ThrowableCatchingDecorator(new LocalTextDecorator(command));
+        throwableCatchingDecorator.addThrowableListener(throwableListenerPublisher);
+        Command decoratedCommand = throwableCatchingDecorator;
+        commandRegistry.register(namespaceURI, commandName, decoratedCommand);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withCommand(String namespaceURI, String commandName, Command command) {
+        Check.notEmpty(namespaceURI, "Namespace URI is mandatory");
+        Check.notEmpty(commandName, "Command name is mandatory");
+        Check.notNull(command, "Command is null");
+        Check.isFalse(namespaceURI.contains("concordion.org"), "The namespace URI for user-contributed command '" + commandName + "' "
+                + "must not contain 'concordion.org'. Use your own domain name instead.");
+        return withApprovedCommand(namespaceURI, commandName, command);
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withResource(String sourcePath, Resource targetResource) {
+        resourceToCopyMap.put(sourcePath, targetResource);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withEmbeddedCSS(String css) {
+        StylesheetEmbedder embedder = new StylesheetEmbedder(css);
+        withDocumentParsingListener(embedder);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withLinkedCSS(String cssPath, Resource targetResource) {
+        withResource(cssPath, targetResource);
+        StylesheetLinker cssLinker = new StylesheetLinker(targetResource);
+        withDocumentParsingListener(cssLinker);
+        withSpecificationProcessingListener(cssLinker);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withEmbeddedJavaScript(String javaScript) {
+        JavaScriptEmbedder embedder = new JavaScriptEmbedder(javaScript);
+        withDocumentParsingListener(embedder);
+        return this;
+    }
+
+    @Override
+    public BreadcrumbCssRemovedConcordionBuilder withLinkedJavaScript(String jsPath, Resource targetResource) {
+        withResource(jsPath, targetResource);
+        JavaScriptLinker javaScriptLinker = new JavaScriptLinker(targetResource);
+        withDocumentParsingListener(javaScriptLinker);
+        withSpecificationProcessingListener(javaScriptLinker);
+        return this;
+    }
+
+
+    public Concordion build() {
+        if (target == null) {
+            target = new FileTarget(getBaseOutputDir());
+        }
+        XMLParser xmlParser = new XMLParser();
 
 //		specificationCommand.addSpecificationListener(new BreadcrumbRenderer(source, xmlParser));
 //		specificationCommand.addSpecificationListener(new PageFooterRenderer(target));
 
-		specificationReader = new XMLSpecificationReader(source, xmlParser, documentParser);
+        specificationReader = new XMLSpecificationReader(source, xmlParser, documentParser);
 
-		addExtensions();
-		copyResources();
+        addExtensions();
+        copyResources();
 
-		addSpecificationListeners();
+        addSpecificationListeners();
 
-		specificationCommand.addSpecificationListener(new SpecificationExporter(target));
+        specificationCommand.addSpecificationListener(new SpecificationExporter(target));
 
-		listeners.announce().concordionBuilt(new ConcordionBuildEvent(target));
+        listeners.announce().concordionBuilt(new ConcordionBuildEvent(target));
 
-		return new Concordion(specificationLocator, specificationReader, evaluatorFactory);
-	}
+        return new Concordion(specificationLocator, specificationReader, evaluatorFactory);
+    }
 
-	private void addSpecificationListeners() {
-		for (SpecificationProcessingListener listener : specificationProcessingListeners) {
-			specificationCommand.addSpecificationListener(listener);
-		}
-	}
+    private void addSpecificationListeners() {
+        for (SpecificationProcessingListener listener : specificationProcessingListeners) {
+            specificationCommand.addSpecificationListener(listener);
+        }
+    }
 
-	private void copyResources() {
-		for (Entry<String, Resource> resourceToCopy : resourceToCopyMap.entrySet()) {
-			String sourcePath = resourceToCopy.getKey();
-			Resource targetResource = resourceToCopy.getValue();
-			try {
-				InputStream inputStream = source.createInputStream(new Resource(sourcePath));
-				target.copyTo(targetResource, inputStream);
-			} catch (IOException e) {
-				throw new RuntimeException("Failed to copy " + sourcePath + " to target " + targetResource, e);
-			}
-		}
-	}
+    private void copyResources() {
+        for (Entry<String, Resource> resourceToCopy : resourceToCopyMap.entrySet()) {
+            String sourcePath = resourceToCopy.getKey();
+            Resource targetResource = resourceToCopy.getValue();
+            try {
+                InputStream inputStream = source.createInputStream(new Resource(sourcePath));
+                target.copyTo(targetResource, inputStream);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to copy " + sourcePath + " to target " + targetResource, e);
+            }
+        }
+    }
 
-	private void addExtensions() {
-		String extensionProp = System.getProperty(PROPERTY_EXTENSIONS);
-		if (extensionProp != null) {
-			String[] extensions = extensionProp.split("\\s*,\\s*");
-			for (String className : extensions) {
-				addExtension(className);
-			}
-		}
-	}
+    private void addExtensions() {
+        String extensionProp = System.getProperty(PROPERTY_EXTENSIONS);
+        if (extensionProp != null) {
+            String[] extensions = extensionProp.split("\\s*,\\s*");
+            for (String className : extensions) {
+                addExtension(className);
+            }
+        }
+    }
 
-	private void addExtension(String className) {
-		Class<?> extensionClass;
-		try {
-			extensionClass = Class.forName(className);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Cannot find extension '" + className + "' on classpath", e);
-		}
-		Object extensionObject;
-		try {
-			extensionObject = extensionClass.newInstance();
-		} catch (InstantiationException e) {
-			throw new RuntimeException("Cannot instantiate extension '" + className + "'", e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException("Extension '" + className + "' or constructor are inaccessible", e);
-		}
+    private void addExtension(String className) {
+        Class<?> extensionClass;
+        try {
+            extensionClass = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Cannot find extension '" + className + "' on classpath", e);
+        }
+        Object extensionObject;
+        try {
+            extensionObject = extensionClass.newInstance();
+        } catch (InstantiationException e) {
+            throw new RuntimeException("Cannot instantiate extension '" + className + "'", e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Extension '" + className + "' or constructor are inaccessible", e);
+        }
 
-		ConcordionExtension extension;
-		try {
-			extension = (ConcordionExtension) extensionObject;
-		} catch (ClassCastException e) {
-			try {
-				ConcordionExtensionFactory factory = (ConcordionExtensionFactory) extensionObject;
-				extension = factory.createExtension();
-			} catch (ClassCastException e1) {
-				String message = String.format("Extension class '%s' must implement '%s' or '%s'", className,
-						ConcordionExtension.class.getName(), ConcordionExtensionFactory.class.getName());
-				throw new RuntimeException(message);
-			}
-		}
-		extension.addTo(this);
-	}
+        ConcordionExtension extension;
+        try {
+            extension = (ConcordionExtension) extensionObject;
+        } catch (ClassCastException e) {
+            try {
+                ConcordionExtensionFactory factory = (ConcordionExtensionFactory) extensionObject;
+                extension = factory.createExtension();
+            } catch (ClassCastException e1) {
+                String message = String.format("Extension class '%s' must implement '%s' or '%s'", className,
+                        ConcordionExtension.class.getName(), ConcordionExtensionFactory.class.getName());
+                throw new RuntimeException(message);
+            }
+        }
+        extension.addTo(this);
+    }
 
-	private File getBaseOutputDir() {
-		String outputPath = System.getProperty(PROPERTY_OUTPUT_DIR);
-		if (outputPath == null) {
-			return new File(System.getProperty("java.io.tmpdir"), "concordion");
-		}
-		return new File(outputPath);
-	}
+    private File getBaseOutputDir() {
+        String outputPath = System.getProperty(PROPERTY_OUTPUT_DIR);
+        if (outputPath == null) {
+            return new File(System.getProperty("java.io.tmpdir"), "concordion");
+        }
+        return new File(outputPath);
+    }
 
 }

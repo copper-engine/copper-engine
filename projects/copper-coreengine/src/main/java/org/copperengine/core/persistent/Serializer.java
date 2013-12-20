@@ -24,7 +24,7 @@ import org.copperengine.core.common.WorkflowRepository;
 /**
  * Service for serializing and deserializing {@link Workflow} instances and {@link Response} instances.
  * The implementation decides how to serialize an instance, e.g. using standard java serialization or XML or...
- * 
+ *
  * @author austermann
  */
 public interface Serializer {

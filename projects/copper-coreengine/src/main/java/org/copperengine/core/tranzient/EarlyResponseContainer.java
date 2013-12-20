@@ -29,21 +29,21 @@ import org.copperengine.core.Response;
  * wait is already there. In this case the response is removed from the container.
  * The container may implement a strategy to remove reponses for which no wait from a corresponding workflow instance is
  * called.
- * 
+ *
  * @author austermann
  */
 public interface EarlyResponseContainer {
 
     /**
      * Puts an early reponse into the container
-     * 
+     *
      * @param response
      */
     public void put(final Response<?> response);
 
     /**
      * Gets and removes the responses for the provided correlationId if they exists.
-     * 
+     *
      * @param correlationId
      * @return the responses or an empty list if there is no response for the provided correlationId.
      */

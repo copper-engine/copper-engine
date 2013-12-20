@@ -321,7 +321,7 @@ public class PersisterFactoryGenerator {
     }
 
     private static boolean isBoxedPrimitiveType(Class<?> javaType) {
-        return Arrays.<Class<?>> asList(Byte.class, Short.class, Integer.class, Long.class, Boolean.class, Float.class, Double.class).contains(javaType);
+        return Arrays.<Class<?>>asList(Byte.class, Short.class, Integer.class, Long.class, Boolean.class, Float.class, Double.class).contains(javaType);
     }
 
     private static Class<?> getPrimitiveJavaType(Class<?> javaType) {
@@ -356,7 +356,7 @@ public class PersisterFactoryGenerator {
             return null;
         int idx = reg.start;
         StringBuilder prefix = new StringBuilder();
-        for (; --idx > -1;) {
+        for (; --idx > -1; ) {
             if (Character.isWhitespace(template.charAt(idx))) {
                 prefix.append(template.charAt(idx));
             } else {
@@ -401,7 +401,7 @@ public class PersisterFactoryGenerator {
                 + reg.linePrefix + "\"WHERE tab.\\\"WORKFLOWID\\\" IN (\"";
         template = replace(template, reg, selectStmt);
 
-        for (;;) {
+        for (; ; ) {
             reg = findRegion(template, "SQL_SELECT_GETMEMBERS");
             if (reg == null)
                 break;

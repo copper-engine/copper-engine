@@ -29,6 +29,7 @@ public enum DBProcessingStateWorkaround {
     ERROR(5);
 
     static final Map<Integer, DBProcessingStateWorkaround> states = new HashMap<Integer, DBProcessingStateWorkaround>();
+
     static {
         for (DBProcessingStateWorkaround state : DBProcessingStateWorkaround.values()) {
             states.put(state.key(), state);

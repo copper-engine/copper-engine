@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of the {@link TimeoutManager} interface.
- * 
+ *
  * @author austermann
  */
 public final class DefaultTimeoutManager extends Thread implements TimeoutManager {
@@ -78,7 +78,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 
                     if (logger.isDebugEnabled())
                         logger.debug("Activated at: " + System.currentTimeMillis());
-                    for (Iterator<Map.Entry<Long, TimeoutSlot>> i = slots.entrySet().iterator(); i.hasNext();) {
+                    for (Iterator<Map.Entry<Long, TimeoutSlot>> i = slots.entrySet().iterator(); i.hasNext(); ) {
                         Map.Entry<Long, TimeoutSlot> entry = i.next();
                         long timeoutTime = entry.getKey();
                         if (timeoutTime <= System.currentTimeMillis()) {
@@ -86,8 +86,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
                             if (logger.isDebugEnabled())
                                 logger.debug("Expired slot found at: " + timeoutTime);
                             expiredCorrelationIds.addAll(entry.getValue().getCorrelationIds());
-                        }
-                        else {
+                        } else {
                             break;
                         }
                     }
@@ -107,8 +106,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
                         logger.debug("There are currently no timeout slots - waiting indefinitely...");
                         nextWakeupTime = 0;
                         slots.wait();
-                    }
-                    else {
+                    } else {
                         nextWakeupTime = i.next().getValue().getTimeoutTS();
                         long delay = nextWakeupTime - System.currentTimeMillis();
                         if (delay > 0) {

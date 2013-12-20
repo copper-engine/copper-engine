@@ -26,7 +26,7 @@ import org.copperengine.core.Workflow;
 /**
  * Priority queue for {@link Workflow} instances.
  * Entries in the queue are ordered using their priority and enqueue timestamp
- * 
+ *
  * @author austermann
  */
 public class WfPriorityQueue implements Queue<Workflow<?>> {
@@ -51,15 +51,14 @@ public class WfPriorityQueue implements Queue<Workflow<?>> {
             public int compare(QueueEntry o1, QueueEntry o2) {
                 if (o1.workflow.getPriority() != o2.workflow.getPriority()) {
                     return o1.workflow.getPriority() - o2.workflow.getPriority();
-                }
-                else {
+                } else {
                     if (o1.enqueueTS == o2.enqueueTS)
                         return 0;
                     if (o1.enqueueTS > o2.enqueueTS)
                         return 1;
                     return -1;
                 }
-            };
+            }
         });
     }
 

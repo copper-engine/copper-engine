@@ -34,8 +34,7 @@ public class MySqlSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersisten
     static {
         if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
             dbmsAvailable = true;
-        }
-        else {
+        } else {
             final ConfigurableApplicationContext context = new MySqlSpringTxnPersistentWorkflowTest().createContext(DS_CONTEXT);
             try {
                 DataSource ds = context.getBean(DataSource.class);

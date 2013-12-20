@@ -20,7 +20,7 @@ package org.copperengine.core.persistent.txn;
  * COPPER comes with a simple build in Transaction Mgmt (see {@link CopperTransactionController} and
  * a transaction controller that uses Springs Transaction Managament (see {@code SpringTransactionController} in project
  * copper-spring).
- * 
+ *
  * @author austermann
  */
 public interface TransactionController {

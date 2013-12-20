@@ -20,7 +20,7 @@ import java.util.Set;
 
 /**
  * Internally used class.
- * 
+ *
  * @author austermann
  */
 final class TimeoutSlot {

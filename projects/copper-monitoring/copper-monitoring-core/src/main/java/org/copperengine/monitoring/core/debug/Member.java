@@ -42,7 +42,7 @@ public class Member implements Serializable, DisplayableNode {
 
     @Override
     public Collection<DisplayableNode> getChildren() {
-        return Arrays.<DisplayableNode> asList(value);
+        return Arrays.<DisplayableNode>asList(value);
     }
 
     @Override

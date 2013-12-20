@@ -24,7 +24,7 @@ import org.springframework.context.ApplicationContextAware;
 /**
  * Connects SPRING to COPPER. Enables COPPER to inject dependencies into workflow instances using a spring
  * container/context.
- * 
+ *
  * @author austermann
  */
 public class SpringDependencyInjector extends AbstractDependencyInjector implements ApplicationContextAware {

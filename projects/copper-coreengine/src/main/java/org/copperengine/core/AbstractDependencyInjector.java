@@ -48,8 +48,7 @@ public abstract class AbstractDependencyInjector implements DependencyInjector {
 
     private static List<InjectionDescription> create(Class<?> c) {
         List<InjectionDescription> list = new ArrayList<InjectionDescription>();
-        for (Method m : c.getMethods())
-        {
+        for (Method m : c.getMethods()) {
             AutoWire annotation = m.getAnnotation(AutoWire.class);
             if (annotation != null) {
                 String id = "".equals(annotation.beanId()) ? m.getName().substring(3, 4).toLowerCase() + m.getName().substring(4) : annotation.beanId();

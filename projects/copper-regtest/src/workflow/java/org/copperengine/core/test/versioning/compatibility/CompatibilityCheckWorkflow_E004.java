@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * Incompatible change example E003
  * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * Changing the type of a field
- * 
+ *
  * @author austermann
  */
 public class CompatibilityCheckWorkflow_E004 extends PersistentWorkflow<Serializable> {

@@ -119,8 +119,7 @@ class ResponseLoader extends ConcurrentBatchedWorker {
                 if (response != null) {
                     r = (Response<?>) serializer.deserializeResponse(response);
                     wf.addResponseId(r.getResponseId());
-                }
-                else if (isTimedOut) {
+                } else if (isTimedOut) {
                     // timeout
                     r = new Response<Object>(cid);
                 }

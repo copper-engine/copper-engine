@@ -21,7 +21,7 @@ import org.copperengine.core.common.ProcessorPool;
 
 /**
  * Base interface for a {@link ProcessorPool} used in a transient {@link ProcessingEngine}
- * 
+ *
  * @author austermann
  */
 public interface TransientProcessorPool extends ProcessorPool {

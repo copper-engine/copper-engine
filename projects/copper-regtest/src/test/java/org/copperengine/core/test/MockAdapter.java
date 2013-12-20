@@ -50,8 +50,7 @@ public class MockAdapter {
         invokationCounter.incrementAndGet();
         if (delay <= 0) {
             cb.notify(param, bestEffortAck);
-        }
-        else {
+        } else {
             pool.schedule(new Runnable() {
                 @Override
                 public void run() {
@@ -71,8 +70,7 @@ public class MockAdapter {
         invokationCounter.incrementAndGet();
         if (overrideDelay <= 0) {
             engine.notify(new Response<String>(cid, param, null), bestEffortAck);
-        }
-        else {
+        } else {
             pool.schedule(new Runnable() {
                 @Override
                 public void run() {
@@ -100,8 +98,7 @@ public class MockAdapter {
         invokationCounter.incrementAndGet();
         if (delay <= 0) {
             engine.notify(new Response<Integer>(cid, c + 1, null), bestEffortAck);
-        }
-        else {
+        } else {
             pool.schedule(new Runnable() {
                 @Override
                 public void run() {

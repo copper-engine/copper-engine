@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Implementation of the {@link IdFactory} interface, using an {@link AtomicLong}.
  * The AtomicLong is initialized with <code>System.currentTimeMillis()*1000</code> at system start.
- * 
+ *
  * @author austermann
  */
 public class AtomicLongIdFactory implements IdFactory {

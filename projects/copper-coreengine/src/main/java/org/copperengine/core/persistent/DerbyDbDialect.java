@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Apache Derby implementation of the {@link DatabaseDialect} interface.
- * 
+ *
  * @author austermann
  */
 public class DerbyDbDialect extends AbstractSqlDialect {
@@ -124,8 +124,7 @@ public class DerbyDbDialect extends AbstractSqlDialect {
                             stmt.close();
                         }
                         sb = new StringBuilder(256);
-                    }
-                    else {
+                    } else {
                         sb.append("\n");
                     }
                 }
@@ -163,8 +162,7 @@ public class DerbyDbDialect extends AbstractSqlDialect {
         }
         if (!gotSQLExc) {
             logger.warn("Database did not shut down normally");
-        }
-        else {
+        } else {
             logger.info("Database shut down normally");
         }
     }

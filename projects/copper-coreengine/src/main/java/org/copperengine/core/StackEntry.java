@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 /**
  * For internal use only.
- * 
+ *
  * @author austermann
  */
 public class StackEntry implements Serializable {

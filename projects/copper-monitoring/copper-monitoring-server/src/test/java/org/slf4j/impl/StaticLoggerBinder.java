@@ -34,7 +34,7 @@ import ch.qos.logback.core.util.StatusPrinter;
  * testcompile dependency
  * The binding of {@link LoggerFactory} class with an actual instance of {@link ILoggerFactory} is performed using
  * information returned by this class.
- * 
+ *
  * @author Ceki G&uuml;lc&uuml;</a>
  */
 public class StaticLoggerBinder implements LoggerFactoryBinder {

@@ -22,7 +22,7 @@ import org.copperengine.core.persistent.Serializer;
 
 /**
  * MySQL implementation of the {@link DatabaseDialect} interface.
- * 
+ *
  * @author austermann
  */
 public class MySqlMonitoringDbDialect extends BaseDatabaseMonitoringDialect {

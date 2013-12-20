@@ -63,8 +63,7 @@ public class NetworkServiceProviderImpl implements NetworkServiceProvider {
                     final boolean success = random.nextBoolean();
                     logger.info("Sending async reponse: correlationId={}, success={}", correlationId, success);
                     port.resetMailboxResponse(correlationId, success, 0);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     logger.error("Unable to send async response", e);
                 }
             }

@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * COPPER processing engine that offers persistent workflow processing.
- * 
+ *
  * @author austermann
  */
 public class PersistentScottyEngine extends AbstractProcessingEngine implements PersistentProcessingEngine, PersistentProcessingEngineMXBean {
@@ -68,7 +68,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
      * If true, the engine notifies all processor pools about a new reponse available.
      * This may lead to shorter latency times, but may also increase CPU load or database I/O,
      * so use with care
-     * 
+     *
      * @param notifyProcessorPoolsOnResponse
      */
     public void setNotifyProcessorPoolsOnResponse(boolean notifyProcessorPoolsOnResponse) {
@@ -184,13 +184,13 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
     /**
      * Enqueues the specified list of workflow instances into the engine for execution.
-     * 
+     *
      * @param list
-     *            the list of workflow instances to run
+     *         the list of workflow instances to run
      * @param con
-     *            connection used for the inserting the workflow to the database
+     *         connection used for the inserting the workflow to the database
      * @throws CopperException
-     *             if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id
      */
     public void run(List<Workflow<?>> list, Connection con) throws CopperException {
         if (logger.isTraceEnabled()) {
@@ -234,13 +234,13 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
     /**
      * Enqueues the specified workflow instance into the engine for execution.
-     * 
+     *
      * @param wf
-     *            the workflow instance to run
+     *         the workflow instance to run
      * @param con
-     *            connection used for the inserting the workflow to the database
+     *         connection used for the inserting the workflow to the database
      * @throws CopperException
-     *             if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id
      */
     public void run(Workflow<?> wf, Connection con) throws CopperException {
         if (logger.isTraceEnabled())
@@ -400,7 +400,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     private List<WaitHook> getAndRemoveWaitHooks(Workflow<?> wf) {
         synchronized (waitHookMap) {
             List<WaitHook> l = waitHookMap.remove(wf.getId());
-            return l == null ? Collections.<WaitHook> emptyList() : l;
+            return l == null ? Collections.<WaitHook>emptyList() : l;
         }
     }
 

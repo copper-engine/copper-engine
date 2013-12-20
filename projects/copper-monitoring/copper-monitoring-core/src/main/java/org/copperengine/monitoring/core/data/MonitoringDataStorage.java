@@ -276,7 +276,7 @@ public class MonitoringDataStorage {
 
         @Override
         public void write(byte[] b, int off, int len) throws IOException {
-        };
+        }
     };
 
     void ensureCurrentFile(int additionalBytes) {
@@ -353,7 +353,7 @@ public class MonitoringDataStorage {
 
     /**
      * @param monitoringData
-     *            {@link MonitoringData#getTimeStamp() must be not null}
+     *         {@link MonitoringData#getTimeStamp() must be not null}
      */
     public void write(MonitoringData monitoringData) {
         assert monitoringData.getTimeStamp() != null;
@@ -442,9 +442,9 @@ public class MonitoringDataStorage {
 
     /**
      * @param fromDate
-     *            null = no lower bound
+     *         null = no lower bound
      * @param toDate
-     *            null = no upper bound
+     *         null = no upper bound
      */
     public Iterable<MonitoringData> read(Date fromDate, Date toDate) {
         return read(fromDate, toDate, false);
@@ -503,11 +503,12 @@ public class MonitoringDataStorage {
         return new Iterable<MonitoringData>() {
 
             @Override
+            @SuppressWarnings("unchecked")
             public Iterator<MonitoringData> iterator() {
                 return new Iterator<MonitoringData>() {
 
-                    @SuppressWarnings("unchecked")
                     // Has to be sorted in order of ascending earliestTimestamp. openFiles() depends on that
+                    @SuppressWarnings("unchecked")
                     ArrayList<TargetFile> files = (ArrayList<TargetFile>) filesToRead.clone();
                     ArrayList<OpenedFile> openFiles = new ArrayList<OpenedFile>();
                     long currentTimestamp;

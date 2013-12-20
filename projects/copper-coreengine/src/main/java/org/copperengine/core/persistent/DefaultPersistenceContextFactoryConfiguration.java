@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Configuration used in {@link DefaultPersistenceContextFactory} and {@link DefaultWorkflowPersistencePlugin}. Users
  * should not create this class directly but use {@link DefaultPersistenceContextFactoryConfigurationBuilder}.
- * 
+ *
  * @author Roland Scheel
  */
 public class DefaultPersistenceContextFactoryConfiguration {

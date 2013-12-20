@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Mock implementation of the {@link CommandCallback} interface.
  * Successful command executions are ignored, exceptions are logged.
- * 
- * @author austermann
+ *
  * @param <T>
+ * @author austermann
  */
 public class NullCallback<T extends BatchCommand<?, T>> implements CommandCallback<T> {
 

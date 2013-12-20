@@ -39,7 +39,7 @@ import org.copperengine.management.model.WorkflowInfo;
 
 /**
  * Abstract base implementation of the COPPER {@link ProcessingEngine} interface.
- * 
+ *
  * @author austermann
  */
 public abstract class AbstractProcessingEngine implements ProcessingEngine, ProcessingEngineMXBean {

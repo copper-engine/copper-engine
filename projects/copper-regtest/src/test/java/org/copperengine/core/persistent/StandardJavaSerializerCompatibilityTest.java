@@ -52,7 +52,7 @@ public class StandardJavaSerializerCompatibilityTest {
         StandardJavaSerializer standardJavaSerializer = new StandardJavaSerializer();
 
         FileBasedWorkflowRepository wfRepo = new FileBasedWorkflowRepository();
-        wfRepo.setSourceDirs(Arrays.asList(new String[]{ "src/workflow/java" }));
+        wfRepo.setSourceDirs(Arrays.asList(new String[] { "src/workflow/java" }));
         wfRepo.setTargetDir("build/compiled_workflow");
         wfRepo.start();
         try {

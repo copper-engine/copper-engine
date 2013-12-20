@@ -67,8 +67,7 @@ public class MultiPPoolPersistentTestWF extends PersistentWorkflow<String> {
         x++;
 
         setProcessorPoolId("P#GAMMA");
-        for (idx = 0; idx < 3; idx++)
-        {
+        for (idx = 0; idx < 3; idx++) {
             cb = createCallback();
             mockAdapter.foo("foo", cb);
             logger.debug("Request sent, waiting...");

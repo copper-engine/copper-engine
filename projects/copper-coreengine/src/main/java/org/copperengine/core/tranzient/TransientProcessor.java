@@ -26,7 +26,7 @@ import org.copperengine.core.internal.WorkflowAccessor;
 
 /**
  * Internally used class.
- * 
+ *
  * @author austermann
  */
 class TransientProcessor extends Processor {

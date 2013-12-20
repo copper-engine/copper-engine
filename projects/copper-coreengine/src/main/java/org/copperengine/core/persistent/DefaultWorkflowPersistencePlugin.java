@@ -22,7 +22,7 @@ import java.sql.SQLException;
  * Default implementation for the {@link WorkflowPersistencePlugin}. This implementation handles primitive persistence
  * for {@link PersistentWorkflow} members.
  * It is not capable of handling data-based dependencies between entities concerning insertion and deletion order.
- * 
+ *
  * @author Roland Scheel
  */
 public class DefaultWorkflowPersistencePlugin implements WorkflowPersistencePlugin {

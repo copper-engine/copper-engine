@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A file system based workflow repository for COPPER.
- * 
+ *
  * @author austermann
  */
 public class FileBasedWorkflowRepository extends AbstractWorkflowRepository implements FileBasedWorkflowRepositoryMXBean {
@@ -103,7 +103,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     /**
      * Sets the list of source archive URLs. The source archives must be ZIP compressed archives, containing COPPER
      * workflows as .java files.
-     * 
+     *
      * @param sourceArchiveUrls
      */
     public void setSourceArchiveUrls(List<String> sourceArchiveUrls) {
@@ -155,7 +155,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     /**
      * The repository will check the source directory every <code>checkIntervalMSec</code> milliseconds
      * for changed workflow files. If it finds a changed file, all contained workflows are recompiled.
-     * 
+     *
      * @param checkIntervalMSec
      */
     public void setCheckIntervalMSec(int checkIntervalMSec) {
@@ -198,7 +198,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     /**
      * mandatory parameter - must point to a local directory with read/write privileges. COPPER will store the
      * compiled workflow class files there.
-     * 
+     *
      * @param targetDir
      */
     public void setTargetDir(String targetDir) {
@@ -256,7 +256,9 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     @Override
     public java.lang.Class<?> resolveClass(String classname) throws java.io.IOException, ClassNotFoundException {
         return Class.forName(classname, false, volatileState.classLoader);
-    };
+    }
+
+    ;
 
     static class ObserverThread extends Thread {
 
@@ -296,7 +298,9 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
             }
             logger.info("Stopping observation");
         }
-    };
+    }
+
+    ;
 
     @Override
     public synchronized void start() {
@@ -467,8 +471,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
                     if (entry.isDirectory()) {
                         File f = new File(additionalSourcesDir, entry.getName());
                         f.mkdirs();
-                    }
-                    else {
+                    } else {
                         File f = new File(additionalSourcesDir, entry.getName());
                         BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(f));
                         while ((size = zipInputStream.read(buffer, 0, buffer.length)) != -1) {
@@ -510,7 +513,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         for (String classname : allClassNames) {
             Clazz clazz = clazzMap.get(classname);
             Clazz startClazz = clazz;
-            inner: while (true) {
+            inner:
+            while (true) {
                 startClazz.aggregatedInterruptableMethods.addAll(clazz.interruptableMethods);
                 if ("org/copperengine/core/Workflow".equals(clazz.superClassname) || "org/copperengine/core/persistent/PersistentWorkflow".equals(clazz.superClassname)) {
                     break inner;
@@ -633,8 +637,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
             for (int i = 0; i < files.length; i++) {
                 if (files[i].isDirectory()) {
                     deleteDirectory(files[i]);
-                }
-                else {
+                } else {
                     files[i].delete();
                 }
             }

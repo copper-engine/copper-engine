@@ -37,10 +37,10 @@ public class DefaultPersistenceTest {
     public PersistentWorkflow<?> expectedWorkflow;
 
     static class MasterEntity {
-    };
+    }
 
     static class ChildEntity {
-    };
+    }
 
     abstract class PersisterFactoryBase<E, T extends DefaultEntityPersister<E>> implements DefaultEntityPersisterFactory<E, T> {
 
@@ -220,7 +220,7 @@ public class DefaultPersistenceTest {
 
         @Override
         public Collection<Class<?>> getEntityClassesDependingOn() {
-            return Arrays.<Class<?>> asList(MasterEntity.class);
+            return Arrays.<Class<?>>asList(MasterEntity.class);
         }
 
         @Override
@@ -244,7 +244,7 @@ public class DefaultPersistenceTest {
 
         @Override
         public Collection<Class<?>> getEntityClassesDependingOn() {
-            return Arrays.<Class<?>> asList(ChildEntity.class);
+            return Arrays.<Class<?>>asList(ChildEntity.class);
         }
 
     }
@@ -336,7 +336,7 @@ public class DefaultPersistenceTest {
         DefaultWorkflowPersistencePlugin plugin = new DefaultWorkflowPersistencePlugin(configuration);
         expectedWorkflow = new TestWorkflow();
         try {
-            plugin.onWorkflowsDeleted(null, Arrays.<PersistentWorkflow<?>> asList(expectedWorkflow, expectedWorkflow));
+            plugin.onWorkflowsDeleted(null, Arrays.<PersistentWorkflow<?>>asList(expectedWorkflow, expectedWorkflow));
             checkOrder(work, onDelete);
         } catch (SQLException e) {
             Assert.fail();
@@ -352,7 +352,7 @@ public class DefaultPersistenceTest {
         childPersisterFactory.updateWorkerCreated = false;
         work.clear();
         try {
-            plugin.onWorkflowsSaved(null, Arrays.<PersistentWorkflow<?>> asList(expectedWorkflow, expectedWorkflow));
+            plugin.onWorkflowsSaved(null, Arrays.<PersistentWorkflow<?>>asList(expectedWorkflow, expectedWorkflow));
             checkOrder(work, onSave);
         } catch (SQLException e) {
             Assert.fail();
@@ -368,7 +368,7 @@ public class DefaultPersistenceTest {
         childPersisterFactory.updateWorkerCreated = false;
         work.clear();
         try {
-            plugin.onWorkflowsLoaded(null, Arrays.<PersistentWorkflow<?>> asList(expectedWorkflow, expectedWorkflow));
+            plugin.onWorkflowsLoaded(null, Arrays.<PersistentWorkflow<?>>asList(expectedWorkflow, expectedWorkflow));
             checkOrder(work, onLoad);
         } catch (SQLException e) {
             Assert.fail();

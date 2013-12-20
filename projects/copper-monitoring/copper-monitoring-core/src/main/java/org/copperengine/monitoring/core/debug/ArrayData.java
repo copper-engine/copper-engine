@@ -34,7 +34,7 @@ public class ArrayData extends Data {
 
     @Override
     public Collection<DisplayableNode> getChildren() {
-        return Arrays.<DisplayableNode> asList(data);
+        return Arrays.<DisplayableNode>asList(data);
     }
 
     @Override

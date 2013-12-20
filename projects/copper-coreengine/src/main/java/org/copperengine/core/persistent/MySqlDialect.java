@@ -27,7 +27,7 @@ import org.copperengine.core.batcher.BatchCommand;
 
 /**
  * MySQL implementation of the {@link DatabaseDialect} interface.
- * 
+ *
  * @author austermann
  */
 public class MySqlDialect extends AbstractSqlDialect {

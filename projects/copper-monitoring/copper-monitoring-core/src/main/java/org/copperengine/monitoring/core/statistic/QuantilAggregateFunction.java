@@ -28,7 +28,7 @@ public class QuantilAggregateFunction<T> implements AggregateFunction<T, TimeVal
 
     /**
      * 0 bis 1 e.g 0.5 median
-     * 
+     *
      * @param quantil
      */
     public QuantilAggregateFunction(double quantil, DoubleConverter<T> doubleConverter) {

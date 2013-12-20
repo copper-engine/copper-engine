@@ -22,7 +22,7 @@ import org.copperengine.core.db.utility.RetryingTransaction;
 /**
  * Implementation of the {@link TransactionController} interface that internally uses COPPERs
  * {@link RetryingTransaction} for transaction management
- * 
+ *
  * @author austermann
  */
 public class CopperTransactionController implements TransactionController {

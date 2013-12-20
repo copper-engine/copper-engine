@@ -44,7 +44,7 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * Exports all COPPER MXBeans to the JMX MBeanServer.
- * 
+ *
  * @author austermann
  */
 public class JmxExporter implements ApplicationContextAware {

@@ -19,49 +19,35 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by IntelliJ IDEA.
- * User: harry
- * Date: 03.06.2005
- * Time: 12:38:15
- * To change this template use File | Settings | File Templates.
- */
-public class VarProperties extends Properties
-{
+public class VarProperties extends Properties {
     private static final long serialVersionUID = 1L;
 
     private static final Pattern p = Pattern.compile("\\$\\{([^{}]+)\\}");
 
     // private static final Pattern p = Pattern.compile("\\$\\{.+\\}" );
 
-    public String getProperty(String key)
-    {
+    public String getProperty(String key) {
         String vorher = super.getProperty(key);
         String nachher = null;
-        while (vorher != null && !vorher.equals(nachher = doReplacements(vorher)))
-        {
+        while (vorher != null && !vorher.equals(nachher = doReplacements(vorher))) {
             vorher = nachher;
         }
         return nachher;
     }
 
-    private String doReplacements(String value)
-    {
+    private String doReplacements(String value) {
         if (value == null)
             return null;
         Matcher m = p.matcher(value);
         StringBuffer sb = new StringBuffer();
         String replacement = null;
-        while (m.find())
-        {
-            if (replacement == null)
-            {
+        while (m.find()) {
+            if (replacement == null) {
                 replacement = System.getProperty(m.group(1));
                 if (replacement != null)
                     replacement = replacement.replaceAll("\\$", "\\\\\\$");
             }
-            if (replacement != null && replacement.length() > 0)
-            {
+            if (replacement != null && replacement.length() > 0) {
                 m = m.appendReplacement(sb, replacement);
             }
         }

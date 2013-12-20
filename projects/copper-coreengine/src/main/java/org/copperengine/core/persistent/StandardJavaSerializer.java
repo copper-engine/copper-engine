@@ -33,7 +33,7 @@ import org.copperengine.core.common.WorkflowRepository;
  * Implementation of the {@link Serializer} interface using java's standard object serialization.
  * If compression is enabled, the serialized objects are compressed if the size of the corresponding
  * byte array is larger than a configured threshold.
- * 
+ *
  * @author austermann
  */
 public class StandardJavaSerializer implements Serializer {
@@ -103,12 +103,12 @@ public class StandardJavaSerializer implements Serializer {
             @Override
             protected java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException {
                 return wfRepo.resolveClass(classnameReplacement(desc.getName()));
-            };
+            }
         } : new ObjectInputStream(bais) {
             @Override
             protected java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException {
                 return Class.forName(classnameReplacement(desc.getName()));
-            };
+            }
         };
         Serializable o = (Serializable) ois.readObject();
         ois.close();

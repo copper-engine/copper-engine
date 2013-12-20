@@ -72,8 +72,7 @@ public class MonitoringDataStorageTest {
 
         byte[] b;
 
-        public HugeData()
-        {
+        public HugeData() {
             b = new byte[1024 * 2048];
             new Random().nextBytes(b);
         }

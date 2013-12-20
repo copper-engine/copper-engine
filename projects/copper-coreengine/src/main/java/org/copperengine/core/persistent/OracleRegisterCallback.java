@@ -121,16 +121,14 @@ class OracleRegisterCallback {
                     if (sw.getData() != null) {
                         updateWfiStmt.setString(idx++, sw.getData().length() > 4000 ? null : sw.getData());
                         updateWfiStmt.setString(idx++, sw.getData().length() > 4000 ? sw.getData() : null);
-                    }
-                    else {
+                    } else {
                         updateWfiStmt.setString(idx++, null);
                         updateWfiStmt.setString(idx++, null);
                     }
                     if (sw.getObjectState() != null) {
                         updateWfiStmt.setString(idx++, sw.getObjectState().length() > 4000 ? null : sw.getObjectState());
                         updateWfiStmt.setString(idx++, sw.getObjectState().length() > 4000 ? sw.getObjectState() : null);
-                    }
-                    else {
+                    } else {
                         updateWfiStmt.setString(idx++, null);
                         updateWfiStmt.setString(idx++, null);
                     }

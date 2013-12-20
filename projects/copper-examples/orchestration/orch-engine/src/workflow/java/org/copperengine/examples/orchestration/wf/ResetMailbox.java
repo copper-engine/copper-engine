@@ -55,12 +55,10 @@ public class ResetMailbox extends PersistentWorkflow<ResetMailboxData> {
         logger.info("workflow instance started");
         if (!checkSecretOK()) {
             sendSms("Authentication failed");
-        }
-        else {
+        } else {
             if (resetMailbox()) {
                 sendSms("Mailbox reset successfully executed");
-            }
-            else {
+            } else {
                 sendSms("Unable to reset mailbox - please try again later");
             }
         }
@@ -68,7 +66,7 @@ public class ResetMailbox extends PersistentWorkflow<ResetMailboxData> {
     }
 
     private boolean checkSecretOK() throws InterruptException {
-        for (int i = 0;; i++) {
+        for (int i = 0; ; i++) {
             try {
                 GetCustomersByMsisdnRequest parameters = new GetCustomersByMsisdnRequest();
                 parameters.setMsisdn(getData().getMsisdn());
@@ -80,8 +78,7 @@ public class ResetMailbox extends PersistentWorkflow<ResetMailboxData> {
             }
             if (i < 5) {
                 sleep(30);
-            }
-            else {
+            } else {
                 break;
             }
         }
@@ -89,20 +86,17 @@ public class ResetMailbox extends PersistentWorkflow<ResetMailboxData> {
     }
 
     private boolean resetMailbox() throws InterruptException {
-        for (int i = 0;; i++) {
+        for (int i = 0; ; i++) {
             final String correlationId = networkServiceAdapter.resetMailbox(getData().getMsisdn());
             wait(WaitMode.ALL, 5 * 60 * 60 * 1000, correlationId);
             final Response<ResetMailboxResponse> response = getAndRemoveResponse(correlationId);
             if (response.isTimeout()) {
                 logger.warn("resetMailbox request timed out");
-            }
-            else if (response.getException() != null) {
+            } else if (response.getException() != null) {
                 logger.error("resetMailbox request failed", response.getException());
-            }
-            else if (!response.getResponse().isSuccess()) {
+            } else if (!response.getResponse().isSuccess()) {
                 logger.info("resetMailbox request failed - success = false in response");
-            }
-            else {
+            } else {
                 logger.info("resetMailbox succeeded");
                 return true;
             }

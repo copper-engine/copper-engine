@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * Compatible change example 0001
  * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * renaming of variable/parameter names;
- * 
+ *
  * @author austermann
  */
 @WorkflowDescription(alias = CompatibilityCheckWorkflowDef.NAME, majorVersion = 1, minorVersion = 0, patchLevelVersion = 0001)

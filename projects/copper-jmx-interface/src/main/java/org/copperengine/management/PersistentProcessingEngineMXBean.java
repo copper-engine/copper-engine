@@ -19,7 +19,7 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
 
     /**
      * Trigger restart a workflow instance that is in the error state.
-     * 
+     *
      * @param workflowInstanceId
      * @throws Exception
      */
@@ -27,7 +27,7 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
 
     /**
      * Trigger restart all workflow instances that are in error state.
-     * 
+     *
      * @throws Exception
      */
     public void restartAll() throws Exception;

@@ -157,7 +157,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
     /**
      * wrap query to limit result rows.
      * E.g Oracle: SELECT * from T WHERE ROWNUM <= 10
-     * 
+     *
      * @return new query string
      */
     public abstract String getResultLimitingQuery(String query, long limit);

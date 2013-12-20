@@ -75,8 +75,7 @@ public abstract class Spock2GTestWF extends Workflow<String> {
         logger.debug("Now sleeping for 2 seconds...");
         wait(WaitMode.ALL, 2000, getEngine().createUUID());
 
-        for (idx = 0; idx < 3; idx++)
-        {
+        for (idx = 0; idx < 3; idx++) {
             cb = createCallback();
             mockAdapter.foo("foo", cb);
             logger.debug("Request sent, waiting...");

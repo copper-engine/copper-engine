@@ -19,7 +19,7 @@ import org.copperengine.core.common.ProcessorPool;
 
 /**
  * Subclass of {@link ProcessorPool} adding some persistence related methods.
- * 
+ *
  * @author austermann
  */
 public interface PersistentProcessorPool extends ProcessorPool {

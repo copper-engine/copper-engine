@@ -55,8 +55,7 @@ public class DBMockAdapter {
         invokationCounter.incrementAndGet();
         if (delay <= 0) {
             doNotify(param, cid);
-        }
-        else {
+        } else {
             pool.schedule(new Runnable() {
                 @Override
                 public void run() {

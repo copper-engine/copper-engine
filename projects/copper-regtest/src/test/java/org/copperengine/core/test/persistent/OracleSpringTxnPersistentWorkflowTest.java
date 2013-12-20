@@ -34,8 +34,7 @@ public class OracleSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersiste
     static {
         if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
             dbmsAvailable = true;
-        }
-        else {
+        } else {
             final ConfigurableApplicationContext context = new OracleSpringTxnPersistentWorkflowTest().createContext(DS_CONTEXT);
             try {
                 DataSource ds = context.getBean(DataSource.class);

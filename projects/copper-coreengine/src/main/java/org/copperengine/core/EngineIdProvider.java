@@ -17,7 +17,7 @@ package org.copperengine.core;
 
 /**
  * Simple interface for providing an ID to an engine
- * 
+ *
  * @author austermann
  */
 public interface EngineIdProvider {

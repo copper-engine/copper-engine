@@ -101,7 +101,7 @@ public class BatchingAuditTrailTest {
         @SuppressWarnings("unchecked")
         BatchCommand<Executor, Command> cmd = batchingAuditTrail.createBatchCommand(e, true, NullCallback.instance);
         @SuppressWarnings("unchecked")
-        Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>> asList(cmd);
+        Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>>asList(cmd);
         cmd.executor().doExec(cmdList, con);
     }
 

@@ -54,7 +54,7 @@ public class BatcherImplTest {
         public long targetTime() {
             return targetTime;
         }
-    };
+    }
 
     static final class TestBatchExecutor extends BatchExecutor<TestBatchExecutor, TestBatchCommand> {
 

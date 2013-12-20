@@ -89,8 +89,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
                 CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), tmpClassLoader, false, pw);
                 if (sw.toString().length() != 0) {
                     logger.error("CheckClassAdapter.verify failed for class " + cn.name + ":\n" + sw.toString());
-                }
-                else {
+                } else {
                     logger.info("CheckClassAdapter.verify succeeded for class " + cn.name);
                 }
 
@@ -125,8 +124,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
                                 throw new ClassFormatError("Copper workflow " + name + " is not transformed!");
                         }
                         logger.info(c.getName() + " created");
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         c = super.loadClass(name, false);
                     }
                 }

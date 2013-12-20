@@ -17,7 +17,7 @@ package org.copperengine.core.audit;
 
 /**
  * Callback interface for asynchronous audit trail calls.
- * 
+ *
  * @author austermann
  */
 public interface AuditTrailCallback {

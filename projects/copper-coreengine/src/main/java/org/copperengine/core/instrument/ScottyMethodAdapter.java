@@ -283,8 +283,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             incStackPos();
             if ("main".equals(name) && "()V".equals(desc)) {
                 visitInsn(RETURN);
-            }
-            else {
+            } else {
                 visitTypeInsn(NEW, "org/copperengine/core/InterruptException");
                 visitInsn(DUP);
                 visitMethodInsn(INVOKESPECIAL, "org/copperengine/core/InterruptException", "<init>", "()V");
@@ -292,8 +291,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             }
             visitLabel(label);
             popStackEntry();
-        }
-        else if (interruptableMethods.contains(signature)) {
+        } else if (interruptableMethods.contains(signature)) {
             Label invokeLabel = new Label();
             Label afterInvokeLabel = new Label();
             Label nopLabel = new Label();
@@ -329,8 +327,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             // logger.info("Calling super.visitTryCatchBlock("+invokeLabel+", "+afterInvokeLabel+", "+interruptLabel+", \"org/copperengine/core/InterruptException\")");
             super.visitTryCatchBlock(invokeLabel, afterInvokeLabel, interruptLabel, "org/copperengine/core/InterruptException");
             super.visitTryCatchBlock(invokeLabel, afterInvokeLabel, throwableHandler, "java/lang/Throwable");
-        }
-        else {
+        } else {
             super.visitMethodInsn(opcode, owner, name, desc);
         }
     }
@@ -417,8 +414,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             visitLdcInsn("No such label");
             visitMethodInsn(INVOKESPECIAL, "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V");
             visitInsn(ATHROW);
-        }
-        else {
+        } else {
             visitInsn(POP);
             visitJumpInsn(GOTO, begin);
         }

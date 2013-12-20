@@ -30,7 +30,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
  * Implementation of the {@link TransactionController} interface that internally uses Springs Transaction Management
- * 
+ *
  * @author austermann
  */
 public class SpringTransactionController implements TransactionController {
