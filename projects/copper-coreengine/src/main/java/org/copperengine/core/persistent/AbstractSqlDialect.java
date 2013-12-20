@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base implementation of the {@link DatabaseDialect} for SQL databases
- * 
+ *
  * @author austermann
  */
 public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDialectMXBean {
@@ -92,10 +92,10 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     /**
      * Sets the default removal timeout for stale responses in the underlying database. A response is stale/timed out
-     * when
-     * there is no workflow instance waiting for it within the specified amount of time.
-     * 
+     * when there is no workflow instance waiting for it within the specified amount of time.
+     *
      * @param defaultStaleResponseRemovalTimeout
+     *         removal timeout
      */
     public void setDefaultStaleResponseRemovalTimeout(long defaultStaleResponseRemovalTimeout) {
         logger.info("setDefaultStaleResponseRemovalTimeout({})", defaultStaleResponseRemovalTimeout);
@@ -140,13 +140,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.copperengine.core.core.persistent.ScottyDBStorageInterface#setWfRepository(org.copperengine.core.core.common
-     * .WorkflowRepository)
-     */
     public void setWfRepository(WorkflowRepository wfRepository) {
         this.wfRepository = wfRepository;
     }
@@ -195,7 +188,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
         logger.info("Adding all BPs in working state with existing response(s)...");
         int rowcount = 0;
-        for (;;) {
+        for (; ; ) {
             int x = updateQueueState(100000, con);
             con.commit(); // TODO this is dirty
             if (x == 0)
@@ -273,8 +266,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                         if (response != null) {
                             r = (Response<?>) serializer.deserializeResponse(response);
                             wf.addResponseId(r.getResponseId());
-                        }
-                        else if (isTimeout) {
+                        } else if (isTimeout) {
                             // timeout
                             r = new Response<Object>(cid);
                         }
@@ -420,8 +412,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             Response<?> r = responses.get(i);
             if (r.isEarlyResponseHandling()) {
                 subsetWithERH.add(r);
-            }
-            else {
+            } else {
                 subsetWithoutERH.add(r);
             }
             if (subsetWithERH.size() == MAX) {
@@ -662,8 +653,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 if (response != null) {
                     r = (Response<?>) serializer.deserializeResponse(response);
                     wf.addResponseId(r.getResponseId());
-                }
-                else if (isTimeout) {
+                } else if (isTimeout) {
                     // timeout
                     r = new Response<Object>(cid);
                 }
@@ -672,7 +662,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 }
                 wf.addWaitCorrelationId(cid);
             }
-            workflowPersistencePlugin.onWorkflowsLoaded(con, Arrays.<PersistentWorkflow<?>> asList(wf));
+            workflowPersistencePlugin.onWorkflowsLoaded(con, Arrays.<PersistentWorkflow<?>>asList(wf));
 
             return wf;
         } finally {

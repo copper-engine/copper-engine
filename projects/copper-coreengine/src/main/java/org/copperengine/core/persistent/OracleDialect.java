@@ -114,6 +114,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
      * there is no workflow instance waiting for it within the specified amount of time.
      * 
      * @param defaultStaleResponseRemovalTimeout
+     *        timeout
      */
     public void setDefaultStaleResponseRemovalTimeout(long defaultStaleResponseRemovalTimeout) {
         this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
@@ -163,11 +164,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         return defaultStaleResponseRemovalTimeout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.DatabaseDialect#resumeBrokenBusinessProcesses(java.sql.Connection)
-     */
     @Override
     public void resumeBrokenBusinessProcesses(Connection con) throws Exception {
         logger.info("Reactivating queue entries...");
@@ -181,11 +177,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         logger.info("done!");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.DatabaseDialect#dequeue(java.lang.String, int, java.sql.Connection)
-     */
     @Override
     public List<Workflow<?>> dequeue(final String ppoolId, final int max, Connection con) throws Exception {
         logger.trace("dequeue({},{})", ppoolId, max);
@@ -272,11 +263,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         ((BatchCommand) invalidWorkflowInstances.get(0)).executor().doExec(invalidWorkflowInstances, con);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.DatabaseDialect#updateQueueState(int, java.sql.Connection)
-     */
     @Override
     public int updateQueueState(final int max, final Connection con) throws SQLException {
         CallableStatement stmt = null;
@@ -297,11 +283,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.DatabaseDialect#deleteStaleResponse(java.sql.Connection, int)
-     */
     @Override
     public int deleteStaleResponse(Connection con, int maxRows) throws Exception {
         if (logger.isTraceEnabled())
@@ -362,11 +343,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             throw new SQLException("unable to acquire lock: deadlock");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.DatabaseDialect#insert(java.util.List, java.sql.Connection)
-     */
     @Override
     public void insert(final List<Workflow<?>> wfs, final Connection con) throws Exception {
         final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,LONG_DATA,OBJECT_STATE,LONG_OBJECT_STATE,CREATION_TS,CLASSNAME) VALUES (?,?,?,SYSTIMESTAMP,?,?,?,?,?,?,?)");
@@ -382,16 +358,14 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
                 if (sw.getData() != null) {
                     stmt.setString(5, sw.getData().length() > 4000 ? null : sw.getData());
                     stmt.setString(6, sw.getData().length() > 4000 ? sw.getData() : null);
-                }
-                else {
+                } else {
                     stmt.setString(5, null);
                     stmt.setString(6, null);
                 }
                 if (sw.getObjectState() != null) {
                     stmt.setString(7, sw.getObjectState().length() > 4000 ? null : sw.getObjectState());
                     stmt.setString(8, sw.getObjectState().length() > 4000 ? sw.getObjectState() : null);
-                }
-                else {
+                } else {
                     stmt.setString(7, null);
                     stmt.setString(8, null);
                 }
@@ -419,12 +393,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.DatabaseDialect#insert(org.copperengine.core.core.Workflow,
-     * java.sql.Connection)
-     */
     @Override
     public void insert(final Workflow<?> wf, final Connection con) throws Exception {
         final List<Workflow<?>> wfs = new ArrayList<Workflow<?>>(1);
@@ -432,11 +400,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         insert(wfs, con);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.DatabaseDialect#restart(java.lang.String, java.sql.Connection)
-     */
     @Override
     public void restart(final String workflowInstanceId, Connection c) throws Exception {
         logger.trace("restart({})", workflowInstanceId);
@@ -463,11 +426,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         return responseLoader;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.DatabaseDialect#restartAll(java.sql.Connection)
-     */
     @Override
     public void restartAll(Connection c) throws Exception {
         logger.trace("restartAll()");
@@ -489,8 +447,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             Response<?> r = responses.get(i);
             if (r.isEarlyResponseHandling()) {
                 subsetWithERH.add(r);
-            }
-            else {
+            } else {
                 subsetWithoutERH.add(r);
             }
             if (subsetWithERH.size() == MAX) {
@@ -520,13 +477,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         cmds.get(0).executor().doExec(cmds, con);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.copperengine.core.core.persistent.DatabaseDialect#createBatchCommand4Finish(org.copperengine.core.core.Workflow
-     * )
-     */
     @Override
     @SuppressWarnings({ "rawtypes" })
     public BatchCommand createBatchCommand4Finish(final Workflow<?> w, final Acknowledge callback) {
@@ -534,13 +484,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         return new OracleRemove.Command(pwf, removeWhenFinished, System.currentTimeMillis() + dbBatchingLatencyMSec, workflowPersistencePlugin, callback);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.copperengine.core.core.persistent.DatabaseDialect#createBatchCommand4Notify(org.copperengine.core.core.Response
-     * )
-     */
     @Override
     @SuppressWarnings({ "rawtypes" })
     public BatchCommand createBatchCommand4Notify(final Response<?> response, final Acknowledge callback) throws Exception {
@@ -552,13 +495,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             return new OracleNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis() + dbBatchingLatencyMSec, callback);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.copperengine.core.core.persistent.DatabaseDialect#createBatchCommand4registerCallback(org.copperengine.core
-     * .core.persistent.RegisterCall, org.copperengine.core.core.batcher.Batcher)
-     */
     @Override
     @SuppressWarnings({ "rawtypes" })
     public BatchCommand createBatchCommand4registerCallback(final RegisterCall rc, final ScottyDBStorageInterface dbStorageInterface, final Acknowledge callback) throws Exception {
@@ -567,13 +503,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         return new OracleRegisterCallback.Command(rc, serializer, dbStorageInterface, System.currentTimeMillis() + dbBatchingLatencyMSec, workflowPersistencePlugin, callback);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.copperengine.core.core.persistent.DatabaseDialect#createBatchCommand4error(org.copperengine.core.core.Workflow
-     * , java.lang.Throwable)
-     */
     @Override
     @SuppressWarnings({ "rawtypes" })
     public BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState, final Acknowledge callback) {
@@ -711,8 +640,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
                 if (response != null) {
                     r = (Response<?>) serializer.deserializeResponse(response);
                     wf.addResponseId(r.getResponseId());
-                }
-                else if (isTimeout) {
+                } else if (isTimeout) {
                     r = new Response<Object>(cid);
                 }
                 if (r != null) {

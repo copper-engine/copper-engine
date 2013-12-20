@@ -454,7 +454,7 @@ public class PersisterFactoryGenerator {
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException, IOException, IntrospectionException {
-        GenerationDescription impl = new GenerationDescription("TEMPLATE", "org.copperengine.core.core.persistent.alpha.generator", "org.copperengine.core.core.persistent.alpha.generator");
+        GenerationDescription impl = new GenerationDescription("TEMPLATE", "org.copperengine.core.persistent.alpha.generator", "org.copperengine.core.persistent.alpha.generator");
         for (PropertyDescriptor desc : Introspector.getBeanInfo(TEMPLATE.class).getPropertyDescriptors()) {
             if ("entityId".equals(desc.getName()))
                 continue;

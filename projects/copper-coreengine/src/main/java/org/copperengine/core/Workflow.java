@@ -34,11 +34,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Abstract COPPER workflow base class.
  * Workflows must inherit from this class. If your workflow requires (or maybe requires) persistence, then it has to
- * inherit from {@link org.copperengine.core.core.persistent.PersistentWorkflow}.
- * 
- * @author austermann
+ * inherit from {@link org.copperengine.core.persistent.PersistentWorkflow}.
+ *
  * @param <D>
- *            workflow's <code>data</code> class
+ *         workflow's <code>data</code> class
+ * @author austermann
  */
 public abstract class Workflow<D> implements Serializable {
 
@@ -113,7 +113,7 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * For internal use only
-     * 
+     *
      * @param engine
      */
     public void setEngine(ProcessingEngine engine) {
@@ -150,9 +150,9 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * waits/sleeps until a response for every correlation id occurs
-     * 
+     *
      * @param correlationIds
-     *            one or more correlation ids
+     *         one or more correlation ids
      */
     protected final void waitForAll(String... correlationIds) throws InterruptException {
         this.wait(WaitMode.ALL, 0, correlationIds);
@@ -160,9 +160,9 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * waits/sleeps until a response for every callback occurs
-     * 
+     *
      * @param callbacks
-     *            one or more callback objects
+     *         one or more callback objects
      */
     protected final void waitForAll(Callback<?>... callbacks) throws InterruptException {
         this.wait(WaitMode.ALL, 0, callbacks);
@@ -172,13 +172,13 @@ public abstract class Workflow<D> implements Serializable {
      * Generic wait/sleep. In case of WaitMode FIRST, it waits until at least one response for the specified correlation
      * ids occurs.
      * In case of WaitMode ALL, it waits until a response for every specified correlation id occurs.
-     * 
+     *
      * @param mode
-     *            WaitMode
+     *         WaitMode
      * @param timeoutMsec
-     *            timeout in milliseconds or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
+     *         timeout in milliseconds or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
      * @param correlationIds
-     *            one ore more correlation ids
+     *         one ore more correlation ids
      */
     protected final void wait(WaitMode mode, int timeoutMsec, String... correlationIds) throws InterruptException {
         if (correlationIds.length == 0)
@@ -202,15 +202,15 @@ public abstract class Workflow<D> implements Serializable {
      * Generic wait/sleep. In case of WaitMode FIRST, it waits until at least one response for the specified correlation
      * ids occurs.
      * In case of WaitMode ALL, it waits until a response for every specified correlation id occurs.
-     * 
+     *
      * @param mode
-     *            WaitMode
+     *         WaitMode
      * @param timeout
-     *            timeout or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
+     *         timeout or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
      * @param timeUnit
-     *            unit of the timeout; ignored, if a negative timeout is specified
+     *         unit of the timeout; ignored, if a negative timeout is specified
      * @param correlationIds
-     *            one ore more correlation ids
+     *         one ore more correlation ids
      */
     protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final String... correlationIds) throws InterruptException {
         if (correlationIds.length == 0)
@@ -226,15 +226,15 @@ public abstract class Workflow<D> implements Serializable {
      * Generic wait/sleep. In case of WaitMode FIRST, it waits until at least one response for the specified correlation
      * ids occurs.
      * In case of WaitMode ALL, it waits until a response for every specified correlation id occurs.
-     * 
+     *
      * @param mode
-     *            WaitMode
+     *         WaitMode
      * @param timeout
-     *            timeout or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
+     *         timeout or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
      * @param timeUnit
-     *            unit of the timeout; ignored, if a negative timeout is specified
+     *         unit of the timeout; ignored, if a negative timeout is specified
      * @param callbacks
-     *            one ore more callbacks
+     *         one ore more callbacks
      */
     protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final Callback<?>... callbacks) throws InterruptException {
         String[] correlationIds = new String[callbacks.length];
@@ -246,7 +246,7 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * Internal use only - called by the processing engine
-     * 
+     *
      * @param r
      */
     public void putResponse(Response<?> r) {
@@ -262,7 +262,7 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * Gets and removes a response for the specified correlation id
-     * 
+     *
      * @param correlationId
      * @return the response or null, if no response for the specified correlation id is found
      */
@@ -282,7 +282,7 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * Gets and removes all responses for the specified correlation id
-     * 
+     *
      * @param correlationId
      * @return the list of responses or an empty list, if no response for the specified correlation id is found
      */
@@ -302,7 +302,7 @@ public abstract class Workflow<D> implements Serializable {
     /**
      * Causes the engine to stop processing of this workflow instance and to enqueue it again.
      * May be used in case of processor pool change
-     * 
+     *
      * @throws InterruptException
      */
     protected final void resubmit() throws InterruptException {
@@ -323,9 +323,9 @@ public abstract class Workflow<D> implements Serializable {
      * Sets the processor pool id for this workflow instance. Changes get active at the next enqueue of this workflow
      * instance.
      * You may initiate an enqueue using {@link Workflow#resubmit()}
-     * 
+     *
      * @param processorPoolId
-     *            id of the proccesor pool as specified in the configuration
+     *         id of the proccesor pool as specified in the configuration
      */
     public void setProcessorPoolId(String processorPoolId) {
         if (logger.isTraceEnabled())
@@ -356,7 +356,7 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * Sets the data for this workflow instance. Typically invoked at construction time of a workflow instance
-     * 
+     *
      * @param data
      */
     public void setData(D data) {

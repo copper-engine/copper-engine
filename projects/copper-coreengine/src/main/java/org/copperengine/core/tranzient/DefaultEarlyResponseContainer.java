@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Default implementation of the {@link EarlyResponseContainer} interface.
  * Early response are stored for a configurable time interval. Later on they may be removed.
- * 
+ *
  * @author austermann
  */
 public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
@@ -61,11 +61,6 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
     public DefaultEarlyResponseContainer() {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.tranzient.EarlyResponseContainer#put(org.copperengine.core.core.Response)
-     */
     @Override
     public void put(final Response<?> response) {
         if (response == null)
@@ -93,11 +88,6 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.tranzient.EarlyResponseContainer#get(java.lang.String)
-     */
     @Override
     public List<Response<?>> get(final String correlationId) {
         if (correlationId == null)
@@ -118,11 +108,6 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.tranzient.EarlyResponseContainer#startup()
-     */
     @Override
     public synchronized void startup() {
         if (thread != null)
@@ -137,11 +122,6 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
         thread.start();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.tranzient.EarlyResponseContainer#shutdown()
-     */
     @Override
     public synchronized void shutdown() {
         shutdown = true;

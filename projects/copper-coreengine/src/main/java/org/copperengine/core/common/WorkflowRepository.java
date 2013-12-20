@@ -23,8 +23,8 @@ import org.copperengine.core.instrument.ClassInfo;
 /**
  * A WorkflowRepository is a container for COPPER workflows.
  * It encapsulates the handling and storage of workflows and makes the workflow classes accessible to one or more COPPER
- * {@link org.copperengine.core.core.ProcessingEngine}s.
- * 
+ * {@link org.copperengine.core.ProcessingEngine}s.
+ *
  * @author austermann
  */
 public interface WorkflowRepository {

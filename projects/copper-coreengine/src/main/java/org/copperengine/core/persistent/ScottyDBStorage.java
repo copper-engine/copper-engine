@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the {@link ScottyDBStorageInterface}.
- * 
+ *
  * @author austermann
  */
 public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorageMXBean {
@@ -88,11 +88,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         this.deleteStaleResponsesIntervalMsec = deleteStaleResponsesIntervalMsec;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.ScottyDBStorageInterface#resumeBrokenBusinessProcesses()
-     */
     private void resumeBrokenBusinessProcesses() throws Exception {
         logger.info("resumeBrokenBusinessProcesses");
         run(new DatabaseTransaction<Void>() {
@@ -104,11 +99,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.ScottyDBStorageInterface#insert(org.copperengine.core.core.Workflow)
-     */
     public void insert(final Workflow<?> wf, final Acknowledge ack) throws Exception {
         logger.trace("insert({})", wf);
         try {
@@ -126,11 +116,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.ScottyDBStorageInterface#insert(java.util.List)
-     */
     public void insert(final List<Workflow<?>> wfs, final Acknowledge ack) throws Exception {
         logger.trace("insert(wfs.size={})", wfs.size());
         try {
@@ -212,21 +197,11 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         return r;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.ScottyDBStorageInterface#notify(java.util.List)
-     */
     public void notify(final List<Response<?>> response, Acknowledge ack) throws Exception {
         for (Response<?> r : response)
             notify(r, ack);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.ScottyDBStorageInterface#startup()
-     */
     public synchronized void startup() {
         try {
             dialect.startup();
@@ -250,8 +225,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
                 public void run() {
                     try {
                         deleteStaleResponse();
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         logger.error("deleteStaleResponse failed", e);
                     }
                 }
@@ -297,11 +271,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         } while (n == MAX_ROWS);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.ScottyDBStorageInterface#shutdown()
-     */
     public synchronized void shutdown() {
         if (shutdown)
             return;
@@ -348,8 +317,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             }
             if (x == 0) {
                 sleepTime = Math.max(10, Math.min(3 * sleepTime / 2, sleepTimeMaxIdle));
-            }
-            else if (x < lowTraffic) {
+            } else if (x < lowTraffic) {
                 sleepTime = Math.max(10, Math.min(11 * sleepTime / 10, sleepTimeMaxLowTraffic));
             } else {
                 sleepTime = 0;
@@ -444,19 +412,11 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     private void executeBatchCommand(BatchCommand cmd) throws Exception {
         if (batcher != null) {
             batcher.submitBatchCommand(cmd);
-        }
-        else {
+        } else {
             runSingleBatchCommand(cmd);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.copperengine.core.core.persistent.ScottyDBStorageInterface#registerCallback(org.copperengine.core.core.persistent
-     * .RegisterCall)
-     */
     public void registerCallback(final RegisterCall rc, final Acknowledge callback) throws Exception {
         if (logger.isTraceEnabled())
             logger.trace("registerCallback(" + rc + ")");
@@ -465,12 +425,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         executeBatchCommand(dialect.createBatchCommand4registerCallback(rc, this, callback));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.ScottyDBStorageInterface#notify(org.copperengine.core.core.Response,
-     * java.lang.Object)
-     */
     public void notify(final Response<?> response, final Acknowledge callback) throws Exception {
         if (logger.isTraceEnabled())
             logger.trace("notify(" + response + ")");
@@ -491,11 +445,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         executeBatchCommand(dialect.createBatchCommand4Notify(response, notify));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.core.persistent.ScottyDBStorageInterface#finish(org.copperengine.core.core.Workflow)
-     */
     public void finish(final Workflow<?> w, final Acknowledge callback) {
         if (logger.isTraceEnabled())
             logger.trace("finish(" + w.getId() + ")");
