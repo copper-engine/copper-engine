@@ -16,12 +16,12 @@
         
     <import resource="transient-engine-application-context.xml"/>
     
-    <bean id="mockAdapter" class="de.scoopgmbh.copper.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
+    <bean id="mockAdapter" class="org.copperengine.core.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
     	<property name="engine" ref="transientEngine"></property>
     	<property name="delayMSec" value="0"/>
     </bean>
     
-    <bean class="de.scoopgmbh.copper.test.TransientPerformanceTestInputChannel" scope="singleton" init-method="startup" destroy-method="shutdown">
+    <bean class="org.copperengine.core.test.TransientPerformanceTestInputChannel" scope="singleton" init-method="startup" destroy-method="shutdown">
     	<property name="engine" ref="transientEngine"></property>
     </bean>
 

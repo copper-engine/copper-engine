@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.scoopgmbh.copper.monitoring.client.doc;
+package org.copperengine.monitoring.client.doc;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -58,15 +58,15 @@ import com.google.common.io.Resources;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ClassInfo;
 
-import de.scoopgmbh.copper.monitoring.client.adapter.GuiCopperDataProvider;
-import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.ApplicationFixture;
-import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.IntegrationtestBase;
-import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.TestDataProvider;
-import de.scoopgmbh.copper.monitoring.client.doc.view.fixture.TestFormContext;
-import de.scoopgmbh.copper.monitoring.client.form.BorderPaneShowFormStrategie;
-import de.scoopgmbh.copper.monitoring.client.ui.settings.AuditralColorMapping;
-import de.scoopgmbh.copper.monitoring.client.ui.settings.SettingsModel;
-import de.scoopgmbh.copper.monitoring.client.util.MessageProvider;
+import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
+import org.copperengine.monitoring.client.doc.view.fixture.ApplicationFixture;
+import org.copperengine.monitoring.client.doc.view.fixture.IntegrationtestBase;
+import org.copperengine.monitoring.client.doc.view.fixture.TestDataProvider;
+import org.copperengine.monitoring.client.doc.view.fixture.TestFormContext;
+import org.copperengine.monitoring.client.form.BorderPaneShowFormStrategie;
+import org.copperengine.monitoring.client.ui.settings.AuditralColorMapping;
+import org.copperengine.monitoring.client.ui.settings.SettingsModel;
+import org.copperengine.monitoring.client.util.MessageProvider;
 
 public class DocGeneratorMain {
 	
@@ -159,7 +159,7 @@ public class DocGeneratorMain {
 				TestFormContext testFormContext = new TestFormContext(
 						ApplicationFixture.getPane(),
 						guiCopperDataProvider, 
-						new MessageProvider(ResourceBundle.getBundle("de.scoopgmbh.copper.gui.message")), 
+						new MessageProvider(ResourceBundle.getBundle("org.copperengine.gui.message")), 
 						defaultSettings);
 				integrationtestBase.initGui(ApplicationFixture.getPane(),testFormContext);
 			}

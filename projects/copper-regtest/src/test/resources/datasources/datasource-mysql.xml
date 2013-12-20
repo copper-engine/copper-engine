@@ -21,10 +21,10 @@
     	<property name="password" value="geheim"/>
     	<property name="maxPoolSize" value="4"/>
     	<property name="minPoolSize" value="2"/>
-    	<property name="connectionCustomizerClassName" value="de.scoopgmbh.copper.db.utility.mysql.c3p0.MySqlConnectionCustomizer"/>
+    	<property name="connectionCustomizerClassName" value="org.copperengine.core.db.utility.mysql.c3p0.MySqlConnectionCustomizer"/>
 	</bean>
 	
-	<bean id="dbDialect" class="de.scoopgmbh.copper.persistent.MySqlDialect" scope="singleton" init-method="startup">
+	<bean id="dbDialect" class="org.copperengine.core.persistent.MySqlDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>
 	</bean>

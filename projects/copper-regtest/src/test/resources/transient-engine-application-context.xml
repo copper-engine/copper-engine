@@ -14,7 +14,7 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
-    <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton">
+    <bean id="wfRepository" class="org.copperengine.core.wfrepo.FileBasedWorkflowRepository" scope="singleton">
     	<property name="sourceDirs"><list>
     		<value>src/workflow/java</value>
     	</list></property>
@@ -22,7 +22,7 @@
     	<property name="loadNonWorkflowClasses" value="true"/>
     	<property name="compilerOptionsProviders">
     		<list>
-    			<bean class="de.scoopgmbh.copper.wfrepo.ConfigurableStringOptionsProvider" >
+    			<bean class="org.copperengine.core.wfrepo.ConfigurableStringOptionsProvider" >
     				<property name="options">
     					<list>
     						<value>-g</value>
@@ -33,17 +33,17 @@
     	</property>
     </bean>
     
-    <bean id="defaultTicketPool" class="de.scoopgmbh.copper.common.TicketPool" scope="singleton">
+    <bean id="defaultTicketPool" class="org.copperengine.core.common.TicketPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>DEFAULT</value></constructor-arg>
     	<constructor-arg type="int"><value>20000</value></constructor-arg>
     </bean>
            
-    <bean id="smallTicketPool" class="de.scoopgmbh.copper.common.TicketPool" scope="singleton">
+    <bean id="smallTicketPool" class="org.copperengine.core.common.TicketPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>SMALL</value></constructor-arg>
     	<constructor-arg type="int"><value>50</value></constructor-arg>
     </bean>
            
-	<bean id="ticketPoolManager" class="de.scoopgmbh.copper.common.DefaultTicketPoolManager">
+	<bean id="ticketPoolManager" class="org.copperengine.core.common.DefaultTicketPoolManager">
 		<property name="ticketPools">
     		<list>
     			<ref bean="defaultTicketPool" />
@@ -52,17 +52,17 @@
   		</property>
 	</bean>
 	
-    <bean id="T_ProcessorPool_DEFAULT" class="de.scoopgmbh.copper.tranzient.TransientPriorityProcessorPool" scope="singleton">
+    <bean id="T_ProcessorPool_DEFAULT" class="org.copperengine.core.tranzient.TransientPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>T#DEFAULT</value></constructor-arg>
     	<constructor-arg type="int"><value>4</value></constructor-arg>
     </bean>
 	
-    <bean id="T_ProcessorPool_PS47112" class="de.scoopgmbh.copper.tranzient.TransientPriorityProcessorPool" scope="singleton">
+    <bean id="T_ProcessorPool_PS47112" class="org.copperengine.core.tranzient.TransientPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>PS47112</value></constructor-arg>
     	<constructor-arg type="int"><value>4</value></constructor-arg>
     </bean>
 
-	<bean id="transientPPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">
+	<bean id="transientPPManager" class="org.copperengine.core.common.DefaultProcessorPoolManager" scope="singleton">
 		<property name="processorPools">
     		<list>
     			<ref bean="T_ProcessorPool_DEFAULT" />
@@ -71,23 +71,23 @@
   		</property>
 	</bean>
 	
-	<bean id="transientEngine" class="de.scoopgmbh.copper.tranzient.TransientScottyEngine" scope="singleton" init-method="startup" destroy-method="shutdown">
+	<bean id="transientEngine" class="org.copperengine.core.tranzient.TransientScottyEngine" scope="singleton" init-method="startup" destroy-method="shutdown">
 		<property name="ticketPoolManager" ref="ticketPoolManager"/>
 		<property name="poolManager" ref="transientPPManager"/>
 		<property name="timeoutManager">
-			<bean class = "de.scoopgmbh.copper.tranzient.DefaultTimeoutManager"></bean>
+			<bean class = "org.copperengine.core.tranzient.DefaultTimeoutManager"></bean>
 		</property>
 		<property name="earlyResponseContainer">
-			<bean class = "de.scoopgmbh.copper.tranzient.DefaultEarlyResponseContainer"></bean>
+			<bean class = "org.copperengine.core.tranzient.DefaultEarlyResponseContainer"></bean>
 		</property>
 		<property name="dependencyInjector">
-			<bean class="de.scoopgmbh.copper.spring.SpringDependencyInjector"></bean>
+			<bean class="org.copperengine.spring.SpringDependencyInjector"></bean>
 		</property>
 		<property name="wfRepository" ref="wfRepository"/>
 	</bean>
 	
 	
-	<bean class="de.scoopgmbh.copper.spring.JmxExporter" init-method="startup" destroy-method="shutdown"/>
+	<bean class="org.copperengine.spring.JmxExporter" init-method="startup" destroy-method="shutdown"/>
 	
 <!-- 	<bean id="mbeanExporter" class="org.springframework.jmx.export.MBeanExporter" > -->
 <!--   		<property name="beans"> -->
@@ -99,6 +99,6 @@
 <!--     	</property>  		 -->
 <!-- 	</bean>	 -->
 
-	<bean name="backChannelQueue" class="de.scoopgmbh.copper.test.backchannel.BackChannelQueue"/>
+	<bean name="backChannelQueue" class="org.copperengine.core.test.backchannel.BackChannelQueue"/>
 	
 </beans>          

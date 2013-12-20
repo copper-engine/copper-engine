@@ -14,11 +14,11 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
-    <bean id="engineId_RED" class="de.scoopgmbh.copper.EngineIdProviderBean">
+    <bean id="engineId_RED" class="org.copperengine.core.EngineIdProviderBean">
     	<property name="engineId" value="red"/>
     </bean>
            
-    <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton" init-method="start" destroy-method="shutdown">
+    <bean id="wfRepository" class="org.copperengine.core.wfrepo.FileBasedWorkflowRepository" scope="singleton" init-method="start" destroy-method="shutdown">
     	<property name="sourceDirs"><list>
     		<value>src/workflow/java</value>
     	</list></property>
@@ -26,24 +26,24 @@
     	<property name="loadNonWorkflowClasses" value="true"/>
     </bean>
     
-	<bean id="statisticsCollector" class="de.scoopgmbh.copper.monitoring.LoggingStatisticCollector" init-method="start" destroy-method="shutdown"/>
+	<bean id="statisticsCollector" class="org.copperengine.core.monitoring.LoggingStatisticCollector" init-method="start" destroy-method="shutdown"/>
 	
-	<bean id="batcher" class="de.scoopgmbh.copper.batcher.impl.BatcherImpl" scope="singleton" init-method="startup" destroy-method="shutdown">
+	<bean id="batcher" class="org.copperengine.core.batcher.impl.BatcherImpl" scope="singleton" init-method="startup" destroy-method="shutdown">
     	<constructor-arg type="int"><value>3</value></constructor-arg>
     	<property name="statisticsCollector" ref="statisticsCollector"/>
     	<property name="batchRunner">
-    		<bean class="de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner">
+    		<bean class="org.copperengine.core.batcher.RetryingTxnBatchRunner">
 		    	<property name="dataSource" ref="datasource_default"/>
     		</bean>
     	</property>
 	</bean>
 	
-    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    <bean id="persistent.ProcessorPool.default" class="org.copperengine.core.persistent.PersistentPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>
-    	<constructor-arg type="de.scoopgmbh.copper.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
+    	<constructor-arg type="org.copperengine.core.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
     </bean>
            
-	<bean id="persistent.PPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">
+	<bean id="persistent.PPManager" class="org.copperengine.core.common.DefaultProcessorPoolManager" scope="singleton">
 		<property name="processorPools">
     		<list>
     			<ref bean="persistent.ProcessorPool.default" />
@@ -51,13 +51,13 @@
   		</property>
 	</bean>
 	
-	<bean id="persistent.engine" class="de.scoopgmbh.copper.persistent.PersistentScottyEngine" scope="singleton" destroy-method="shutdown">
+	<bean id="persistent.engine" class="org.copperengine.core.persistent.PersistentScottyEngine" scope="singleton" destroy-method="shutdown">
 		<property name="idFactory">
-			<bean class = "de.scoopgmbh.copper.common.JdkRandomUUIDFactory"></bean>
+			<bean class = "org.copperengine.core.common.JdkRandomUUIDFactory"></bean>
 		</property>
 		<property name="processorPoolManager" ref="persistent.PPManager"/>
 		<property name="dependencyInjector">
-			<bean class="de.scoopgmbh.copper.spring.SpringDependencyInjector"></bean>
+			<bean class="org.copperengine.spring.SpringDependencyInjector"></bean>
 		</property>
 		<property name="dbStorage" ref="persistent.dbStorage"/>
 		<property name="wfRepository" ref="wfRepository"/>
@@ -65,34 +65,34 @@
 		<property name="notifyProcessorPoolsOnResponse" value="false"/>
 	</bean>
 	
-	<bean id="auditTrail" class="de.scoopgmbh.copper.audit.BatchingAuditTrail" scope="singleton" init-method="startup">
+	<bean id="auditTrail" class="org.copperengine.core.audit.BatchingAuditTrail" scope="singleton" init-method="startup">
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>
 	
-	<bean id="dbMockAdapter" class="de.scoopgmbh.copper.test.DBMockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
+	<bean id="dbMockAdapter" class="org.copperengine.core.test.DBMockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
 		<property name="engine" ref="persistent.engine"/>
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>
 	
-	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.ScottyDBStorage" scope="singleton">
+	<bean id="persistent.dbStorage" class="org.copperengine.core.persistent.ScottyDBStorage" scope="singleton">
 		<property name="transactionController" ref="txnController"/>
 		<property name="dialect" ref="dbDialect"/>
 		<property name="batcher" ref="batcher"/>
 		<property name="checkDbConsistencyAtStartup" value="true"/>
 	</bean>
 	
-	<bean id="txnController" class="de.scoopgmbh.copper.persistent.txn.CopperTransactionController" scope="singleton">
+	<bean id="txnController" class="org.copperengine.core.persistent.txn.CopperTransactionController" scope="singleton">
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>		
 	
-    <bean id="backChannelQueue" class="de.scoopgmbh.copper.test.backchannel.BackChannelQueue" scope="singleton"/>
+    <bean id="backChannelQueue" class="org.copperengine.core.test.backchannel.BackChannelQueue" scope="singleton"/>
     
-	<bean id="mockAdapter" class="de.scoopgmbh.copper.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
+	<bean id="mockAdapter" class="org.copperengine.core.test.MockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
 		<property name="engine" ref="persistent.engine"/>
 	</bean>
 		
-	<bean id="dataHolder" class="de.scoopgmbh.copper.test.DataHolder" scope="singleton">
+	<bean id="dataHolder" class="org.copperengine.core.test.DataHolder" scope="singleton">
 	</bean>	
 </beans>          
 

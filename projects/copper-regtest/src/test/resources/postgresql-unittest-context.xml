@@ -23,7 +23,7 @@
     	<property name="minPoolSize" value="2"/>
 	</bean>
 	
-	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.PostgreSQLScottyDBStorage" scope="singleton">
+	<bean id="persistent.dbStorage" class="org.copperengine.core.persistent.PostgreSQLScottyDBStorage" scope="singleton">
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
 		<property name="wfRepository" ref="wfRepository"/>

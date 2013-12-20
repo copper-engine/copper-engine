@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="OrchestrationService"
-	targetNamespace="http://orchestration.scoopgmbh.de/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-	xmlns:tns="http://orchestration.scoopgmbh.de/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://orchestration.copperengine.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:tns="http://orchestration.copperengine.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
 	
 	<wsdl:types>
-		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://orchestration.scoopgmbh.de/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://orchestration.scoopgmbh.de/">
+		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://orchestration.copperengine.org/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://orchestration.copperengine.org/">
 		
 			<xs:element name="resetMailbox" type="tns:resetMailbox" />
 			<xs:element name="resetMailboxResponse" type="tns:resetMailboxResponse" />
@@ -43,7 +43,7 @@
 	<wsdl:binding name="OrchestrationServiceSoapBinding" type="tns:OrchestrationService">
 		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
 		<wsdl:operation name="resetMailbox">
-			<soap:operation soapAction="http://orchestration.scoopgmbh.de/resetMailbox" style="document" />
+			<soap:operation soapAction="http://orchestration.copperengine.org/resetMailbox" style="document" />
 			<wsdl:input>
 				<soap:body use="literal" />
 			</wsdl:input>

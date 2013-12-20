@@ -14,7 +14,7 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
-    <bean id="wfRepository" class="de.scoopgmbh.copper.wfrepo.FileBasedWorkflowRepository" scope="singleton">
+    <bean id="wfRepository" class="org.copperengine.core.wfrepo.FileBasedWorkflowRepository" scope="singleton">
     	<property name="sourceDirs"><list>
     		<value>src/workflow/java</value>
     	</list></property>
@@ -30,27 +30,27 @@
     	<property name="minPoolSize" value="2"/>
 	</bean>
 	
-	<bean id="batcher" class="de.scoopgmbh.copper.batcher.impl.BatcherImpl" scope="singleton" init-method="startup">
+	<bean id="batcher" class="org.copperengine.core.batcher.impl.BatcherImpl" scope="singleton" init-method="startup">
     	<constructor-arg type="int"><value>3</value></constructor-arg>
     	<property name="batchRunner">
-    		<bean class="de.scoopgmbh.copper.batcher.RetryingTxnBatchRunner">
+    		<bean class="org.copperengine.core.batcher.RetryingTxnBatchRunner">
 		    	<property name="dataSource" ref="datasource_default"/>
     		</bean>
     	</property>
 	</bean>
 	
-	<bean id="persistent.dbStorage" class="de.scoopgmbh.copper.persistent.MySqlScottyDBStorage" scope="singleton">
+	<bean id="persistent.dbStorage" class="org.copperengine.core.persistent.MySqlScottyDBStorage" scope="singleton">
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
 		<property name="wfRepository" ref="wfRepository"/>
 	</bean>
 	           
-    <bean id="persistent.ProcessorPool.default" class="de.scoopgmbh.copper.persistent.PersistentPriorityProcessorPool" scope="singleton">
+    <bean id="persistent.ProcessorPool.default" class="org.copperengine.core.persistent.PersistentPriorityProcessorPool" scope="singleton">
     	<constructor-arg type="java.lang.String"><value>P#DEFAULT</value></constructor-arg>
-    	<constructor-arg type="de.scoopgmbh.copper.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
+    	<constructor-arg type="org.copperengine.core.persistent.txn.TransactionController"><ref bean="txnController"/></constructor-arg>
     </bean>
            
-	<bean id="persistent.PPManager" class="de.scoopgmbh.copper.common.DefaultProcessorPoolManager" scope="singleton">
+	<bean id="persistent.PPManager" class="org.copperengine.core.common.DefaultProcessorPoolManager" scope="singleton">
 		<property name="processorPools">
     		<list>
     			<ref bean="persistent.ProcessorPool.default" />
@@ -58,14 +58,14 @@
   		</property>
 	</bean>
 	
-	<bean id="persistent.engine" class="de.scoopgmbh.copper.persistent.PersistentScottyEngine" scope="singleton">
+	<bean id="persistent.engine" class="org.copperengine.core.persistent.PersistentScottyEngine" scope="singleton">
 		<property name="idFactory">
-			<!-- bean class = "de.scoopgmbh.copper.common.JdkRandomUUIDFactory"></bean -->
-			<bean class = "de.scoopgmbh.copper.common.AtomicLongIdFactory"></bean>
+			<!-- bean class = "org.copperengine.core.common.JdkRandomUUIDFactory"></bean -->
+			<bean class = "org.copperengine.core.common.AtomicLongIdFactory"></bean>
 		</property>
 		<property name="processorPoolManager" ref="persistent.PPManager"/>
 		<property name="dependencyInjector">
-			<bean class="de.scoopgmbh.copper.spring.SpringDependencyInjector"></bean>
+			<bean class="org.copperengine.spring.SpringDependencyInjector"></bean>
 		</property>
 		<property name="dbStorage" ref="persistent.dbStorage"/>
 		<property name="wfRepository" ref="wfRepository"/>

@@ -16,11 +16,11 @@
         
     <import resource="mysql-persistent-engine-application-context.xml"/>
     
-    <bean id="mockAdapter" class="de.scoopgmbh.copper.test.MockAdapter" scope="singleton">
+    <bean id="mockAdapter" class="org.copperengine.core.test.MockAdapter" scope="singleton">
     	<property name="engine" ref="persistent.engine"></property>
     </bean>
     
-    <bean class="de.scoopgmbh.copper.test.PersistentPerformanceTestInputChannel" scope="singleton">
+    <bean class="org.copperengine.core.test.PersistentPerformanceTestInputChannel" scope="singleton">
     	<property name="engine" ref="persistent.engine"></property>
     </bean>
 
