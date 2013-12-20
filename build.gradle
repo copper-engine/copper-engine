@@ -236,7 +236,7 @@ configure(subprojects.findAll {
 project(':') { // this is the root project
     // copy Intellij Codestyle settings each time 'gradle assemble' or 'gradle build' is performed on the root project
     task ideaCodeStyleSetup(type: Copy) {
-        from 'config/scoop-intellij-codestyle.xml'
+        from 'common/intellij-codestyle.xml'
         into '.idea/'
         rename '.+', 'codeStyleSettings.xml'
     }
