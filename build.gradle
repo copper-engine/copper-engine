@@ -1,8 +1,11 @@
-apply plugin: 'idea'
+import groovy.xml.NamespaceBuilder
+import groovy.xml.QName
+
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.8'
 }
+
 
 allprojects {
     apply plugin: 'maven'
@@ -16,8 +19,9 @@ allprojects {
     }
 }
 
+
 configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directory || new File(it.projectDir, 'src/main/schema').directory}) {
-    println "configuring Leaf module " + project.path
+    println "configuring java module " + project.path
 
     apply plugin: 'java'
     compileJava.options.encoding = 'utf-8'
@@ -27,45 +31,37 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
     compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_6
     compileTestJava.targetCompatibility = JavaVersion.VERSION_1_6
 
-    /*
-    *  apply eclipse plugin only for 'deepest' subprojects
-    *  since eclipse does not understand subprojects
-    */
+    // apply eclipse plugin only for 'deepest' subprojects since eclipse does not understand subprojects
     apply plugin: 'eclipse'
-    apply plugin: 'idea'
 
     eclipse {
-	    classpath {
-	    	defaultOutputDir = file('build')
-		    file {
-		      	//exclude slf4f log binding from export
-			    withXml {
-			        def root = it.asNode()
-			        NodeList nodeList = root.getAt(new groovy.xml.QName('classpathentry'));
-			        for ( classpathentry in nodeList ) {
-	    				if (classpathentry.attributes().path.contains('slf4j-log4j12')){
-					        classpathentry.attributes().remove('exported')
-	    				}
-					}
-			     }
-	    	}
-	    }
-	 } 
+        classpath {
+            defaultOutputDir = file('build')
+            file {
+                //exclude slf4f log binding from export
+                withXml {
+                    Node root = it.asNode()
+                    NodeList nodeList = root.getAt(new QName('classpathentry'))
+                    nodeList.each { Node classpathentry ->
+                        if (classpathentry.attributes().path.contains('slf4j-log4j12')){
+                            classpathentry.attributes().remove('exported')
+                        }
+                    }
+                }
+            }
+        }
+    }
     
-    /*
-    * be sure to always regenerate eclipse files, because
-    * default behavior is merging into existing files
-    */
-    tasks.eclipse.dependsOn(cleanEclipse)
+    // be sure to always regenerate eclipse files, because default behavior is merging into existing files
+    tasks.eclipse.dependsOn cleanEclipse
     eclipse.classpath.defaultOutputDir = new File("$buildDir/classes/main")
     
     dependencies {
         testCompile 'junit:junit:4.11'
-    	testCompile 'org.mockito:mockito-all:1.9.5'
-    	
-    	// logging
-		compile 'org.slf4j:slf4j-api:1.6.6'
-		compile 'log4j:log4j:1.2.17'
+        testCompile 'org.mockito:mockito-all:1.9.5'
+        // logging
+        compile 'org.slf4j:slf4j-api:1.6.6'
+        compile 'log4j:log4j:1.2.17'
     }
 
     jar {
@@ -75,16 +71,16 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
     task replace_headers {
         def licenseFile = file("$rootDir/common/apache-license-file.txt")
         def licenseHeader
-        	
+            
         ant.loadfile(srcFile: licenseFile, property: 'licenseHeader')
-        	
+            
         licenseHeader = "${ant.properties['licenseHeader']}"
-        	
+            
         println "Replacing java source file headers in "+project.path
         // println licenseHeader
-           	
+               
         licenseHeader = licenseHeader + "package "
-          	
+              
         ant.replaceregexp(match: '(/\\*.*\\*/.*)??^package ', flags: 'sm', replace: licenseHeader) {
             fileset(dir: "$projectDir/src") {
                 include(name: '**/*.java')
@@ -92,135 +88,119 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
         }
     }
     compileJava.dependsOn replace_headers    
-    
-    
-    /// ********
-        // build additional artifacts
- 
-        task sourcesJar(type: Jar, dependsOn:classes) {
-            classifier = 'sources'
-            from sourceSets.main.allSource
+
+    // build additional artifacts
+
+    task sourcesJar(type: Jar, dependsOn:classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn:javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    def testJava = file("src/test/java").isDirectory()
+
+    if (testJava) {
+        task testJar(type: Jar, dependsOn:testClasses) {
+            classifier = 'test'
+            from sourceSets.test.output
         }
 
-        task javadocJar(type: Jar, dependsOn:javadoc) {
-            classifier = 'javadoc'
-            from javadoc.destinationDir
+        task testSourcesJar(type: Jar, dependsOn:testJar) {
+            classifier = 'testSources'
+            from sourceSets.test.allSource
         }
 
-        def testJava = file("src/test/java").isDirectory()
+        assemble.dependsOn testJar
+        assemble.dependsOn testSourcesJar
+    }
 
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
         if (testJava) {
-            task testJar(type: Jar, dependsOn:testClasses) {
-                classifier = 'test'
-                from sourceSets.test.output
-            }
-	
-            task testSourcesJar(type: Jar, dependsOn:testJar) {
-                classifier = 'testSources'
-                from sourceSets.test.allSource
-            }
-
-            assemble.dependsOn testJar
-            assemble.dependsOn testSourcesJar
+           archives testJar
+           archives testSourcesJar
         }
+    }
 
-        def databaseScripts = file("src/main/database").isDirectory()
+    // code signing and uploading
 
-        if (databaseScripts) {
-            task scriptsZip(type: Zip) {
-                classifier = 'scripts'
-                from file("src/main/database")
-                into 'scripts/sql'
+    def sonatypeRepositoryUrl = ""
+    def isDevBuild = false
+    def isCiBuild = false
+    def isReleaseBuild = false
+
+    //set build variables based on build type (release, continuous integration, development)
+    if (project.hasProperty("release")) {
+        isReleaseBuild = true
+        sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    } else if (project.hasProperty("ci")) {
+        isCiBuild = true
+        //version += "-SNAPSHOT" will be done using Jenkins configuration
+        sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+    } else {
+        isDevBuild = true
+    }
+
+    signing {
+        required { (isReleaseBuild || isCiBuild) && gradle.taskGraph.hasTask("uploadArchives") }
+        sign configurations.archives
+    }
+
+    uploadArchives {
+        repositories {
+            if (isDevBuild) {
+                mavenLocal()
             }
+            else {
+                mavenDeployer {
+                    if (isReleaseBuild) {
+                        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                    }
 
-            assemble.dependsOn scriptsZip
-        }
+                    repository(url: sonatypeRepositoryUrl) {
+                        authentication(userName: sonatypeUsername, password: sonatypePassword)
+                    }
 
-        artifacts {      
-	        archives sourcesJar      
-        	archives javadocJar
-            if (testJava) {
-	           archives testJar
-	           archives testSourcesJar
-            }
-            if (databaseScripts) {
-               archives scriptsZip
-            }
-        }   
-        
-        def sonatypeRepositoryUrl = ""
-        def isDevBuild = false
-        def isCiBuild = false
-        def isReleaseBuild = false
-        
-        //set build variables based on build type (release, continuous integration, development)
-        if(project.hasProperty("release")) {
-            isReleaseBuild = true
-            sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-        } else if (project.hasProperty("ci")) {
-            isCiBuild = true
-            //version += "-SNAPSHOT" will be done using Jenkins configuration
-            sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-        } else {
-            isDevBuild = true
-        }
-        
-        signing {
-            required { (isReleaseBuild || isCiBuild) && gradle.taskGraph.hasTask("uploadArchives") }
-            sign configurations.archives
-        }
-        
-        uploadArchives {
-            repositories {
-                if (isDevBuild) {
-                    mavenLocal()
-                }
-                else {
-                    mavenDeployer {
-                        if(isReleaseBuild) {
-                            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                    pom.project {
+                        name = 'COPPER high-performance workflow engine'
+                        packaging = 'jar'
+                        description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
+                        url 'http://gradlefx.github.com/'
+
+                        scm {
+                            url 'scm:git@github.com:copper-engine/copper-engine.git'
+                            connection 'scm:git@github.com:copper-engine/copper-engine.git'
+                            developerConnection 'scm:git@github.com:copper-engine/copper-engine.git'
                         }
-    
-                        repository(url: sonatypeRepositoryUrl) {
-                            authentication(userName: sonatypeUsername, password: sonatypePassword)
-                        }
-    
-                        pom.project {
-                            name = 'COPPER high-performance workflow engine'
-                            packaging = 'jar'
-                            description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
-                            url 'http://gradlefx.github.com/'
-    
-                            scm {
-                                url 'scm:git@github.com:copper-engine/copper-engine.git'
-                                connection 'scm:git@github.com:copper-engine/copper-engine.git'
-                                developerConnection 'scm:git@github.com:copper-engine/copper-engine.git'
+
+                        licenses {
+                            license {
+                                name = 'The Apache Software License, Version 2.0'
+                                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                                distribution 'repo'
                             }
-    
-                            licenses {
-                                license {
-                                    name = 'The Apache Software License, Version 2.0'
-                                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                                    distribution 'repo'
+                        }
+
+                        developers {
+                            developer {
+                                id 'maustermann'
+                                name = 'Michael Austermann'
+                                roles {
+                                    role 'architect'
+                                    role 'developer'
                                 }
                             }
-    
-                            developers {
-                                developer {
-                                    id 'maustermann'
-                                    name = 'Michael Austermann'
-                                    roles {
-                                        role 'architect'
-                                        role 'developer'
-                                    }
-                                }
-                                developer {
-                                    id 'copper-team'
-                                    name = 'Copper Engine Development Team'
-                                    roles {
-                                        role 'developer'
-                                        role 'tester'
-                                    }
+                            developer {
+                                id 'copper-team'
+                                name = 'Copper Engine Development Team'
+                                roles {
+                                    role 'developer'
+                                    role 'tester'
                                 }
                             }
                         }
@@ -228,6 +208,7 @@ configure(subprojects.findAll { new File(it.projectDir, 'src/main/java').directo
                 }
             }
         }
+    }
 }
 
 
@@ -236,8 +217,8 @@ project(':projects:copper-jmx-interface') {
     }
 }
 
-project(':projects:copper-regtest') {
 
+project(':projects:copper-regtest') {
     sourceSets {
         workflow {
             ext.srcDir = "$projectDir/src/workflow/java"
@@ -246,73 +227,82 @@ project(':projects:copper-regtest') {
     sourceSets.test.resources.srcDirs += sourceSets.workflow.srcDir
     
     dependencies {
-		compile project(':projects:copper-jmx-interface')
-		compile project(':projects:copper-coreengine')
-		compile project(':projects:copper-spring')
+        compile project(':projects:copper-jmx-interface')
+        compile project(':projects:copper-coreengine')
+        compile project(':projects:copper-spring')
 
-		testCompile 'c3p0:c3p0-oracle-thin-extras:0.9.0.2'
-		testCompile 'mysql:mysql-connector-java:5.1.25'
-		testCompile 'org.apache.derby:derby:10.9.1.0'
-		testCompile 'postgresql:postgresql:9.1-901.jdbc4'
-		
-		testCompile 'org.slf4j:slf4j-log4j12:1.6.6'    
-		
-		compile fileTree(dir: project(':').projectDir.toString()+'/3rdPartyLibs', include: '*.jar')		
-
+        testCompile 'c3p0:c3p0-oracle-thin-extras:0.9.0.2'
+        testCompile 'mysql:mysql-connector-java:5.1.25'
+        testCompile 'org.apache.derby:derby:10.9.1.0'
+        testCompile 'postgresql:postgresql:9.1-901.jdbc4'
+        
+        testCompile 'org.slf4j:slf4j-log4j12:1.6.6'    
+        
+        compile fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
     }
     
     test {
         //configuring a system property for tests
         systemProperty 'copper.unittest.skip.external.db.tests', 'true'
     }
-    
 }
+
 
 project(':projects:copper-spring') {
     dependencies {
-		compile project(':projects:copper-jmx-interface')
-		compile project(':projects:copper-coreengine')
+        compile project(':projects:copper-jmx-interface')
+        compile project(':projects:copper-coreengine')
 
-		// Spring
-		compile 'org.springframework:spring-aop:3.1.2.RELEASE'
-		compile 'org.springframework:spring-asm:3.1.2.RELEASE'
-		compile 'org.springframework:spring-beans:3.1.2.RELEASE'
-		compile 'org.springframework:spring-context:3.1.2.RELEASE'
-		compile 'org.springframework:spring-core:3.1.2.RELEASE'
-		compile 'org.springframework:spring-expression:3.1.2.RELEASE'
-		compile 'org.springframework:spring-jdbc:3.1.2.RELEASE'
-		compile 'org.springframework:spring-tx:3.1.2.RELEASE'
-		
-		compile 'org.springframework.batch:spring-batch-infrastructure:2.1.8.RELEASE'
+        // Spring
+        compile 'org.springframework:spring-aop:3.1.2.RELEASE'
+        compile 'org.springframework:spring-asm:3.1.2.RELEASE'
+        compile 'org.springframework:spring-beans:3.1.2.RELEASE'
+        compile 'org.springframework:spring-context:3.1.2.RELEASE'
+        compile 'org.springframework:spring-core:3.1.2.RELEASE'
+        compile 'org.springframework:spring-expression:3.1.2.RELEASE'
+        compile 'org.springframework:spring-jdbc:3.1.2.RELEASE'
+        compile 'org.springframework:spring-tx:3.1.2.RELEASE'
+        
+        compile 'org.springframework.batch:spring-batch-infrastructure:2.1.8.RELEASE'
     }
 }
+
 
 project(':projects:copper-coreengine') {
-        
     dependencies {
-		compile project(':projects:copper-jmx-interface')
-    		
-		compile 'aopalliance:aopalliance:1.0'
-		
-		compile 'com.google.code.findbugs:annotations:2.0.1'
-		
-		// asm
-		compile 'org.ow2.asm:asm:4.1'
-		compile 'org.ow2.asm:asm-commons:4.1'
-		compile 'org.ow2.asm:asm-tree:4.1'
-		compile 'org.ow2.asm:asm-util:4.1'
-		compile 'org.ow2.asm:asm-analysis:4.1'
+        compile project(':projects:copper-jmx-interface')
+            
+        compile 'aopalliance:aopalliance:1.0'
+        
+        compile 'com.google.code.findbugs:annotations:2.0.1'
+        
+        // asm
+        compile 'org.ow2.asm:asm:4.1'
+        compile 'org.ow2.asm:asm-commons:4.1'
+        compile 'org.ow2.asm:asm-tree:4.1'
+        compile 'org.ow2.asm:asm-util:4.1'
+        compile 'org.ow2.asm:asm-analysis:4.1'
 
-		// commons
-		compile 'commons-codec:commons-codec:1.4'
-		compile 'commons-logging:commons-logging:1.1.1'
-		 
-		// Database
-		compile 'c3p0:c3p0:0.9.1.2'
-		
+        // commons
+        compile 'commons-codec:commons-codec:1.4'
+        compile 'commons-logging:commons-logging:1.1.1'
+         
+        // Database
+        compile 'c3p0:c3p0:0.9.1.2'
     }
 
+    task scriptsZip(type: Zip) {
+        classifier = 'scripts'
+        from file("src/main/database")
+        into 'scripts/sql'
+    }
+    assemble.dependsOn scriptsZip
+
+    artifacts {
+        archives scriptsZip
+    }
 }
+
 
 project(':projects:copper-examples:orchestration:orch-engine') {
     sourceSets {
@@ -323,18 +313,18 @@ project(':projects:copper-examples:orchestration:orch-engine') {
     sourceSets.main.resources.srcDirs += sourceSets.workflow.srcDir
     
     dependencies {
-	compile project(':projects:copper-jmx-interface')
-	compile project(':projects:copper-coreengine')
-	compile project(':projects:copper-spring')
-	compile project(':projects:copper-monitoring:copper-monitoring-server')
-	compile project(':projects:copper-examples:orchestration:orch-interfaces')
-	compile 'org.apache.derby:derby:10.9.1.0'
-	compile 'log4j:log4j:1.2.17'
+    compile project(':projects:copper-jmx-interface')
+    compile project(':projects:copper-coreengine')
+    compile project(':projects:copper-spring')
+    compile project(':projects:copper-monitoring:copper-monitoring-server')
+    compile project(':projects:copper-examples:orchestration:orch-interfaces')
+    compile 'org.apache.derby:derby:10.9.1.0'
+    compile 'log4j:log4j:1.2.17'
     }
 }
 
-project(':projects:copper-examples:orchestration:orch-interfaces') {
 
+project(':projects:copper-examples:orchestration:orch-interfaces') {
     configurations {
         wsgen
     }
@@ -347,237 +337,235 @@ project(':projects:copper-examples:orchestration:orch-interfaces') {
     sourceSets.main.resources.srcDirs += sourceSets.schema.srcDir
     
     dependencies {
-		
-	compile project(':projects:copper-coreengine')
-	compile 'log4j:log4j:1.2.17'
+        compile project(':projects:copper-coreengine')
+        compile 'log4j:log4j:1.2.17'
 
-    	compile ('org.apache.cxf:cxf-rt-transports-http-jetty:2.5.3') {
-    		exclude module: 'spring-web'
-    	}
-    	compile ('org.apache.cxf:cxf-rt-frontend-jaxws:2.5.3') {
-    		exclude module: 'spring-web'
-    	}
-    	compile 'org.eclipse.jetty:jetty-server:7.5.4.v20111024'
+        compile ('org.apache.cxf:cxf-rt-transports-http-jetty:2.5.3') {
+            exclude module: 'spring-web'
+        }
+        compile ('org.apache.cxf:cxf-rt-frontend-jaxws:2.5.3') {
+            exclude module: 'spring-web'
+        }
+        compile 'org.eclipse.jetty:jetty-server:7.5.4.v20111024'
         compile 'commons-lang:commons-lang:2.6'
 
         wsgen 'org.apache.cxf:cxf-tools-wsdlto-core:2.6.0'
         wsgen 'org.apache.cxf:cxf-tools-wsdlto-frontend-jaxws:2.6.0'
         wsgen 'org.apache.cxf:cxf-tools-wsdlto-databinding-jaxb:2.6.0'
         wsgen 'org.apache.cxf:cxf-xjc-ts:2.2.12'
-        wsgen 'com.sun.xml.bind:jaxb-xjc:2.2.4-1'		
+        wsgen 'com.sun.xml.bind:jaxb-xjc:2.2.4-1'        
     }
     
-
-	tasks.create(name: "gen_wsbindings") {
-		ext.genDirName = "$projectDir/src/main/generated";
+    tasks.create(name: "gen_wsbindings") {
+        ext.genDirName = "$projectDir/src/main/generated";
 
         inputs.dir file(sourceSets.schema.srcDir)
-    	outputs.dir file(ext.genDirName)
+        outputs.dir file(ext.genDirName)
 
         doFirst {
-        	file(ext.genDirName).mkdirs()
-        }    	
-		doLast {
-	        fileTree(dir: sourceSets.schema.srcDir + "/wsdl", include: "**/*.wsdl", exclude: "common.wsdl").each { def wsdlFile -> 
-				javaexec {					
-			        main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
-			        classpath = configurations.wsgen
+            file(ext.genDirName).mkdirs()
+        }        
+        doLast {
+            fileTree(dir: sourceSets.schema.srcDir + "/wsdl", include: "**/*.wsdl", exclude: "common.wsdl").each { def wsdlFile -> 
+                javaexec {                    
+                    main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
+                    classpath = configurations.wsgen
                     // Add -DexitOnFinish=true so that WSDLToJava bails out with exit code 0 (on success) or 1 (on failure)
                     // so that the build aborts immediately on errors. If you don't set this property, the exit code is always 0.
                     systemProperty 'exitOnFinish', 'true'
-			        args = [ '-fe', 'jaxws',
-			                '-db', 'jaxb',
-			                '-xjc-extension',
-			                '-impl', '-server', '-client', '-validate',
-			                '-d', ext.genDirName,
+                    args = [ '-fe', 'jaxws',
+                            '-db', 'jaxb',
+                            '-xjc-extension',
+                            '-impl', '-server', '-client', '-validate',
+                            '-d', ext.genDirName,
                             '-wsdlLocation', 'classpath:wsdl/'+wsdlFile.name,
-			                wsdlFile ]
-			    }	            
-		    } 
-        }		
-	}
-	sourceSets.main.java.srcDirs += gen_wsbindings.genDirName
-	
-	compileJava.dependsOn gen_wsbindings
-	eclipseClasspath.dependsOn gen_wsbindings
-
-	eclipse {
-	    classpath {
-	    	defaultOutputDir = file('build')
-		    file {
-		      	withXml {//ignore compile warnings in generated code
-					it.asNode().find {
-					    it.@kind == 'src' &&  gen_wsbindings.genDirName.contains(it.@path)
-					}
-					.appendNode ('attributes')
-					.appendNode('attribute', [ name: "ignore_optional_problems", value: "true"])
-		    	}
-	    	}
-	    }
-	} 
-
-    idea {
-        module {
-            excludeDirs -= file('build')
-        }
+                            wsdlFile ]
+                }                
+            } 
+        }        
     }
+    sourceSets.main.java.srcDirs += gen_wsbindings.genDirName
+    
+    compileJava.dependsOn gen_wsbindings
+    eclipseClasspath.dependsOn gen_wsbindings
 
+    eclipse {
+        classpath {
+            defaultOutputDir = file('build')
+            file {
+                withXml {
+                    //ignore compile warnings in generated code
+                    it.asNode().find {
+                        it.@kind == 'src' &&  gen_wsbindings.genDirName.contains(it.@path)
+                    }
+                    .appendNode ('attributes')
+                    .appendNode('attribute', [ name: "ignore_optional_problems", value: "true"])
+                }
+            }
+        }
+    } 
 }
+
 
 project(':projects:copper-examples:orchestration:orch-simulators') {
     dependencies {
-	compile project(':projects:copper-coreengine')
-	compile project(':projects:copper-examples:orchestration:orch-interfaces')
-	compile 'log4j:log4j:1.2.17'
-    compile 'org.slf4j:slf4j-api:1.6.6'
+        compile project(':projects:copper-coreengine')
+        compile project(':projects:copper-examples:orchestration:orch-interfaces')
+        compile 'log4j:log4j:1.2.17'
+        compile 'org.slf4j:slf4j-api:1.6.6'
     }
 }
 
+
 project(':projects:copper-monitoring:copper-monitoring-server') {
-
     dependencies {
-		compile project(':projects:copper-jmx-interface')
-		compile project(':projects:copper-monitoring:copper-monitoring-core')
-		compile project(':projects:copper-coreengine')
-	    
-	    //Spring remote
-		compile 'org.springframework:spring-web:3.1.2.RELEASE'
-		compile 'commons-httpclient:commons-httpclient:3.1'
-		compile 'org.springframework:spring-webmvc:3.1.2.RELEASE'
-		
-		//http server
-		compile 'org.eclipse.jetty:jetty-server:8.1.10.v20130312'
-		compile 'org.eclipse.jetty:jetty-servlets:8.1.10.v20130312'
-		compile 'org.eclipse.jetty:jetty-util:8.1.10.v20130312'
-		compile 'org.eclipse.jetty:jetty-webapp:8.1.10.v20130312'		
-		
-		compile 'com.google.guava:guava:14.0.1'
-		
-		compile 'ch.qos.logback:logback-classic:1.0.13'
-	
-		compile 'org.apache.derby:derby:10.9.1.0'
-	}
-
+        compile project(':projects:copper-jmx-interface')
+        compile project(':projects:copper-monitoring:copper-monitoring-core')
+        compile project(':projects:copper-coreengine')
+        
+        //Spring remote
+        compile 'org.springframework:spring-web:3.1.2.RELEASE'
+        compile 'commons-httpclient:commons-httpclient:3.1'
+        compile 'org.springframework:spring-webmvc:3.1.2.RELEASE'
+        
+        //http server
+        compile 'org.eclipse.jetty:jetty-server:8.1.10.v20130312'
+        compile 'org.eclipse.jetty:jetty-servlets:8.1.10.v20130312'
+        compile 'org.eclipse.jetty:jetty-util:8.1.10.v20130312'
+        compile 'org.eclipse.jetty:jetty-webapp:8.1.10.v20130312'        
+        
+        compile 'com.google.guava:guava:14.0.1'
+        
+        compile 'ch.qos.logback:logback-classic:1.0.13'
+    
+        compile 'org.apache.derby:derby:10.9.1.0'
+    }
 }
 
-import groovy.xml.NamespaceBuilder
-project(':projects:copper-monitoring:copper-monitoring-client') {
-	apply plugin: 'application'
-	
-		
-	mainClassName = "de.scoopgmbh.copper.monitoring.client.main.MonitorMain"
-	
-	eclipse {
-	    classpath {
-	    	defaultOutputDir = file('build')
-		    file {
-		      	//workaround to append javadoc for javafx
-		      	withXml {
-			        def root = it.asNode()
-			        NodeList nodeList = root.getAt(new groovy.xml.QName('classpathentry'));
-			        for ( classpathentry in nodeList ) {
-	    				if (classpathentry.attributes().path.contains('jfxrt.jar')){
-					        classpathentry.appendNode('attributes').appendNode('attribute',[name:'javadoc_location', value:'jar:platform:/resource/copper-monitoring-client/libs/jfxrt-javadoc.zip!/']);
-	    				}
-		    			if (classpathentry.attributes().path.contains('Jemmy3AWTInput-0.9.3-SNAPSHOT')){
-	    					Map attributes = classpathentry.attributes();
-	    				    attributes.put('sourcepath','libs/Jemmy3AWTInput-0.9.3-SNAPSHOT-sources.jar');
-	    				    root.appendNode('classpathentry', attributes);
-	    				    root.remove(classpathentry);
-		    			}
-		    			if (classpathentry.attributes().path.contains('Jemmy3Core-0.9.3-SNAPSHOT')){
-	    					Map attributes = classpathentry.attributes();
-	    				    attributes.put('sourcepath','libs/Jemmy3Core-0.9.3-SNAPSHOT-sources.jar');
-	    				    root.appendNode('classpathentry', attributes);
-	    				    root.remove(classpathentry);
-		    			}
-		    			if (classpathentry.attributes().path.contains('JemmyFX-0.9.3-SNAPSHOT')){
-	    					Map attributes = classpathentry.attributes();
-	    				    attributes.put('sourcepath','libs/JemmyFX-0.9.3-SNAPSHOT-sources.jar');
-	    				    root.appendNode('classpathentry', attributes);
-	    				    root.remove(classpathentry);
-		    			}			
-					}
-		    	}
-	    	}
-	    }
-	} 
-	
-	configurations {
-	    jfxant
-	}
-	
-	sourceSets {
-		main {
-		    resources  {
-				srcDir 'src/main/resources'
-				srcDir 'src/main/java' //include fxml files
-		    }
-		}
-	}
-	
-	dependencies {
-		jfxant files("libs/ant-javafx.jar")
-	
-		compile project(':projects:copper-monitoring:copper-monitoring-core')
-		compile files('libs/jfxrt.jar')
-		compile files('libs/ScenicView.jar')
-		
-		compile 'com.google.guava:guava:14.0.1'
-		
-		//Spring remote
-		compile 'org.springframework:spring-web:3.1.2.RELEASE'
-		compile 'commons-httpclient:commons-httpclient:3.1'	
-		
-		compile 'org.slf4j:slf4j-log4j12:1.6.6'
-		
-		testCompile files("libs/Jemmy3AWTInput-0.9.3-SNAPSHOT.jar")
-		testCompile files("libs/Jemmy3Core-0.9.3-SNAPSHOT.jar")
-		testCompile files("libs/JemmyFX-0.9.3-SNAPSHOT.jar")
-	}
 
-	def libTempDir = "${buildDir}/deployfxtmp/tmp"
-	
-	task copyLibs(type:Copy) {
-	    from { configurations.default.collect { it.isDirectory() ? it : it } }
-	    into libTempDir
-	    exclude "*jfxrt.jar"
-	    exclude "*java2html.jar"
-	}
-	 
-	task('deployfx', dependsOn: [jar, copyLibs]) {
-	    def antfx = NamespaceBuilder.newInstance(ant, 'javafx:com.sun.javafx.tools.ant')
-	 
-	    ant.taskdef(
-	            resource: 'com/sun/javafx/tools/ant/antlib.xml',
-	            uri: 'javafx:com.sun.javafx.tools.ant',
-	            classpath: configurations.jfxant.asPath)
-	 
-		doLast{	 
-	    	def appId = 'Copper-Monitor'
-		    antfx.application(
-		                id: appId,
-		                name: 'Copper-Monitor',
-		                mainClass: mainClassName,
-		                fallbackClass: 'com.javafx.main.NoJavaFXFallback')
-		  
-		    antfx.signjar(
-		    			keyStore: "${projectDir}/src/dist/keystore.jks", 
-		    			destdir: libTempDir,
-		    			alias: "scoop",
-		    			storePass: "copper47284",
-		    			keyPass: "copper47284"){
-		    	fileset(dir: libTempDir)
-		    	fileset(dir: "${buildDir}/libs")
-		    }
-	
-	        antfx.deploy(
-	            		outdir: "${buildDir}/deployfx",
-	           			outfile: 'copper-monitor',
-	           			height: '300',
-	            		width: '500',
-	            		placeholderid: 'copper-monitor-applet',
-	            		placeholderref: 'copper-monitor-applet',
+project(':projects:copper-monitoring:copper-monitoring-client') {
+    apply plugin: 'application'
+
+    mainClassName = "de.scoopgmbh.copper.monitoring.client.main.MonitorMain"
+
+    // Copy resources files from src/main/java (*.fxml files) to classes dir.
+    // Note that we don't mark src/main/java as resource folder as it causes problems with IntelliJ
+    processResources {
+        doLast {
+            print "*******" + sourceSets.main.output.classesDir
+            copy {
+                from "$projectDir/src/main/java"
+                into sourceSets.main.output.classesDir
+                include "**/*"
+                exclude "**/*.java"
+            }
+        }
+    }
+
+    eclipse {
+        classpath {
+            defaultOutputDir = file('build')
+            file {
+                withXml {
+                    Node root = it.asNode()
+                    // modify some classpath entries
+                    NodeList nodeList = root.getAt(new QName('classpathentry'))
+                    nodeList.each { Node classpathentry ->
+                        // workaround to append javadoc for javafx
+                        if (classpathentry.attributes().path.contains('jfxrt.jar')){
+                            classpathentry.appendNode('attributes').appendNode('attribute',[name:'javadoc_location', value:'jar:platform:/resource/copper-monitoring-client/libs/jfxrt-javadoc.zip!/']);
+                        }
+                        // workaround to append sources for Jemmy
+                        if (classpathentry.attributes().path.contains('Jemmy3AWTInput-0.9.3-SNAPSHOT')){
+                            Map attributes = classpathentry.attributes();
+                            attributes.put('sourcepath','libs/Jemmy3AWTInput-0.9.3-SNAPSHOT-sources.jar');
+                            root.appendNode('classpathentry', attributes);
+                            root.remove(classpathentry);
+                        }
+                        if (classpathentry.attributes().path.contains('Jemmy3Core-0.9.3-SNAPSHOT')){
+                            Map attributes = classpathentry.attributes();
+                            attributes.put('sourcepath','libs/Jemmy3Core-0.9.3-SNAPSHOT-sources.jar');
+                            root.appendNode('classpathentry', attributes);
+                            root.remove(classpathentry);
+                        }
+                        if (classpathentry.attributes().path.contains('JemmyFX-0.9.3-SNAPSHOT')){
+                            Map attributes = classpathentry.attributes();
+                            attributes.put('sourcepath','libs/JemmyFX-0.9.3-SNAPSHOT-sources.jar');
+                            root.appendNode('classpathentry', attributes);
+                            root.remove(classpathentry);
+                        }
+                    }
+                }
+            }
+        }
+    } 
+    
+    configurations {
+        jfxant
+    }
+    
+    dependencies {
+        jfxant files("libs/ant-javafx.jar")
+    
+        compile project(':projects:copper-monitoring:copper-monitoring-core')
+        compile files('libs/jfxrt.jar')
+        compile files('libs/ScenicView.jar')
+        
+        compile 'com.google.guava:guava:14.0.1'
+        
+        //Spring remote
+        compile 'org.springframework:spring-web:3.1.2.RELEASE'
+        compile 'commons-httpclient:commons-httpclient:3.1'    
+        
+        compile 'org.slf4j:slf4j-log4j12:1.6.6'
+        
+        testCompile files("libs/Jemmy3AWTInput-0.9.3-SNAPSHOT.jar")
+        testCompile files("libs/Jemmy3Core-0.9.3-SNAPSHOT.jar")
+        testCompile files("libs/JemmyFX-0.9.3-SNAPSHOT.jar")
+    }
+
+    def libTempDir = "${buildDir}/deployfxtmp/tmp"
+    
+    task copyLibs(type:Copy) {
+        from { configurations.default }
+        into libTempDir
+        exclude "*jfxrt.jar"
+        exclude "*java2html.jar"
+    }
+     
+    task('deployfx', dependsOn: [jar, copyLibs]) {
+        def antfx = NamespaceBuilder.newInstance(ant, 'javafx:com.sun.javafx.tools.ant')
+     
+        ant.taskdef(
+                resource: 'com/sun/javafx/tools/ant/antlib.xml',
+                uri: 'javafx:com.sun.javafx.tools.ant',
+                classpath: configurations.jfxant.asPath)
+     
+        doLast{     
+            def appId = 'Copper-Monitor'
+            antfx.application(
+                        id: appId,
+                        name: 'Copper-Monitor',
+                        mainClass: mainClassName,
+                        fallbackClass: 'com.javafx.main.NoJavaFXFallback')
+          
+            antfx.signjar(
+                        keyStore: "${projectDir}/src/dist/keystore.jks", 
+                        destdir: libTempDir,
+                        alias: "scoop",
+                        storePass: "copper47284",
+                        keyPass: "copper47284"){
+                fileset(dir: libTempDir)
+                fileset(dir: "${buildDir}/libs")
+            }
+    
+            antfx.deploy(
+                        outdir: "${buildDir}/deployfx",
+                        outfile: 'copper-monitor',
+                        height: '300',
+                        width: '500',
+                        placeholderid: 'copper-monitor-applet',
+                        placeholderref: 'copper-monitor-applet',
                         offlineAllowed: true) {
 
                 antfx.info(
@@ -588,29 +576,30 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
                     copyright: "copper-engine.org developer team"
                 )
 
-		        antfx.resources(){
-		        	fileset(dir: libTempDir)
-		        }
-	
-		        permissions(elevated: "true", cacheCertificates: "true")
-		    	
-		    	application(refid: appId)
-	        }
-	        
-	        //delete(libTempDir);
-	   }
+                antfx.resources(){
+                    fileset(dir: libTempDir)
+                }
+    
+                permissions(elevated: "true", cacheCertificates: "true")
+                
+                application(refid: appId)
+            }
+            
+            //delete(libTempDir);
+       }
     }
-	
 }
+
 
 project(':projects:copper-monitoring:copper-monitoring-core') {
     dependencies {
-    	 compile 'org.apache.shiro:shiro-core:1.2.2'
-		 compile 'org.apache.shiro:shiro-spring:1.2.2'
-		 compile 'com.esotericsoftware.kryo:kryo:2.21'
-		 compile 'com.google.guava:guava:14.0.1'
+         compile 'org.apache.shiro:shiro-core:1.2.2'
+         compile 'org.apache.shiro:shiro-spring:1.2.2'
+         compile 'com.esotericsoftware.kryo:kryo:2.21'
+         compile 'com.google.guava:guava:14.0.1'
     }
 }
+
 
 project(':projects:copper-monitoring:copper-monitoring-example') {
     sourceSets {
@@ -621,10 +610,9 @@ project(':projects:copper-monitoring:copper-monitoring-example') {
     sourceSets.main.resources.srcDirs += sourceSets.workflow.srcDir
 
     dependencies {
-    	 compile project(':projects:copper-monitoring:copper-monitoring-server')
-    	 compile project(':projects:copper-coreengine')
-    	 compile 'ch.qos.logback:logback-classic:1.0.13'
-	     compile 'org.apache.derby:derby:10.9.1.0'
+         compile project(':projects:copper-monitoring:copper-monitoring-server')
+         compile project(':projects:copper-coreengine')
+         compile 'ch.qos.logback:logback-classic:1.0.13'
+         compile 'org.apache.derby:derby:10.9.1.0'
     }
 }
-
