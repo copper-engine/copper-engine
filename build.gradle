@@ -33,6 +33,15 @@ configure(subprojects.findAll {
     compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_6
     compileTestJava.targetCompatibility = JavaVersion.VERSION_1_6
 
+    apply plugin: 'checkstyle'
+    checkstyle {
+        configFile file("$rootDir/common/checkstyle.xml")
+        configProperties = [ "rootDir": "$rootDir" ]
+        ignoreFailures false
+    }
+    checkstyleMain.source = [ 'src/main/java' ] // only check main source files, not generated content
+    assemble.dependsOn checkstyleMain, checkstyleTest
+
     // apply eclipse plugin only for 'deepest' subprojects since eclipse does not understand subprojects
     apply plugin: 'eclipse'
 
@@ -88,26 +97,19 @@ configure(subprojects.findAll {
         manifest.attributes provider: 'gradle'
     }
 
-    task replace_headers {
-        def licenseFile = file("$rootDir/common/apache-license-file.txt")
-        def licenseHeader
-
-        ant.loadfile(srcFile: licenseFile, property: 'licenseHeader')
-
-        licenseHeader = "${ant.properties['licenseHeader']}"
-
+    task addMissingLicenseHeaders {
         println "Replacing java source file headers in " + project.path
-        // println licenseHeader
 
-        licenseHeader = licenseHeader + "package "
+        def licenseFile = file("$rootDir/common/apache-license-file.txt")
+        ant.loadfile(srcFile: licenseFile, property: 'licenseHeader')
+        def licenseHeader = "${ant.properties['licenseHeader']}"
 
-        ant.replaceregexp(match: '(/\\*.*\\*/.*)??^package ', flags: 'sm', replace: licenseHeader) {
+        ant.replaceregexp(match: '(/\\*.*\\*/.*)??^package ', flags: 'sm', replace: licenseHeader + "package ") {
             fileset(dir: "$projectDir/src") {
                 include(name: '**/*.java')
             }
         }
     }
-    compileJava.dependsOn replace_headers
 
     // build additional artifacts
 
