@@ -16,8 +16,8 @@
 package org.copperengine.core;
 
 /**
- * This exception class is for COPPER internal use only!!!
- * Do not try to throw or handle this exception!
+ * This throwable class is for COPPER internal use only!!!
+ * Do not try to throw or handle this throwable!
  *
  * @author austermann
  */
