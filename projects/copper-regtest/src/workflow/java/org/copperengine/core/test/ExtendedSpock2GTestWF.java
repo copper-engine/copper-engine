@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.test;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class ExtendedSpock2GTestWF extends Spock2GTestWF {
     }
 
     @Override
-    protected void abstractPartnersystemCall() throws InterruptException {
+    protected void abstractPartnersystemCall() throws Interrupt {
         correlationId = "ThisIsACustomCorrelationId" + System.nanoTime();
         mockAdapter.foo("foo", correlationId);
         logger.debug("Request sent, waiting...");

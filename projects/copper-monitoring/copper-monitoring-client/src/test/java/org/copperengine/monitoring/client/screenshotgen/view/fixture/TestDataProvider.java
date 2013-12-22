@@ -186,7 +186,7 @@ public class TestDataProvider implements CopperMonitoringService {
                         "import java.util.Date;\r\n" +
                         "\r\n" +
                         "import org.copperengine.AutoWire;\r\n" +
-                        "import org.copperengine.InterruptException;\r\n" +
+                        "import org.copperengine.Interrupt;\r\n" +
                         "import org.copperengine.Response;\r\n" +
                         "import org.copperengine.WaitMode;\r\n" +
                         "import org.copperengine.Workflow;\r\n" +
@@ -217,7 +217,7 @@ public class TestDataProvider implements CopperMonitoringService {
                         "	}\r\n" +
                         "\r\n" +
                         "	@Override\r\n" +
-                        "	public void main() throws InterruptException {\r\n" +
+                        "	public void main() throws Interrupt {\r\n" +
                         "		while (true){\r\n" +
                         "			auditTrail.asynchLog(2, new Date(), \"\", \"\", \"\", \"\", \"\", \"wait for Data\", \"Text\");\r\n" +
                         "			wait(WaitMode.ALL,Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME,BillAdapter.BILLABLE_SERVICE);\r\n" +

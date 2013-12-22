@@ -18,7 +18,7 @@ package org.copperengine.core.test.versioning.compatibility;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.persistent.PersistentWorkflow;
@@ -43,7 +43,7 @@ public class CompatibilityCheckWorkflow_0001 extends PersistentWorkflow<Serializ
     private String bString;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         aString_RENAMED = "A";
         int localIntValue_RENAMED = 1;
         directlyWaitingMethod(aString_RENAMED, localIntValue_RENAMED);
@@ -52,12 +52,12 @@ public class CompatibilityCheckWorkflow_0001 extends PersistentWorkflow<Serializ
         indirectlyWaitingMethod(bString, localIntValue_RENAMED);
     }
 
-    protected void directlyWaitingMethod(String strValue_RENAMED, int intValue) throws InterruptException {
+    protected void directlyWaitingMethod(String strValue_RENAMED, int intValue) throws Interrupt {
         neverWaitingMethod(strValue_RENAMED, intValue);
         this.wait(WaitMode.ALL, 500, TimeUnit.MILLISECONDS, Long.toHexString(System.currentTimeMillis()));
     }
 
-    protected void indirectlyWaitingMethod(String strValue, int intValue_RENAMED) throws InterruptException {
+    protected void indirectlyWaitingMethod(String strValue, int intValue_RENAMED) throws Interrupt {
         final Object localObject = 10867L;
         directlyWaitingMethod(strValue, intValue_RENAMED);
         logger.debug("{}", localObject);

@@ -19,7 +19,7 @@ import java.util.Date;
 
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Callback;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.audit.AuditTrail;
@@ -54,7 +54,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         logger.debug("started");
 
         // store the workflow start in the database
@@ -119,7 +119,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
     }
 
     // do a adapter call and ait for terminaation
-    private void partnersystemCall() throws InterruptException {
+    private void partnersystemCall() throws Interrupt {
         correlationId = getEngine().createUUID();
         mockAdapter.foo("foo", correlationId);
         logger.debug("Request sent, waiting (in subsystem call)...");

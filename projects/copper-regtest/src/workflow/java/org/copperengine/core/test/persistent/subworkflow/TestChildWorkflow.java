@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.test.persistent.subworkflow;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class TestChildWorkflow extends PersistentWorkflow<String> {
     private static final Logger logger = LoggerFactory.getLogger(TestChildWorkflow.class);
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         logger.info("starting...");
 
         // process the response

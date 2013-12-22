@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.audit.AuditTrail;
@@ -61,7 +61,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         try {
             for (int i = 0; i < 10; i++) {
                 callFoo();
@@ -78,7 +78,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
         // }
     }
 
-    private void callFoo() throws InterruptException {
+    private void callFoo() throws Interrupt {
         String cid = getEngine().createUUID();
         dbMockAdapter.foo(getData(), cid);
         wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);

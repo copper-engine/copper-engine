@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.test.versioning;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.util.BlockingResponseReceiver;
@@ -26,7 +26,7 @@ public class VersionTestWorkflow_9_3_1 extends Workflow<BlockingResponseReceiver
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         getData().setResponse(this.getClass().getName());
     }
 

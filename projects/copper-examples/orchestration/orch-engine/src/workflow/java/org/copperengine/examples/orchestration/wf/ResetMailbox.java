@@ -16,7 +16,7 @@
 package org.copperengine.examples.orchestration.wf;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.WorkflowDescription;
@@ -51,7 +51,7 @@ public class ResetMailbox extends PersistentWorkflow<ResetMailboxData> {
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         logger.info("workflow instance started");
         if (!checkSecretOK()) {
             sendSms("Authentication failed");
@@ -65,7 +65,7 @@ public class ResetMailbox extends PersistentWorkflow<ResetMailboxData> {
         logger.info("workflow instance finished");
     }
 
-    private boolean checkSecretOK() throws InterruptException {
+    private boolean checkSecretOK() throws Interrupt {
         for (int i = 0; ; i++) {
             try {
                 GetCustomersByMsisdnRequest parameters = new GetCustomersByMsisdnRequest();
@@ -85,7 +85,7 @@ public class ResetMailbox extends PersistentWorkflow<ResetMailboxData> {
         return false;
     }
 
-    private boolean resetMailbox() throws InterruptException {
+    private boolean resetMailbox() throws Interrupt {
         for (int i = 0; ; i++) {
             final String correlationId = networkServiceAdapter.resetMailbox(getData().getMsisdn());
             wait(WaitMode.ALL, 5 * 60 * 60 * 1000, correlationId);
@@ -109,12 +109,12 @@ public class ResetMailbox extends PersistentWorkflow<ResetMailboxData> {
 
     }
 
-    private void sendSms(String msg) throws InterruptException {
+    private void sendSms(String msg) throws Interrupt {
         logger.info("sendSMS({})", msg);
         networkServiceAdapter.sendSMS(getData().getMsisdn(), msg);
     }
 
-    private void sleep(int seconds) throws InterruptException {
+    private void sleep(int seconds) throws Interrupt {
         logger.info("Sleeping {} seconds up to next try...", seconds);
         wait(WaitMode.ALL, seconds * 1000, getEngine().createUUID());
     }

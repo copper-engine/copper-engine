@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.test.tranzient.simple;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 
 public class IssueClassCastExceptionWorkflow extends AbstractIssueClassCastExceptionWorkflow {
 
@@ -27,7 +27,7 @@ public class IssueClassCastExceptionWorkflow extends AbstractIssueClassCastExcep
     }
 
     @Override
-    protected void callAbstractExceptionSimulation1() throws InterruptException {
+    protected void callAbstractExceptionSimulation1() throws Interrupt {
         throw new RuntimeException("Simulate exception.");
     }
 
@@ -37,7 +37,7 @@ public class IssueClassCastExceptionWorkflow extends AbstractIssueClassCastExcep
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         this.callPartner(100);
         getData().error = false;
         getData().done = true;

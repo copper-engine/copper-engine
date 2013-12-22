@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Callback;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.tranzient.TransientProcessorPool;
@@ -45,7 +45,7 @@ public abstract class Spock2GTestWF extends Workflow<String> {
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         logger.debug("started");
 
         logger.info("This is version five");
@@ -107,7 +107,7 @@ public abstract class Spock2GTestWF extends Workflow<String> {
         logger.debug("finished");
     }
 
-    protected void partnersystemCall() throws InterruptException {
+    protected void partnersystemCall() throws Interrupt {
         correlationId = getEngine().createUUID();
         mockAdapter.foo("foo", correlationId);
         logger.debug("Request sent, waiting (in subsystem call)...");
@@ -115,6 +115,6 @@ public abstract class Spock2GTestWF extends Workflow<String> {
         logger.debug("Waking up again (in subsystem call), response=" + super.getAndRemoveResponse(correlationId));
     }
 
-    protected abstract void abstractPartnersystemCall() throws InterruptException;
+    protected abstract void abstractPartnersystemCall() throws Interrupt;
 
 }

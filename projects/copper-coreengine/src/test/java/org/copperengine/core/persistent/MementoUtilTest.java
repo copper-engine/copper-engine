@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.instrument.Transformed;
 import org.junit.Assert;
 import org.junit.Test;
@@ -84,7 +84,7 @@ public class MementoUtilTest {
         Map<String, SomeMemberClass> mapMember;
 
         @Override
-        public void main() throws InterruptException {
+        public void main() throws Interrupt {
         }
 
     }

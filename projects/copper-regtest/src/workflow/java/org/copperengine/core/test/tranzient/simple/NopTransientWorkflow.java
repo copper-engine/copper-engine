@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.test.tranzient.simple;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.util.AsyncResponseReceiver;
 
@@ -24,7 +24,7 @@ public class NopTransientWorkflow extends Workflow<AsyncResponseReceiver<Integer
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         getData().setResponse(Integer.valueOf(1));
     }
 }

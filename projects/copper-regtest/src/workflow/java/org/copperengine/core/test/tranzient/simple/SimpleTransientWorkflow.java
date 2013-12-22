@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
@@ -62,7 +62,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
      * @see org.copperengine.core.Workflow#main()
      */
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         new Innerclass();
 
         try {
@@ -139,7 +139,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
         }
     }
 
-    private void wait4all(final String cid1, final String cid2) throws InterruptException {
+    private void wait4all(final String cid1, final String cid2) throws Interrupt {
         try {
             wait(WaitMode.ALL, 5000, cid1, cid2);
         } catch (Exception e) {
@@ -150,7 +150,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
         }
     }
 
-    private String execute(String cid, int timeout) throws InterruptException {
+    private String execute(String cid, int timeout) throws Interrupt {
         mockAdapter.foo("foo", cid);
         wait(WaitMode.ALL, timeout, cid);
         Response<String> response = getAndRemoveResponse(cid);
@@ -165,7 +165,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
         return cid;
     }
 
-    private void testMultiResponse() throws InterruptException {
+    private void testMultiResponse() throws Interrupt {
         final int SIZE = 5;
         final String cid1 = getEngine().createUUID();
         mockAdapter.fooWithMultiResponse("foo", cid1, SIZE);

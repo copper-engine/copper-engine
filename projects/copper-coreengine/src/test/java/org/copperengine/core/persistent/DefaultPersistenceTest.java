@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.instrument.Transformed;
 import org.copperengine.core.persistent.DefaultPersistenceTest.WorkLogEntry.Type;
 import org.copperengine.core.persistent.DefaultPersistenceWorker.OperationType;
@@ -271,7 +271,7 @@ public class DefaultPersistenceTest {
     class TestWorkflow extends PersistentWorkflow<Serializable> {
 
         @Override
-        public void main() throws InterruptException {
+        public void main() throws Interrupt {
         }
 
         @Override

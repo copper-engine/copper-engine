@@ -16,7 +16,7 @@
 package org.copperengine.core.test;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Workflow;
 
 public class PerformanceTestWF extends Workflow<String> {
@@ -33,7 +33,7 @@ public class PerformanceTestWF extends Workflow<String> {
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         for (idx = 0; idx < 10; idx++) {
             waitForAll(mockAdapter.foo("foo"));
             // resubmit();

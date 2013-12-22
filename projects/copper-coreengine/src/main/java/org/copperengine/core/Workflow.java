@@ -154,7 +154,7 @@ public abstract class Workflow<D> implements Serializable {
      * @param correlationIds
      *         one or more correlation ids
      */
-    protected final void waitForAll(String... correlationIds) throws InterruptException {
+    protected final void waitForAll(String... correlationIds) throws Interrupt {
         this.wait(WaitMode.ALL, 0, correlationIds);
     }
 
@@ -164,7 +164,7 @@ public abstract class Workflow<D> implements Serializable {
      * @param callbacks
      *         one or more callback objects
      */
-    protected final void waitForAll(Callback<?>... callbacks) throws InterruptException {
+    protected final void waitForAll(Callback<?>... callbacks) throws Interrupt {
         this.wait(WaitMode.ALL, 0, callbacks);
     }
 
@@ -180,7 +180,7 @@ public abstract class Workflow<D> implements Serializable {
      * @param correlationIds
      *         one ore more correlation ids
      */
-    protected final void wait(WaitMode mode, int timeoutMsec, String... correlationIds) throws InterruptException {
+    protected final void wait(WaitMode mode, int timeoutMsec, String... correlationIds) throws Interrupt {
         if (correlationIds.length == 0)
             throw new IllegalArgumentException();
         for (int i = 0; i < correlationIds.length; i++) {
@@ -190,7 +190,7 @@ public abstract class Workflow<D> implements Serializable {
         engine.registerCallbacks(this, mode, timeoutMsec, correlationIds);
     }
 
-    protected final void wait(final WaitMode mode, final int timeoutMsec, final Callback<?>... callbacks) throws InterruptException {
+    protected final void wait(final WaitMode mode, final int timeoutMsec, final Callback<?>... callbacks) throws Interrupt {
         String[] correlationIds = new String[callbacks.length];
         for (int i = 0; i < correlationIds.length; i++) {
             correlationIds[i] = callbacks[i].getCorrelationId();
@@ -212,7 +212,7 @@ public abstract class Workflow<D> implements Serializable {
      * @param correlationIds
      *         one ore more correlation ids
      */
-    protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final String... correlationIds) throws InterruptException {
+    protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final String... correlationIds) throws Interrupt {
         if (correlationIds.length == 0)
             throw new IllegalArgumentException();
         for (int i = 0; i < correlationIds.length; i++) {
@@ -236,7 +236,7 @@ public abstract class Workflow<D> implements Serializable {
      * @param callbacks
      *         one ore more callbacks
      */
-    protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final Callback<?>... callbacks) throws InterruptException {
+    protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final Callback<?>... callbacks) throws Interrupt {
         String[] correlationIds = new String[callbacks.length];
         for (int i = 0; i < correlationIds.length; i++) {
             correlationIds[i] = callbacks[i].getCorrelationId();
@@ -297,15 +297,15 @@ public abstract class Workflow<D> implements Serializable {
     /**
      * Entry point for this workflow
      */
-    public abstract void main() throws InterruptException;
+    public abstract void main() throws Interrupt;
 
     /**
      * Causes the engine to stop processing of this workflow instance and to enqueue it again.
      * May be used in case of processor pool change
      *
-     * @throws InterruptException
+     * @throws Interrupt
      */
-    protected final void resubmit() throws InterruptException {
+    protected final void resubmit() throws Interrupt {
         final String cid = engine.createUUID();
         engine.registerCallbacks(this, WaitMode.ALL, 0, cid);
         Acknowledge ack = createCheckpointAcknowledge();

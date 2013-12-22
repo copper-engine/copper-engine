@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitHook;
 import org.copperengine.core.WaitMode;
@@ -74,7 +74,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         try {
             // testWaitAllMultiResponseAndTimeout();
 
@@ -97,7 +97,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
         }
     }
 
-    private void callFoo() throws InterruptException {
+    private void callFoo() throws Interrupt {
         String cid = getEngine().createUUID();
         mockAdapter.fooWithMultiResponse(getData(), cid, 3);
         List<Response<Object>> responseList = new ArrayList<Response<Object>>();
@@ -119,7 +119,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
         auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
     }
 
-    private void callFooWithWaitHook() throws InterruptException {
+    private void callFooWithWaitHook() throws Interrupt {
         final String cid = getEngine().createUUID();
         mockAdapter.foo(getData(), cid);
 
@@ -144,7 +144,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
         assertNull(res.getException());
     }
 
-    private void testWaitFirst() throws InterruptException {
+    private void testWaitFirst() throws Interrupt {
         final String cidEarly = getEngine().createUUID();
         final String cidLate = getEngine().createUUID();
         mockAdapter.foo(getData(), cidEarly, 50);
@@ -173,7 +173,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
         assertFalse(resLate.isTimeout());
     }
 
-    private void testWaitFirstMultiResponse() throws InterruptException {
+    private void testWaitFirstMultiResponse() throws Interrupt {
         final String cidWithResponse = getEngine().createUUID();
         final String cidNoResponse = getEngine().createUUID();
         mockAdapter.fooWithMultiResponse(getData(), cidWithResponse, 2);
@@ -204,7 +204,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
         assertNull(timedOutResponse);
     }
 
-    private void testWaitAllMultiResponseAndTimeout() throws InterruptException {
+    private void testWaitAllMultiResponseAndTimeout() throws Interrupt {
         final String cidWithResponse = getEngine().createUUID();
         final String cidNoResponse = getEngine().createUUID();
         mockAdapter.fooWithMultiResponse(getData(), cidWithResponse, 2);

@@ -17,7 +17,7 @@ package org.copperengine.core.tranzient;
 
 import java.util.Queue;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
@@ -50,7 +50,7 @@ class TransientProcessor extends Processor {
                 logger.trace("after 'main' - stack={}", wf.get__stack());
                 engine.removeWorkflow(wf.getId());
                 assert wf.get__stack().isEmpty() : "Stack must be empty \n" + wf.get__stack();
-            } catch (InterruptException e) {
+            } catch (Interrupt e) {
                 logger.trace("interrupt - stack={}", wf.get__stack());
                 assert wf.get__stack().size() > 0;
             } catch (Exception e) {

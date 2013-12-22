@@ -21,7 +21,7 @@ package org.copperengine.core;
  *
  * @author austermann
  */
-public final class InterruptException extends Throwable {
+public final class Interrupt extends Throwable {
 
     private static final long serialVersionUID = 576739730739351101L;
 

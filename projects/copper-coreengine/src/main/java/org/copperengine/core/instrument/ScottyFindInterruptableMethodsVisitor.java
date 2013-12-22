@@ -62,7 +62,7 @@ public class ScottyFindInterruptableMethodsVisitor extends ClassVisitor implemen
         method = name + desc;
         if (exceptions != null && exceptions.length > 0) {
             for (String e : exceptions) {
-                if ("org/copperengine/core/InterruptException".equals(e)) {
+                if ("org/copperengine/core/Interrupt".equals(e)) {
                     interruptableMethods.add(method);
                 }
             }
@@ -70,8 +70,8 @@ public class ScottyFindInterruptableMethodsVisitor extends ClassVisitor implemen
         return new MethodVisitor(ASM4, super.visitMethod(access, name, desc, signature, exceptions)) {
             @Override
             public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
-                if ("org/copperengine/core/InterruptException".equals(type)) {
-                    throw new RuntimeException("InterruptException must not be handled!");
+                if ("org/copperengine/core/Interrupt".equals(type)) {
+                    throw new RuntimeException("Interrupt must not be handled!");
                 }
                 super.visitTryCatchBlock(start, end, handler, type);
             }

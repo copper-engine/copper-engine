@@ -16,7 +16,7 @@
 package org.copperengine.core.test.tranzient.simple;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.test.MockAdapter;
@@ -35,7 +35,7 @@ public class VerySimpleTransientWorkflow extends Workflow<AsyncResponseReceiver<
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         System.out.println("started");
         for (i = 0; i < 3; i++) {
             final String cid = mockAdapter.foo("foo");

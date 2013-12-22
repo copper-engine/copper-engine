@@ -17,7 +17,7 @@ package org.copperengine.core.test.tranzient.simple;
 
 import java.util.concurrent.TimeUnit;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
@@ -33,11 +33,11 @@ public abstract class AbstractIssueClassCastExceptionWorkflow extends Workflow<C
 
     protected abstract void callAbstractExceptionSimulation0(String partnerLink);
 
-    protected abstract void callAbstractExceptionSimulation1() throws InterruptException;
+    protected abstract void callAbstractExceptionSimulation1() throws Interrupt;
 
     protected abstract void callAbstractExceptionSimulation2(String partnerLink);
 
-    protected void callPartner(int theWaitInterval) throws InterruptException {
+    protected void callPartner(int theWaitInterval) throws Interrupt {
         logger.warn("Start " + this.getClass().getName());
         boolean retryInterrupted = false;
         while (!retryInterrupted && retriesLeft > 0) {
@@ -59,7 +59,7 @@ public abstract class AbstractIssueClassCastExceptionWorkflow extends Workflow<C
         }
     }
 
-    private boolean waitForNetRetry(int theWaitInterval) throws InterruptException {
+    private boolean waitForNetRetry(int theWaitInterval) throws Interrupt {
         logger.info("waitForNetRetry(" + theWaitInterval + ")");
         boolean interupted = false;
         if (retriesLeft > 0) {

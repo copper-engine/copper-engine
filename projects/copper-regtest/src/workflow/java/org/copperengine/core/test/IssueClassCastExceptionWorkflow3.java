@@ -18,7 +18,7 @@ package org.copperengine.core.test;
 import java.io.Serializable;
 
 import org.apache.log4j.Logger;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.PersistentWorkflow;
@@ -32,17 +32,17 @@ public class IssueClassCastExceptionWorkflow3<Data extends Serializable> extends
     private int retriesLeft = 5;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         this.callPartner(20);
 
     }
 
-    protected void exceptionSimulation() throws InterruptException {
+    protected void exceptionSimulation() throws Interrupt {
         wait(WaitMode.FIRST, 20, "x");
         throw new RuntimeException("Simulate exception.");
     }
 
-    protected void callPartner(int theWaitInterval) throws InterruptException {
+    protected void callPartner(int theWaitInterval) throws Interrupt {
         logger.warn("Start " + this.getClass().getName());
         boolean retryInterrupted = false;
         while (!retryInterrupted && retriesLeft > 0) {
@@ -50,7 +50,7 @@ public class IssueClassCastExceptionWorkflow3<Data extends Serializable> extends
         }
     }
 
-    private boolean withCatch(int theWaitInterval) throws InterruptException {
+    private boolean withCatch(int theWaitInterval) throws Interrupt {
         try {
             exceptionSimulation();
             return false;
@@ -60,7 +60,7 @@ public class IssueClassCastExceptionWorkflow3<Data extends Serializable> extends
         }
     }
 
-    private boolean waitForNetRetry(int theWaitInterval) throws InterruptException {
+    private boolean waitForNetRetry(int theWaitInterval) throws Interrupt {
         boolean interupted = false;
         if (retriesLeft > 0) {
             retriesLeft--;

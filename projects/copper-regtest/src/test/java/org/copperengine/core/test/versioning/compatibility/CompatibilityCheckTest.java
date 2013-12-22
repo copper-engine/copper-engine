@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowFactory;
@@ -37,7 +37,7 @@ public class CompatibilityCheckTest {
     private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckTest.class);
 
     @Test
-    public void testCheckCompatibility() throws Exception, InterruptException {
+    public void testCheckCompatibility() throws Exception, Interrupt {
         TestWorkflowRepository repo = new TestWorkflowRepository();
         repo.setSourceDirs(Arrays.asList(new String[] { "./src/workflow/java" }));
         repo.setTargetDir("./build/compiled_workflow/" + Long.toHexString(System.currentTimeMillis()));
@@ -70,7 +70,7 @@ public class CompatibilityCheckTest {
 
     }
 
-    private void doTest(TestWorkflowRepository repo, TestEngine engine, String baseClass, String compatibleClass, boolean successExpected, boolean checkIterations) throws InterruptException, Exception {
+    private void doTest(TestWorkflowRepository repo, TestEngine engine, String baseClass, String compatibleClass, boolean successExpected, boolean checkIterations) throws Interrupt, Exception {
         try {
             TestJavaSerializer serializer = new TestJavaSerializer();
             serializer.setClassNameReplacement(compatibleClass);
@@ -80,8 +80,8 @@ public class CompatibilityCheckTest {
             wf.__beforeProcess();
             try {
                 wf.main();
-                fail("Expected InterruptException");
-            } catch (InterruptException e) {
+                fail("Expected Interrupt");
+            } catch (Interrupt e) {
                 // ok
             }
             final SerializedWorkflow checkPoint1 = serializer.serializeWorkflow(wf);
@@ -90,8 +90,8 @@ public class CompatibilityCheckTest {
             wf.__beforeProcess();
             try {
                 wf.main();
-                fail("Expected InterruptException");
-            } catch (InterruptException e) {
+                fail("Expected Interrupt");
+            } catch (Interrupt e) {
                 // ok
             }
             final SerializedWorkflow checkPoint2 = serializer.serializeWorkflow(wf);
@@ -138,8 +138,8 @@ public class CompatibilityCheckTest {
             wf.__beforeProcess();
             try {
                 wf.main();
-                fail("expected InterruptException");
-            } catch (InterruptException e) {
+                fail("expected Interrupt");
+            } catch (Interrupt e) {
                 // ok
                 // check that we can still serialize and deserialize the workflow instance
                 SerializedWorkflow swf = serializer.serializeWorkflow(wf);
@@ -150,7 +150,7 @@ public class CompatibilityCheckTest {
         wf.__beforeProcess();
         try {
             wf.main();
-        } catch (InterruptException e) {
+        } catch (Interrupt e) {
             fail("unexpected exception");
         }
     }
@@ -162,7 +162,7 @@ public class CompatibilityCheckTest {
             try {
                 wf.main();
                 break;
-            } catch (InterruptException e) {
+            } catch (Interrupt e) {
                 // ok
                 // check that we can still serialize and deserialize the workflow instance
                 SerializedWorkflow swf = serializer.serializeWorkflow(wf);

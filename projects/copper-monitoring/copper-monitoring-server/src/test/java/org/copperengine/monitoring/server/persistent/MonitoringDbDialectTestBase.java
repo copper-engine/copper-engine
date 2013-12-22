@@ -29,7 +29,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.batcher.RetryingTxnBatchRunner;
@@ -122,7 +122,7 @@ public abstract class MonitoringDbDialectTestBase {
         }
 
         @Override
-        public void main() throws InterruptException {
+        public void main() throws Interrupt {
         }
     }
 
@@ -142,7 +142,7 @@ public abstract class MonitoringDbDialectTestBase {
         }
 
         @Override
-        public void main() throws InterruptException {
+        public void main() throws Interrupt {
         }
     }
 
