@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.test.tranzient.classhierarchy;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +25,10 @@ public abstract class Derived extends Base {
 
     private static final Logger logger = LoggerFactory.getLogger(Derived.class);
 
-    protected abstract void callMock() throws InterruptException;
+    protected abstract void callMock() throws Interrupt;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         callMock();
 
         for (i = 0; i < 5; i++) {

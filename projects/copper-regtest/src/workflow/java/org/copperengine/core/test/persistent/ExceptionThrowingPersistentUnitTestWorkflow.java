@@ -17,7 +17,7 @@ package org.copperengine.core.test.persistent;
 
 import java.io.Serializable;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.persistent.PersistentWorkflow;
 
 public class ExceptionThrowingPersistentUnitTestWorkflow extends PersistentWorkflow<Serializable> {
@@ -25,7 +25,7 @@ public class ExceptionThrowingPersistentUnitTestWorkflow extends PersistentWorkf
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         throw new RuntimeException("test");
     }
 

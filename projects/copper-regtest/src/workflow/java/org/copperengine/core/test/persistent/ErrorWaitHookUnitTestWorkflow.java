@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.util.concurrent.TimeUnit;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitHook;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
@@ -30,7 +30,7 @@ public class ErrorWaitHookUnitTestWorkflow extends PersistentWorkflow<Serializab
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         wait(WaitMode.ALL, 50, TimeUnit.MILLISECONDS, getEngine().createUUID());
         getEngine().addWaitHook(this.getId(), new WaitHook() {
             @Override

@@ -40,6 +40,8 @@ public class StandardJavaSerializer implements Serializer {
 
     private static final String COPPER_3_PACKAGE_PREFIX = "org.copperengine.core.";
     private static final String COPPER_2X_PACKAGE_PREFIX = "de.scoopgmbh.copper.";
+    private static final String COPPER_2X_INTERRUPT_NAME = "InterruptException";
+    private static final String COPPER_3_INTERRUPT_NAME = "Interrupt";
 
     private boolean compress = true;
     private int compressThresholdSize = 250;
@@ -120,9 +122,13 @@ public class StandardJavaSerializer implements Serializer {
      * deserialization of workflow instances and reponses.
      * This can be removed in one of the future releases.
      */
-    private String classnameReplacement(String classname) {
+     String classnameReplacement(String classname) {
         if (classname.startsWith(COPPER_2X_PACKAGE_PREFIX)) {
-            return classname.replace(COPPER_2X_PACKAGE_PREFIX, COPPER_3_PACKAGE_PREFIX);
+            String className3x = classname.replace(COPPER_2X_PACKAGE_PREFIX, COPPER_3_PACKAGE_PREFIX);
+            if ((COPPER_3_PACKAGE_PREFIX + COPPER_2X_INTERRUPT_NAME).equals(className3x)) {
+                return COPPER_3_PACKAGE_PREFIX + COPPER_3_INTERRUPT_NAME;
+            }
+            return className3x;
         }
         return classname;
     }

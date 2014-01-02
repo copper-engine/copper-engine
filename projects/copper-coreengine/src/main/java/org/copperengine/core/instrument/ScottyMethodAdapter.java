@@ -284,9 +284,9 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             if ("main".equals(name) && "()V".equals(desc)) {
                 visitInsn(RETURN);
             } else {
-                visitTypeInsn(NEW, "org/copperengine/core/InterruptException");
+                visitTypeInsn(NEW, "org/copperengine/core/Interrupt");
                 visitInsn(DUP);
-                visitMethodInsn(INVOKESPECIAL, "org/copperengine/core/InterruptException", "<init>", "()V");
+                visitMethodInsn(INVOKESPECIAL, "org/copperengine/core/Interrupt", "<init>", "()V");
                 visitInsn(ATHROW);
             }
             visitLabel(label);
@@ -324,8 +324,8 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             popStackEntry();
             visitInsn(NOP);
 
-            // logger.info("Calling super.visitTryCatchBlock("+invokeLabel+", "+afterInvokeLabel+", "+interruptLabel+", \"org/copperengine/core/InterruptException\")");
-            super.visitTryCatchBlock(invokeLabel, afterInvokeLabel, interruptLabel, "org/copperengine/core/InterruptException");
+            // logger.info("Calling super.visitTryCatchBlock("+invokeLabel+", "+afterInvokeLabel+", "+interruptLabel+", \"org/copperengine/core/Interrupt\")");
+            super.visitTryCatchBlock(invokeLabel, afterInvokeLabel, interruptLabel, "org/copperengine/core/Interrupt");
             super.visitTryCatchBlock(invokeLabel, afterInvokeLabel, throwableHandler, "java/lang/Throwable");
         } else {
             super.visitMethodInsn(opcode, owner, name, desc);

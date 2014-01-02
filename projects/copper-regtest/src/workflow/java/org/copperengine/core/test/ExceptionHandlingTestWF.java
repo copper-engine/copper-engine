@@ -17,7 +17,7 @@ package org.copperengine.core.test;
 
 import java.io.Serializable;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +28,12 @@ public class ExceptionHandlingTestWF extends PersistentWorkflow<Serializable> {
     private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlingTestWF.class);
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         // System.err.println("main "+this.__stack);
         main_1();
     }
 
-    public void main_1() throws InterruptException {
+    public void main_1() throws Interrupt {
         // System.err.println("main_1 "+this.__stack);
         try {
             red("");
@@ -43,19 +43,19 @@ public class ExceptionHandlingTestWF extends PersistentWorkflow<Serializable> {
         }
     }
 
-    public void red(String prefix) throws InterruptException {
+    public void red(String prefix) throws Interrupt {
         // System.err.println("red "+this.__stack);
         String red = new String(prefix + ":red");
         blue(red);
     }
 
-    public void blue(String prefix) throws InterruptException {
+    public void blue(String prefix) throws Interrupt {
         // System.err.println("blue "+this.__stack);
         String blue = new String(prefix + ":blue");
         green(blue);
     }
 
-    public void green(String prefix) throws InterruptException {
+    public void green(String prefix) throws Interrupt {
         // System.err.println("gree "+this.__stack);
         throw new RuntimeException("out of colour");
     }

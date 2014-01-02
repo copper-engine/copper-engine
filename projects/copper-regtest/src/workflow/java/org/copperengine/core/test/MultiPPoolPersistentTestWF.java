@@ -17,7 +17,7 @@ package org.copperengine.core.test;
 
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Callback;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.PersistentWorkflow;
@@ -45,7 +45,7 @@ public class MultiPPoolPersistentTestWF extends PersistentWorkflow<String> {
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         logger.debug("started");
 
         setProcessorPoolId("P#ALPHA");
@@ -101,7 +101,7 @@ public class MultiPPoolPersistentTestWF extends PersistentWorkflow<String> {
         Counter.inc();
     }
 
-    private void partnersystemCall() throws InterruptException {
+    private void partnersystemCall() throws Interrupt {
         correlationId = getEngine().createUUID();
         mockAdapter.foo("foo", correlationId);
         logger.debug("Request sent, waiting (in subsystem call)...");

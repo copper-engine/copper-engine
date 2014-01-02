@@ -18,7 +18,7 @@ package org.copperengine.core.test.tranzient.classhierarchy;
 import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
@@ -43,7 +43,7 @@ public abstract class Base extends Workflow<BlockingResponseReceiver<Integer>> {
         this.mockAdapter = mockAdapter;
     }
 
-    protected void doubleWait() throws InterruptException {
+    protected void doubleWait() throws Interrupt {
         // test double call
         cid1 = getEngine().createUUID();
         cid2 = getEngine().createUUID();
@@ -70,21 +70,21 @@ public abstract class Base extends Workflow<BlockingResponseReceiver<Integer>> {
             throw new AssertionError();
     }
 
-    protected void simulateTimeout() throws InterruptException {
+    protected void simulateTimeout() throws Interrupt {
         // simulate timeout
         startTS = System.currentTimeMillis();
         wait(WaitMode.FIRST, 500, TimeUnit.MILLISECONDS, getEngine().createUUID(), getEngine().createUUID());
         assert (System.currentTimeMillis() > startTS + 490L);
     }
 
-    protected void mockAsync() throws InterruptException {
+    protected void mockAsync() throws Interrupt {
         cid = getEngine().createUUID();
         mockAdapter.incrementSync(counter, cid);
         waitForAll(cid);
         counter = ((Integer) getAndRemoveResponse(cid).getResponse()).intValue();
     }
 
-    protected void mockSync() throws InterruptException {
+    protected void mockSync() throws Interrupt {
         cid = getEngine().createUUID();
         mockAdapter.incrementAsync(counter, cid);
         waitForAll(cid);

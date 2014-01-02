@@ -16,7 +16,7 @@
 package org.copperengine.core.test.tranzient.simple;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
@@ -36,7 +36,7 @@ public class WaitInMethodTestTransientWorkflow extends Workflow<AsyncResponseRec
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         getData();
 
         Exception exception = null;
@@ -55,7 +55,7 @@ public class WaitInMethodTestTransientWorkflow extends Workflow<AsyncResponseRec
 
     }
 
-    private void execute() throws InterruptException {
+    private void execute() throws Interrupt {
         System.out.println("start of execute()");
         final String cid = getEngine().createUUID();
         mockAdapter.foo("foo", cid);

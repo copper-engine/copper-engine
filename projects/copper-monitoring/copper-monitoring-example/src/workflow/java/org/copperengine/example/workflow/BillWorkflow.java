@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
@@ -51,7 +51,7 @@ public class BillWorkflow extends PersistentWorkflow<String> {
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         while (true) {
             auditTrail.asynchLog(2, new Date(), "1", "1", "", "", "", "wait for Data", "Text");
             callWait();
@@ -85,7 +85,7 @@ public class BillWorkflow extends PersistentWorkflow<String> {
 
     }
 
-    private void callWait() throws InterruptException {
+    private void callWait() throws Interrupt {
         wait(WaitMode.ALL, Workflow.NO_TIMEOUT, BillAdapter.BILL_TIME, BillAdapter.BILLABLE_SERVICE);
     }
 

@@ -1,5 +1,6 @@
 COPPER 3.0 (alpha - not yet released)
 ==========
+- Refactoring: Renamed COPPER major Throwable from "de.scoopgmbh.copper.InterruptException" to "org.copperengine.core.Interrupt". Persistent workflow instances and responses in existing databases keep compatible due to a loadtime adaptation feature - see StandardJavaSerializer.classnameReplacement
 - Refactoring: COPPER's toplevel package has been renamed from "de.scoopgmbh.copper" to "org.copperengine". Persistent workflow instances and responses in existing databases keep compatible due to a loadtime adaptation feature - see StandardJavaSerializer.classnameReplacement
 - Refactoring: All Spring supporting classes have been moved to an own subproject: copper-spring. Attention! SpringTransactionController and SpringTxnAuditTrail have been moved to another package
 - Refactoring: de.scoopgmbh.copper.audit.BatchingAuditTrail does no longer implement spring's InitializingBean. This makes copper less dependent on spring stuff.

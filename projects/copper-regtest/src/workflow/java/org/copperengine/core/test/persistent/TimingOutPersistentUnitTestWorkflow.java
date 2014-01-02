@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.Serializable;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.PersistentWorkflow;
@@ -45,7 +45,7 @@ public class TimingOutPersistentUnitTestWorkflow extends PersistentWorkflow<Seri
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         try {
             String cid = getEngine().createUUID();
             wait(WaitMode.ALL, 500, cid);

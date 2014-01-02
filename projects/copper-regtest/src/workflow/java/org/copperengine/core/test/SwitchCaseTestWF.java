@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.test;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Workflow;
 import org.junit.Assert;
 
@@ -24,7 +24,7 @@ public class SwitchCaseTestWF extends Workflow<SwitchCaseTestData> {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         try {
             doSwitch();
             getData().asyncResponseReceiver.setResponse(0);

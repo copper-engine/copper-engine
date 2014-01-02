@@ -18,7 +18,7 @@ package org.copperengine.core.test.versioning.compatibility.check2;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class CompatibilityCheckWorkflow_Base extends PersistentWorkflow<Serializ
     private String bString;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         aString = "A";
         int localIntValue = 1;
         directlyWaitingMethod(aString, localIntValue);
@@ -43,7 +43,7 @@ public class CompatibilityCheckWorkflow_Base extends PersistentWorkflow<Serializ
         indirectlyWaitingMethod(bString, localIntValue);
     }
 
-    protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+    protected void directlyWaitingMethod(String strValue, int intValue) throws Interrupt {
         String localString = strValue;
         Integer localInteger = intValue;
         neverWaitingMethod(strValue, localInteger);
@@ -51,12 +51,12 @@ public class CompatibilityCheckWorkflow_Base extends PersistentWorkflow<Serializ
         logger.debug(localString);
     }
 
-    protected void anotherDirectlyWaitingMethod(Long longValue, Integer intValue) throws InterruptException {
+    protected void anotherDirectlyWaitingMethod(Long longValue, Integer intValue) throws Interrupt {
         neverWaitingMethod(longValue.toString(), intValue);
         this.wait(WaitMode.ALL, 500, TimeUnit.MILLISECONDS, Long.toHexString(System.currentTimeMillis()));
     }
 
-    protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+    protected void indirectlyWaitingMethod(String strValue, int intValue) throws Interrupt {
         final Object localObject = 10867L;
         directlyWaitingMethod(strValue, intValue);
         logger.debug("{}", localObject);

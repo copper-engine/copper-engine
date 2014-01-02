@@ -18,7 +18,7 @@ package org.copperengine.core.persistent;
 import java.util.Queue;
 
 import org.copperengine.core.Acknowledge;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
@@ -58,7 +58,7 @@ public class PersistentProcessor extends Processor {
                             WorkflowAccessor.setProcessingState(pw, ProcessingState.FINISHED);
                             engine.getDbStorage().finish(pw, new Acknowledge.BestEffortAcknowledge());
                             assert pw.get__stack().isEmpty() : "Stack must be empty";
-                        } catch (InterruptException e) {
+                        } catch (Interrupt e) {
                             assert pw.get__stack().size() > 0;
                         } finally {
                             engine.unregister(pw);

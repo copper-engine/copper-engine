@@ -18,7 +18,7 @@ package org.copperengine.core.test.persistent.example;
 import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.PersistentWorkflow;
@@ -34,7 +34,7 @@ public class PingWorkflow extends PersistentWorkflow<PingData> {
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         System.out.println("started");
         // Asynchronous call of the ping service
         String correlationId = pingAdapter.ping(getData().pingMessage);

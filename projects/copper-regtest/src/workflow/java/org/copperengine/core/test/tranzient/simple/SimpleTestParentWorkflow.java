@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNull;
 import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.AutoWire;
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.WorkflowInstanceDescr;
@@ -43,7 +43,7 @@ public class SimpleTestParentWorkflow extends PersistentWorkflow<String> {
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         try {
             // create and launch the children
             final String id = getEngine().createUUID();

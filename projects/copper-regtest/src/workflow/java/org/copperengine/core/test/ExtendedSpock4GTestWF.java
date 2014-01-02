@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.test;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class ExtendedSpock4GTestWF extends Spock4GTestWF {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         logger.debug("started");
 
         doSomething01();
@@ -43,7 +43,7 @@ public class ExtendedSpock4GTestWF extends Spock4GTestWF {
     }
 
     @Override
-    protected void abstractPartnersystemCall() throws InterruptException {
+    protected void abstractPartnersystemCall() throws Interrupt {
         // resubmitt();
         // changeProcessPool("PARNERSYSTEM_MOCK");
 

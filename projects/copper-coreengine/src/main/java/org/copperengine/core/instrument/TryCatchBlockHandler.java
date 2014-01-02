@@ -18,7 +18,7 @@ package org.copperengine.core.instrument;
 import java.util.HashSet;
 import java.util.List;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -37,8 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Adds "if (e instanceof InterruptException) throw (InterruptException)e;" to each catch block.
- * This prevent COPPERs InterruptExceptions thrown by the COPPER wait calls to be handled in the exception handlers.
+ * Adds "if (e instanceof Interrupt) throw (Interrupt)e;" to each catch block.
+ * This prevent COPPERs Interrupts thrown by the COPPER wait calls to be handled in the exception handlers.
  *
  * @author austermann
  */
@@ -46,7 +46,7 @@ public class TryCatchBlockHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(TryCatchBlockHandler.class);
 
-    private static final String INTERRUPT_EXCEPTION_NAME = InterruptException.class.getName().replace('.', '/');
+    private static final String INTERRUPT_EXCEPTION_NAME = Interrupt.class.getName().replace('.', '/');
 
     @SuppressWarnings("unchecked")
     public void instrument(ClassNode cn) {

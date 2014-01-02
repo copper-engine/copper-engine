@@ -17,7 +17,7 @@ package org.copperengine.core.persistent;
 
 import java.io.Serializable;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.instrument.Transformed;
 
 @Transformed
@@ -39,7 +39,7 @@ class DummyPersistentWorkflow extends PersistentWorkflow<Serializable> {
     }
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
     }
 
 }

@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNull;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.persistent.PersistentWorkflow;
@@ -46,7 +46,7 @@ public class CompatibilityCheckWorkflow_0002 extends PersistentWorkflow<Serializ
     private String NEW_STRING_FIELD;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         aString = "A";
         NEW_STRING_FIELD = "NewValue";
         int localIntValue = 1;
@@ -61,12 +61,12 @@ public class CompatibilityCheckWorkflow_0002 extends PersistentWorkflow<Serializ
         assertNull(NEW_STRING_FIELD);
     }
 
-    protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+    protected void directlyWaitingMethod(String strValue, int intValue) throws Interrupt {
         neverWaitingMethod(strValue, intValue);
         this.wait(WaitMode.ALL, 500, TimeUnit.MILLISECONDS, Long.toHexString(System.currentTimeMillis()));
     }
 
-    protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+    protected void indirectlyWaitingMethod(String strValue, int intValue) throws Interrupt {
         final Object localObject = 10867L;
         directlyWaitingMethod(strValue, intValue);
         logger.debug("{}", localObject);

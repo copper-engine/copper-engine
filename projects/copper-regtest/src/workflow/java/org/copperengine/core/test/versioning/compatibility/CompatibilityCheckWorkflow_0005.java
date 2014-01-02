@@ -17,7 +17,7 @@ package org.copperengine.core.test.versioning.compatibility;
 
 import java.io.Serializable;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.persistent.PersistentWorkflow;
@@ -44,7 +44,7 @@ public class CompatibilityCheckWorkflow_0005 extends PersistentWorkflow<Serializ
     private int NEW_INT;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         aString = "A";
         int localIntValue = 1;
 
@@ -63,12 +63,12 @@ public class CompatibilityCheckWorkflow_0005 extends PersistentWorkflow<Serializ
         }
     }
 
-    protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+    protected void directlyWaitingMethod(String strValue, int intValue) throws Interrupt {
         neverWaitingMethod(strValue, intValue);
         this.wait(WaitMode.ALL, 500, Long.toHexString(System.currentTimeMillis()));
     }
 
-    protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+    protected void indirectlyWaitingMethod(String strValue, int intValue) throws Interrupt {
         final Object localObject = 10867L;
         directlyWaitingMethod(strValue, intValue);
         logger.debug("{}", localObject);

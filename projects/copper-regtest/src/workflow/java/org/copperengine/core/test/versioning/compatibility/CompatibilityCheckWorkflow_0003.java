@@ -17,7 +17,7 @@ package org.copperengine.core.test.versioning.compatibility;
 
 import java.io.Serializable;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.persistent.PersistentWorkflow;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
  * Adding a new method and using it somewhere/everywhere within the workflow
  * Important: The new method does not use COPPERs wait directly or indirectly and it does not declare to throw
- * InterruptException
+ * Interrupt
  *
  * @author austermann
  */
@@ -44,7 +44,7 @@ public class CompatibilityCheckWorkflow_0003 extends PersistentWorkflow<Serializ
     private String bString;
 
     @Override
-    public void main() throws InterruptException {
+    public void main() throws Interrupt {
         NEW_NeverWaitingMethod("test", 1);
         aString = "A";
         NEW_NeverWaitingMethod("test", 1);
@@ -60,7 +60,7 @@ public class CompatibilityCheckWorkflow_0003 extends PersistentWorkflow<Serializ
         NEW_NeverWaitingMethod("test", 1);
     }
 
-    protected void directlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+    protected void directlyWaitingMethod(String strValue, int intValue) throws Interrupt {
         NEW_NeverWaitingMethod("test", 1);
         neverWaitingMethod(strValue, intValue);
         NEW_NeverWaitingMethod("test", 1);
@@ -68,7 +68,7 @@ public class CompatibilityCheckWorkflow_0003 extends PersistentWorkflow<Serializ
         NEW_NeverWaitingMethod("test", 1);
     }
 
-    protected void indirectlyWaitingMethod(String strValue, int intValue) throws InterruptException {
+    protected void indirectlyWaitingMethod(String strValue, int intValue) throws Interrupt {
         NEW_NeverWaitingMethod("test", 1);
         final Object localObject = 10867L;
         NEW_NeverWaitingMethod("test", 1);

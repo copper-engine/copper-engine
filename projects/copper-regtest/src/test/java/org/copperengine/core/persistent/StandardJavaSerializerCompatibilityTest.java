@@ -76,4 +76,12 @@ public class StandardJavaSerializerCompatibilityTest {
             zipIS.close();
         }
     }
+    
+    @Test
+    public void testClassnameReplacement() throws Exception {
+        StandardJavaSerializer standardJavaSerializer = new StandardJavaSerializer();
+        org.junit.Assert.assertEquals("classnameReplacement() leave most names unchanged", "org.A", standardJavaSerializer.classnameReplacement("org.A"));
+        org.junit.Assert.assertEquals("classnameReplacement() replace main package", "org.copperengine.core.B", standardJavaSerializer.classnameReplacement("de.scoopgmbh.copper.B"));
+        org.junit.Assert.assertEquals("classnameReplacement() replace InterruptExeception", "org.copperengine.core.Interrupt", standardJavaSerializer.classnameReplacement("de.scoopgmbh.copper.InterruptException"));
+    }
 }

@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.test.tranzient.classhierarchy;
 
-import org.copperengine.core.InterruptException;
+import org.copperengine.core.Interrupt;
 
 public class DerivedDerived extends Derived {
 
@@ -24,7 +24,7 @@ public class DerivedDerived extends Derived {
     private String cid;
 
     @Override
-    protected void callMock() throws InterruptException {
+    protected void callMock() throws Interrupt {
         cid = getEngine().createUUID();
         mockAdapter.foo("foo", cid);
         waitForAll(cid);
