@@ -484,7 +484,7 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 project(':projects:copper-monitoring:copper-monitoring-client') {
     apply plugin: 'application'
 
-    mainClassName = "de.scoopgmbh.copper.monitoring.client.main.MonitorMain"
+    mainClassName = "org.copperengine.monitoring.client.main.MonitorMain"
 
     // Copy resources files from src/main/java (*.fxml files) to classes dir.
     // Note that we don't mark src/main/java as resource folder as it causes problems with IntelliJ
