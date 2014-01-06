@@ -116,7 +116,7 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
         assert titleText != null : "fx:id=\"titleText\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
         assert treeView != null : "fx:id=\"treeView\" was not injected: check your FXML file 'WorkflowInstanceDetailResult.fxml'.";
 
-        final Image icon = new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/stackframe.png"));
+        final Image icon = new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/stackframe.png"));
         treeView.setRoot(new TreeItem<DisplayableNode>(null));
         treeView.setShowRoot(false);
         treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<DisplayableNode>>() {

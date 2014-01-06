@@ -392,8 +392,8 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
         });
         pause.disableProperty().bind(play.selectedProperty().not());
 
-        play.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/play.png"))));
-        pause.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/pause.png"))));
+        play.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/play.png"))));
+        pause.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/pause.png"))));
     }
 
     @Override

@@ -91,11 +91,11 @@ public class MessageAndLogIssueReporter implements IssueReporter {
     }
 
     private void showErrorMessage(String message, Throwable e, Runnable okOnACtion) {
-        showMessage(message, e, Color.rgb(255, 0, 0, 0.55), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/error.png").toExternalForm()), okOnACtion);
+        showMessage(message, e, Color.rgb(255, 0, 0, 0.55), new ImageView(getClass().getResource("/org/copperengine/gui/icon/error.png").toExternalForm()), okOnACtion);
     }
 
     private void showWarningMessage(String message, Throwable e, Runnable okOnACtion) {
-        showMessage(message, e, Color.rgb(255, 200, 90, 0.75), new ImageView(getClass().getResource("/de/scoopgmbh/copper/gui/icon/warning.png").toExternalForm()), okOnACtion);
+        showMessage(message, e, Color.rgb(255, 200, 90, 0.75), new ImageView(getClass().getResource("/org/copperengine/gui/icon/warning.png").toExternalForm()), okOnACtion);
     }
 
     private void showWarningMessage(String message, Throwable e) {

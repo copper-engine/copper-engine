@@ -36,15 +36,16 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
-import org.copperengine.monitoring.core.model.MonitoringData;
-import org.copperengine.monitoring.core.model.MonitoringDataStorageContentInfo;
-import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.ByteBufferOutputStream;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import org.copperengine.monitoring.core.model.MonitoringData;
+import org.copperengine.monitoring.core.model.MonitoringDataStorageContentInfo;
+import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * stores monitoring data in chunked files
@@ -392,9 +393,12 @@ public class MonitoringDataStorage {
 
     static class OpenedFile {
 
+        Logger logger = LoggerFactory.getLogger(OpenedFile.class);
         ArrayList<MonitoringData> monitoringDataList;
+        File file;
 
         public OpenedFile(TargetFile f, long fromTime, long toTime, boolean reverse) throws IOException {
+            this.file = f.file;
             RandomAccessFile randomAccessFile = new RandomAccessFile(f.file, "r");
             randomAccessFile.seek(FIRST_RECORD_POSITION);
             byte[] data = new byte[f.limit - FIRST_RECORD_POSITION];
@@ -410,9 +414,17 @@ public class MonitoringDataStorage {
             monitoringDataList = new ArrayList<MonitoringData>();
             try {
                 while (i.available() > 0) {
-                    MonitoringData data = (MonitoringData) kryo.readClassAndObject(i);
-                    if (data.getTimeStamp().getTime() <= toTime && data.getTimeStamp().getTime() >= fromTime) {
-                        monitoringDataList.add(data);
+                    try {
+                        Object data = kryo.readClassAndObject(i);
+                        if (data instanceof MonitoringData){
+                            MonitoringData monitoringData = (MonitoringData) data;
+                            if (monitoringData.getTimeStamp().getTime() <= toTime && monitoringData.getTimeStamp().getTime() >= fromTime) {
+                                monitoringDataList.add(monitoringData);
+                            }
+                        }
+                    } catch (KryoException e){
+                        logger.error("cant load old monitoringdata: "+e.getMessage()+" , skip file:"+file.getAbsolutePath());
+                        break;
                     }
                 }
             } catch (IOException e) {

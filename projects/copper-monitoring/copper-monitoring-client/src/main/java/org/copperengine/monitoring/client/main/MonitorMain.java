@@ -42,7 +42,7 @@ public class MonitorMain extends Application {
         new Button(); // Trigger loading of default stylesheet
         final Scene scene = new Scene(applicationContext.getMainPane(), 1300, 900, Color.WHEAT);
 
-        scene.getStylesheets().add(this.getClass().getResource("/de/scoopgmbh/copper/gui/css/base.css").toExternalForm());
+        scene.getStylesheets().add(this.getClass().getResource("/org/copperengine/gui/css/base.css").toExternalForm());
 
         primaryStage.setScene(scene);
         primaryStage.show();

@@ -164,7 +164,7 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
     public List<? extends Node> getContributedButtons(MessageProvider messageProvider) {
         List<Button> contributedButtons = new ArrayList<Button>();
 
-        final Button expandButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/expandall.png"))));
+        final Button expandButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/expandall.png"))));
         expandButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_expandall)));
         expandButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -174,7 +174,7 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
         });
         contributedButtons.add(expandButton);
 
-        final Button collapseButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/collapseall.png"))));
+        final Button collapseButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/collapseall.png"))));
         collapseButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_collapseall)));
         collapseButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override

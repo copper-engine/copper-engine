@@ -80,7 +80,7 @@ public class ApplicationContext {
         mainStackPane.getChildren().add(mainPane);
         messageProvider = new MessageProvider(ResourceBundle.getBundle("org.copperengine.gui.message"));
 
-        final Preferences prefs = Preferences.userRoot().node("de.scoopgmbh.coppermonitor");
+        final Preferences prefs = Preferences.userRoot().node("org.copperengine.coppermonitor");
 
         SettingsModel defaultSettings = new SettingsModel();
         AuditralColorMapping newItem = new AuditralColorMapping();

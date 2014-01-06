@@ -197,7 +197,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         buttonsPane.getChildren().addAll(resultForm.getController().getContributedButtons(messageProvider));
         buttonsPane.getChildren().add(new Separator(orientation));
 
-        MenuButton defaultFilterButton = new MenuButton("", new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/filter.png"))));
+        MenuButton defaultFilterButton = new MenuButton("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/filter.png"))));
         defaultFilterButton.setPrefWidth(20);
         CustomMenuItem defaultFilterContent = new CustomMenuItem();
         defaultFilterContent.setHideOnClick(false);
@@ -212,7 +212,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
 
         buttonsPane.getChildren().add(new Separator(orientation));
 
-        final Button clearButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/clear.png"))));
+        final Button clearButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/clear.png"))));
         clearButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_clear)));
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -224,7 +224,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
             buttonsPane.getChildren().add(clearButton);
         }
 
-        final Button refreshButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/refresh.png"))));
+        final Button refreshButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/refresh.png"))));
         refreshButton.setId(REFRESH_BUTTON_ID);
         HBox.setMargin(refreshButton, new Insets(4, 0, 4, 0));
         refreshButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_refresh)));
@@ -238,7 +238,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
 
         final ProgressIndicator repeatProgressIndicator = new ProgressBar();
         progressbarDisplayTarget.getChildren().add(repeatProgressIndicator);
-        final ToggleButton toggleButton = new ToggleButton("", new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/repeat.png"))));
+        final ToggleButton toggleButton = new ToggleButton("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/repeat.png"))));
         repeatProgressIndicator.setVisible(false);
         repeatProgressIndicator.setPrefWidth(300);
         repeatProgressIndicator.progressProperty().bind(repeatFilterService.progressProperty());
@@ -282,7 +282,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         });
         buttonsPane.getChildren().add(toggleButton);
 
-        MenuButton settings = new MenuButton("", new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/settings.png"))));
+        MenuButton settings = new MenuButton("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/settings.png"))));
         settings.setPrefWidth(20);
         CustomMenuItem customMenuItem = new CustomMenuItem();
         settings.getItems().add(customMenuItem);

@@ -81,7 +81,7 @@ public class WorkflowSummaryFilterController extends BaseEngineFilterController<
         workflowClass.textProperty().bindBidirectional(model.version.classname);
 
         searchMenueItem.setContent(formContext.createWorkflowClassesTreeForm(this).createContent());
-        serachbutton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/search.png"))));
+        serachbutton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/search.png"))));
 
         searchMenueItem.getStyleClass().setAll("noSelectAnimationMenueItem", "menu-item");
     }

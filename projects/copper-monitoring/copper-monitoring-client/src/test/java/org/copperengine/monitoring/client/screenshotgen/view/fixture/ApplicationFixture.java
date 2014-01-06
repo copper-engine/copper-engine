@@ -34,7 +34,7 @@ public class ApplicationFixture extends Application {
         stage.setWidth(1167);
         stage.setHeight(800);
 
-        scene.getStylesheets().add(this.getClass().getResource("/de/scoopgmbh/copper/gui/css/base.css").toExternalForm());
+        scene.getStylesheets().add(this.getClass().getResource("/org/copperengine/gui/css/base.css").toExternalForm());
 
         stage.setScene(scene);
         stage.show();

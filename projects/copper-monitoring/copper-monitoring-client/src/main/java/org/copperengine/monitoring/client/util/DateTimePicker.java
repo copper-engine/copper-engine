@@ -188,7 +188,7 @@ public class DateTimePicker extends Application implements Widget {
         });
 
         hbox.getChildren().add(textfield);
-        MenuButton defaultFilterButton = new MenuButton("", new ImageView(new Image(getClass().getResourceAsStream("/de/scoopgmbh/copper/gui/icon/date.png"))));
+        MenuButton defaultFilterButton = new MenuButton("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/date.png"))));
         defaultFilterButton.setPrefWidth(20);
         CustomMenuItem popUpMenueItem = new CustomMenuItem();
         popUpMenueItem.setHideOnClick(false);
@@ -449,7 +449,7 @@ public class DateTimePicker extends Application implements Widget {
     @Override
     public void start(Stage primaryStage) throws Exception {
         final Scene scene = new Scene(createContent());
-        scene.getStylesheets().add(this.getClass().getResource("/de/scoopgmbh/copper/gui/css/base.css").toExternalForm());
+        scene.getStylesheets().add(this.getClass().getResource("/org/copperengine/gui/css/base.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
 

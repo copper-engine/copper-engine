@@ -90,7 +90,7 @@ public class MeasurePointResultController extends FilterResultControllerBase<Eng
             if (measurePointData.getCount() != 0) {
                 String text = measurePointData.getMeasurePointId();
                 if (text != null) {
-                    text = text.replace("org.copperengine.persistent", "");
+                    text = text.replace("org.copperengine.core.", "");
                 }
                 data.add(new XYChart.Data<String, Number>(text, measurePointData.getElapsedTimeMicros() / measurePointData.getCount()));
             }
