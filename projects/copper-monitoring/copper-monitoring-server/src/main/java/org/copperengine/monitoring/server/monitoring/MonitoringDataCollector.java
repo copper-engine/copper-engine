@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.copperengine.monitoring.core.model.AdapterCallInfo;
 import org.copperengine.monitoring.core.model.AdapterWfLaunchInfo;
@@ -67,6 +68,21 @@ public class MonitoringDataCollector {
             @Override
             public void run() {
                 monitoringDataAdder.addMonitoringData(new AdapterWfNotifyInfo(correlationId, message != null ? message.toString() : "null", new Date(), adapter.getClass().getName()));
+            }
+        });
+    }
+
+    public void submitMeasurePoint(final String measurePointId, final int elementCount, final long elapsedTime, final TimeUnit timeUnit) {
+        monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+            @Override
+            public void run() {
+                final MeasurePointData measurePointData = new MeasurePointData(measurePointId);
+                measurePointData.setSystemCpuLoad(performanceMonitor.createRessourcenInfo().getSystemCpuLoad());
+                measurePointData.setElementCount(elementCount);
+                measurePointData.setCount(1);
+                measurePointData.setTime(new Date());
+                measurePointData.setElapsedTimeMicros(timeUnit.toMicros(elapsedTime));
+                monitoringDataAdder.addMonitoringData(measurePointData);
             }
         });
     }

@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -59,6 +60,7 @@ import org.copperengine.monitoring.core.data.MonitoringDataAdder;
 import org.copperengine.monitoring.core.data.MonitoringDataStorage;
 import org.copperengine.monitoring.example.adapter.BillAdapterImpl;
 import org.copperengine.monitoring.example.monitoringprovider.GcDataProvider;
+import org.copperengine.monitoring.example.util.DerbyCleanDbUtil;
 import org.copperengine.monitoring.example.util.SingleProzessInstanceUtil;
 import org.copperengine.monitoring.server.CopperMonitorServiceDefaultProxy;
 import org.copperengine.monitoring.server.CopperMonitorServiceSecurityProxy;
@@ -75,13 +77,12 @@ import org.copperengine.monitoring.server.persistent.MonitoringDbStorage;
 import org.copperengine.monitoring.server.provider.MonitoringDataProviderManager;
 import org.copperengine.monitoring.server.provider.MonitoringLogbackDataProvider;
 import org.copperengine.monitoring.server.provider.SystemRessourceDataProvider;
-import org.copperengine.monitoring.server.util.DerbyCleanDbUtil;
+import org.copperengine.monitoring.server.statisticcollector.MonitoringStatisticCollector;
+import org.copperengine.monitoring.server.statisticcollector.MultipleStatistikCollector;
 import org.copperengine.monitoring.server.wrapper.MonitoringAdapterProcessingEngine;
 import org.copperengine.monitoring.server.wrapper.MonitoringDependencyInjector;
 import org.springframework.remoting.support.DefaultRemoteInvocationExecutor;
 import org.springframework.remoting.support.RemoteInvocationExecutor;
-
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class MonitoringExampleMain {
 
@@ -161,15 +162,20 @@ public class MonitoringExampleMain {
         wfRepository.start();
         // wfRepository.shutdown
 
+
+
+
         LoggingStatisticCollector runtimeStatisticsCollector = new LoggingStatisticCollector();
         runtimeStatisticsCollector.start();
+        MultipleStatistikCollector multipleStatistikCollector = new MultipleStatistikCollector(runtimeStatisticsCollector);
+
         // statisticsCollector.shutdown();
 
         DatabaseData databaseData = setupDerbyDatabase(wfRepository, runtimeStatisticsCollector);
         // DatabaseData databaseData = setupOracleDatabase(wfRepository,runtimeStatisticsCollector);
 
         BatcherImpl batcher = new BatcherImpl(3);
-        batcher.setStatisticsCollector(runtimeStatisticsCollector);
+        batcher.setStatisticsCollector(multipleStatistikCollector);
 
         @SuppressWarnings("rawtypes")
         RetryingTxnBatchRunner batchRunner = new RetryingTxnBatchRunner();
@@ -194,7 +200,7 @@ public class MonitoringExampleMain {
         persistentengine.setDbStorage(persistentdbStorage);
         persistentengine.setWfRepository(wfRepository);
         persistentengine.setEngineIdProvider(ENGINE_ID_PROVIDER);
-        persistentengine.setStatisticsCollector(runtimeStatisticsCollector);
+        persistentengine.setStatisticsCollector(multipleStatistikCollector);
 
         DefaultProcessorPoolManager<PersistentPriorityProcessorPool> defaultProcessorPoolManager = new DefaultProcessorPoolManager<PersistentPriorityProcessorPool>();
         defaultProcessorPoolManager.setProcessorPools(Arrays.asList(persistentPriorityProcessorPool));
@@ -228,6 +234,7 @@ public class MonitoringExampleMain {
         billAdapterImpl.initWithEngine(new MonitoringAdapterProcessingEngine(billAdapterImpl, persistentengine, monitoringDataCollector));
         dependyInjector.register("billAdapter", billAdapterImpl);
         dependyInjector.register("auditTrail", auditTrail);
+        multipleStatistikCollector.addStatisticsCollector(new MonitoringStatisticCollector(monitoringDataCollector));
 
         persistentengine.setDependencyInjector(monitoringDependencyInjector);
         persistentengine.startup();

@@ -165,7 +165,6 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
         }
         boolean monitoringDataChanged = !monitoringDataNames.equals(monitoringDataProviders.keySet());
         if (monitoringDataChanged) {
-            System.err.println("monitoringDataChanged. New names: " + monitoringDataNames);
             monitoringDataProviders.clear();
             monitoringPane.getChildren().clear();
             for (MonitoringDataProviderInfo monitoringDataProviderInfo : dashboardResultModel.providers) {
