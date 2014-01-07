@@ -24,10 +24,8 @@
     	<property name="engine" ref="persistent.engine"></property>
     </bean>
 	
-	<bean id="auditTrailQueryEngine" class="org.copperengine.core.audit.AuditTrailQueryEngine" scope="singleton">
+	<bean id="auditTrailQueryEngine" class="org.copperengine.spring.audit.AuditTrailQueryEngine" scope="singleton">
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>
 	
-	<bean class="org.copperengine.spring.JmxExporter" init-method="startup" destroy-method="shutdown"/>
-
 </beans>

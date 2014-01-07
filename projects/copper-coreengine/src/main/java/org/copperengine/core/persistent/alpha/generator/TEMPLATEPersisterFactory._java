@@ -1,4 +1,4 @@
-package de.scoopgmbh.copper.persistent.alpha.generator;
+package org.copperengine.core.persistent.alpha.generator;
 
 import java.sql.Array;
 import java.sql.Connection;
@@ -16,13 +16,13 @@ import java.util.Set;
 import org.springframework.jdbc.support.nativejdbc.C3P0NativeJdbcExtractor;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 
-import de.scoopgmbh.copper.persistent.DefaultEntityPersister;
-import de.scoopgmbh.copper.persistent.DefaultEntityPersisterFactory;
-import de.scoopgmbh.copper.persistent.DefaultPersistenceWorker;
-import de.scoopgmbh.copper.persistent.DefaultPersisterSharedRessources;
-import de.scoopgmbh.copper.persistent.DefaultPersisterSimpleCRUDSharedRessources;
-import de.scoopgmbh.copper.persistent.OracleUtil;
-import de.scoopgmbh.copper.persistent.PersistentWorkflow;
+import org.copperengine.core.persistent.DefaultEntityPersister;
+import org.copperengine.core.persistent.DefaultEntityPersisterFactory;
+import org.copperengine.core.persistent.DefaultPersistenceWorker;
+import org.copperengine.core.persistent.DefaultPersisterSharedRessources;
+import org.copperengine.core.persistent.DefaultPersisterSimpleCRUDSharedRessources;
+import org.copperengine.core.persistent.OracleUtil;
+import org.copperengine.core.persistent.PersistentWorkflow;
 
 /*ADDITIONAL_IMPORTS*/
 
