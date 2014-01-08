@@ -151,6 +151,10 @@ configure(subprojects.findAll {
         }
     }
 
+    javadoc {
+        options.encoding = "UTF-8"
+    }
+
     // code signing and uploading
 
     def sonatypeRepositoryUrl = ""
