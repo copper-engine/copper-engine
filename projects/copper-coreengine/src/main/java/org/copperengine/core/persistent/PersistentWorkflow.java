@@ -60,6 +60,10 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
         responseIdList.add(responseId);
     }
 
+    public RegisterCall getRegisterCall() {
+        return registerCall;
+    }
+
     /**
      * Used internally
      */
