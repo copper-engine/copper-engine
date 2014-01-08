@@ -158,30 +158,35 @@ configure(subprojects.findAll {
     def isCiBuild = false
     def isReleaseBuild = false
 
-    //set build variables based on build type (release, continuous integration, development)
-    if (project.hasProperty("release")) {
-        isReleaseBuild = true
-        sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    } else if (project.hasProperty("ci")) {
+    //set build variables based on build type (continuous integration, development)
+    if (project.hasProperty("ci")) {
         isCiBuild = true
-        //version += "-SNAPSHOT" will be done using Jenkins configuration
-        sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+        if (version.endsWith('-SNAPSHOT')) {
+            sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+        } else {
+            isReleaseBuild = true
+            sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+        }
     } else {
         isDevBuild = true
     }
 
     signing {
         required {
-            (isReleaseBuild || isCiBuild) && gradle.taskGraph.hasTask("uploadArchives")
+            isCiBuild && gradle.taskGraph.hasTask("uploadArchives")
         }
         sign configurations.archives
+    }
+
+    task fetchSecretKeyRingFile << {
+        ant.get(src: secretKeyRingFileSourceURL, dest: 'build/secring.gpg', username: secretKeyRingFileSourceURLAuthUsername, password: secretKeyRingFileSourceURLAuthPassword, verbose: true)
     }
 
     uploadArchives {
         repositories {
             if (isDevBuild) {
                 mavenLocal()
-            } else {
+            } else if (isCiBuild) {
                 mavenDeployer {
                     if (isReleaseBuild) {
                         beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
@@ -195,7 +200,7 @@ configure(subprojects.findAll {
                         name = 'COPPER high-performance workflow engine'
                         packaging = 'jar'
                         description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
-                        url 'http://gradlefx.github.com/'
+                        url 'http://copper-engine.org/'
 
                         scm {
                             url 'scm:git@github.com:copper-engine/copper-engine.git'
@@ -234,6 +239,7 @@ configure(subprojects.findAll {
             }
         }
     }
+    tasks.uploadArchives.dependsOn fetchSecretKeyRingFile
 }
 
 
