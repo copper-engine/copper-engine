@@ -183,7 +183,7 @@ configure(subprojects.findAll {
     }
 
     task fetchSecretKeyRingFile << {
-        ant.get(src: secretKeyRingFileSourceURL, dest: 'build/secring.gpg', username: secretKeyRingFileSourceURLAuthUsername, password: secretKeyRingFileSourceURLAuthPassword, verbose: true)
+        ant.get(src: secretKeyRingFileSourceURL, dest: secretKeyRingFileDestFile, username: secretKeyRingFileSourceURLAuthUsername, password: secretKeyRingFileSourceURLAuthPassword, verbose: true)
     }
 
     uploadArchives {
@@ -243,6 +243,7 @@ configure(subprojects.findAll {
             }
         }
     }
+    tasks.signArchives.dependsOn fetchSecretKeyRingFile
     tasks.uploadArchives.dependsOn fetchSecretKeyRingFile
 }
 
