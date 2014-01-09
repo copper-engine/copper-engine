@@ -32,7 +32,7 @@ How to contribute
 
 2) Create a fork  on GutHub
 
-3) Commit your changes incl. WHATSNEW.txt
+3) Commit your changes incl. [WHATSNEW.txt](WHATSNEW.txt)
   * Ensure, that your sources are UTF-8 encoded
   * If possible, use [eclipse-codestyle.xml](blob/master/common/eclipse-codestyle.xml) for Eclipse
   * If possible, use [intellij-codestyle.xml](blob/master/common/intellij-codestyle.xml) for IntelliJ IDEA with <code>./gradlew assemble</code>
