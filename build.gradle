@@ -7,6 +7,24 @@ task wrapper(type: Wrapper) {
 }
 
 
+buildscript {
+    repositories {
+        jcenter() // needed for gradle-nexus-plugin
+        mavenCentral() // needed for nexus-workflow plugin
+    }
+    dependencies {
+        // The nexus plugin makes uploading to Sonatype Nexus repository easier.
+        // See https://github.com/bmuschko/gradle-nexus-plugin for documentation
+        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.6.1'
+        // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
+        // by providing the task 'nexusStagingRelease'.
+        // See https://github.com/adaptivecomputing/plugins-gradle/tree/master/nexus-workflow
+        // and http://stackoverflow.com/questions/20432907/automated-release-to-maven-central-with-gradle
+        classpath 'com.adaptc.gradle:nexus-workflow:0.5'
+    }
+}
+
+
 allprojects {
     apply plugin: 'maven'
     apply plugin: 'signing'
@@ -44,9 +62,7 @@ configure(subprojects.findAll {
     assemble.dependsOn checkstyleMain, checkstyleTest
     */
 
-    // apply eclipse plugin only for 'deepest' subprojects since eclipse does not understand subprojects
     apply plugin: 'eclipse'
-
     eclipse {
         classpath {
             defaultOutputDir = file('build')
@@ -82,7 +98,6 @@ configure(subprojects.findAll {
             }
         }
     }
-
     // be sure to always regenerate eclipse files, because default behavior is merging into existing files
     tasks.eclipse.dependsOn cleanEclipse
     eclipse.classpath.defaultOutputDir = new File("$buildDir/classes/main")
@@ -90,7 +105,6 @@ configure(subprojects.findAll {
     dependencies {
         testCompile 'junit:junit:4.11'
         testCompile 'org.mockito:mockito-all:1.9.5'
-        // logging
         compile 'org.slf4j:slf4j-api:1.6.6'
         compile 'log4j:log4j:1.2.17'
     }
@@ -113,142 +127,108 @@ configure(subprojects.findAll {
 //        }
 //    }
 
-    // build additional artifacts
-
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-
-    def testJava = file("src/test/java").isDirectory()
-
-    if (testJava) {
-        task testJar(type: Jar, dependsOn: testClasses) {
-            classifier = 'test'
-            from sourceSets.test.output
-        }
-
-        task testSourcesJar(type: Jar, dependsOn: testJar) {
-            classifier = 'testSources'
-            from sourceSets.test.allSource
-        }
-
-        assemble.dependsOn testJar
-        assemble.dependsOn testSourcesJar
-    }
-
-    artifacts {
-        archives sourcesJar
-        archives javadocJar
-        if (testJava) {
-            archives testJar
-            archives testSourcesJar
-        }
-    }
-
     javadoc {
         options.encoding = "UTF-8"
     }
 
-    // code signing and uploading
-
-    def sonatypeRepositoryUrl = ""
-    def isDevBuild = false
-    def isCiBuild = false
-    def isReleaseBuild = false
-
-    //set build variables based on build type (continuous integration, development)
-    if (project.hasProperty("ci")) {
-        isCiBuild = true
-        if (version.endsWith('-SNAPSHOT')) {
-            sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-        } else {
-            isReleaseBuild = true
-            sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-        }
-    } else {
-        isDevBuild = true
+    // the nexus plugin makes uploading to Sonatype Nexus repository easier
+    // see https://github.com/bmuschko/gradle-nexus-plugin for documentation
+    apply plugin: 'nexus'
+    nexus {
+        attachTests = true
+        sign = true
     }
 
-    signing {
-        required {
-            isCiBuild && gradle.taskGraph.hasTask("uploadArchives")
-        }
-        sign configurations.archives
-    }
-
+    // task to fetch the GPG key to sign the JAR archives
+    // we put the key to build/secring.gpg where it will be picked up by the uploadArchives task of the nexus plugin
     task fetchSecretKeyRingFile << {
-        ant.get(src: secretKeyRingFileSourceURL, dest: secretKeyRingFileDestFile, username: secretKeyRingFileSourceURLAuthUsername, password: secretKeyRingFileSourceURLAuthPassword, verbose: true)
+        file(secretKeyRingFileDestFile).getParentFile().mkdirs()
+        ant.get(src: secretKeyRingFileSourceURL, dest: secretKeyRingFileDestFile, username: secretKeyRingFileSourceURLAuthUsername, password: secretKeyRingFileSourceURLAuthPassword)
+    }
+    afterEvaluate {
+        // always fetch the GPG key before signing archives
+        tasks.signArchives.dependsOn fetchSecretKeyRingFile
     }
 
-    uploadArchives {
-        repositories {
-            if (isDevBuild) {
-                mavenLocal()
-            } else if (isCiBuild) {
-                mavenDeployer {
-                    if (isReleaseBuild) {
-                        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-                    }
-
-                    repository(url: sonatypeRepositoryUrl) {
-                        authentication(userName: sonatypeUsername, password: sonatypePassword)
-                    }
-
-                    pom.project {
-                        name = 'COPPER high-performance workflow engine'
-                        packaging = 'jar'
-                        description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
-                        url 'http://copper-engine.org/'
-
-                        scm {
-                            url 'scm:git@github.com:copper-engine/copper-engine.git'
-                            connection 'scm:git@github.com:copper-engine/copper-engine.git'
-                            developerConnection 'scm:git@github.com:copper-engine/copper-engine.git'
-                        }
-
-                        licenses {
-                            license {
-                                name = 'The Apache Software License, Version 2.0'
-                                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                                distribution 'repo'
-                            }
-                        }
-
-                        developers {
-                            developer {
-                                id 'maustermann'
-                                name = 'Michael Austermann'
-                                roles {
-                                    role 'architect'
-                                    role 'developer'
-                                }
-                            }
-                            developer {
-                                id 'copper-team'
-                                name = 'Copper Engine Development Team'
-                                roles {
-                                    role 'developer'
-                                    role 'tester'
-                                }
-                            }
+    // WORKAROUND: sign poms before performing "uploadArchives".
+    // This workaround (the whole "afterEvaluate" block) can be removed when gradle-nexus-plugin issue #19
+    // is resolved, see https://github.com/bmuschko/gradle-nexus-plugin/issues/19
+    afterEvaluate {
+        signing {
+            project.gradle.taskGraph.whenReady {
+                def uploadTasks = project.tasks.withType(Upload).matching { it.path.endsWith(":uploadArchives") }
+                uploadTasks.each { task ->
+                    task.repositories.mavenDeployer() {
+                        beforeDeployment { MavenDeployment deployment ->
+                            project.signing.signPom(deployment)
                         }
                     }
                 }
             }
         }
     }
-    tasks.signArchives.dependsOn fetchSecretKeyRingFile
-    tasks.uploadArchives.dependsOn fetchSecretKeyRingFile
+    // END WORKAROUND
+
+    modifyPom {
+        project {
+            name = 'COPPER high-performance workflow engine'
+            packaging = 'jar'
+            description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
+            url 'http://copper-engine.org/'
+
+            scm {
+                url 'https://github.com/copper-engine/copper-engine'
+                connection 'scm:git@github.com:copper-engine/copper-engine.git'
+            }
+
+            licenses {
+                license {
+                    name = 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+
+            developers {
+                developer {
+                    id 'copper-team'
+                    name = 'Copper Engine Development Team'
+                    roles {
+                        role 'architect'
+                        role 'developer'
+                        role 'tester'
+                    }
+                }
+            }
+        }
+    }
 }
 
 
 project(':') { // this is the root project
+    // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
+    // by providing the task 'nexusStagingRelease'. We perform "nexusStagingRelease" only if the current
+    // version is not a SNAPSHOT release.
+    apply plugin: 'nexus-workflow'
+    tasks.nexusStagingRelease.onlyIf { !version.endsWith("-SNAPSHOT") }
+
+    // task to create source distribution containing all source files
+    // note: this task won't run automatically; it must be called explicitely
+    task fullSourcesJar(type: Jar) {
+        classifier = 'sources-full'
+        from project.rootDir
+        exclude '**/build/'
+        exclude '**/classes/'
+        exclude '**/generated/'
+        exclude '.gradle/'
+        exclude '.idea'
+        exclude '**/*.iml'
+        exclude '**/*.log'
+        exclude '**/*.classpath'
+        exclude '**/*.project'
+        exclude '**/*.settings/'
+    }
+
     // copy Intellij Codestyle settings each time 'gradle assemble' or 'gradle build' is performed on the root project
     task ideaCodeStyleSetup(type: Copy) {
         from 'common/intellij-codestyle.xml'
