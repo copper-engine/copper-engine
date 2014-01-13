@@ -21,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -33,8 +32,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -103,8 +104,6 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     /**
      * Sets the list of source archive URLs. The source archives must be ZIP compressed archives, containing COPPER
      * workflows as .java files.
-     *
-     * @param sourceArchiveUrls
      */
     public void setSourceArchiveUrls(List<String> sourceArchiveUrls) {
         if (sourceArchiveUrls == null)
@@ -153,10 +152,11 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     /**
-     * The repository will check the source directory every <code>checkIntervalMSec</code> milliseconds
-     * for changed workflow files. If it finds a changed file, all contained workflows are recompiled.
+     * The repository will check the source directory every <code>checkIntervalMSec</code> milliseconds for changed
+     * workflow files. If it finds a changed file, all contained workflows are recompiled. The default is 15 seconds.
      *
      * @param checkIntervalMSec
+     *         check interval in milliseconds
      */
     public void setCheckIntervalMSec(int checkIntervalMSec) {
         this.checkIntervalMSec = checkIntervalMSec;
@@ -171,7 +171,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     /**
-     * Configures the local directory/directories that contain the COPPER workflows as <code>.java<code> files.
+     * Configures the local directory/directories that contain the COPPER workflows as <code>.java</code> files.
      */
     public void setSourceDirs(List<String> sourceDirs) {
         if (sourceDirs == null)
@@ -188,18 +188,16 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 
     /**
      * If true (which is the default), this workflow repository's class loader will also load non-workflow classes, e.g.
-     * inner classes or helper classes.
-     * As this is maybe not always useful, use this property to enable or disable this feature.
+     * inner classes or helper classes. As this is maybe not always useful, use this property to enable or disable this
+     * feature.
      */
     public void setLoadNonWorkflowClasses(boolean loadNonWorkflowClasses) {
         this.loadNonWorkflowClasses = loadNonWorkflowClasses;
     }
 
     /**
-     * mandatory parameter - must point to a local directory with read/write privileges. COPPER will store the
-     * compiled workflow class files there.
-     *
-     * @param targetDir
+     * The target directory where COPPER will store the compiled workflow classes (mandatory). Must point to a local
+     * directory with read/write privileges.
      */
     public void setTargetDir(String targetDir) {
         this.targetDir = targetDir;
@@ -258,7 +256,6 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         return Class.forName(classname, false, volatileState.classLoader);
     }
 
-    ;
 
     static class ObserverThread extends Thread {
 
@@ -299,8 +296,6 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
             logger.info("Stopping observation");
         }
     }
-
-    ;
 
     @Override
     public synchronized void start() {
@@ -438,8 +433,9 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         int c = 0;
         FileInputStream fistr = new FileInputStream(f);
         int read;
-        for (; (read = fistr.read(data, c, data.length - c)) > 0; c += read)
-            ;
+        while ((read = fistr.read(data, c, data.length - c)) > 0) {
+            c += read;
+        }
         fistr.close();
         if (c < data.length)
             throw new IOException("Premature end of file");
@@ -486,7 +482,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         }
     }
 
-    private Map<String, Clazz> findInterruptableMethods(File compileTargetDir) throws FileNotFoundException, IOException {
+    private Map<String, Clazz> findInterruptableMethods(File compileTargetDir) throws IOException {
         logger.info("Analysing classfiles");
         // Find and visit all classes
         Map<String, Clazz> clazzMap = new HashMap<String, Clazz>();
@@ -513,11 +509,10 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         for (String classname : allClassNames) {
             Clazz clazz = clazzMap.get(classname);
             Clazz startClazz = clazz;
-            inner:
             while (true) {
                 startClazz.aggregatedInterruptableMethods.addAll(clazz.interruptableMethods);
                 if ("org/copperengine/core/Workflow".equals(clazz.superClassname) || "org/copperengine/core/persistent/PersistentWorkflow".equals(clazz.superClassname)) {
-                    break inner;
+                    break;
                 }
                 clazz = clazzMap.get(clazz.superClassname);
                 if (clazz == null) {
@@ -542,9 +537,9 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
             options.addAll(cop.getOptions());
         }
         logger.info("Compiler options: " + options.toString());
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        JavaCompiler compiler = getJavaCompiler();
         if (compiler == null)
-            throw new NullPointerException("No java compiler available! Did you start from a JDK? JRE will not work.");
+            throw new IllegalStateException("No Java compiler available! Please make sure that either tools.jar is provided, or that you start with a full JDK (not an JRE!), or that any other JSR-199 compatible Java compiler is available on the classpath, e.g. the Eclipse compiler ecj");
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
         final Map<String, File> files = new HashMap<String, File>();
         try {
@@ -568,6 +563,22 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         return files;
     }
 
+    private JavaCompiler getJavaCompiler() {
+        JavaCompiler systemJavaCompiler = ToolProvider.getSystemJavaCompiler();
+        if (systemJavaCompiler != null) {
+            return systemJavaCompiler;
+        }
+        logger.debug("System java compiler not found; searching for other java compilers...");
+        ServiceLoader<JavaCompiler> loader = ServiceLoader.load(JavaCompiler.class);
+        Iterator<JavaCompiler> it = loader.iterator();
+        if (it.hasNext()) {
+            JavaCompiler javaCompiler = it.next();
+            logger.debug("Found java compiler: {}", javaCompiler);
+            return javaCompiler;
+        }
+        return null;
+    }
+
     private Map<String, String> readJavaFiles(final Map<String, Class<?>> wfClassMap, List<String> _sourceDirs, File additionalSourcesDir) throws IOException {
         final List<File> sourceDirs = new ArrayList<File>();
         for (String dir : _sourceDirs) {
@@ -584,7 +595,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
                 if (javaFile.exists() && javaFile.isFile() && javaFile.canRead()) {
                     final BufferedReader br = new BufferedReader(new FileReader(javaFile));
                     try {
-                        String line = null;
+                        String line;
                         StringBuilder sb = new StringBuilder(32 * 1024);
                         while ((line = br.readLine()) != null) {
                             sb.append(line).append("\n");
@@ -615,7 +626,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         })) {
             files.put(pathPrefix + f.getName(), f);
         }
-        ;
+
         File[] subdirs = rootDir.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
@@ -634,11 +645,13 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     private static boolean deleteDirectory(File path) {
         if (path.exists()) {
             File[] files = path.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    deleteDirectory(files[i]);
-                } else {
-                    files[i].delete();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteDirectory(file);
+                    } else {
+                        file.delete();
+                    }
                 }
             }
         }

@@ -1,4 +1,4 @@
-COPPER 3.0 (alpha - not yet released)
+COPPER 3.0 (release candidate)
 ==========
 - Refactoring: Renamed COPPER major Throwable from "de.scoopgmbh.copper.InterruptException" to "org.copperengine.core.Interrupt". Persistent workflow instances and responses in existing databases keep compatible due to a loadtime adaptation feature - see StandardJavaSerializer.classnameReplacement
 - Refactoring: COPPER's toplevel package has been renamed from "de.scoopgmbh.copper" to "org.copperengine". Persistent workflow instances and responses in existing databases keep compatible due to a loadtime adaptation feature - see StandardJavaSerializer.classnameReplacement
@@ -7,6 +7,7 @@ COPPER 3.0 (alpha - not yet released)
 - Refactoring: de.scoopgmbh.copper.Response.internalProcessingTimeout changed from Integer to Long to enable really LONG timeouts
 - Refactoring: Renamed table ADAPTERCALL to COP_ADAPTERCALL, renamed index IX_ADAPTERCALL to COP_IDX_ADAPTERCALL
 - New feature: Added new wait methods, e.g. de.scoopgmbh.copper.Workflow.wait(WaitMode, long, TimeUnit, String...)
+- New feature: COPPER now uses the Eclipse compiler ecj (or any other JSR-199 compatible java compiler) when found on the CLASSPATH and the default Java compiler is not available. Thus you can run COPPER on a normal JRE instead of a full JDK, ie. you no longer need to provide tools.jar as long as you add ecj.jar to your runtime dependencies.
 
 COPPER 2.4
 ==========
