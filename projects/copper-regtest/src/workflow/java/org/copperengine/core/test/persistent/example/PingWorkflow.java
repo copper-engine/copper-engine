@@ -25,7 +25,7 @@ import org.copperengine.core.persistent.PersistentWorkflow;
 
 public class PingWorkflow extends PersistentWorkflow<PingData> {
 
-    private PingAdapter pingAdapter;
+    private transient PingAdapter pingAdapter;
 
     // The pingAdapter is injected my the engine due to the AutoWire annotation
     @AutoWire
