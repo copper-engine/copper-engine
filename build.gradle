@@ -205,7 +205,7 @@ configure(subprojects.findAll {
 }
 
 
-project(':') { // this is the root project
+configure(rootProject) {
     // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
     // by providing the task 'nexusStagingRelease'. We perform "nexusStagingRelease" only if the current
     // version is not a SNAPSHOT release.
@@ -263,6 +263,7 @@ project(':projects:copper-regtest') {
         testCompile 'mysql:mysql-connector-java:5.1.25'
         testCompile 'org.apache.derby:derby:10.9.1.0'
         testCompile 'postgresql:postgresql:9.1-901.jdbc4'
+        testCompile 'com.h2database:h2:1.3.171'
 
         testCompile 'org.slf4j:slf4j-log4j12:1.6.6'
 
