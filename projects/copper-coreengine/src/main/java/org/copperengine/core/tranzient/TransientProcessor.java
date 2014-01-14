@@ -22,7 +22,7 @@ import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.common.Processor;
-import org.copperengine.core.internal.WorkflowAccessor;
+import org.copperengine.core.WorkflowAccessor;
 
 /**
  * Internally used class.
@@ -32,6 +32,7 @@ import org.copperengine.core.internal.WorkflowAccessor;
 class TransientProcessor extends Processor {
 
     private TransientScottyEngine engine;
+    private final WorkflowAccessor accessor = new WorkflowAccessor();
 
     public TransientProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine) {
         super(name, queue, prio, engine);
@@ -44,7 +45,7 @@ class TransientProcessor extends Processor {
         logger.trace("before - stack={}", wf.get__stack());
         synchronized (wf) {
             try {
-                WorkflowAccessor.setProcessingState(wf, ProcessingState.RUNNING);
+                accessor.setProcessingState(wf, ProcessingState.RUNNING);
                 wf.__beforeProcess();
                 wf.main();
                 logger.trace("after 'main' - stack={}", wf.get__stack());

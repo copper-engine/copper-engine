@@ -22,7 +22,6 @@ import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.common.PriorityProcessorPool;
 import org.copperengine.core.common.WfPriorityQueue;
-import org.copperengine.core.internal.WorkflowAccessor;
 import org.copperengine.core.persistent.txn.TransactionController;
 import org.copperengine.management.PersistentPriorityProcessorPoolMXBean;
 import org.slf4j.Logger;
@@ -37,6 +36,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 
     private static final Logger logger = LoggerFactory.getLogger(PersistentPriorityProcessorPool.class);
 
+    private org.copperengine.core.WorkflowAccessor accessor = new org.copperengine.core.WorkflowAccessor();
     private TransactionController transactionController;
 
     private Thread thread;
@@ -152,7 +152,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
                     if (logger.isTraceEnabled())
                         logger.trace("Dequeue returned " + rv.size() + " elements.");
                     for (Workflow<?> wf : rv) {
-                        WorkflowAccessor.setProcessingState(wf, ProcessingState.DEQUEUED);
+                        accessor.setProcessingState(wf, ProcessingState.DEQUEUED);
                         engine.register(wf);
                     }
                     synchronized (queue) {

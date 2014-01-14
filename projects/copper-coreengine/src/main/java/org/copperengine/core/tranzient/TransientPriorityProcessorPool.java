@@ -17,8 +17,9 @@ package org.copperengine.core.tranzient;
 
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
+import org.copperengine.core.WorkflowAccessor;
 import org.copperengine.core.common.PriorityProcessorPool;
-import org.copperengine.core.internal.WorkflowAccessor;
+
 
 /**
  * Default implementation of a {@link TransientProcessorPool}, backed by a priority queue and a configurable
@@ -27,6 +28,7 @@ import org.copperengine.core.internal.WorkflowAccessor;
  * @author austermann
  */
 public class TransientPriorityProcessorPool extends PriorityProcessorPool implements TransientProcessorPool {
+    private WorkflowAccessor accessor = new WorkflowAccessor();
 
     /**
      * Creates a new {@link TransientPriorityProcessorPool} with as many worker threads as processors available on the
@@ -54,7 +56,7 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
     public void enqueue(Workflow<?> wf) {
         if (wf == null)
             throw new NullPointerException();
-        WorkflowAccessor.setProcessingState(wf, ProcessingState.ENQUEUED);
+        accessor.setProcessingState(wf, ProcessingState.ENQUEUED);
         synchronized (queue) {
             queue.add(wf);
             if (!queue.isSuspended()) {
