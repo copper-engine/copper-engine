@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 SCOOP Software GmbH
+ * Copyright 2002-2014 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package org.copperengine.monitoring.server.util;
 
 /*
- * Copyright 2002-2013 SCOOP Software GmbH
+ * Copyright 2002-2014 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
