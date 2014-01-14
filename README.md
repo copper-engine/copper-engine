@@ -25,8 +25,29 @@ To generate Eclipse project files, run:
 
 once in the projects root directory and open the corresponding projects with the eclipse IDE. (You must perform this step every time the project dependencies change).
 
+How to contribute
+-----------------
+
+1) Create an issue on GitHub
+
+2) Create a fork  on GutHub
+
+3) Commit your changes incl. [WHATSNEW.txt](WHATSNEW.txt)
+  * Ensure, that your sources are UTF-8 encoded
+  * If possible, use [eclipse-codestyle.xml](blob/master/common/eclipse-codestyle.xml) for Eclipse
+  * If possible, use [intellij-codestyle.xml](blob/master/common/intellij-codestyle.xml) for IntelliJ IDEA with <code>./gradlew assemble</code>
+  
+4) Build all and run tests
+
+    ./gradlew build
+    
+
+5) Push your changes to your fork
+
+6) Create a pull request on GtHub
+
 **Have fun!**
 
 
 <hr>
-Copyright 2002-2013 Copper Engine Development Team
+Copyright 2002-2014 Copper Engine Development Team
