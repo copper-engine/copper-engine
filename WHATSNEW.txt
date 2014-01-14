@@ -1,6 +1,8 @@
 COPPER 3.0-RC.5
 ===============
 - New feature: COPPER now uses the Eclipse compiler ecj (or any other JSR-199 compatible java compiler) when found on the CLASSPATH and the default Java compiler is not available. Thus you can run COPPER on a normal JRE instead of a full JDK, ie. you no longer need to provide tools.jar as long as you add ecj.jar to your runtime dependencies.
+- Bugfix: Issue #26: Removed commons-logging from dependencies
+- Bugfix: Issue #25: Removed log4j dependency from copper-coreengine
 
 COPPER 3.0-RC.4
 ===============
