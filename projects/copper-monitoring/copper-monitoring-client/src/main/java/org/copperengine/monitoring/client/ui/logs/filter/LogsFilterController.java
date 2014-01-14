@@ -52,7 +52,7 @@ public class LogsFilterController extends BaseFilterController<LogsFilterModel> 
 
     @Override
     public boolean supportsFiltering() {
-        return true;
+        return false;
     }
 
     @Override

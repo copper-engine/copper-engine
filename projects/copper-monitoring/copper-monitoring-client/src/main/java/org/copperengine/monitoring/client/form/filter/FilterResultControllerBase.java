@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import com.sun.javafx.runtime.VersionInfo;
+import com.sun.javafx.scene.control.behavior.TableCellBehavior;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -48,11 +50,8 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-
 import org.copperengine.monitoring.client.form.FxmlController;
 import org.copperengine.monitoring.client.util.MessageProvider;
-
-import com.sun.javafx.scene.control.behavior.TableCellBehavior;
 
 /**
  * @param <F>Filtermodel
@@ -105,9 +104,9 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
         });
         copyCellMenuItem.setOnAction(copyCell.getOnAction());
         pane.getChildren().add(copyCell);
-        pane.getChildren().add(new Label("Search"));
-        final TextField textField = new TextField();
-        textField.textProperty().addListener(new ChangeListener<String>() {
+        final TextField searchField = new TextField();
+        searchField.setPromptText("search");
+        searchField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if (newValue != null && newValue.length() > 1) {
@@ -119,17 +118,17 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue != null) {
-                    searchInTable(tableView, textField.getText(), newValue);
+                    searchInTable(tableView, searchField.getText(), newValue);
                 }
             }
         });
-        textField.setOnAction(new EventHandler<ActionEvent>() {
+        searchField.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                searchInTable(tableView, textField.getText(), regExp.isSelected());
+                searchInTable(tableView, searchField.getText(), regExp.isSelected());
             }
         });
-        HBox.setHgrow(textField, Priority.ALWAYS);
+        HBox.setHgrow(searchField, Priority.ALWAYS);
         final Label count = new Label("count: 0");
         // tableView.itemsProperty().addListener(new ChangeListener<ObservableList<M>>() {
         // @Override
@@ -140,7 +139,7 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
         // }
         // }
         // });
-        pane.getChildren().add(textField);
+        pane.getChildren().add(searchField);
         pane.getChildren().add(regExp);
         pane.getChildren().add(new Separator(Orientation.VERTICAL));
         pane.getChildren().add(count);
@@ -221,23 +220,25 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
     @Override
     public void onClose() {
         // workaround for javafx memoryleaks RT-25652, RT-32087
-        for (TableView tableView : tableViews) {
-            tableView.getFocusModel().focus(null);
-            Class tcbClass = TableCellBehavior.class;
-            try {
-                Method anchorMethod = tcbClass.getDeclaredMethod("setAnchor", TableView.class, TablePosition.class);
-                anchorMethod.setAccessible(true);
-                anchorMethod.invoke(null, tableView, null);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        if (VersionInfo.getRuntimeVersion().startsWith("2")){
+            for (TableView tableView : tableViews) {
+                tableView.getFocusModel().focus(null);
+                Class tcbClass = TableCellBehavior.class;
+                try {
+                    Method anchorMethod = tcbClass.getDeclaredMethod("setAnchor", TableView.class, TablePosition.class);
+                    anchorMethod.setAccessible(true);
+                    anchorMethod.invoke(null, tableView, null);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                tableView.setOnMouseClicked(null);
+                tableView.setSelectionModel(null);
+                tableView.getColumns().clear();
+                tableView.setItems(FXCollections.observableArrayList());
+                tableView = null;
             }
-            tableView.setOnMouseClicked(null);
-            tableView.setSelectionModel(null);
-            tableView.getColumns().clear();
-            tableView.setItems(FXCollections.observableArrayList());
-            tableView = null;
+            tableViews.clear();
         }
-        tableViews.clear();
 
     }
 

@@ -21,7 +21,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.google.common.base.Optional;
 import javafx.animation.Animation.Status;
+import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -45,17 +47,14 @@ import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-
 import org.copperengine.monitoring.client.ui.adaptermonitoring.result.AdapterCallRowModel;
 import org.copperengine.monitoring.client.ui.adaptermonitoring.result.AdapterLaunchRowModel;
 import org.copperengine.monitoring.client.ui.adaptermonitoring.result.AdapterNotifyRowModel;
 
-import com.google.common.base.Optional;
-
 public class AdapterAnimationCreator {
 
     public long FADEDURATION = 300;
-    public long MOVEDURATION = 1600;
+    public long MOVEDURATION = 1100;
     public long DEFAULT_TOTAL_ANNIMATION_TIME = FADEDURATION + MOVEDURATION + FADEDURATION;
 
     private long min;
@@ -390,8 +389,8 @@ public class AdapterAnimationCreator {
 
         KeyValue keyValueStartX = new KeyValue(node.translateXProperty(), annimation.startx);
         KeyValue keyValueStartY = new KeyValue(node.translateYProperty(), annimation.starty);
-        KeyValue keyValueEndX = new KeyValue(node.translateXProperty(), annimation.endx);
-        KeyValue keyValueEndY = new KeyValue(node.translateYProperty(), annimation.endy);
+        KeyValue keyValueEndX = new KeyValue(node.translateXProperty(), annimation.endx, Interpolator.EASE_BOTH);
+        KeyValue keyValueEndY = new KeyValue(node.translateYProperty(), annimation.endy, Interpolator.EASE_BOTH);
 
         KeyFrame keyFrame1 = new KeyFrame(Duration.millis(startTimeMs),
                 new EventHandler<ActionEvent>() {

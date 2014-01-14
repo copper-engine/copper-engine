@@ -15,8 +15,10 @@
  */
 package org.copperengine.monitoring.client.form.filter;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javafx.animation.FadeTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -29,32 +31,32 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
+import javafx.util.Duration;
 import org.copperengine.monitoring.client.form.Form;
 import org.copperengine.monitoring.client.form.ShowFormStrategy;
-import org.copperengine.monitoring.client.form.ShowFormStrategy.CloseListener;
 import org.copperengine.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
 import org.copperengine.monitoring.client.form.issuereporting.IssueReporter;
 import org.copperengine.monitoring.client.util.ComponentUtil;
@@ -98,7 +100,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
             }
         });
 
-        showFormStrategie.setOnCloseListener(new CloseListener() {
+        showFormStrategie.setOnCloseListener(new ShowFormStrategy.CloseListener() {
             @Override
             public void closed(Form<?> form) {
                 if (form == FilterAbleForm.this) {
@@ -152,22 +154,25 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         BorderPane masterBorderPane = new BorderPane();
         masterStackPane.getChildren().add(masterBorderPane);
 
-        BorderPane filterBorderPane = new BorderPane();
-        final Node leftFilterPart = createLeftFilterPart();
-        filterBorderPane.setLeft(leftFilterPart);
-        Node filterContent = this.createFilterContent();
-        StackPane filterContentStackPane = new StackPane();
-        filterBorderPane.setCenter(filterContentStackPane);
-        if (filterForm.getController().supportsFiltering()) {
-            filterContentStackPane.getChildren().add(filterContent);
-        }
-        Node rightButtons = createRightFilterButtons(filterContent, leftFilterPart, filterContentStackPane);
-        BorderPane.setMargin(rightButtons, new Insets(0, 3, 0, 3));
-        filterBorderPane.setRight(rightButtons);
-        filterBorderPane.setBottom(new Separator(Orientation.HORIZONTAL));
 
-        masterBorderPane.setTop(filterBorderPane);
-        masterBorderPane.setCenter(resultForm.createContent());
+        final StackPane centerStackpane = new StackPane();
+        centerStackpane.setAlignment(Pos.TOP_LEFT);
+
+
+        final HBox allFilterParent = new HBox();
+        StackPane filterContentStackPane = new StackPane();
+        createFilter(allFilterParent);
+
+        ToolBar formToolbar = new ToolBar();
+        formToolbar.setOrientation(Orientation.VERTICAL);
+        final HBox leftPane= new HBox();
+        formToolbar.getItems().addAll(createDefaultFormToolbar(allFilterParent,centerStackpane));
+        leftPane.getChildren().add(formToolbar);
+        masterBorderPane.setLeft(formToolbar);
+        final Node formcontent = resultForm.createContent();
+        centerStackpane.getChildren().add(formcontent);
+        masterBorderPane.setCenter(centerStackpane);
+
 
         filterService.reset();
         filterService.start();
@@ -176,53 +181,125 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         return masterStackPane;
     }
 
-    private Node createRightFilterButtons(Node filterContent, Node leftFilterPart, Pane progressbarDisplayTarget) {
-        Pane buttonsPane;
-        if (verticalRightButton) {
-            VBox vbox = new VBox();
-            vbox.setAlignment(Pos.TOP_LEFT);
-            vbox.setSpacing(3);
-            Region spacer = new Region();
-            VBox.setMargin(spacer, new Insets(1.5));
-            vbox.getChildren().add(spacer);
-            buttonsPane = vbox;
-        } else {
-            HBox hbox = new HBox();
-            hbox.setAlignment(Pos.CENTER);
-            hbox.setSpacing(3);
-            buttonsPane = hbox;
-        }
-        Orientation orientation = verticalRightButton ? Orientation.HORIZONTAL : Orientation.VERTICAL;
+    private class FilterFadeHandler {
+        public static final double MIN_OPACITY = 0.85;
+        final Node target ;
+        private final FadeTransition ftIn;
+        private final FadeTransition ftOut;
 
-        buttonsPane.getChildren().addAll(resultForm.getController().getContributedButtons(messageProvider));
-        buttonsPane.getChildren().add(new Separator(orientation));
+        private FilterFadeHandler(Node target) {
+            this.target = target;
 
-        MenuButton defaultFilterButton = new MenuButton("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/filter.png"))));
-        defaultFilterButton.setPrefWidth(20);
-        CustomMenuItem defaultFilterContent = new CustomMenuItem();
-        defaultFilterContent.setHideOnClick(false);
-        defaultFilterButton.getItems().add(defaultFilterContent);
-        defaultFilterContent.getStyleClass().setAll("noSelectAnimationMenueItem", "menu-item");
-        buttonsPane.getChildren().add(defaultFilterButton);
-        if (filterForm.getController().createDefaultFilter() != null) {
-            defaultFilterContent.setContent(filterForm.getController().createDefaultFilter());
-        } else {
-            defaultFilterButton.setDisable(true);
+            ftIn = new FadeTransition(Duration.millis(400), target);
+            ftIn.setFromValue(MIN_OPACITY);
+            ftIn.setToValue(1);
+
+            ftOut = new FadeTransition(Duration.millis(400), target);
+            ftOut.setFromValue(1.0);
+            ftOut.setToValue(MIN_OPACITY);
         }
 
-        buttonsPane.getChildren().add(new Separator(orientation));
+        public EventHandler<MouseEvent> getEnter(){
+            return new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+                    if (target.getOpacity()!=1){
+                        ftIn.playFromStart();
+                        ftOut.pause();
+                    }
+                }
+            };
+        }
 
-        final Button clearButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/clear.png"))));
-        clearButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_clear)));
-        clearButton.setOnAction(new EventHandler<ActionEvent>() {
+        public EventHandler<MouseEvent> getExit(){
+            return new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+                    if (target.getOpacity()!=MIN_OPACITY){
+                        ftOut.playFromStart();
+                        ftIn.pause();
+                    }
+                }
+            };
+        }
+    }
+
+    private Node createFilter(final HBox allFilterParent){
+        VBox filterAreaStack = new VBox();
+
+
+        Node customFormFilteContent = this.createFilterContent();
+        final TitledPane customFormFilter = new TitledPane();
+        customFormFilter.setText("Filter");
+        customFormFilter.setCollapsible(false);
+        customFormFilter.setContent(customFormFilteContent);
+
+        final FilterFadeHandler filderFadeHandler = new FilterFadeHandler(filterAreaStack);
+        filterAreaStack.setOnMouseEntered(filderFadeHandler.getEnter());
+        filterAreaStack.setOnMouseExited(filderFadeHandler.getExit());
+        filterAreaStack.setPickOnBounds(false);
+
+        allFilterParent.setOpacity(1);
+        HBox.setHgrow(customFormFilter, Priority.NEVER);
+        if (filterForm.getController().supportsFiltering()) {
+            filterAreaStack.getChildren().add(customFormFilter);
+        }
+
+        allFilterParent.getChildren().add(filterAreaStack);
+        final Button divider = new Button();
+        divider.setMaxWidth(4);
+//        divider.prefHeightProperty().bind(customFormFilter.prefHeightProperty());
+//        divider.setOnMousePressed(new EventHandler<MouseEvent>() {
+//            @Override
+//            public void handle(MouseEvent mouseEvent) {
+//                filderFadeHandler.disable();
+//            }
+//        });
+//        divider.setOnMouseReleased(new EventHandler<MouseEvent>() {
+//            @Override
+//            public void handle(MouseEvent mouseEvent) {
+//                filderFadeHandler.enable();
+//            }
+//        });
+        divider.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(ActionEvent e) {
-                resultForm.getController().clear();
+            public void handle(MouseEvent mouseEvent) {
+                customFormFilter.setPrefWidth(allFilterParent.getParent().sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY()).getX());
             }
         });
-        if (resultForm.getController().supportsClear()) {
-            buttonsPane.getChildren().add(clearButton);
+        divider.setCursor(Cursor.H_RESIZE);
+        allFilterParent.getChildren().add(divider);
+        allFilterParent.setPickOnBounds(false);//transparent area is mousetransparent
+
+
+        final TitledPane defaultFilter = new TitledPane();
+        defaultFilter.setText("Filter");
+        defaultFilter.setCollapsible(false);
+        final Node defaultFilterContent = filterForm.getController().createDefaultFilter();
+        defaultFilter.setContent(defaultFilterContent);
+        if (defaultFilterContent!=null){
+            filterAreaStack.getChildren().add(defaultFilter);
         }
+
+        final TitledPane settings = new TitledPane();
+        settings.setText("Settings");
+        settings.setCollapsible(false);
+        HBox settingsPane = new HBox(3);
+        settingsPane.setAlignment(Pos.CENTER_LEFT);
+        settingsPane.getChildren().add(new Label("Refresh Interval"));
+        TextField interval = new NumberOnlyTextField();
+        interval.setPrefWidth(100);
+        interval.textProperty().bindBidirectional(refreshRateInMs);
+        settingsPane.getChildren().add(interval);
+        settingsPane.getChildren().add(new Label("ms"));
+        settings.setContent(settingsPane);
+        filterAreaStack.getChildren().add(settings);
+
+        return allFilterParent;
+    }
+
+    private List<Node> createDefaultFormToolbar(final Node wrapperFilter, final StackPane centerStackpane) {
+        ArrayList<Node> result = new ArrayList<Node>();
 
         final Button refreshButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/refresh.png"))));
         refreshButton.setId(REFRESH_BUTTON_ID);
@@ -234,26 +311,16 @@ public class FilterAbleForm<F, R> extends Form<Object> {
                 refresh();
             }
         });
-        buttonsPane.getChildren().add(refreshButton);
+        result.add(refreshButton);
+        result.add(new Separator(Orientation.HORIZONTAL));
 
-        final ProgressIndicator repeatProgressIndicator = new ProgressBar();
-        progressbarDisplayTarget.getChildren().add(repeatProgressIndicator);
-        final ToggleButton toggleButton = new ToggleButton("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/repeat.png"))));
+        final ProgressIndicator repeatProgressIndicator = new ProgressIndicator();
         repeatProgressIndicator.setVisible(false);
-        repeatProgressIndicator.setPrefWidth(300);
         repeatProgressIndicator.progressProperty().bind(repeatFilterService.progressProperty());
-        toggleButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (toggleButton.isSelected()) {
-                    repeatFilterService.setRefreshIntervall(Long.valueOf(refreshRateInMs.get()));
-                    repeatFilterService.reset();
-                    repeatFilterService.start();
-                } else {
-                    repeatFilterService.cancel();
-                }
-            }
-        });
+        final ToggleButton repeatToggleButton = new ToggleButton("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/repeat.png"))));
+//        repeatProgressIndicator.setMaxWidth(refreshButton.getWidth());
+        repeatProgressIndicator.setPrefWidth(refreshButton.getWidth());
+
         repeatFilterService.setOnCancelled(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent event) {
@@ -276,34 +343,75 @@ public class FilterAbleForm<F, R> extends Form<Object> {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue != null) {
-                    toggleButton.setSelected(newValue);
+                    repeatToggleButton.setSelected(newValue);
                 }
             }
         });
-        buttonsPane.getChildren().add(toggleButton);
+        result.add(repeatToggleButton);
 
-        MenuButton settings = new MenuButton("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/settings.png"))));
-        settings.setPrefWidth(20);
-        CustomMenuItem customMenuItem = new CustomMenuItem();
-        settings.getItems().add(customMenuItem);
-        customMenuItem.getStyleClass().setAll("noSelectAnimationMenueItem", "menu-item");
-        HBox hbox = new HBox(3);
-        hbox.setAlignment(Pos.CENTER_LEFT);
-        hbox.getChildren().add(new Label("Refresh Interval"));
-        TextField interval = new NumberOnlyTextField();
-        interval.setPrefWidth(100);
-        interval.textProperty().bindBidirectional(refreshRateInMs);
-        hbox.getChildren().add(interval);
-        hbox.getChildren().add(new Label("ms"));
-        customMenuItem.setContent(hbox);
-        buttonsPane.getChildren().add(settings);
+        final Button clearButton = new Button("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/clear.png"))));
+        clearButton.setTooltip(new Tooltip(messageProvider.getText(MessageKey.filterAbleForm_button_clear)));
+        clearButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                resultForm.getController().clear();
+            }
+        });
+        if (resultForm.getController().supportsClear()) {
+            result.add(clearButton);
+        }
 
-        refreshButton.disableProperty().bind(toggleButton.selectedProperty());
-        clearButton.disableProperty().bind(toggleButton.selectedProperty());
-        filterContent.disableProperty().bind(toggleButton.selectedProperty());
-        leftFilterPart.disableProperty().bind(toggleButton.selectedProperty());
-        settings.disableProperty().bind(toggleButton.selectedProperty());
-        return buttonsPane;
+
+
+        result.add(new Separator(Orientation.HORIZONTAL));
+        final ToggleButton filterButton = new ToggleButton("", new ImageView(new Image(getClass().getResourceAsStream("/org/copperengine/gui/icon/filter.png"))));
+        filterButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
+                if (newValue!=null && newValue) {
+                    centerStackpane.getChildren().add(wrapperFilter);
+                } else {
+                    centerStackpane.getChildren().remove(wrapperFilter);
+                }
+            }
+        });
+        filterButton.setPrefWidth(20);
+        result.add(filterButton);
+//        if (filterForm.getController().createDefaultFilter() != null) {
+//            defaultFilterContent.setContent(filterForm.getController().createDefaultFilter());
+//        } else {
+//            defaultFilterButton.setDisable(true);
+//        }
+
+
+        result.add(new Separator(Orientation.HORIZONTAL));
+        final List<? extends Node> contributedButtons = resultForm.getController().getContributedButtons(messageProvider);
+        result.addAll(contributedButtons);
+        if (contributedButtons != null && contributedButtons.size()>0){
+            result.add(new Separator(Orientation.HORIZONTAL));
+        }
+
+        result.add(repeatProgressIndicator);
+
+        repeatToggleButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (repeatToggleButton.isSelected()) {
+                    repeatFilterService.setRefreshIntervall(Long.valueOf(refreshRateInMs.get()));
+                    repeatFilterService.reset();
+                    repeatFilterService.start();
+                    filterButton.setSelected(false);
+                } else {
+                    repeatFilterService.cancel();
+                }
+            }
+        });
+
+        refreshButton.disableProperty().bind(repeatToggleButton.selectedProperty());
+        clearButton.disableProperty().bind(repeatToggleButton.selectedProperty());
+        filterButton.disableProperty().bind(repeatToggleButton.selectedProperty());
+
+        return result;
     }
 
     private Node createFilterContent() {
@@ -317,13 +425,6 @@ public class FilterAbleForm<F, R> extends Form<Object> {
     public void refresh() {
         filterService.reset();
         filterService.start();
-    }
-
-    /**
-     * hook for child classes default is empty
-     */
-    protected Node createLeftFilterPart() {
-        return new Pane();
     }
 
     SimpleStringProperty refreshRateInMs = new SimpleStringProperty();

@@ -59,6 +59,7 @@ public class FormCreator {
                 createFormInternal().show();
             }
         });
+        menuItem.setDisable(!enabled);
         return menuItem;
     }
 
@@ -97,7 +98,7 @@ public class FormCreator {
         return tooltip;
     }
 
-    public void createMenu(Menu menu) {
+    public void createMenu(final Menu menu) {
         if (menu.getText().isEmpty()) {
             menu.setText(staticTitle);
         }

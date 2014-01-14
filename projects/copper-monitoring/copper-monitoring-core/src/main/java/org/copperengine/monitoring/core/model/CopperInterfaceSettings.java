@@ -20,6 +20,7 @@ import java.io.Serializable;
 public class CopperInterfaceSettings implements Serializable {
     private static final long serialVersionUID = 943485236197137124L;
     private boolean canExecuteSql;
+    private SupportedFeatures supportedFeatures;
 
     public CopperInterfaceSettings(boolean canExecuteSql) {
         super();
@@ -38,4 +39,11 @@ public class CopperInterfaceSettings implements Serializable {
         super();
     }
 
+    public SupportedFeatures getSupportedFeatures(){
+        return supportedFeatures;
+    }
+
+    public void setSupportedFeatures(SupportedFeatures supportedFeatures) {
+        this.supportedFeatures = supportedFeatures;
+    }
 }

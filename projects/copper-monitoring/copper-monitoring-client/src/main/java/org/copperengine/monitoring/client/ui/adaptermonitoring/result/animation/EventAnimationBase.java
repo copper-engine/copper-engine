@@ -42,8 +42,11 @@ public class EventAnimationBase extends AnimationPartBase {
         rectangle.setArcWidth(20);
         final Text text = new Text(getDisplayText());
         text.setFontSmoothingType(FontSmoothingType.LCD);
-        text.translateXProperty().bind(rectangle.translateXProperty());
-        text.translateYProperty().bind(rectangle.translateYProperty().add(rectangle.getHeight() / 2).add(text.getBoundsInLocal().getHeight() / 4));
+        final double textWidth = text.getBoundsInLocal().getWidth();
+        final double testHeight = text.getBoundsInLocal().getHeight();
+        text.setX((rectangle.getWidth() / 2)-textWidth / 2);
+        text.setY(rectangle.getHeight() / 2+testHeight / 4);
+
         pane.getChildren().add(rectangle);
         pane.getChildren().add(text);
         return pane;

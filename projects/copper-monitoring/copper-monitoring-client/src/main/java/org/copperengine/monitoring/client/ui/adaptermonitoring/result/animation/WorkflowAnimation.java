@@ -43,13 +43,13 @@ public class WorkflowAnimation extends AnimationPartBase {
         workflowRectangle.setArcWidth(25);
         final Text classText = new Text(workflowClass);
         classText.setFontSmoothingType(FontSmoothingType.LCD);
-        classText.xProperty().bind(workflowRectangle.xProperty().add(workflowRectangle.getWidth() / 2).subtract(classText.getBoundsInLocal().getWidth() / 2));
-        classText.yProperty().bind(workflowRectangle.yProperty().subtract(16));
+        classText.setX(workflowRectangle.getWidth() / 2-classText.getBoundsInLocal().getWidth() / 2);
+        classText.setY(-16);
         final Text instanceIdText = new Text(id);
         instanceIdText.setFont(Font.font(Font.getDefault().getName(), 10));
         instanceIdText.setFontSmoothingType(FontSmoothingType.LCD);
-        instanceIdText.xProperty().bind(workflowRectangle.xProperty().add(workflowRectangle.getWidth() / 2).subtract(classText.getBoundsInLocal().getWidth() / 2));
-        instanceIdText.yProperty().bind(workflowRectangle.yProperty().subtract(3));
+        instanceIdText.setX(workflowRectangle.getWidth() / 2-classText.getBoundsInLocal().getWidth() / 2);
+        instanceIdText.setY(-3);
         pane.getChildren().add(workflowRectangle);
         pane.getChildren().add(classText);
         pane.getChildren().add(instanceIdText);

@@ -478,6 +478,9 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
 project(':projects:copper-monitoring:copper-monitoring-client') {
     apply plugin: 'application'
 
+    compileJava.sourceCompatibility = JavaVersion.VERSION_1_7
+    compileJava.targetCompatibility = JavaVersion.VERSION_1_7
+
     mainClassName = "org.copperengine.monitoring.client.main.MonitorMain"
 
     // Copy resources files from src/main/java (*.fxml files) to classes dir.
@@ -502,10 +505,6 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
                     // modify some classpath entries
                     NodeList nodeList = root.getAt(new QName('classpathentry'))
                     nodeList.each { Node classpathentry ->
-                        // workaround to append javadoc for javafx
-                        if (classpathentry.attributes().path.contains('jfxrt.jar')) {
-                            classpathentry.appendNode('attributes').appendNode('attribute', [name: 'javadoc_location', value: 'jar:platform:/resource/copper-monitoring-client/libs/jfxrt-javadoc.zip!/']);
-                        }
                         // workaround to append sources for Jemmy
                         if (classpathentry.attributes().path.contains('Jemmy3AWTInput-0.9.3-SNAPSHOT')) {
                             Map attributes = classpathentry.attributes();
@@ -539,7 +538,7 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
         jfxant files("libs/ant-javafx.jar")
 
         compile project(':projects:copper-monitoring:copper-monitoring-core')
-        compile files('libs/jfxrt.jar')
+        compile files(System.env["JAVA_HOME"]+'/jre/lib/jfxrt.jar')
         compile files('libs/ScenicView.jar')
 
         compile 'com.google.guava:guava:14.0.1'
@@ -621,6 +620,15 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
     }
 }
 
+project(':projects:copper-monitoring:copper-monitoring-client-java8') {
+    compileJava.sourceCompatibility = JavaVersion.VERSION_1_7 // should be VERSION_1_8 when jenkins is ready
+    compileJava.targetCompatibility = JavaVersion.VERSION_1_7 // should be VERSION_1_8 when jenkins is ready
+    dependencies {
+        compile project(':projects:copper-monitoring:copper-monitoring-client'){
+            //exclude group: 'xerces', module: 'xerces'
+        }
+    }
+}
 
 project(':projects:copper-monitoring:copper-monitoring-core') {
     dependencies {
@@ -642,6 +650,7 @@ project(':projects:copper-monitoring:copper-monitoring-example') {
 
     dependencies {
         compile project(':projects:copper-monitoring:copper-monitoring-server')
+        compile project(':projects:copper-monitoring:copper-monitoring-client')
         compile project(':projects:copper-coreengine')
         compile 'ch.qos.logback:logback-classic:1.0.13'
         compile 'org.apache.derby:derby:10.9.1.0'

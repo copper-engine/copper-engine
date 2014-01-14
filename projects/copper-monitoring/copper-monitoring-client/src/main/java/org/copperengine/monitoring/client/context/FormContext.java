@@ -32,7 +32,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.context.FormBuilder.EngineFormBuilder;
 import org.copperengine.monitoring.client.form.BorderPaneShowFormStrategie;
@@ -123,6 +122,7 @@ import org.copperengine.monitoring.client.util.CodeMirrorFormatter;
 import org.copperengine.monitoring.client.util.MessageKey;
 import org.copperengine.monitoring.client.util.MessageProvider;
 import org.copperengine.monitoring.client.util.WorkflowVersion;
+import org.copperengine.monitoring.core.model.CopperInterfaceSettings;
 import org.copperengine.monitoring.core.model.MeasurePointData;
 import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
@@ -155,7 +155,9 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         this.issueReporter = issueReporter;
         this.inputDialogCreator = inputDialogCreator;
 
-        ArrayList<FormCreator> mainCreators = new ArrayList<FormCreator>();
+        CopperInterfaceSettings copperInterfaceSettings = guiCopperDataProvider.getInterfaceSettings();
+
+        ArrayList <FormCreator> mainCreators = new ArrayList<FormCreator>();
         mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
             @Override
             public Form<?> createForm() {
@@ -186,7 +188,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         });
         mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.logsGroup_title), createLogGroup()));
 
-        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.loadGroup_title), createLoadGroup()));
+        mainCreators.add(new FormCreator(messageProvider.getText(MessageKey.loadGroup_title), createLoadGroup(copperInterfaceSettings)));
 
         FormCreator sqlformcreator = new FormCreator(messageProvider.getText(MessageKey.sql_title)) {
             @Override
@@ -194,7 +196,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
                 return createSqlForm();
             }
         };
-        if (!guiCopperDataProvider.getInterfaceSettings().isCanExecuteSql()) {
+        if (!copperInterfaceSettings.isCanExecuteSql()) {
             sqlformcreator.setEnabled(false);
             sqlformcreator.setTooltip(new Tooltip("disabled in copper"));
         }
@@ -255,7 +257,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         return workflowgroup;
     }
 
-    public ArrayList<FormCreator> createLoadGroup() {
+    public ArrayList<FormCreator> createLoadGroup(CopperInterfaceSettings copperInterfaceSettings) {
         ArrayList<FormCreator> loadCreator = new ArrayList<FormCreator>();
         loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.engineLoad_title)) {
             @Override
@@ -269,12 +271,19 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
                 return createRessourceForm();
             }
         });
-        loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.measurePoint_title)) {
+        final FormCreator measurePointCreator = new FormCreator(messageProvider.getText(MessageKey.measurePoint_title)) {
             @Override
             public Form<?> createForm() {
                 return createMeasurePointForm();
             }
-        });
+        };
+        loadCreator.add(measurePointCreator);
+        if (!copperInterfaceSettings.getSupportedFeatures().isSupportsLoggingStatisticCollector()) {
+            measurePointCreator.setEnabled(false);
+            measurePointCreator.setTooltip(new Tooltip("not available in copper"));
+        }
+
+
         loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.customMeasurePoint_title)) {
             @Override
             public Form<?> createForm() {

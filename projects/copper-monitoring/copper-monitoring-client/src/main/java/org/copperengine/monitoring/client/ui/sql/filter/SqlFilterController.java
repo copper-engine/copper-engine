@@ -63,7 +63,6 @@ public class SqlFilterController extends BaseFilterController<SqlFilterModel> im
         history.getItems().add("SELECT * FROM COP_WAIT");
         history.getItems().add("SELECT * FROM COP_QUEUE");
         history.getItems().add("SELECT * FROM COP_AUDIT_TRAIL_EVENT");
-        history.getItems().add("SELECT * FROM COP_ENGINE");
         final int fixSize = history.getItems().size();
 
         sqlEditor.getEngine().loadContent(codeMirrorFormatter.format("", CodeFormatLanguage.SQL, false));

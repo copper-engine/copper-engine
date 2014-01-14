@@ -104,7 +104,7 @@ public class MeasurePointResultController extends FilterResultControllerBase<Eng
 
     @Override
     public boolean supportsClear() {
-        return true;
+        return false;
     }
 
     @Override

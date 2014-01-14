@@ -8,4 +8,4 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<FlowPane id="Panel" fx:id="pane" alignment="CENTER" hgap="5.0" layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="811.0" xmlns:fx="http://javafx.com/fxml" />
+<FlowPane id="Panel" fx:id="pane" alignment="CENTER" hgap="5.0" layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml" />

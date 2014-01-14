@@ -8,34 +8,44 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<HBox alignment="CENTER_LEFT" layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="811.0" spacing="3.0" xmlns:fx="http://javafx.com/fxml">
+
+<GridPane hgap="3.0" vgap="3.0" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <Label text="workflowClass">
+    <Label text="workflowClass" GridPane.columnIndex="0" GridPane.rowIndex="0">
       <labelFor>
-        <TextField fx:id="workflowClass" prefWidth="140.0" HBox.hgrow="ALWAYS" />
+        <TextField fx:id="workflowClass" prefWidth="140.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
       </labelFor>
     </Label>
     <fx:reference source="workflowClass" />
-    <Label text="workflowInstanceId">
+    <Label text="workflowInstanceId" GridPane.columnIndex="0" GridPane.rowIndex="1">
       <labelFor>
-        <TextField fx:id="workflowInstanceId" prefWidth="140.0" />
+        <TextField fx:id="workflowInstanceId" prefWidth="140.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
       </labelFor>
     </Label>
     <fx:reference source="workflowInstanceId" />
-    <Label text="correlationId">
+    <Label text="correlationId" GridPane.columnIndex="0" GridPane.rowIndex="2">
       <labelFor>
-        <TextField fx:id="correlationId" prefWidth="140.0" />
+        <TextField fx:id="correlationId" prefWidth="140.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
       </labelFor>
     </Label>
     <fx:reference source="correlationId" />
-    <Label text="level">
+    <Label text="level" GridPane.columnIndex="0" GridPane.rowIndex="3">
       <labelFor>
-        <TextField fx:id="level" prefWidth="41.0" />
+        <TextField fx:id="level" prefWidth="41.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
       </labelFor>
     </Label>
     <fx:reference source="level" />
   </children>
-  <padding>
-    <Insets left="5.0" right="5.0" />
-  </padding>
-</HBox>
+  <columnConstraints>
+    <ColumnConstraints hgrow="NEVER" minWidth="-1.0" prefWidth="-1.0" />
+    <ColumnConstraints hgrow="ALWAYS" minWidth="-1.0" prefWidth="-1.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+    <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+    <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+    <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+</GridPane>
+
+

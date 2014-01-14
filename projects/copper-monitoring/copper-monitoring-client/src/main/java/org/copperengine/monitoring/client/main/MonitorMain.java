@@ -18,18 +18,17 @@ package org.copperengine.monitoring.client.main;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.google.common.base.Strings;
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
 import org.copperengine.monitoring.client.context.ApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
 
 public class MonitorMain extends Application {
 
@@ -37,6 +36,11 @@ public class MonitorMain extends Application {
 
     @Override
     public void start(final Stage primaryStage) { // Stage = window
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/org/copperengine/gui/logo/logo16.png")));
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/org/copperengine/gui/logo/logo32.png")));
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/org/copperengine/gui/logo/logo64.png")));
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/org/copperengine/gui/logo/logo128.png")));
+
         ApplicationContext applicationContext = new ApplicationContext();
         primaryStage.titleProperty().bind(new SimpleStringProperty("Copper Monitor (server: ").concat(applicationContext.serverAdressProperty().concat(")")));
         new Button(); // Trigger loading of default stylesheet

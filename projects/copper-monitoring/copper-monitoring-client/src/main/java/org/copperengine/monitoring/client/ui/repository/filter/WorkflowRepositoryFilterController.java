@@ -58,7 +58,7 @@ public class WorkflowRepositoryFilterController extends BaseEngineFilterControll
 
     @Override
     public boolean supportsFiltering() {
-        return true;
+        return false;
     }
 
     @Override

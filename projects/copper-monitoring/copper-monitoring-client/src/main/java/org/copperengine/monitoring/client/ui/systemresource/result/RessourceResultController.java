@@ -140,7 +140,7 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
 
     @Override
     public List<SystemResourcesInfo> applyFilterInBackgroundThread(ResourceFilterModel filter) {
-        return copperDataProvider.getSystemRessources(filter.fromToFilterModel.from.get(), filter.fromToFilterModel.to.get(), filter.maxCountFilterModel.getMaxCount());
+        return copperDataProvider.getSystemResources(filter.fromToFilterModel.from.get(), filter.fromToFilterModel.to.get(), filter.maxCountFilterModel.getMaxCount());
     }
 
     @Override

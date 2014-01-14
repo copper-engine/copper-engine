@@ -31,10 +31,10 @@ public abstract class ShowFormStrategy<E extends Node> {
     /**
      * called if form is closed
      *
-     * @param closeListner
+     * @param closeLisetner
      */
-    public void setOnCloseListener(CloseListener closeListner) {
-        onCloseListener = closeListner;
+    public void setOnCloseListener(CloseListener closeLisetner) {
+        onCloseListener = closeLisetner;
     }
 
     public static interface CloseListener {

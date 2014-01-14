@@ -68,8 +68,10 @@ public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
             @Override
             public void handle(Event event) {
                 // workaround for javafx memeoryleaks RT-25652, RT-32087
-                onCloseListener.closed(form);
-                onCloseListener = null;
+                if (onCloseListener!=null){
+                    onCloseListener.closed(form);
+                }
+                onCloseListener=null;
                 tab.setContent(null);
                 tab.setContent(null);
                 tab.textProperty().unbind();

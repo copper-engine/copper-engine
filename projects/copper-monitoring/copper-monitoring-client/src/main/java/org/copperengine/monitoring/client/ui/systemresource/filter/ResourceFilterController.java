@@ -53,7 +53,7 @@ public class ResourceFilterController extends BaseFilterController<ResourceFilte
 
     @Override
     public boolean supportsFiltering() {
-        return true;
+        return false;
     }
 
     @Override

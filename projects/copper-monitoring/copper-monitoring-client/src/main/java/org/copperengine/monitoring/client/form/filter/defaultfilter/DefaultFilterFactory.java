@@ -26,9 +26,9 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.IntegerStringConverter;
-
 import org.copperengine.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 import org.copperengine.monitoring.client.form.filter.enginefilter.EngineSelectionWidget;
 import org.copperengine.monitoring.client.util.DateTimePicker;
@@ -40,22 +40,22 @@ public class DefaultFilterFactory {
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
     public Node createFromTo(FromToFilterModel fromToFilterModel) {
-        HBox hbox = createBackpane();
-        createFromToUI(hbox, fromToFilterModel);
-        return hbox;
+        VBox vbox = createBackpane();
+        createFromToUI(vbox, fromToFilterModel);
+        return vbox;
     }
 
     public Node createMaxCount(MaxCountFilterModel maxCountFilterModel) {
-        HBox hbox = createBackpane();
-        createMaxCount(hbox, maxCountFilterModel);
-        return hbox;
+        VBox vbox = createBackpane();
+        createMaxCount(vbox, maxCountFilterModel);
+        return vbox;
     }
 
     public Node createFromToMaxCount(FromToMaxCountFilterModel fromToMaxCountFilterModel) {
-        HBox hbox = createBackpane();
-        createFromToUI(hbox, fromToMaxCountFilterModel.fromToFilterModel);
-        createMaxCount(hbox, fromToMaxCountFilterModel.maxCountFilterModel);
-        return hbox;
+        VBox vbox = createBackpane();
+        createFromToUI(vbox, fromToMaxCountFilterModel.fromToFilterModel);
+        createMaxCount(vbox, fromToMaxCountFilterModel.maxCountFilterModel);
+        return vbox;
     }
 
     public Node createVerticalMultiFilter(Node... filterrows) {
@@ -79,34 +79,45 @@ public class DefaultFilterFactory {
         return hbox;
     }
 
-    private void createMaxCount(HBox parent, MaxCountFilterModel maxCountFilterModel) {
+    private void createMaxCount(VBox parent, MaxCountFilterModel maxCountFilterModel) {
         TextField maxCount = new NumberOnlyTextField();
         maxCount.setPrefWidth(100);
         Bindings.bindBidirectional(maxCount.textProperty(), maxCountFilterModel.maxCount, new IntegerStringConverter());
-        parent.getChildren().add(new Label("limit"));
-        parent.getChildren().add(maxCount);
+        parent.getChildren().add(createDescriptionVale("limit",maxCount));
     }
 
-    private void createFromToUI(HBox parent, FromToFilterModel fromToFilterModel) {
+    private void createFromToUI(VBox parent, FromToFilterModel fromToFilterModel) {
         final DateTimePicker fromDateTimePicker = new DateTimePicker();
         fromDateTimePicker.bindBidirectionalSelected(fromToFilterModel.from);
         Pane from = fromDateTimePicker.createContent();
         from.setPrefWidth(170);
-        parent.getChildren().add(new Label("from"));
-        parent.getChildren().add(from);
+        parent.getChildren().add(createDescriptionVale("from",from));
 
         final DateTimePicker toDateTimePicker = new DateTimePicker();
         toDateTimePicker.bindBidirectionalSelected(fromToFilterModel.to);
         Pane to = toDateTimePicker.createContent();
         to.setPrefWidth(170);
-        parent.getChildren().add(new Label("to"));
-        parent.getChildren().add(to);
+
+        parent.getChildren().add(createDescriptionVale("to",to));
     }
 
-    private HBox createBackpane() {
-        HBox hbox = new HBox(3);
-        hbox.setAlignment(Pos.CENTER_LEFT);
-        return hbox;
+    private HBox createDescriptionVale(String description, Node value){
+        final HBox result = new HBox();
+        result.setAlignment(Pos.CENTER_LEFT);
+        result.setSpacing(3);
+        final Label label = new Label(description);
+        label.setMinWidth(50);
+        HBox.setHgrow(label, Priority.NEVER);
+        result.getChildren().add(label);
+        result.getChildren().add(value);
+        HBox.setHgrow(value, Priority.ALWAYS);
+        return result;
+    }
+
+    private VBox createBackpane() {
+        VBox vBox = new VBox(3);
+        vBox.setAlignment(Pos.TOP_LEFT);
+        return vBox;
     }
 
 }

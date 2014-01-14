@@ -27,9 +27,7 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-
 import org.copperengine.monitoring.client.context.FormContext;
 import org.copperengine.monitoring.client.form.FxmlController;
 import org.copperengine.monitoring.client.form.filter.FilterController;
@@ -66,8 +64,6 @@ public class WorkflowSummaryFilterController extends BaseEngineFilterController<
     @FXML
     private StackPane stackPane;
 
-    @FXML
-    private Pane filterPane;
 
     @Override
     // This method is called by the FXMLLoader when initialization is complete
@@ -76,7 +72,7 @@ public class WorkflowSummaryFilterController extends BaseEngineFilterController<
         assert serachbutton != null : "fx:id=\"serachbutton\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert workflowClass != null : "fx:id=\"workflowClass\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
         assert stackPane != null : "fx:id=\"stackPane\" was not injected: check your FXML file 'WorkflowSummeryFilter.fxml'.";
-        assert filterPane != null;
+
 
         workflowClass.textProperty().bindBidirectional(model.version.classname);
 

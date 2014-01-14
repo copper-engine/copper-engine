@@ -203,7 +203,7 @@ public class GuiCopperDataProvider {
         return result;
     }
 
-    public List<SystemResourcesInfo> getSystemRessources(Date from, Date to, int groupCount) {
+    public List<SystemResourcesInfo> getSystemResources(Date from, Date to, int groupCount) {
         try {
             if (from == null) {
                 from = copperMonitoringService.getMonitoringDataMinDate();

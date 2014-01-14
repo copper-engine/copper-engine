@@ -41,8 +41,8 @@ public class AdapterAnimation extends AnimationPartBase {
         adapterRectangle.setArcWidth(25);
         final Text adapterText = new Text(id);
         adapterText.setFontSmoothingType(FontSmoothingType.LCD);
-        adapterText.xProperty().bind(adapterRectangle.xProperty().add(adapterRectangle.getWidth() / 2).subtract(adapterText.getBoundsInLocal().getWidth() / 2));
-        adapterText.yProperty().bind(adapterRectangle.yProperty().subtract(5));
+        adapterText.setX(adapterRectangle.getWidth() / 2-adapterText.getBoundsInLocal().getWidth() / 2);
+        adapterText.setY(-5);
         pane.getChildren().add(adapterRectangle);
         pane.getChildren().add(adapterText);
         return pane;

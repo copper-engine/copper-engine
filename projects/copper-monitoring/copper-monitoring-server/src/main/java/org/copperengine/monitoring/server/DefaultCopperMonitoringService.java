@@ -51,6 +51,7 @@ import org.copperengine.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import org.copperengine.monitoring.core.model.ProcessorPoolInfo;
 import org.copperengine.monitoring.core.model.ProcessorPoolInfo.ProcessorPoolTyp;
 import org.copperengine.monitoring.core.model.StorageInfo;
+import org.copperengine.monitoring.core.model.SupportedFeatures;
 import org.copperengine.monitoring.core.model.WorkflowClassMetaData;
 import org.copperengine.monitoring.core.model.WorkflowInstanceInfo;
 import org.copperengine.monitoring.core.model.WorkflowInstanceMetaData;
@@ -94,6 +95,17 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
                 , monitoringDataAccessQueue, workflowInstanceIntrospector, logManager, monitoringDataProviderManager);
     }
 
+    /**
+     *
+     * @param dbStorage
+     * @param statisticsCollectorMXBean null means not supported/aavailable
+     * @param engineList
+     * @param monitoringDataAccessQueue
+     * @param statisticsCollectorMXBean
+     * @param workflowInstanceIntrospector
+     * @param logManager
+     * @param monitoringDataProviderManager
+     */
     public DefaultCopperMonitoringService(MonitoringDbStorage dbStorage,
             CopperInterfaceSettings copperInterfaceSettings,
             StatisticsCollectorMXBean statisticsCollectorMXBean,
@@ -185,6 +197,9 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
 
     @Override
     public CopperInterfaceSettings getSettings() throws RemoteException {
+        final SupportedFeatures supportedFeatures = new SupportedFeatures();
+        supportedFeatures.setSupportsLoggingStatisticCollector(statisticsCollectorMXBean!=null);
+        copperInterfaceSettings.setSupportedFeatures(supportedFeatures);
         return copperInterfaceSettings;
     }
 
@@ -447,5 +462,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
             }
         });
     }
+
+
 
 }
