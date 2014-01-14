@@ -26,8 +26,6 @@ buildscript {
 
 
 allprojects {
-    apply plugin: 'maven'
-    apply plugin: 'signing'
     apply plugin: 'project-report'
 
     group = "org.copper-engine"
@@ -131,72 +129,74 @@ configure(subprojects.findAll {
         options.encoding = "UTF-8"
     }
 
-    // the nexus plugin makes uploading to Sonatype Nexus repository easier
-    // see https://github.com/bmuschko/gradle-nexus-plugin for documentation
-    apply plugin: 'nexus'
-    nexus {
-        attachTests = true
-        sign = true
-    }
+    if (project.hasProperty('secretKeyRingFileSourceURL')) {
+        // the nexus plugin makes uploading to Sonatype Nexus repository easier
+        // see https://github.com/bmuschko/gradle-nexus-plugin for documentation
+        apply plugin: 'nexus'
+        nexus {
+            attachTests = true
+            sign = true
+        }
 
-    // task to fetch the GPG key to sign the JAR archives
-    // we put the key to build/secring.gpg where it will be picked up by the uploadArchives task of the nexus plugin
-    task fetchSecretKeyRingFile << {
-        file(secretKeyRingFileDestFile).getParentFile().mkdirs()
-        ant.get(src: secretKeyRingFileSourceURL, dest: secretKeyRingFileDestFile, username: secretKeyRingFileSourceURLAuthUsername, password: secretKeyRingFileSourceURLAuthPassword)
-    }
-    afterEvaluate {
-        // always fetch the GPG key before signing archives
-        tasks.signArchives.dependsOn fetchSecretKeyRingFile
-    }
+        // task to fetch the GPG key to sign the JAR archives
+        // we put the key to build/secring.gpg where it will be picked up by the uploadArchives task of the nexus plugin
+        task fetchSecretKeyRingFile << {
+            file(secretKeyRingFileDestFile).getParentFile().mkdirs()
+            ant.get(src: secretKeyRingFileSourceURL, dest: secretKeyRingFileDestFile, username: secretKeyRingFileSourceURLAuthUsername, password: secretKeyRingFileSourceURLAuthPassword)
+        }
+        afterEvaluate {
+            // always fetch the GPG key before signing archives
+            tasks.signArchives.dependsOn fetchSecretKeyRingFile
+        }
 
-    // WORKAROUND: sign poms before performing "uploadArchives".
-    // This workaround (the whole "afterEvaluate" block) can be removed when gradle-nexus-plugin issue #19
-    // is resolved, see https://github.com/bmuschko/gradle-nexus-plugin/issues/19
-    afterEvaluate {
-        signing {
-            project.gradle.taskGraph.whenReady {
-                def uploadTasks = project.tasks.withType(Upload).matching { it.path.endsWith(":uploadArchives") }
-                uploadTasks.each { task ->
-                    task.repositories.mavenDeployer() {
-                        beforeDeployment { MavenDeployment deployment ->
-                            project.signing.signPom(deployment)
+        // WORKAROUND: sign poms before performing "uploadArchives".
+        // This workaround (the whole "afterEvaluate" block) can be removed when gradle-nexus-plugin issue #19
+        // is resolved, see https://github.com/bmuschko/gradle-nexus-plugin/issues/19
+        afterEvaluate {
+            signing {
+                project.gradle.taskGraph.whenReady {
+                    def uploadTasks = project.tasks.withType(Upload).matching { it.path.endsWith(":uploadArchives") }
+                    uploadTasks.each { task ->
+                        task.repositories.mavenDeployer() {
+                            beforeDeployment { MavenDeployment deployment ->
+                                project.signing.signPom(deployment)
+                            }
                         }
                     }
                 }
             }
         }
-    }
-    // END WORKAROUND
+        // END WORKAROUND
 
-    modifyPom {
-        project {
-            name = 'COPPER high-performance workflow engine'
-            packaging = 'jar'
-            description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
-            url 'http://copper-engine.org/'
+        modifyPom {
+            project {
+                name = 'COPPER high-performance workflow engine'
+                packaging = 'jar'
+                description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
+                url 'http://copper-engine.org/'
 
-            scm {
-                url 'https://github.com/copper-engine/copper-engine'
-                connection 'scm:git@github.com:copper-engine/copper-engine.git'
-            }
-
-            licenses {
-                license {
-                    name = 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
+                scm {
+                    url 'https://github.com/copper-engine/copper-engine'
+                    connection 'scm:git@github.com:copper-engine/copper-engine.git'
                 }
-            }
 
-            developers {
-                developer {
-                    id 'copper-team'
-                    name = 'Copper Engine Development Team'
-                    roles {
-                        role 'architect'
-                        role 'developer'
-                        role 'tester'
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'copper-team'
+                        name = 'Copper Engine Development Team'
+                        roles {
+                            role 'architect'
+                            role 'developer'
+                            role 'tester'
+                        }
                     }
                 }
             }
