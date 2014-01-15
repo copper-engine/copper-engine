@@ -413,7 +413,7 @@ project(':projects:copper-examples:orchestration:orch-interfaces') {
                         // Add -DexitOnFinish=true so that WSDLToJava bails out with exit code 0 (on success) or 1 (on failure)
                         // so that the build aborts immediately on errors. If you don't set this property, the exit code is always 0.
                         systemProperty 'exitOnFinish', 'true'
-                        args = ['-fe', 'jaxws',
+                        args = ['-frontend', 'jaxws21',
                                 '-db', 'jaxb',
                                 '-xjc-extension',
                                 '-impl', '-server', '-client', '-validate',
