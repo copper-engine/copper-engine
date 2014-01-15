@@ -104,7 +104,6 @@ configure(subprojects.findAll {
         testCompile 'junit:junit:4.11'
         testCompile 'org.mockito:mockito-all:1.9.5'
         compile 'org.slf4j:slf4j-api:1.6.6'
-//        compile 'log4j:log4j:1.2.17'
     }
 
     jar {
@@ -301,8 +300,6 @@ project(':projects:copper-spring') {
 project(':projects:copper-coreengine') {
     dependencies {
         compile project(':projects:copper-jmx-interface')
-
-        compile 'aopalliance:aopalliance:1.0'
 
         compile 'com.google.code.findbugs:annotations:2.0.1'
 

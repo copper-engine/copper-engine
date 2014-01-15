@@ -1,6 +1,6 @@
 COPPER 3.0.1 (draft)
 ============
-
+- Maven: removed unnecessary dependency on aopalliance.jar
 
 COPPER 3.0
 ==========
