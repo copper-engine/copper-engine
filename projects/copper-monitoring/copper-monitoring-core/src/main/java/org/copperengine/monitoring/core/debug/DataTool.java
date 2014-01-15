@@ -36,8 +36,10 @@ public class DataTool {
 
         @Override
         public boolean equals(Object obj) {
+            if (obj == null) return false;
             return ((ObjectId) obj).obj == this.obj;
         }
+
     }
 
     public static Data convert(Object o) {

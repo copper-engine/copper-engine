@@ -66,7 +66,7 @@ public abstract class Data implements Serializable, DisplayableNode {
          * ObjectInputStream.readObject
          */
         @SuppressWarnings("unused")
-        public Data readResolve() throws ObjectStreamException {
+        public Object readResolve() throws ObjectStreamException {
             return NULL;
         }
 
