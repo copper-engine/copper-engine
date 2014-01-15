@@ -64,7 +64,7 @@ public class MonitoringDataAccesorTest {
             throw new RuntimeException(e);
         }
         final MonitoringDataAdder monitoringDataAdder = new MonitoringDataAdder(monitoringDataStorage);
-        final MonitoringDataAccesor monitoringDataAccesor = new MonitoringDataAccesor(monitoringDataStorage);
+        final MonitoringDataAccessor monitoringDataAccesor = new MonitoringDataAccessor(monitoringDataStorage);
 
         final AdapterWfLaunchInfo adapterWfLaunch = new AdapterWfLaunchInfo();
         adapterWfLaunch.setAdapterName("abc");
@@ -82,7 +82,7 @@ public class MonitoringDataAccesorTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        final MonitoringDataAccesor monitoringDataAccesor = new MonitoringDataAccesor(monitoringDataStorage);
+        final MonitoringDataAccessor monitoringDataAccesor = new MonitoringDataAccessor(monitoringDataStorage);
         final MonitoringDataAdder monitoringDataAdder = new MonitoringDataAdder(monitoringDataStorage);
         final AdapterWfLaunchInfo adapterWfLaunch = new AdapterWfLaunchInfo();
         adapterWfLaunch.setTimestamp(new Date());

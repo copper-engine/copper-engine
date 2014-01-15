@@ -59,7 +59,9 @@ public class LogbackConfigManager implements LogConfigManager {
             throw new RuntimeException(e);
         } finally {
             try {
-                is.close();
+                if (is!=null){
+                    is.close();
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

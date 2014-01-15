@@ -178,11 +178,10 @@ public class OracleMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
             con.createStatement().execute("call DBMS_SQLTUNE.execute_tuning_task(task_name => 'AWR_tuning_task')");
 
             selectStmt = con.prepareStatement("SELECT DBMS_SQLTUNE.report_tuning_task('AWR_tuning_task') AS recommendations FROM dual");
-            selectStmt.executeQuery();
             ResultSet resultSet = selectStmt.executeQuery();
 
             selectStmt = con.prepareStatement("call DBMS_SQLTUNE.drop_tuning_task (task_name => 'AWR_tuning_task')");
-            selectStmt.executeQuery();
+            selectStmt.execute();
 
             String result = "";
             while (resultSet.next()) {

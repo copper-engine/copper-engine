@@ -31,7 +31,7 @@ import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.monitoring.core.CopperMonitoringService;
 import org.copperengine.monitoring.core.LoginService;
-import org.copperengine.monitoring.core.data.MonitoringDataAccesor;
+import org.copperengine.monitoring.core.data.MonitoringDataAccessor;
 import org.copperengine.monitoring.core.data.MonitoringDataAdder;
 import org.copperengine.monitoring.core.data.MonitoringDataStorage;
 import org.copperengine.monitoring.example.adapter.BillAdapterImpl;
@@ -46,6 +46,7 @@ import org.copperengine.monitoring.server.debug.WorkflowInstanceIntrospector;
 import org.copperengine.monitoring.server.logging.LogbackConfigManager;
 import org.copperengine.monitoring.server.monitoring.MonitoringDataAccessQueue;
 import org.copperengine.monitoring.server.monitoring.MonitoringDataCollector;
+import org.copperengine.monitoring.server.persistent.DatabaseMonitoringDialect;
 import org.copperengine.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import org.copperengine.monitoring.server.persistent.MonitoringDbStorage;
 import org.copperengine.monitoring.server.provider.MonitoringDataProviderManager;
@@ -78,7 +79,7 @@ public class ApplicationContext {
     private MultipleStatistikCollector statistikCollector;
     private PojoDependencyInjector dependyInjector;
     private PersistentScottyEngine persistentengine;
-    private BatchingAuditTrail auditTrail;
+    protected BatchingAuditTrail auditTrail;
     private ScottyDBStorage persistentdbStorage;
     private FileBasedWorkflowRepository wfRepository;
     private CopperTransactionController txnController;
@@ -88,6 +89,7 @@ public class ApplicationContext {
     private MonitoringLogbackDataProvider monitoringLogbackDataProvider;
     private MonitoringDataProviderManager monitoringDataProviderManager;
     private MonitoringDataAccessQueue monitoringQueue;
+    protected CompressedBase64PostProcessor messagePostProcessor;
 
     private void createCopperCore(){
         wfRepository = new FileBasedWorkflowRepository();
@@ -143,7 +145,8 @@ public class ApplicationContext {
         auditTrail = new BatchingAuditTrail();
         auditTrail.setBatcher(batcher);
         auditTrail.setDataSource(databaseData.dataSource);
-        auditTrail.setMessagePostProcessor(new CompressedBase64PostProcessor());
+        messagePostProcessor = new CompressedBase64PostProcessor();
+        auditTrail.setMessagePostProcessor(messagePostProcessor);
         try {
             auditTrail.startup();
         } catch (Exception e) {
@@ -161,7 +164,7 @@ public class ApplicationContext {
         } catch (IOException e1) {
             throw new RuntimeException(e1);
         }
-        monitoringQueue = new MonitoringDataAccessQueue(new MonitoringDataAccesor(monitoringDataStorage), new MonitoringDataAdder(monitoringDataStorage));
+        monitoringQueue = new MonitoringDataAccessQueue(new MonitoringDataAccessor(monitoringDataStorage), new MonitoringDataAdder(monitoringDataStorage));
 
         final MonitoringDataCollector monitoringDataCollector = new MonitoringDataCollector(monitoringQueue);
         MonitoringDependencyInjector monitoringDependencyInjector = new MonitoringDependencyInjector(dependyInjector, monitoringDataCollector);
@@ -191,8 +194,9 @@ public class ApplicationContext {
         createCopperCore();
         createMonitoring();
 
+
         CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
-                new MonitoringDbStorage(txnController, new DerbyMonitoringDbDialect(new StandardJavaSerializer(), new CompressedBase64PostProcessor(), auditTrail)),
+                new MonitoringDbStorage(txnController, getMonitoringDbDialect()),
                 loggingStatisticsCollector,
                 Arrays.<ProcessingEngineMXBean>asList(persistentengine),
                 monitoringQueue,
@@ -218,6 +222,10 @@ public class ApplicationContext {
         SpringRemotingServer springRemotingServer = new SpringRemotingServer(monitoringService, port, host, loginService);
         springRemotingServer.setRemoteInvocationExecutor(remoteInvocationExecutor);
         return springRemotingServer;
+    }
+
+    protected DatabaseMonitoringDialect getMonitoringDbDialect() {
+        return new DerbyMonitoringDbDialect(new StandardJavaSerializer(), messagePostProcessor, auditTrail);
     }
 
     EngineIdProvider engineIdProvider = new EngineIdProviderBean("default");

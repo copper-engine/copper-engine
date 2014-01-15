@@ -17,18 +17,18 @@ package org.copperengine.monitoring.server.monitoring;
 
 import java.util.concurrent.Callable;
 
-import org.copperengine.monitoring.core.data.MonitoringDataAccesor;
+import org.copperengine.monitoring.core.data.MonitoringDataAccessor;
 import org.copperengine.monitoring.core.data.MonitoringDataAdder;
 
 public abstract class MonitoringDataAwareCallable<T> implements Callable<T> {
-    protected MonitoringDataAccesor monitoringDataAccesor;
+    protected MonitoringDataAccessor monitoringDataAccesor;
     protected MonitoringDataAdder monitoringDataAdder;
 
-    public MonitoringDataAccesor getMonitoringDataAccesor() {
+    public MonitoringDataAccessor getMonitoringDataAccesor() {
         return monitoringDataAccesor;
     }
 
-    public void setMonitoringDataAccesor(MonitoringDataAccesor monitoringDataAccesor) {
+    public void setMonitoringDataAccesor(MonitoringDataAccessor monitoringDataAccesor) {
         this.monitoringDataAccesor = monitoringDataAccesor;
     }
 

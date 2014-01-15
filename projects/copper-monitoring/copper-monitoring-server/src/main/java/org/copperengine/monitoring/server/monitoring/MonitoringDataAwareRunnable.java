@@ -15,22 +15,22 @@
  */
 package org.copperengine.monitoring.server.monitoring;
 
-import org.copperengine.monitoring.core.data.MonitoringDataAccesor;
+import org.copperengine.monitoring.core.data.MonitoringDataAccessor;
 import org.copperengine.monitoring.core.data.MonitoringDataAdder;
 
 public abstract class MonitoringDataAwareRunnable implements Runnable {
-    protected MonitoringDataAccesor monitoringDataAccesor;
+    protected MonitoringDataAccessor monitoringDataAccesor;
     protected MonitoringDataAdder monitoringDataAdder;
     /**
      * true=no log message when offer fails usefull for logging appender to avoid deadlock
      */
     protected boolean dropSilently = false;
 
-    public MonitoringDataAccesor getMonitoringDataAccesor() {
+    public MonitoringDataAccessor getMonitoringDataAccesor() {
         return monitoringDataAccesor;
     }
 
-    public void setMonitoringDataAccesor(MonitoringDataAccesor monitoringDataAccesor) {
+    public void setMonitoringDataAccesor(MonitoringDataAccessor monitoringDataAccesor) {
         this.monitoringDataAccesor = monitoringDataAccesor;
     }
 

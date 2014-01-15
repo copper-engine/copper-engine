@@ -21,6 +21,9 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.persistent.OracleDialect;
+import org.copperengine.core.persistent.StandardJavaSerializer;
+import org.copperengine.monitoring.server.persistent.DatabaseMonitoringDialect;
+import org.copperengine.monitoring.server.persistent.OracleMonitoringDbDialect;
 
 public class ApplicationContextOracle extends ApplicationContext{
 
@@ -46,6 +49,11 @@ public class ApplicationContextOracle extends ApplicationContext{
         oracleDialect.setEngineIdProvider(getEngineIdProvider());
         oracleDialect.startup();
         return new DatabaseUtil(oracleDialect, datasource_oracle);
+    }
+
+    @Override
+    protected DatabaseMonitoringDialect getMonitoringDbDialect() {
+        return new OracleMonitoringDbDialect(new StandardJavaSerializer(), messagePostProcessor, auditTrail);
     }
 
 }

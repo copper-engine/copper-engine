@@ -160,7 +160,6 @@ public class FilterAbleForm<F, R> extends Form<Object> {
 
 
         final HBox allFilterParent = new HBox();
-        StackPane filterContentStackPane = new StackPane();
         createFilter(allFilterParent);
 
         ToolBar formToolbar = new ToolBar();

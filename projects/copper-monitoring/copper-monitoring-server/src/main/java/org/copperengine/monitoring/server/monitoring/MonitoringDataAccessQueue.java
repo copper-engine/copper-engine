@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.copperengine.monitoring.core.data.MonitoringDataAccesor;
+import org.copperengine.monitoring.core.data.MonitoringDataAccessor;
 import org.copperengine.monitoring.core.data.MonitoringDataAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,16 +43,16 @@ public class MonitoringDataAccessQueue {
      * Contains the data for monitoring.
      * Should only be accessed via the {@link MonitoringDataAccessQueue}
      */
-    private final MonitoringDataAccesor monitoringDataAccesor;
+    private final MonitoringDataAccessor monitoringDataAccesor;
     private final MonitoringDataAdder monitoringDataAdder;
     private final MonitoringQueueThread thread;
     private final int queueCapacity;
 
-    public MonitoringDataAccessQueue(MonitoringDataAccesor monitoringDataAccesor, MonitoringDataAdder monitoringDataAdder) {
+    public MonitoringDataAccessQueue(MonitoringDataAccessor monitoringDataAccesor, MonitoringDataAdder monitoringDataAdder) {
         this(1000, monitoringDataAccesor, monitoringDataAdder);
     }
 
-    public MonitoringDataAccessQueue(int queueCapacity, MonitoringDataAccesor monitoringDataAccesor, MonitoringDataAdder monitoringDataAdder) {
+    public MonitoringDataAccessQueue(int queueCapacity, MonitoringDataAccessor monitoringDataAccesor, MonitoringDataAdder monitoringDataAdder) {
         this.monitoringDataAccesor = monitoringDataAccesor;
         this.monitoringDataAdder = monitoringDataAdder;
         this.queueCapacity = queueCapacity;
