@@ -31,8 +31,6 @@ import org.copperengine.core.persistent.txn.TransactionController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
-
 public class NonTransactionalAdapterQueue {
 
     private static final Logger logger = LoggerFactory.getLogger(ReloadThread.class);
@@ -107,7 +105,6 @@ public class NonTransactionalAdapterQueue {
         this(adapterIds, persistence, transientQueueLength, transientQueueLength, ctrl, batcher);
     }
 
-    @SuppressWarnings("SC_START_IN_CTOR")
     public NonTransactionalAdapterQueue(Collection<String> adapterIds, AdapterCallPersisterFactory persistence, int transientQueueLength, int triggerReloadQueueLength, TransactionController ctrl, Batcher batcher) {
         this.transientQueueLength = transientQueueLength;
         this.triggerReloadQueueLength = triggerReloadQueueLength;

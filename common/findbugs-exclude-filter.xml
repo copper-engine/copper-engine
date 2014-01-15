@@ -1,8 +1,45 @@
 <FindBugsFilter>
-  <Match>
-    <Rank value="16"/>
-  </Match>
-  <Match>
-    <Bug category="SECURITY" />
-  </Match>  
+
+    <!-- exclude messages with a rank lower than 16. Ranks range from 1 to 20, where 1 is top and 20 is lowest. -->
+    <Match>
+        <Rank value="16" />
+    </Match>
+
+    <!-- exclude messages pertaining to security -->
+    <Match>
+        <Bug category="SECURITY" />
+    </Match>
+
+    <!-- suppress some warnings in certain methods -->
+    <Match>
+        <Class name="org.copperengine.core.persistent.adapter.NonTransactionalAdapterQueue"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="SC_START_IN_CTOR"/>
+    </Match>
+    <Match>
+        <Class name="org.copperengine.core.db.utility.oracle.c3p0.OracleConnectionTester"/>
+        <Method name="activeCheckConnection"/>
+        <Bug pattern="RV_RETURN_VALUE_IGNORED"/>
+    </Match>
+    <Match>
+        <Class name="org.copperengine.core.persistent.DefaultPersistenceTest"/>
+        <Method name="testBrokenConfiguration"/>
+        <Bug pattern="DE_MIGHT_IGNORE"/>
+    </Match>
+    <Match>
+        <Class name="org.copperengine.core.test.tranzient.lang.LocalVarTransientWorkflow1"/>
+        <Method name="main"/>
+        <Bug pattern="RpC_REPEATED_CONDITIONAL_TEST"/>
+    </Match>
+    <Match>
+        <Class name="org.copperengine.core.test.tranzient.lang.LocalVarTransientWorkflow1"/>
+        <Method name="main"/>
+        <Bug pattern="RpC_REPEATED_CONDITIONAL_TEST"/>
+    </Match>
+    <Match>
+        <Class name="org.copperengine.core.test.tranzient.lang.LocalVarTransientWorkflow2"/>
+        <Method name="main"/>
+        <Bug pattern="RpC_REPEATED_CONDITIONAL_TEST"/>
+    </Match>
+
 </FindBugsFilter>

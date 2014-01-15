@@ -405,7 +405,6 @@ public class DefaultPersistenceTest {
         Assert.assertSame(type, workLogEntry.type);
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings("DE_MIGHT_IGNORE")
     @Test
     public void testBrokenConfiguration() {
         DefaultPersistenceContextFactoryConfigurationBuilder configurationBuilder = new DefaultPersistenceContextFactoryConfigurationBuilder();
