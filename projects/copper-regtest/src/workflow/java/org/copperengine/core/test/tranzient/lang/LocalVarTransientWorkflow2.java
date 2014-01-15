@@ -30,8 +30,6 @@ import org.copperengine.core.test.TestResponseReceiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
-
 public class LocalVarTransientWorkflow2 extends Workflow<String> {
 
     private static final long serialVersionUID = 7325419989364229211L;
@@ -61,7 +59,6 @@ public class LocalVarTransientWorkflow2 extends Workflow<String> {
 
     }
 
-    @SuppressWarnings("RpC_REPEATED_CONDITIONAL_TEST")
     @Override
     public void main() throws Interrupt {
         Object x;
