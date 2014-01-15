@@ -21,31 +21,26 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-
 import org.copperengine.monitoring.client.form.filter.GenericFilterController;
-import org.copperengine.monitoring.client.util.MessageProvider;
 
 public class FxmlForm<C extends FxmlController> extends Form<C> {
 
-    private final FXMLLoader fxmlLoader;
 
-    public FxmlForm(String dynamicTitle, C controller, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie) {
+    public FxmlForm(String dynamicTitle, C controller, ShowFormStrategy<?> showFormStrategie) {
         super(dynamicTitle, showFormStrategie, controller);
-        if (controller.getFxmlResource() != GenericFilterController.EMPTY_DUMMY_URL) {
-            fxmlLoader = new FXMLLoader(controller.getFxmlResource());
-            fxmlLoader.setController(controller);
-            fxmlLoader.setResources(messageProvider.getBundle());
-        } else {
-            fxmlLoader = null;
-        }
     }
 
-    public FxmlForm(C controller, MessageProvider messageProvider) {
-        this("", controller, messageProvider, new EmptyShowFormStrategie());
+    public FxmlForm(C controller) {
+        this("", controller, new EmptyShowFormStrategie());
     }
 
     @Override
     public Node createContent() {
+        FXMLLoader fxmlLoader=null;
+        if (controller.getFxmlResource() != GenericFilterController.EMPTY_DUMMY_URL) {
+            fxmlLoader = new FXMLLoader(controller.getFxmlResource());
+            fxmlLoader.setController(controller);
+        }
         if (fxmlLoader != null) {
             try {
                 return (Parent) fxmlLoader.load();

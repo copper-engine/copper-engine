@@ -399,7 +399,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
     public EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId, ProcessingEngineInfo engineInfo) {
         FilterController<WorkflowInstanceDetailFilterModel> fCtrl = new WorkflowInstanceDetailFilterController(new WorkflowInstanceDetailFilterModel(workflowInstanceId, engineInfo), getCachedAvailableEngines());
 
-        FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>>(fCtrl, messageProvider);
+        FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>>(fCtrl);
 
         FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm = createWorkflowinstanceDetailResultForm(new EmptyShowFormStrategie());
 
@@ -413,7 +413,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> resCtrl = new WorkflowInstanceDetailResultController(guiCopperDataProvider, codeMirrorFormatterSingelton);
         FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm =
                 new FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>>("workflowInstanceDetail.title",
-                        resCtrl, messageProvider, showFormStrategy);
+                        resCtrl, showFormStrategy);
         return resultForm;
     }
 
@@ -433,11 +433,11 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
     public FilterAbleForm<EngineLoadFilterModel, WorkflowStateSummary> createEngineLoadForm() {
         FilterController<EngineLoadFilterModel> fCtrl = new EngineLoadFilterController(getCachedAvailableEngines());
-        FxmlForm<FilterController<EngineLoadFilterModel>> filterForm = new FxmlForm<FilterController<EngineLoadFilterModel>>(fCtrl, messageProvider);
+        FxmlForm<FilterController<EngineLoadFilterModel>> filterForm = new FxmlForm<FilterController<EngineLoadFilterModel>>(fCtrl);
 
         FilterResultController<EngineLoadFilterModel, WorkflowStateSummary> resCtrl = new EngineLoadResultController(guiCopperDataProvider);
         FxmlForm<FilterResultController<EngineLoadFilterModel, WorkflowStateSummary>> resultForm =
-                new FxmlForm<FilterResultController<EngineLoadFilterModel, WorkflowStateSummary>>(resCtrl, messageProvider);
+                new FxmlForm<FilterResultController<EngineLoadFilterModel, WorkflowStateSummary>>(resCtrl);
 
         if (engineLoadFormSingelton == null) {
             engineLoadFormSingelton = new EngineFilterAbleForm<EngineLoadFilterModel, WorkflowStateSummary>(messageProvider,
@@ -448,14 +448,14 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
     public Form<SettingsController> createSettingsForm() {
         if (settingsForSingleton == null) {
-            settingsForSingleton = new FxmlForm<SettingsController>("", new SettingsController(settingsModelSingleton), messageProvider, getDefaultShowFormStrategy());
+            settingsForSingleton = new FxmlForm<SettingsController>("", new SettingsController(settingsModelSingleton), getDefaultShowFormStrategy());
         }
         return settingsForSingleton;
     }
 
     public Form<HotfixController> createHotfixForm() {
         if (hotfixFormSingleton == null) {
-            hotfixFormSingleton = new FxmlForm<HotfixController>("", new HotfixController(new HotfixModel(), guiCopperDataProvider), messageProvider, getDefaultShowFormStrategy());
+            hotfixFormSingleton = new FxmlForm<HotfixController>("", new HotfixController(new HotfixModel(), guiCopperDataProvider), getDefaultShowFormStrategy());
         }
         return hotfixFormSingleton;
     }
@@ -496,12 +496,12 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
     }
 
     public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool) {
-        return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider, inputDialogCreator), messageProvider, new TabPaneShowFormStrategie(tabPane, true));
+        return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider, inputDialogCreator), new TabPaneShowFormStrategie(tabPane, true));
     }
 
     @Override
     public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model) {
-        return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine, model, this, guiCopperDataProvider, inputDialogCreator), messageProvider, new TabPaneShowFormStrategie(tabPane));
+        return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine, model, this, guiCopperDataProvider, inputDialogCreator), new TabPaneShowFormStrategie(tabPane));
     }
 
     public FilterAbleForm<EnginePoolFilterModel, MeasurePointData> createMeasurePointForm() {
@@ -552,7 +552,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
     @Override
     public Form<ProviderController> createMonitoringDataProviderForm(MonitoringDataProviderInfo monitoringDataProviderInfo, BorderPane target) {
-        return new FxmlForm<ProviderController>("", new ProviderController(monitoringDataProviderInfo, this, guiCopperDataProvider), messageProvider, new BorderPaneShowFormStrategie(target));
+        return new FxmlForm<ProviderController>("", new ProviderController(monitoringDataProviderInfo, this, guiCopperDataProvider), new BorderPaneShowFormStrategie(target));
     }
 
 }

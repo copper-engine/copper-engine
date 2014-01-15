@@ -193,7 +193,7 @@ public class ApplicationContext {
 
         CopperMonitoringService copperMonitoringService = new DefaultCopperMonitoringService(
                 new MonitoringDbStorage(txnController, new DerbyMonitoringDbDialect(new StandardJavaSerializer(), new CompressedBase64PostProcessor(), auditTrail)),
-                /*loggingStatisticsCollector*/null,
+                loggingStatisticsCollector,
                 Arrays.<ProcessingEngineMXBean>asList(persistentengine),
                 monitoringQueue,
                 true,

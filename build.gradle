@@ -471,6 +471,7 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
     }
 }
 
+def javaHome = System.properties['java.home']
 
 project(':projects:copper-monitoring:copper-monitoring-client') {
     apply plugin: 'application'
@@ -535,7 +536,7 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
         jfxant files("libs/ant-javafx.jar")
 
         compile project(':projects:copper-monitoring:copper-monitoring-core')
-        compile files(System.env["JAVA_HOME"]+'/jre/lib/jfxrt.jar')
+        compile files("$javaHome/lib/jfxrt.jar")
         compile files('libs/ScenicView.jar')
 
         compile 'com.google.guava:guava:14.0.1'

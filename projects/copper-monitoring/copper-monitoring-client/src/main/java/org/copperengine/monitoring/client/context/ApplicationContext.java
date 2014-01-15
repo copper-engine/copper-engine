@@ -279,7 +279,7 @@ public class ApplicationContext {
 
     public Form<LoginController> createLoginForm() {
         if (loginForm == null) {
-            loginForm = new FxmlForm<LoginController>("login.title", new LoginController(this, settingsModelSingleton), messageProvider, new BorderPaneShowFormStrategie(mainPane));
+            loginForm = new FxmlForm<LoginController>("login.title", new LoginController(this, settingsModelSingleton), new BorderPaneShowFormStrategie(mainPane));
         }
         return loginForm;
     }

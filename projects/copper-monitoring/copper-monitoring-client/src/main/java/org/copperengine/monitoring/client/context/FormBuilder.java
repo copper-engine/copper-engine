@@ -58,8 +58,8 @@ public class FormBuilder<FM, RM, F extends FilterController<FM>, R extends Filte
     }
 
     public FilterAbleForm<FM, RM> build() {
-        FxmlForm<FilterController<FM>> filterForm = new FxmlForm<FilterController<FM>>(filterController, messageProvider);
-        FxmlForm<FilterResultController<FM, RM>> resultForm = new FxmlForm<FilterResultController<FM, RM>>(resultController, messageProvider);
+        FxmlForm<FilterController<FM>> filterForm = new FxmlForm<FilterController<FM>>(filterController);
+        FxmlForm<FilterResultController<FM, RM>> resultForm = new FxmlForm<FilterResultController<FM, RM>>(resultController);
         return new FilterAbleForm<FM, RM>(messageProvider, showFormStrategy, filterForm, resultForm, exceptionHandler);
     }
 
@@ -76,8 +76,8 @@ public class FormBuilder<FM, RM, F extends FilterController<FM>, R extends Filte
 
         @Override
         public EngineFilterAbleForm<FM, RM> build() {
-            FxmlForm<FilterController<FM>> filterForm = new FxmlForm<FilterController<FM>>(filterController, messageProvider);
-            FxmlForm<FilterResultController<FM, RM>> resultForm = new FxmlForm<FilterResultController<FM, RM>>(resultController, messageProvider);
+            FxmlForm<FilterController<FM>> filterForm = new FxmlForm<FilterController<FM>>(filterController);
+            FxmlForm<FilterResultController<FM, RM>> resultForm = new FxmlForm<FilterResultController<FM, RM>>(resultController);
             return new EngineFilterAbleForm<FM, RM>(messageProvider, showFormStrategy, filterForm, resultForm, exceptionHandler);
         }
     }
