@@ -24,10 +24,10 @@ import java.io.Serializable;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 
-import org.apache.commons.codec.binary.Base64;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.common.WorkflowRepository;
+import org.copperengine.core.util.Base64;
 
 /**
  * Implementation of the {@link Serializer} interface using java's standard object serialization.
@@ -86,7 +86,7 @@ public class StandardJavaSerializer implements Serializer {
             data = compressorTL.get().compress(data);
             isCompressed = true;
         }
-        final String encoded = new Base64().encodeToString(data);
+        final String encoded = Base64.encode(data);
         final StringBuilder sb = new StringBuilder(encoded.length() + 4);
         sb.append(isCompressed ? 'C' : 'U').append(encoded);
         return sb.toString();
@@ -96,7 +96,7 @@ public class StandardJavaSerializer implements Serializer {
         if (_data == null)
             return null;
         boolean isCompressed = _data.charAt(0) == 'C';
-        byte[] data = Base64.decodeBase64(_data.substring(1));
+        byte[] data = Base64.decode(_data.substring(1));
         if (isCompressed) {
             data = compressorTL.get().uncompress(data);
         }

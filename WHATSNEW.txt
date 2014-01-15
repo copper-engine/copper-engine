@@ -1,6 +1,6 @@
 COPPER 3.0.1 (draft)
 ============
-- Maven: removed unnecessary dependency on aopalliance.jar
+- Maven: copper-coreengine: removed unnecessary dependencies on aopalliance, findbugs-annotations and commons-codec
 
 COPPER 3.0
 ==========
