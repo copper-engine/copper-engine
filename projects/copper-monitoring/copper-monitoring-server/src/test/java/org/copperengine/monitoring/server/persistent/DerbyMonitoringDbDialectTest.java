@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
 import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.audit.DummyPostProcessor;
+import org.copperengine.core.db.utility.JdbcUtils;
 import org.copperengine.core.persistent.DerbyDbDialect;
 import org.copperengine.core.persistent.StandardJavaSerializer;
 import org.copperengine.monitoring.server.util.DerbyCleanDbUtil;
@@ -50,13 +51,7 @@ public class DerbyMonitoringDbDialectTest extends MonitoringDbDialectTestBase {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            JdbcUtils.closeConnection(connection);
         }
     }
 

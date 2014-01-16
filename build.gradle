@@ -480,6 +480,8 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
         compile 'c3p0:c3p0:0.9.1.2'
 
         compile 'log4j:log4j:1.2.17'
+
+        testRuntime 'com.h2database:h2:1.3.171'
     }
 }
 

@@ -19,8 +19,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
@@ -61,7 +63,7 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
     @SuppressWarnings("rawtypes")
     @Override
     public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response, Acknowledge ack) throws Exception {
-        return new SqlNotifyNoEarlyResponseHandling.Command(response, serializer, SqlNotifyNoEarlyResponseHandling.SQL_POSTGRES, defaultStaleResponseRemovalTimeout, System.currentTimeMillis() + dbBatchingLatencyMSec, ack);
+        return new PostgreSQLNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis() + dbBatchingLatencyMSec, ack);
     }
 
     @Override
@@ -69,4 +71,15 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
         return "PostgreSQL";
     }
 
+    @Override
+    public void insert(List<Workflow<?>> wfs, Connection con) throws DuplicateIdException, Exception {
+        try {
+            super.insert(wfs, con);
+        } catch (SQLException e) {
+            if (e.getMessage().contains("cop_workflow_instance_pkey") || (e.getNextException() != null && e.getNextException().getMessage().contains("cop_workflow_instance_pkey"))) {
+                throw new DuplicateIdException(e);
+            }
+            throw e;
+        }
+    }
 }
