@@ -281,6 +281,7 @@ project(':projects:copper-regtest') {
         testCompile 'org.apache.derby:derby:10.9.1.0'
         testCompile 'postgresql:postgresql:9.1-901.jdbc4'
         testCompile 'com.h2database:h2:1.3.171'
+        testCompile 'c3p0:c3p0:0.9.1.2'
 
         testCompile 'org.slf4j:slf4j-log4j12:1.6.6'
         testCompile 'log4j:log4j:1.2.17'
@@ -325,9 +326,6 @@ project(':projects:copper-coreengine') {
         compile 'org.ow2.asm:asm-tree:4.1'
         compile 'org.ow2.asm:asm-util:4.1'
         compile 'org.ow2.asm:asm-analysis:4.1'
-
-        // Database
-        compile 'c3p0:c3p0:0.9.1.2'
     }
 
     task scriptsZip(type: Zip) {
@@ -479,6 +477,7 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
         compile 'ch.qos.logback:logback-classic:1.0.13'
 
         compile 'org.apache.derby:derby:10.9.1.0'
+        compile 'c3p0:c3p0:0.9.1.2'
 
         compile 'log4j:log4j:1.2.17'
     }
@@ -665,5 +664,6 @@ project(':projects:copper-monitoring:copper-monitoring-example') {
         compile project(':projects:copper-coreengine')
         compile 'ch.qos.logback:logback-classic:1.0.13'
         compile 'org.apache.derby:derby:10.9.1.0'
+        compile 'c3p0:c3p0:0.9.1.2'
     }
 }
