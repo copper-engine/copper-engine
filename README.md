@@ -25,28 +25,39 @@ To generate Eclipse project files, run:
 
 once in the projects root directory and open the corresponding projects with the eclipse IDE. (You must perform this step every time the project dependencies change).
 
+
 How to contribute
 -----------------
 
-1) Create an issue on GitHub
+1. Create an issue on GitHub
+2. Create a fork  on GitHub
+3. Configure your IDE (Eclipse, IntelliJ IDEA) as described below
+4. Run `./gradlew assemble` once. This will generate some WSDL stubs needed for some tests and also prepare
+5. Commit your changes incl. [WHATSNEW.txt](WHATSNEW.txt)
+   * Ensure, that your sources are UTF-8 encoded!
+4. Build all and run tests
 
-2) Create a fork  on GutHub
-
-3) Commit your changes incl. [WHATSNEW.txt](WHATSNEW.txt)
-  * Ensure, that your sources are UTF-8 encoded
-  * If possible, use [eclipse-codestyle.xml](blob/master/common/eclipse-codestyle.xml) for Eclipse
-  * If possible, use [intellij-codestyle.xml](blob/master/common/intellij-codestyle.xml) for IntelliJ IDEA with <code>./gradlew assemble</code>
-  
-4) Build all and run tests
-
-    ./gradlew build
-    
-
-5) Push your changes to your fork
-
-6) Create a pull request on GtHub
+       ./gradlew build
+5. Push your changes to your fork
+6. Create a pull request on GtHub
 
 **Have fun!**
+
+
+How to configure your IDE
+--------------------------
+
+### Eclipse
+
+Run `./gradlew eclipse` once. This will create Eclipse project files which you can import. This also creates proper code style settings. Before committing you should reformat the code. You can configure Eclipse to do this automatically on each save.
+
+Every time a dependency changes in `build.gradle` you must run `./gradlew eclipse` again. You don't need to restart Eclipse for this, simply press F5 on the projects.
+
+### IntelliJ IDEA
+
+Before you open the project in IntelliJ for the first time, run `./gradlew assemble` once. This also creates proper code style settings, which IntelliJ automatically picks up. After that open `build.gradle`  with "File->Open" and follow the instructions, accept the defaults.
+
+Before committing you should reformat the code. You can configure IntelliJ to do this automatically on each commit.
 
 
 <hr>
