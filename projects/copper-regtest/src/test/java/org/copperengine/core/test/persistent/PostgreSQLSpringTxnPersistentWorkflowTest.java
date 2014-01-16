@@ -42,7 +42,7 @@ public class PostgreSQLSpringTxnPersistentWorkflowTest extends BaseSpringTxnPers
                 ds.getConnection();
                 dbmsAvailable = true;
             } catch (Exception e) {
-                logger.error("Oracle DBMS not available! Skipping Oracle unit tests.", e);
+                logger.error("PostgreSQL not available! Skipping PostgreSQL unit tests.", e);
                 e.printStackTrace();
             } finally {
                 context.close();
