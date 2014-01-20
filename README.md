@@ -35,6 +35,7 @@ How to contribute
 4. Run `./gradlew assemble` once if you haven't done so in step 3. This will generate some WSDL stubs needed for some tests.
 5. Commit your changes incl. [WHATSNEW.txt](WHATSNEW.txt)
    * Ensure, that your sources are UTF-8 encoded!
+   * Ensure, that your sources start with our [Apache License header](common/apache-license-file.txt). (The build will fail if they don't.)
 6. Build all and run tests:
        ./gradlew build
 7. Push your changes to your fork.
