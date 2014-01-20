@@ -18,14 +18,14 @@ package org.copperengine.monitoring.client.ui.adaptermonitoring.result.animation
 import javafx.scene.Node;
 
 public abstract class AnimationPartBase {
-    public long startTime;
+    public final long startTime;
     public long endTime;
-    public String id;
+    public final String id;
 
-    public double startx;
-    public double starty;
-    public double endx;
-    public double endy;
+    public final double startx;
+    public final double starty;
+    public final double endx;
+    public final double endy;
 
     public AnimationPartBase(AnimationPartParameter parameterObject) {
         super();

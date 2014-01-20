@@ -38,7 +38,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
@@ -75,8 +74,8 @@ import org.copperengine.monitoring.client.util.NumberOnlyTextField;
 public class FilterAbleForm<F, R> extends Form<Object> {
     protected final Form<FilterController<F>> filterForm;
     protected final Form<FilterResultController<F, R>> resultForm;
-    private BackgroundFilterService<F, R> filterService;
-    private BackgroundRepeatFilterService<F, R> repeatFilterService;
+    private final BackgroundFilterService<F, R> filterService;
+    private final BackgroundRepeatFilterService<F, R> repeatFilterService;
     private final MessageProvider messageProvider;
 
     public static final String REFRESH_BUTTON_ID = "refreshbutton";
@@ -110,12 +109,6 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         });
     }
 
-    boolean verticalRightButton = false;
-
-    public void useVerticalRightButton() {
-        verticalRightButton = true;
-    }
-
     public FilterController<F> getFilterController() {
         return filterForm.getController();
     }
@@ -139,7 +132,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         });
 
         filterService.stateProperty().addListener(new ChangeListener<Worker.State>() {
-            Node indicator = ComponentUtil.createProgressIndicator();
+            final Node indicator = ComponentUtil.createProgressIndicator();
 
             @Override
             public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
@@ -159,13 +152,15 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         centerStackpane.setAlignment(Pos.TOP_LEFT);
 
 
-        final HBox allFilterParent = new HBox();
-        createFilter(allFilterParent);
+        final HBox allFilterParent = createFilter();
+        final Pane allFilterParentWrapper = new Pane();
+        allFilterParentWrapper.setPickOnBounds(false);
+        allFilterParentWrapper.getChildren().add(allFilterParent);
 
         ToolBar formToolbar = new ToolBar();
         formToolbar.setOrientation(Orientation.VERTICAL);
         final HBox leftPane= new HBox();
-        formToolbar.getItems().addAll(createDefaultFormToolbar(allFilterParent,centerStackpane));
+        formToolbar.getItems().addAll(createDefaultFormToolbar(allFilterParentWrapper,centerStackpane));
         leftPane.getChildren().add(formToolbar);
         masterBorderPane.setLeft(formToolbar);
         final Node formcontent = resultForm.createContent();
@@ -181,7 +176,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
     }
 
     private class FilterFadeHandler {
-        public static final double MIN_OPACITY = 0.85;
+        public static final double MIN_OPACITY = 0.75;
         final Node target ;
         private final FadeTransition ftIn;
         private final FadeTransition ftOut;
@@ -202,7 +197,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
             return new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent mouseEvent) {
-                    if (target.getOpacity()!=1){
+                    if (enabled && target.getOpacity()!=1){
                         ftIn.playFromStart();
                         ftOut.pause();
                     }
@@ -214,56 +209,69 @@ public class FilterAbleForm<F, R> extends Form<Object> {
             return new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent mouseEvent) {
-                    if (target.getOpacity()!=MIN_OPACITY){
+                    if (enabled && target.getOpacity()!=MIN_OPACITY){
                         ftOut.playFromStart();
                         ftIn.pause();
                     }
                 }
             };
         }
+
+        boolean enabled=true;
+        public void disable() {
+            enabled=false;
+        }
+
+        public void enable() {
+            enabled=true;
+        }
     }
 
-    private Node createFilter(final HBox allFilterParent){
-        VBox filterAreaStack = new VBox();
+    private HBox createFilter(){
+        final HBox allFilterParent = new HBox();
+        final VBox filterAreaPanes = new VBox();
 
 
         Node customFormFilteContent = this.createFilterContent();
-        final TitledPane customFormFilter = new TitledPane();
-        customFormFilter.setText("Filter");
-        customFormFilter.setCollapsible(false);
-        customFormFilter.setContent(customFormFilteContent);
+        final BorderPane customFormFilter = new BorderPane();
+        customFormFilter.getStyleClass().add("filter-pane");
+        customFormFilter.setCenter(customFormFilteContent);
 
-        final FilterFadeHandler filderFadeHandler = new FilterFadeHandler(filterAreaStack);
-        filterAreaStack.setOnMouseEntered(filderFadeHandler.getEnter());
-        filterAreaStack.setOnMouseExited(filderFadeHandler.getExit());
-        filterAreaStack.setPickOnBounds(false);
+        final FilterFadeHandler filderFadeHandler = new FilterFadeHandler(allFilterParent);
+        allFilterParent.setOnMouseEntered(filderFadeHandler.getEnter());
+        allFilterParent.setOnMouseExited(filderFadeHandler.getExit());
+        filterAreaPanes.setPickOnBounds(false);
 
         allFilterParent.setOpacity(1);
         HBox.setHgrow(customFormFilter, Priority.NEVER);
         if (filterForm.getController().supportsFiltering()) {
-            filterAreaStack.getChildren().add(customFormFilter);
+            filterAreaPanes.getChildren().add(customFormFilter);
         }
 
-        allFilterParent.getChildren().add(filterAreaStack);
-        final Button divider = new Button();
-        divider.setMaxWidth(4);
+        allFilterParent.getChildren().add(filterAreaPanes);
+        final Pane divider = new Pane();
+        divider.getStyleClass().add("filter-resizer");
+        divider.getStyleClass().add("button");
+        divider.setMaxWidth(8);
+        divider.setMinWidth(8);
+
 //        divider.prefHeightProperty().bind(customFormFilter.prefHeightProperty());
-//        divider.setOnMousePressed(new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent mouseEvent) {
-//                filderFadeHandler.disable();
-//            }
-//        });
-//        divider.setOnMouseReleased(new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent mouseEvent) {
-//                filderFadeHandler.enable();
-//            }
-//        });
+        divider.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                filderFadeHandler.disable();
+            }
+        });
+        divider.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                filderFadeHandler.enable();
+            }
+        });
         divider.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                customFormFilter.setPrefWidth(allFilterParent.getParent().sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY()).getX());
+                filterAreaPanes.setPrefWidth(allFilterParent.getParent().sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY()).getX());
             }
         });
         divider.setCursor(Cursor.H_RESIZE);
@@ -271,18 +279,16 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         allFilterParent.setPickOnBounds(false);//transparent area is mousetransparent
 
 
-        final TitledPane defaultFilter = new TitledPane();
-        defaultFilter.setText("Filter");
-        defaultFilter.setCollapsible(false);
+        final BorderPane defaultFilter = new BorderPane();
+        defaultFilter.getStyleClass().add("filter-pane");
         final Node defaultFilterContent = filterForm.getController().createDefaultFilter();
-        defaultFilter.setContent(defaultFilterContent);
+        defaultFilter.setCenter(defaultFilterContent);
         if (defaultFilterContent!=null){
-            filterAreaStack.getChildren().add(defaultFilter);
+            filterAreaPanes.getChildren().add(defaultFilter);
         }
 
-        final TitledPane settings = new TitledPane();
-        settings.setText("Settings");
-        settings.setCollapsible(false);
+        final BorderPane settings = new BorderPane();
+        settings.getStyleClass().add("filter-pane");
         HBox settingsPane = new HBox(3);
         settingsPane.setAlignment(Pos.CENTER_LEFT);
         settingsPane.getChildren().add(new Label("Refresh Interval"));
@@ -291,8 +297,8 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         interval.textProperty().bindBidirectional(refreshRateInMs);
         settingsPane.getChildren().add(interval);
         settingsPane.getChildren().add(new Label("ms"));
-        settings.setContent(settingsPane);
-        filterAreaStack.getChildren().add(settings);
+        settings.setCenter(settingsPane);
+        filterAreaPanes.getChildren().add(settings);
 
         return allFilterParent;
     }
@@ -426,11 +432,11 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         filterService.start();
     }
 
-    SimpleStringProperty refreshRateInMs = new SimpleStringProperty();
+    final SimpleStringProperty refreshRateInMs = new SimpleStringProperty();
 
     public static class ResultFilterPair<F, R> {
-        public List<R> result;
-        public F usedFilter;
+        public final List<R> result;
+        public final F usedFilter;
 
         public ResultFilterPair(List<R> result, F usedFilter) {
             super();

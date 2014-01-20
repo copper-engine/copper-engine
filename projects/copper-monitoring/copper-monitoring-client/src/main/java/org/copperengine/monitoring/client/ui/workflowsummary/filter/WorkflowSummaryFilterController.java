@@ -98,7 +98,7 @@ public class WorkflowSummaryFilterController extends BaseEngineFilterController<
 
     @Override
     public long getDefaultRefreshInterval() {
-        return FilterController.DEFAULT_REFRESH_INTERVALL;
+        return FilterController.DEFAULT_REFRESH_INTERVAL;
     }
 
     @Override

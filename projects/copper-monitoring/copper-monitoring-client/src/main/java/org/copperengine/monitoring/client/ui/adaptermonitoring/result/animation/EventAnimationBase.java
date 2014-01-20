@@ -31,7 +31,7 @@ public class EventAnimationBase extends AnimationPartBase {
 
     public static final int EVENT_HEIGHT = 35;
     public static final int EVENT_WIDTH = 110;
-    Color color;
+    final Color color;
 
     @Override
     public Node createVisualRepresentation() {

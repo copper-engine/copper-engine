@@ -151,8 +151,7 @@ public class ScreenshotGeneratorMain {
         FutureTask<WritableImage> task = new FutureTask<WritableImage>(new Callable<WritableImage>() {
             @Override
             public WritableImage call() throws Exception {
-                WritableImage image = scene.snapshot(null);
-                return image;
+                return scene.snapshot(null);
             }
         });
         Platform.runLater(task);

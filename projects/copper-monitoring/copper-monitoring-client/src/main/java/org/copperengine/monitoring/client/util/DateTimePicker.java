@@ -127,8 +127,8 @@ public class DateTimePicker extends Application implements Widget {
         }
     }
 
-    SimpleDateFormat dateFormat;
-    String dateFormatText;
+    final SimpleDateFormat dateFormat;
+    final String dateFormatText;
 
     public DateTimePicker(final String dateFormat) {
         this.dateFormat = new SimpleDateFormat(dateFormat);
@@ -140,7 +140,7 @@ public class DateTimePicker extends Application implements Widget {
         this(DEFAULT_DATE_FORMAT);
     }
 
-    DateTimeModel model = new DateTimeModel();
+    final DateTimeModel model = new DateTimeModel();
     private ToggleButton[] buttons;
 
     @Override
@@ -440,7 +440,7 @@ public class DateTimePicker extends Application implements Widget {
         });
     }
 
-    SimpleObjectProperty<Date> selectedDateProperty = new SimpleObjectProperty<Date>();
+    final SimpleObjectProperty<Date> selectedDateProperty = new SimpleObjectProperty<Date>();
 
     public SimpleObjectProperty<Date> selectedDateProperty() {
         return selectedDateProperty;

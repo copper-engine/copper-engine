@@ -21,7 +21,7 @@ import javafx.scene.Node;
 import org.copperengine.monitoring.client.form.FxmlController;
 
 public interface FilterController<F> extends FxmlController {
-    public static long DEFAULT_REFRESH_INTERVALL = 1000;
+    public static long DEFAULT_REFRESH_INTERVAL = 1000;
 
     public F getFilter();
 

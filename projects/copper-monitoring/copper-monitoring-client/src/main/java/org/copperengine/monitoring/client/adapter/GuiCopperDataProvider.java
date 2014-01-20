@@ -138,14 +138,14 @@ public class GuiCopperDataProvider {
     }
 
     public List<WorkflowSummaryResultModel> getWorkflowSummery(WorkflowSummaryFilterModel filter) {
-        List<WorkflowSummary> summeries;
+        List<WorkflowSummary> summaries;
         try {
-            summeries = copperMonitoringService.getWorkflowSummary(getPoolId(filter), filter.version.classname.get());
+            summaries = copperMonitoringService.getWorkflowSummary(getPoolId(filter), filter.version.classname.get());
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
         ArrayList<WorkflowSummaryResultModel> result = new ArrayList<WorkflowSummaryResultModel>();
-        for (WorkflowSummary workflowSummery : summeries) {
+        for (WorkflowSummary workflowSummery : summaries) {
             result.add(new WorkflowSummaryResultModel(workflowSummery));
         }
         return result;
@@ -242,17 +242,17 @@ public class GuiCopperDataProvider {
         }
     }
 
-    public void setNumberOfThreads(String engineid, String processorPoolId, int numberOfThreads) {
+    public void setNumberOfThreads(String engineId, String processorPoolId, int numberOfThreads) {
         try {
-            copperMonitoringService.setNumberOfThreads(engineid, processorPoolId, numberOfThreads);
+            copperMonitoringService.setNumberOfThreads(engineId, processorPoolId, numberOfThreads);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void setThreadPriority(String engineid, String processorPoolId, int threadPriority) {
+    public void setThreadPriority(String engineId, String processorPoolId, int threadPriority) {
         try {
-            copperMonitoringService.setThreadPriority(engineid, processorPoolId, threadPriority);
+            copperMonitoringService.setThreadPriority(engineId, processorPoolId, threadPriority);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }

@@ -17,13 +17,11 @@ package org.copperengine.monitoring.server.persistent;
 
 import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.audit.MessagePostProcessor;
-import org.copperengine.core.persistent.DatabaseDialect;
 import org.copperengine.core.persistent.Serializer;
 
 /**
- * PostgreSQL implementation of the {@link DatabaseDialect} interface.
+ * PostgreSQL implementation of the {@link DatabaseMonitoringDialect} interface.
  *
- * @author maustermann
  */
 public class PostgreSQLMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
 

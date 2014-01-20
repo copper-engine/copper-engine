@@ -18,7 +18,7 @@ package org.copperengine.monitoring.client.form;
 import javafx.scene.Node;
 
 public abstract class ShowFormStrategy<E extends Node> {
-    protected E component;
+    protected final E component;
 
     public ShowFormStrategy(E component) {
         this.component = component;
@@ -31,10 +31,10 @@ public abstract class ShowFormStrategy<E extends Node> {
     /**
      * called if form is closed
      *
-     * @param closeLisetner
+     * @param closeListener
      */
-    public void setOnCloseListener(CloseListener closeLisetner) {
-        onCloseListener = closeLisetner;
+    public void setOnCloseListener(CloseListener closeListener) {
+        onCloseListener = closeListener;
     }
 
     public static interface CloseListener {

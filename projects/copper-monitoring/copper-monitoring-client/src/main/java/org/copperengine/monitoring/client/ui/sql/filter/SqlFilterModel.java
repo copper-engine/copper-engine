@@ -21,6 +21,6 @@ import org.copperengine.monitoring.client.form.filter.defaultfilter.MaxCountFilt
 
 public class SqlFilterModel extends MaxCountFilterModel {
 
-    public SimpleStringProperty sqlQuery = new SimpleStringProperty();
+    public final SimpleStringProperty sqlQuery = new SimpleStringProperty();
 
 }

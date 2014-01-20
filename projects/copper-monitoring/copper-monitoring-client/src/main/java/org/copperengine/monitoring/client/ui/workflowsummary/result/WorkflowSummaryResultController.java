@@ -49,9 +49,9 @@ import org.copperengine.monitoring.core.model.WorkflowInstanceState;
 
 public class WorkflowSummaryResultController extends FilterResultControllerBase<WorkflowSummaryFilterModel, WorkflowSummaryResultModel> implements
         Initializable {
-    private GuiCopperDataProvider copperDataProvider;
+    private final GuiCopperDataProvider copperDataProvider;
 
-    private WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory;
+    private final WorkflowSummaryDependencyFactory workflowSummaryDependencyFactory;
     private final MenuItem[] detailMenuItems;
 
     public WorkflowSummaryResultController(GuiCopperDataProvider copperDataProvider,

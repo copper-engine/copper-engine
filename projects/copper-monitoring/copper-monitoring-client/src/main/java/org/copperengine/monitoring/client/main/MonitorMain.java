@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class MonitorMain extends Application {
 
-    static Logger logger = LoggerFactory.getLogger(MonitorMain.class);
+    static final Logger logger = LoggerFactory.getLogger(MonitorMain.class);
 
     @Override
     public void start(final Stage primaryStage) { // Stage = window
@@ -83,7 +83,7 @@ public class MonitorMain extends Application {
         // }
         // }
         // }.start();
-        // ScenicView.show(scene);
+//        ScenicView.show(scene);
     }
 
     public static void main(final String[] arguments) {

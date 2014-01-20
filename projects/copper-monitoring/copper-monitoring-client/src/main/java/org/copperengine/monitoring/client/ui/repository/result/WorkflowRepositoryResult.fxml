@@ -11,37 +11,34 @@
 
 <BorderPane id="mainPane" layoutX="0.0" layoutY="0.0" prefHeight="333.0" prefWidth="430.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <SplitPane dividerPositions="0.6042296072507553" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
-      <items>
-        <BorderPane prefHeight="200.0" prefWidth="200.0">
-          <bottom>
-            <TextField fx:id="search" prefWidth="200.0" promptText="search (regular expression)">
-              <BorderPane.margin>
-                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-              </BorderPane.margin>
-            </TextField>
-          </bottom>
-          <center>
-            <TreeView fx:id="workflowView" prefHeight="200.0" prefWidth="200.0">
-              <BorderPane.margin>
-                <Insets left="3.0" right="3.0" top="3.0" />
-              </BorderPane.margin>
-            </TreeView>
-          </center>
-        </BorderPane>
-        <BorderPane prefHeight="200.0" prefWidth="200.0">
-          <center>
-            <StackPane fx:id="detailStackPane" prefHeight="150.0" prefWidth="200.0">
-              <children>
-                <WebView fx:id="sourceView" prefHeight="200.0" prefWidth="200.0" />
-              </children>
-            </StackPane>
-          </center>
-          <top>
-            <Label text="Source" BorderPane.alignment="CENTER" />
-          </top>
-        </BorderPane>
-      </items>
-    </SplitPane>
+      <SplitPane dividerPositions="0.6042296072507553" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0"
+                 prefWidth="160.0">
+          <BorderPane prefHeight="200.0" prefWidth="200.0">
+              <bottom>
+                  <TextField fx:id="search" prefWidth="200.0" promptText="search (regular expression)">
+                      <BorderPane.margin>
+                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0"/>
+                      </BorderPane.margin>
+                  </TextField>
+              </bottom>
+              <center>
+                  <TreeView fx:id="workflowView" prefHeight="200.0" prefWidth="200.0">
+                      <BorderPane.margin>
+                          <Insets left="3.0" right="3.0" top="3.0"/>
+                      </BorderPane.margin>
+                  </TreeView>
+              </center>
+          </BorderPane>
+          <BorderPane prefHeight="200.0" prefWidth="200.0">
+              <center>
+                  <StackPane fx:id="detailStackPane" prefHeight="150.0" prefWidth="200.0">
+                      <WebView fx:id="sourceView" prefHeight="200.0" prefWidth="200.0"/>
+                  </StackPane>
+              </center>
+              <top>
+                  <Label text="Source" BorderPane.alignment="CENTER"/>
+              </top>
+          </BorderPane>
+      </SplitPane>
   </center>
 </BorderPane>

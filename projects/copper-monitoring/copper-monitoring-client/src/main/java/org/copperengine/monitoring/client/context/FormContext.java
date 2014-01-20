@@ -411,10 +411,8 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
     public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(ShowFormStrategy<?> showFormStrategy) {
         FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> resCtrl = new WorkflowInstanceDetailResultController(guiCopperDataProvider, codeMirrorFormatterSingelton);
-        FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm =
-                new FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>>("workflowInstanceDetail.title",
+        return new FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>>("workflowInstanceDetail.title",
                         resCtrl, showFormStrategy);
-        return resultForm;
     }
 
     @Override
@@ -466,7 +464,6 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
                 new SqlResultController(guiCopperDataProvider),
                 this
                 ).build();
-        filterAbleForm.useVerticalRightButton();
         return filterAbleForm;
     }
 

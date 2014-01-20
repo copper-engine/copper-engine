@@ -28,7 +28,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 public class H2MonitoringDbDialectTest extends MonitoringDbDialectTestBase {
 
     @Override
-    void intit() {
+    void init() {
         ComboPooledDataSource datasource = new ComboPooledDataSource();
         datasource.setJdbcUrl("jdbc:h2:./build/copperUnitTestH2DB/db;MVCC=TRUE;AUTO_SERVER=TRUE");
         this.datasource = datasource;

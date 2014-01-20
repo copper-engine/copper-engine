@@ -42,7 +42,7 @@ import com.google.common.base.Throwables;
 
 public class MessageAndLogIssueReporter implements IssueReporter {
 
-    Logger logger = LoggerFactory.getLogger(MessageAndLogIssueReporter.class);
+    final Logger logger = LoggerFactory.getLogger(MessageAndLogIssueReporter.class);
     private final StackPane target;
 
     public MessageAndLogIssueReporter(StackPane stackPane) {

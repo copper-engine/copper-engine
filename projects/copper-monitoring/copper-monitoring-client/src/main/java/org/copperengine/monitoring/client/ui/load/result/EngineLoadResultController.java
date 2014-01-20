@@ -60,7 +60,7 @@ public class EngineLoadResultController extends FilterResultControllerBase<Engin
     // fx:id="numberAxis"
     private NumberAxis numberAxis; // Value injected by FXMLLoader
 
-    private Map<WorkflowInstanceState, XYChart.Series<Number, Number>> stateToAxis = new HashMap<WorkflowInstanceState, XYChart.Series<Number, Number>>();
+    private final Map<WorkflowInstanceState, XYChart.Series<Number, Number>> stateToAxis = new HashMap<WorkflowInstanceState, XYChart.Series<Number, Number>>();
 
     @Override
     // This method is called by the FXMLLoader when initialization is complete

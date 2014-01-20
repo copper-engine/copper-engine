@@ -21,7 +21,7 @@ import org.copperengine.monitoring.core.model.WorkflowInstanceMetaData;
 
 public class WorkflowInstanceDetailResultModel {
 
-    public SimpleObjectProperty<WorkflowInstanceMetaData> workflowClassMetaData;
+    public final SimpleObjectProperty<WorkflowInstanceMetaData> workflowClassMetaData;
 
     public WorkflowInstanceDetailResultModel(WorkflowInstanceMetaData data) {
         workflowClassMetaData = new SimpleObjectProperty<WorkflowInstanceMetaData>(data);

@@ -59,15 +59,15 @@ import org.springframework.util.StringUtils;
 
 public class ApplicationContext {
 
-    Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
+    final Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
 
     private static final String SETTINGS_KEY = "settings";
-    protected BorderPane mainPane;
-    protected StackPane mainStackPane;
-    protected MessageProvider messageProvider;
+    protected final BorderPane mainPane;
+    protected final StackPane mainStackPane;
+    protected final MessageProvider messageProvider;
     protected SettingsModel settingsModelSingleton;
 
-    protected SimpleStringProperty serverAdress = new SimpleStringProperty();
+    protected final SimpleStringProperty serverAdress = new SimpleStringProperty();
 
     public SimpleStringProperty serverAdressProperty() {
         return serverAdress;

@@ -33,20 +33,20 @@ public class GenericFilterController<T> extends BaseFilterController<T> {
     }
 
     private final T filter;
-    private long refereshIntervall;
+    private final long refreshInterval;
 
-    public GenericFilterController(T filter, long refereshIntervall) {
+    public GenericFilterController(T filter, long refreshInterval) {
         super();
         this.filter = filter;
-        this.refereshIntervall = refereshIntervall;
+        this.refreshInterval = refreshInterval;
     }
 
     public GenericFilterController(T filter) {
-        this(filter, FilterController.DEFAULT_REFRESH_INTERVALL);
+        this(filter, FilterController.DEFAULT_REFRESH_INTERVAL);
     }
 
-    public GenericFilterController(long refereshIntervall) {
-        this(null, refereshIntervall);
+    public GenericFilterController(long refreshInterval) {
+        this(null, refreshInterval);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class GenericFilterController<T> extends BaseFilterController<T> {
 
     @Override
     public long getDefaultRefreshInterval() {
-        return refereshIntervall;
+        return refreshInterval;
     }
 
     @Override

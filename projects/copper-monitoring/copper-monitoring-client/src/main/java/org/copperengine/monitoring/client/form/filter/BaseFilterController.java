@@ -21,7 +21,7 @@ import javafx.collections.FXCollections;
 
 public abstract class BaseFilterController<T> implements FilterController<T> {
 
-    protected ListProperty<ActionsWithFilterForm> actionsWithFilterForm =
+    protected final ListProperty<ActionsWithFilterForm> actionsWithFilterForm =
             new SimpleListProperty<ActionsWithFilterForm>(FXCollections.<ActionsWithFilterForm>observableArrayList());
 
     @Override

@@ -23,8 +23,8 @@ import org.copperengine.monitoring.client.form.FxmlController;
 import org.copperengine.monitoring.client.util.MessageProvider;
 
 /**
- * @param <F>Filtermodel
- * @param <T>Resultmodel
+ * @param <F>FilterModel
+ * @param <R>ResultModel
  */
 public interface FilterResultController<F, R> extends FxmlController {
 

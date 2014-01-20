@@ -137,7 +137,7 @@ public class ComponentUtil {
         numberAxis.setLowerBound(min);
         numberAxis.setUpperBound(max);
         numberAxis.setTickLabelFormatter(new StringConverter<Number>() {
-            private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy\nHH:mm:ss,SSS");
+            private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy\nHH:mm:ss,SSS");
 
             @Override
             public String toString(Number object) {

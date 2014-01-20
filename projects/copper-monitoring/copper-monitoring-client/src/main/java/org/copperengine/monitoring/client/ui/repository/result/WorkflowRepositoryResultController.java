@@ -118,7 +118,7 @@ public class WorkflowRepositoryResultController extends FilterResultControllerBa
     private TreeItem<DisplayWorkflowClassesModel> search(TreeItem<DisplayWorkflowClassesModel> item, String regex) {
         Pattern p = Pattern.compile(regex, Pattern.DOTALL | Pattern.MULTILINE);
         for (TreeItem<DisplayWorkflowClassesModel> child : item.getChildren()) {
-            if (child.getValue().displayname != null && p.matcher(child.getValue().displayname).matches()) {
+            if (child.getValue().displayName != null && p.matcher(child.getValue().displayName).matches()) {
                 return child;
             }
         }

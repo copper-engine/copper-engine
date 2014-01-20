@@ -62,10 +62,10 @@ public class LogsResultModel {
     public final SimpleStringProperty config;
     public final ObservableList<LogsRowModel> logs = FXCollections.observableArrayList();
 
-    public LogsResultModel(String config, List<LogEvent> logevents) {
+    public LogsResultModel(String config, List<LogEvent> logEvents) {
         super();
         this.config = new SimpleStringProperty(config);
-        for (LogEvent logEvent : logevents) {
+        for (LogEvent logEvent : logEvents) {
             logs.add(new LogsRowModel(logEvent));
         }
     }

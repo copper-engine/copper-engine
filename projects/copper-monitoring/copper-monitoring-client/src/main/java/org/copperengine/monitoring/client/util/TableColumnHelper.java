@@ -64,19 +64,19 @@ public class TableColumnHelper {
      * T Tableobject
      * Column Display Type
      */
-    public static <T> void setupEdiableStringColumn(TableColumn<T, String> column, final ColumnStringAccessor<T> propertyAcessor) {
+    public static <T> void setupEditableStringColumn(TableColumn<T, String> column, final ColumnStringAccessor<T> propertyAccessor) {
         column.getTableView().setEditable(true);
         column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<T, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(CellDataFeatures<T, String> param) {
-                return propertyAcessor.getProperty(param.getValue());
+                return propertyAccessor.getProperty(param.getValue());
             }
         });
         column.setEditable(true);
         column.setOnEditCommit(new EventHandler<CellEditEvent<T, String>>() {
             @Override
             public void handle(CellEditEvent<T, String> t) {
-                propertyAcessor.getProperty(t.getRowValue()).setValue(t.getNewValue());
+                propertyAccessor.getProperty(t.getRowValue()).setValue(t.getNewValue());
             }
         });
         column.setCellFactory(new Callback<TableColumn<T, String>, TableCell<T, String>>() {
@@ -87,18 +87,18 @@ public class TableColumnHelper {
         });
     }
 
-    public static <T> void setupEdiableBooleanColumn(TableColumn<T, Boolean> column, final ColumnBooleanAccessor<T> propertyAcessor) {
+    public static <T> void setupEditableBooleanColumn(TableColumn<T, Boolean> column, final ColumnBooleanAccessor<T> propertyAccessor) {
         column.getTableView().setEditable(true);
         column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<T, Boolean>, ObservableValue<Boolean>>() {
             @Override
             public ObservableValue<Boolean> call(CellDataFeatures<T, Boolean> param) {
-                return propertyAcessor.getProperty(param.getValue());
+                return propertyAccessor.getProperty(param.getValue());
             }
         });
         column.setOnEditCommit(new EventHandler<CellEditEvent<T, Boolean>>() {
             @Override
             public void handle(CellEditEvent<T, Boolean> t) {
-                propertyAcessor.getProperty(t.getRowValue()).setValue(t.getNewValue());
+                propertyAccessor.getProperty(t.getRowValue()).setValue(t.getNewValue());
             }
         });
         column.setCellFactory(CheckBoxTableCell.forTableColumn(column));

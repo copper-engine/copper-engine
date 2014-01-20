@@ -75,11 +75,11 @@ public class SqlResultController extends FilterResultControllerBase<SqlFilterMod
             for (int i = 0; i < filteredResult.get(0).rows.size(); i++) {
                 TableColumn<SqlResultModel, String> rowColumn = new TableColumn<SqlResultModel, String>();
                 rowColumn.setText(filteredResult.get(0).rows.get(i).get());
-                final int rowindex = i;
+                final int rowIndex = i;
                 rowColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SqlResultModel, String>, ObservableValue<String>>() {
                     @Override
                     public ObservableValue<String> call(CellDataFeatures<SqlResultModel, String> param) {
-                        return param.getValue().rows.get(rowindex);
+                        return param.getValue().rows.get(rowIndex);
                     }
                 });// -3 for the border
                 rowColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).divide(filteredResult.get(0).rows.size()));

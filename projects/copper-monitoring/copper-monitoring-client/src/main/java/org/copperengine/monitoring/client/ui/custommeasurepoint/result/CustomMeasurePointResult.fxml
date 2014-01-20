@@ -12,92 +12,75 @@
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="405.0" prefWidth="477.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-    <VBox prefHeight="200.0" prefWidth="100.0">
-      <children>
-        <TitledPane animated="false" minHeight="-1.0" text="avg" VBox.vgrow="ALWAYS">
-          <content>
-            <LineChart fx:id="avgChart" minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
-              <xAxis>
-                <NumberAxis fx:id="timeAxis" side="BOTTOM" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis fx:id="numberAxis" label="micro secounds" side="LEFT" />
-              </yAxis>
-            </LineChart>
-          </content>
-        </TitledPane>
-        <TitledPane animated="false" prefHeight="-1.0" text="count" VBox.vgrow="ALWAYS">
-          <content>
-            <LineChart fx:id="countChart" minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
-              <xAxis>
-                <NumberAxis id="timeAxis" side="BOTTOM" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis id="numberAxis" label="count" side="LEFT" />
-              </yAxis>
-            </LineChart>
-          </content>
-          <VBox.margin>
-            <Insets />
-          </VBox.margin>
-        </TitledPane>
-        <TitledPane animated="false" text="quantil" VBox.vgrow="ALWAYS">
-          <content>
-            <LineChart fx:id="quantilChart" minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
-              <xAxis>
-                <NumberAxis id="timeAxis" side="BOTTOM" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis id="numberAxis" label="micro secounds" side="LEFT" />
-              </yAxis>
-            </LineChart>
-          </content>
-        </TitledPane>
-        <TitledPane animated="false" expanded="true" text="cpu" VBox.vgrow="ALWAYS">
-          <content>
-            <AreaChart fx:id="ressourceChart" minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
-              <xAxis>
-                <NumberAxis id="timeAxis" fx:id="timeResAxis" side="BOTTOM" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis id="numberAxis" label="\%" side="LEFT" />
-              </yAxis>
-            </AreaChart>
-          </content>
-        </TitledPane>
-        <TitledPane animated="false" expanded="false" text="text" VBox.vgrow="ALWAYS">
-          <content>
-            <TextArea fx:id="textChart" prefHeight="2000.0" prefWidth="-1.0" wrapText="true" />
-          </content>
-        </TitledPane>
-        <TitledPane animated="false" text="logs" VBox.vgrow="ALWAYS">
-          <content>
-            <BorderPane minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
-              <center>
-                <StackPane fx:id="logWrapStackpane" prefHeight="150.0" prefWidth="200.0">
-                  <children>
-                    <TextArea fx:id="logText" minHeight="-1.0" prefWidth="-1.0" wrapText="true" />
-                  </children>
-                </StackPane>
-              </center>
-              <top>
-                <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0" BorderPane.alignment="CENTER_LEFT">
-                  <children>
-                    <Label id="measurePointLable" prefWidth="-1.0" text="Logging for measurepoint" />
-                    <TextField fx:id="measurePointField" editable="false" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                    <Label id="measurePointLable" prefWidth="-1.0" text="Timerange (ms)" />
-                    <TextField fx:id="timeRange" prefWidth="111.0" />
-                    <Button fx:id="updateLog" mnemonicParsing="false" text="update" />
-                  </children>
-                  <BorderPane.margin>
-                    <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                  </BorderPane.margin>
-                </HBox>
-              </top>
-            </BorderPane>
-          </content>
-        </TitledPane>
-      </children>
-    </VBox>
+      <VBox prefHeight="200.0" prefWidth="100.0">
+          <TitledPane animated="false" minHeight="-1.0" text="avg" VBox.vgrow="ALWAYS">
+              <LineChart fx:id="avgChart" minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
+                  <xAxis>
+                      <NumberAxis fx:id="timeAxis" side="BOTTOM"/>
+                  </xAxis>
+                  <yAxis>
+                      <NumberAxis fx:id="numberAxis" label="micro secounds" side="LEFT"/>
+                  </yAxis>
+              </LineChart>
+          </TitledPane>
+          <TitledPane animated="false" prefHeight="-1.0" text="count" VBox.vgrow="ALWAYS">
+              <VBox.margin>
+                  <Insets/>
+              </VBox.margin>
+              <LineChart fx:id="countChart" minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
+                  <xAxis>
+                      <NumberAxis id="timeAxis" side="BOTTOM"/>
+                  </xAxis>
+                  <yAxis>
+                      <NumberAxis id="numberAxis" label="count" side="LEFT"/>
+                  </yAxis>
+              </LineChart>
+          </TitledPane>
+          <TitledPane animated="false" text="quantil" VBox.vgrow="ALWAYS">
+              <LineChart fx:id="quantilChart" minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
+                  <xAxis>
+                      <NumberAxis id="timeAxis" side="BOTTOM"/>
+                  </xAxis>
+                  <yAxis>
+                      <NumberAxis id="numberAxis" label="micro secounds" side="LEFT"/>
+                  </yAxis>
+              </LineChart>
+          </TitledPane>
+          <TitledPane animated="false" expanded="true" text="cpu" VBox.vgrow="ALWAYS">
+              <AreaChart fx:id="ressourceChart" minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
+                  <xAxis>
+                      <NumberAxis id="timeAxis" fx:id="timeResAxis" side="BOTTOM"/>
+                  </xAxis>
+                  <yAxis>
+                      <NumberAxis id="numberAxis" label="\%" side="LEFT"/>
+                  </yAxis>
+              </AreaChart>
+          </TitledPane>
+          <TitledPane animated="false" expanded="false" text="text" VBox.vgrow="ALWAYS">
+              <TextArea fx:id="textChart" prefHeight="2000.0" prefWidth="-1.0" wrapText="true"/>
+          </TitledPane>
+          <TitledPane animated="false" text="logs" VBox.vgrow="ALWAYS">
+              <BorderPane minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
+                  <center>
+                      <StackPane fx:id="logWrapStackpane" prefHeight="150.0" prefWidth="200.0">
+                          <TextArea fx:id="logText" minHeight="-1.0" prefWidth="-1.0" wrapText="true"/>
+                      </StackPane>
+                  </center>
+                  <top>
+                      <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0"
+                            BorderPane.alignment="CENTER_LEFT">
+                          <BorderPane.margin>
+                              <Insets bottom="3.0" left="3.0" right="3.0" top="3.0"/>
+                          </BorderPane.margin>
+                          <Label id="measurePointLable" prefWidth="-1.0" text="Logging for measurepoint"/>
+                          <TextField fx:id="measurePointField" editable="false" prefWidth="200.0" HBox.hgrow="ALWAYS"/>
+                          <Label id="measurePointLable" prefWidth="-1.0" text="Timerange (ms)"/>
+                          <TextField fx:id="timeRange" prefWidth="111.0"/>
+                          <Button fx:id="updateLog" mnemonicParsing="false" text="update"/>
+                      </HBox>
+                  </top>
+              </BorderPane>
+          </TitledPane>
+      </VBox>
   </center>
 </BorderPane>

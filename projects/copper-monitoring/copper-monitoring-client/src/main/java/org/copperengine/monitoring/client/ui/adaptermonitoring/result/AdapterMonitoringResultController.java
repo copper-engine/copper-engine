@@ -60,7 +60,7 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
         Initializable {
     private static final String DATETIME_FORMAT = "dd.MM.yyyy HH:mm:ss,SSS";
 
-    GuiCopperDataProvider copperDataProvider;
+    final GuiCopperDataProvider copperDataProvider;
     Timeline timeline;
 
     public AdapterMonitoringResultController(GuiCopperDataProvider copperDataProvider) {
@@ -370,7 +370,7 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
 
                     Bindings.unbindBidirectional(positionLabel.textProperty(), slider.valueProperty());
                     positionLabel.textProperty().bindBidirectional(slider.valueProperty(), new StringConverter<Number>() {
-                        private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATETIME_FORMAT);
+                        private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATETIME_FORMAT);
 
                         @Override
                         public Number fromString(String string) {

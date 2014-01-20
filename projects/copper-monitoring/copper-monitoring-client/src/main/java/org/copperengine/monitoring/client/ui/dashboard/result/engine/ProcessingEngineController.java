@@ -189,7 +189,7 @@ public class ProcessingEngineController implements Initializable, FxmlController
         for (String path : processingEngineInfo.getRepositoryInfo().getSrcPaths()) {
             workflowRepositoryPaths.setText(workflowRepositoryPaths.getText() + path + "\n");
         }
-        injectorTyp.setText(processingEngineInfo.getDependencyInjectorInfo().getTyp().toString());
+        injectorTyp.setText(processingEngineInfo.getDependencyInjectorInfo().getTyp());
         statisticsCollector.setText(processingEngineInfo.getStatisticsCollectorType());
         storageId.setText(processingEngineInfo.getStorageInfo().getDescription());
         batcherId.setText(processingEngineInfo.getStorageInfo().getBatcher().getDescription());

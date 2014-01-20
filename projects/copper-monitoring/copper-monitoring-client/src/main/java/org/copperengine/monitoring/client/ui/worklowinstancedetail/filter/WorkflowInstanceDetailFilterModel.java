@@ -21,7 +21,7 @@ import org.copperengine.monitoring.client.form.filter.enginefilter.EnginePoolFil
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 
 public class WorkflowInstanceDetailFilterModel extends EnginePoolFilterModel {
-    public SimpleStringProperty workflowInstanceId = new SimpleStringProperty();
+    public final SimpleStringProperty workflowInstanceId = new SimpleStringProperty();
 
     public WorkflowInstanceDetailFilterModel(String workflowInstanceId, ProcessingEngineInfo engine) {
         this.workflowInstanceId.set(workflowInstanceId);

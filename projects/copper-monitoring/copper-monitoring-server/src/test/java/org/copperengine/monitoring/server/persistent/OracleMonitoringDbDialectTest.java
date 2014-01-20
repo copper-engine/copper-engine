@@ -37,7 +37,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 public class OracleMonitoringDbDialectTest extends MonitoringDbDialectTestBase {
 
     @Override
-    void intit() {
+    void init() {
 
         ComboPooledDataSource datasource_oracle = new ComboPooledDataSource();
         try {
