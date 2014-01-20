@@ -15,7 +15,7 @@ buildscript {
     dependencies {
         // The nexus plugin makes uploading to Sonatype Nexus repository easier.
         // See https://github.com/bmuschko/gradle-nexus-plugin for documentation
-        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.6.1'
+        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7'
         // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
         // by providing the task 'nexusStagingRelease'.
         // See https://github.com/adaptivecomputing/plugins-gradle/tree/master/nexus-workflow
@@ -165,25 +165,6 @@ configure(subprojects.findAll {
             // always fetch the GPG key before signing archives
             tasks.signArchives.dependsOn fetchSecretKeyRingFile
         }
-
-        // WORKAROUND: sign poms before performing "uploadArchives".
-        // This workaround (the whole "afterEvaluate" block) can be removed when gradle-nexus-plugin issue #19
-        // is resolved, see https://github.com/bmuschko/gradle-nexus-plugin/issues/19
-        afterEvaluate {
-            signing {
-                project.gradle.taskGraph.whenReady {
-                    def uploadTasks = project.tasks.withType(Upload).matching { it.path.endsWith(":uploadArchives") }
-                    uploadTasks.each { task ->
-                        task.repositories.mavenDeployer() {
-                            beforeDeployment { MavenDeployment deployment ->
-                                project.signing.signPom(deployment)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // END WORKAROUND
 
         modifyPom {
             project {
