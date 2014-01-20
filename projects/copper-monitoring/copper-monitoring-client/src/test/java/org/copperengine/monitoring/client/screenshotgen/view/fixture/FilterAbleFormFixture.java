@@ -16,19 +16,16 @@
 package org.copperengine.monitoring.client.screenshotgen.view.fixture;
 
 import org.copperengine.monitoring.client.form.filter.FilterAbleForm;
-import org.jemmy.fx.SceneDock;
-import org.jemmy.fx.control.LabeledDock;
 
 public class FilterAbleFormFixture {
 
-    private final SceneDock scene;
+    private final FilterAbleForm filterController;
 
-    public FilterAbleFormFixture(SceneDock scene) {
-        this.scene = scene;
+    public FilterAbleFormFixture(FilterAbleForm filterController) {
+        this.filterController = filterController;
     }
 
     public void refresh() {
-        LabeledDock refButton = new LabeledDock(scene.asParent(), FilterAbleForm.REFRESH_BUTTON_ID);
-        refButton.mouse().click();
+        filterController.refresh();
     }
 }

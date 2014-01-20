@@ -15,10 +15,7 @@
  */
 package org.copperengine.monitoring.client.screenshotgen.view.systemresource;
 
-import javafx.application.Platform;
 import javafx.scene.layout.BorderPane;
-
-import org.copperengine.monitoring.client.screenshotgen.view.fixture.FilterAbleFormFixture;
 import org.copperengine.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import org.copperengine.monitoring.client.screenshotgen.view.fixture.TestFormContext;
 
@@ -27,26 +24,26 @@ public class SystemResource extends ScreenshotPageBase {
     @Override
     public void initGui(BorderPane pane, TestFormContext testFormContext) {
         testFormContext.createRessourceForm().show();
-        final FilterAbleFormFixture filterAbleFormFixture = new FilterAbleFormFixture(scene);
-        for (int i = 0; i < 10; i++) {
-            final int ifinal = i;
-            new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(1010 * ifinal);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            filterAbleFormFixture.refresh();
-                        }
-                    });
-                }
-            }.start();
-        }
+//        final FilterAbleFormFixture filterAbleFormFixture = new FilterAbleFormFixture(scene);
+//        for (int i = 0; i < 10; i++) {
+//            final int ifinal = i;
+//            new Thread() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        Thread.sleep(1010 * ifinal);
+//                    } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                    Platform.runLater(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            filterAbleFormFixture.refresh();
+//                        }
+//                    });
+//                }
+//            }.start();
+//        }
     }
 
     @Override

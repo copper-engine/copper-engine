@@ -16,12 +16,8 @@
 package org.copperengine.monitoring.client.screenshotgen.view.dashboard;
 
 import javafx.scene.layout.BorderPane;
-
 import org.copperengine.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import org.copperengine.monitoring.client.screenshotgen.view.fixture.TestFormContext;
-import org.jemmy.fx.control.LabeledDock;
-import org.jemmy.fx.control.TabPaneDock;
-import org.jemmy.fx.control.TextInputControlDock;
 
 public class Dashboard extends ScreenshotPageBase {
 
@@ -29,35 +25,6 @@ public class Dashboard extends ScreenshotPageBase {
     public void initGui(BorderPane pane, TestFormContext testFormContext) {
         testFormContext.createDashboardForm().show();
 
-    }
-
-    public int setPoolSize(String size) {
-        TextInputControlDock textInput = new TextInputControlDock(scene.asParent(), "nummerNew");
-        textInput.type(size);
-        LabeledDock setButton = new LabeledDock(scene.asParent(), "nummerbutton");
-        setButton.mouse().click();
-        return testDataProvider.numberOfThreads;
-    }
-
-    public int setBatcherPoolSize(String size) {
-        TextInputControlDock textInput = new TextInputControlDock(scene.asParent(), "batcherNewNum");
-        textInput.type(size);
-        LabeledDock setButton = new LabeledDock(scene.asParent(), "batcherNumSet");
-        setButton.mouse().click();
-        return testDataProvider.numerOfThreadsBatcher;
-    }
-
-    public int setPriority(String size) {
-        TextInputControlDock textInput = new TextInputControlDock(scene.asParent(), "prioNew");
-        textInput.type(size);
-        LabeledDock setButton = new LabeledDock(scene.asParent(), "prioButton");
-        setButton.mouse().click();
-        return testDataProvider.threadPriority;
-    }
-
-    public int getPoolsTabsCount() {
-        TabPaneDock tabpane = new TabPaneDock(scene.asParent(), "pools");
-        return tabpane.getTabs().size();
     }
 
     @Override

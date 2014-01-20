@@ -23,13 +23,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
-
 import javax.imageio.ImageIO;
 
+import com.google.common.reflect.ClassPath;
+import com.google.common.reflect.ClassPath.ClassInfo;
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.Scene;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.form.BorderPaneShowFormStrategie;
 import org.copperengine.monitoring.client.screenshotgen.view.fixture.ApplicationFixture;
@@ -39,10 +41,6 @@ import org.copperengine.monitoring.client.screenshotgen.view.fixture.TestFormCon
 import org.copperengine.monitoring.client.ui.settings.AuditralColorMapping;
 import org.copperengine.monitoring.client.ui.settings.SettingsModel;
 import org.copperengine.monitoring.client.util.MessageProvider;
-import org.jemmy.fx.SceneDock;
-
-import com.google.common.reflect.ClassPath;
-import com.google.common.reflect.ClassPath.ClassInfo;
 
 public class ScreenshotGeneratorMain {
 
@@ -67,7 +65,7 @@ public class ScreenshotGeneratorMain {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        scene = new SceneDock();
+        scene = ApplicationFixture.getStage().getScene();
 
         ArrayList<ScreenshotPageBase> tests = new ArrayList<ScreenshotPageBase>();
         try {
@@ -98,8 +96,6 @@ public class ScreenshotGeneratorMain {
         final TestDataProvider testDataProvider = new TestDataProvider();
         final GuiCopperDataProvider guiCopperDataProvider = new GuiCopperDataProvider(testDataProvider);
 
-        integrationtestBase.setTestDataProvider(testDataProvider);
-        integrationtestBase.setScene(scene);
 
         runInGuithreadAndWait(new Runnable() {
             @Override
@@ -155,7 +151,7 @@ public class ScreenshotGeneratorMain {
         FutureTask<WritableImage> task = new FutureTask<WritableImage>(new Callable<WritableImage>() {
             @Override
             public WritableImage call() throws Exception {
-                WritableImage image = scene.wrap().getControl().snapshot(null);
+                WritableImage image = scene.snapshot(null);
                 return image;
             }
         });
@@ -177,7 +173,7 @@ public class ScreenshotGeneratorMain {
         }
     }
 
-    protected SceneDock scene;
+    protected Scene scene;
 
     public void deleteOutputFolder() {
         File folder = new File(OUTPUT_FOLDER);

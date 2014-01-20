@@ -16,9 +16,7 @@
 package org.copperengine.monitoring.client.screenshotgen.view.fixture;
 
 import javafx.scene.layout.BorderPane;
-
 import org.copperengine.monitoring.client.screenshotgen.ScreenshotGeneratorMain;
-import org.jemmy.fx.SceneDock;
 
 /** Basic testcase for Concordion */
 public abstract class ScreenshotPageBase {
@@ -26,17 +24,6 @@ public abstract class ScreenshotPageBase {
     public abstract void initGui(BorderPane pane, TestFormContext testFormContext);
 
     public abstract String getTitle();
-
-    protected SceneDock scene;
-    protected TestDataProvider testDataProvider;
-
-    public void setScene(SceneDock scene) {
-        this.scene = scene;
-    }
-
-    public void setTestDataProvider(TestDataProvider testDataProvider) {
-        this.testDataProvider = testDataProvider;
-    }
 
     public ScreenshotPageBase() {
         super();
