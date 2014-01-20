@@ -42,7 +42,7 @@ public class MySqlSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersisten
                 ds.getConnection();
                 dbmsAvailable = true;
             } catch (Exception e) {
-                logger.error("Oracle DBMS not available! Skipping Oracle unit tests.", e);
+                logger.error("Oracle MySql not available! Skipping MySql unit tests.", e);
                 e.printStackTrace();
             } finally {
                 context.close();

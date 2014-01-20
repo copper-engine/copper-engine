@@ -22,8 +22,6 @@ import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.PersistentWorkflow;
 
-import com.mchange.util.AssertException;
-
 public class PersistentTimeoutTestWF extends PersistentWorkflow<Serializable> {
 
     private static final long serialVersionUID = 1L;
@@ -34,13 +32,13 @@ public class PersistentTimeoutTestWF extends PersistentWorkflow<Serializable> {
         wait(WaitMode.ALL, 100, cid);
         Response<Object> r = getAndRemoveResponse(cid);
         if (r == null)
-            throw new AssertException("response is null");
+            throw new RuntimeException("response is null");
         if (!r.isTimeout())
-            throw new AssertException("timeout flag not set in response");
+            throw new RuntimeException("timeout flag not set in response");
         if (r.getResponse() != null)
-            throw new AssertException();
+            throw new RuntimeException("unexpected payload in response");
         if (r.getException() != null)
-            throw new AssertException();
+            throw new RuntimeException("unexpected exception in response");
     }
 
 }

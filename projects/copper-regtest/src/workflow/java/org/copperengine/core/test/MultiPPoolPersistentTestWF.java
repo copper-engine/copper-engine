@@ -24,8 +24,6 @@ import org.copperengine.core.persistent.PersistentWorkflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mchange.util.AssertException;
-
 public class MultiPPoolPersistentTestWF extends PersistentWorkflow<String> {
 
     private static final Logger logger = LoggerFactory.getLogger(PersistentSpock2GTestWF.class);
@@ -95,7 +93,7 @@ public class MultiPPoolPersistentTestWF extends PersistentWorkflow<String> {
 
         logger.debug("finished");
         if (x != 6)
-            throw new AssertException();
+            throw new RuntimeException("x != 6");
         assert x == 6;
 
         Counter.inc();

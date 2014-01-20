@@ -23,12 +23,15 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
@@ -91,6 +94,29 @@ public class DerbyDbDialect extends AbstractSqlDialect {
         return new DerbyDbSetToError.Command((PersistentWorkflow<?>) w, t, dbProcessingState, ack);
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response, Acknowledge ack) throws Exception {
+        return new SqlNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis() + dbBatchingLatencyMSec, ack);
+    }
+
+    @Override
+    public void insert(List<Workflow<?>> wfs, Connection con) throws DuplicateIdException, Exception {
+        try {
+            super.insert(wfs, con);
+        } catch (SQLException e) {
+            if (e instanceof SQLIntegrityConstraintViolationException || (e.getCause() != null && e.getCause() instanceof SQLIntegrityConstraintViolationException)) {
+                throw new DuplicateIdException(e);
+            }
+            throw e;
+        }
+    }
+
+    @Override
+    public String getDialectDescription() {
+        return "DerbyDB";
+    }
+
     public static void checkAndCreateSchema(DataSource ds) throws SQLException, IOException {
         Connection c = ds.getConnection();
         try {
@@ -134,6 +160,7 @@ public class DerbyDbDialect extends AbstractSqlDialect {
         } finally {
             c.close();
         }
+        logger.info("Created COPPER schema.");
     }
 
     private static boolean tablesExist(Connection c) throws SQLException {
@@ -165,17 +192,6 @@ public class DerbyDbDialect extends AbstractSqlDialect {
         } else {
             logger.info("Database shut down normally");
         }
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response, Acknowledge ack) throws Exception {
-        return new DerbyDbNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis() + dbBatchingLatencyMSec, ack);
-    }
-
-    @Override
-    public String getDialectDescription() {
-        return "DerbyDB";
     }
 
 }

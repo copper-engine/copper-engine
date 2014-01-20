@@ -31,8 +31,4 @@ public class MySqlMonitoringDbDialect extends BaseDatabaseMonitoringDialect {
         super(serializer, messagePostProcessor, auditTrail);
     }
 
-    @Override
-    public String getResultLimitingQuery(String query, long limit) {
-        return query + " LIMIT " + limit;
-    }
 }

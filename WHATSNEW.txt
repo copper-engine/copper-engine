@@ -1,6 +1,8 @@
-COPPER 3.0.1 (draft)
+COPPER 3.1 (draft)
 ============
-- Maven: removed unnecessary dependency on aopalliance.jar
+- New feature: support for the H2 database
+- Maven: copper-coreengine: moved dependency on C3P0 to copper-regtest. Removed *ConnectionCustomizer classes, because they broke the JDBC spec regarding autoCommit; also removed OracleConnectionTester as it can be substituted by setting 'preferredTestQuery="SELECT 1 FROM DUAL"' in C3P0 datasource.
+- Maven: copper-coreengine: removed unnecessary dependencies on aopalliance, findbugs-annotations and commons-codec, so the only remaining dependencies are on ASM and slf4j-api
 
 COPPER 3.0
 ==========

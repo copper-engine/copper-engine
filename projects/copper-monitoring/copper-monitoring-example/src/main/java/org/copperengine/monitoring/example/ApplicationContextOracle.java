@@ -17,7 +17,6 @@ package org.copperengine.monitoring.example;
 
 import java.beans.PropertyVetoException;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.persistent.OracleDialect;
@@ -25,7 +24,9 @@ import org.copperengine.core.persistent.StandardJavaSerializer;
 import org.copperengine.monitoring.server.persistent.DatabaseMonitoringDialect;
 import org.copperengine.monitoring.server.persistent.OracleMonitoringDbDialect;
 
-public class ApplicationContextOracle extends ApplicationContext{
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+public class ApplicationContextOracle extends ApplicationContext {
 
     @Override
     protected DatabaseUtil setupDatabase(WorkflowRepository workflowRepository, RuntimeStatisticsCollector runtimeStatisticsCollector) {
@@ -35,8 +36,7 @@ public class ApplicationContextOracle extends ApplicationContext{
             datasource_oracle.setJdbcUrl("jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:HM");
             datasource_oracle.setMinPoolSize(1);
             datasource_oracle.setMaxPoolSize(8);
-            datasource_oracle.setConnectionTesterClassName("org.copperengine.core.db.utility.oracle.c3p0.OracleConnectionTester");
-            datasource_oracle.setConnectionCustomizerClassName("org.copperengine.core.db.utility.oracle.c3p0.OracleConnectionCustomizer");
+            datasource_oracle.setPreferredTestQuery("SELECT 1 FROM DUAL");
             datasource_oracle.setIdleConnectionTestPeriod(15);
         } catch (PropertyVetoException e1) {
             throw new RuntimeException(e1);

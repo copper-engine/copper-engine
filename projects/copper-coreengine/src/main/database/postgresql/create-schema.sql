@@ -4,6 +4,7 @@ drop table COP_WAIT;
 drop table COP_RESPONSE;
 drop table COP_QUEUE;
 drop table COP_AUDIT_TRAIL_EVENT;
+drop table COP_ADAPTERCALL;
 
 --
 -- BUSINESSPROCESS

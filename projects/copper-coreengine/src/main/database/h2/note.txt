@@ -1,0 +1,1 @@
+Schema located at src/main/resources/h2

@@ -22,7 +22,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -123,11 +122,15 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     }
 
     protected String getResourceAsString(String name) {
+        return getResourceAsString(getClass(), name);
+    }
+
+    protected static String getResourceAsString(Class<?> baseClass, String name) {
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(name)));
+            BufferedReader br = new BufferedReader(new InputStreamReader(baseClass.getResourceAsStream(name)));
             try {
                 StringBuilder sb = new StringBuilder();
-                String line = null;
+                String line;
                 while ((line = br.readLine()) != null) {
                     sb.append(line).append("\n");
                 }
@@ -471,7 +474,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     }
 
     @Override
-    public void insert(List<Workflow<?>> wfs, Connection con) throws Exception {
+    public void insert(List<Workflow<?>> wfs, Connection con) throws DuplicateIdException, Exception {
         PreparedStatement stmtWF = null;
         PreparedStatement stmtQueue = null;
         try {
@@ -511,16 +514,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             @SuppressWarnings({ "rawtypes", "unchecked" })
             List<PersistentWorkflow<?>> uncheckedWfs = (List) wfs;
             workflowPersistencePlugin.onWorkflowsSaved(con, uncheckedWfs);
-        } catch (SQLException e) {
-            // MySQL and DerbyDB throw a SQLIntegrityConstraintViolationException
-            if (e instanceof SQLIntegrityConstraintViolationException || (e.getCause() != null && e.getCause() instanceof SQLIntegrityConstraintViolationException)) {
-                throw new DuplicateIdException(e);
-            }
-            // Postgres handling
-            if (e.getMessage().contains("cop_workflow_instance_pkey") || (e.getNextException() != null && e.getNextException().getMessage().contains("cop_workflow_instance_pkey"))) {
-                throw new DuplicateIdException(e);
-            }
-            throw e;
         } finally {
             JdbcUtils.closeStatement(stmtQueue);
             JdbcUtils.closeStatement(stmtWF);

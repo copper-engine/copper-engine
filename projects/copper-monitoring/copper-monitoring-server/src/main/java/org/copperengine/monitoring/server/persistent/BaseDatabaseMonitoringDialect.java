@@ -155,12 +155,15 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
     }
 
     /**
-     * wrap query to limit result rows.
-     * E.g Oracle: SELECT * from T WHERE ROWNUM <= 10
+     * wrap query to limit result rows. The default implementation simply adds " LIMIT <i>&lt;limit&gt;</i>" to the
+     * query. Subclasses may override this to modify the query statement different, eg for Oracle: "SELECT * from T
+     * WHERE ROWNUM &lt;= 10".
      *
      * @return new query string
      */
-    public abstract String getResultLimitingQuery(String query, long limit);
+    public String getResultLimitingQuery(String query, long limit) {
+        return query + " LIMIT " + limit;
+    }
 
     @Override
     public List<WorkflowSummary> selectWorkflowStateSummary(String poolid, String classname, Connection con) {

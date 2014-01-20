@@ -18,9 +18,12 @@ package org.copperengine.core.persistent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
@@ -61,7 +64,19 @@ public class MySqlDialect extends AbstractSqlDialect {
     @SuppressWarnings("rawtypes")
     @Override
     public BatchCommand createBatchCommand4NotifyNoEarlyResponseHandling(Response<?> response, Acknowledge ack) throws Exception {
-        return new SqlNotifyNoEarlyResponseHandling.Command(response, serializer, SqlNotifyNoEarlyResponseHandling.SQL_MYSQL, defaultStaleResponseRemovalTimeout, System.currentTimeMillis() + dbBatchingLatencyMSec, ack);
+        return new MySqlNotifyNoEarlyResponseHandling.Command(response, serializer, defaultStaleResponseRemovalTimeout, System.currentTimeMillis() + dbBatchingLatencyMSec, ack);
+    }
+
+    @Override
+    public void insert(List<Workflow<?>> wfs, Connection con) throws DuplicateIdException, Exception {
+        try {
+            super.insert(wfs, con);
+        } catch (SQLException e) {
+            if (e instanceof SQLIntegrityConstraintViolationException || (e.getCause() != null && e.getCause() instanceof SQLIntegrityConstraintViolationException)) {
+                throw new DuplicateIdException(e);
+            }
+            throw e;
+        }
     }
 
     @Override
