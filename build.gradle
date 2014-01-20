@@ -10,17 +10,19 @@ task wrapper(type: Wrapper) {
 buildscript {
     repositories {
         jcenter() // needed for gradle-nexus-plugin
-        mavenCentral() // needed for nexus-workflow plugin
+        mavenCentral() // needed for nexus-workflow plugin and license-gradle-plugin
     }
     dependencies {
         // The nexus plugin makes uploading to Sonatype Nexus repository easier.
         // See https://github.com/bmuschko/gradle-nexus-plugin for documentation
-        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.6.1'
+        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7'
         // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
         // by providing the task 'nexusStagingRelease'.
         // See https://github.com/adaptivecomputing/plugins-gradle/tree/master/nexus-workflow
         // and http://stackoverflow.com/questions/20432907/automated-release-to-maven-central-with-gradle
         classpath 'com.adaptc.gradle:nexus-workflow:0.5'
+        // the license plugin, see https://github.com/hierynomus/license-gradle-plugin
+        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.7.0'
     }
 }
 
@@ -67,16 +69,18 @@ configure(subprojects.findAll {
         }
     }
 
-    /*
-    apply plugin: 'checkstyle'
-    checkstyle {
-        configFile file("$rootDir/common/checkstyle.xml")
-        configProperties = [ "rootDir": "$rootDir" ]
+    apply plugin: 'license'
+    license {
+        // verify that every java file has our Apache License header; fail build if header is missing
+        header file("$rootDir/common/apache-license-file.txt")
+        skipExistingHeaders false
         ignoreFailures false
     }
-    checkstyleMain.source = [ 'src/main/java' ] // only check main source files, not generated content
-    assemble.dependsOn checkstyleMain, checkstyleTest
-    */
+    tasks.withType(nl.javadude.gradle.plugins.license.License).each { licenseTask ->
+        // only check java files, not sql or html; omit files generated from wsdl
+        licenseTask.include '**/*.java'
+        licenseTask.exclude { FileTreeElement f -> f.file.path.contains('/src/main/generated/') }
+    }
 
     apply plugin: 'eclipse'
     eclipse {
@@ -165,25 +169,6 @@ configure(subprojects.findAll {
             // always fetch the GPG key before signing archives
             tasks.signArchives.dependsOn fetchSecretKeyRingFile
         }
-
-        // WORKAROUND: sign poms before performing "uploadArchives".
-        // This workaround (the whole "afterEvaluate" block) can be removed when gradle-nexus-plugin issue #19
-        // is resolved, see https://github.com/bmuschko/gradle-nexus-plugin/issues/19
-        afterEvaluate {
-            signing {
-                project.gradle.taskGraph.whenReady {
-                    def uploadTasks = project.tasks.withType(Upload).matching { it.path.endsWith(":uploadArchives") }
-                    uploadTasks.each { task ->
-                        task.repositories.mavenDeployer() {
-                            beforeDeployment { MavenDeployment deployment ->
-                                project.signing.signPom(deployment)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // END WORKAROUND
 
         modifyPom {
             project {
