@@ -68,6 +68,37 @@ public class MonitoringDataStorageTest {
         Assert.assertEquals("6", ((MonitoringDataDummy) read.get(5)).value);
     }
 
+    @Test
+    public void testSimpleCasePermanentDir() throws IOException {
+        String dirPath = testFolder.getRoot().getAbsolutePath() + "/permanent-storage-dir";
+
+        MonitoringDataStorage storage1 = new MonitoringDataStorage(dirPath, 32, 3);
+        
+        File f1 = new File(dirPath, "data.1");
+        writeFile(f1, new MonitoringDataDummy(new Date(1), "1"), new MonitoringDataDummy(new Date(2), "2"));
+                
+        storage1.read(new Date(0), new Date());
+        ArrayList<MonitoringData> read1 = new ArrayList<MonitoringData>();
+        for (MonitoringData in : storage1.read(new Date(1), new Date(6))) {
+            read1.add(in);
+        }
+        Assert.assertEquals(0, read1.size());
+                
+        File f2 = new File(dirPath, "data.2");
+        writeFile(f2, new MonitoringDataDummy(new Date(3), "3"), new MonitoringDataDummy(new Date(4), "4"));
+        File f3 = new File(dirPath, "data.3");
+        writeFile(f3, new MonitoringDataDummy(new Date(5), "5"), new MonitoringDataDummy(new Date(6), "6"));
+
+        MonitoringDataStorage storage2 = new MonitoringDataStorage(dirPath, 32, 3);        
+        ArrayList<MonitoringData> read2 = new ArrayList<MonitoringData>();
+        for (MonitoringData in : storage2.read(new Date(1), new Date(6))) {
+            read2.add(in);
+        }
+        Assert.assertEquals(6, read2.size());
+        Assert.assertEquals("1", ((MonitoringDataDummy) read2.get(0)).value);
+        Assert.assertEquals("6", ((MonitoringDataDummy) read2.get(5)).value);
+    }
+
     static class HugeData implements MonitoringData {
 
         byte[] b;
