@@ -223,6 +223,7 @@ configure(rootProject) {
         exclude '**/classes/'
         exclude '**/generated/'
         exclude '.gradle/'
+        exclude 'tmp/'
         exclude '.idea'
         exclude '**/*.iml'
         exclude '**/*.log'
