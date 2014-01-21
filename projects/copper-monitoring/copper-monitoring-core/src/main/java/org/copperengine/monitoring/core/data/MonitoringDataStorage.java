@@ -216,7 +216,9 @@ public class MonitoringDataStorage {
 
     private static File createFolder(String dirPath) throws IOException {        
         File dir = new File(dirPath);
-        dir.delete();
+        if(dir.isFile()) {
+            dir.delete();
+        }
         dir.mkdirs();
         if(!dir.exists() || !dir.isDirectory()) {
             throw new IOException("Cannot create directory " + dirPath);
