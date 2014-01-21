@@ -32,6 +32,7 @@ import org.copperengine.management.WorkflowRepositoryMXBean;
  * want to export. You don't have to set all MXBeans, just the ones you are interested in.
  *
  * @author dmoebius
+ * @since 3.1
  */
 public class SimpleJmxExporter extends AbstractJmxExporter {
 

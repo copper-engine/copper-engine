@@ -39,6 +39,12 @@ import org.copperengine.management.WorkflowRepositoryMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Abstract base class for JMX bean exporters.
+ *
+ * @author dmoebius
+ * @since 3.1
+ */
 public abstract class AbstractJmxExporter {
 
     private static final Logger logger = LoggerFactory.getLogger("org.copperengine.common.JmxExporter");
