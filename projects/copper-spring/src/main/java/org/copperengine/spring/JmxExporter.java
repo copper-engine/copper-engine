@@ -15,19 +15,9 @@
  */
 package org.copperengine.spring;
 
-import java.lang.management.ManagementFactory;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
-
+import org.copperengine.core.common.AbstractJmxExporter;
 import org.copperengine.management.AuditTrailMXBean;
 import org.copperengine.management.AuditTrailQueryMXBean;
 import org.copperengine.management.BatcherMXBean;
@@ -36,56 +26,63 @@ import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.ProcessorPoolMXBean;
 import org.copperengine.management.StatisticsCollectorMXBean;
 import org.copperengine.management.WorkflowRepositoryMXBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 /**
- * Exports all COPPER MXBeans to the JMX MBeanServer.
+ * Automatically exports <em>all</em> COPPER MXBeans, which are available in the Spring Application Context, to the JMX
+ * MBeanServer.
  *
  * @author austermann
  */
-public class JmxExporter implements ApplicationContextAware {
-
-    private static final Logger logger = LoggerFactory.getLogger(JmxExporter.class);
+public class JmxExporter extends AbstractJmxExporter implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
-    private Set<ObjectName> objectNames = new HashSet<ObjectName>();
-    private MBeanServer mBeanServer;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 
-    public void startup() throws MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
-        mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        register(mBeanServer, applicationContext.getBeansOfType(WorkflowRepositoryMXBean.class), "copper.workflowrepo");
-        register(mBeanServer, applicationContext.getBeansOfType(ProcessingEngineMXBean.class), "copper.engine");
-        register(mBeanServer, applicationContext.getBeansOfType(ProcessorPoolMXBean.class), "copper.processorpool");
-        register(mBeanServer, applicationContext.getBeansOfType(StatisticsCollectorMXBean.class), "copper.monitoring.statistics");
-        register(mBeanServer, applicationContext.getBeansOfType(AuditTrailMXBean.class), "copper.db");
-        register(mBeanServer, applicationContext.getBeansOfType(BatcherMXBean.class), "copper.db");
-        register(mBeanServer, applicationContext.getBeansOfType(DatabaseDialectMXBean.class), "copper.db");
-        register(mBeanServer, applicationContext.getBeansOfType(AuditTrailQueryMXBean.class), "copper.audittrail");
+    @Override
+    protected Map<String, WorkflowRepositoryMXBean> getWorkflowRepositoryMXBeans() {
+        return applicationContext.getBeansOfType(WorkflowRepositoryMXBean.class);
     }
 
-    private void register(MBeanServer mBeanServer, Map<?, ?> map, String domain) throws MalformedObjectNameException, InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
-        for (Map.Entry<?, ?> entry : map.entrySet()) {
-            ObjectName name = new ObjectName(domain, "name", entry.getKey().toString());
-            mBeanServer.registerMBean(entry.getValue(), name);
-            objectNames.add(name);
-            logger.info("registered at JMX: " + name.toString());
-        }
+    @Override
+    protected Map<String, ProcessingEngineMXBean> getProcessingEngineMXBeans() {
+        return applicationContext.getBeansOfType(ProcessingEngineMXBean.class);
     }
 
-    public void shutdown() throws MBeanRegistrationException, InstanceNotFoundException {
-        for (ObjectName name : objectNames) {
-            mBeanServer.unregisterMBean(name);
-            logger.info("unregistered " + name);
-        }
+    @Override
+    protected Map<String, ProcessorPoolMXBean> getProcessorPoolMXBeans() {
+        return applicationContext.getBeansOfType(ProcessorPoolMXBean.class);
+    }
+
+    @Override
+    protected Map<String, StatisticsCollectorMXBean> getStatisticsCollectorMXBeans() {
+        return applicationContext.getBeansOfType(StatisticsCollectorMXBean.class);
+    }
+
+    @Override
+    protected Map<String, AuditTrailMXBean> getAuditTrailMXBeans() {
+        return applicationContext.getBeansOfType(AuditTrailMXBean.class);
+    }
+
+    @Override
+    protected Map<String, BatcherMXBean> getBatcherMXBeans() {
+        return applicationContext.getBeansOfType(BatcherMXBean.class);
+    }
+
+    @Override
+    protected Map<String, DatabaseDialectMXBean> getDatabaseDialectMXBeans() {
+        return applicationContext.getBeansOfType(DatabaseDialectMXBean.class);
+    }
+
+    @Override
+    protected Map<String, AuditTrailQueryMXBean> getAuditTrailQueryMXBeans() {
+        return applicationContext.getBeansOfType(AuditTrailQueryMXBean.class);
     }
 
 }
