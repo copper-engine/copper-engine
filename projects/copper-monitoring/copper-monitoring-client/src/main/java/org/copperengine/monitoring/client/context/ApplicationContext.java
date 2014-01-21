@@ -76,7 +76,6 @@ public class ApplicationContext {
     public ApplicationContext() {
         mainStackPane = new StackPane();
         mainPane = new BorderPane();
-        mainPane.setId("background");// important for css
         mainStackPane.getChildren().add(mainPane);
         messageProvider = new MessageProvider(ResourceBundle.getBundle("org.copperengine.gui.message"));
 

@@ -20,8 +20,7 @@ import java.util.List;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TabPane;
@@ -29,9 +28,8 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.context.FormBuilder.EngineFormBuilder;
 import org.copperengine.monitoring.client.form.BorderPaneShowFormStrategie;
@@ -303,7 +301,24 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         mainPane.setCenter(mainTabPane);
         // mainPane.setTop(createToolbar());
 
-        mainPane.setTop(createMenueBar());
+        VBox topPane = new VBox();
+        topPane.getChildren().add(createMenueBar());
+        final ToolBar toolBar = new ToolBar();
+
+        final Button back = new Button();
+        back.setGraphic(new Region());
+        back.setPrefSize(30,30);
+        back.getStyleClass().add("back-button");
+        toolBar.getItems().add(back);
+
+        final Button forward = new Button();
+        forward.setGraphic(new Region());
+        back.setPrefSize(30,30);
+        forward.getStyleClass().add("forward-button");
+        toolBar.getItems().add(forward);
+
+        topPane.getChildren().add(toolBar);
+        mainPane.setTop(topPane);
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -321,26 +336,6 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         final MenuBar menuBar = new MenuBar();
         formGroup.createMenuBar(menuBar);
         return menuBar;
-    }
-
-    public ToolBar createToolbar() {
-        ToolBar toolBar = new ToolBar();
-        Region spacer = new Region();
-        spacer.getStyleClass().setAll("spacer");
-
-        HBox buttonBar = new HBox();
-        buttonBar.setAlignment(Pos.CENTER);
-        HBox.setHgrow(buttonBar, Priority.ALWAYS);
-        buttonBar.getStyleClass().setAll("segmented-button-bar");
-
-        List<Node> buttons = formGroup.createButtonList();
-        buttons.get(0).getStyleClass().addAll("first");
-        buttons.get(buttons.size() - 1).getStyleClass().addAll("last", "capsule");
-
-        buttonBar.getChildren().addAll(buttons);
-        toolBar.getItems().addAll(/* spacer, */buttonBar);
-        toolBar.setCache(true);
-        return toolBar;
     }
 
     public WorkflowClassesTreeForm createWorkflowClassesTreeForm(WorkflowSummaryFilterController filterController) {

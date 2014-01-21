@@ -83,7 +83,7 @@ public class MonitorMain extends Application {
         // }
         // }
         // }.start();
-//        ScenicView.show(scene);
+        // ScenicView.show(scene);
     }
 
     public static void main(final String[] arguments) {

@@ -234,11 +234,17 @@ public class MonitoringDataStorage {
     }
 
     public MonitoringDataStorage(File targetPath, String filenamePrefix, long maxSize, TimeUnit maxAgeUnit, long duration) {
+        this(targetPath,filenamePrefix,maxSize,maxAgeUnit,duration,true);
+    }
+
+    public MonitoringDataStorage(File targetPath, String filenamePrefix, long maxSize, TimeUnit maxAgeUnit, long duration, boolean reloadExistingData) {
         this.targetPath = targetPath;
         this.filenamePrefix = filenamePrefix;
         this.maxTotalSize = maxSize;
         this.discardDataBeforeDateMillis = maxAgeUnit.toMillis(duration);
-        loadFiles();
+        if (reloadExistingData){
+            loadFiles();
+        }
         ensureCurrentFile(0);
     }
 

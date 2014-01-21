@@ -40,3 +40,14 @@
     -fx-base: #F9AA2A;
     -fx-background-radius: 0 3 3 0;
 }
+
+.back-button Region{
+    -fx-shape: "M0,7L11,0L11,14Z";
+    -fx-background-color: #666666;
+    -fx-scale-shape: false;
+}
+.forward-button Region{
+    -fx-shape: "M0,0L11,7L0,14Z";
+    -fx-background-color: #666666;
+    -fx-scale-shape: false;
+}

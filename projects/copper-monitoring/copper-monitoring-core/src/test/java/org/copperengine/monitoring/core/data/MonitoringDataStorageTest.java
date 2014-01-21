@@ -288,6 +288,32 @@ public class MonitoringDataStorageTest {
 
     }
 
+    @Test
+    public void test_disabled_FileReuse() throws Exception {
+        File tmpDir = testFolder.newFolder();
+        long d = System.currentTimeMillis();
+        for (int i = 0; i < 127; ++i) {
+            MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
+            storage.write(new MonitoringDataDummy(new Date(d++), getDummyString((byte) i)));
+            storage.close();
+            Thread.yield();
+        }
+        File[] files = tmpDir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.getName().startsWith(filename);
+            }
+        });
+        Assert.assertEquals(1, files.length);
+        MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename,Long.MAX_VALUE, TimeUnit.DAYS, 366L * 100L,false);
+        int i = 0;
+        for (MonitoringData in : storage.read(null, null)) {
+            Assert.assertEquals(i++, ((MonitoringDataDummy) in).value.length());
+        }
+        Assert.assertEquals(0, i);
+        storage.close();
+    }
+
     private void writeFile(File f, MonitoringData... values) throws IOException {
         RandomAccessFile ranAccess = new RandomAccessFile(f, "rw");
         MappedByteBuffer b = ranAccess.getChannel().map(MapMode.READ_WRITE, 0, 1024);
