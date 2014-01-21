@@ -82,7 +82,13 @@ public class MonitoringDataAccessor implements MonitoringDataQuerys {
         return result;
     }
 
+    @Deprecated
+    /* will be removed in 4.0 */
     public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
-        return monitoringDataStorage.getMonitroingDataStorageInfo();
+        return getMonitoringDataStorageInfo();
+    }
+
+    public MonitoringDataStorageInfo getMonitoringDataStorageInfo() {
+        return monitoringDataStorage.getMonitoringDataStorageInfo();
     }
 }

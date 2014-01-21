@@ -489,7 +489,7 @@ public class GuiCopperDataProvider {
 
     public MonitoringDataStorageInfo getMonitoringStorageInfo() {
         try {
-            return copperMonitoringService.getMonitroingDataStorageInfo();
+            return copperMonitoringService.getMonitoringDataStorageInfo();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }

@@ -106,7 +106,10 @@ public interface CopperMonitoringService extends Remote, Serializable, Monitorin
     public void startMonitoringDataProvider(String name) throws RemoteException;
 
     public void stopMonitoringDataProvider(String name) throws RemoteException;
-
+    
+    @Deprecated
+    /* will be removed in 4.0 */
     public MonitoringDataStorageInfo getMonitroingDataStorageInfo() throws RemoteException;
 
+    public MonitoringDataStorageInfo getMonitoringDataStorageInfo() throws RemoteException;
 }
