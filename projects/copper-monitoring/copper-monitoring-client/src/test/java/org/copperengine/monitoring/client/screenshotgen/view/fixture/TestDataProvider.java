@@ -1244,4 +1244,10 @@ public class TestDataProvider implements CopperMonitoringService {
         return null;
     }
 
+    @Override
+    public MonitoringDataStorageInfo getMonitoringDataStorageInfo() throws RemoteException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
