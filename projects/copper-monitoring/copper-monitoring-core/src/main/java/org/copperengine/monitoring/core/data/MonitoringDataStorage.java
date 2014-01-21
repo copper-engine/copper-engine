@@ -141,7 +141,7 @@ public class MonitoringDataStorage {
                     output.close();
                 } catch (BufferOverflowException be) {
                     /*
-                     * we can silently ignore this because we alway flush() the output and this is a remainder of the
+                     * we can silently ignore this because we always flush() the output and this is a remainder of the
                      * exception when a file is fully written
                      */
                 }
@@ -210,8 +210,20 @@ public class MonitoringDataStorage {
         return temp;
     }
 
-    public MonitoringDataStorage(String tempDirPrefix, long maxTotalSize, long daysToKeep) throws IOException {
-        this(createTempFolder(tempDirPrefix), "data", maxTotalSize, TimeUnit.DAYS, daysToKeep);
+    public MonitoringDataStorage(String targetDir, long maxTotalSize, long daysToKeep) throws IOException {
+        this(createFolder(targetDir), "data", maxTotalSize, TimeUnit.DAYS, daysToKeep);
+    }
+
+    private static File createFolder(String dirPath) throws IOException {        
+        File dir = new File(dirPath);
+        if(dir.isFile()) {
+            dir.delete();
+        }
+        dir.mkdirs();
+        if(!dir.exists() || !dir.isDirectory()) {
+            throw new IOException("Cannot create directory " + dirPath);
+        }
+        return dir;
     }
 
     public MonitoringDataStorage(File targetPath, String filenamePrefix) {
@@ -222,11 +234,17 @@ public class MonitoringDataStorage {
     }
 
     public MonitoringDataStorage(File targetPath, String filenamePrefix, long maxSize, TimeUnit maxAgeUnit, long duration) {
+        this(targetPath,filenamePrefix,maxSize,maxAgeUnit,duration,true);
+    }
+
+    public MonitoringDataStorage(File targetPath, String filenamePrefix, long maxSize, TimeUnit maxAgeUnit, long duration, boolean reloadExistingData) {
         this.targetPath = targetPath;
         this.filenamePrefix = filenamePrefix;
         this.maxTotalSize = maxSize;
         this.discardDataBeforeDateMillis = maxAgeUnit.toMillis(duration);
-        loadFiles();
+        if (reloadExistingData){
+            loadFiles();
+        }
         ensureCurrentFile(0);
     }
 

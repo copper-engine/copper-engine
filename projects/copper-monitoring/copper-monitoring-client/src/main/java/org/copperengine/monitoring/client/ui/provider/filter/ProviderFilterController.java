@@ -30,7 +30,7 @@ import org.copperengine.monitoring.client.form.filter.defaultfilter.DefaultFilte
 
 public class ProviderFilterController extends BaseFilterController<ProviderFilterModel> implements Initializable, FxmlController {
 
-    private ProviderFilterModel model = new ProviderFilterModel();
+    private final ProviderFilterModel model = new ProviderFilterModel();
 
     public ProviderFilterController() {
         super();
@@ -65,7 +65,7 @@ public class ProviderFilterController extends BaseFilterController<ProviderFilte
 
     @Override
     public long getDefaultRefreshInterval() {
-        return FilterController.DEFAULT_REFRESH_INTERVALL;
+        return FilterController.DEFAULT_REFRESH_INTERVAL;
     }
 
     @Override

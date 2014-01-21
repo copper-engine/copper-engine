@@ -59,7 +59,7 @@ import org.copperengine.monitoring.client.util.MessageProvider;
  */
 public abstract class FilterResultControllerBase<F, R> implements FilterResultController<F, R>, FxmlController {
 
-    List<TableView<?>> tableViews = new ArrayList<TableView<?>>();
+    final List<TableView<?>> tableViews = new ArrayList<TableView<?>>();
 
     public <M> HBox createTabelControlls(final TableView<M> tableView) {
         this.tableViews.add(tableView);

@@ -29,7 +29,7 @@ import org.copperengine.monitoring.server.util.DerbyCleanDbUtil;
 public class DerbyMonitoringDbDialectTest extends MonitoringDbDialectTestBase {
 
     @Override
-    void intit() {
+    void init() {
         EmbeddedConnectionPoolDataSource40 datasource = new EmbeddedConnectionPoolDataSource40();
         datasource.setDatabaseName("./build/copperExampleDB;create=true");
         this.datasource = datasource;

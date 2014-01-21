@@ -34,8 +34,8 @@ public class WorkflowRepositoryFilterController extends BaseEngineFilterControll
     }
 
     public class EmptySelectionWorkaround {
-        public WorkflowInstanceState value;
-        public String text;
+        public final WorkflowInstanceState value;
+        public final String text;
 
         public EmptySelectionWorkaround(WorkflowInstanceState value, String text) {
             super();
@@ -63,7 +63,7 @@ public class WorkflowRepositoryFilterController extends BaseEngineFilterControll
 
     @Override
     public long getDefaultRefreshInterval() {
-        return FilterController.DEFAULT_REFRESH_INTERVALL;
+        return FilterController.DEFAULT_REFRESH_INTERVAL;
     }
 
     @Override

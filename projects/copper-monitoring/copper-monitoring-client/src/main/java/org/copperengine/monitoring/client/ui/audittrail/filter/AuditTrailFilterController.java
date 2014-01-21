@@ -30,7 +30,7 @@ import org.copperengine.monitoring.client.form.filter.defaultfilter.DefaultFilte
 
 public class AuditTrailFilterController extends BaseFilterController<AuditTrailFilterModel> implements Initializable, FxmlController {
 
-    private AuditTrailFilterModel model = new AuditTrailFilterModel();
+    private final AuditTrailFilterModel model = new AuditTrailFilterModel();
 
     public AuditTrailFilterController() {
         super();
@@ -83,7 +83,7 @@ public class AuditTrailFilterController extends BaseFilterController<AuditTrailF
 
     @Override
     public long getDefaultRefreshInterval() {
-        return FilterController.DEFAULT_REFRESH_INTERVALL;
+        return FilterController.DEFAULT_REFRESH_INTERVAL;
     }
 
     @Override

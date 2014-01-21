@@ -115,19 +115,16 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
 
     private void showDataStorage(DashboardResultModel dashboardResultModel) {
         MonitoringDataStorageInfo storageInfo = dashboardResultModel.monitoringDataStorageInfo;
-        boolean storageChanged = true;
-        if (storageChanged) {
-            DecimalFormat format = new DecimalFormat("#0.000");
-            double deltatInS = (storageInfo.getMax().getTime() - storageInfo.getMin().getTime()) / 1000;
+        DecimalFormat format = new DecimalFormat("#0.000");
+        double deltatInS = (storageInfo.getMax().getTime() - storageInfo.getMin().getTime()) / 1000;
 
-            size.setText(format.format(storageInfo.getSizeInMb()) + " mb (" + format.format(storageInfo.getSizeInMb() / deltatInS * 1000) + " kb/s)");
-            location.setText(storageInfo.getPath());
-            storageContentTable.getItems().clear();
-            storageContentTable.getItems().addAll(storageInfo.getMonitoringDataStorageContentInfo());
+        size.setText(format.format(storageInfo.getSizeInMb()) + " mb (" + format.format(storageInfo.getSizeInMb() / deltatInS * 1000) + " kb/s)");
+        location.setText(storageInfo.getPath());
+        storageContentTable.getItems().clear();
+        storageContentTable.getItems().addAll(storageInfo.getMonitoringDataStorageContentInfo());
 
-            typeCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo, String>("type"));
-            countCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo, Long>("count"));
-        }
+        typeCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo, String>("type"));
+        countCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo, Long>("count"));
     }
 
     private final Map<String, ProcessingEngineController> engineControllers = new TreeMap<String, ProcessingEngineController>();

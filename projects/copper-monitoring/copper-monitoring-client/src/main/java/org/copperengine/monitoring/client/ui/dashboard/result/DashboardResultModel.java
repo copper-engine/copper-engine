@@ -28,9 +28,9 @@ import org.copperengine.monitoring.core.model.WorkflowStateSummary;
 public class DashboardResultModel {
 
     public final List<ProcessingEngineInfo> engines = new ArrayList<ProcessingEngineInfo>();
-    private Map<String, WorkflowStateSummary> engineIdToStateSummery = new HashMap<String, WorkflowStateSummary>();
+    private final Map<String, WorkflowStateSummary> engineIdToStateSummery = new HashMap<String, WorkflowStateSummary>();
     public List<MonitoringDataProviderInfo> providers = new ArrayList<MonitoringDataProviderInfo>();
-    public MonitoringDataStorageInfo monitoringDataStorageInfo;
+    public final MonitoringDataStorageInfo monitoringDataStorageInfo;
 
     public DashboardResultModel(Map<String, WorkflowStateSummary> engineIdToStateSummery,
             List<ProcessingEngineInfo> processingEngineInfo,

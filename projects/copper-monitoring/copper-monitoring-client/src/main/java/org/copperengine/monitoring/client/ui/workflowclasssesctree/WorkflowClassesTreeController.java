@@ -79,7 +79,7 @@ public class WorkflowClassesTreeController {
             public void handle(ActionEvent event) {
                 final Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
-                content.putString(treeView.getSelectionModel().getSelectedItem().getValue().displayname);
+                content.putString(treeView.getSelectionModel().getSelectedItem().getValue().displayName);
                 clipboard.setContent(content);
             }
         });
@@ -96,23 +96,23 @@ public class WorkflowClassesTreeController {
     }
 
     public static class DisplayWorkflowClassesModel implements Comparable<DisplayWorkflowClassesModel> {
-        public WorkflowVersion value;
-        public String displayname;
+        public final WorkflowVersion value;
+        public final String displayName;
 
-        public DisplayWorkflowClassesModel(WorkflowVersion value, String displayname) {
+        public DisplayWorkflowClassesModel(WorkflowVersion value, String displayName) {
             super();
             this.value = value;
-            this.displayname = displayname;
+            this.displayName = displayName;
         }
 
         @Override
         public int compareTo(DisplayWorkflowClassesModel model) {
-            return displayname.compareTo(model.displayname);
+            return displayName.compareTo(model.displayName);
         }
 
         @Override
         public String toString() {
-            return displayname;
+            return displayName;
         }
     }
 
@@ -229,7 +229,7 @@ public class WorkflowClassesTreeController {
 
                     @Override
                     public String toString(DisplayWorkflowClassesModel object) {
-                        return object.displayname;
+                        return object.displayName;
                     }
                 });
             }
@@ -238,6 +238,6 @@ public class WorkflowClassesTreeController {
         rootItem.setExpanded(true);
     }
 
-    public SimpleObjectProperty<WorkflowVersion> selectedItem = new SimpleObjectProperty<WorkflowVersion>();
+    public final SimpleObjectProperty<WorkflowVersion> selectedItem = new SimpleObjectProperty<WorkflowVersion>();
 
 }

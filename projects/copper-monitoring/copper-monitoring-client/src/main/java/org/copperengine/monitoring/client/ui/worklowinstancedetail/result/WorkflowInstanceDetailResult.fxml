@@ -11,39 +11,34 @@
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="360.0" prefWidth="529.0" xmlns:fx="http://javafx.com/fxml">
   <bottom>
-    <HBox prefHeight="-1.0" prefWidth="529.0" spacing="3.0">
-      <children>
-        <Button fx:id="restart" mnemonicParsing="false" text="restart instance" />
-      </children>
-      <BorderPane.margin>
-        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-      </BorderPane.margin>
-    </HBox>
+      <HBox prefHeight="-1.0" prefWidth="529.0" spacing="3.0">
+          <BorderPane.margin>
+              <Insets bottom="3.0" left="3.0" right="3.0" top="3.0"/>
+          </BorderPane.margin>
+          <Button fx:id="restart" mnemonicParsing="false" text="restart instance"/>
+      </HBox>
   </bottom>
   <center>
-    <SplitPane dividerPositions="0.4634146341463415" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
-      <items>
-        <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="200.0" />
-        <WebView fx:id="sourceView" prefHeight="70.0" prefWidth="117.0" visible="true" />
-      </items>
-      <BorderPane.margin>
-        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-      </BorderPane.margin>
-    </SplitPane>
+      <SplitPane dividerPositions="0.4634146341463415" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0"
+                 prefWidth="160.0">
+          <BorderPane.margin>
+              <Insets bottom="3.0" left="3.0" right="3.0" top="3.0"/>
+          </BorderPane.margin>
+          <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="200.0"/>
+          <WebView fx:id="sourceView" prefHeight="70.0" prefWidth="117.0" visible="true"/>
+      </SplitPane>
   </center>
   <top>
-    <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0">
-      <children>
-        <Label text="Workflowid" />
-        <TextField fx:id="titleText" editable="false" prefWidth="-1.0" HBox.hgrow="ALWAYS">
-          <HBox.margin>
-            <Insets />
-          </HBox.margin>
-        </TextField>
-      </children>
-      <padding>
-        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-      </padding>
-    </HBox>
+      <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0">
+          <padding>
+              <Insets bottom="3.0" left="3.0" right="3.0" top="3.0"/>
+          </padding>
+          <Label text="Workflowid"/>
+          <TextField fx:id="titleText" editable="false" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+              <HBox.margin>
+                  <Insets/>
+              </HBox.margin>
+          </TextField>
+      </HBox>
   </top>
 </BorderPane>

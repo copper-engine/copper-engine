@@ -34,7 +34,7 @@ import org.copperengine.monitoring.client.util.WorkflowVersion;
 
 public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController> {
 
-    private WorkflowSummaryFilterController filterController;
+    private final WorkflowSummaryFilterController filterController;
     private final TreeView<DisplayWorkflowClassesModel> workflowView;
     private final GuiCopperDataProvider copperDataProvider;
 

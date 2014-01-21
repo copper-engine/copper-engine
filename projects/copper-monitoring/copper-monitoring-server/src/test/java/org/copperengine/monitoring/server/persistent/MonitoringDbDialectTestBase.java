@@ -53,11 +53,11 @@ public abstract class MonitoringDbDialectTestBase {
     protected DatabaseMonitoringDialect monitoringDbDialect;
     protected DatabaseDialect databaseDialect;
 
-    abstract void intit();
+    abstract void init();
 
     @Before
     public void setUp() {
-        intit();
+        init();
     }
 
     @Test

@@ -18,7 +18,7 @@ package org.copperengine.monitoring.client.util;
 import java.util.ResourceBundle;
 
 public class MessageProvider {
-    private ResourceBundle bundle;
+    private final ResourceBundle bundle;
 
     public MessageProvider(ResourceBundle bundle) {
         super();

@@ -24,7 +24,7 @@ import javafx.beans.property.SimpleStringProperty;
 public abstract class Form<C> implements Widget {
 
     private final SimpleStringProperty displayTitle;
-    protected SimpleStringProperty staticTitle;
+    protected final SimpleStringProperty staticTitle;
     private final ShowFormStrategy<?> showFormStrategy;
     protected final C controller;
 

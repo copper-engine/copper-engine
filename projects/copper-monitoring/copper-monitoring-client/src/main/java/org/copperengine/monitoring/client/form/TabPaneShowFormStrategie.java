@@ -24,7 +24,7 @@ import javafx.scene.layout.Region;
 
 public class TabPaneShowFormStrategie extends ShowFormStrategy<TabPane> {
     boolean transparentHeader = false;
-    private Tab tab;
+    private final Tab tab;
     private boolean forceTabSizeTocontentesize;
 
     public TabPaneShowFormStrategie(TabPane component) {

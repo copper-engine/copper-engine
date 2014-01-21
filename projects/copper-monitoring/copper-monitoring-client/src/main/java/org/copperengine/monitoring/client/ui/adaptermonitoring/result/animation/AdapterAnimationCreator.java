@@ -53,9 +53,9 @@ import org.copperengine.monitoring.client.ui.adaptermonitoring.result.AdapterNot
 
 public class AdapterAnimationCreator {
 
-    public long FADEDURATION = 300;
-    public long MOVEDURATION = 1100;
-    public long DEFAULT_TOTAL_ANNIMATION_TIME = FADEDURATION + MOVEDURATION + FADEDURATION;
+    public final long FADEDURATION = 300;
+    public final long MOVEDURATION = 1100;
+    public final long DEFAULT_TOTAL_ANNIMATION_TIME = FADEDURATION + MOVEDURATION + FADEDURATION;
 
     private long min;
 
@@ -67,8 +67,8 @@ public class AdapterAnimationCreator {
         this.min = min;
     }
 
-    Pane animationPane;
-    Timeline timeline;
+    final Pane animationPane;
+    final Timeline timeline;
     private ArrayList<AnimationPartBase> animations;
 
     public AdapterAnimationCreator(Pane animationPane, Timeline timeline) {
@@ -190,8 +190,8 @@ public class AdapterAnimationCreator {
     }
 
     private class TimeValuePair<T> {
-        long time;
-        T value;
+        final long time;
+        final T value;
 
         public TimeValuePair(T value, long time) {
             super();
@@ -236,7 +236,7 @@ public class AdapterAnimationCreator {
             @Override
             public int compare(TimeValuePair<String> o1, TimeValuePair<String> o2) {
                 // TODO replace when switch to java 1.7 with: Long.compare(o1.time, o2.time);
-                return Long.valueOf(o1.time).compareTo(Long.valueOf(o2.time));
+                return Long.valueOf(o1.time).compareTo(o2.time);
             }
         });
         for (TimeValuePair<String> timeAdapterPair : timeAdapterPairs) {

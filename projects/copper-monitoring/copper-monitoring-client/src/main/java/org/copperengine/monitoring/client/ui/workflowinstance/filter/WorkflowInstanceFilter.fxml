@@ -10,30 +10,6 @@
 <?import javafx.scene.paint.*?>
 
 <GridPane hgap="3.0" vgap="3.0" xmlns:fx="http://javafx.com/fxml">
-  <children>
-    <Label text="state" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-    <ChoiceBox fx:id="stateChoice" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-      <items>
-        <FXCollections fx:factory="observableArrayList" />
-      </items>
-    </ChoiceBox>
-    <Label text="priority" GridPane.columnIndex="0" GridPane.rowIndex="1">
-      <labelFor>
-        <TextField fx:id="priorityField" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      </labelFor>
-    </Label>
-    <Label text="workflowclass" GridPane.columnIndex="0" GridPane.rowIndex="2">
-      <labelFor>
-        <TextField fx:id="workflowClass" maxWidth="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-      </labelFor>
-    </Label>
-    <Label text="from" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-    <fx:reference source="priorityField" />
-    <fx:reference source="workflowClass" />
-    <BorderPane fx:id="from" maxHeight="-1.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-    <Label text="to" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-    <BorderPane fx:id="to" maxHeight="-1.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-  </children>
   <columnConstraints>
     <ColumnConstraints hgrow="NEVER" minWidth="-1.0" prefWidth="-1.0" />
     <ColumnConstraints hgrow="SOMETIMES" minWidth="-1.0" prefWidth="-1.0" />
@@ -49,4 +25,24 @@
     <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
     <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
   </rowConstraints>
+  <Label text="state" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+    <ChoiceBox fx:id="stateChoice" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+        <FXCollections fx:factory="observableArrayList"/>
+    </ChoiceBox>
+  <Label text="priority" GridPane.columnIndex="0" GridPane.rowIndex="1">
+    <labelFor>
+      <TextField fx:id="priorityField" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+    </labelFor>
+  </Label>
+  <Label text="workflowclass" GridPane.columnIndex="0" GridPane.rowIndex="2">
+    <labelFor>
+      <TextField fx:id="workflowClass" maxWidth="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+    </labelFor>
+  </Label>
+  <Label text="from" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+  <fx:reference source="priorityField" />
+  <fx:reference source="workflowClass" />
+  <BorderPane fx:id="from" maxHeight="-1.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+  <Label text="to " GridPane.columnIndex="0" GridPane.rowIndex="4" />
+  <BorderPane fx:id="to" maxHeight="-1.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 </GridPane>

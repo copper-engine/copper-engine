@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class MonitorMain extends Application {
 
-    static Logger logger = LoggerFactory.getLogger(MonitorMain.class);
+    static final Logger logger = LoggerFactory.getLogger(MonitorMain.class);
 
     @Override
     public void start(final Stage primaryStage) { // Stage = window

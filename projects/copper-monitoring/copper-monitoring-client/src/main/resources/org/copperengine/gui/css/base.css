@@ -27,3 +27,27 @@
 .chart-series-line {    
     -fx-stroke-width: 2px;
 }
+
+.filter-pane {
+    -fx-border-color: -fx-box-border;
+    -fx-background-color: linear-gradient(from 0px 0px to 0px 6px, #C17F14, -fx-background);
+    -fx-padding: 0.50em 0.3125em 0.25em 0.3125em;
+    -fx-border-color: #F9AA2A;
+    -fx-border-width: 1px 0px 1px 1px;
+}
+
+.filter-resizer {
+    -fx-base: #F9AA2A;
+    -fx-background-radius: 0 3 3 0;
+}
+
+.back-button Region{
+    -fx-shape: "M0,7L11,0L11,14Z";
+    -fx-background-color: #666666;
+    -fx-scale-shape: false;
+}
+.forward-button Region{
+    -fx-shape: "M0,0L11,7L0,14Z";
+    -fx-background-color: #666666;
+    -fx-scale-shape: false;
+}

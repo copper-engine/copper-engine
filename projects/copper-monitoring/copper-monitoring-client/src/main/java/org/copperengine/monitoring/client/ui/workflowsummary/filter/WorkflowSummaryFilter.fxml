@@ -8,34 +8,32 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<StackPane fx:id="stackPane" layoutX="0.0" layoutY="0.0" minHeight="-1.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
-  <children>
+<StackPane fx:id="stackPane" layoutX="0.0" layoutY="0.0" minHeight="-1.0" prefHeight="-1.0" prefWidth="-1.0"
+           xmlns:fx="http://javafx.com/fxml">
     <GridPane gridLinesVisible="false" hgap="3.0" prefHeight="-1.0" prefWidth="-1.0" vgap="3.0">
-      <children>
-        <TextField fx:id="workflowClass" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-        <Label labelFor="$workflowClass" text="workflowclass" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-        <MenuButton fx:id="serachbutton" graphicTextGap="4.0" mnemonicParsing="false" prefWidth="37.0" text="" GridPane.columnIndex="1" GridPane.rowIndex="0">
-          <items>
-            <CustomMenuItem mnemonicParsing="false" text="Unspecified Action" fx:id="searchMenueItem" />
-          </items>
+        <columnConstraints>
+            <ColumnConstraints fillWidth="false" halignment="LEFT" hgrow="NEVER" maxWidth="-1.0" prefWidth="-1.0"/>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="-1.0" prefWidth="-1.0"/>
+        </columnConstraints>
+        <padding>
+            <Insets/>
+        </padding>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="-1.0" vgrow="NEVER"/>
+            <RowConstraints minHeight="10.0" prefHeight="-1.0" vgrow="NEVER"/>
+        </rowConstraints>
+        <TextField fx:id="workflowClass" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label labelFor="$workflowClass" text="workflowclass" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <MenuButton fx:id="serachbutton" graphicTextGap="4.0" mnemonicParsing="false" prefWidth="37.0" text=""
+                    GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <items>
+                <CustomMenuItem mnemonicParsing="false" text="Unspecified Action" fx:id="searchMenueItem"/>
+            </items>
         </MenuButton>
         <Label text="search class" GridPane.columnIndex="0" GridPane.rowIndex="0">
-          <labelFor>
-            <TextField id="workflowClass" prefWidth="-1.0" />
-          </labelFor>
+            <labelFor>
+                <TextField id="workflowClass" prefWidth="-1.0"/>
+            </labelFor>
         </Label>
-      </children>
-      <columnConstraints>
-        <ColumnConstraints fillWidth="false" halignment="LEFT" hgrow="NEVER" maxWidth="-1.0" prefWidth="-1.0" />
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-1.0" prefWidth="-1.0" />
-      </columnConstraints>
-      <padding>
-        <Insets />
-      </padding>
-      <rowConstraints>
-        <RowConstraints minHeight="10.0" prefHeight="-1.0" vgrow="NEVER" />
-        <RowConstraints minHeight="10.0" prefHeight="-1.0" vgrow="NEVER" />
-      </rowConstraints>
     </GridPane>
-  </children>
 </StackPane>

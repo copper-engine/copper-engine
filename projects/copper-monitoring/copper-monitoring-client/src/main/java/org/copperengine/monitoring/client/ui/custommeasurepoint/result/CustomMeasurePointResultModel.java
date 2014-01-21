@@ -21,12 +21,12 @@ import org.copperengine.monitoring.core.statistic.TimeValuePair;
 
 public class CustomMeasurePointResultModel {
 
-    public List<TimeValuePair<Double>> avg;
-    public List<TimeValuePair<Double>> count;
-    public List<TimeValuePair<Double>> quantil50;
-    public List<TimeValuePair<Double>> quantil90;
-    public List<TimeValuePair<Double>> quantil99;
-    public List<TimeValuePair<Double>> avgCpuCreator;
+    public final List<TimeValuePair<Double>> avg;
+    public final List<TimeValuePair<Double>> count;
+    public final List<TimeValuePair<Double>> quantil50;
+    public final List<TimeValuePair<Double>> quantil90;
+    public final List<TimeValuePair<Double>> quantil99;
+    public final List<TimeValuePair<Double>> avgCpuCreator;
 
     public CustomMeasurePointResultModel(List<TimeValuePair<Double>> avg, List<TimeValuePair<Double>> count,
             List<TimeValuePair<Double>> quantil50, List<TimeValuePair<Double>> quantil90, List<TimeValuePair<Double>> quantil99, List<TimeValuePair<Double>> avgCpuCreator) {

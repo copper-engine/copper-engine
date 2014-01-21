@@ -25,15 +25,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-
 import org.copperengine.monitoring.client.util.CSSHelper;
 import org.copperengine.monitoring.client.util.NumberOnlyTextField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DefaultInputDialogCreator implements InputDialogCreator {
 
-    Logger logger = LoggerFactory.getLogger(DefaultInputDialogCreator.class);
     private final StackPane target;
 
     public DefaultInputDialogCreator(StackPane stackPane) {
@@ -50,8 +46,6 @@ public class DefaultInputDialogCreator implements InputDialogCreator {
                 Color color = new Color(0.2f, 0.2f, 0.2f, 0.5);
                 backShadow.setStyle("-fx-background-color: " + CSSHelper.toCssColor(color) + ";");
                 target.getChildren().add(backShadow);
-
-                String blackOrWhiteDependingFromBack = "ladder(" + CSSHelper.toCssColor(color) + ", white 49%, black 50%);";
 
                 HBox back = new HBox(3);
                 back.setAlignment(Pos.CENTER_RIGHT);

@@ -33,8 +33,8 @@ import org.copperengine.monitoring.client.util.ComponentUtil;
 
 public final class DetailLoadService extends Service<Void> {
     private WorkflowInstanceResultModel workflowInstanceResultModel;
-    private StackPane stackDetailPane;
-    private FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> detailForm;
+    private final StackPane stackDetailPane;
+    private final FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> detailForm;
     private final WorkflowInstanceFilterModel usedFilter;
     private final IssueReporter issueReporter;
 
@@ -50,10 +50,6 @@ public final class DetailLoadService extends Service<Void> {
         this.detailForm = detailForm;
         this.usedFilter = usedFilter;
         this.issueReporter = issueReporter;
-    }
-
-    public WorkflowInstanceResultModel getWorkflowInstanceResultModel() {
-        return workflowInstanceResultModel;
     }
 
     public void setWorkflowInstanceResultModel(WorkflowInstanceResultModel workflowInstanceResultModel) {
@@ -89,8 +85,9 @@ public final class DetailLoadService extends Service<Void> {
             protected void succeeded() {
                 detailForm.getController().showFilteredResult(result, filter);
                 stackDetailPane.getChildren().remove(indicator);
-                if (getException() != null) {
-                    throw new RuntimeException(this.getException());
+                final Throwable exception = getException();
+                if (exception != null) {
+                    throw new RuntimeException(exception);
                 }
                 super.succeeded();
             }
@@ -98,8 +95,9 @@ public final class DetailLoadService extends Service<Void> {
             @Override
             protected void failed() {
                 stackDetailPane.getChildren().remove(indicator);
-                if (getException() != null) {
-                    throw new RuntimeException(this.getException());
+                final Throwable exception = getException();
+                if (exception != null) {
+                    throw new RuntimeException(exception);
                 }
                 super.failed();
             }

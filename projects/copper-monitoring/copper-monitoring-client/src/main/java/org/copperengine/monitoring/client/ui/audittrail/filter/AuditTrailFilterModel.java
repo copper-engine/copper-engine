@@ -20,8 +20,8 @@ import javafx.beans.property.SimpleStringProperty;
 import org.copperengine.monitoring.client.form.filter.defaultfilter.MaxCountFilterModel;
 
 public class AuditTrailFilterModel extends MaxCountFilterModel {
-    public SimpleStringProperty workflowClass = new SimpleStringProperty();
-    public SimpleStringProperty workflowInstanceId = new SimpleStringProperty();
-    public SimpleStringProperty correlationId = new SimpleStringProperty();
-    public SimpleStringProperty level = new SimpleStringProperty();
+    public final SimpleStringProperty workflowClass = new SimpleStringProperty();
+    public final SimpleStringProperty workflowInstanceId = new SimpleStringProperty();
+    public final SimpleStringProperty correlationId = new SimpleStringProperty();
+    public final SimpleStringProperty level = new SimpleStringProperty();
 }

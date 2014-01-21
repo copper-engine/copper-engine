@@ -262,7 +262,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
         textChart.setText(result.toString());
     }
 
-    public SimpleObjectProperty<TimeValuePair<Double>> selectedPoint = new SimpleObjectProperty<TimeValuePair<Double>>();
+    public final SimpleObjectProperty<TimeValuePair<Double>> selectedPoint = new SimpleObjectProperty<TimeValuePair<Double>>();
 
     class HoveredNode extends StackPane {
         public HoveredNode(final TimeValuePair<Double> value) {

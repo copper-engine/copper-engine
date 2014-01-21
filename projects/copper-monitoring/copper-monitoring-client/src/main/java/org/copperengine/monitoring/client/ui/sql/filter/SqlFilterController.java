@@ -111,7 +111,7 @@ public class SqlFilterController extends BaseFilterController<SqlFilterModel> im
 
     @Override
     public long getDefaultRefreshInterval() {
-        return FilterController.DEFAULT_REFRESH_INTERVALL;
+        return FilterController.DEFAULT_REFRESH_INTERVAL;
     }
 
     @Override

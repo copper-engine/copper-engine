@@ -27,7 +27,7 @@ import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 public class GenericEngineFilterController<T extends EnginePoolFilterModel> extends BaseEngineFilterController<T> {
 
     private final T filter;
-    private long refereshIntervall;
+    private final long refereshIntervall;
 
     public GenericEngineFilterController(T filter, long refereshIntervall, List<ProcessingEngineInfo> availableEngines) {
         super(availableEngines, filter);
@@ -36,7 +36,7 @@ public class GenericEngineFilterController<T extends EnginePoolFilterModel> exte
     }
 
     public GenericEngineFilterController(T filter, List<ProcessingEngineInfo> availableEngines) {
-        this(filter, FilterController.DEFAULT_REFRESH_INTERVALL, availableEngines);
+        this(filter, FilterController.DEFAULT_REFRESH_INTERVAL, availableEngines);
     }
 
     public GenericEngineFilterController(long refereshIntervall, List<ProcessingEngineInfo> availableEngines) {

@@ -33,8 +33,8 @@ public class SettingsModel implements Serializable {
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeObject(lastConnectedServer.get());
         out.writeInt(auditralColorMappings.size());
-        for (int i = 0; i < auditralColorMappings.size(); i++) {
-            out.writeObject(auditralColorMappings.get(i));
+        for (AuditralColorMapping auditralColorMapping : auditralColorMappings) {
+            out.writeObject(auditralColorMapping);
         }
     }
 

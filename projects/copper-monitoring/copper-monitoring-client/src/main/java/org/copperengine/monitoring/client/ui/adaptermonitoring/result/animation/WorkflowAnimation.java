@@ -27,7 +27,7 @@ public class WorkflowAnimation extends AnimationPartBase {
 
     public static final Color WORKFLOW_COLOR = Color.GOLD;
     public static final int WIDTH = EventAnimationBase.EVENT_WIDTH + 20;
-    String workflowClass;
+    final String workflowClass;
 
     public WorkflowAnimation(String workflowClass, AnimationPartParameter animationPartBaseParameter) {
         super(animationPartBaseParameter);

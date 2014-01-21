@@ -64,7 +64,7 @@ public class WorkflowInstanceDetailFilterController extends BaseEngineFilterCont
 
     @Override
     public long getDefaultRefreshInterval() {
-        return FilterController.DEFAULT_REFRESH_INTERVALL;
+        return FilterController.DEFAULT_REFRESH_INTERVAL;
     }
 
     @Override

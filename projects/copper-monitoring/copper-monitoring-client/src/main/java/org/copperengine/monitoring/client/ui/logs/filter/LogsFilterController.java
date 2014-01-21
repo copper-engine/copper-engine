@@ -28,7 +28,7 @@ import org.copperengine.monitoring.client.form.filter.defaultfilter.DefaultFilte
 
 public class LogsFilterController extends BaseFilterController<LogsFilterModel> implements Initializable, FxmlController {
 
-    private LogsFilterModel model = new LogsFilterModel();
+    private final LogsFilterModel model = new LogsFilterModel();
 
     public LogsFilterController() {
         super();
@@ -57,7 +57,7 @@ public class LogsFilterController extends BaseFilterController<LogsFilterModel> 
 
     @Override
     public long getDefaultRefreshInterval() {
-        return FilterController.DEFAULT_REFRESH_INTERVALL;
+        return FilterController.DEFAULT_REFRESH_INTERVAL;
     }
 
     @Override

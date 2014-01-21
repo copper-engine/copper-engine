@@ -47,8 +47,8 @@ public class WorkflowInstanceFilterController extends BaseEngineFilterController
     static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
     public class EmptySelectionWorkaround {
-        public WorkflowInstanceState value;
-        public String text;
+        public final WorkflowInstanceState value;
+        public final String text;
 
         public EmptySelectionWorkaround(WorkflowInstanceState value, String text) {
             super();
@@ -137,7 +137,7 @@ public class WorkflowInstanceFilterController extends BaseEngineFilterController
 
     @Override
     public long getDefaultRefreshInterval() {
-        return FilterController.DEFAULT_REFRESH_INTERVALL;
+        return FilterController.DEFAULT_REFRESH_INTERVAL;
     }
 
     @Override
