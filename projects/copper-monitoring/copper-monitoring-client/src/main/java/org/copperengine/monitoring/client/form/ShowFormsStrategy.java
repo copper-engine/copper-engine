@@ -47,18 +47,19 @@ public abstract class ShowFormsStrategy<E extends Node> {
     protected CloseListener onCloseListener;
 
     public void close(Form<?> form){
-        if (previous.size()>=HISTORY_LIMIT){
-            previous.removeFirst();
-        }
         addPrevious(form);
         closeImpl(form);
-    }
 
-    protected void addPrevious(Form<?> form) {
-        previous.offerLast(form);
         if (onCloseListener!=null){
             onCloseListener.closed(form);
         }
+    }
+
+    protected void addPrevious(Form<?> form) {
+        if (previous.size()>=HISTORY_LIMIT){
+            previous.removeFirst();
+        }
+        previous.offerLast(form);
     }
 
     /**

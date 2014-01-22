@@ -36,9 +36,9 @@ public class MonitoringDataProviderManager {
         this.provider = provider;
     }
 
-    public void addAll() {
+    public void stopAll() {
         for (MonitoringDataProvider monitoringDataProvider : provider) {
-            monitoringDataProvider.startProvider();
+            monitoringDataProvider.stopProvider();
         }
     }
 
