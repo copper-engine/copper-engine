@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.base.Stopwatch;
 import org.copperengine.monitoring.core.model.MonitoringData;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -364,15 +365,38 @@ public class MonitoringDataStorageTest {
 
     @Test
     public void test_microbenchmark() throws IOException {
+//        try {
+//            Thread.sleep(10000);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+        Stopwatch writeTime = new Stopwatch();
+        writeTime.start();
+
         File tmpDir = testFolder.newFolder();
         MonitoringDataStorage storage = new MonitoringDataStorage(tmpDir, filename);
 
         ArrayList<Long> delats = new ArrayList<Long>();
-        for (int i = 0; i < 40000; i++) {
+        for (int i = 0; i < 4000; i++) {
             long start = System.nanoTime();
-            storage.write(new MonitoringDataDummy(new Date(42), "X"));
+            storage.write(new MonitoringDataDummy(new Date(), "X"));
             delats.add(System.nanoTime() - start);
         }
+
+        System.out.println("write ms: "+writeTime.stop().elapsed(TimeUnit.MILLISECONDS));
+
+        Stopwatch readTime = new Stopwatch();
+        readTime.start();
+        long compilerDumpDown=0;
+        long compilerDumpDown2=0;
+        for (MonitoringData data: storage.read(new Date(0),new Date())){
+            compilerDumpDown++;
+            compilerDumpDown2=data.getTimeStamp().getTime();
+        }
+        System.out.println(""+compilerDumpDown+compilerDumpDown2);
+
+
+        System.out.println("read ms: "+readTime.stop().elapsed(TimeUnit.MILLISECONDS));
 
         // double sum=0;
         // for (Long time : delats) {
@@ -380,6 +404,11 @@ public class MonitoringDataStorageTest {
         // }
         //
         // System.out.println((sum/delats.size())/(1000*1000));
+//        try {
+//            Thread.sleep(10000000);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
 }

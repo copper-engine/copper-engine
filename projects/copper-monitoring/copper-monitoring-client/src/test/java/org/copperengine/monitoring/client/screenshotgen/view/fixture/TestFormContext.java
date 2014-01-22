@@ -20,7 +20,7 @@ import javafx.scene.layout.BorderPane;
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.context.FormContext;
 import org.copperengine.monitoring.client.form.BorderPaneShowFormStrategie;
-import org.copperengine.monitoring.client.form.ShowFormStrategy;
+import org.copperengine.monitoring.client.form.ShowFormsStrategy;
 import org.copperengine.monitoring.client.form.dialog.DefaultInputDialogCreator;
 import org.copperengine.monitoring.client.form.issuereporting.IssueReporter;
 import org.copperengine.monitoring.client.ui.settings.SettingsModel;
@@ -65,7 +65,7 @@ public class TestFormContext extends FormContext {
     }
 
     @Override
-    protected ShowFormStrategy<?> getDefaultShowFormStrategy() {
+    protected ShowFormsStrategy<?> getDefaultShowFormStrategy() {
         return new BorderPaneShowFormStrategie(mainPane);
     }
 

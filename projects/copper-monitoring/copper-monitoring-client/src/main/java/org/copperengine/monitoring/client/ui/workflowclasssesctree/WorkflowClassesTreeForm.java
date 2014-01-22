@@ -27,7 +27,7 @@ import javafx.scene.layout.BorderPane;
 
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.form.Form;
-import org.copperengine.monitoring.client.form.ShowFormStrategy;
+import org.copperengine.monitoring.client.form.ShowFormsStrategy;
 import org.copperengine.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
 import org.copperengine.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterController;
 import org.copperengine.monitoring.client.util.WorkflowVersion;
@@ -38,7 +38,7 @@ public class WorkflowClassesTreeForm extends Form<WorkflowClassesTreeController>
     private final TreeView<DisplayWorkflowClassesModel> workflowView;
     private final GuiCopperDataProvider copperDataProvider;
 
-    public WorkflowClassesTreeForm(String dynamicTitle, ShowFormStrategy<?> showFormStrategie,
+    public WorkflowClassesTreeForm(String dynamicTitle, ShowFormsStrategy<?> showFormStrategie,
             WorkflowClassesTreeController controller, WorkflowSummaryFilterController filterController,
             TreeView<DisplayWorkflowClassesModel> workflowView, GuiCopperDataProvider copperDataProvider) {
         super(dynamicTitle, showFormStrategie, controller);

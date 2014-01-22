@@ -43,6 +43,7 @@ public class PerformanceMonitor {
             // workaround to support legacy java versions the
             // Exception means no support
         }
+
     }
 
     private double boundValue(double value) {

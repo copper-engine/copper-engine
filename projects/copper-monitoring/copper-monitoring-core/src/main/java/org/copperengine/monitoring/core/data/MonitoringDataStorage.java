@@ -425,7 +425,6 @@ public class MonitoringDataStorage {
                 ;
             randomAccessFile.close();
             readData(new Input(data), SerializeUtil.createKryo(), fromTime, toTime, reverse);
-
         }
 
         private void readData(Input i, Kryo kryo, long fromTime, long toTime, final boolean reverse) {

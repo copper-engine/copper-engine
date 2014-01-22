@@ -19,7 +19,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
 import org.copperengine.monitoring.client.form.Form;
-import org.copperengine.monitoring.client.form.ShowFormStrategy;
+import org.copperengine.monitoring.client.form.ShowFormsStrategy;
 import org.copperengine.monitoring.client.form.filter.FilterAbleForm;
 import org.copperengine.monitoring.client.form.filter.FilterController;
 import org.copperengine.monitoring.client.form.filter.FilterResultController;
@@ -30,7 +30,7 @@ import org.copperengine.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 
 public class EngineFilterAbleForm<F extends EnginePoolFilterModel, R> extends FilterAbleForm<F, R> {
 
-    public EngineFilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
+    public EngineFilterAbleForm(MessageProvider messageProvider, ShowFormsStrategy<?> showFormStrategie,
             final Form<FilterController<F>> filterForm, Form<FilterResultController<F, R>> resultForm, IssueReporter exceptionHandler) {
         super(messageProvider, showFormStrategie, filterForm, resultForm, exceptionHandler);
 

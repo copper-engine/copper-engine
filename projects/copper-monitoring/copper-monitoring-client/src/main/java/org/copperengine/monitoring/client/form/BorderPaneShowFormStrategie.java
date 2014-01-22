@@ -17,13 +17,18 @@ package org.copperengine.monitoring.client.form;
 
 import javafx.scene.layout.BorderPane;
 
-public class BorderPaneShowFormStrategie extends ShowFormStrategy<BorderPane> {
+public class BorderPaneShowFormStrategie extends ShowFormsStrategy<BorderPane> {
     public BorderPaneShowFormStrategie(BorderPane component) {
         super(component);
     }
 
     @Override
-    public void show(Form<?> form) {
+    public void showImpl(Form<?> form) {
         component.setCenter(form.createContent());
+    }
+
+    @Override
+    protected void closeImpl(Form<?> form) {
+        component.setCenter(null);
     }
 }

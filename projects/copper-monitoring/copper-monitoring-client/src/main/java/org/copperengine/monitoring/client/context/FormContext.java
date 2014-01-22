@@ -20,6 +20,8 @@ import java.util.List;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -28,17 +30,18 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.context.FormBuilder.EngineFormBuilder;
 import org.copperengine.monitoring.client.form.BorderPaneShowFormStrategie;
-import org.copperengine.monitoring.client.form.EmptyShowFormStrategie;
+import org.copperengine.monitoring.client.form.EmptyShowFormStrategy;
 import org.copperengine.monitoring.client.form.Form;
 import org.copperengine.monitoring.client.form.FormCreator;
 import org.copperengine.monitoring.client.form.FxmlForm;
-import org.copperengine.monitoring.client.form.ShowFormStrategy;
-import org.copperengine.monitoring.client.form.TabPaneShowFormStrategie;
+import org.copperengine.monitoring.client.form.ShowFormsStrategy;
+import org.copperengine.monitoring.client.form.TabPaneShowFormStrategy;
 import org.copperengine.monitoring.client.form.dialog.InputDialogCreator;
 import org.copperengine.monitoring.client.form.filter.EmptyFilterModel;
 import org.copperengine.monitoring.client.form.filter.FilterAbleForm;
@@ -307,15 +310,30 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
         final Button back = new Button();
         back.setGraphic(new Region());
-        back.setPrefSize(30,30);
+        back.setPrefSize(30, 30);
         back.getStyleClass().add("back-button");
-        toolBar.getItems().add(back);
+        back.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                getDefaultShowFormStrategy().back();
+            }
+        });
 
         final Button forward = new Button();
         forward.setGraphic(new Region());
-        back.setPrefSize(30,30);
+        forward.setPrefSize(30,30);
         forward.getStyleClass().add("forward-button");
-        toolBar.getItems().add(forward);
+        forward.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                getDefaultShowFormStrategy().forward();
+            }
+        });
+
+        HBox navigation = new HBox();
+        navigation.getChildren().add(back);
+        navigation.getChildren().add(forward);
+        toolBar.getItems().add(navigation);
 
         topPane.getChildren().add(toolBar);
         mainPane.setTop(topPane);
@@ -341,7 +359,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
     public WorkflowClassesTreeForm createWorkflowClassesTreeForm(WorkflowSummaryFilterController filterController) {
         TreeView<DisplayWorkflowClassesModel> workflowView = new TreeView<DisplayWorkflowClassesModel>();
         WorkflowClassesTreeController workflowClassesTreeController = createWorkflowClassesTreeController(workflowView);
-        return new WorkflowClassesTreeForm("", new EmptyShowFormStrategie(), workflowClassesTreeController,
+        return new WorkflowClassesTreeForm("", new EmptyShowFormStrategy(), workflowClassesTreeController,
                 filterController, workflowView, guiCopperDataProvider);
     }
 
@@ -396,7 +414,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
         FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>> filterForm = new FxmlForm<FilterController<WorkflowInstanceDetailFilterModel>>(fCtrl);
 
-        FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm = createWorkflowinstanceDetailResultForm(new EmptyShowFormStrategie());
+        FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> resultForm = createWorkflowinstanceDetailResultForm(new EmptyShowFormStrategy());
 
         EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> filterAbleForm = new EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>(messageProvider,
                 getDefaultShowFormStrategy(), filterForm, resultForm, issueReporter);
@@ -404,7 +422,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         return filterAbleForm;
     }
 
-    public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(ShowFormStrategy<?> showFormStrategy) {
+    public FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>> createWorkflowinstanceDetailResultForm(ShowFormsStrategy<?> showFormStrategy) {
         FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> resCtrl = new WorkflowInstanceDetailResultController(guiCopperDataProvider, codeMirrorFormatterSingelton);
         return new FxmlForm<FilterResultController<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel>>("workflowInstanceDetail.title",
                         resCtrl, showFormStrategy);
@@ -488,12 +506,12 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
     }
 
     public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool) {
-        return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider, inputDialogCreator), new TabPaneShowFormStrategie(tabPane, true));
+        return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider, inputDialogCreator), new TabPaneShowFormStrategy(tabPane));
     }
 
     @Override
     public Form<ProcessingEngineController> createEngineForm(TabPane tabPane, ProcessingEngineInfo engine, DashboardResultModel model) {
-        return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine, model, this, guiCopperDataProvider, inputDialogCreator), new TabPaneShowFormStrategie(tabPane));
+        return new FxmlForm<ProcessingEngineController>(engine.getId(), new ProcessingEngineController(engine, model, this, guiCopperDataProvider, inputDialogCreator), new TabPaneShowFormStrategy(tabPane));
     }
 
     public FilterAbleForm<EnginePoolFilterModel, MeasurePointData> createMeasurePointForm() {
@@ -510,8 +528,12 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
                 this).build();
     }
 
-    protected ShowFormStrategy<?> getDefaultShowFormStrategy() {
-        return new TabPaneShowFormStrategie(mainTabPane);
+    TabPaneShowFormStrategy tabPaneShowFormsStrategy=null;
+    protected ShowFormsStrategy<?> getDefaultShowFormStrategy() {
+        if (tabPaneShowFormsStrategy==null){
+            tabPaneShowFormsStrategy = new TabPaneShowFormStrategy(mainTabPane);
+        }
+        return tabPaneShowFormsStrategy;
     }
 
     public FilterAbleForm<CustomMeasurePointFilterModel, CustomMeasurePointResultModel> createCustomMeasurePointForm() {
