@@ -454,15 +454,21 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
     }
 
     @Override
+    @Deprecated
+    /* will be removed in 4.0 */
     public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
+        return getMonitoringDataStorageInfo();
+    }
+
+    @Override
+    public MonitoringDataStorageInfo getMonitoringDataStorageInfo() {
         return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<MonitoringDataStorageInfo>() {
             @Override
             public MonitoringDataStorageInfo call() throws Exception {
-                return monitoringDataAccesor.getMonitroingDataStorageInfo();
+                return monitoringDataAccesor.getMonitoringDataStorageInfo();
             }
         });
     }
-
 
 
 }

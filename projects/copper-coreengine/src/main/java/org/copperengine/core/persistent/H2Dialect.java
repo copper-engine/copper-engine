@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * H2 implementation of the {@link DatabaseDialect} interface.
  *
  * @author dmoebius
+ * @since 3.1
  */
 public class H2Dialect extends AbstractSqlDialect {
 

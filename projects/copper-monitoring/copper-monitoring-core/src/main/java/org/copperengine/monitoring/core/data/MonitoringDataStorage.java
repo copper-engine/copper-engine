@@ -658,8 +658,14 @@ public class MonitoringDataStorage {
             return new Date(max);
         }
     }
-
+    
+    @Deprecated
+    /* will be removed in 4.0 */
     public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
+        return getMonitoringDataStorageInfo();
+    }
+
+    public MonitoringDataStorageInfo getMonitoringDataStorageInfo() {
 
         final HashMap<String, MonitoringDataStorageContentInfo> classToInfo = new HashMap<String, MonitoringDataStorageContentInfo>();
         for (MonitoringData data : read(null, null)) {

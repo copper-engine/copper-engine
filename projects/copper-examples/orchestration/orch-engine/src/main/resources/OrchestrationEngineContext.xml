@@ -84,7 +84,6 @@
     			<ref bean="persistent.ProcessorPool.default" />
 		    </list>
   		</property>
-  		<property name="engine" ref="persistent.engine"/>
 	</bean>
 	
 	<bean id="persistent.engine" class="org.copperengine.core.persistent.PersistentScottyEngine" scope="singleton" init-method="startup" destroy-method="shutdown">
