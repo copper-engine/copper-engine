@@ -16,7 +16,7 @@
 package org.copperengine.monitoring.client.context;
 
 import org.copperengine.monitoring.client.form.FxmlForm;
-import org.copperengine.monitoring.client.form.ShowFormStrategy;
+import org.copperengine.monitoring.client.form.ShowFormsStrategy;
 import org.copperengine.monitoring.client.form.filter.FilterAbleForm;
 import org.copperengine.monitoring.client.form.filter.FilterController;
 import org.copperengine.monitoring.client.form.filter.FilterResultController;
@@ -42,10 +42,10 @@ public class FormBuilder<FM, RM, F extends FilterController<FM>, R extends Filte
     protected final F filterController;
     protected final R resultController;
     protected final MessageProvider messageProvider;
-    protected final ShowFormStrategy<?> showFormStrategy;
+    protected final ShowFormsStrategy<?> showFormStrategy;
     protected final IssueReporter exceptionHandler;
 
-    public FormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategy, IssueReporter exceptionHandler) {
+    public FormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormsStrategy<?> showFormStrategy, IssueReporter exceptionHandler) {
         this.filterController = filterController;
         this.resultController = resultController;
         this.messageProvider = messageProvider;
@@ -70,7 +70,7 @@ public class FormBuilder<FM, RM, F extends FilterController<FM>, R extends Filte
             super(filterController, resultController, formContext);
         }
 
-        public EngineFormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategy, String title, IssueReporter exceptionHandler) {
+        public EngineFormBuilder(F filterController, R resultController, MessageProvider messageProvider, ShowFormsStrategy<?> showFormStrategy, String title, IssueReporter exceptionHandler) {
             super(filterController, resultController, messageProvider, showFormStrategy, exceptionHandler);
         }
 

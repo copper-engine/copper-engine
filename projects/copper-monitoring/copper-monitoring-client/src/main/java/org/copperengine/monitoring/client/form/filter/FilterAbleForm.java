@@ -55,7 +55,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.copperengine.monitoring.client.form.Form;
-import org.copperengine.monitoring.client.form.ShowFormStrategy;
+import org.copperengine.monitoring.client.form.ShowFormsStrategy;
 import org.copperengine.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
 import org.copperengine.monitoring.client.form.issuereporting.IssueReporter;
 import org.copperengine.monitoring.client.util.ComponentUtil;
@@ -80,7 +80,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
 
     public static final String REFRESH_BUTTON_ID = "refreshbutton";
 
-    public FilterAbleForm(MessageProvider messageProvider, ShowFormStrategy<?> showFormStrategie,
+    public FilterAbleForm(MessageProvider messageProvider, ShowFormsStrategy<?> showFormStrategie,
             Form<FilterController<F>> filterForm, final Form<FilterResultController<F, R>> resultForm, IssueReporter exceptionHandlerParm) {
         super("", showFormStrategie, null);
         this.messageProvider = messageProvider;
@@ -98,19 +98,14 @@ public class FilterAbleForm<F, R> extends Form<Object> {
                 }
             }
         });
-
-        showFormStrategie.setOnCloseListener(new ShowFormStrategy.CloseListener() {
-            @Override
-            public void closed(Form<?> form) {
-                if (form == FilterAbleForm.this) {
-                    FilterAbleForm.this.resultForm.getController().onClose();
-                }
-            }
-        });
     }
 
     public FilterController<F> getFilterController() {
         return filterForm.getController();
+    }
+
+    public FilterResultController<F,R> getResultController() {
+        return resultForm.getController();
     }
 
     public F getFilter() {
@@ -443,5 +438,11 @@ public class FilterAbleForm<F, R> extends Form<Object> {
             this.result = result;
             this.usedFilter = usedFilter;
         }
+    }
+
+    @Override
+    public void close() {
+        getResultController().onClose();
+        super.close();
     }
 }

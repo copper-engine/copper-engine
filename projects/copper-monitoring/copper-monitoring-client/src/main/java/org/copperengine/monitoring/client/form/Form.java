@@ -15,7 +15,10 @@
  */
 package org.copperengine.monitoring.client.form;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.Node;
 
 /**
  * @param <C>
@@ -25,10 +28,10 @@ public abstract class Form<C> implements Widget {
 
     private final SimpleStringProperty displayTitle;
     protected final SimpleStringProperty staticTitle;
-    private final ShowFormStrategy<?> showFormStrategy;
+    private final ShowFormsStrategy<?> showFormStrategy;
     protected final C controller;
 
-    public Form(String staticTitle, ShowFormStrategy<?> showFormStrategy, C controller) {
+    public Form(String staticTitle, ShowFormsStrategy<?> showFormStrategy, C controller) {
         super();
         this.staticTitle = new SimpleStringProperty(staticTitle);
         this.displayTitle = new SimpleStringProperty(staticTitle);
@@ -55,5 +58,20 @@ public abstract class Form<C> implements Widget {
     public void setStaticTitle(String staticTitle) {
         this.staticTitle.set(staticTitle);
     }
+
+    Node cachedContent;
+
+    Node getCachedContent(){
+       if (cachedContent==null){
+           cachedContent=createContent();
+       }
+       return cachedContent;
+    }
+
+    public void close() {
+        showFormStrategy.close(this);
+    }
+
+    DoubleProperty zoomProperty = new SimpleDoubleProperty(200);
 
 }

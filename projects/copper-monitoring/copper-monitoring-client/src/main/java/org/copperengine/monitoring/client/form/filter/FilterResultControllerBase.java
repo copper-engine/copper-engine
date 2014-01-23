@@ -28,6 +28,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -70,15 +71,15 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
         final MenuItem copyMenuItem = new MenuItem("copy table");
         final MenuItem copyCellMenuItem = new MenuItem("copy cell");
         fillContextMenu(tableView, copyMenuItem, copyCellMenuItem);
-        // tableView.contextMenuProperty().addListener(new ChangeListener<ContextMenu>() {
-        // @Override
-        // public void changed(ObservableValue<? extends ContextMenu> observable, ContextMenu oldValue, ContextMenu
-        // newValue) {
-        // if (newValue!=null){
-        // fillContextMenu(tableView, copyMenuItem,copyCellMenuItem);
-        // }
-        // }
-        // });
+        tableView.contextMenuProperty().addListener(new ChangeListener<ContextMenu>() {
+            @Override
+            public void changed(ObservableValue<? extends ContextMenu> observable, ContextMenu oldValue, ContextMenu
+                    newValue) {
+                if (newValue != null) {
+                    fillContextMenu(tableView, copyMenuItem, copyCellMenuItem);
+                }
+            }
+        });
 
         final CheckBox regExp = new CheckBox("RegExp");
 
@@ -130,15 +131,16 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
         });
         HBox.setHgrow(searchField, Priority.ALWAYS);
         final Label count = new Label("count: 0");
-        // tableView.itemsProperty().addListener(new ChangeListener<ObservableList<M>>() {
-        // @Override
-        // public void changed(ObservableValue<? extends ObservableList<M>> observable, ObservableList<M> oldValue,
-        // ObservableList<M> newValue) {
-        // if (newValue!=null){
-        // count.setText("count: "+String.valueOf(newValue.size()));
-        // }
-        // }
-        // });
+        tableView.itemsProperty().addListener(new ChangeListener<ObservableList<M>>() {
+            @Override
+            public void changed(ObservableValue<? extends ObservableList<M>> observable,
+                                ObservableList<M> oldValue,
+                                ObservableList<M> newValue) {
+                if (newValue != null) {
+                    count.setText("count: " + String.valueOf(newValue.size()));
+                }
+            }
+        });
         pane.getChildren().add(searchField);
         pane.getChildren().add(regExp);
         pane.getChildren().add(new Separator(Orientation.VERTICAL));

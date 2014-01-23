@@ -26,12 +26,12 @@ import org.copperengine.monitoring.client.form.filter.GenericFilterController;
 public class FxmlForm<C extends FxmlController> extends Form<C> {
 
 
-    public FxmlForm(String dynamicTitle, C controller, ShowFormStrategy<?> showFormStrategie) {
+    public FxmlForm(String dynamicTitle, C controller, ShowFormsStrategy<?> showFormStrategie) {
         super(dynamicTitle, showFormStrategie, controller);
     }
 
     public FxmlForm(C controller) {
-        this("", controller, new EmptyShowFormStrategie());
+        this("", controller, new EmptyShowFormStrategy());
     }
 
     @Override

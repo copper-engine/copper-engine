@@ -46,8 +46,18 @@
     -fx-background-color: #666666;
     -fx-scale-shape: false;
 }
+
+.back-button{
+    -fx-background-radius: 3 0 0 3;
+}
+
+
 .forward-button Region{
     -fx-shape: "M0,0L11,7L0,14Z";
     -fx-background-color: #666666;
     -fx-scale-shape: false;
+}
+
+.forward-button{
+    -fx-background-radius: 0 3 3 0;
 }

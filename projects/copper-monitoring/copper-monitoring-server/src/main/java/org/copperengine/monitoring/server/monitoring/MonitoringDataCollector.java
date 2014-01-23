@@ -29,12 +29,13 @@ import org.copperengine.monitoring.core.model.LogEvent;
 import org.copperengine.monitoring.core.model.MeasurePointData;
 import org.copperengine.monitoring.core.model.SystemResourcesInfo;
 import org.copperengine.monitoring.core.model.WorkflowInstanceInfo;
+import org.copperengine.monitoring.core.util.CachingPerformanceMonitor;
 import org.copperengine.monitoring.core.util.PerformanceMonitor;
 
 public class MonitoringDataCollector {
 
     private final MonitoringDataAccessQueue monitoringQueue;
-    private final PerformanceMonitor performanceMonitor;
+    private final CachingPerformanceMonitor performanceMonitor;
 
     public MonitoringDataCollector(final MonitoringDataAccessQueue monitoringQueue) {
         this(monitoringQueue, new PerformanceMonitor());
@@ -42,7 +43,7 @@ public class MonitoringDataCollector {
 
     public MonitoringDataCollector(final MonitoringDataAccessQueue monitoringQueue, PerformanceMonitor performanceMonitor) {
         this.monitoringQueue = monitoringQueue;
-        this.performanceMonitor = performanceMonitor;
+        this.performanceMonitor = new CachingPerformanceMonitor(performanceMonitor);
     }
 
     public void submitAdapterCalls(final Method method, final Object[] args, final Object adapter, final WorkflowInstanceInfo workflow) {
@@ -77,7 +78,7 @@ public class MonitoringDataCollector {
             @Override
             public void run() {
                 final MeasurePointData measurePointData = new MeasurePointData(measurePointId);
-                measurePointData.setSystemCpuLoad(performanceMonitor.createRessourcenInfo().getSystemCpuLoad());
+                measurePointData.setSystemCpuLoad(performanceMonitor.getCachedSystemResourcesInfo().getSystemCpuLoad());
                 measurePointData.setElementCount(elementCount);
                 measurePointData.setCount(1);
                 measurePointData.setTime(new Date());
@@ -103,7 +104,7 @@ public class MonitoringDataCollector {
         monitoringQueue.offer(new MonitoringDataAwareRunnable() {
             @Override
             public void run() {
-                measurePointData.setSystemCpuLoad(performanceMonitor.createRessourcenInfo().getSystemCpuLoad());
+                measurePointData.setSystemCpuLoad(performanceMonitor.getCachedSystemResourcesInfo().getSystemCpuLoad());
                 monitoringDataAdder.addMonitoringData(measurePointData);
             }
         });
