@@ -34,11 +34,11 @@ import org.copperengine.core.Response;
 import org.copperengine.core.WaitHook;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
+import org.copperengine.core.WorkflowAccessor;
 import org.copperengine.core.common.AbstractProcessingEngine;
 import org.copperengine.core.common.ProcessorPool;
 import org.copperengine.core.common.ProcessorPoolManager;
 import org.copperengine.core.common.TicketPoolManager;
-import org.copperengine.core.internal.WorkflowAccessor;
 import org.copperengine.core.monitoring.NullRuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.persistent.PersistentWorkflow;
@@ -60,6 +60,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 
     private static final Logger logger = LoggerFactory.getLogger(TransientScottyEngine.class);
 
+    private WorkflowAccessor accessor = new WorkflowAccessor();
     private final Map<String, CorrelationSet> correlationMap = new HashMap<String, CorrelationSet>(50000);
     private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>(50000);
     private ProcessorPoolManager<TransientProcessorPool> poolManager;
@@ -272,7 +273,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
         if (doEnqueue) {
             enqueue(w);
         } else {
-            WorkflowAccessor.setProcessingState(w, ProcessingState.WAITING);
+            accessor.setProcessingState(w, ProcessingState.WAITING);
         }
     }
 
@@ -285,7 +286,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     public void removeWorkflow(String id) {
         final Workflow<?> wf = workflowMap.remove(id);
         if (wf != null) {
-            WorkflowAccessor.setProcessingState(wf, ProcessingState.FINISHED);
+            accessor.setProcessingState(wf, ProcessingState.FINISHED);
             ticketPoolManager.release(wf);
             statisticsCollector.submit(getEngineId() + "." + wf.getClass().getSimpleName() + ".ExecutionTime", 1, System.currentTimeMillis() - wf.getCreationTS().getTime(), TimeUnit.MILLISECONDS);
         }

@@ -23,7 +23,7 @@ import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.common.Processor;
-import org.copperengine.core.internal.WorkflowAccessor;
+
 import org.copperengine.core.persistent.txn.Transaction;
 import org.copperengine.core.persistent.txn.TransactionController;
 
@@ -31,6 +31,7 @@ public class PersistentProcessor extends Processor {
 
     private final PersistentScottyEngine engine;
     private final TransactionController transactionController;
+    private final PersistentWorkflowAccessor accessor = new PersistentWorkflowAccessor();
 
     public PersistentProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine, TransactionController transactionController) {
         super(name, queue, prio, engine);
@@ -51,11 +52,11 @@ public class PersistentProcessor extends Processor {
                 public Void run() throws Exception {
                     synchronized (pw) {
                         try {
-                            WorkflowAccessor.setProcessingState(pw, ProcessingState.RUNNING);
+                            accessor.setProcessingState(pw, ProcessingState.RUNNING);
                             engine.getDependencyInjector().inject(pw);
                             pw.__beforeProcess();
                             pw.main();
-                            WorkflowAccessor.setProcessingState(pw, ProcessingState.FINISHED);
+                            accessor.setProcessingState(pw, ProcessingState.FINISHED);
                             engine.getDbStorage().finish(pw, new Acknowledge.BestEffortAcknowledge());
                             assert pw.get__stack().isEmpty() : "Stack must be empty";
                         } catch (Interrupt e) {
@@ -64,7 +65,7 @@ public class PersistentProcessor extends Processor {
                             engine.unregister(pw);
                         }
                         if (pw.registerCall != null) {
-                            engine.getDbStorage().registerCallback(pw.registerCall, new Acknowledge.BestEffortAcknowledge());
+                            engine.getDbStorage().registerCallback(accessor.getRegisterCall(pw), new Acknowledge.BestEffortAcknowledge());
                         }
                     }
                     return null;

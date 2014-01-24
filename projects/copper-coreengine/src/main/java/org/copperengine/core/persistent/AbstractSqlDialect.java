@@ -40,7 +40,7 @@ import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.db.utility.JdbcUtils;
-import org.copperengine.core.internal.WorkflowAccessor;
+import org.copperengine.core.WorkflowAccessor;
 import org.copperengine.core.monitoring.NullRuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.StmtStatistic;
@@ -56,6 +56,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractSqlDialect.class);
+
+    private WorkflowAccessor accessor = new WorkflowAccessor();
 
     private WorkflowRepository wfRepository;
     private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
@@ -238,7 +240,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                     wf.setId(id);
                     wf.setProcessorPoolId(ppoolId);
                     wf.setPriority(prio);
-                    WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(5).getTime()));
+                    accessor.setCreationTS(wf, new Date(rs.getTimestamp(5).getTime()));
                     map.put(wf.getId(), wf);
                 } catch (Exception e) {
                     logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
@@ -630,7 +632,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             wf.setId(id);
             wf.setPriority(prio);
             wf.setProcessorPoolId(rs.getString(6));
-            WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(5).getTime()));
+            accessor.setCreationTS(wf, new Date(rs.getTimestamp(5).getTime()));
             rs.close();
             readStmt.close();
 

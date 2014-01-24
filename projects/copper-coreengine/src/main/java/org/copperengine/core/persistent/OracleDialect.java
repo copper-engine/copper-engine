@@ -40,7 +40,7 @@ import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.db.utility.JdbcUtils;
-import org.copperengine.core.internal.WorkflowAccessor;
+import org.copperengine.core.WorkflowAccessor;
 import org.copperengine.core.monitoring.NullRuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.StmtStatistic;
@@ -59,6 +59,8 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     private static final Logger logger = LoggerFactory.getLogger(OracleDialect.class);
 
     // internal members
+    private WorkflowAccessor accessor = new WorkflowAccessor();
+
     private StmtStatistic dequeueAllStmtStatistic;
     private StmtStatistic dequeueQueryBPsStmtStatistic;
     private StmtStatistic dequeueQueryResponsesStmtStatistic;
@@ -224,7 +226,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
                     wf.rowid = rowid;
                     wf.oldPrio = prio;
                     wf.oldProcessorPoolId = ppoolId;
-                    WorkflowAccessor.setCreationTS(wf, new Date(creationTS.getTime()));
+                    accessor.setCreationTS(wf, new Date(creationTS.getTime()));
                     map.put(wf.getId(), wf);
                     responseLoader.enqueue(wf);
                 } catch (Exception e) {
@@ -623,7 +625,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             wf.rowid = rowid;
             wf.oldPrio = prio;
             wf.oldProcessorPoolId = rs.getString(9);
-            WorkflowAccessor.setCreationTS(wf, new Date(creationTS.getTime()));
+            accessor.setCreationTS(wf, new Date(creationTS.getTime()));
             rs.close();
             readStmt.close();
 
