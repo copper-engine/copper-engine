@@ -29,8 +29,6 @@ public abstract class AbstractDependencyInjector implements DependencyInjector {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractDependencyInjector.class);
 
-    private ProcessingEngine engine;
-
     public AbstractDependencyInjector() {
     }
 
@@ -60,7 +58,6 @@ public abstract class AbstractDependencyInjector implements DependencyInjector {
 
     @Override
     public void inject(Workflow<?> workflow) {
-        workflow.setEngine(engine);
         final Class<?> c = workflow.getClass();
         List<InjectionDescription> list = null;
         list = map.get(c);
@@ -92,9 +89,8 @@ public abstract class AbstractDependencyInjector implements DependencyInjector {
         }
     }
 
-    @Override
+    @Deprecated
     public void setEngine(ProcessingEngine e) {
-        engine = e;
     }
 
     protected abstract Object getBean(String beanId);

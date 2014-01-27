@@ -52,7 +52,7 @@ public class PersistentProcessor extends Processor {
                     synchronized (pw) {
                         try {
                             WorkflowAccessor.setProcessingState(pw, ProcessingState.RUNNING);
-                            engine.getDependencyInjector().inject(pw);
+                            engine.injectDependencies(pw);
                             pw.__beforeProcess();
                             pw.main();
                             WorkflowAccessor.setProcessingState(pw, ProcessingState.FINISHED);

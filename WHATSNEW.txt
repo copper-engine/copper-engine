@@ -1,5 +1,6 @@
 COPPER 3.1 (draft)
 ============
+- New feature: New utility org.copperengine.core.util.Backchannel, that offers functionality to signal a response from within a persistent workflow to its originator
 - New feature: support for the H2 database
 - New feature: added SimpleJmxExporter in copper-coreengine to ease the registering of JMX beans when COPPER runs without Spring
 - Maven: copper-coreengine: moved dependency on C3P0 to copper-regtest. Removed *ConnectionCustomizer classes, because they broke the JDBC spec regarding autoCommit; also removed OracleConnectionTester as it can be substituted by setting 'preferredTestQuery="SELECT 1 FROM DUAL"' in C3P0 datasource.
