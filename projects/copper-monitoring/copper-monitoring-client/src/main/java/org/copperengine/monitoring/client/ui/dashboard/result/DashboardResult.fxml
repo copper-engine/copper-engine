@@ -10,41 +10,77 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 
-<SplitPane dividerPositions="0.7135650224215246" focusTraversable="true" minWidth="-1.0" orientation="VERTICAL"
-           prefHeight="1100.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
-    <TitledPane animated="false" collapsible="false" prefHeight="2000.0" prefWidth="-1.0" text="Configuration">
-        <TabPane fx:id="engines" prefHeight="-1.0" prefWidth="-1.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE"/>
-    </TitledPane>
-    <TitledPane animated="false" collapsible="false" minWidth="-1.0" prefHeight="2000.0" prefWidth="-1.0"
-                text="Monitoring">
-        <TabPane prefHeight="-1.0" prefWidth="-1.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
-            <Tab text="Monitoring data provider">
-                <HBox fx:id="monitoringPane" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0">
-                    <padding>
-                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x1"/>
-                    </padding>
-                </HBox>
-            </Tab>
-            <Tab text="Monitoring data storage">
-                <VBox padding="$x1" prefHeight="-1.0" prefWidth="-1.0">
-                    <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0">
+<VBox xmlns:fx="http://javafx.com/fxml">
+  <StackPane prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <children>
+      <ScrollPane fitToHeight="false" fitToWidth="false" maxHeight="647.0" maxWidth="1199.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color:transparent;" StackPane.alignment="CENTER">
+        <content>
+          <Pane prefHeight="-1.0" prefWidth="-1.0">
+            <children>
+              <Rectangle arcHeight="5.0" arcWidth="5.0" height="645.0" layoutX="484.0" layoutY="0.0" stroke="BLACK" strokeType="INSIDE" width="713.0">
+                <fill>
+                  <Color blue="1.000" green="0.565" opacity="0.000" red="0.118" fx:id="x1" />
+                </fill>
+              </Rectangle>
+              <Rectangle arcHeight="5.0" arcWidth="5.0" fill="$x1" height="645.0" layoutX="0.0" layoutY="0.0" stroke="BLACK" strokeType="INSIDE" width="446.0" />
+              <Pane fx:id="enginesTarget" layoutX="504.0" layoutY="59.0" prefHeight="138.0" prefWidth="206.0" style="-fx-background-color: transparent;&#10;" />
+              <Rectangle arcHeight="30.0" arcWidth="30.0" fill="DODGERBLUE" height="204.0" layoutX="28.0" layoutY="59.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, #62c462, &#9;#57a957);&#10;" width="395.0" />
+              <TableView fx:id="storageContentTable" layoutX="39.0" layoutY="109.0" prefHeight="120.0" prefWidth="366.999971753125">
+                <columns>
+                  <TableColumn prefWidth="75.0" text="Type" fx:id="typeCol" />
+                  <TableColumn prefWidth="75.0" text="Count" fx:id="countCol" />
+                </columns>
+              </TableView>
+              <HBox alignment="CENTER_LEFT" layoutX="38.0" layoutY="81.0" prefHeight="-1.0" prefWidth="370.0" spacing="3.0">
+                <Label minWidth="50.0" text="location" textFill="WHITE" />
+                <TextField fx:id="location" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                <Label minWidth="25.0" text="size" textFill="WHITE" />
+                <TextField id="location" fx:id="size" prefWidth="200.0" />
+                <padding>
+                  <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x2" />
+                </padding>
+              </HBox>
+              <Text fontSmoothingType="LCD" layoutX="9.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Monitoring">
+                <font>
+                  <Font size="18.0" fx:id="x3" />
+                </font>
+              </Text>
+              <Text font="$x3" fontSmoothingType="LCD" layoutX="494.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Core" />
+              <ScrollPane layoutX="29.0" layoutY="289.0" prefHeight="343.0" prefWidth="395.0">
+                <content>
+                  <HBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0">
+                    <children>
+                      <VBox fx:id="monitoringPane" alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0" HBox.hgrow="ALWAYS">
                         <padding>
-                            <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x2"/>
+                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x2" />
                         </padding>
-                        <Label text="location"/>
-                        <TextField fx:id="location" prefWidth="200.0" HBox.hgrow="ALWAYS"/>
-                        <Label text="size"/>
-                        <TextField id="location" fx:id="size" prefWidth="200.0"/>
-                    </HBox>
-                    <TableView fx:id="storageContentTable" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-                        <columns>
-                            <TableColumn prefWidth="75.0" text="Type" fx:id="typeCol"/>
-                            <TableColumn prefWidth="75.0" text="Count" fx:id="countCol"/>
-                        </columns>
-                    </TableView>
-                </VBox>
-            </Tab>
-        </TabPane>
-    </TitledPane>
-</SplitPane>
+                      </VBox>
+                    </children>
+                  </HBox>
+                </content>
+              </ScrollPane>
+              <Button fx:id="storageDetailRefresh" layoutX="39.0" layoutY="236.0" mnemonicParsing="false" text="refresh" />
+              <Label layoutX="41.0" layoutY="63.0" text="MonitoringDataStorage" textFill="WHITE" />
+            </children>
+            <padding>
+              <Insets />
+            </padding>
+          </Pane>
+        </content>
+      </ScrollPane>
+      <Pane fx:id="disableOverlay" opacity="0.48" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: grey;">
+        <effect>
+          <GaussianBlur radius="36.11184210526316" />
+        </effect>
+      </Pane>
+    </children>
+  </StackPane>
+  <HBox padding="$x2" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
+    <children>
+      <Slider fx:id="timeSlider" showTickLabels="false" HBox.hgrow="ALWAYS" />
+      <Pane fx:id="datePickerTarget" prefHeight="-1.0" prefWidth="-1.0" />
+    </children>
+  </HBox>
+</VBox>

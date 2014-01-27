@@ -57,6 +57,10 @@ public class ProcessorPoolInfo implements Serializable {
         this.processorPoolTyp = processorPoolTyp;
     }
 
+    private ProcessorPoolInfo(){//for kryo
+
+    }
+
     public String getId() {
         return id;
     }

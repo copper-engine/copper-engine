@@ -24,7 +24,6 @@ import java.util.List;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.copperengine.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 import org.copperengine.monitoring.client.ui.adaptermonitoring.result.AdapterCallRowModel;
 import org.copperengine.monitoring.client.ui.adaptermonitoring.result.AdapterLaunchRowModel;
@@ -55,13 +54,13 @@ import org.copperengine.monitoring.core.model.AdapterCallInfo;
 import org.copperengine.monitoring.core.model.AdapterWfLaunchInfo;
 import org.copperengine.monitoring.core.model.AdapterWfNotifyInfo;
 import org.copperengine.monitoring.core.model.AuditTrailInfo;
+import org.copperengine.monitoring.core.model.ConfigurationInfo;
 import org.copperengine.monitoring.core.model.CopperInterfaceSettings;
 import org.copperengine.monitoring.core.model.GenericMonitoringData;
 import org.copperengine.monitoring.core.model.LogEvent;
 import org.copperengine.monitoring.core.model.MeasurePointData;
 import org.copperengine.monitoring.core.model.MessageInfo;
-import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
-import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
+import org.copperengine.monitoring.core.model.MonitoringDataStorageDetailInfo;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 import org.copperengine.monitoring.core.model.SystemResourcesInfo;
 import org.copperengine.monitoring.core.model.WorkflowClassMetaData;
@@ -463,14 +462,6 @@ public class GuiCopperDataProvider {
         }
     }
 
-    public List<MonitoringDataProviderInfo> getMonitoringDataProvider() {
-        try {
-            return copperMonitoringService.getMonitoringDataProviderInfos();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void startMonitoringDataProvider(String name) {
         try {
             copperMonitoringService.startMonitoringDataProvider(name);
@@ -482,14 +473,6 @@ public class GuiCopperDataProvider {
     public void stopMonitoringDataProvider(String name) {
         try {
             copperMonitoringService.stopMonitoringDataProvider(name);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public MonitoringDataStorageInfo getMonitoringStorageInfo() {
-        try {
-            return copperMonitoringService.getMonitoringDataStorageInfo();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -508,5 +491,22 @@ public class GuiCopperDataProvider {
             throw new RuntimeException(e);
         }
     }
+
+    public List<ConfigurationInfo> getConfigurationInfo(Date from, Date to, int maxCount){
+        try {
+            return copperMonitoringService.getList(new TypeFilter<ConfigurationInfo>(ConfigurationInfo.class), from, to, maxCount);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo(){
+        try {
+            return copperMonitoringService.getMonitoringDataStorageDetailInfo();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }

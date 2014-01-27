@@ -55,6 +55,7 @@ public abstract class RepeatingMonitoringDataProviderBase extends MonitoringData
 
     protected final MonitoringDataCollector monitoringDataCollector;
     private PollThread thread;
+    protected MonitoringDataProviderManager monitoringDataProviderManager;
 
     public RepeatingMonitoringDataProviderBase(MonitoringDataCollector monitoringDataCollector) {
         super();

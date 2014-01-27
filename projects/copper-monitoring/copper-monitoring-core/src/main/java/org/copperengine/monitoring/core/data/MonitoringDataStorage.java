@@ -43,6 +43,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import org.copperengine.monitoring.core.model.MonitoringData;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageContentInfo;
+import org.copperengine.monitoring.core.model.MonitoringDataStorageDetailInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -666,7 +667,18 @@ public class MonitoringDataStorage {
     }
 
     public MonitoringDataStorageInfo getMonitoringDataStorageInfo() {
+        long lSize = 0;
+        synchronized (lock) {
+            for (TargetFile tf : writtenFiles)
+                lSize += tf.limit;
+            if (currentTarget != null)
+                lSize += currentTarget.limit;
+        }
+        final double size = (lSize / 1024.0d / 1024.0d);
+        return new MonitoringDataStorageInfo(size, targetPath.getAbsolutePath(), getMinDate(), getMaxDate());
+    }
 
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo() {
         final HashMap<String, MonitoringDataStorageContentInfo> classToInfo = new HashMap<String, MonitoringDataStorageContentInfo>();
         for (MonitoringData data : read(null, null)) {
             String clazz = data.getClass().getName();
@@ -678,15 +690,7 @@ public class MonitoringDataStorage {
             }
             classToInfo.put(clazz, info);
         }
-        long lSize = 0;
-        synchronized (lock) {
-            for (TargetFile tf : writtenFiles)
-                lSize += tf.limit;
-            if (currentTarget != null)
-                lSize += currentTarget.limit;
-        }
-        final double size = (lSize / 1024.0d / 1024.0d);
-        return new MonitoringDataStorageInfo(size, targetPath.getAbsolutePath(), new ArrayList<MonitoringDataStorageContentInfo>(classToInfo.values()), getMinDate(), getMaxDate());
+        return new MonitoringDataStorageDetailInfo(new ArrayList<MonitoringDataStorageContentInfo>(classToInfo.values()));
     }
 
 }

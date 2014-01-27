@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Optional;
 import org.copperengine.management.BatcherMXBean;
 import org.copperengine.management.DBStorageMXBean;
 import org.copperengine.management.FileBasedWorkflowRepositoryMXBean;
@@ -44,8 +45,7 @@ import org.copperengine.monitoring.core.model.CopperInterfaceSettings;
 import org.copperengine.monitoring.core.model.DependencyInjectorInfo;
 import org.copperengine.monitoring.core.model.MeasurePointData;
 import org.copperengine.monitoring.core.model.MessageInfo;
-import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
-import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
+import org.copperengine.monitoring.core.model.MonitoringDataStorageDetailInfo;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import org.copperengine.monitoring.core.model.ProcessorPoolInfo;
@@ -68,8 +68,6 @@ import org.copperengine.monitoring.server.monitoring.MonitoringDataAwareCallable
 import org.copperengine.monitoring.server.persistent.MonitoringDbStorage;
 import org.copperengine.monitoring.server.provider.MonitoringDataProvider;
 import org.copperengine.monitoring.server.provider.MonitoringDataProviderManager;
-
-import com.google.common.base.Optional;
 
 public class DefaultCopperMonitoringService implements CopperMonitoringService {
     private static final long serialVersionUID = 1829707298427309206L;
@@ -433,11 +431,6 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
     }
 
     @Override
-    public List<MonitoringDataProviderInfo> getMonitoringDataProviderInfos() {
-        return monitoringDataProviderManager.getInfos();
-    }
-
-    @Override
     public void startMonitoringDataProvider(String name) throws RemoteException {
         final Optional<MonitoringDataProvider> provider = monitoringDataProviderManager.getProvider(name);
         if (provider.isPresent()) {
@@ -454,21 +447,13 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
     }
 
     @Override
-    @Deprecated
-    /* will be removed in 4.0 */
-    public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
-        return getMonitoringDataStorageInfo();
-    }
-
-    @Override
-    public MonitoringDataStorageInfo getMonitoringDataStorageInfo() {
-        return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<MonitoringDataStorageInfo>() {
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo() throws RemoteException {
+        return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<MonitoringDataStorageDetailInfo>() {
             @Override
-            public MonitoringDataStorageInfo call() throws Exception {
-                return monitoringDataAccesor.getMonitoringDataStorageInfo();
+            public MonitoringDataStorageDetailInfo call() throws Exception {
+                return monitoringDataAccesor.getMonitoringDataStorageDetailInfo();
             }
         });
     }
-
 
 }

@@ -32,8 +32,7 @@ import org.copperengine.monitoring.core.model.CopperInterfaceSettings;
 import org.copperengine.monitoring.core.model.DependencyInjectorInfo;
 import org.copperengine.monitoring.core.model.MeasurePointData;
 import org.copperengine.monitoring.core.model.MessageInfo;
-import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
-import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
+import org.copperengine.monitoring.core.model.MonitoringDataStorageDetailInfo;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo.EngineTyp;
 import org.copperengine.monitoring.core.model.ProcessorPoolInfo;
@@ -1221,12 +1220,6 @@ public class TestDataProvider implements CopperMonitoringService {
     }
 
     @Override
-    public List<MonitoringDataProviderInfo> getMonitoringDataProviderInfos() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public void startMonitoringDataProvider(String name) throws RemoteException {
         // TODO Auto-generated method stub
 
@@ -1239,15 +1232,8 @@ public class TestDataProvider implements CopperMonitoringService {
     }
 
     @Override
-    public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public MonitoringDataStorageInfo getMonitoringDataStorageInfo() throws RemoteException {
-        // TODO Auto-generated method stub
-        return null;
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo() throws RemoteException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
 }

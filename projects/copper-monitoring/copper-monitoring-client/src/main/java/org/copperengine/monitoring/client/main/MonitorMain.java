@@ -44,7 +44,7 @@ public class MonitorMain extends Application {
         ApplicationContext applicationContext = new ApplicationContext();
         primaryStage.titleProperty().bind(new SimpleStringProperty("Copper Monitor (server: ").concat(applicationContext.serverAdressProperty().concat(")")));
         new Button(); // Trigger loading of default stylesheet
-        final Scene scene = new Scene(applicationContext.getMainPane(), 1300, 900, Color.WHEAT);
+        final Scene scene = new Scene(applicationContext.getMainPane(), 1280, 800, Color.WHEAT);
 
         scene.getStylesheets().add(this.getClass().getResource("/org/copperengine/gui/css/base.css").toExternalForm());
 
@@ -83,7 +83,7 @@ public class MonitorMain extends Application {
         // }
         // }
         // }.start();
-        // ScenicView.show(scene);
+//        ScenicView.show(scene);
     }
 
     public static void main(final String[] arguments) {

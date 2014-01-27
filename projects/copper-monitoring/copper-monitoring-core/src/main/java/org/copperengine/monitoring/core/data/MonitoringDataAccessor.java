@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.copperengine.monitoring.core.data.filter.MonitoringDataFilter;
 import org.copperengine.monitoring.core.model.MonitoringData;
+import org.copperengine.monitoring.core.model.MonitoringDataStorageDetailInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
 import org.copperengine.monitoring.core.statistic.StatisticCreator;
 
@@ -82,13 +83,11 @@ public class MonitoringDataAccessor implements MonitoringDataQuerys {
         return result;
     }
 
-    @Deprecated
-    /* will be removed in 4.0 */
-    public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
-        return getMonitoringDataStorageInfo();
-    }
-
     public MonitoringDataStorageInfo getMonitoringDataStorageInfo() {
         return monitoringDataStorage.getMonitoringDataStorageInfo();
+    }
+
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo() {
+        return monitoringDataStorage.getMonitoringDataStorageDetailInfo();
     }
 }

@@ -18,15 +18,20 @@ package org.copperengine.monitoring.server.monitoring;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.copperengine.monitoring.core.model.AdapterCallInfo;
 import org.copperengine.monitoring.core.model.AdapterWfLaunchInfo;
 import org.copperengine.monitoring.core.model.AdapterWfNotifyInfo;
+import org.copperengine.monitoring.core.model.ConfigurationInfo;
 import org.copperengine.monitoring.core.model.GenericMonitoringData;
 import org.copperengine.monitoring.core.model.LogEvent;
 import org.copperengine.monitoring.core.model.MeasurePointData;
+import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
+import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
+import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 import org.copperengine.monitoring.core.model.SystemResourcesInfo;
 import org.copperengine.monitoring.core.model.WorkflowInstanceInfo;
 import org.copperengine.monitoring.core.util.CachingPerformanceMonitor;
@@ -148,5 +153,16 @@ public class MonitoringDataCollector {
             }
         });
     }
+
+    public void submitConfiguration(final List<ProcessingEngineInfo> processingEngineInfos, final List<MonitoringDataProviderInfo> providers, final MonitoringDataStorageInfo monitoringDataStorageInfo) {
+        monitoringQueue.offer(new MonitoringDataAwareRunnable() {
+            @Override
+            public void run() {
+                final ConfigurationInfo configuration = new ConfigurationInfo(new Date(), processingEngineInfos,providers,monitoringDataStorageInfo);
+                monitoringDataAdder.addMonitoringData(configuration);
+            }
+        });
+    }
+
 
 }

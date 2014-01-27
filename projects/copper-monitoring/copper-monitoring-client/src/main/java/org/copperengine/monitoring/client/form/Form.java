@@ -21,30 +21,34 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 
 /**
- * @param <C>
- *            target component to display the form
+ * @param <C> Controller for the Form
  */
 public abstract class Form<C> implements Widget {
 
     private final SimpleStringProperty displayTitle;
-    protected final SimpleStringProperty staticTitle;
-    private final ShowFormsStrategy<?> showFormStrategy;
+    protected String initialTitle;
+    protected ShowFormsStrategy<?> showFormStrategy;
     protected final C controller;
 
-    public Form(String staticTitle, ShowFormsStrategy<?> showFormStrategy, C controller) {
+    public Form(String title, ShowFormsStrategy<?> showFormStrategy, C controller) {
         super();
-        this.staticTitle = new SimpleStringProperty(staticTitle);
-        this.displayTitle = new SimpleStringProperty(staticTitle);
+        this.initialTitle = title;
+        this.displayTitle = new SimpleStringProperty(title);
         this.showFormStrategy = showFormStrategy;
         this.controller = controller;
     }
 
-    public SimpleStringProperty displayedTitleProperty() {
-        return displayTitle;
+    /**
+     * normally showFormStrategy should be passed with constructor but sometimes the target Node is not available during creation
+     * than you can use {@link EmptyShowFormStrategy} in constructor and set later
+     * @param showFormStrategy
+     */
+    protected void setShowFormStrategy(ShowFormsStrategy<?> showFormStrategy){
+        this.showFormStrategy = showFormStrategy;
     }
 
-    public SimpleStringProperty staticTitleProperty() {
-        return staticTitle;
+    public SimpleStringProperty displayedTitleProperty() {
+        return displayTitle;
     }
 
     public void show() {
@@ -55,8 +59,23 @@ public abstract class Form<C> implements Widget {
         return controller;
     }
 
-    public void setStaticTitle(String staticTitle) {
-        this.staticTitle.set(staticTitle);
+    /**
+     * the initial titel could be used to append dynamic Title parts
+     */
+    public String getInitialTitle() {
+        return this.initialTitle;
+    }
+
+    /**
+     * the titel
+     */
+    public void setAllTitle(String title) {
+        this.initialTitle = title;
+        this.displayTitle.set(title);
+    }
+
+    public void setTitle(String title) {
+        this.displayTitle.set(title);
     }
 
     Node cachedContent;
@@ -73,5 +92,23 @@ public abstract class Form<C> implements Widget {
     }
 
     DoubleProperty zoomProperty = new SimpleDoubleProperty(200);
+
+    /**
+     *
+     * @param <C> Controller
+     */
+    public static class NonDisplayableForm<C>{
+        private final Form<C> form;
+
+        protected NonDisplayableForm(Form<C> form) {
+            this.form = form;
+        }
+
+        public Form<C> convertToDisplayAble(ShowFormsStrategy <?> showFormsStrategy){
+            form.setShowFormStrategy(showFormsStrategy);
+            return form;
+        }
+
+    }
 
 }

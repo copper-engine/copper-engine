@@ -30,31 +30,24 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.context.FormContext;
 import org.copperengine.monitoring.client.form.Form;
 import org.copperengine.monitoring.client.form.FxmlController;
 import org.copperengine.monitoring.client.form.dialog.DefaultInputDialogCreator;
 import org.copperengine.monitoring.client.form.dialog.InputDialogCreator;
-import org.copperengine.monitoring.client.ui.dashboard.result.DashboardResultModel;
 import org.copperengine.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 import org.copperengine.monitoring.core.model.ProcessorPoolInfo;
-import org.copperengine.monitoring.core.model.WorkflowInstanceState;
-import org.copperengine.monitoring.core.model.WorkflowStateSummary;
 
 public class ProcessingEngineController implements Initializable, FxmlController {
-    private ProcessingEngineInfo processingEngineInfo;
-    private final DashboardResultModel dashboardResultModel;
+
     private final FormContext context;
     private final GuiCopperDataProvider dataProvider;
     private final InputDialogCreator inputDialogCreator;
 
-    public ProcessingEngineController(ProcessingEngineInfo processingEngineInfo, DashboardResultModel dashboardResultModel, FormContext context, GuiCopperDataProvider copperDataProvider, InputDialogCreator inputDialogCreator) {
+    public ProcessingEngineController(FormContext context, GuiCopperDataProvider copperDataProvider, InputDialogCreator inputDialogCreator) {
         super();
-        this.processingEngineInfo = processingEngineInfo;
-        this.dashboardResultModel = dashboardResultModel;
         this.context = context;
         this.dataProvider = copperDataProvider;
         this.inputDialogCreator = inputDialogCreator;
@@ -148,23 +141,16 @@ public class ProcessingEngineController implements Initializable, FxmlController
         assert workflowRepositoryPaths != null : "fx:id=\"workflowRepositoryPaths\" was not injected: check your FXML file 'ProcessingEngine.fxml'.";
         assert workflowRepositoryTyp != null : "fx:id=\"workflowRepositoryTyp\" was not injected: check your FXML file 'ProcessingEngine.fxml'.";
 
-        WorkflowStateSummary workflowStateSummary = dashboardResultModel.getStateSummery(processingEngineInfo.getId());
-
-        state_ENQUEUED.setText(Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.ENQUEUED)));
-        state_ERROR.setText(Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.ERROR)));
-        state_FINISHED.setText(Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.FINISHED)));
-        state_INVALID.setText(Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.INVALID)));
-        state_WAITING.setText(Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.WAITING)));
 
         pools.getStyleClass().add("floating");// transparent tabheader
-        updateInfo();
+
         batcherNumSet.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                inputDialogCreator.showIntInputDialog("Number of threads", processingEngineInfo.getStorageInfo().getBatcher().getNumThreads(), new DefaultInputDialogCreator.DialogClosed<Integer>() {
+                inputDialogCreator.showIntInputDialog("Number of threads", Integer.valueOf(batcherthreadnum.getText()), new DefaultInputDialogCreator.DialogClosed<Integer>() {
                     @Override
                     public void closed(Integer inputValue) {
-                        dataProvider.setBatcherNumThreads(processingEngineInfo.getId(), inputValue);
+                        dataProvider.setBatcherNumThreads(id.getText(), inputValue);
                         context.createDashboardForm().refresh();
                     }
                 });
@@ -174,12 +160,15 @@ public class ProcessingEngineController implements Initializable, FxmlController
         batcherNumSet.disableProperty().bind(batcherId.textProperty().isEqualTo(""));
     }
 
-    public void setProcessingEngineInfo(ProcessingEngineInfo processingEngineInfo) {
-        this.processingEngineInfo = processingEngineInfo;
-        updateInfo();
+    private final Map<String, ProccessorPoolController> poolControllers = new TreeMap<String, ProccessorPoolController>();
+
+    @Override
+    public URL getFxmlResource() {
+        return getClass().getResource("ProcessingEngine.fxml");
     }
 
-    private void updateInfo() {
+    public void update(ProcessingEngineInfo processingEngineInfo){
+
         id.setText(processingEngineInfo.getId());
         // row.setText(dashboardResultModel.getStateSummery(processingEngineInfo.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.RAW).toString());
         typ.setText(processingEngineInfo.getTyp().toString());
@@ -195,12 +184,20 @@ public class ProcessingEngineController implements Initializable, FxmlController
         batcherId.setText(processingEngineInfo.getStorageInfo().getBatcher().getDescription());
         batcherthreadnum.setText(Integer.toString(processingEngineInfo.getStorageInfo().getBatcher().getNumThreads()));
 
-        updateProcessorPools();
+        state_ENQUEUED.setText("?");//Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.ENQUEUED)));
+        state_ERROR.setText("?");//Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.ERROR)));
+        state_FINISHED.setText("?");//Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.FINISHED)));
+        state_INVALID.setText("?");//Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.INVALID)));
+        state_WAITING.setText("?");//Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.WAITING)));
+
+
+
+        //dashboardResultModel.getStateSummery(processingEngineInfo.getId()
+
+        updateProcessorPools(processingEngineInfo);
     }
 
-    private final Map<String, ProccessorPoolController> poolControllers = new TreeMap<String, ProccessorPoolController>();
-
-    private void updateProcessorPools() {
+    private void updateProcessorPools(ProcessingEngineInfo processingEngineInfo) {
         Set<String> poolIds = new HashSet<String>();
         for (ProcessorPoolInfo processorPoolInfo : processingEngineInfo.getPools()) {
             poolIds.add(processorPoolInfo.getId());
@@ -222,11 +219,6 @@ public class ProcessingEngineController implements Initializable, FxmlController
                 poolController.setPool(processorPoolInfo);
             }
         }
-    }
-
-    @Override
-    public URL getFxmlResource() {
-        return getClass().getResource("ProcessingEngine.fxml");
     }
 
 }

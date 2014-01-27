@@ -26,8 +26,7 @@ import org.copperengine.monitoring.core.model.AuditTrailInfo;
 import org.copperengine.monitoring.core.model.CopperInterfaceSettings;
 import org.copperengine.monitoring.core.model.MeasurePointData;
 import org.copperengine.monitoring.core.model.MessageInfo;
-import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
-import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
+import org.copperengine.monitoring.core.model.MonitoringDataStorageDetailInfo;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 import org.copperengine.monitoring.core.model.WorkflowClassMetaData;
 import org.copperengine.monitoring.core.model.WorkflowInstanceInfo;
@@ -101,15 +100,10 @@ public interface CopperMonitoringService extends Remote, Serializable, Monitorin
 
     public String getDatabaseMonitoringRecommendationsReport(String sqlid) throws RemoteException;
 
-    public List<MonitoringDataProviderInfo> getMonitoringDataProviderInfos() throws RemoteException;
-
     public void startMonitoringDataProvider(String name) throws RemoteException;
 
     public void stopMonitoringDataProvider(String name) throws RemoteException;
-    
-    @Deprecated
-    /* will be removed in 4.0 */
-    public MonitoringDataStorageInfo getMonitroingDataStorageInfo() throws RemoteException;
 
-    public MonitoringDataStorageInfo getMonitoringDataStorageInfo() throws RemoteException;
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo() throws RemoteException;
+
 }

@@ -11,163 +11,111 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<StackPane prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
-    <Pane maxHeight="455.0" maxWidth="955.0" prefHeight="455.0" prefWidth="953.0"
-          style="-fx-background-color: transparent;" StackPane.alignment="CENTER">
-        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#0e51a7" height="387.0" layoutX="0.0" layoutY="36.0"
-                   stroke="BLACK" strokeType="INSIDE"
-                   style="-fx-fill: linear-gradient(to bottom, rgb(0, 136, 204), rgb(0, 68, 204));" width="953.0"/>
-        <Rectangle arcHeight="30.0" arcWidth="30.0" height="318.9999000000025" layoutX="359.0" layoutY="72.0"
-                   opacity="0.74" stroke="BLACK" strokeType="INSIDE"
-                   style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="211.0">
-            <fill>
-                <Color blue="0.000" green="0.137" red="1.000" fx:id="x4"/>
-            </fill>
-        </Rectangle>
-        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x4" height="318.9998779296875" layoutX="494.0" layoutY="72.0"
-                   stroke="BLACK" strokeType="INSIDE"
-                   style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="223.0"/>
-        <Label layoutX="16.0" layoutY="77.0" text="ProcessingEngine" textFill="WHITE"/>
-        <Ellipse layoutX="834.0" layoutY="356.0" radiusX="100.0" radiusY="35.0" stroke="BLACK" strokeType="INSIDE">
-            <fill>
-                <Color blue="0.188" green="0.216" red="0.749" fx:id="x3"/>
-            </fill>
-        </Ellipse>
-        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="$x3" height="128.5" layoutX="734.0" layoutY="228.0"
-                   stroke="BLACK" strokeType="INSIDE" width="200.0"/>
-        <Ellipse fill="$x4" layoutX="834.0" layoutY="231.0" radiusX="100.0" radiusY="35.0" stroke="BLACK"
-                 strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));"/>
-        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="$x3" height="19.951171875" layoutX="735.0" layoutY="337.0"
-                   stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="197.99998474121094"/>
-        <Label layoutX="504.0" layoutY="77.0" prefWidth="53.0001220703125" text="Storage" textFill="WHITE"/>
-        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#606060" height="119.0" layoutX="516.0" layoutY="203.0"
-                   stroke="BLACK" strokeType="INSIDE" width="183.0"/>
-        <Label layoutX="526.0" layoutY="211.0" text="Batcher" textFill="WHITE"/>
-        <Label layoutX="780.0" layoutY="222.0" text="WorkflowRepository" textFill="WHITE"/>
-        <Rectangle arcHeight="30.0" arcWidth="30.0" height="58.0" layoutX="383.0" layoutY="88.0" stroke="BLACK"
-                   strokeType="INSIDE"
-                   style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0">
-            <fill>
-                <Color blue="0.000" green="0.620" red="1.000" fx:id="x2"/>
-            </fill>
-        </Rectangle>
-        <Label layoutX="399.0" layoutY="94.0" prefHeight="-1.0" text="ENQUEUED"/>
-        <TextField id="row" fx:id="state_ENQUEUED" editable="false" layoutX="399.0" layoutY="112.0" opacity="0.75"
-                   prefHeight="-1.0" prefWidth="62.0"/>
-        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x4" height="58.00001525878906" layoutX="736.0" layoutY="72.0"
-                   stroke="BLACK" strokeType="INSIDE"
-                   style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="200.0"/>
-        <Label layoutX="749.0" layoutY="77.0" prefWidth="174.0" text="Dependency Injector" textFill="WHITE"/>
-        <TextField id="typ" fx:id="injectorTyp" editable="false" layoutX="749.0" layoutY="94.0" opacity="0.75"
-                   prefHeight="-1.0" prefWidth="174.0"/>
-        <Label layoutX="504.0" layoutY="106.0" text="desc" textFill="WHITE"/>
-        <TextField id="id" fx:id="storageId" editable="false" layoutX="536.0" layoutY="104.0" opacity="0.75"
-                   prefHeight="-1.0" prefWidth="167.0001220703125"/>
-        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="58.0" layoutX="383.0" layoutY="149.0"
-                   stroke="BLACK" strokeType="INSIDE"
-                   style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0"/>
-        <Label layoutX="399.0" layoutY="155.0" prefHeight="-1.0" text="WAITING"/>
-        <TextField id="row" fx:id="state_WAITING" editable="false" layoutX="399.0" layoutY="173.0" opacity="0.75"
-                   prefHeight="-1.0" prefWidth="62.0"/>
-        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="58.0" layoutX="383.0" layoutY="209.0"
-                   stroke="BLACK" strokeType="INSIDE"
-                   style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0"/>
-        <Label layoutX="399.0" layoutY="215.0" prefHeight="-1.0" text="FINISHED"/>
-        <TextField id="row" fx:id="state_FINISHED" editable="false" layoutX="399.0" layoutY="233.0" opacity="0.75"
-                   prefHeight="-1.0" prefWidth="62.0"/>
-        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="58.0" layoutX="383.0" layoutY="269.0"
-                   stroke="BLACK" strokeType="INSIDE"
-                   style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0"/>
-        <Label layoutX="399.0" layoutY="275.0" prefHeight="-1.0" text="INVALID"/>
-        <TextField id="row" fx:id="state_INVALID" editable="false" layoutX="399.0" layoutY="293.0" opacity="0.75"
-                   prefHeight="-1.0" prefWidth="62.0"/>
-        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="58.0" layoutX="382.0" layoutY="329.0"
-                   stroke="BLACK" strokeType="INSIDE"
-                   style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0"/>
-        <Label layoutX="399.0" layoutY="335.0" prefHeight="-1.0" text="ERROR"/>
-        <TextField id="row" fx:id="state_ERROR" editable="false" layoutX="399.0" layoutY="353.0" opacity="0.75"
-                   prefHeight="-1.0" prefWidth="62.0"/>
-        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x4" height="57.999916076660156" layoutX="737.0"
-                   layoutY="135.0" stroke="BLACK" strokeType="INSIDE"
-                   style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="200.0"/>
-        <Label layoutX="749.0" layoutY="138.0" prefWidth="174.0" text="Statistics Collector" textFill="WHITE"/>
-        <TextField id="typ" fx:id="statisticsCollector" editable="false" layoutX="749.0" layoutY="159.0" opacity="0.75"
-                   prefHeight="-1.0" prefWidth="174.0"/>
-        <VBox alignment="BOTTOM_CENTER" layoutX="16.0" layoutY="163.0" prefHeight="228.0" prefWidth="-1.0">
-            <TabPane fx:id="pools" prefHeight="-1.0" prefWidth="340.0" side="BOTTOM"
-                     style="-fx-background-color: rgba(0,0,0,0);" styleClass="copperpool-tab-pane"
-                     tabClosingPolicy="UNAVAILABLE"/>
-        </VBox>
-        <GridPane hgap="3.0" layoutX="526.0" layoutY="233.0" prefHeight="-1.0" prefWidth="167.0001220703125" vgap="3.0">
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-1.0" prefWidth="-1.0"/>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="159.0" minWidth="10.0" prefWidth="116.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints fillHeight="false" minHeight="-1.0" prefHeight="-1.0" valignment="CENTER"
-                                vgrow="NEVER"/>
-                <RowConstraints fillHeight="false" minHeight="-1.0" prefHeight="-1.0" valignment="CENTER"
-                                vgrow="NEVER"/>
-            </rowConstraints>
-            <Label text="desc" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0"
-                   GridPane.valignment="CENTER"/>
-            <Label text="threads" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1"
-                   GridPane.valignment="CENTER"/>
-            <TextField id="id" fx:id="batcherId" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0"
-                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-            <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0" GridPane.columnIndex="1"
-                  GridPane.rowIndex="1">
-                <TextField id="id" fx:id="batcherthreadnum" editable="false" opacity="0.75" prefHeight="-1.0"
-                           prefWidth="25.0" HBox.hgrow="SOMETIMES"/>
-                <Button fx:id="batcherNumSet" minHeight="-1.0" minWidth="-1.0" mnemonicParsing="false" prefHeight="-1.0"
-                        prefWidth="-1.0" text="edit" HBox.hgrow="SOMETIMES">
-                    <font>
-                        <Font size="13.0"/>
-                    </font>
-                </Button>
-            </HBox>
-        </GridPane>
-        <GridPane hgap="3.0" layoutX="16.0" layoutY="105.0" prefWidth="255.0" vgap="3.0">
-            <columnConstraints>
-                <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="-1.0" prefWidth="-1.0"/>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="-1.0" prefWidth="-1.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES"/>
-            </rowConstraints>
-            <Label text="id" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0"
-                   GridPane.valignment="CENTER"/>
-            <Label prefWidth="-1.0" text="type" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1"
-                   GridPane.valignment="CENTER"/>
-            <TextField fx:id="id" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0"
-                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-            <TextField fx:id="typ" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0"
-                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        </GridPane>
-        <GridPane hgap="3.0" layoutX="738.0" layoutY="269.0" prefHeight="-1.0" prefWidth="187.0" vgap="3.0">
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="-1.0" prefWidth="-1.0"/>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="-1.0" prefWidth="-1.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES"/>
-            </rowConstraints>
-            <Label text="desc" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0"
-                   GridPane.valignment="CENTER"/>
-            <Label prefWidth="-1.0" text="type" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1"
-                   GridPane.valignment="CENTER"/>
-            <Label text="path" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="2"
-                   GridPane.valignment="CENTER"/>
-            <TextField id="id" fx:id="workflowRepositoryId" editable="false" opacity="0.75" prefHeight="-1.0"
-                       prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-            <TextField id="typ" fx:id="workflowRepositoryTyp" editable="false" opacity="0.75" prefHeight="-1.0"
-                       prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-            <TextArea id="workflowpath" fx:id="workflowRepositoryPaths" editable="false" opacity="0.75"
-                      prefHeight="40.0" prefWidth="149.0" text="" wrapText="true" GridPane.columnIndex="1"
-                      GridPane.rowIndex="2"/>
-        </GridPane>
-    </Pane>
+<StackPane prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: transparent;" xmlns:fx="http://javafx.com/fxml">
+  <Pane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" style="" StackPane.alignment="CENTER">
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#0e51a7" height="541.0" layoutX="0.0" layoutY="0.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(0, 136, 204), rgb(0, 68, 204));" width="630.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" height="318.9999000000025" layoutX="16.0" layoutY="199.0" opacity="0.74" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="211.0">
+      <fill>
+        <Color blue="0.000" green="0.137" red="1.000" fx:id="x4" />
+      </fill>
+    </Rectangle>
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x4" height="318.9998779296875" layoutX="139.0" layoutY="199.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="223.0" />
+    <Label layoutX="16.0" layoutY="18.0" text="ProcessingEngine" textFill="WHITE" />
+    <Ellipse layoutX="503.0" layoutY="483.0" radiusX="100.0" radiusY="35.0" stroke="BLACK" strokeType="INSIDE">
+      <fill>
+        <Color blue="0.188" green="0.216" red="0.749" fx:id="x3" />
+      </fill>
+    </Ellipse>
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="$x3" height="128.5" layoutX="403.0" layoutY="355.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+    <Ellipse fill="$x4" layoutX="503.0" layoutY="358.0" radiusX="100.0" radiusY="35.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" />
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="$x3" height="19.951171875" layoutX="404.0" layoutY="464.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="197.99998474121094" />
+    <Label layoutX="149.0" layoutY="207.0" prefWidth="53.0001220703125" text="Storage" textFill="WHITE" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#606060" height="119.0" layoutX="161.0" layoutY="385.0" stroke="BLACK" strokeType="INSIDE" width="183.0" />
+    <Label layoutX="171.0" layoutY="393.0" text="Batcher" textFill="WHITE" />
+    <Label layoutX="450.0" layoutY="349.0" text="WorkflowRepository" textFill="WHITE" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" height="58.0" layoutX="26.0" layoutY="207.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0">
+      <fill>
+        <Color blue="0.000" green="0.620" red="1.000" fx:id="x2" />
+      </fill>
+    </Rectangle>
+    <Label layoutX="42.0" layoutY="213.0" prefHeight="-1.0" text="ENQUEUED" />
+    <TextField id="row" fx:id="state_ENQUEUED" editable="false" layoutX="42.0" layoutY="231.0" opacity="0.75" prefHeight="-1.0" prefWidth="62.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x4" height="58.00001525878906" layoutX="405.0" layoutY="199.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="200.0" />
+    <Label layoutX="419.0" layoutY="204.0" prefWidth="174.0" text="Dependency Injector" textFill="WHITE" />
+    <TextField id="typ" fx:id="injectorTyp" editable="false" layoutX="419.0" layoutY="221.0" opacity="0.75" prefHeight="-1.0" prefWidth="174.0" />
+    <Label layoutX="149.0" layoutY="234.0" text="desc" textFill="WHITE" />
+    <TextField id="id" fx:id="storageId" editable="false" layoutX="185.0" layoutY="229.0" opacity="0.75" prefHeight="-1.0" prefWidth="167.0001220703125" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="58.0" layoutX="26.0" layoutY="268.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0" />
+    <Label layoutX="42.0" layoutY="274.0" prefHeight="-1.0" text="WAITING" />
+    <TextField id="row" fx:id="state_WAITING" editable="false" layoutX="42.0" layoutY="292.0" opacity="0.75" prefHeight="-1.0" prefWidth="62.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="58.0" layoutX="26.0" layoutY="328.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0" />
+    <Label layoutX="42.0" layoutY="334.0" prefHeight="-1.0" text="FINISHED" />
+    <TextField id="row" fx:id="state_FINISHED" editable="false" layoutX="42.0" layoutY="352.0" opacity="0.75" prefHeight="-1.0" prefWidth="62.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="58.0" layoutX="26.0" layoutY="388.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0" />
+    <Label layoutX="42.0" layoutY="394.0" prefHeight="-1.0" text="INVALID" />
+    <TextField id="row" fx:id="state_INVALID" editable="false" layoutX="42.0" layoutY="412.0" opacity="0.75" prefHeight="-1.0" prefWidth="62.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x2" height="58.0" layoutX="25.0" layoutY="448.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(251, 180, 80), rgb(248, 148, 6));" width="94.0" />
+    <Label layoutX="42.0" layoutY="454.0" prefHeight="-1.0" text="ERROR" />
+    <TextField id="row" fx:id="state_ERROR" editable="false" layoutX="42.0" layoutY="472.0" opacity="0.75" prefHeight="-1.0" prefWidth="62.0" />
+    <Rectangle arcHeight="30.0" arcWidth="30.0" fill="$x4" height="57.999916076660156" layoutX="407.0" layoutY="262.0" stroke="BLACK" strokeType="INSIDE" style="-fx-fill: linear-gradient(to bottom, rgb(238, 95, 91), rgb(189, 54, 47));" width="200.0" />
+    <Label layoutX="419.0" layoutY="265.0" prefWidth="174.0" text="Statistics Collector" textFill="WHITE" />
+    <TextField id="typ" fx:id="statisticsCollector" editable="false" layoutX="419.0" layoutY="286.0" opacity="0.75" prefHeight="-1.0" prefWidth="174.0" />
+    <HBox alignment="TOP_RIGHT" layoutX="291.0" layoutY="18.0" prefHeight="-1.0" prefWidth="314.0">
+      <children>
+        <TabPane fx:id="pools" prefHeight="-1.0" prefWidth="-1.0" side="BOTTOM" style="" styleClass="transparent-tab-pane" tabClosingPolicy="UNAVAILABLE" />
+      </children>
+    </HBox>
+    <GridPane hgap="3.0" layoutX="171.0" layoutY="415.0" prefHeight="-1.0" prefWidth="167.0001220703125" vgap="3.0">
+      <columnConstraints>
+        <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-1.0" prefWidth="-1.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="159.0" minWidth="10.0" prefWidth="116.0" />
+      </columnConstraints>
+      <rowConstraints>
+        <RowConstraints fillHeight="false" minHeight="-1.0" prefHeight="-1.0" valignment="CENTER" vgrow="NEVER" />
+        <RowConstraints fillHeight="false" minHeight="-1.0" prefHeight="-1.0" valignment="CENTER" vgrow="NEVER" />
+      </rowConstraints>
+      <Label text="desc" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
+      <Label text="threads" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+      <TextField id="id" fx:id="batcherId" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+      <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+        <TextField id="id" fx:id="batcherthreadnum" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="25.0" HBox.hgrow="SOMETIMES" />
+        <Button fx:id="batcherNumSet" minHeight="-1.0" minWidth="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="-1.0" text="edit" HBox.hgrow="SOMETIMES">
+          <font>
+            <Font size="13.0" />
+          </font>
+        </Button>
+      </HBox>
+    </GridPane>
+    <GridPane hgap="3.0" layoutX="16.0" layoutY="46.0" prefWidth="255.0" vgap="3.0">
+      <columnConstraints>
+        <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="-1.0" prefWidth="-1.0" />
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="-1.0" prefWidth="-1.0" />
+      </columnConstraints>
+      <rowConstraints>
+        <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+      </rowConstraints>
+      <Label text="id" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
+      <Label prefWidth="-1.0" text="type" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+      <TextField fx:id="id" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+      <TextField fx:id="typ" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+    </GridPane>
+    <GridPane hgap="3.0" layoutX="408.0" layoutY="396.0" prefHeight="-1.0" prefWidth="187.0" vgap="3.0">
+      <columnConstraints>
+        <ColumnConstraints hgrow="NEVER" minWidth="-1.0" prefWidth="-1.0" />
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="-1.0" prefWidth="-1.0" />
+      </columnConstraints>
+      <rowConstraints>
+        <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+      </rowConstraints>
+      <Label text="desc" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
+      <Label prefWidth="-1.0" text="type" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+      <Label text="path" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+      <TextField id="id" fx:id="workflowRepositoryId" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+      <TextField id="typ" fx:id="workflowRepositoryTyp" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <TextArea id="workflowpath" fx:id="workflowRepositoryPaths" editable="false" opacity="0.75" prefHeight="40.0" prefWidth="149.0" text="" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+    </GridPane>
+  </Pane>
 </StackPane>

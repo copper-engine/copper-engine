@@ -17,8 +17,7 @@ package org.copperengine.monitoring.client.ui.dashboard.result;
 
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,31 +25,40 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.Button;
+import javafx.scene.control.OverrunStyle;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.form.Form;
-import org.copperengine.monitoring.client.form.filter.EmptyFilterModel;
 import org.copperengine.monitoring.client.form.filter.FilterResultControllerBase;
-import org.copperengine.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
+import org.copperengine.monitoring.client.form.filter.defaultfilter.FromToMaxCountFilterModel;
+import org.copperengine.monitoring.client.ui.dashboard.result.engines.ProcessingEnginesController;
 import org.copperengine.monitoring.client.ui.dashboard.result.provider.ProviderController;
+import org.copperengine.monitoring.client.util.DateTimePicker;
+import org.copperengine.monitoring.client.util.TableColumnHelper;
+import org.copperengine.monitoring.core.model.ConfigurationInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageContentInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
-import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
-import org.copperengine.monitoring.core.model.WorkflowStateSummary;
 
-public class DashboardResultController extends FilterResultControllerBase<EmptyFilterModel, DashboardResultModel> implements Initializable {
+public class DashboardResultController extends FilterResultControllerBase<FromToMaxCountFilterModel, ConfigurationInfo> implements Initializable {
     private final GuiCopperDataProvider copperDataProvider;
     private final DashboardDependencyFactory dashboardPartsFactory;
+    private Form<ProcessingEnginesController> enginesForm;
 
     public DashboardResultController(GuiCopperDataProvider copperDataProvider, DashboardDependencyFactory dashboardPartsFactory) {
         super();
@@ -58,46 +66,115 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
         this.dashboardPartsFactory = dashboardPartsFactory;
     }
 
-    @FXML
-    // fx:id="countCol"
+
+    @FXML //  fx:id="countCol"
     private TableColumn<MonitoringDataStorageContentInfo, Long> countCol; // Value injected by FXMLLoader
 
-    @FXML
-    // fx:id="engines"
-    private TabPane engines; // Value injected by FXMLLoader
+    @FXML //  fx:id="enginesTarget"
+    private Pane enginesTarget; // Value injected by FXMLLoader
 
-    @FXML
-    // fx:id="location"
+    @FXML //  fx:id="location"
     private TextField location; // Value injected by FXMLLoader
 
-    @FXML
-    // fx:id="monitoringPane"
-    private HBox monitoringPane; // Value injected by FXMLLoader
+    @FXML //  fx:id="monitoringPane"
+    private VBox monitoringPane; // Value injected by FXMLLoader
 
-    @FXML
-    // fx:id="size"
+    @FXML //  fx:id="size"
     private TextField size; // Value injected by FXMLLoader
 
-    @FXML
-    // fx:id="storageContentTable"
+    @FXML //  fx:id="storageContentTable"
     private TableView<MonitoringDataStorageContentInfo> storageContentTable; // Value injected by FXMLLoader
 
-    @FXML
-    // fx:id="typeCol"
+    @FXML //  fx:id="typeCol"
     private TableColumn<MonitoringDataStorageContentInfo, String> typeCol; // Value injected by FXMLLoader
 
-    @Override
-    // This method is called by the FXMLLoader when initialization is complete
+    @FXML
+    private Slider timeSlider;
+
+    @FXML
+    private Pane datePickerTarget;
+
+    @FXML
+    private Button storageDetailRefresh;
+
+    @FXML
+    private Pane disableOverlay;
+
+
+    @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert countCol != null : "fx:id=\"countCol\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-        assert engines != null : "fx:id=\"engines\" was not injected: check your FXML file 'DashboardResult.fxml'.";
+        assert enginesTarget != null : "fx:id=\"enginesTarget\" was not injected: check your FXML file 'DashboardResult.fxml'.";
         assert location != null : "fx:id=\"location\" was not injected: check your FXML file 'DashboardResult.fxml'.";
         assert monitoringPane != null : "fx:id=\"monitoringPane\" was not injected: check your FXML file 'DashboardResult.fxml'.";
         assert size != null : "fx:id=\"size\" was not injected: check your FXML file 'DashboardResult.fxml'.";
         assert storageContentTable != null : "fx:id=\"storageContentTable\" was not injected: check your FXML file 'DashboardResult.fxml'.";
         assert typeCol != null : "fx:id=\"typeCol\" was not injected: check your FXML file 'DashboardResult.fxml'.";
 
-        storageContentTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        enginesForm = dashboardPartsFactory.createEnginesForm(enginesTarget);
+        enginesForm.show();
+
+
+        timeSlider.minProperty().bindBidirectional(minDate);
+        timeSlider.maxProperty().bindBidirectional(maxDate);
+        timeSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number newValue) {
+                if (newValue!=null){
+                    final Date date = new Date(newValue.longValue());
+                    setFromSlider=true;
+                    selectedConfiguration.set(findByDate(lastResults, date));
+                    setFromSlider=false;
+                }
+            }
+        });
+        final DateTimePicker dateTimePicker = new DateTimePicker();
+        selectedConfiguration.addListener(new ChangeListener<ConfigurationInfo>() {
+            @Override
+            public void changed(ObservableValue<? extends ConfigurationInfo> observableValue, ConfigurationInfo configurationInfo, ConfigurationInfo newValue) {
+                if (newValue!=null){
+                    dateTimePicker.selectedDateProperty().set(newValue.getTimeStamp());
+                    if (!setFromSlider){
+                        timeSlider.setValue(newValue.getTimeStamp().getTime());
+                    }
+                    updateEngines(newValue);
+                    showMonitoringData(newValue);
+                    showDataStorage(newValue);
+                    disableOverlay.setVisible(!lastResults.isEmpty() && newValue!=lastResults.get(0));
+                }
+            }
+        });
+        datePickerTarget.getChildren().add(dateTimePicker.createContent());
+
+        storageDetailRefresh.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                storageContentTable.getItems().clear();
+                storageContentTable.getItems().addAll(copperDataProvider.getMonitoringDataStorageDetailInfo().getMonitoringDataStorageContentInfo());
+            }
+        });
+        TableColumnHelper.setTextOverrunCellFactory(typeCol, OverrunStyle.LEADING_ELLIPSIS);
+        typeCol.prefWidthProperty().bind(storageContentTable.widthProperty().subtract(2).multiply(0.75));
+        countCol.prefWidthProperty().bind(storageContentTable.widthProperty().subtract(2).multiply(0.25));
+    }
+
+    boolean setFromSlider=false;
+
+    public ConfigurationInfo findByDate(List<ConfigurationInfo> result, Date date){
+        ConfigurationInfo previousConfigurationInfo=null;
+        for (ConfigurationInfo configurationInfo: result){
+            if (previousConfigurationInfo==null){
+                if (date.getTime()>=configurationInfo.getTimeStamp().getTime()){
+                    return configurationInfo;
+                }
+            } else {
+                if (date.getTime() <= previousConfigurationInfo.getTimeStamp().getTime() && date.getTime() >= configurationInfo.getTimeStamp().getTime()){
+                    return configurationInfo;
+                }
+            }
+            previousConfigurationInfo=configurationInfo;
+        }
+        return null;
     }
 
     @Override
@@ -106,65 +183,58 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
     }
 
     @Override
-    public void showFilteredResult(List<DashboardResultModel> filteredlist, EmptyFilterModel usedFilter) {
-        DashboardResultModel dashboardResultModel = filteredlist.get(0);
-        showEngines(dashboardResultModel);
-        showMonitoringData(dashboardResultModel);
-        showDataStorage(dashboardResultModel);
+    public void showFilteredResult(List<ConfigurationInfo> filteredlist, FromToMaxCountFilterModel usedFilter) {
+        lastResults=filteredlist;
+        Date min=new Date(Long.MAX_VALUE);
+        Date max=new Date(0);
+        for (ConfigurationInfo configurationInfo: filteredlist){
+            if (configurationInfo.getTimeStamp().before(min)){
+                min=configurationInfo.getTimeStamp();
+            }
+            if (configurationInfo.getTimeStamp().after(max)){
+                max=configurationInfo.getTimeStamp();
+            }
+        }
+        minDate.set(min.getTime());
+        maxDate.set(max.getTime());
+        if (!filteredlist.isEmpty()){
+            selectedConfiguration.set(filteredlist.get(0));
+        }
     }
 
-    private void showDataStorage(DashboardResultModel dashboardResultModel) {
-        MonitoringDataStorageInfo storageInfo = dashboardResultModel.monitoringDataStorageInfo;
+    private SimpleObjectProperty<ConfigurationInfo> selectedConfiguration = new SimpleObjectProperty<ConfigurationInfo>();
+    private SimpleObjectProperty<Number> minDate = new SimpleObjectProperty<Number>(0l);
+    private SimpleObjectProperty<Number> maxDate = new SimpleObjectProperty<Number>(0l);
+    private List<ConfigurationInfo> lastResults;
+
+    private void updateEngines(ConfigurationInfo configurationInfo) {
+        enginesForm.getController().update(configurationInfo);
+    }
+
+    private void showDataStorage(ConfigurationInfo configurationInfo) {
+        MonitoringDataStorageInfo storageInfo = configurationInfo.getMonitoringDataStorageInfo();
         DecimalFormat format = new DecimalFormat("#0.000");
         double deltatInS = (storageInfo.getMax().getTime() - storageInfo.getMin().getTime()) / 1000;
 
         size.setText(format.format(storageInfo.getSizeInMb()) + " mb (" + format.format(storageInfo.getSizeInMb() / deltatInS * 1000) + " kb/s)");
         location.setText(storageInfo.getPath());
-        storageContentTable.getItems().clear();
-        storageContentTable.getItems().addAll(storageInfo.getMonitoringDataStorageContentInfo());
 
         typeCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo, String>("type"));
         countCol.setCellValueFactory(new PropertyValueFactory<MonitoringDataStorageContentInfo, Long>("count"));
     }
 
-    private final Map<String, ProcessingEngineController> engineControllers = new TreeMap<String, ProcessingEngineController>();
-
-    private void showEngines(DashboardResultModel dashboardResultModel) {
-        Set<String> engineIds = new HashSet<String>();
-        for (ProcessingEngineInfo processingEngineInfo : dashboardResultModel.engines) {
-            engineIds.add(processingEngineInfo.getId());
-        }
-        boolean enginesChanged = !engineIds.equals(engineControllers.keySet());
-        if (enginesChanged) {
-            engineControllers.clear();
-            engines.getTabs().clear();
-            for (ProcessingEngineInfo processingEngineInfo : dashboardResultModel.engines) {
-                Form<ProcessingEngineController> engineForm = dashboardPartsFactory.createEngineForm(engines, processingEngineInfo, dashboardResultModel);
-                String id = processingEngineInfo.getId();
-                engineControllers.put(id, engineForm.getController());
-                engineForm.show();
-            }
-        } else {
-            for (ProcessingEngineInfo processingEngineInfo : dashboardResultModel.engines) {
-                String id = processingEngineInfo.getId();
-                ProcessingEngineController controller = engineControllers.get(id);
-                controller.setProcessingEngineInfo(processingEngineInfo);
-            }
-        }
-    }
-
     private final Map<String, ProviderController> monitoringDataProviders = new TreeMap<String, ProviderController>();
 
-    private void showMonitoringData(DashboardResultModel dashboardResultModel) {
+    private void showMonitoringData(ConfigurationInfo configurationInfo) {
         Set<String> monitoringDataNames = new HashSet<String>();
-        for (MonitoringDataProviderInfo monitoringDataProviderInfo : dashboardResultModel.providers) {
+        for (MonitoringDataProviderInfo monitoringDataProviderInfo : configurationInfo.getProviders()) {
             monitoringDataNames.add(monitoringDataProviderInfo.getName());
         }
         boolean monitoringDataChanged = !monitoringDataNames.equals(monitoringDataProviders.keySet());
         if (monitoringDataChanged) {
             monitoringDataProviders.clear();
             monitoringPane.getChildren().clear();
-            for (MonitoringDataProviderInfo monitoringDataProviderInfo : dashboardResultModel.providers) {
+            for (MonitoringDataProviderInfo monitoringDataProviderInfo : configurationInfo.getProviders()) {
                 final BorderPane pane = new BorderPane();
                 monitoringPane.getChildren().add(pane);
                 Form<ProviderController> providerForm = dashboardPartsFactory.createMonitoringDataProviderForm(monitoringDataProviderInfo, pane);
@@ -173,8 +243,8 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
                 providerForm.show();
             }
         } else {
-            for (int i = 0; i < dashboardResultModel.providers.size(); i++) {
-                MonitoringDataProviderInfo providerInfo = dashboardResultModel.providers.get(i);
+            for (int i = 0; i < configurationInfo.getProviders().size(); i++) {
+                MonitoringDataProviderInfo providerInfo = configurationInfo.getProviders().get(i);
                 String name = providerInfo.getName();
                 ProviderController controller = monitoringDataProviders.get(name);
                 String status = providerInfo.getStatus();
@@ -184,15 +254,9 @@ public class DashboardResultController extends FilterResultControllerBase<EmptyF
     }
 
     @Override
-    public List<DashboardResultModel> applyFilterInBackgroundThread(EmptyFilterModel filter) {
-        List<ProcessingEngineInfo> engines = copperDataProvider.getEngineList();
-        Map<String, WorkflowStateSummary> engineIdToStateSummery = new HashMap<String, WorkflowStateSummary>();
-        for (ProcessingEngineInfo processingEngineInfo : engines) {
-            engineIdToStateSummery.put(processingEngineInfo.getId(), copperDataProvider.getCopperLoadInfo(processingEngineInfo));
-        }
-        return Arrays.asList(new DashboardResultModel(engineIdToStateSummery, engines,
-                copperDataProvider.getMonitoringDataProvider(),
-                copperDataProvider.getMonitoringStorageInfo()));
+    public List<ConfigurationInfo> applyFilterInBackgroundThread(FromToMaxCountFilterModel filter) {
+        return copperDataProvider.getConfigurationInfo(filter.fromToFilterModel.from.get(),filter.fromToFilterModel.to.get(),filter.maxCountFilterModel.getMaxCount());
+
     }
 
     @Override

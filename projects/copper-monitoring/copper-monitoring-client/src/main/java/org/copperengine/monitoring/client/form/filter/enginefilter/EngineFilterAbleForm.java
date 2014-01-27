@@ -52,18 +52,11 @@ public class EngineFilterAbleForm<F extends EnginePoolFilterModel, R> extends Fi
                 }
             }
         });
-        staticTitleProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if (newValue != null) {
-                    createTitle(filterForm.getController().getFilter().selectedEngine.get());
-                }
-            }
-        });
+        createTitle(filterForm.getController().getFilter().selectedEngine.get());
     }
 
     private void createTitle(ProcessingEngineInfo engine) {
-        displayedTitleProperty().set(staticTitleProperty().get() + ": " + engine.getId() + "(" + (engine.getTyp() == EngineTyp.PERSISTENT ? "P" : "T") + ")");
+        setTitle(getInitialTitle() + ": " + engine.getId() + "(" + (engine.getTyp() == EngineTyp.PERSISTENT ? "P" : "T") + ")");
     }
 
 }

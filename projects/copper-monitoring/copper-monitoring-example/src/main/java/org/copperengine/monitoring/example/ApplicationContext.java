@@ -64,6 +64,7 @@ import org.copperengine.monitoring.server.monitoring.MonitoringDataCollector;
 import org.copperengine.monitoring.server.persistent.DatabaseMonitoringDialect;
 import org.copperengine.monitoring.server.persistent.DerbyMonitoringDbDialect;
 import org.copperengine.monitoring.server.persistent.MonitoringDbStorage;
+import org.copperengine.monitoring.server.provider.ConfigurationDataProvider;
 import org.copperengine.monitoring.server.provider.MonitoringDataProviderManager;
 import org.copperengine.monitoring.server.provider.MonitoringLogbackDataProvider;
 import org.copperengine.monitoring.server.provider.SystemRessourceDataProvider;
@@ -186,7 +187,9 @@ public class ApplicationContext {
         workflowInstanceIntrospector = new WorkflowInstanceIntrospector(persistentdbStorage, wfRepository);
 
         monitoringLogbackDataProvider = new MonitoringLogbackDataProvider(monitoringDataCollector);
-        monitoringDataProviderManager = new MonitoringDataProviderManager(new SystemRessourceDataProvider(monitoringDataCollector), monitoringLogbackDataProvider, new GcDataProvider(monitoringDataCollector));
+        final ConfigurationDataProvider configurationDataProvider = new ConfigurationDataProvider(monitoringDataCollector, Arrays.<ProcessingEngineMXBean>asList(persistentengine), monitoringDataStorage);
+        monitoringDataProviderManager = new MonitoringDataProviderManager(new SystemRessourceDataProvider(monitoringDataCollector), monitoringLogbackDataProvider, new GcDataProvider(monitoringDataCollector), configurationDataProvider);
+        configurationDataProvider.setMonitoringDataProviderManager(monitoringDataProviderManager);
         monitoringDataProviderManager.startAll();
     }
 

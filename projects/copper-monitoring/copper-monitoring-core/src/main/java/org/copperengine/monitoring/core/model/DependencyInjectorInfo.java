@@ -27,6 +27,10 @@ public class DependencyInjectorInfo implements Serializable {
         this.typ = typ;
     }
 
+    public DependencyInjectorInfo(){
+
+    }
+
     public String getTyp() {
         return typ;
     }
