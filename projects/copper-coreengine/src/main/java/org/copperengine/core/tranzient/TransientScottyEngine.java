@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * Transient implementation of a COPPER {@link ProcessingEngine}.
  * A transient engine may run instances of {@link Workflow} or {@link PersistentWorkflow}.
  * Anyhow, all workflow instances will only reside in the local JVM heap.
- *
+ * 
  * @author austermann
  */
 public class TransientScottyEngine extends AbstractProcessingEngine implements ProcessingEngine, ProcessingEngineMXBean {
@@ -66,7 +66,6 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     private TimeoutManager timeoutManager;
     private EarlyResponseContainer earlyResponseContainer;
     private TicketPoolManager ticketPoolManager;
-    private DependencyInjector dependencyInjector;
     private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
 
     public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
@@ -95,12 +94,6 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
         if (earlyResponseContainer == null)
             throw new NullPointerException();
         this.earlyResponseContainer = earlyResponseContainer;
-    }
-
-    public void setDependencyInjector(DependencyInjector dependencyInjector) {
-        if (dependencyInjector == null)
-            throw new NullPointerException();
-        this.dependencyInjector = dependencyInjector;
     }
 
     @Override
@@ -179,7 +172,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
                     throw new DuplicateIdException("engine already contains a workflow with id '" + w.getId() + "'");
                 workflowMap.put(w.getId(), w);
             }
-            dependencyInjector.inject(w);
+            injectDependencies(w);
             enqueue(w);
         } catch (DuplicateIdException e) {
             ticketPoolManager.release(w);
@@ -278,9 +271,9 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 
     /**
      * For internal use only!!
-     *
+     * 
      * @param id
-     *         workflow instance id
+     *        workflow instance id
      */
     public void removeWorkflow(String id) {
         final Workflow<?> wf = workflowMap.remove(id);

@@ -39,7 +39,7 @@ import org.copperengine.management.model.WorkflowInfo;
 
 /**
  * Abstract base implementation of the COPPER {@link ProcessingEngine} interface.
- *
+ * 
  * @author austermann
  */
 public abstract class AbstractProcessingEngine implements ProcessingEngine, ProcessingEngineMXBean {
@@ -67,9 +67,12 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     }
 
     public void setDependencyInjector(DependencyInjector dependencyInjector) {
+        if (dependencyInjector == null)
+            throw new NullPointerException();
         this.dependencyInjector = dependencyInjector;
     }
 
+    @Deprecated
     public DependencyInjector getDependencyInjector() {
         return dependencyInjector;
     }
@@ -219,6 +222,11 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     public final void notify(Response<?> response) throws CopperRuntimeException {
         Acknowledge.BestEffortAcknowledge ack = new Acknowledge.BestEffortAcknowledge();
         notify(response, ack);
+    }
+
+    public void injectDependencies(Workflow<?> wf) {
+        wf.setEngine(this);
+        dependencyInjector.inject(wf);
     }
 
 }
