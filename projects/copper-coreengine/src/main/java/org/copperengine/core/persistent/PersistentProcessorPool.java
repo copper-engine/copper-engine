@@ -19,11 +19,29 @@ import org.copperengine.core.common.ProcessorPool;
 
 /**
  * Subclass of {@link ProcessorPool} adding some persistence related methods.
- *
+ * 
  * @author austermann
  */
 public interface PersistentProcessorPool extends ProcessorPool {
+
     public static final String DEFAULT_POOL_ID = "P#DEFAULT";
 
     public void doNotify();
+
+    /**
+     * Suspends dequeuing of workflow instances from the storage.
+     * Workflow instances that already reside in the transient queue are still processed, i.e.
+     * calling this methods runs this processor pool "dry".
+     * 
+     * @see PersistentProcessorPool#resumeDequeue()
+     */
+    public void suspendDequeue();
+
+    /**
+     * Resumes dequeuing of workflow instances from the storage.
+     * 
+     * @see PersistentProcessorPool#suspendDequeue()
+     */
+    public void resumeDequeue();
+
 }

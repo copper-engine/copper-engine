@@ -15,6 +15,7 @@
  */
 package org.copperengine.core.persistent;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
@@ -30,10 +31,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the {@link PriorityProcessorPool} interface for use in the {@link PersistentScottyEngine}.
- *
+ * 
  * @author austermann
  */
 public class PersistentPriorityProcessorPool extends PriorityProcessorPool implements PersistentProcessorPool, PersistentPriorityProcessorPoolMXBean {
+
+    public static final int DEFAULT_DEQUEUE_SIZE = 2000;
 
     private static final Logger logger = LoggerFactory.getLogger(PersistentPriorityProcessorPool.class);
 
@@ -47,7 +50,8 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
     private volatile int upperThreshold = 6000;
     private volatile int upperThresholdReachedWaitMSec = 50;
     private volatile int emptyQueueWaitMSec = 500;
-    private volatile int dequeueBulkSize = 2000;
+    private volatile int _dequeueBulkSize = DEFAULT_DEQUEUE_SIZE;
+    private Integer oldDequeueBulkSize = null;
 
     /**
      * Creates a new {@link PersistentPriorityProcessorPool} with as many worker threads as processors available on the
@@ -140,8 +144,16 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
                         logger.trace("Queue size " + queueSize + " >= upper threshold " + upperThreshold + ". Waiting...");
                     doWait(upperThresholdReachedWaitMSec);
                 }
-                logger.trace("Dequeueing elements from DB...");
-                List<Workflow<?>> rv = dbStorage.dequeue(getId(), dequeueBulkSize);
+                List<Workflow<?>> rv;
+                final int dequeueBulkSize = _dequeueBulkSize;
+                if (dequeueBulkSize > 0) {
+                    logger.trace("Dequeueing elements from DB...");
+                    rv = dbStorage.dequeue(getId(), dequeueBulkSize);
+                } else {
+                    logger.trace("dequeueBulkSize is zero - dequeue subspendet.");
+                    rv = Collections.emptyList();
+                }
+
                 if (shutdown)
                     break;
                 if (rv.isEmpty()) {
@@ -226,17 +238,37 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
     }
 
     public int getDequeueBulkSize() {
-        return dequeueBulkSize;
+        return _dequeueBulkSize;
     }
 
     public void setDequeueBulkSize(int dequeueBulkSize) {
-        if (dequeueBulkSize <= 0)
+        if (dequeueBulkSize < 0)
             throw new IllegalArgumentException();
-        this.dequeueBulkSize = dequeueBulkSize;
+        this._dequeueBulkSize = dequeueBulkSize;
     }
 
     protected TransactionController getTransactionController() {
         return transactionController;
+    }
+
+    @Override
+    public synchronized void suspendDequeue() {
+        if (oldDequeueBulkSize != null) {
+            throw new IllegalStateException();
+        }
+        oldDequeueBulkSize = _dequeueBulkSize;
+        _dequeueBulkSize = 0;
+        logger.info("dequeue suspendet");
+    }
+
+    @Override
+    public synchronized void resumeDequeue() {
+        if (oldDequeueBulkSize == null) {
+            throw new IllegalStateException();
+        }
+        _dequeueBulkSize = oldDequeueBulkSize == 0 ? DEFAULT_DEQUEUE_SIZE : oldDequeueBulkSize;
+        oldDequeueBulkSize = null;
+        logger.info("dequeue resumed");
     }
 
 }

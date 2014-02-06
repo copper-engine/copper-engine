@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the {@link ScottyDBStorageInterface}.
- *
+ * 
  * @author austermann
  */
 public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorageMXBean {
@@ -135,6 +135,9 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 
     @Override
     public List<Workflow<?>> dequeue(final String ppoolId, final int max) throws Exception {
+        if (max <= 0)
+            return Collections.emptyList();
+
         while (true) {
             List<Workflow<?>> ret = run(new DatabaseTransaction<List<Workflow<?>>>() {
                 @Override
