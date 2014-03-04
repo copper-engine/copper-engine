@@ -239,7 +239,7 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
         LogsResultModel resultModel = filteredResult.get(0);
 
         resultTable.getItems().clear();
-        resultTable.setItems(resultModel.logs);
+        setOriginalItems(resultTable, resultModel.logs);
 
         StringBuilder textresult = new StringBuilder();
         textresult.append("Time");

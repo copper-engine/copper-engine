@@ -135,8 +135,8 @@ public class MessageResultController extends FilterResultControllerBase<MessageF
     public void showFilteredResult(List<MessageResultModel> filteredResult, MessageFilterModel usedFilter) {
         ObservableList<MessageResultModel> content = FXCollections.observableList(new ArrayList<MessageResultModel>());
         content.addAll(filteredResult);
-        resultTable.setItems(content);
-    }
+        setOriginalItems(resultTable, content);
+}
 
     @Override
     public List<MessageResultModel> applyFilterInBackgroundThread(MessageFilterModel filter) {

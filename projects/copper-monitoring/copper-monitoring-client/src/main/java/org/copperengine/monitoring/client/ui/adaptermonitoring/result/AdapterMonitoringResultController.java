@@ -404,9 +404,9 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
     @Override
     public void showFilteredResult(List<AdapterMonitoringResultModel> filteredResult, AdapterMonitoringFilterModel usedFilter) {
         if (!filteredResult.isEmpty()) {
-            adapterInputTable.setItems(filteredResult.get(0).adapterCalls);
-            adapterOutputLaunchTable.setItems(filteredResult.get(0).adapterLaunches);
-            adapterOutputNotifyTable.setItems(filteredResult.get(0).adapterNotifies);
+            setOriginalItems(adapterInputTable, filteredResult.get(0).adapterCalls);
+            setOriginalItems(adapterOutputLaunchTable, filteredResult.get(0).adapterLaunches);
+            setOriginalItems(adapterOutputNotifyTable, filteredResult.get(0).adapterNotifies);
         }
     }
 

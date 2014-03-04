@@ -18,13 +18,10 @@ package org.copperengine.monitoring.client.form.filter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import java.util.Map;
 
-import com.sun.javafx.runtime.VersionInfo;
-import com.sun.javafx.scene.control.behavior.TableCellBehavior;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -35,14 +32,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -51,8 +49,12 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+
 import org.copperengine.monitoring.client.form.FxmlController;
 import org.copperengine.monitoring.client.util.MessageProvider;
+
+import com.sun.javafx.runtime.VersionInfo;
+import com.sun.javafx.scene.control.behavior.TableCellBehavior;
 
 /**
  * @param <F>Filtermodel
@@ -60,9 +62,10 @@ import org.copperengine.monitoring.client.util.MessageProvider;
  */
 public abstract class FilterResultControllerBase<F, R> implements FilterResultController<F, R>, FxmlController {
 
-    final List<TableView<?>> tableViews = new ArrayList<TableView<?>>();
+    private final List<TableView<?>> tableViews = new ArrayList<>();
+    private final Map<TableView<?>, ObservableList<?>> originalItemsMap = new HashMap<>(); 
 
-    public <M> HBox createTabelControlls(final TableView<M> tableView) {
+    public <M> HBox createTabelControlls(final TableView<M> tableView) {        
         this.tableViews.add(tableView);
 
         if (tableView.getContextMenu() == null) {
@@ -80,56 +83,63 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
                 }
             }
         });
-
-        final CheckBox regExp = new CheckBox("RegExp");
-
-        HBox pane = new HBox();
-        BorderPane.setMargin(pane, new Insets(3));
-        pane.setSpacing(3);
-        pane.setAlignment(Pos.CENTER_LEFT);
-        Button copy = new Button("copy");
-        copy.setOnAction(new EventHandler<ActionEvent>() {
+        copyMenuItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 copyTable(tableView);
             }
         });
-        copyMenuItem.setOnAction(copy.getOnAction());
-        pane.getChildren().add(copy);
-        Button copyCell = new Button("copy cell");
-        copyCell.setOnAction(new EventHandler<ActionEvent>() {
+        copyCellMenuItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 copyTableCell(tableView);
             }
         });
-        copyCellMenuItem.setOnAction(copyCell.getOnAction());
-        pane.getChildren().add(copyCell);
-        final TextField searchField = new TextField();
-        searchField.setPromptText("search");
-        searchField.textProperty().addListener(new ChangeListener<String>() {
+
+        HBox pane = new HBox();
+        BorderPane.setMargin(pane, new Insets(3));
+        pane.setSpacing(3);
+        pane.setAlignment(Pos.CENTER_LEFT);
+
+        ObservableList<String> columnOptions = FXCollections.observableArrayList("<ANY COLUMN>");
+        for(TableColumn<M, ?> column : tableView.getColumns()) {
+            columnOptions.add(column.getText());
+        }        
+        final ComboBox<String> columnField = new ComboBox<>(columnOptions);
+        columnField.setPromptText("column");
+        columnField.getSelectionModel().select(0);
+        
+        final TextField filterField = new TextField();
+        filterField.setPromptText("filter");
+        
+        final CheckBox regExp = new CheckBox("RegExp");
+        final Runnable filterAction = new Runnable() {
+            @Override
+            public void run() {
+                applyFilter(columnField.getSelectionModel().getSelectedIndex()-1, tableView, filterField.getText(), regExp.isSelected());
+            }
+        };        
+        
+        columnField.valueProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if (newValue != null && newValue.length() > 1) {
-                    searchInTable(tableView, newValue, regExp.isSelected());
-                }
+                filterAction.run();
+            }
+        });
+        filterField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                filterAction.run();
             }
         });
         regExp.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (newValue != null) {
-                    searchInTable(tableView, searchField.getText(), newValue);
-                }
+                filterAction.run();
             }
         });
-        searchField.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                searchInTable(tableView, searchField.getText(), regExp.isSelected());
-            }
-        });
-        HBox.setHgrow(searchField, Priority.ALWAYS);
+        
+        HBox.setHgrow(filterField, Priority.ALWAYS);
         final Label count = new Label("count: 0");
         tableView.itemsProperty().addListener(new ChangeListener<ObservableList<M>>() {
             @Override
@@ -141,7 +151,8 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
                 }
             }
         });
-        pane.getChildren().add(searchField);
+        pane.getChildren().add(columnField);
+        pane.getChildren().add(filterField);
         pane.getChildren().add(regExp);
         pane.getChildren().add(new Separator(Orientation.VERTICAL));
         pane.getChildren().add(count);
@@ -150,46 +161,57 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
         return pane;
     }
 
+    protected<M> void setOriginalItems(TableView<M> tableView, ObservableList<M> items) {
+        tableView.setItems(items);
+        originalItemsMap.put(tableView, items);
+    }
+    
+    protected<M> ObservableList<M> getOriginalItems(TableView<M> tableView) {
+        @SuppressWarnings("unchecked")
+        ObservableList<M> origItems = (ObservableList<M>)originalItemsMap.get(tableView);
+        if(origItems == null) {
+            origItems = FXCollections.observableArrayList();
+            originalItemsMap.put(tableView, origItems);
+        }
+        return origItems;
+    }
+    
+    private<M> void applyFilter(int columnIndex, TableView<M> tableView, String filterText, boolean isRegExp) {
+        ObservableList<M> origItems = getOriginalItems(tableView);
+        ObservableList<M> filteredItems;
+        if(filterText == null || filterText.length() == 0) {            
+            filteredItems = origItems;
+        } else {
+            filteredItems = FXCollections.observableArrayList();
+            if(!origItems.isEmpty()) {
+                ObservableList<TableColumn<M, ?>> tableColumns = tableView.getColumns();
+                ObservableList<TableColumn<M, ?>> columns = tableColumns;
+                if(columnIndex >= 0 && columnIndex < tableColumns.size()) {
+                    columns = FXCollections.observableArrayList();
+                    columns.add(tableColumns.get(columnIndex));
+                }
+                for(M item : origItems) {
+                    for(TableColumn<M, ?> column : columns) {
+                        Object cell = column.getCellData(item);
+                        if (cell != null && cell.toString() != null) {
+                            String val = cell.toString();
+                            boolean matches = isRegExp ? val.matches(filterText) : val.contains(filterText) ;
+                            if(matches) {
+                                filteredItems.add(item);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }            
+        }
+        tableView.setItems(filteredItems);
+    }
+
     private <M> void fillContextMenu(final TableView<M> tableView, final MenuItem copyMenuItem, MenuItem copyCellMenuItem) {
         tableView.getContextMenu().getItems().add(new SeparatorMenuItem());
         tableView.getContextMenu().getItems().add(copyMenuItem);
         tableView.getContextMenu().getItems().add(copyCellMenuItem);
-    }
-
-    private void searchInTable(final TableView<?> tableView, String newValue, boolean useRegex) {
-        tableView.getSelectionModel().clearSelection();
-        if (useRegex) {
-            try {
-                Pattern.compile(newValue);
-            } catch (PatternSyntaxException e) {
-                return;
-            }
-        }
-        int selectedRow = tableView.getSelectionModel().getSelectedIndex();
-        int toSelectedRow = tableView.getSelectionModel().getSelectedIndex();
-        for (int row = 0; row < tableView.getItems().size(); row++) {
-            String rowString = "";
-            int rowIndex = (row + 1 + selectedRow) % tableView.getItems().size();
-            for (int column = 0; column < tableView.getColumns().size(); column++) {
-                Object cell = tableView.getColumns().get(column).getCellData(rowIndex);
-                if (cell != null && cell.toString() != null) {
-                    rowString += cell.toString();
-                }
-            }
-            if (useRegex ? rowString.matches(newValue) : rowString.contains(newValue)) {
-                toSelectedRow = rowIndex;
-                break;
-            }
-        }
-        final int rowFinal = toSelectedRow;
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                tableView.getSelectionModel().select(rowFinal);
-                tableView.getFocusModel().focus(rowFinal);
-                tableView.scrollTo(rowFinal);
-            }
-        });
     }
 
     private void copyTable(final TableView<?> tableView) {

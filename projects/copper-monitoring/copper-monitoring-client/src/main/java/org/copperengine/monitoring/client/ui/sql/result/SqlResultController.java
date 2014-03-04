@@ -88,7 +88,7 @@ public class SqlResultController extends FilterResultControllerBase<SqlFilterMod
             ObservableList<SqlResultModel> content = FXCollections.observableArrayList();
             content.addAll(filteredResult);
             content.remove(0);
-            resultTable.setItems(content);
+            setOriginalItems(resultTable, content);
         }
     }
 

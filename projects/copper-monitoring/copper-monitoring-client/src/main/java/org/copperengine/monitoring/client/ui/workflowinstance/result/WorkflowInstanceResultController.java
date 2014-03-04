@@ -342,7 +342,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
     public void showFilteredResult(List<WorkflowInstanceResultModel> filteredResult, WorkflowInstanceFilterModel usedFilter) {
         ObservableList<WorkflowInstanceResultModel> content = FXCollections.observableList(new ArrayList<WorkflowInstanceResultModel>());
         content.addAll(filteredResult);
-        resultTable.setItems(content);
+        setOriginalItems(resultTable, content);
         this.usedFilter = usedFilter;
     }
 
