@@ -14,10 +14,8 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
-	<bean id="datasource_default" class="org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40">
-    	<property name="databaseName" value="./build/copperUnitTestDB;create=true"/>
-	</bean>
-	
+    <bean id="datasource_default" class="org.copperengine.core.persistent.DataSourceFactory" factory-method="createDerbyDbDatasource" scope="singleton" />
+
 	<bean id="dbDialect" class="org.copperengine.core.persistent.DerbyDbDialect" scope="singleton" init-method="startup">
 		<property name="wfRepository" ref="wfRepository"/>
 		<property name="runtimeStatisticsCollector" ref="statisticsCollector"/>

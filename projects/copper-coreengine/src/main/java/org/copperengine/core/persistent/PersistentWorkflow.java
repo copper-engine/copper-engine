@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.Acknowledge.DefaultAcknowledge;
@@ -31,7 +32,7 @@ import org.copperengine.core.Workflow;
  * It is safe to run a PersistentWorkflow in a transient engine. So if your want to keep it open to decide later whether
  * your
  * workflow needs persistence or not, it is OK to inherit from PersistentWorkflow.
- *
+ * 
  * @param <E>
  * @author austermann
  */
@@ -117,4 +118,16 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
         return true;
     }
 
+    protected void acquireLock(String lockId, long timeout, TimeUnit timeUnit) {
+        String cid = getEngine().createUUID();
+
+    }
+
+    protected void releaseLock(String lockId) {
+
+    }
+
+    protected void releaseAllLocks() {
+
+    }
 }

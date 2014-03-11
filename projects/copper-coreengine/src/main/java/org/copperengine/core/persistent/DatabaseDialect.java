@@ -67,7 +67,7 @@ public interface DatabaseDialect {
      * database.
      * 
      * @param con
-     *            database connection
+     *        database connection
      * @return list of ids of bad workflows which could not be deserialized
      * @throws Exception
      */

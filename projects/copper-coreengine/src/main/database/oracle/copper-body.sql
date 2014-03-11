@@ -77,6 +77,114 @@ BEGIN
 END;
 */
 
+--
+-- to disable the usage of DBMS_LOCK execute the following command before 
+-- the installation of this package body:
+-- ALTER SESSION SET PLSQL_CCFLAGS = 'no_dbms_lock_granted:TRUE';    
+--
+FUNCTION REQUEST_LOCK(id IN  INTEGER) RETURN INTEGER
+AS  
+BEGIN
+    $IF $$no_dbms_lock_granted $THEN
+        RAISE_APPLICATION_ERROR (-20002,'No access on DBMS_LOCK granted');
+    $ELSE
+        RETURN SYS.DBMS_LOCK.REQUEST(id, SYS.DBMS_LOCK.X_MODE, SYS.DBMS_LOCK.MAXWAIT, TRUE);
+    $END
+END;    
+
+PROCEDURE acquire_lock(
+	i_LOCK_ID IN VARCHAR2,
+	i_CORRELATION_ID IN VARCHAR2,
+	i_WORKFLOW_INSTANCE_ID IN VARCHAR2,
+	o_CORRELATION_ID OUT VARCHAR2,
+	o_result_code OUT NUMBER,
+	o_result_msg OUT VARCHAR2
+	)
+IS
+	i_dbms_lock_id NUMBER;
+	l_CORRELATION_ID COP_LOCK.CORRELATION_ID%TYPE;
+	l_WORKFLOW_INSTANCE_ID COP_LOCK.WORKFLOW_INSTANCE_ID%TYPE;
+	l_REPLY_SENT COP_LOCK.REPLY_SENT%TYPE;
+BEGIN
+	SELECT ora_hash(i_LOCK_ID,1073741822) INTO i_dbms_lock_id FROM DUAL;
+    o_result_code := REQUEST_LOCK(i_dbms_lock_id);
+    IF o_result_code <> 0 AND o_result_code <> 4 /*Already owned*/ THEN
+      o_result_msg :=
+          (case 
+             when o_result_code=1 then 'Timeout'
+             when o_result_code=2 then 'Deadlock'
+             when o_result_code=3 then 'Parameter Error'
+             when o_result_code=5 then 'Illegal Lock Handle'
+           end);
+      RETURN;
+    END IF;
+    o_result_code := 0;
+  
+    BEGIN
+	    INSERT INTO COP_LOCK (LOCK_ID, CORRELATION_ID, WORKFLOW_INSTANCE_ID, INSERT_TS, REPLY_SENT) VALUES (i_LOCK_ID,i_CORRELATION_ID,i_WORKFLOW_INSTANCE_ID,SYSTIMESTAMP,'N');
+    EXCEPTION 
+        WHEN DUP_VAL_ON_INDEX THEN NULL;
+    END;
+	
+    select REPLY_SENT, CORRELATION_ID, WORKFLOW_INSTANCE_ID into l_REPLY_SENT, l_CORRELATION_ID, l_WORKFLOW_INSTANCE_ID from (
+    	select l.REPLY_SENT, l.CORRELATION_ID, l.WORKFLOW_INSTANCE_ID from cop_lock l where lock_id = i_LOCK_ID order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id
+    )
+    where rownum <= 1;
+    
+    IF l_REPLY_SENT = 'N' THEN
+    	o_CORRELATION_ID := l_CORRELATION_ID;
+    	UPDATE COP_LOCK SET REPLY_SENT='Y' WHERE LOCK_ID=i_LOCK_ID AND WORKFLOW_INSTANCE_ID=l_WORKFLOW_INSTANCE_ID;
+    END IF;
+END;
+
+
+PROCEDURE release_lock(
+	i_LOCK_ID IN VARCHAR2,
+	i_WORKFLOW_INSTANCE_ID IN VARCHAR2,
+	o_CORRELATION_ID OUT VARCHAR2,
+	o_result_code OUT NUMBER,
+	o_result_msg OUT VARCHAR2
+	)
+IS
+	i_dbms_lock_id NUMBER;
+	l_CORRELATION_ID COP_LOCK.CORRELATION_ID%TYPE;
+	l_WORKFLOW_INSTANCE_ID COP_LOCK.WORKFLOW_INSTANCE_ID%TYPE;
+	l_REPLY_SENT COP_LOCK.REPLY_SENT%TYPE;
+BEGIN
+	SELECT ora_hash(i_LOCK_ID,1073741822) INTO i_dbms_lock_id FROM DUAL;
+    o_result_code := REQUEST_LOCK(i_dbms_lock_id);
+    IF o_result_code <> 0 AND o_result_code <> 4 /*Already owned*/ THEN
+      o_result_msg :=
+          (case 
+             when o_result_code=1 then 'Timeout'
+             when o_result_code=2 then 'Deadlock'
+             when o_result_code=3 then 'Parameter Error'
+             when o_result_code=5 then 'Illegal Lock Handle'
+           end);
+      RETURN;
+    END IF;
+    o_result_code := 0;
+  
+    DELETE FROM COP_LOCK WHERE LOCK_ID=i_LOCK_ID AND WORKFLOW_INSTANCE_ID=i_WORKFLOW_INSTANCE_ID;
+	
+    BEGIN
+	    
+    	select REPLY_SENT, CORRELATION_ID, WORKFLOW_INSTANCE_ID into l_REPLY_SENT, l_CORRELATION_ID, l_WORKFLOW_INSTANCE_ID from (
+    		select l.REPLY_SENT, l.CORRELATION_ID, l.WORKFLOW_INSTANCE_ID from cop_lock l where lock_id = i_LOCK_ID order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id
+    	)
+    	where rownum <= 1;
+    
+    	IF l_REPLY_SENT = 'N' THEN
+    		o_CORRELATION_ID := l_CORRELATION_ID;
+    		UPDATE COP_LOCK SET REPLY_SENT='Y' WHERE LOCK_ID=i_LOCK_ID AND WORKFLOW_INSTANCE_ID=l_WORKFLOW_INSTANCE_ID;
+    	END IF;
+    	
+    EXCEPTION
+    	WHEN NO_DATA_FOUND THEN NULL;
+    END;
+    
+END;
+
 END;
 /
 show errors;

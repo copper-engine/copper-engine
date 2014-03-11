@@ -17,7 +17,6 @@ package org.copperengine.core.test.persistent;
 
 import javax.sql.DataSource;
 
-import org.copperengine.core.persistent.DerbyDbDialect;
 import org.copperengine.core.persistent.H2Dialect;
 import org.junit.After;
 import org.junit.Test;
@@ -35,7 +34,6 @@ public class H2SpringTxnPersistentWorkflowTest extends BaseSpringTxnPersistentWo
 
     @After
     public void tearDown() throws Exception {
-        DerbyDbDialect.shutdownDerby();
     }
 
     @Test
