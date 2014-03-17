@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import org.copperengine.core.db.utility.JdbcUtils;
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,8 +34,10 @@ public abstract class AbstractPersistentLockManagerDialectTest {
 
     @AfterClass
     public static void afterClass() {
-        dataSource.close();
-        dataSource = null;
+        if (dataSource != null) {
+            dataSource.close();
+            dataSource = null;
+        }
     }
 
     static Connection getConnection() throws SQLException {
@@ -45,6 +48,9 @@ public abstract class AbstractPersistentLockManagerDialectTest {
 
     @Before
     public void beforeTest() throws Exception {
+        if (skipTests())
+            return;
+
         if (dataSource == null) {
             dataSource = createDatasource();
         }
@@ -64,6 +70,8 @@ public abstract class AbstractPersistentLockManagerDialectTest {
 
     @Test
     public void testAcquireLock_Simple() throws Exception {
+        Assume.assumeFalse(skipTests());
+
         Connection con = getConnection();
         try {
             PersistentLockManagerDialect x = createImplementation();
@@ -85,6 +93,8 @@ public abstract class AbstractPersistentLockManagerDialectTest {
 
     @Test
     public void testAcquireLock_Dubbled() throws Exception {
+        Assume.assumeFalse(skipTests());
+
         Connection con = getConnection();
         try {
             PersistentLockManagerDialect x = createImplementation();
@@ -115,6 +125,8 @@ public abstract class AbstractPersistentLockManagerDialectTest {
 
     @Test
     public void testAcquireLock_Multi() throws Exception {
+        Assume.assumeFalse(skipTests());
+
         Connection con = getConnection();
         try {
             PersistentLockManagerDialect x = createImplementation();
@@ -161,6 +173,10 @@ public abstract class AbstractPersistentLockManagerDialectTest {
             con.rollback();
             JdbcUtils.closeConnection(con);
         }
+    }
+
+    protected boolean skipTests() {
+        return false;
     }
 
 }

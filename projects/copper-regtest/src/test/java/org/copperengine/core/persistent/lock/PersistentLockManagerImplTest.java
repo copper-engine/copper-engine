@@ -26,7 +26,9 @@ import org.copperengine.core.PersistentProcessingEngine;
 import org.copperengine.core.db.utility.JdbcUtils;
 import org.copperengine.core.persistent.DataSourceFactory;
 import org.copperengine.core.persistent.txn.CopperTransactionController;
+import org.copperengine.core.test.persistent.Constants;
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -39,8 +41,10 @@ public class PersistentLockManagerImplTest {
 
     @AfterClass
     public static void afterClass() {
-        dataSource.close();
-        dataSource = null;
+        if (dataSource != null) {
+            dataSource.close();
+            dataSource = null;
+        }
     }
 
     static Connection getConnection() throws SQLException {
@@ -51,6 +55,9 @@ public class PersistentLockManagerImplTest {
 
     @Before
     public void beforeTest() throws Exception {
+        if (skipTests())
+            return;
+
         if (dataSource == null) {
             dataSource = DataSourceFactory.createOracleDatasource();
         }
@@ -66,11 +73,11 @@ public class PersistentLockManagerImplTest {
 
     @Test
     public void testAcquireLock() throws Exception {
+        Assume.assumeFalse(skipTests());
+
         final String LOCK_ID = "LOCK";
         final PersistentProcessingEngine engine = Mockito.mock(PersistentProcessingEngine.class);
         final PersistentLockManager impl = new PersistentLockManagerImpl(engine, new PersistentLockManagerDialectOracleMultiInstance(), new CopperTransactionController(dataSource));
-        // final PersistentLockManager impl = new PersistentLockManagerImpl(engine, new
-        // PersistentLockManagerDialectSQL(), new CopperTransactionController(dataSource));
         final List<Thread> threads = new ArrayList<Thread>();
         for (int i = 0; i < 4; i++) {
             Thread t = new Thread() {
@@ -102,5 +109,9 @@ public class PersistentLockManagerImplTest {
         for (Thread t : threads) {
             t.join();
         }
+    }
+
+    protected boolean skipTests() {
+        return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
     }
 }

@@ -16,7 +16,9 @@
 package org.copperengine.core.persistent.lock;
 
 import org.copperengine.core.persistent.DataSourceFactory;
+import org.copperengine.core.test.persistent.Constants;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -33,8 +35,14 @@ public class PersistentLockManagerDialectPostgresTest extends AbstractPersistent
         return new PersistentLockManagerDialectPostgres();
     }
 
+    @Override
+    protected boolean skipTests() {
+        return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
+    }
+
     @Test
     public void testSupportsMultipleInstances() {
+        Assume.assumeFalse(skipTests());
         Assert.assertFalse(createImplementation().supportsMultipleInstances());
     }
 

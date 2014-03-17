@@ -24,7 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.db.utility.JdbcUtils;
 import org.copperengine.core.persistent.DataSourceFactory;
+import org.copperengine.core.test.persistent.Constants;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -41,13 +43,21 @@ public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLo
         return new PersistentLockManagerDialectOracleMultiInstance();
     }
 
+    @Override
+    protected boolean skipTests() {
+        return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
+    }
+
     @Test
     public void testSupportsMultipleInstances() {
+        Assume.assumeFalse(skipTests());
         Assert.assertTrue(createImplementation().supportsMultipleInstances());
     }
 
     @Test
     public void testAcquireLock_MultiConcurrent() throws Exception {
+        Assume.assumeFalse(skipTests());
+
         final Connection con = getConnection();
         final Connection con2 = getConnection();
         final Connection con3 = getConnection();

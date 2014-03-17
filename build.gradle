@@ -79,7 +79,7 @@ configure(subprojects.findAll {
     tasks.withType(nl.javadude.gradle.plugins.license.License).each { licenseTask ->
         // only check java files, not sql or html; omit files generated from wsdl
         licenseTask.include '**/*.java'
-        licenseTask.exclude { FileTreeElement f -> f.file.path.contains('/src/main/generated/') }
+        licenseTask.exclude { FileTreeElement f -> f.file.path.contains('generated')  }
     }
 
     apply plugin: 'eclipse'
