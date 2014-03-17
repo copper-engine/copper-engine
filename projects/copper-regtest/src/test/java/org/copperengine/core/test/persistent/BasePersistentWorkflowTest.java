@@ -231,7 +231,7 @@ public class BasePersistentWorkflowTest {
                 @Override
                 protected Void execute() throws Exception {
                     for (int i = 0; i < NUMB; i++) {
-                        engine.run(new WorkflowInstanceDescr<>("org.copperengine.core.test.persistent.DBMockAdapterUsingPersistentUnitTestWorkflow"), getConnection());
+                        engine.run(new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.DBMockAdapterUsingPersistentUnitTestWorkflow"), getConnection());
                     }
                     return null;
                 }
