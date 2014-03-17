@@ -58,7 +58,7 @@ public class DataSourceFactory {
         try {
             ComboPooledDataSource dataSource = new ComboPooledDataSource();
             // dataSource.setJdbcUrl("jdbc:derby:./build/copperUnitTestDB;create=true");
-            dataSource.setJdbcUrl("jdbc:derby:memory:copperUnitTestDB;create=true");
+            dataSource.setJdbcUrl("jdbc:derby:memory:copperUnitTestDB" + System.currentTimeMillis() + ";create=true");
             dataSource.setDriverClass("org.apache.derby.jdbc.EmbeddedDriver");
             dataSource.setMinPoolSize(1);
             dataSource.setMaxPoolSize(1);

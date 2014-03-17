@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.Acknowledge.DefaultAcknowledge;
@@ -118,16 +117,4 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
         return true;
     }
 
-    protected void acquireLock(String lockId, long timeout, TimeUnit timeUnit) {
-        String cid = getEngine().createUUID();
-
-    }
-
-    protected void releaseLock(String lockId) {
-
-    }
-
-    protected void releaseAllLocks() {
-
-    }
 }

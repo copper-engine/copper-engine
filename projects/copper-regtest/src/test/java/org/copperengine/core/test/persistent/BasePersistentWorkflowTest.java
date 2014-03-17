@@ -210,7 +210,6 @@ public class BasePersistentWorkflowTest {
     }
 
     protected ConfigurableApplicationContext createContext(String dsContext) {
-        // Thread.interrupted();
         final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { dsContext, "/CopperTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml" });
         return context;
     }

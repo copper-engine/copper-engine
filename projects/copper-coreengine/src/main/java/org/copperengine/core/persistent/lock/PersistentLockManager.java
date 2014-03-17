@@ -21,7 +21,7 @@ public interface PersistentLockManager {
      * @throws Exception
      *         in case of technical problems
      */
-    void acquireLock(String lockId, String correlationId, String workflowInstanceId) throws Exception;
+    void acquireLock(String lockId, String correlationId, String workflowInstanceId);
 
     /**
      * Releases the specified lock. If the workflow with the specified workflowId is not yet the owner of the lock (i.e.
@@ -34,6 +34,6 @@ public interface PersistentLockManager {
      * @throws Exception
      *         in case of technical problems
      */
-    void releaseLock(String lockId, String workflowInstanceId) throws Exception;
+    void releaseLock(String lockId, String workflowInstanceId);
 
 }

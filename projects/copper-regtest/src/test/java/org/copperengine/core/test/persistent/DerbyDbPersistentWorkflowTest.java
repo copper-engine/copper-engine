@@ -106,6 +106,11 @@ public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
             // ignore
         }
         context.close();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            // ignore
+        }
     }
 
     @Test

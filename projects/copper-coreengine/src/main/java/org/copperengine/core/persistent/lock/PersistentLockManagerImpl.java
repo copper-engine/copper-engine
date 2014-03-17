@@ -3,6 +3,7 @@ package org.copperengine.core.persistent.lock;
 import java.sql.Connection;
 import java.util.Date;
 
+import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.PersistentProcessingEngine;
 import org.copperengine.core.Response;
 import org.copperengine.core.persistent.txn.DatabaseTransaction;
@@ -28,31 +29,43 @@ public class PersistentLockManagerImpl implements PersistentLockManager {
     }
 
     @Override
-    public void acquireLock(final String lockId, final String correlationId, final String workflowInstanceId) throws Exception {
-        transactionController.run(new DatabaseTransaction<Void>() {
-            @Override
-            public Void run(Connection con) throws Exception {
-                final String replyCorrelationId = dialect.acquireLock(lockId, workflowInstanceId, correlationId, new Date(), con);
-                if (replyCorrelationId != null) {
-                    engine.notify(new Response<PersistentLockResult>(replyCorrelationId, PersistentLockResult.OK, null), con);
+    public void acquireLock(final String lockId, final String correlationId, final String workflowInstanceId) {
+        try {
+            transactionController.run(new DatabaseTransaction<Void>() {
+                @Override
+                public Void run(Connection con) throws Exception {
+                    final String replyCorrelationId = dialect.acquireLock(lockId, workflowInstanceId, correlationId, new Date(), con);
+                    if (replyCorrelationId != null) {
+                        engine.notify(new Response<PersistentLockResult>(replyCorrelationId, PersistentLockResult.OK, null), con);
+                    }
+                    return null;
                 }
-                return null;
-            }
-        });
+            });
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CopperRuntimeException("acquireLock failed", e);
+        }
     }
 
     @Override
-    public void releaseLock(final String lockId, final String workflowInstanceId) throws Exception {
-        transactionController.run(new DatabaseTransaction<Void>() {
-            @Override
-            public Void run(Connection con) throws Exception {
-                final String replyCorrelationId = dialect.releaseLock(lockId, workflowInstanceId, con);
-                if (replyCorrelationId != null) {
-                    engine.notify(new Response<PersistentLockResult>(replyCorrelationId, PersistentLockResult.OK, null), con);
+    public void releaseLock(final String lockId, final String workflowInstanceId) {
+        try {
+            transactionController.run(new DatabaseTransaction<Void>() {
+                @Override
+                public Void run(Connection con) throws Exception {
+                    final String replyCorrelationId = dialect.releaseLock(lockId, workflowInstanceId, con);
+                    if (replyCorrelationId != null) {
+                        engine.notify(new Response<PersistentLockResult>(replyCorrelationId, PersistentLockResult.OK, null), con);
+                    }
+                    return null;
                 }
-                return null;
-            }
-        });
+            });
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CopperRuntimeException("acquireLock failed", e);
+        }
     }
 
 }
