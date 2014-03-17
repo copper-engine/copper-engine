@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PersistentLockManagerDialectSQL implements PersistentLockManagerDialect {
 
-    protected static final String LOCK_PREFIX = "dssdfSSfgsf65kj458934zsfd‰‰5464359gjf";
+    protected static final String LOCK_PREFIX = "dssdfSSfgsf65kj458934zsfd__5464359gjf";
 
     private static final Logger logger = LoggerFactory.getLogger(PersistentLockManagerDialectSQL.class);
 
