@@ -10,15 +10,15 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="460.0" prefWidth="616.0" xmlns:fx="http://javafx.com/fxml">
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="460.0" prefWidth="616.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
   <bottom>
-      <HBox prefHeight="37.0" prefWidth="616.0">
-          <Button fx:id="reset" mnemonicParsing="false" text="reset">
-              <HBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-              </HBox.margin>
-          </Button>
-      </HBox>
+    <HBox prefHeight="37.0" prefWidth="616.0">
+      <Button fx:id="reset" mnemonicParsing="false" styleClass="copper-action-button" text="reset">
+        <HBox.margin>
+          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        </HBox.margin>
+      </Button>
+    </HBox>
   </bottom>
   <center>
     <BarChart fx:id="chart">

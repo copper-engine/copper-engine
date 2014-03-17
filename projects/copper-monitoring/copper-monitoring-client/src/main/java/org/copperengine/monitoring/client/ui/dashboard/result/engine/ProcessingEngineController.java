@@ -156,7 +156,6 @@ public class ProcessingEngineController implements Initializable, FxmlController
                 });
             }
         });
-        batcherNumSet.getStyleClass().add("copperActionButton");
         batcherNumSet.disableProperty().bind(batcherId.textProperty().isEqualTo(""));
     }
 

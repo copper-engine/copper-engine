@@ -15,10 +15,8 @@
  */
 package org.copperengine.monitoring.client.context;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.util.ResourceBundle;
@@ -61,7 +59,6 @@ public class ApplicationContext {
 
     final Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
 
-    private static final String SETTINGS_KEY = "settings";
     protected final BorderPane mainPane;
     protected final StackPane mainStackPane;
     protected final MessageProvider messageProvider;
@@ -86,6 +83,8 @@ public class ApplicationContext {
         newItem.color.setValue(Color.rgb(255, 128, 128));
         newItem.loglevelRegEx.setValue("1");
         defaultSettings.auditralColorMappings.add(newItem);
+        
+        
         byte[] defaultModelbytes;
         ByteArrayOutputStream os = null;
         try {
@@ -105,26 +104,12 @@ public class ApplicationContext {
             }
         }
 
-        settingsModelSingleton = defaultSettings;
-        ByteArrayInputStream is = null;
         try {
-            is = new ByteArrayInputStream(prefs.getByteArray(SETTINGS_KEY, defaultModelbytes));
-            ObjectInputStream o = new ObjectInputStream(is);
-            Object object = o.readObject();
-            if (object instanceof SettingsModel) {
-                settingsModelSingleton = (SettingsModel) object;
-            }
+            settingsModelSingleton = SettingsModel.from(prefs, defaultModelbytes);
         } catch (Exception e) {
             logger.error("", e);
             getIssueReporterSingleton().reportWarning("Can't load settings from (Preferences: " + prefs + ") use defaults instead", e);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            settingsModelSingleton = defaultSettings;
         }
 
         Runtime.getRuntime().addShutdownHook(
@@ -132,31 +117,19 @@ public class ApplicationContext {
                         new Runnable() {
                             @Override
                             public void run() {
-                                ByteArrayOutputStream os = null;
-                                try {
-                                    os = new ByteArrayOutputStream();
-                                    ObjectOutputStream o = new ObjectOutputStream(os);
-                                    o.writeObject(settingsModelSingleton);
-                                    prefs.putByteArray(SETTINGS_KEY, os.toByteArray());
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                } finally {
-                                    if (os != null) {
-                                        try {
-                                            os.close();
-                                        } catch (IOException e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }
-                                }
+                                settingsModelSingleton.saveSettings(prefs);
                             }
                         }
-                )
-                );
+                 )
+        );
     }
 
     protected GuiCopperDataProvider guiCopperDataProvider;
 
+    public SettingsModel getSettingsModel() {
+        return settingsModelSingleton;
+    }
+    
     public void setGuiCopperDataProvider(CopperMonitoringService copperDataProvider, String serverAdress, String sessionId) {
         this.serverAdress.set(serverAdress);
         this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);

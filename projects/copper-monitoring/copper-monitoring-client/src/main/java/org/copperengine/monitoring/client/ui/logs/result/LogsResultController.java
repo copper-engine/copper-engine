@@ -211,7 +211,6 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
         locationColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.05));
         messageColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(3).multiply(0.73));
 
-        updateConfig.getStyleClass().add("copperActionButton");
         updateConfig.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {

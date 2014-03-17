@@ -61,7 +61,6 @@ public class HotfixController implements Initializable, FxmlController {
                 copperDataProvider.restartAllError(hotfixModelModel.selectedEngine.get().getId());
             }
         });
-        restartAll.getStyleClass().add("copperActionButton");
 
         Node engineSelectionWidget = new EngineSelectionWidget(hotfixModelModel, copperDataProvider.getEngineList()).createContent();
         HBox.setMargin(engineSelectionWidget, new Insets(3));

@@ -80,7 +80,6 @@ public class ProviderController implements Initializable, FxmlController {
                 context.createDashboardForm().refresh();
             }
         });
-        start.getStyleClass().add("copperActionButton");
         start.disableProperty().bind(status.textProperty().isEqualTo("STARTED"));
 
         stop.setOnAction(new EventHandler<ActionEvent>() {
@@ -90,7 +89,6 @@ public class ProviderController implements Initializable, FxmlController {
                 context.createDashboardForm().refresh();
             }
         });
-        stop.getStyleClass().add("copperActionButton");
         stop.disableProperty().bind(status.textProperty().isEqualTo("STOPPED"));
     }
 

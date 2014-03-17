@@ -159,7 +159,6 @@ public class WorkflowInstanceDetailResultController extends FilterResultControll
             }
         });
 
-        restart.getStyleClass().add("copperActionButton");
         restart.setDisable(true);
     }
 

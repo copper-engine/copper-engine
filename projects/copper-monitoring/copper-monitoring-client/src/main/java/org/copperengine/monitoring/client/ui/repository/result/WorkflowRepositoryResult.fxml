@@ -11,8 +11,7 @@
 
 <BorderPane id="mainPane" layoutX="0.0" layoutY="0.0" prefHeight="333.0" prefWidth="430.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-      <SplitPane dividerPositions="0.6042296072507553" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0"
-                 prefWidth="160.0">
+      <SplitPane dividerPositions="0.6" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
           <BorderPane prefHeight="200.0" prefWidth="200.0">
               <bottom>
                   <TextField fx:id="search" prefWidth="200.0" promptText="search (regular expression)">

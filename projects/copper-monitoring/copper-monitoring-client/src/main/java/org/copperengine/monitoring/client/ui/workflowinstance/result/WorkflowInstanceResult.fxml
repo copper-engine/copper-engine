@@ -10,8 +10,7 @@
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="333.0" prefWidth="430.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-      <SplitPane dividerPositions="0.5015105740181269" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0"
-                 prefWidth="-1.0">
+      <SplitPane dividerPositions="0.5" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="-1.0">
           <BorderPane fx:id="tableBorderPane" prefHeight="200.0" prefWidth="200.0">
               <center>
                   <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">

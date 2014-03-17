@@ -63,7 +63,6 @@ public class MeasurePointResultController extends FilterResultControllerBase<Eng
                 clear();
             }
         });
-        reset.getStyleClass().add("copperActionButton");
 
         initChart();
     }
