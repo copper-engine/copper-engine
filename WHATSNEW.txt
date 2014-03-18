@@ -1,5 +1,6 @@
 COPPER 3.1 (draft)
 ============
+- New feature: PersistentLockManager - a service to obtain/manager persistent locks, e.g. to functionally synchronize workflow instances.
 - New feature: PersistentProcessorPool.suspendDequeue/resumeDequeue  Suspends/resumes dequeuing of workflow instances from the storage.
 - New feature: New utility org.copperengine.core.util.Backchannel, that offers functionality to signal a response from within a persistent workflow to its originator
 - New feature: support for the H2 database

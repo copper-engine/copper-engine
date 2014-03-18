@@ -648,7 +648,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
                 }
                 wf.addWaitCorrelationId(cid);
             }
-            workflowPersistencePlugin.onWorkflowsLoaded(con, Arrays.<PersistentWorkflow<?>> asList(wf));
+            workflowPersistencePlugin.onWorkflowsLoaded(con, Arrays.<PersistentWorkflow<?>>asList(wf));
 
             return wf;
         } finally {

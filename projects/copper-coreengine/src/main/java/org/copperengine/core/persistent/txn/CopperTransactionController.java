@@ -22,12 +22,19 @@ import org.copperengine.core.db.utility.RetryingTransaction;
 /**
  * Implementation of the {@link TransactionController} interface that internally uses COPPERs
  * {@link RetryingTransaction} for transaction management
- *
+ * 
  * @author austermann
  */
 public class CopperTransactionController implements TransactionController {
 
     private DataSource dataSource;
+
+    public CopperTransactionController() {
+    }
+
+    public CopperTransactionController(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;

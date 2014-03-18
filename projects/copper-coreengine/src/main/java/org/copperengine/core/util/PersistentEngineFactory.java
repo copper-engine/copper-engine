@@ -34,15 +34,27 @@ import org.copperengine.core.common.JdkRandomUUIDFactory;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.persistent.DatabaseDialect;
 import org.copperengine.core.persistent.DerbyDbDialect;
+import org.copperengine.core.persistent.H2Dialect;
 import org.copperengine.core.persistent.OracleDialect;
 import org.copperengine.core.persistent.PersistentPriorityProcessorPool;
 import org.copperengine.core.persistent.PersistentProcessorPool;
 import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.persistent.ScottyDBStorage;
 import org.copperengine.core.persistent.txn.CopperTransactionController;
+import org.copperengine.core.persistent.txn.TransactionController;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 
 public class PersistentEngineFactory {
+
+    public static final class Engine {
+        public final TransactionController transactionController;
+        public final PersistentProcessingEngine engine;
+
+        public Engine(TransactionController transactionController, PersistentProcessingEngine engine) {
+            this.transactionController = transactionController;
+            this.engine = engine;
+        }
+    }
 
     private DatabaseDialect createDialect(DataSource ds, WorkflowRepository wfRepository, EngineIdProvider engineIdProvider) throws SQLException {
         Connection c = ds.getConnection();
@@ -61,13 +73,19 @@ public class PersistentEngineFactory {
                 dialect.setWfRepository(wfRepository);
                 return dialect;
             }
+            if ("H2".equalsIgnoreCase(name)) {
+                H2Dialect dialect = new H2Dialect();
+                dialect.setDataSource(ds);
+                dialect.setWfRepository(wfRepository);
+                return dialect;
+            }
             throw new Error("No dialect available for DBMS " + name);
         } finally {
             c.close();
         }
     }
 
-    public PersistentProcessingEngine createEngine(DataSource dataSource, String wfRepoSourceDir, String wfRepoTargetDir, DependencyInjector dependencyInjector) throws Exception {
+    public Engine createEngine(DataSource dataSource, String wfRepoSourceDir, String wfRepoTargetDir, DependencyInjector dependencyInjector) throws Exception {
         EngineIdProvider engineIdProvider = new EngineIdProviderBean("default");
         FileBasedWorkflowRepository wfRepository = new FileBasedWorkflowRepository();
         wfRepository.setSourceDirs(Collections.singletonList(wfRepoSourceDir));
@@ -105,8 +123,9 @@ public class PersistentEngineFactory {
         engine.setIdFactory(new JdkRandomUUIDFactory());
         engine.setProcessorPoolManager(processorPoolManager);
         engine.setDependencyInjector(dependencyInjector);
+        engine.startup();
 
-        return engine;
+        return new Engine(txnController, engine);
     }
 
 }

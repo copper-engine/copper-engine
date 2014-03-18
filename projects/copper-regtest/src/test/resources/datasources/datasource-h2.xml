@@ -29,10 +29,7 @@
            http://www.springframework.org/schema/jee
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
 
-    <bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-        <property name="driverClass" value="org.h2.Driver" />
-        <property name="jdbcUrl" value="jdbc:h2:./build/copperUnitTestH2DB/db;MVCC=TRUE;AUTO_SERVER=TRUE" />
-    </bean>
+    <bean id="datasource_default" class="org.copperengine.core.persistent.DataSourceFactory" factory-method="createH2Datasource" scope="singleton" />
 
     <bean id="dbDialect" class="org.copperengine.core.persistent.H2Dialect" init-method="startup">
         <property name="wfRepository" ref="wfRepository" />

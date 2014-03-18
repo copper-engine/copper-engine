@@ -88,7 +88,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
         assertFalse(res.isTimeout());
         assertEquals(getData(), res.getResponse());
         assertNull(res.getException());
-        auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
+        auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
     }
 
 }

@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base implementation of the {@link DatabaseDialect} for SQL databases
- *
+ * 
  * @author austermann
  */
 public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDialectMXBean {
@@ -62,7 +62,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     private boolean removeWhenFinished = true;
     protected long defaultStaleResponseRemovalTimeout = 60 * 60 * 1000;
     protected Serializer serializer = new StandardJavaSerializer();
-    protected int dbBatchingLatencyMSec = 0;
+    protected int dbBatchingLatencyMSec = 20;
     private WorkflowPersistencePlugin workflowPersistencePlugin = WorkflowPersistencePlugin.NULL_PLUGIN;
     protected String queryUpdateQueueState = getResourceAsString("/sql-query-ready-bpids.sql");
 
@@ -92,9 +92,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     /**
      * Sets the default removal timeout for stale responses in the underlying database. A response is stale/timed out
      * when there is no workflow instance waiting for it within the specified amount of time.
-     *
+     * 
      * @param defaultStaleResponseRemovalTimeout
-     *         removal timeout
+     *        removal timeout
      */
     public void setDefaultStaleResponseRemovalTimeout(long defaultStaleResponseRemovalTimeout) {
         logger.info("setDefaultStaleResponseRemovalTimeout({})", defaultStaleResponseRemovalTimeout);
@@ -191,7 +191,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
         logger.info("Adding all BPs in working state with existing response(s)...");
         int rowcount = 0;
-        for (; ; ) {
+        for (;;) {
             int x = updateQueueState(100000, con);
             con.commit(); // TODO this is dirty
             if (x == 0)

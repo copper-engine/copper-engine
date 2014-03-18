@@ -33,13 +33,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource40;
+import javax.sql.DataSource;
+
 import org.copperengine.core.audit.BatchInsertIntoAutoTrail.Command;
 import org.copperengine.core.audit.BatchInsertIntoAutoTrail.Executor;
 import org.copperengine.core.audit.BatchingAuditTrail.Property2ColumnMapping;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.batcher.NullCallback;
-import org.copperengine.core.persistent.DerbyDbDialect;
+import org.copperengine.core.persistent.DataSourceFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,18 +51,15 @@ public class BatchingAuditTrailTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BatchingAuditTrailTest.class);
 
-    EmbeddedConnectionPoolDataSource40 ds;
+    DataSource ds;
 
     @Before
     public void setUp() throws Exception {
-        ds = new EmbeddedConnectionPoolDataSource40();
-        ds.setDatabaseName("./build/copperUnitTestDB;create=true");
-        DerbyDbDialect.checkAndCreateSchema(ds);
+        ds = DataSourceFactory.createDerbyDbDatasource();
     }
 
     @After
     public void tearDown() throws Exception {
-        DerbyDbDialect.shutdownDerby();
     }
 
     @Test

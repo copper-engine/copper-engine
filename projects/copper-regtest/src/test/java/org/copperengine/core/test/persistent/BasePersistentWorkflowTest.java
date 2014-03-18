@@ -93,6 +93,9 @@ public class BasePersistentWorkflowTest {
                 stmt = createStatement(getConnection());
                 stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
                 stmt.close();
+                stmt = createStatement(getConnection());
+                stmt.execute("DELETE FROM COP_LOCK");
+                stmt.close();
                 return null;
             }
         }.run();
@@ -207,7 +210,6 @@ public class BasePersistentWorkflowTest {
     }
 
     protected ConfigurableApplicationContext createContext(String dsContext) {
-        // Thread.interrupted();
         final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { dsContext, "/CopperTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml" });
         return context;
     }
@@ -229,7 +231,7 @@ public class BasePersistentWorkflowTest {
                 @Override
                 protected Void execute() throws Exception {
                     for (int i = 0; i < NUMB; i++) {
-                        engine.run("org.copperengine.core.test.persistent.DBMockAdapterUsingPersistentUnitTestWorkflow", null);
+                        engine.run(new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.DBMockAdapterUsingPersistentUnitTestWorkflow"), getConnection());
                     }
                     return null;
                 }

@@ -17,7 +17,6 @@ package org.copperengine.core.test.persistent;
 
 import javax.sql.DataSource;
 
-import org.copperengine.core.persistent.DerbyDbDialect;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -28,13 +27,11 @@ public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersist
 
     @Override
     void cleanDB(DataSource ds) throws Exception {
-        DerbyDbDialect.checkAndCreateSchema(ds);
         super.cleanDB(ds);
     }
 
     @After
     public void tearDown() throws Exception {
-        DerbyDbDialect.shutdownDerby();
     }
 
     @Test

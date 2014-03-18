@@ -32,6 +32,8 @@ public class PojoDependencyInjector extends AbstractDependencyInjector {
     @Override
     protected Object getBean(String beanId) {
         Provider<?> p = map.get(beanId);
+        if (p == null)
+            throw new IllegalArgumentException("No bean '" + beanId + "' found");
         return p.get();
     }
 
