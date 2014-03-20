@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+  <children>
+    <Group id="Group" fx:id="allControlsGroup" layoutX="10.0" layoutY="42.0">
+      <children>
+        <RadioButton fx:id="radioLight" layoutX="0.0" layoutY="0.0" mnemonicParsing="false" onAction="#useLightType" prefWidth="119.0" text="Light theme" textFill="#282828">
+          <toggleGroup>
+            <ToggleGroup fx:id="cssType" />
+          </toggleGroup>
+        </RadioButton>
+        <RadioButton fx:id="radioDark" layoutX="0.0" layoutY="20.0" mnemonicParsing="false" onAction="#useDarkType" prefWidth="119.0" text="Dark theme" textFill="#282828" toggleGroup="$cssType" />
+        <RadioButton fx:id="radioCss" layoutX="0.0" layoutY="40.0" mnemonicParsing="false" onAction="#useCssType" prefWidth="119.0" text="Custom CSS URL" textFill="#282828" toggleGroup="$cssType" />
+        <Group id="Group" fx:id="cssColorGroup" layoutX="122.0" layoutY="5.0" visible="true">
+          <children>
+            <ColorPicker fx:id="picker1" layoutX="0.0" layoutY="0.0" onAction="#updatePreview" />
+            <ColorPicker fx:id="picker2" layoutX="96.0" layoutY="0.0" onAction="#updatePreview" prefHeight="25.0" prefWidth="83.0" />
+            <ColorPicker fx:id="picker3" layoutX="192.0" layoutY="0.0" onAction="#updatePreview" prefHeight="25.0" prefWidth="83.0" />
+            <Button fx:id="butDefaultColors" layoutX="343.0" layoutY="2.0" mnemonicParsing="false" onAction="#useDefaultColors" prefWidth="184.0" text="Revert to default colors" />
+          </children>
+        </Group>
+        <Group id="Group" fx:id="cssUrlGroup" layoutX="122.0" layoutY="37.0" visible="true">
+          <children>
+            <TextField fx:id="cssUrl" editable="false" layoutX="0.0" layoutY="0.0" prefWidth="527.0" />
+            <Button fx:id="butFile" layoutX="540.0" layoutY="1.0" mnemonicParsing="false" onAction="#chooseCssFile" prefWidth="96.0" text="Choose File" />
+          </children>
+        </Group>
+        <Button fx:id="butCancel" cancelButton="true" layoutX="563.0" layoutY="89.0" mnemonicParsing="false" onAction="#cancelColorSettings" prefWidth="86.0" text="Cancel" />
+        <Button fx:id="butSave" defaultButton="true" layoutX="465.0" layoutY="90.0" mnemonicParsing="false" onAction="#saveColorSettings" prefWidth="86.0" text="Save" />
+        <Button fx:id="butCurrentTheme" layoutX="122.0" layoutY="90.0" mnemonicParsing="false" onAction="#useCurrentTheme" prefWidth="184.0" text="Revert to current theme" />
+      </children>
+    </Group>
+    <VBox fx:id="previewPane" fillWidth="false" layoutX="20.0" layoutY="192.0" prefHeight="-1.0" prefWidth="-1.0" />
+  </children>
+</AnchorPane>

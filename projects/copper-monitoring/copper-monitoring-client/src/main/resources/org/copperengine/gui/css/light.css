@@ -1,0 +1,4 @@
+.root{
+    /* -fx-const-color1, -fx-const-color2 and -fx-const-color3 are provided by base-colors.css or by the user */
+    -fx-const-color4: -fx-const-color3;
+}

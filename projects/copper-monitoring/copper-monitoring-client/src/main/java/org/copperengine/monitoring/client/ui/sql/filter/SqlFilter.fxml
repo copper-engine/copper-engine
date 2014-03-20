@@ -25,9 +25,9 @@
       </HBox>
   </bottom>
   <center>
-    <BorderPane prefHeight="200.0" prefWidth="-1.0" style="-fx-border-color: Gainsboro;&#10;-fx-border-width: 1;">
+    <BorderPane prefHeight="200.0" prefWidth="-1.0">
       <center>
-        <WebView fx:id="sqlEditor" prefHeight="283.0" prefWidth="0.0" style="" />
+        <WebView fx:id="sqlEditor" prefHeight="283.0" prefWidth="0.0"/>
       </center>
     </BorderPane>
   </center>

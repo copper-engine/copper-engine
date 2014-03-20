@@ -177,7 +177,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
         lastFilteredWithProcessingEngineInfo = usedFilter.selectedEngine.getValue();
         ObservableList<WorkflowSummaryResultModel> content = FXCollections.observableList(new ArrayList<WorkflowSummaryResultModel>());
         content.addAll(filteredResult);
-        resultTable.setItems(content);
+        setOriginalItems(resultTable, content);
     }
 
     @Override

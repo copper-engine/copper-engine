@@ -15,6 +15,7 @@
  */
 package org.copperengine.monitoring.client.ui.settings;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -23,7 +24,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TableCell;
@@ -32,16 +35,22 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import org.copperengine.monitoring.client.form.FxmlController;
 
 public class SettingsController implements Initializable, FxmlController {
+    private static final double SCALE = 0.75;
+
     private final SettingsModel settingsModel;
 
     public SettingsController(SettingsModel settingsModel) {
-        super();
         this.settingsModel = settingsModel;
     }
 
@@ -125,6 +134,15 @@ public class SettingsController implements Initializable, FxmlController {
     // fx:id="workflowidDetail"
     private TextField workflowidDetail; // Value injected by FXMLLoader
 
+    @FXML
+    // fx:id="butSave"
+    private Button butEditColors; // Value injected by FXMLLoader
+
+    @FXML
+    // fx:id="previewPane"
+    private Pane previewPane; // Value injected by FXMLLoader
+    
+
     @Override
     // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -148,6 +166,9 @@ public class SettingsController implements Initializable, FxmlController {
         assert transactionIdColumn != null : "fx:id=\"transactionIdColumn\" was not injected: check your FXML file 'Settings.fxml'.";
         assert workflowInstanceIdColumn != null : "fx:id=\"workflowInstanceIdColumn\" was not injected: check your FXML file 'Settings.fxml'.";
         assert workflowidDetail != null : "fx:id=\"workflowidDetail\" was not injected: check your FXML file 'Settings.fxml'.";
+
+        assert butEditColors != null : "fx:id=\"butEditColors\" was not injected: check your FXML file 'Settings.fxml'.";
+        assert previewPane != null : "fx:id=\"previewPane\" was not injected: check your FXML file 'Settings.fxml'.";
 
         colorColumn.setCellFactory(new Callback<TableColumn<AuditralColorMapping, Color>, TableCell<AuditralColorMapping, Color>>() {
             @Override
@@ -285,9 +306,49 @@ public class SettingsController implements Initializable, FxmlController {
             }
         });
         colorTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
+        
+        initPreview();
+        
     }
 
+    private void initPreview() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("Preview.fxml"));
+        try {
+            VBox preview = (VBox)loader.load();
+            double width = preview.getPrefWidth();
+            double height = preview.getPrefHeight();
+
+            previewPane.getChildren().add(preview);
+            
+            previewPane.setScaleX(SCALE);
+            previewPane.setScaleY(SCALE);
+
+            double translateX = -width * (1 - SCALE) / 2;
+            double translateY = -height * (1 - SCALE) / 2;
+            previewPane.setTranslateX(translateX);
+            previewPane.setTranslateY(translateY);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
+    public void openGuiColorsDialog() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("GuiColors.fxml"));
+        GuiColorsController guiColorsController = new GuiColorsController(previewPane.getScene(), settingsModel);
+        loader.setController(guiColorsController);
+        try {
+            AnchorPane guiColorsPane = (AnchorPane)loader.load();
+            Scene scene = new Scene(guiColorsPane);
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.setScene(scene);
+            dialog.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     @Override
     public URL getFxmlResource() {
         return getClass().getResource("Settings.fxml");

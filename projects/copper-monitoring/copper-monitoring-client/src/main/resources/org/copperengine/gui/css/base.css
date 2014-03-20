@@ -1,6 +1,137 @@
-.copperActionButton{
-	-fx-base: rgb(223,70,64);
+.root{
+
+  /* ------------------------------------------------------------------*/
+  /* The following colors can be changed in order to customize the GUI */
+  /* ------------------------------------------------------------------*/
+    -fx-const-base: #d0d0d0;
+    -fx-const-background: #f4f4f4;
+
+    -fx-const-control-inner-background: white;
+    -fx-const-light-text-color: white;
+
+    -fx-const-accent: #0093ff;
+    -fx-const-focus-color: #0093ff;
+
+    -fx-const-dark-text-color: black;
+    -fx-const-mid-text-color: #292929;
+
+
+    -fx-const-error-color: #FF8080;
+    
+    /* -fx-const-color1, -fx-const-color2 and -fx-const-color3 are provided by base-colors.css */
+    -fx-const-color4: -fx-const-color3;
+  /* ------------------------------------------------------------------*/
+
+
+    -fx-const-color4-dark: derive(-fx-const-color4, -20%);
+    -fx-const-color4-light: derive(-fx-const-color4, 20%);
+    -fx-const-color4-shade: ladder(-fx-const-color4, 
+        -fx-const-color4-light 0%, 
+        -fx-const-color4-light 49.99%, 
+        -fx-const-color4-dark 50%, 
+        -fx-const-color4-dark 100%);
+
+    -fx-const-pane-background: transparent;
+    -fx-const-text-fill: -fx-const-background;
+    -fx-const-stroke: -fx-const-dark-text-color;
+    -fx-const-stroke-width: 1;
+    -fx-const-arc: 30;
+
+
+
+    -fx-accent: -fx-const-accent;
+    -fx-base: -fx-const-base;
+    -fx-background: -fx-const-background;
+    -fx-control-inner-background: -fx-const-control-inner-background;
+    -fx-focus-color: -fx-const-focus-color;
+    -fx-dark-text-color: -fx-const-dark-text-color;
+    -fx-mid-text-color: -fx-const-mid-text-color;
+    -fx-light-text-color: -fx-const-light-text-color;
+
+    -fx-arc-height: -fx-const-arc;
+    -fx-arc-width: -fx-const-arc;
+    -fx-stroke: -fx-const-stroke;
+    -fx-stroke-width: -fx-const-stroke-width;
+    
+    -fx-font: 12pt "Arial";
+
+    -fx-copper-base: -fx-const-base;
+    -fx-copper-background-color: -fx-const-pane-background;
+    -fx-copper-text-fill: -fx-const-text-fill;
+
+    -fx-copper-fill: -fx-const-background;
+    -fx-copper-stroke: -fx-const-stroke;
+    -fx-copper-stroke-width: -fx-const-stroke-width;
+    -fx-copper-arc: -fx-const-arc;
+
+    -fx-copper-custom-fill: -fx-const-background;
+    -fx-copper-custom-stroke: -fx-const-stroke;
+    -fx-copper-custom-stroke-width: -fx-const-stroke-width;
+    -fx-copper-custom-arc: -fx-const-arc;
+
+
+    -fx-button-color: -fx-text-background-color;
+    -fx-button-border-color: transparent;
+    -fx-action-button-base: -fx-const-base;
+    -fx-action-button-color: -fx-mark-color;
 }
+
+.copper-title {
+     -fx-font-weight: bold;
+}
+
+.copper-big-title {
+     -fx-font-size: 16pt;
+     -fx-font-weight: bold;
+}
+
+.button{
+    -fx-text-fill: -fx-button-color;
+    -fx-border-color: -fx-button-border-color;
+}
+
+.copper-action-button{
+    -fx-base: -fx-action-button-base;
+    -fx-text-fill: -fx-action-button-color;
+}
+
+
+.copper-rectangle-custom {
+     -fx-fill: -fx-copper-custom-fill;
+     -fx-stroke: -fx-copper-custom-stroke;
+     -fx-stroke-width: -fx-copper-custom-stroke-width;
+     -fx-arc-height: -fx-copper-custom-arc;
+     -fx-arc-width: -fx-copper-custom-arc;
+}
+
+.copper-rectangle {
+     -fx-fill: -fx-copper-fill;
+     -fx-stroke: -fx-copper-stroke;
+     -fx-stroke-width: -fx-copper-stroke-width;
+     -fx-arc-height: -fx-copper-arc;
+     -fx-arc-width: -fx-copper-arc;
+}
+
+.copper-cylinder-bottom{
+     -fx-fill: -fx-copper-fill;
+     -fx-stroke: -fx-copper-stroke;
+     -fx-stroke-width: -fx-copper-stroke-width;
+}
+
+.copper-cylinder-body {
+     -fx-background-color: -fx-copper-fill;
+     -fx-border-color: -fx-copper-stroke; 
+     -fx-border-width: 0 1 0 1;
+}
+
+.copper-cylinder-top {
+     -fx-fill: linear-gradient(to bottom, -fx-const-color4, derive(-fx-const-color4, 80%));
+     -fx-stroke: -fx-copper-stroke;
+     -fx-stroke-width: -fx-copper-stroke-width;
+}
+
+
+
 
 .noSelectAnimationMenueItem:focused {
      -fx-background: transparent;
@@ -16,12 +147,12 @@
 }
 
 
-.error{/*-fx-control-inner-background*/
-	-fx-control-inner-background: #FF8080;
+.error{
+  -fx-control-inner-background: -fx-const-error-color;
 }
 
 .consoleFont {
-	-fx-font: 12px "Courier New";
+    -fx-font: 12px "Courier New";
 }
 
 .chart-series-line {    
@@ -29,35 +160,61 @@
 }
 
 .filter-pane {
-    -fx-border-color: -fx-box-border;
-    -fx-background-color: linear-gradient(from 0px 0px to 0px 6px, #C17F14, -fx-background);
+    -fx-background-color: linear-gradient(from 0px 0px to 0px 6px, -fx-const-focus-color, -fx-background);
     -fx-padding: 0.50em 0.3125em 0.25em 0.3125em;
-    -fx-border-color: #F9AA2A;
+    -fx-border-color: -fx-const-focus-color;
     -fx-border-width: 1px 0px 1px 1px;
 }
 
 .filter-resizer {
-    -fx-base: #F9AA2A;
-    -fx-background-radius: 0 3 3 0;
-}
-
-.back-button Region{
-    -fx-shape: "M0,7L11,0L11,14Z";
-    -fx-background-color: #666666;
-    -fx-scale-shape: false;
-}
-
-.back-button{
-    -fx-background-radius: 3 0 0 3;
+    -fx-base: -fx-const-focus-color;
+    -fx-background-radius: 0 6 6 0;
 }
 
 
-.forward-button Region{
-    -fx-shape: "M0,0L11,7L0,14Z";
-    -fx-background-color: #666666;
-    -fx-scale-shape: false;
+.copper-container {
+     -fx-background-color: -fx-copper-background-color;
+     -fx-fill: -fx-copper-fill;
+     -fx-base: -fx-copper-base;
+
+     -fx-arc-height: -fx-copper-arc;
+     -fx-arc-width: -fx-copper-arc;
+     -fx-stroke: -fx-copper-stroke;
+     -fx-stroke-width: -fx-copper-stroke-width;
+
+     -fx-text-fill: -fx-copper-text-fill;     
 }
 
-.forward-button{
-    -fx-background-radius: 0 3 3 0;
+.copper-style1 {
+     -fx-copper-fill: -fx-const-base;
+     -fx-copper-arc: 0;
+}
+
+.copper-style2 {
+     -fx-copper-fill: -fx-const-control-inner-background;
+     -fx-copper-arc: 0;
+}
+
+.copper-style3 {
+     -fx-copper-fill: -fx-const-color1;
+     -fx-copper-arc: -fx-const-arc;
+}
+
+
+.copper-style4 {
+     -fx-copper-fill: -fx-const-color2;
+     -fx-copper-arc: -fx-const-arc;
+}
+
+.copper-style5 {
+     -fx-copper-fill: -fx-const-color3;
+     -fx-copper-custom-fill: -fx-const-color4-shade; 
+}
+
+.copper-style6 {
+     -fx-copper-fill: -fx-const-color4;
+}
+
+.copper-style7 {
+     -fx-copper-fill: -fx-const-color4-shade;
 }

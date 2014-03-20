@@ -1,0 +1,20 @@
+.root{
+    /* -fx-const-color1, -fx-const-color2 and -fx-const-color3 are provided by base-colors.css or by the user */
+    -fx-const-color4: -fx-const-color3;
+
+
+    -fx-const-base: #2f2f2f;
+    -fx-const-background: #0b0b0b;
+
+    -fx-const-control-inner-background: black;
+    -fx-const-light-text-color: white;
+
+    -fx-const-accent: #ff6d00;
+    -fx-const-focus-color: #ff6d00;
+
+    -fx-const-dark-text-color: white;
+    -fx-const-mid-text-color: #292929;
+
+
+    -fx-const-error-color: #FF8080;    
+}

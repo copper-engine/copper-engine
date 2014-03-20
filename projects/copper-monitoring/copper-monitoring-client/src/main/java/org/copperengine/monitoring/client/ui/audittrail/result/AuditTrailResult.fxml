@@ -67,7 +67,7 @@
                       </TabPane>
                   </center>
                   <top>
-                      <BorderPane prefHeight="25.000099999997474" prefWidth="538.0">
+                      <BorderPane prefHeight="25.0" prefWidth="538.0">
                           <bottom>
                               <Separator prefWidth="200.0"/>
                           </bottom>

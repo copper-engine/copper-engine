@@ -312,36 +312,36 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
         VBox topPane = new VBox();
         topPane.getChildren().add(createMenuBar());
-        final ToolBar toolBar = new ToolBar();
-
-        final Button back = new Button();
-        back.setGraphic(new Region());
-        back.setPrefSize(30, 30);
-        back.getStyleClass().add("back-button");
-        back.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                getDefaultShowFormStrategy().back();
-            }
-        });
-
-        final Button forward = new Button();
-        forward.setGraphic(new Region());
-        forward.setPrefSize(30,30);
-        forward.getStyleClass().add("forward-button");
-        forward.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                getDefaultShowFormStrategy().forward();
-            }
-        });
-
-        HBox navigation = new HBox();
-        navigation.getChildren().add(back);
-        navigation.getChildren().add(forward);
-        toolBar.getItems().add(navigation);
-
-        topPane.getChildren().add(toolBar);
+//        final ToolBar toolBar = new ToolBar();
+//
+//        final Button back = new Button();
+//        back.setGraphic(new Region());
+//        back.setPrefSize(30, 30);
+//        back.getStyleClass().add("back-button");
+//        back.setOnAction(new EventHandler<ActionEvent>() {
+//            @Override
+//            public void handle(ActionEvent actionEvent) {
+//                getDefaultShowFormStrategy().back();
+//            }
+//        });
+//
+//        final Button forward = new Button();
+//        forward.setGraphic(new Region());
+//        forward.setPrefSize(30,30);
+//        forward.getStyleClass().add("forward-button");
+//        forward.setOnAction(new EventHandler<ActionEvent>() {
+//            @Override
+//            public void handle(ActionEvent actionEvent) {
+//                getDefaultShowFormStrategy().forward();
+//            }
+//        });
+//
+//        HBox navigation = new HBox();
+//        navigation.getChildren().add(back);
+//        navigation.getChildren().add(forward);
+//        toolBar.getItems().add(navigation);
+//
+//        topPane.getChildren().add(toolBar);
         mainPane.setTop(topPane);
         Platform.runLater(new Runnable() {
             @Override

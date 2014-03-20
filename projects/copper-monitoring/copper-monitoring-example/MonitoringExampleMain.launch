@@ -8,4 +8,5 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.copperengine.monitoring.example.MonitoringExampleMain"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="copper-monitoring-example"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
 </launchConfiguration>

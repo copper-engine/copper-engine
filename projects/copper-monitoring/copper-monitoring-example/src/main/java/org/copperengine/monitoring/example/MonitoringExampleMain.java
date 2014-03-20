@@ -36,17 +36,11 @@ public class MonitoringExampleMain {
 
         final String host = (args.length > 0) ? args[0] : "localhost";
         final int port = (args.length > 1) ? Integer.parseInt(args[1]) : 8080;
+        getApplicationContext().createServer(host, port, unsecure).start();
 
-        new Thread(){
-            @Override
-            public void run() {
-                getApplicationContext().createServer(host, port, unsecure).start();
-            }
-        }.start();
-
-
-        MonitorMain.main(new String[]{"--monitorServerAdress=http://localhost:8080","--monitorServerUser=user1","--monitorServerPassword=pass1"});
         Platform.setImplicitExit(true);
+        MonitorMain.main(new String[]{"--monitorServerAdress=http://localhost:8080","--monitorServerUser=user1","--monitorServerPassword=pass1"});
+        System.exit(0);
     }
 
     protected ApplicationContext getApplicationContext() {

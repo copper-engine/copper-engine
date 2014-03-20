@@ -96,7 +96,6 @@ public class ProccessorPoolController implements Initializable, FxmlController {
                 });
             }
         });
-        prioButton.getStyleClass().add("copperActionButton");
 
         nummerbutton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -110,7 +109,6 @@ public class ProccessorPoolController implements Initializable, FxmlController {
                 });
             }
         });
-        nummerbutton.getStyleClass().add("copperActionButton");
     }
 
     public void setPool(ProcessorPoolInfo pool) {

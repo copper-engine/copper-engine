@@ -1,122 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="457.0" prefWidth="601.0" xmlns:fx="http://javafx.com/fxml">
+<?scenebuilder-stylesheet ../../../../../../../../resources/org/copperengine/gui/css/base-colors.css?>
+<?scenebuilder-stylesheet ../../../../../../../../resources/org/copperengine/gui/css/base.css?>
+
+<BorderPane layoutX="0.0" layoutY="0.0" prefHeight="457.0" prefWidth="601.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
   <center>
-      <TabPane prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE">
-          <Tab text="Data">
-              <SplitPane dividerPositions="0.5268817204301075" focusTraversable="true" prefHeight="-1.0"
-                         prefWidth="648.0">
-                  <VBox prefHeight="334.0" prefWidth="220.0" spacing="3.0">
-                      <Label prefWidth="178.0" text="Adapter Input">
-                          <font>
-                              <Font name="System Bold" size="15.0" fx:id="x2"/>
-                          </font>
-                          <VBox.margin>
-                              <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x1"/>
-                          </VBox.margin>
-                      </Label>
-                      <BorderPane fx:id="inputBorderPane" prefHeight="-1.0" prefWidth="380.0" VBox.vgrow="ALWAYS">
-                          <center>
-                              <TableView id="resultTable" fx:id="adapterInputTable" prefHeight="305.0"
-                                         prefWidth="349.0">
-                                  <columns>
-                                      <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Source"
-                                                   fx:id="source"/>
-                                      <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0"
-                                                   text="Adaptername" fx:id="adapterNameIn"/>
-                                      <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Time"
-                                                   fx:id="timeCol"/>
-                                      <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0"
-                                                   text="Adaptercalls" fx:id="callsCol"/>
-                                      <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Parameter"
-                                                   fx:id="parameterCol"/>
-                                  </columns>
-                              </TableView>
-                          </center>
-                      </BorderPane>
-                  </VBox>
-                  <SplitPane dividerPositions="0.5695364238410596" focusTraversable="true" orientation="VERTICAL"
-                             prefHeight="200.0" prefWidth="160.0">
-                      <VBox prefHeight="332.0" prefWidth="278.0" spacing="3.0">
-                          <Label font="$x2" text="Adapter Output">
-                              <VBox.margin>
-                                  <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x1"/>
-                              </VBox.margin>
-                          </Label>
-                          <BorderPane fx:id="notifyBorderPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
-                              <center>
-                                  <TableView id="resultTable" fx:id="adapterOutputNotifyTable" prefHeight="193.0"
-                                             prefWidth="320.0">
-                                      <columns>
-                                          <TableColumn prefWidth="75.0" text="Adaptername" fx:id="adapterNameCorOut"/>
-                                          <TableColumn prefWidth="75.0" text="Time" fx:id="timeNotifyCol"/>
-                                          <TableColumn prefWidth="75.0" text="CorrelationId"
-                                                       fx:id="corrolelationIdCol"/>
-                                          <TableColumn prefWidth="75.0" text="Message" fx:id="messageCol"/>
-                                      </columns>
-                                  </TableView>
-                              </center>
-                          </BorderPane>
-                          <Separator prefWidth="200.0"/>
-                          <Label text="Message">
-                              <VBox.margin>
-                                  <Insets left="3.0" right="3.0"/>
-                              </VBox.margin>
-                          </Label>
-                          <TextArea fx:id="mesageDetail" prefWidth="200.0" wrapText="true" VBox.margin="$x1"/>
-                      </VBox>
-                      <BorderPane id="callBorderPane" fx:id="launchBorderPane" prefHeight="200.0" prefWidth="200.0">
-                          <center>
-                              <TableView id="resultTable" fx:id="adapterOutputLaunchTable" prefHeight="193.0"
-                                         prefWidth="320.0">
-                                  <columns>
-                                      <TableColumn prefWidth="75.0" text="Adaptername" fx:id="adapterNameLaunchOut"/>
-                                      <TableColumn prefWidth="75.0" text="Time" fx:id="timeLaunchCol"/>
-                                      <TableColumn prefWidth="75.0" text="Launch Workflow" fx:id="launchWorkflowCol"/>
-                                  </columns>
-                                  <BorderPane.margin>
-                                      <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x1"/>
-                                  </BorderPane.margin>
-                              </TableView>
-                          </center>
-                      </BorderPane>
-                  </SplitPane>
-              </SplitPane>
-          </Tab>
-          <Tab text="Visualisation">
-              <StackPane fx:id="visualisationStackpane" prefHeight="-1.0" prefWidth="-1.0">
-                  <BorderPane prefHeight="-1.0" prefWidth="-1.0">
-                      <bottom>
-                          <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0"
-                                BorderPane.alignment="CENTER_LEFT">
-                              <BorderPane.margin>
-                                  <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" fx:id="x1"/>
-                              </BorderPane.margin>
-                              <ToggleButton fx:id="play" mnemonicParsing="false" prefWidth="40.0" text=""/>
-                              <ToggleButton fx:id="pause" mnemonicParsing="false" prefWidth="40.0" text=""/>
-                              <Slider fx:id="slider" HBox.hgrow="ALWAYS"/>
-                              <Label fx:id="positionLabel" text="XX.XX.XX XX:XX"/>
-                              <Separator orientation="VERTICAL" prefHeight="-1.0"/>
-                              <Label id="positionLabel" text="speed"/>
-                              <Slider fx:id="speed" majorTickUnit="2.0" max="5.0" min="0.5" minorTickCount="10"
-                                      showTickLabels="false" showTickMarks="false" value="1.0"/>
-                              <Label fx:id="speedLabel" text="Nx"/>
-                          </HBox>
-                      </bottom>
-                      <center>
-                          <Pane fx:id="annimationPane" prefHeight="-1.0" prefWidth="-1.0" style="">
-                              <padding>
-                                  <Insets/>
-                              </padding>
-                          </Pane>
-                      </center>
-                  </BorderPane>
-              </StackPane>
-          </Tab>
-      </TabPane>
+    <TabPane prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE">
+      <Tab text="Data">
+        <SplitPane dividerPositions="0.5264084507042254" focusTraversable="true" prefHeight="-1.0" prefWidth="648.0">
+          <VBox prefHeight="334.0" prefWidth="220.0" spacing="3.0">
+            <Label prefWidth="178.0" styleClass="copper-big-title" text="Adapter Input">
+              <VBox.margin>
+                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+              </VBox.margin>
+            </Label>
+            <BorderPane fx:id="inputBorderPane" prefHeight="-1.0" prefWidth="380.0" VBox.vgrow="ALWAYS">
+              <center>
+                <TableView id="resultTable" fx:id="adapterInputTable" prefHeight="305.0" prefWidth="349.0">
+                  <columns>
+                    <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Source" fx:id="source" />
+                    <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Adaptername" fx:id="adapterNameIn" />
+                    <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Time" fx:id="timeCol" />
+                    <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Adaptercalls" fx:id="callsCol" />
+                    <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="103.0" text="Parameter" fx:id="parameterCol" />
+                  </columns>
+                </TableView>
+              </center>
+            </BorderPane>
+          </VBox>
+          <SplitPane dividerPositions="0.5695364238410596" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+            <VBox prefHeight="332.0" prefWidth="278.0" spacing="3.0">
+              <Label styleClass="copper-big-title" text="Adapter Output">
+                <VBox.margin>
+                  <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                </VBox.margin>
+              </Label>
+              <BorderPane fx:id="notifyBorderPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                <center>
+                  <TableView id="resultTable" fx:id="adapterOutputNotifyTable" prefHeight="193.0" prefWidth="320.0">
+                    <columns>
+                      <TableColumn prefWidth="75.0" text="Adaptername" fx:id="adapterNameCorOut" />
+                      <TableColumn prefWidth="75.0" text="Time" fx:id="timeNotifyCol" />
+                      <TableColumn prefWidth="75.0" text="CorrelationId" fx:id="corrolelationIdCol" />
+                      <TableColumn prefWidth="75.0" text="Message" fx:id="messageCol" />
+                    </columns>
+                  </TableView>
+                </center>
+              </BorderPane>
+              <Separator prefWidth="200.0" />
+              <Label text="Message">
+                <VBox.margin>
+                  <Insets left="3.0" right="3.0" />
+                </VBox.margin>
+              </Label>
+              <TextArea fx:id="mesageDetail" prefWidth="200.0" wrapText="true" />
+            </VBox>
+            <BorderPane id="callBorderPane" fx:id="launchBorderPane" prefHeight="200.0" prefWidth="200.0">
+              <center>
+                <TableView id="resultTable" fx:id="adapterOutputLaunchTable" prefHeight="193.0" prefWidth="320.0">
+                  <columns>
+                    <TableColumn prefWidth="75.0" text="Adaptername" fx:id="adapterNameLaunchOut" />
+                    <TableColumn prefWidth="75.0" text="Time" fx:id="timeLaunchCol" />
+                    <TableColumn prefWidth="75.0" text="Launch Workflow" fx:id="launchWorkflowCol" />
+                  </columns>
+                  <BorderPane.margin>
+                    <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                  </BorderPane.margin>
+                </TableView>
+              </center>
+            </BorderPane>
+          </SplitPane>
+        </SplitPane>
+      </Tab>
+      <Tab text="Visualisation">
+        <StackPane fx:id="visualisationStackpane" prefHeight="-1.0" prefWidth="-1.0">
+          <BorderPane prefHeight="-1.0" prefWidth="-1.0">
+            <bottom>
+              <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="3.0" BorderPane.alignment="CENTER_LEFT">
+                <BorderPane.margin>
+                  <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                </BorderPane.margin>
+                <ToggleButton fx:id="play" mnemonicParsing="false" prefWidth="40.0" text="" />
+                <ToggleButton fx:id="pause" mnemonicParsing="false" prefWidth="40.0" text="" />
+                <Slider fx:id="slider" HBox.hgrow="ALWAYS" />
+                <Label fx:id="positionLabel" text="XX.XX.XX XX:XX" />
+                <Separator orientation="VERTICAL" prefHeight="-1.0" />
+                <Label id="positionLabel" text="speed" />
+                <Slider fx:id="speed" majorTickUnit="2.0" max="5.0" min="0.5" minorTickCount="10" showTickLabels="false" showTickMarks="false" value="1.0" />
+                <Label fx:id="speedLabel" text="Nx" />
+              </HBox>
+            </bottom>
+            <center>
+              <Pane fx:id="annimationPane" prefHeight="-1.0" prefWidth="-1.0" style="">
+                <padding>
+                  <Insets />
+                </padding>
+              </Pane>
+            </center>
+          </BorderPane>
+        </StackPane>
+      </Tab>
+    </TabPane>
   </center>
 </BorderPane>

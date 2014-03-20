@@ -11,8 +11,7 @@
 
 <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml">
   <center>
-      <SplitPane dividerPositions="0.5024752475247525" focusTraversable="true" orientation="VERTICAL" prefHeight="406.0"
-                 prefWidth="540.0">
+      <SplitPane dividerPositions="0.5" focusTraversable="true" orientation="VERTICAL" prefHeight="406.0" prefWidth="540.0">
           <TableView fx:id="resultTable" prefHeight="-1.0" prefWidth="716.0">
               <columns>
                   <TableColumn prefWidth="75.0" text="Time" fx:id="timeColumn"/>
@@ -24,7 +23,7 @@
                   <WebView fx:id="content" prefHeight="200.0" prefWidth="200.0"/>
               </center>
               <top>
-                  <BorderPane prefHeight="25.000099999997474" prefWidth="538.0">
+                  <BorderPane prefHeight="25.0" prefWidth="538.0">
                       <bottom>
                           <Separator prefWidth="200.0"/>
                       </bottom>

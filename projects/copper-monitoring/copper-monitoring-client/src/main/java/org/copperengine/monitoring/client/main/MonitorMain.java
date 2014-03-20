@@ -15,20 +15,24 @@
  */
 package org.copperengine.monitoring.client.main;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
-import com.google.common.base.Strings;
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
 import org.copperengine.monitoring.client.context.ApplicationContext;
+import org.copperengine.monitoring.client.ui.settings.CssConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 public class MonitorMain extends Application {
 
@@ -44,10 +48,18 @@ public class MonitorMain extends Application {
         ApplicationContext applicationContext = new ApplicationContext();
         primaryStage.titleProperty().bind(new SimpleStringProperty("Copper Monitor (server: ").concat(applicationContext.serverAdressProperty().concat(")")));
         new Button(); // Trigger loading of default stylesheet
-        final Scene scene = new Scene(applicationContext.getMainPane(), 1280, 800, Color.WHEAT);
+        final Scene scene = new Scene(applicationContext.getMainPane(), 1280, 800);
 
-        scene.getStylesheets().add(this.getClass().getResource("/org/copperengine/gui/css/base.css").toExternalForm());
-
+        ObservableList<String> stylesheets = scene.getStylesheets();        
+        String cssUri = applicationContext.getSettingsModel().cssUri.get();
+        CssConfigurator cssConfigurator = new CssConfigurator(cssUri);
+        try {
+            cssConfigurator.configure(stylesheets);
+        } catch (IOException e) {
+            logger.error("Failed to apply stylesheets for cssUri " + cssUri, e);
+        }
+        
+        
         primaryStage.setScene(scene);
         primaryStage.show();
 

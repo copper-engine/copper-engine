@@ -316,7 +316,7 @@ public class AuditTrailResultController extends FilterResultControllerBase<Audit
     public void showFilteredResult(List<AuditTrailResultModel> filteredResult, AuditTrailFilterModel usedFilter) {
         ObservableList<AuditTrailResultModel> content = FXCollections.observableList(new ArrayList<AuditTrailResultModel>());
         content.addAll(filteredResult);
-        resultTable.setItems(content);
+        setOriginalItems(resultTable, content);
 
         StringBuilder textresult = new StringBuilder();
         textresult.append("id");
