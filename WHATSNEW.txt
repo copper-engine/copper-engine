@@ -1,4 +1,4 @@
-COPPER 3.1 (draft)
+COPPER 3.1
 ============
 - New feature: PersistentLockManager - a service to obtain/manager persistent locks, e.g. to functionally synchronize workflow instances.
 - New feature: PersistentProcessorPool.suspendDequeue/resumeDequeue  Suspends/resumes dequeuing of workflow instances from the storage.
