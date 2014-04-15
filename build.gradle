@@ -476,8 +476,8 @@ def javaHome = System.properties['java.home']
 project(':projects:copper-monitoring:copper-monitoring-client') {
     apply plugin: 'application'
 
-    compileJava.sourceCompatibility = JavaVersion.VERSION_1_7
-    compileJava.targetCompatibility = JavaVersion.VERSION_1_7
+    compileJava.sourceCompatibility = JavaVersion.VERSION_1_6
+    compileJava.targetCompatibility = JavaVersion.VERSION_1_6
 
     mainClassName = "org.copperengine.monitoring.client.main.MonitorMain"
 

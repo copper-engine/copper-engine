@@ -46,8 +46,14 @@ public class CssConfigurator {
             themeColorsFile.deleteOnExit();
 
             String colorsCssContent = cssConfig.getColorsCssContent();
-            try (Writer cssWriter = new FileWriter(themeColorsFile)) {
+            Writer cssWriter = null;
+            try {
+                cssWriter = new FileWriter(themeColorsFile);
                 cssWriter.write(colorsCssContent);
+            } finally {
+                if(cssWriter != null) {
+                    cssWriter.close();
+                }
             }
             stylesheets.add(themeColorsFile.toURI().toURL().toExternalForm());
         }
