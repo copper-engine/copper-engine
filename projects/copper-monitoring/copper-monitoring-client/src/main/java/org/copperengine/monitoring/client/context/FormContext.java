@@ -285,7 +285,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
             }
         };
         loadCreator.add(measurePointCreator);
-        if (!copperInterfaceSettings.getSupportedFeatures().isSupportsLoggingStatisticCollector()) {
+        if (copperInterfaceSettings.getSupportedFeatures() != null && !copperInterfaceSettings.getSupportedFeatures().isSupportsLoggingStatisticCollector()) {
             measurePointCreator.setEnabled(false);
             measurePointCreator.setTooltip(new Tooltip("not available in copper"));
         }

@@ -62,8 +62,8 @@ import com.sun.javafx.scene.control.behavior.TableCellBehavior;
  */
 public abstract class FilterResultControllerBase<F, R> implements FilterResultController<F, R>, FxmlController {
 
-    private final List<TableView<?>> tableViews = new ArrayList<>();
-    private final Map<TableView<?>, ObservableList<?>> originalItemsMap = new HashMap<>(); 
+    private final List<TableView<?>> tableViews = new ArrayList<TableView<?>>();
+    private final Map<TableView<?>, ObservableList<?>> originalItemsMap = new HashMap<TableView<?>, ObservableList<?>>(); 
 
     public <M> HBox createTabelControlls(final TableView<M> tableView) {        
         this.tableViews.add(tableView);
@@ -105,7 +105,7 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
         for(TableColumn<M, ?> column : tableView.getColumns()) {
             columnOptions.add(column.getText());
         }        
-        final ComboBox<String> columnField = new ComboBox<>(columnOptions);
+        final ComboBox<String> columnField = new ComboBox<String>(columnOptions);
         columnField.setPromptText("column");
         columnField.getSelectionModel().select(0);
         
