@@ -72,13 +72,13 @@ public class CssConfig {
     private CssConfig() {
         type = Type.CSS;
         for (int i = 0; i < COLOR_COUNT; i++) {
-            colorProperties[i] = new SimpleObjectProperty<>();
+            colorProperties[i] = new SimpleObjectProperty<Color>();
         }
     }
 
     public CssConfig(String cssUri) {
         for (int i = 0; i < COLOR_COUNT; i++) {
-            colorProperties[i] = new SimpleObjectProperty<>();
+            colorProperties[i] = new SimpleObjectProperty<Color>();
         }
         cssUri = get(cssUri, "LIGHT");
         String[] tokens = Arrays.copyOf(cssUri.split(":"), COLOR_COUNT + 1);
