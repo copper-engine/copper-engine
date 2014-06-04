@@ -56,13 +56,15 @@ import org.springframework.remoting.support.RemoteInvocationFactory;
 import org.springframework.util.StringUtils;
 
 public class ApplicationContext {
-
+    private final static String DEFAULT_CONTEXT_ID = "default";
     final Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
 
+    protected final String contextId;
     protected final BorderPane mainPane;
     protected final StackPane mainStackPane;
     protected final MessageProvider messageProvider;
     protected SettingsModel settingsModelSingleton;
+    protected GuiCopperDataProvider guiCopperDataProvider;
 
     protected final SimpleStringProperty serverAdress = new SimpleStringProperty();
 
@@ -71,6 +73,11 @@ public class ApplicationContext {
     }
 
     public ApplicationContext() {
+        this(DEFAULT_CONTEXT_ID);
+    }
+    
+    public ApplicationContext(String contextId) {
+        this.contextId = contextId;
         mainStackPane = new StackPane();
         mainPane = new BorderPane();
         mainStackPane.getChildren().add(mainPane);
@@ -105,7 +112,7 @@ public class ApplicationContext {
         }
 
         try {
-            settingsModelSingleton = SettingsModel.from(prefs, defaultModelbytes);
+            settingsModelSingleton = SettingsModel.from(prefs, defaultModelbytes, contextId);
         } catch (Exception e) {
             logger.error("", e);
             getIssueReporterSingleton().reportWarning("Can't load settings from (Preferences: " + prefs + ") use defaults instead", e);
@@ -117,15 +124,17 @@ public class ApplicationContext {
                         new Runnable() {
                             @Override
                             public void run() {
-                                settingsModelSingleton.saveSettings(prefs);
+                                settingsModelSingleton.saveSettings(prefs, ApplicationContext.this.contextId);
                             }
                         }
                  )
         );
     }
 
-    protected GuiCopperDataProvider guiCopperDataProvider;
-
+    public String getContextId() {
+        return contextId;
+    }
+    
     public SettingsModel getSettingsModel() {
         return settingsModelSingleton;
     }
