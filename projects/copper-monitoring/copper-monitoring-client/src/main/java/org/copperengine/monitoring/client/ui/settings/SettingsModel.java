@@ -30,10 +30,10 @@ import javafx.collections.ObservableList;
 
 public class SettingsModel implements Serializable {
     private static final long serialVersionUID = 2;
+    public static final String SETTINGS_KEY_PREFIX = "settings.v" + serialVersionUID + ".";
     public ObservableList<AuditralColorMapping> auditralColorMappings = FXCollections.observableList(new ArrayList<AuditralColorMapping>());
     public SimpleStringProperty lastConnectedServer = new SimpleStringProperty("");
     public SimpleStringProperty cssUri = new SimpleStringProperty("");
-    public static final String SETTINGS_KEY = "settings";
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeObject(lastConnectedServer.get());
@@ -54,10 +54,11 @@ public class SettingsModel implements Serializable {
         cssUri = new SimpleStringProperty((String) in.readObject());
     }
 
-    public static SettingsModel from(final Preferences prefs, byte[] defaultModelBytes) throws Exception {
+    public static SettingsModel from(final Preferences prefs, byte[] defaultModelBytes, String settingsId) throws Exception {
         ByteArrayInputStream is = null;
         try {
-            is = new ByteArrayInputStream(prefs.getByteArray(SETTINGS_KEY, defaultModelBytes));
+            String settingsKey = SettingsModel.SETTINGS_KEY_PREFIX + settingsId;
+            is = new ByteArrayInputStream(prefs.getByteArray(settingsKey, defaultModelBytes));
             ObjectInputStream o = new ObjectInputStream(is);
             Object object = o.readObject();
             if (object instanceof SettingsModel) {
@@ -73,13 +74,14 @@ public class SettingsModel implements Serializable {
         }
     }
     
-    public void saveSettings(final Preferences prefs) {
+    public void saveSettings(final Preferences prefs, String settingsId) {
         ByteArrayOutputStream os = null;
         try {
             os = new ByteArrayOutputStream();
             ObjectOutputStream o = new ObjectOutputStream(os);
             o.writeObject(this);
-            prefs.putByteArray(SettingsModel.SETTINGS_KEY, os.toByteArray());
+            String settingsKey = SettingsModel.SETTINGS_KEY_PREFIX + settingsId;
+            prefs.putByteArray(settingsKey, os.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
