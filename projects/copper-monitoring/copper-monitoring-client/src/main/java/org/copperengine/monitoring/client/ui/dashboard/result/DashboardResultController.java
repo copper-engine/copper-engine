@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -42,6 +45,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.form.Form;
 import org.copperengine.monitoring.client.form.filter.FilterResultControllerBase;
@@ -156,6 +160,15 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
         TableColumnHelper.setTextOverrunCellFactory(typeCol, OverrunStyle.LEADING_ELLIPSIS);
         typeCol.prefWidthProperty().bind(storageContentTable.widthProperty().subtract(2).multiply(0.75));
         countCol.prefWidthProperty().bind(storageContentTable.widthProperty().subtract(2).multiply(0.25));
+        
+        Callable<Void> task = new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                storageDetailRefresh.fire();
+                return null;
+            }
+        };
+        Executors.newSingleThreadScheduledExecutor().schedule(task, 3, TimeUnit.SECONDS);
     }
 
     boolean setFromSlider=false;

@@ -35,10 +35,10 @@
         </rowConstraints>
         <Label prefHeight="-1.0" prefWidth="-1.0" text="thread count" GridPane.columnIndex="0" GridPane.rowIndex="1" />
         <Label prefWidth="-1.0" text="thread priority" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-        <TextField id="typ" fx:id="threadPrioritaetInfo" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
         <TextField id="typ" fx:id="threadNummerInfo" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-        <Button fx:id="prioButton" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-action-button" text="edit" GridPane.columnIndex="2" GridPane.columnSpan="2147483647" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.vgrow="NEVER" />
-        <Button fx:id="nummerbutton" alignment="TOP_CENTER" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-action-button" text="edit" GridPane.columnIndex="2" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
+        <TextField id="typ" fx:id="threadPrioritaetInfo" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+        <Button fx:id="nummerbutton" alignment="TOP_CENTER" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-action-button" text="edit" GridPane.columnIndex="2" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
+        <Button fx:id="prioButton" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-action-button" text="edit" GridPane.columnIndex="2" GridPane.columnSpan="2147483647" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
         <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="254.0" spacing="3.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="0">
           <Label minWidth="10.0" text="id" HBox.hgrow="NEVER" />
           <TextField fx:id="id" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" promptText="" HBox.hgrow="ALWAYS" />

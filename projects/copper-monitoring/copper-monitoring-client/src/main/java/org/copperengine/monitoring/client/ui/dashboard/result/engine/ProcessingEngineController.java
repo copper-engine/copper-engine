@@ -151,7 +151,7 @@ public class ProcessingEngineController implements Initializable, FxmlController
                     @Override
                     public void closed(Integer inputValue) {
                         dataProvider.setBatcherNumThreads(id.getText(), inputValue);
-                        context.createDashboardForm().refresh();
+                        context.createDashboardForm().delayedRefresh();
                     }
                 });
             }
