@@ -76,14 +76,14 @@ public class DerbyDbDialect extends AbstractSqlDialect {
 
     @Override
     protected PreparedStatement createDequeueStmt(final Connection c, final String ppoolId, final int maxRows) throws SQLException {
-        PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from cop_queue where ppool_id = ? order by priority, last_mod_ts) FETCH FIRST " + maxRows + " ROWS ONLY");
+        PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from COP_QUEUE where ppool_id = ? order by priority, last_mod_ts) FETCH FIRST " + maxRows + " ROWS ONLY");
         dequeueStmt.setString(1, ppoolId);
         return dequeueStmt;
     }
 
     @Override
     protected PreparedStatement createDeleteStaleResponsesStmt(final Connection c, final int maxRows) throws SQLException {
-        PreparedStatement stmt = c.prepareStatement("delete from cop_response where response_timeout < ? and not exists (select * from cop_wait w where w.correlation_id = cop_response.correlation_id FETCH FIRST " + maxRows + " ROWS ONLY)");
+        PreparedStatement stmt = c.prepareStatement("delete from COP_RESPONSE where response_timeout < ? and not exists (select * from COP_WAIT w where w.correlation_id = COP_RESPONSE.correlation_id FETCH FIRST " + maxRows + " ROWS ONLY)");
         stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
         return stmt;
     }

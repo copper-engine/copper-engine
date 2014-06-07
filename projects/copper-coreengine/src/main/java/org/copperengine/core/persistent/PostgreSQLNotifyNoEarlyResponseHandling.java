@@ -36,9 +36,9 @@ class PostgreSQLNotifyNoEarlyResponseHandling {
     private static final Logger logger = LoggerFactory.getLogger(PostgreSQLNotifyNoEarlyResponseHandling.class);
 
     static final String SQL =
-            "INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA, RESPONSE_ID) " +
+            "INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA, RESPONSE_ID) " +
                     "SELECT D.* FROM " +
-                    "(select correlation_id from cop_wait where correlation_id = ?) W, " +
+                    "(select correlation_id from COP_WAIT where correlation_id = ?) W, " +
                     "(select ?::text correlation_id, ?::timestamp response_ts, ?::text response, ?::timestamp as response_timeout, ?::text as response_meta_data, ?::text as RESPONSE_ID) D " +
                     "WHERE D.correlation_id = W.correlation_id";
 

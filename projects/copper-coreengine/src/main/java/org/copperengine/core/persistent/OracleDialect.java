@@ -167,7 +167,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     @Override
     public void resumeBrokenBusinessProcesses(Connection con) throws Exception {
         logger.info("Reactivating queue entries...");
-        final PreparedStatement stmt = con.prepareStatement("UPDATE cop_queue SET engine_id = null WHERE engine_id=?");
+        final PreparedStatement stmt = con.prepareStatement("UPDATE COP_QUEUE SET engine_id = null WHERE engine_id=?");
         try {
             stmt.setString(1, engineIdProvider.getEngineId());
             stmt.execute();
@@ -193,7 +193,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         responseLoader.beginTxn();
 
         final List<OracleSetToError.Command> invalidWorkflowInstances = new ArrayList<OracleSetToError.Command>();
-        final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from cop_queue where ppool_id=? and engine_id is null order by ppool_id, priority, last_mod_ts) where rownum <= ?)");
+        final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from COP_QUEUE where ppool_id=? and engine_id is null order by ppool_id, priority, last_mod_ts) where rownum <= ?)");
         final Map<String, Workflow<?>> map = new HashMap<String, Workflow<?>>(max * 3);
         try {
             dequeueStmt.setString(1, ppoolId);
@@ -290,7 +290,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
         lock(con, "deleteStaleResponse");
 
-        final PreparedStatement stmt = con.prepareStatement("delete from cop_response r where response_timeout < ? and not exists (select * from cop_wait w where w.correlation_id = r.correlation_id) and rownum <= " + maxRows);
+        final PreparedStatement stmt = con.prepareStatement("delete from COP_RESPONSE r where response_timeout < ? and not exists (select * from COP_WAIT w where w.correlation_id = r.correlation_id) and rownum <= " + maxRows);
         try {
             stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
             deleteStaleResponsesStmtStatistic.start();
@@ -627,7 +627,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             rs.close();
             readStmt.close();
 
-            selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response, r.long_response, w.is_timed_out from (select WORKFLOW_INSTANCE_ID, correlation_id, case when timeout_ts < systimestamp then 1 else 0 end is_timed_out from cop_wait where WORKFLOW_INSTANCE_ID = ?) w, cop_response r where w.correlation_id = r.correlation_id(+)");
+            selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response, r.long_response, w.is_timed_out from (select WORKFLOW_INSTANCE_ID, correlation_id, case when timeout_ts < systimestamp then 1 else 0 end is_timed_out from COP_WAIT where WORKFLOW_INSTANCE_ID = ?) w, COP_RESPONSE r where w.correlation_id = r.correlation_id(+)");
             selectResponsesStmt.setString(1, workflowInstanceId);
             ResultSet rsResponses = selectResponsesStmt.executeQuery();
             while (rsResponses.next()) {

@@ -60,7 +60,7 @@ public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowT
                 @Override
                 protected Void execute() throws Exception {
                     Statement stmt = getConnection().createStatement();
-                    ResultSet rs = stmt.executeQuery("select count(*) from cop_audit_trail_event");
+                    ResultSet rs = stmt.executeQuery("select count(*) from COP_AUDIT_TRAIL_EVENT");
                     assertTrue(rs.next());
                     int c = rs.getInt(1);
                     assertEquals(7, c);

@@ -76,8 +76,8 @@ class ResponseLoader extends ConcurrentBatchedWorker {
 
     private void markQueueEntries(final List<PersistentWorkflow<?>> list) throws SQLException {
         // final PreparedStatement deleteStmt =
-        // con.prepareStatement("delete from cop_queue where ppool_id=? and priority=? and WFI_ROWID=?");
-        final PreparedStatement updateStmt = con.prepareStatement("update cop_queue set engine_id = ? where ppool_id=? and priority=? and WFI_ROWID=?");
+        // con.prepareStatement("delete from COP_QUEUE where ppool_id=? and priority=? and WFI_ROWID=?");
+        final PreparedStatement updateStmt = con.prepareStatement("update COP_QUEUE set engine_id = ? where ppool_id=? and priority=? and WFI_ROWID=?");
         try {
             for (PersistentWorkflow<?> wf : list) {
                 updateStmt.setString(1, engineId);
@@ -99,7 +99,7 @@ class ResponseLoader extends ConcurrentBatchedWorker {
         for (PersistentWorkflow<?> wf : list) {
             map.put(wf.getId(), wf);
         }
-        PreparedStatement stmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response, r.long_response, w.is_timed_out from (select WORKFLOW_INSTANCE_ID, correlation_id, case when timeout_ts < systimestamp then 1 else 0 end is_timed_out from cop_wait where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w, cop_response r where w.correlation_id = r.correlation_id(+)");
+        PreparedStatement stmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response, r.long_response, w.is_timed_out from (select WORKFLOW_INSTANCE_ID, correlation_id, case when timeout_ts < systimestamp then 1 else 0 end is_timed_out from COP_WAIT where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w, COP_RESPONSE r where w.correlation_id = r.correlation_id(+)");
         try {
             for (int i = 0; i < flushSize; i++) {
                 stmt.setString(i + 1, list.size() >= i + 1 ? list.get(i).getId() : null);

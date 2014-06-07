@@ -75,8 +75,8 @@ class SqlNotifyNoEarlyResponseHandling {
             if (commands.isEmpty())
                 return;
 
-            final PreparedStatement selectStmt = con.prepareStatement("select count(*) from cop_wait where correlation_id = ?");
-            final PreparedStatement insertStmt = con.prepareStatement("INSERT INTO cop_response (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA, RESPONSE_ID) VALUES (?,?,?,?,?,?)");
+            final PreparedStatement selectStmt = con.prepareStatement("select count(*) from COP_WAIT where correlation_id = ?");
+            final PreparedStatement insertStmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, RESPONSE_TIMEOUT, RESPONSE_META_DATA, RESPONSE_ID) VALUES (?,?,?,?,?,?)");
             try {
                 final Timestamp now = new Timestamp(System.currentTimeMillis());
                 int counter = 0;

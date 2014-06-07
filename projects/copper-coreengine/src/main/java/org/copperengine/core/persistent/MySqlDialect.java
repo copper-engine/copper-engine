@@ -44,13 +44,13 @@ public class MySqlDialect extends AbstractSqlDialect {
     }
 
     protected PreparedStatement createDequeueStmt(final Connection c, final String ppoolId, final int max) throws SQLException {
-        PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from cop_queue where ppool_id = ? order by priority, last_mod_ts) LIMIT 0," + max);
+        PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from COP_QUEUE where ppool_id = ? order by priority, last_mod_ts) LIMIT 0," + max);
         dequeueStmt.setString(1, ppoolId);
         return dequeueStmt;
     }
 
     protected PreparedStatement createDeleteStaleResponsesStmt(final Connection c, final int MAX_ROWS) throws SQLException {
-        PreparedStatement stmt = c.prepareStatement("delete from cop_response where response_timeout < ? and not exists (select * from cop_wait w where w.correlation_id = cop_response.correlation_id LIMIT " + MAX_ROWS + ")");
+        PreparedStatement stmt = c.prepareStatement("delete from COP_RESPONSE where response_timeout < ? and not exists (select * from COP_WAIT w where w.correlation_id = COP_RESPONSE.correlation_id LIMIT " + MAX_ROWS + ")");
         stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
         return stmt;
     }

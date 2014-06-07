@@ -18,12 +18,12 @@ BEGIN
 	from (
 		select WORKFLOW_INSTANCE_ID, max(is_timed_out) is_timed_out, min(wfi_rowid) wfi_rowid, min(min_numb_of_responses) min_numb_of_responses, sum(decode(rcid,NULL,0,1)) c, min(ppool_id) ppool_id, min(priority) priority 
 		from (
-			select case when w.timeout_ts < systimestamp then 1 else 0 end is_timed_out, r.correlation_id rcid, w.correlation_id, w.WORKFLOW_INSTANCE_ID, w.wfi_rowid, MIN_NUMB_OF_RESP min_numb_of_responses, w.ppool_id, w.priority from (select unique correlation_id from cop_response) r, cop_wait w where w.correlation_id = r.correlation_id(+) and w.state=0 and (r.correlation_id is not null or w.timeout_ts < systimestamp)
+			select case when w.timeout_ts < systimestamp then 1 else 0 end is_timed_out, r.correlation_id rcid, w.correlation_id, w.WORKFLOW_INSTANCE_ID, w.wfi_rowid, MIN_NUMB_OF_RESP min_numb_of_responses, w.ppool_id, w.priority from (select unique correlation_id from COP_RESPONSE) r, COP_WAIT w where w.correlation_id = r.correlation_id(+) and w.state=0 and (r.correlation_id is not null or w.timeout_ts < systimestamp)
 		) group by WORKFLOW_INSTANCE_ID
 	) 
 	where (c >= min_numb_of_responses or is_timed_out = 1) and rownum <= i_MAX;
 	
-	update cop_wait set state=1 where WORKFLOW_INSTANCE_ID in (select column_value from table(l_WORKFLOW_INSTANCE_ID));
+	update COP_WAIT set state=1 where WORKFLOW_INSTANCE_ID in (select column_value from table(l_WORKFLOW_INSTANCE_ID));
 
 	FORALL i IN 1..l_rowid.count
 		INSERT INTO COP_QUEUE (PPOOL_ID, PRIORITY, LAST_MOD_TS, wfi_rowid) VALUES (l_ppool_id(i), l_prio(i), SYSTIMESTAMP, l_rowid(i));
@@ -127,7 +127,7 @@ BEGIN
     END;
 	
     select REPLY_SENT, CORRELATION_ID, WORKFLOW_INSTANCE_ID into l_REPLY_SENT, l_CORRELATION_ID, l_WORKFLOW_INSTANCE_ID from (
-    	select l.REPLY_SENT, l.CORRELATION_ID, l.WORKFLOW_INSTANCE_ID from cop_lock l where lock_id = i_LOCK_ID order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id
+    	select l.REPLY_SENT, l.CORRELATION_ID, l.WORKFLOW_INSTANCE_ID from COP_LOCK l where lock_id = i_LOCK_ID order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id
     )
     where rownum <= 1;
     
@@ -170,7 +170,7 @@ BEGIN
     BEGIN
 	    
     	select REPLY_SENT, CORRELATION_ID, WORKFLOW_INSTANCE_ID into l_REPLY_SENT, l_CORRELATION_ID, l_WORKFLOW_INSTANCE_ID from (
-    		select l.REPLY_SENT, l.CORRELATION_ID, l.WORKFLOW_INSTANCE_ID from cop_lock l where lock_id = i_LOCK_ID order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id
+    		select l.REPLY_SENT, l.CORRELATION_ID, l.WORKFLOW_INSTANCE_ID from COP_LOCK l where lock_id = i_LOCK_ID order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id
     	)
     	where rownum <= 1;
     

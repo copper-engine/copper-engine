@@ -384,7 +384,7 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
 
     protected String getSelectMessagesQuery(boolean ignoreProcessed) {
         return "SELECT CORRELATION_ID, r.response, r.response, RESPONSE_TS, RESPONSE_TIMEOUT FROM COP_RESPONSE r "
-                + (!ignoreProcessed ? "" : "WHERE not exists(select * from cop_wait w where r.CORRELATION_ID=w.CORRELATION_ID)");
+                + (!ignoreProcessed ? "" : "WHERE not exists(select * from COP_WAIT w where r.CORRELATION_ID=w.CORRELATION_ID)");
     }
 
     @Override

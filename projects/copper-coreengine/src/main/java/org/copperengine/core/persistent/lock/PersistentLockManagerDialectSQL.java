@@ -121,7 +121,7 @@ public class PersistentLockManagerDialectSQL implements PersistentLockManagerDia
         PreparedStatement pstmtSelectLock = null;
         PreparedStatement pstmtUpdateLock = null;
         try {
-            pstmtSelectLock = con.prepareStatement("select l.* from cop_lock l where lock_id = ? order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id");
+            pstmtSelectLock = con.prepareStatement("select l.* from COP_LOCK l where lock_id = ? order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id");
             pstmtSelectLock.setString(1, _lockId);
             ResultSet rs = pstmtSelectLock.executeQuery();
             if (rs.next()) {

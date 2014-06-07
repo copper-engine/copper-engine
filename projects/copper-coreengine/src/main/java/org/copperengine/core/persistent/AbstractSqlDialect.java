@@ -171,7 +171,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             JdbcUtils.closeStatement(truncateStmt);
         }
 
-        final PreparedStatement insertStmt = con.prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) (select ppool_id, priority, last_mod_ts, id from COP_WORKFLOW_INSTANCE where state=0)");
+        final PreparedStatement insertStmt = con.prepareStatement("insert into COP_QUEUE (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) (select ppool_id, priority, last_mod_ts, id from COP_WORKFLOW_INSTANCE where state=0)");
         try {
             logger.info("Adding all BPs in state 0 to queue...");
             int rowcount = insertStmt.executeUpdate();
@@ -180,7 +180,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             JdbcUtils.closeStatement(insertStmt);
         }
 
-        final PreparedStatement updateStmt = con.prepareStatement("update cop_wait set state=0 where state=1");
+        final PreparedStatement updateStmt = con.prepareStatement("update COP_WAIT set state=0 where state=1");
         try {
             logger.info("Changing all WAITs to state 0...");
             int rowcount = updateStmt.executeUpdate();
@@ -218,7 +218,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             final List<BatchCommand> invalidWorkflowInstances = new ArrayList<BatchCommand>();
 
             dequeueStmt = createDequeueStmt(con, ppoolId, max);
-            deleteStmt = con.prepareStatement("delete from cop_queue where WORKFLOW_INSTANCE_ID=?");
+            deleteStmt = con.prepareStatement("delete from COP_QUEUE where WORKFLOW_INSTANCE_ID=?");
 
             dequeueStmtStatistic.start();
             final ResultSet rs = dequeueStmt.executeQuery();
@@ -250,7 +250,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             dequeueStmtStatistic.stop(map.size());
 
             if (!map.isEmpty()) {
-                selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, w.timeout_ts, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id, timeout_ts from cop_wait where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w LEFT OUTER JOIN cop_response r ON w.correlation_id = r.correlation_id");
+                selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, w.timeout_ts, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id, timeout_ts from COP_WAIT where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w LEFT OUTER JOIN COP_RESPONSE r ON w.correlation_id = r.correlation_id");
                 List<List<String>> ids = splitt(map.keySet(), 25);
                 for (List<String> id : ids) {
                     selectResponsesStmt.clearParameters();
@@ -327,7 +327,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
             queryStmt = createUpdateStateStmt(con, max);
             ResultSet rs = queryStmt.executeQuery();
-            updStmt = con.prepareStatement("update cop_wait set state=1, timeout_ts=timeout_ts where WORKFLOW_INSTANCE_ID=?");
+            updStmt = con.prepareStatement("update COP_WAIT set state=1, timeout_ts=timeout_ts where WORKFLOW_INSTANCE_ID=?");
             insStmt = con.prepareStatement("INSERT INTO COP_QUEUE (PPOOL_ID, PRIORITY, LAST_MOD_TS, WORKFLOW_INSTANCE_ID) VALUES (?,?,?,?)");
             while (rs.next()) {
                 rowcount++;
@@ -480,7 +480,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         try {
             final Timestamp NOW = new Timestamp(System.currentTimeMillis());
             stmtWF = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE (ID,STATE,PRIORITY,LAST_MOD_TS,PPOOL_ID,DATA,OBJECT_STATE,CREATION_TS,CLASSNAME) VALUES (?,?,?,?,?,?,?,?,?)");
-            stmtQueue = con.prepareStatement("insert into cop_queue (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,?,?)");
+            stmtQueue = con.prepareStatement("insert into COP_QUEUE (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) values (?,?,?,?)");
             int n = 0;
             for (int i = 0; i < wfs.size(); i++) {
                 Workflow<?> wf = wfs.get(i);
@@ -634,7 +634,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             rs.close();
             readStmt.close();
 
-            selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, w.timeout_ts, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id, timeout_ts from cop_wait where WORKFLOW_INSTANCE_ID = ?) w LEFT OUTER JOIN cop_response r ON w.correlation_id = r.correlation_id");
+            selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, w.timeout_ts, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id, timeout_ts from COP_WAIT where WORKFLOW_INSTANCE_ID = ?) w LEFT OUTER JOIN COP_RESPONSE r ON w.correlation_id = r.correlation_id");
             selectResponsesStmt.setString(1, workflowInstanceId);
             ResultSet rsResponses = selectResponsesStmt.executeQuery();
             while (rsResponses.next()) {

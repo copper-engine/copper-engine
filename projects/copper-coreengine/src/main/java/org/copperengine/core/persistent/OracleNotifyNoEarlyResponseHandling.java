@@ -30,9 +30,9 @@ import org.copperengine.core.batcher.BatchExecutor;
 class OracleNotifyNoEarlyResponseHandling {
 
     private static final String SQL =
-            "INSERT INTO cop_response (CORRELATION_ID,RESPONSE_TS,RESPONSE,LONG_RESPONSE,RESPONSE_TIMEOUT,RESPONSE_META_DATA) " +
+            "INSERT INTO COP_RESPONSE (CORRELATION_ID,RESPONSE_TS,RESPONSE,LONG_RESPONSE,RESPONSE_TIMEOUT,RESPONSE_META_DATA) " +
                     "SELECT D.* FROM " +
-                    "(select correlation_id from cop_wait where correlation_id = ?) W, " +
+                    "(select correlation_id from COP_WAIT where correlation_id = ?) W, " +
                     "(select ? as correlation_id, ? as response_ts, ? as response, ? as long_response, ? as response_timeout, ? as response_meta_data from dual) D " +
                     "WHERE D.correlation_id = W.correlation_id";
 

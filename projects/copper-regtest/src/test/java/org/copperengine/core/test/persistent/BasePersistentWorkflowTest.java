@@ -339,7 +339,7 @@ public class BasePersistentWorkflowTest {
                 @Override
                 protected Void execute() throws Exception {
                     Statement stmt = createStatement(getConnection());
-                    ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
+                    ResultSet rs = stmt.executeQuery("select * from COP_WORKFLOW_INSTANCE_ERROR");
                     assertTrue(rs.next());
                     assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
                     assertNotNull(rs.getString("EXCEPTION"));
@@ -355,7 +355,7 @@ public class BasePersistentWorkflowTest {
                 @Override
                 protected Void execute() throws Exception {
                     Statement stmt = createStatement(getConnection());
-                    ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
+                    ResultSet rs = stmt.executeQuery("select * from COP_WORKFLOW_INSTANCE_ERROR");
                     assertTrue(rs.next());
                     assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
                     assertNotNull(rs.getString("EXCEPTION"));
@@ -391,7 +391,7 @@ public class BasePersistentWorkflowTest {
                 @Override
                 protected Void execute() throws Exception {
                     Statement stmt = createStatement(getConnection());
-                    ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
+                    ResultSet rs = stmt.executeQuery("select * from COP_WORKFLOW_INSTANCE_ERROR");
                     assertTrue(rs.next());
                     assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
                     assertNotNull(rs.getString("EXCEPTION"));
@@ -407,7 +407,7 @@ public class BasePersistentWorkflowTest {
                 @Override
                 protected Void execute() throws Exception {
                     Statement stmt = createStatement(getConnection());
-                    ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
+                    ResultSet rs = stmt.executeQuery("select * from COP_WORKFLOW_INSTANCE_ERROR");
                     assertTrue(rs.next());
                     assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
                     assertNotNull(rs.getString("EXCEPTION"));
@@ -487,7 +487,7 @@ public class BasePersistentWorkflowTest {
                 @Override
                 protected Void execute() throws Exception {
                     Statement stmt = createStatement(getConnection());
-                    ResultSet rs = stmt.executeQuery("select count(*) from cop_workflow_instance");
+                    ResultSet rs = stmt.executeQuery("select count(*) from COP_WORKFLOW_INSTANCE");
                     assertTrue(rs.next());
                     int x = rs.getInt(1);
                     assertEquals(NUMB, x);
@@ -535,7 +535,7 @@ public class BasePersistentWorkflowTest {
                 @Override
                 protected Void execute() throws Exception {
                     Statement stmt = createStatement(getConnection());
-                    ResultSet rs = stmt.executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from cop_audit_trail_event) order by 1 asc");
+                    ResultSet rs = stmt.executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from COP_AUDIT_TRAIL_EVENT) order by 1 asc");
                     assertTrue(rs.next());
                     // logger.info("\""+new CompressedBase64PostProcessor().deserialize(rs.getString(1))+"\"");
                     // System.out.println(new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
@@ -620,7 +620,7 @@ public class BasePersistentWorkflowTest {
                 @Override
                 protected Void execute() throws Exception {
                     Statement stmt = createStatement(getConnection());
-                    ResultSet rs = stmt.executeQuery("select * from cop_workflow_instance_error");
+                    ResultSet rs = stmt.executeQuery("select * from COP_WORKFLOW_INSTANCE_ERROR");
                     assertTrue(rs.next());
                     assertEquals(wfInstanceDescr.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
                     assertNotNull(rs.getString("EXCEPTION"));
@@ -655,7 +655,7 @@ public class BasePersistentWorkflowTest {
                 @Override
                 protected Void execute() throws Exception {
                     Statement stmt = createStatement(getConnection());
-                    ResultSet rs = stmt.executeQuery("select seq_id from cop_audit_trail_event order by seq_id");
+                    ResultSet rs = stmt.executeQuery("select seq_id from COP_AUDIT_TRAIL_EVENT order by seq_id");
                     assertTrue(rs.next());
                     assertEquals(1, rs.getLong(1));
                     assertTrue(rs.next());
@@ -690,7 +690,7 @@ public class BasePersistentWorkflowTest {
                         Response<?> response = new Response<String>("CID#withEarlyResponse", "TEST", null);
                         engine.notify(response, getConnection());
                         Statement stmt = createStatement(getConnection());
-                        ResultSet rs = stmt.executeQuery("select * from cop_response");
+                        ResultSet rs = stmt.executeQuery("select * from COP_RESPONSE");
                         assertTrue(rs.next());
                         assertEquals(response.getCorrelationId(), rs.getString("CORRELATION_ID"));
                         assertFalse(rs.next());
@@ -699,7 +699,7 @@ public class BasePersistentWorkflowTest {
                         response = new Response<String>("CID#withoutEarlyResponse", "TEST", null);
                         response.setEarlyResponseHandling(false);
                         engine.notify(response, getConnection());
-                        rs = stmt.executeQuery("select * from cop_response");
+                        rs = stmt.executeQuery("select * from COP_RESPONSE");
                         assertFalse(rs.next());
                         rs.close();
                         stmt.close();

@@ -11,11 +11,11 @@ wfi.cs_waitmode,
 wfi.min_numb_of_resp, 
 wfi.numb_of_waits, 
 wfi.timeout 
-from cop_workflow_instance wfi, cop_queue q 
+from COP_WORKFLOW_INSTANCE wfi, COP_QUEUE q
 where wfi.rowid = q.wfi_rowid(+);
 
 
 create or replace view COP_QUEUE_MONITOR
 AS
-select ppool_id, count(*) count from cop_queue group by ppool_id;
+select ppool_id, count(*) count from COP_QUEUE group by ppool_id;
 
