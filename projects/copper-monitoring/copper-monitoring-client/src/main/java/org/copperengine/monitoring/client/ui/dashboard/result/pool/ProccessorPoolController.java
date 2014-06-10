@@ -91,7 +91,7 @@ public class ProccessorPoolController implements Initializable, FxmlController {
                     @Override
                     public void closed(Integer inputValue) {
                         dataProvider.setThreadPriority(engine.getId(), pool.getId(), inputValue);
-                        context.createDashboardForm().refresh();
+                        context.createDashboardForm().delayedRefresh();
                     }
                 });
             }
@@ -104,7 +104,7 @@ public class ProccessorPoolController implements Initializable, FxmlController {
                     @Override
                     public void closed(Integer inputValue) {
                         dataProvider.setNumberOfThreads(engine.getId(), pool.getId(), inputValue);
-                        context.createDashboardForm().refresh();
+                        context.createDashboardForm().delayedRefresh();
                     }
                 });
             }

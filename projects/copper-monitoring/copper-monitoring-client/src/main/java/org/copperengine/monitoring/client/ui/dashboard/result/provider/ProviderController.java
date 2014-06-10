@@ -77,7 +77,7 @@ public class ProviderController implements Initializable, FxmlController {
             @Override
             public void handle(ActionEvent event) {
                 dataProvider.startMonitoringDataProvider(dataProviderInfo.getName());
-                context.createDashboardForm().refresh();
+                context.createDashboardForm().delayedRefresh();
             }
         });
         start.disableProperty().bind(status.textProperty().isEqualTo("STARTED"));
@@ -86,7 +86,7 @@ public class ProviderController implements Initializable, FxmlController {
             @Override
             public void handle(ActionEvent event) {
                 dataProvider.stopMonitoringDataProvider(dataProviderInfo.getName());
-                context.createDashboardForm().refresh();
+                context.createDashboardForm().delayedRefresh();
             }
         });
         stop.disableProperty().bind(status.textProperty().isEqualTo("STOPPED"));
