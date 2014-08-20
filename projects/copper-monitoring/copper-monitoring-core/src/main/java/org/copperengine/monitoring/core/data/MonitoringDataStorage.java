@@ -41,6 +41,7 @@ import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.ByteBufferOutputStream;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import org.copperengine.monitoring.core.model.MonitoringData;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageContentInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageDetailInfo;
@@ -186,6 +187,11 @@ public class MonitoringDataStorage {
             } catch (BufferOverflowException be) {
                 return false;
             }
+        }
+        
+        @Override
+        public String toString() {
+            return file.getAbsolutePath();
         }
     }
 
@@ -490,10 +496,10 @@ public class MonitoringDataStorage {
         final long toTime = toDate == null ? Long.MAX_VALUE : toDate.getTime();
         synchronized (lock) {
             for (TargetFile target : writtenFiles) {
-                if ((fromTime <= target.latestTimestamp || toTime >= target.earliestTimestamp) && target.limit > FIRST_RECORD_POSITION)
+                if ((fromTime <= target.latestTimestamp && toTime >= target.earliestTimestamp) && target.limit > FIRST_RECORD_POSITION)
                     filesToRead.add(target);
             }
-            if (currentTarget != null && (fromTime <= currentTarget.latestTimestamp || toTime >= currentTarget.earliestTimestamp) && currentTarget.limit > FIRST_RECORD_POSITION) {
+            if (currentTarget != null && (fromTime <= currentTarget.latestTimestamp && toTime >= currentTarget.earliestTimestamp) && currentTarget.limit > FIRST_RECORD_POSITION) {
                 filesToRead.add(currentTarget);
             }
         }
@@ -538,7 +544,6 @@ public class MonitoringDataStorage {
                 return new Iterator<MonitoringData>() {
 
                     // Has to be sorted in order of ascending earliestTimestamp. openFiles() depends on that
-                    @SuppressWarnings("unchecked")
                     ArrayList<TargetFile> files = (ArrayList<TargetFile>) filesToRead.clone();
                     ArrayList<OpenedFile> openFiles = new ArrayList<OpenedFile>();
                     long currentTimestamp;
@@ -637,7 +642,6 @@ public class MonitoringDataStorage {
                 };
             }
         };
-
     }
 
     public Date getMinDate() {
@@ -678,9 +682,9 @@ public class MonitoringDataStorage {
         return new MonitoringDataStorageInfo(size, targetPath.getAbsolutePath(), getMinDate(), getMaxDate());
     }
 
-    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo() {
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo(Date fromDate, Date toDate) {
         final HashMap<String, MonitoringDataStorageContentInfo> classToInfo = new HashMap<String, MonitoringDataStorageContentInfo>();
-        for (MonitoringData data : read(null, null)) {
+        for (MonitoringData data : read(fromDate, toDate)) {
             String clazz = data.getClass().getName();
             MonitoringDataStorageContentInfo info = classToInfo.get(clazz);
             if (info == null) {

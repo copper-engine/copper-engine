@@ -28,7 +28,7 @@ import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
 import org.copperengine.monitoring.core.statistic.StatisticCreator;
 
 /**
- * warpper for {@link MonitoringDataStorage } to read data
+ * wrapper for {@link MonitoringDataStorage } to read data
  */
 public class MonitoringDataAccessor implements MonitoringDataQuerys {
 
@@ -87,7 +87,7 @@ public class MonitoringDataAccessor implements MonitoringDataQuerys {
         return monitoringDataStorage.getMonitoringDataStorageInfo();
     }
 
-    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo() {
-        return monitoringDataStorage.getMonitoringDataStorageDetailInfo();
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo(Date fromDate, Date toDate) {
+        return monitoringDataStorage.getMonitoringDataStorageDetailInfo(fromDate, toDate);
     }
 }

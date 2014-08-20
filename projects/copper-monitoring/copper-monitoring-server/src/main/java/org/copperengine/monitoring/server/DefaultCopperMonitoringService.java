@@ -447,11 +447,11 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
     }
 
     @Override
-    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo() throws RemoteException {
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo(final Date fromDate, final Date toDate) throws RemoteException {
         return monitoringDataAccessQueue.callAndWait(new MonitoringDataAwareCallable<MonitoringDataStorageDetailInfo>() {
             @Override
             public MonitoringDataStorageDetailInfo call() throws Exception {
-                return monitoringDataAccesor.getMonitoringDataStorageDetailInfo();
+                return monitoringDataAccesor.getMonitoringDataStorageDetailInfo(fromDate, toDate);
             }
         });
     }

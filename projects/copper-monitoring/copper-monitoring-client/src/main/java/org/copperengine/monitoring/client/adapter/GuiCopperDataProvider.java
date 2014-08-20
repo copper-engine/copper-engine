@@ -500,9 +500,9 @@ public class GuiCopperDataProvider {
         }
     }
 
-    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo(){
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo(Date fromDate, Date toDate){
         try {
-            return copperMonitoringService.getMonitoringDataStorageDetailInfo();
+            return copperMonitoringService.getMonitoringDataStorageDetailInfo(fromDate, toDate);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }

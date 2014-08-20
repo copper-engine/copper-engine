@@ -37,13 +37,15 @@
                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                       </padding>
                     </HBox>
-                    <TableView fx:id="storageContentTable" layoutX="39.0" layoutY="109.0" prefHeight="120.0" prefWidth="367.0">
+                    <Label layoutX="41.0" layoutY="116.0" styleClass="copper-title" text="Entries in the last" />
+                    <ComboBox fx:id="storageDetailMinutes" layoutX="144.0" layoutY="112.0" prefWidth="52.0" />
+                    <Label layoutX="200.0" layoutY="116.0" styleClass="copper-title" text="minutes" />
+                    <TableView fx:id="storageContentTable" layoutX="39.0" layoutY="136.0" prefHeight="120.0" prefWidth="367.0">
                       <columns>
                         <TableColumn prefWidth="75.0" text="Type" fx:id="typeCol" />
                         <TableColumn prefWidth="75.0" text="Count" fx:id="countCol" />
                       </columns>
                     </TableView>
-                    <Button fx:id="storageDetailRefresh" layoutX="39.0" layoutY="236.0" mnemonicParsing="false" text="refresh" />
                   </children>
                 </Pane>
                 <ScrollPane layoutX="29.0" layoutY="280.0" prefHeight="432.0" prefWidth="395.0">
