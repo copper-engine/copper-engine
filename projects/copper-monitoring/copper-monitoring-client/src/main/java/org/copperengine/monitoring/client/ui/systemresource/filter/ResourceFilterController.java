@@ -16,6 +16,7 @@
 package org.copperengine.monitoring.client.ui.systemresource.filter;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
@@ -28,17 +29,38 @@ import org.copperengine.monitoring.client.form.filter.BaseFilterController;
 import org.copperengine.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 
 public class ResourceFilterController extends BaseFilterController<ResourceFilterModel> implements Initializable, FxmlController {
-    final ResourceFilterModel model = new ResourceFilterModel();
+    private final ResourceFilterModel model = new ResourceFilterModel();
+    
+    private final int initMaxCount;
+    private final Date initFrom;
+    private final Date initTo;
 
     @FXML
     // fx:id="pane"
     private FlowPane pane; // Value injected by FXMLLoader
 
+
+    public ResourceFilterController() {
+        this(-1, null, null);
+    }
+
+    public ResourceFilterController(int initMaxCount, Date initFrom, Date initTo) {
+        this.initMaxCount = (initMaxCount <= 0) ? 50 : initMaxCount;
+        this.initFrom = initFrom;
+        this.initTo = initTo;
+    }
+    
     @Override
     // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert pane != null : "fx:id=\"pane\" was not injected: check your FXML file 'EngineLoadFilter.fxml'.";
-        model.maxCountFilterModel.maxCount.set(50);
+        model.maxCountFilterModel.maxCount.set(initMaxCount);
+        if(initFrom != null) {
+            model.fromToFilterModel.from.set(initFrom);
+        }
+        if(initTo != null) {
+            model.fromToFilterModel.to.set(initTo);
+        }
     }
 
     @Override

@@ -88,14 +88,14 @@ public class DefaultFilterFactory {
 
     private void createFromToUI(VBox parent, FromToFilterModel fromToFilterModel) {
         final DateTimePicker fromDateTimePicker = new DateTimePicker();
-        fromDateTimePicker.bindBidirectionalSelected(fromToFilterModel.from);
         Pane from = fromDateTimePicker.createContent();
+        fromDateTimePicker.bindBidirectionalSelected(fromToFilterModel.from);
         from.setPrefWidth(170);
         parent.getChildren().add(createDescriptionVale("from",from));
 
         final DateTimePicker toDateTimePicker = new DateTimePicker();
-        toDateTimePicker.bindBidirectionalSelected(fromToFilterModel.to);
         Pane to = toDateTimePicker.createContent();
+        toDateTimePicker.bindBidirectionalSelected(fromToFilterModel.to);
         to.setPrefWidth(170);
 
         parent.getChildren().add(createDescriptionVale("to",to));

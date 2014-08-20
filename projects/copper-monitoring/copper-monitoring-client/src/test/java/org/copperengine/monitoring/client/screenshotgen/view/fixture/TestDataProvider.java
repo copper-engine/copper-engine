@@ -1232,7 +1232,7 @@ public class TestDataProvider implements CopperMonitoringService {
     }
 
     @Override
-    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo() throws RemoteException {
+    public MonitoringDataStorageDetailInfo getMonitoringDataStorageDetailInfo(Date fromDate, Date toDate) throws RemoteException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

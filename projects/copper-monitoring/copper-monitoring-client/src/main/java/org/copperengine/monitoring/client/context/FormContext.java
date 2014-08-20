@@ -16,24 +16,20 @@
 package org.copperengine.monitoring.client.context;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.context.FormBuilder.EngineFormBuilder;
 import org.copperengine.monitoring.client.form.BorderPaneShowFormStrategie;
@@ -139,6 +135,7 @@ import org.copperengine.monitoring.core.model.WorkflowStateSummary;
 
 public class FormContext implements DashboardDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory,
         WorkflowSummaryDependencyFactory {
+
     protected final TabPane mainTabPane;
     protected final BorderPane mainPane;
     protected final FormCreatorGroup formGroup;
@@ -312,36 +309,6 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
         VBox topPane = new VBox();
         topPane.getChildren().add(createMenuBar());
-//        final ToolBar toolBar = new ToolBar();
-//
-//        final Button back = new Button();
-//        back.setGraphic(new Region());
-//        back.setPrefSize(30, 30);
-//        back.getStyleClass().add("back-button");
-//        back.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent actionEvent) {
-//                getDefaultShowFormStrategy().back();
-//            }
-//        });
-//
-//        final Button forward = new Button();
-//        forward.setGraphic(new Region());
-//        forward.setPrefSize(30,30);
-//        forward.getStyleClass().add("forward-button");
-//        forward.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent actionEvent) {
-//                getDefaultShowFormStrategy().forward();
-//            }
-//        });
-//
-//        HBox navigation = new HBox();
-//        navigation.getChildren().add(back);
-//        navigation.getChildren().add(forward);
-//        toolBar.getItems().add(navigation);
-//
-//        topPane.getChildren().add(toolBar);
         mainPane.setTop(topPane);
         Platform.runLater(new Runnable() {
             @Override
@@ -487,10 +454,21 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
     FilterAbleForm<ResourceFilterModel, SystemResourcesInfo> ressourceFormSingelton = null;
     private List<ProcessingEngineInfo> engineList;
 
+    
+    private int resourceFilterMaxCount = -1;
+    private Date resourceFilterFrom = null;
+    private Date resourceFilterTo = null;
+    
+    public void setInitialResourceFilter(int maxCount, Date from, Date to) {
+        this.resourceFilterMaxCount = maxCount;
+        this.resourceFilterFrom = from;
+        this.resourceFilterTo = to;
+    }
+
     public FilterAbleForm<ResourceFilterModel, SystemResourcesInfo> createRessourceForm() {
         if (ressourceFormSingelton == null) {
             ressourceFormSingelton = new FormBuilder<ResourceFilterModel, SystemResourcesInfo, ResourceFilterController, RessourceResultController>(
-                    new ResourceFilterController(),
+                    new ResourceFilterController(resourceFilterMaxCount, resourceFilterFrom, resourceFilterTo),
                     new RessourceResultController(guiCopperDataProvider),
                     this
                     ).build();

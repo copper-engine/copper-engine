@@ -31,11 +31,13 @@ import java.util.concurrent.TimeUnit;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
@@ -57,6 +59,7 @@ import org.copperengine.monitoring.client.util.TableColumnHelper;
 import org.copperengine.monitoring.core.model.ConfigurationInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageContentInfo;
+import org.copperengine.monitoring.core.model.MonitoringDataStorageDetailInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
 
 public class DashboardResultController extends FilterResultControllerBase<FromToMaxCountFilterModel, ConfigurationInfo> implements Initializable {
@@ -64,6 +67,11 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
     private final DashboardDependencyFactory dashboardPartsFactory;
     private Form<ProcessingEnginesController> enginesForm;
 
+    private final ObservableList<Integer> storageDetailMinutesOptions = 
+            FXCollections.observableArrayList(5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 
+                    90, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 1080, 1440, 2880);
+
+    
     public DashboardResultController(GuiCopperDataProvider copperDataProvider, DashboardDependencyFactory dashboardPartsFactory) {
         super();
         this.copperDataProvider = copperDataProvider;
@@ -99,7 +107,7 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
     private Pane datePickerTarget;
 
     @FXML
-    private Button storageDetailRefresh;
+    private ComboBox<Integer> storageDetailMinutes;
 
     @FXML
     private Pane disableOverlay;
@@ -114,7 +122,8 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
         assert size != null : "fx:id=\"size\" was not injected: check your FXML file 'DashboardResult.fxml'.";
         assert storageContentTable != null : "fx:id=\"storageContentTable\" was not injected: check your FXML file 'DashboardResult.fxml'.";
         assert typeCol != null : "fx:id=\"typeCol\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-
+        assert storageDetailMinutes != null : "fx:id=\"storageDetailMinutes\" was not injected: check your FXML file 'DashboardResult.fxml'.";
+        
         enginesForm = dashboardPartsFactory.createEnginesForm(enginesTarget);
         enginesForm.show();
 
@@ -150,27 +159,34 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
         });
         datePickerTarget.getChildren().add(dateTimePicker.createContent());
 
-        storageDetailRefresh.setOnAction(new EventHandler<ActionEvent>() {
+        storageDetailMinutes.setItems(storageDetailMinutesOptions);
+        
+        storageDetailMinutes.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                storageContentTable.getItems().clear();
-                storageContentTable.getItems().addAll(copperDataProvider.getMonitoringDataStorageDetailInfo().getMonitoringDataStorageContentInfo());
+                updateStorageDetails();
             }
         });
+        
         TableColumnHelper.setTextOverrunCellFactory(typeCol, OverrunStyle.LEADING_ELLIPSIS);
         typeCol.prefWidthProperty().bind(storageContentTable.widthProperty().subtract(2).multiply(0.75));
         countCol.prefWidthProperty().bind(storageContentTable.widthProperty().subtract(2).multiply(0.25));
-        
-        Callable<Void> task = new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                storageDetailRefresh.fire();
-                return null;
-            }
-        };
-        Executors.newSingleThreadScheduledExecutor().schedule(task, 3, TimeUnit.SECONDS);
+
+        storageDetailMinutes.setValue(storageDetailMinutesOptions.get(0));
+        updateStorageDetails();
     }
 
+    private void updateStorageDetails() {
+        storageContentTable.getItems().clear();
+        Date fromDate = null;
+        Integer minutes = storageDetailMinutes.getValue();
+        if(minutes != null) {
+            fromDate = new Date(System.currentTimeMillis() - 60000L * minutes);
+        }
+        MonitoringDataStorageDetailInfo monitoringDataStorageDetailInfo = copperDataProvider.getMonitoringDataStorageDetailInfo(fromDate, null);
+        storageContentTable.getItems().addAll(monitoringDataStorageDetailInfo.getMonitoringDataStorageContentInfo());
+    }
+    
     boolean setFromSlider=false;
 
     public ConfigurationInfo findByDate(List<ConfigurationInfo> result, Date date){
@@ -268,7 +284,10 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
 
     @Override
     public List<ConfigurationInfo> applyFilterInBackgroundThread(FromToMaxCountFilterModel filter) {
-        return copperDataProvider.getConfigurationInfo(filter.fromToFilterModel.from.get(),filter.fromToFilterModel.to.get(),filter.maxCountFilterModel.getMaxCount());
+        int maxCount = filter.maxCountFilterModel.getMaxCount();
+        List<ConfigurationInfo> configurationInfo = copperDataProvider.getConfigurationInfo(filter.fromToFilterModel.from.get(),filter.fromToFilterModel.to.get(),maxCount);
+        updateStorageDetails();
+        return configurationInfo;
 
     }
 
