@@ -52,6 +52,10 @@ public class WorkflowSummary implements Serializable {
     public void setTotalcount(int totalcount) {
         this.totalcount = totalcount;
     }
+    
+    public void setComputedTotalCount() {
+        this.totalcount = stateSummery.getTotalCount();
+    }
 
     public WorkflowStateSummary getStateSummary() {
         return stateSummery;
