@@ -59,12 +59,14 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+
 import org.copperengine.monitoring.client.form.Form;
 import org.copperengine.monitoring.client.form.ShowFormsStrategy;
 import org.copperengine.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
 import org.copperengine.monitoring.client.form.issuereporting.IssueReporter;
 import org.copperengine.monitoring.client.form.issuereporting.LogIssueReporter;
 import org.copperengine.monitoring.client.util.ComponentUtil;
+import org.copperengine.monitoring.client.util.DelayedUIExecutor;
 import org.copperengine.monitoring.client.util.MessageKey;
 import org.copperengine.monitoring.client.util.MessageProvider;
 import org.copperengine.monitoring.client.util.NumberOnlyTextField;
@@ -435,29 +437,12 @@ public class FilterAbleForm<F, R> extends Form<Object> {
     }
 
     public void delayedRefresh() {
-        delayedRefresh(0, 1, 3, 10);
+        DelayedUIExecutor executor = new DelayedUIExecutor() {            
+            @Override public void execute() { quietRefresh(); }
+        };
+        executor.executeWithDelays(0, 1, 3, 10);
     }
 
-    public void delayedRefresh(long... seconds) {
-        Callable<Void> task = new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        quietRefresh();                
-                    }                    
-                });
-                return null;
-            }
-        };
-        ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        for(long sec : seconds) {
-            scheduledExecutor.schedule(task, sec, TimeUnit.SECONDS);
-        }
-    }
-    
-    
     final SimpleStringProperty refreshRateInMs = new SimpleStringProperty();
 
     public static class ResultFilterPair<F, R> {

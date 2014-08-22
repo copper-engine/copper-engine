@@ -24,9 +24,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -55,6 +52,7 @@ import org.copperengine.monitoring.client.form.filter.defaultfilter.FromToMaxCou
 import org.copperengine.monitoring.client.ui.dashboard.result.engines.ProcessingEnginesController;
 import org.copperengine.monitoring.client.ui.dashboard.result.provider.ProviderController;
 import org.copperengine.monitoring.client.util.DateTimePicker;
+import org.copperengine.monitoring.client.util.DelayedUIExecutor;
 import org.copperengine.monitoring.client.util.TableColumnHelper;
 import org.copperengine.monitoring.core.model.ConfigurationInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
@@ -286,7 +284,10 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
     public List<ConfigurationInfo> applyFilterInBackgroundThread(FromToMaxCountFilterModel filter) {
         int maxCount = filter.maxCountFilterModel.getMaxCount();
         List<ConfigurationInfo> configurationInfo = copperDataProvider.getConfigurationInfo(filter.fromToFilterModel.from.get(),filter.fromToFilterModel.to.get(),maxCount);
-        updateStorageDetails();
+        DelayedUIExecutor executor = new DelayedUIExecutor() {            
+            @Override public void execute() { updateStorageDetails(); }
+        };
+        executor.executeWithDelays(0, 1, 3, 10);
         return configurationInfo;
 
     }

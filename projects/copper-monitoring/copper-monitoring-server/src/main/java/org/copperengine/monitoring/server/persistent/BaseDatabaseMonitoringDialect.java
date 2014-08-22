@@ -199,7 +199,11 @@ public abstract class BaseDatabaseMonitoringDialect implements DatabaseMonitorin
                 summary.getStateSummary().getNumberOfWorkflowInstancesWithState().put(DBProcessingStateWorkaround.fromKey(status).asWorkflowInstanceState(), count);
             }
             resultSet.close();
-            return new ArrayList<WorkflowSummary>(classNameToSummary.values());
+            ArrayList<WorkflowSummary> wfSummaryList = new ArrayList<WorkflowSummary>(classNameToSummary.values());
+            for(WorkflowSummary wfSummary : wfSummaryList) {
+                wfSummary.setComputedTotalCount();
+            }
+            return wfSummaryList;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
