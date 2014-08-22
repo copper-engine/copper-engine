@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.ui.dashboard.result.provider;
+package org.copperengine.monitoring.client.ui.configuration.result.provider;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -77,7 +77,7 @@ public class ProviderController implements Initializable, FxmlController {
             @Override
             public void handle(ActionEvent event) {
                 dataProvider.startMonitoringDataProvider(dataProviderInfo.getName());
-                context.createDashboardForm().delayedRefresh();
+                context.createConfigurationForm().delayedRefresh();
             }
         });
         start.disableProperty().bind(status.textProperty().isEqualTo("STARTED"));
@@ -86,7 +86,7 @@ public class ProviderController implements Initializable, FxmlController {
             @Override
             public void handle(ActionEvent event) {
                 dataProvider.stopMonitoringDataProvider(dataProviderInfo.getName());
-                context.createDashboardForm().delayedRefresh();
+                context.createConfigurationForm().delayedRefresh();
             }
         });
         stop.disableProperty().bind(status.textProperty().isEqualTo("STOPPED"));

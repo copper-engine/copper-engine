@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package org.copperengine.monitoring.client.ui.dashboard.result;
+package org.copperengine.monitoring.client.ui.configuration.result;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.copperengine.monitoring.client.ui.configuration.result.ConfigurationResultController;
 import org.copperengine.monitoring.core.model.ConfigurationInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DashboardResultControllerTest {
+public class ConfigurationResultControllerTest {
 
     @Test
     public void test_FindByDate() throws Exception {
@@ -35,7 +36,7 @@ public class DashboardResultControllerTest {
         configurationInfos.add(new ConfigurationInfo(new Date(1),null,null,null));
         configurationInfos.add(new ConfigurationInfo(new Date(0),null,null,null));
 
-        ConfigurationInfo result = new DashboardResultController(null,null).findByDate(configurationInfos,new Date(1));
+        ConfigurationInfo result = new ConfigurationResultController(null,null).findByDate(configurationInfos,new Date(1));
         Assert.assertEquals(configurationInfos.get(3).getTimeStamp().getTime(),result.getTimeStamp().getTime());
     }
 
@@ -48,7 +49,7 @@ public class DashboardResultControllerTest {
         configurationInfos.add(new ConfigurationInfo(new Date(1),null,null,null));
         configurationInfos.add(new ConfigurationInfo(new Date(0),null,null,null));
 
-        ConfigurationInfo result = new DashboardResultController(null,null).findByDate(configurationInfos,new Date(6));
+        ConfigurationInfo result = new ConfigurationResultController(null,null).findByDate(configurationInfos,new Date(6));
         Assert.assertEquals(configurationInfos.get(2).getTimeStamp().getTime(),result.getTimeStamp().getTime());
     }
 
@@ -61,7 +62,7 @@ public class DashboardResultControllerTest {
         configurationInfos.add(new ConfigurationInfo(new Date(1),null,null,null));
         configurationInfos.add(new ConfigurationInfo(new Date(0),null,null,null));
 
-        ConfigurationInfo result = new DashboardResultController(null,null).findByDate(configurationInfos,new Date(9));
+        ConfigurationInfo result = new ConfigurationResultController(null,null).findByDate(configurationInfos,new Date(9));
         Assert.assertEquals(configurationInfos.get(0).getTimeStamp().getTime(),result.getTimeStamp().getTime());
     }
 }

@@ -60,17 +60,17 @@ import org.copperengine.monitoring.client.ui.audittrail.filter.AuditTrailFilterC
 import org.copperengine.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import org.copperengine.monitoring.client.ui.audittrail.result.AuditTrailResultController;
 import org.copperengine.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
+import org.copperengine.monitoring.client.ui.configuration.filter.ConfigurationFilterController;
+import org.copperengine.monitoring.client.ui.configuration.result.ConfigurationDependencyFactory;
+import org.copperengine.monitoring.client.ui.configuration.result.ConfigurationResultController;
+import org.copperengine.monitoring.client.ui.configuration.result.engine.ProcessingEngineController;
+import org.copperengine.monitoring.client.ui.configuration.result.engines.ProcessingEnginesController;
+import org.copperengine.monitoring.client.ui.configuration.result.pool.ProccessorPoolController;
+import org.copperengine.monitoring.client.ui.configuration.result.provider.ProviderController;
 import org.copperengine.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterController;
 import org.copperengine.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterModel;
 import org.copperengine.monitoring.client.ui.custommeasurepoint.result.CustomMeasurePointResultController;
 import org.copperengine.monitoring.client.ui.custommeasurepoint.result.CustomMeasurePointResultModel;
-import org.copperengine.monitoring.client.ui.dashboard.filter.DashboardFilterController;
-import org.copperengine.monitoring.client.ui.dashboard.result.DashboardDependencyFactory;
-import org.copperengine.monitoring.client.ui.dashboard.result.DashboardResultController;
-import org.copperengine.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
-import org.copperengine.monitoring.client.ui.dashboard.result.engines.ProcessingEnginesController;
-import org.copperengine.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
-import org.copperengine.monitoring.client.ui.dashboard.result.provider.ProviderController;
 import org.copperengine.monitoring.client.ui.databasemonitor.result.DatabaseMonitorResultController;
 import org.copperengine.monitoring.client.ui.load.filter.EngineLoadFilterController;
 import org.copperengine.monitoring.client.ui.load.filter.EngineLoadFilterModel;
@@ -133,7 +133,7 @@ import org.copperengine.monitoring.core.model.ProcessorPoolInfo;
 import org.copperengine.monitoring.core.model.SystemResourcesInfo;
 import org.copperengine.monitoring.core.model.WorkflowStateSummary;
 
-public class FormContext implements DashboardDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory,
+public class FormContext implements ConfigurationDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory,
         WorkflowSummaryDependencyFactory {
 
     protected final TabPane mainTabPane;
@@ -162,10 +162,10 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         CopperInterfaceSettings copperInterfaceSettings = guiCopperDataProvider.getInterfaceSettings();
 
         List<FormCreatorGroup> mainCreators = new ArrayList<FormCreatorGroup>();
-        mainCreators.add(new FormCreatorGroup(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
+        mainCreators.add(new FormCreatorGroup(new FormCreator(messageProvider.getText(MessageKey.configuration_title)) {
             @Override
             public Form<?> createFormImpl() {
-                return createDashboardForm();
+                return createConfigurationForm();
             }
         }));
 
@@ -313,10 +313,10 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
+                new FormCreator(messageProvider.getText(MessageKey.configuration_title)) {
                     @Override
                     public Form<?> createFormImpl() {
-                        return createDashboardForm();
+                        return createConfigurationForm();
                     }
                 }.show();
             }
@@ -476,11 +476,11 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         return ressourceFormSingelton;
     }
 
-    public FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> createDashboardForm() {
+    public FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> createConfigurationForm() {
         if (dasboardFormSingleton == null) {
-            dasboardFormSingleton = new FormBuilder<FromToMaxCountFilterModel, ConfigurationInfo, DashboardFilterController, DashboardResultController>(
-                    new DashboardFilterController(),
-                    new DashboardResultController(guiCopperDataProvider, this),
+            dasboardFormSingleton = new FormBuilder<FromToMaxCountFilterModel, ConfigurationInfo, ConfigurationFilterController, ConfigurationResultController>(
+                    new ConfigurationFilterController(),
+                    new ConfigurationResultController(guiCopperDataProvider, this),
                     this
             ).build();
         }

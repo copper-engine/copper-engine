@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.ui.dashboard.result;
+package org.copperengine.monitoring.client.ui.configuration.result;
 
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -49,8 +49,8 @@ import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.form.Form;
 import org.copperengine.monitoring.client.form.filter.FilterResultControllerBase;
 import org.copperengine.monitoring.client.form.filter.defaultfilter.FromToMaxCountFilterModel;
-import org.copperengine.monitoring.client.ui.dashboard.result.engines.ProcessingEnginesController;
-import org.copperengine.monitoring.client.ui.dashboard.result.provider.ProviderController;
+import org.copperengine.monitoring.client.ui.configuration.result.engines.ProcessingEnginesController;
+import org.copperengine.monitoring.client.ui.configuration.result.provider.ProviderController;
 import org.copperengine.monitoring.client.util.DateTimePicker;
 import org.copperengine.monitoring.client.util.DelayedUIExecutor;
 import org.copperengine.monitoring.client.util.TableColumnHelper;
@@ -60,9 +60,9 @@ import org.copperengine.monitoring.core.model.MonitoringDataStorageContentInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageDetailInfo;
 import org.copperengine.monitoring.core.model.MonitoringDataStorageInfo;
 
-public class DashboardResultController extends FilterResultControllerBase<FromToMaxCountFilterModel, ConfigurationInfo> implements Initializable {
+public class ConfigurationResultController extends FilterResultControllerBase<FromToMaxCountFilterModel, ConfigurationInfo> implements Initializable {
     private final GuiCopperDataProvider copperDataProvider;
-    private final DashboardDependencyFactory dashboardPartsFactory;
+    private final ConfigurationDependencyFactory configurationPartsFactory;
     private Form<ProcessingEnginesController> enginesForm;
 
     private final ObservableList<Integer> storageDetailMinutesOptions = 
@@ -70,10 +70,10 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
                     90, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 1080, 1440, 2880);
 
     
-    public DashboardResultController(GuiCopperDataProvider copperDataProvider, DashboardDependencyFactory dashboardPartsFactory) {
+    public ConfigurationResultController(GuiCopperDataProvider copperDataProvider, ConfigurationDependencyFactory configurationPartsFactory) {
         super();
         this.copperDataProvider = copperDataProvider;
-        this.dashboardPartsFactory = dashboardPartsFactory;
+        this.configurationPartsFactory = configurationPartsFactory;
     }
 
 
@@ -113,16 +113,16 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert countCol != null : "fx:id=\"countCol\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-        assert enginesTarget != null : "fx:id=\"enginesTarget\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-        assert location != null : "fx:id=\"location\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-        assert monitoringPane != null : "fx:id=\"monitoringPane\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-        assert size != null : "fx:id=\"size\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-        assert storageContentTable != null : "fx:id=\"storageContentTable\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-        assert typeCol != null : "fx:id=\"typeCol\" was not injected: check your FXML file 'DashboardResult.fxml'.";
-        assert storageDetailMinutes != null : "fx:id=\"storageDetailMinutes\" was not injected: check your FXML file 'DashboardResult.fxml'.";
+        assert countCol != null : "fx:id=\"countCol\" was not injected: check your FXML file 'ConfigurationResult.fxml'.";
+        assert enginesTarget != null : "fx:id=\"enginesTarget\" was not injected: check your FXML file 'ConfigurationResult.fxml'.";
+        assert location != null : "fx:id=\"location\" was not injected: check your FXML file 'ConfigurationResult.fxml'.";
+        assert monitoringPane != null : "fx:id=\"monitoringPane\" was not injected: check your FXML file 'ConfigurationResult.fxml'.";
+        assert size != null : "fx:id=\"size\" was not injected: check your FXML file 'ConfigurationResult.fxml'.";
+        assert storageContentTable != null : "fx:id=\"storageContentTable\" was not injected: check your FXML file 'ConfigurationResult.fxml'.";
+        assert typeCol != null : "fx:id=\"typeCol\" was not injected: check your FXML file 'ConfigurationResult.fxml'.";
+        assert storageDetailMinutes != null : "fx:id=\"storageDetailMinutes\" was not injected: check your FXML file 'ConfigurationResult.fxml'.";
         
-        enginesForm = dashboardPartsFactory.createEnginesForm(enginesTarget);
+        enginesForm = configurationPartsFactory.createEnginesForm(enginesTarget);
         enginesForm.show();
 
 
@@ -206,7 +206,7 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
 
     @Override
     public URL getFxmlResource() {
-        return getClass().getResource("DashboardResult.fxml");
+        return getClass().getResource("ConfigurationResult.fxml");
     }
 
     @Override
@@ -264,7 +264,7 @@ public class DashboardResultController extends FilterResultControllerBase<FromTo
             for (MonitoringDataProviderInfo monitoringDataProviderInfo : configurationInfo.getProviders()) {
                 final BorderPane pane = new BorderPane();
                 monitoringPane.getChildren().add(pane);
-                Form<ProviderController> providerForm = dashboardPartsFactory.createMonitoringDataProviderForm(monitoringDataProviderInfo, pane);
+                Form<ProviderController> providerForm = configurationPartsFactory.createMonitoringDataProviderForm(monitoringDataProviderInfo, pane);
                 String name = monitoringDataProviderInfo.getName();
                 monitoringDataProviders.put(name, providerForm.getController());
                 providerForm.show();

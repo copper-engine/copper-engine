@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.ui.dashboard.result;
+package org.copperengine.monitoring.client.ui.configuration.result;
 
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+
 import org.copperengine.monitoring.client.form.Form;
-import org.copperengine.monitoring.client.ui.dashboard.result.engines.ProcessingEnginesController;
-import org.copperengine.monitoring.client.ui.dashboard.result.provider.ProviderController;
+import org.copperengine.monitoring.client.ui.configuration.result.engines.ProcessingEnginesController;
+import org.copperengine.monitoring.client.ui.configuration.result.provider.ProviderController;
 import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
 
-public interface DashboardDependencyFactory {
+public interface ConfigurationDependencyFactory {
 
     public Form<ProcessingEnginesController> createEnginesForm(Pane target);
 

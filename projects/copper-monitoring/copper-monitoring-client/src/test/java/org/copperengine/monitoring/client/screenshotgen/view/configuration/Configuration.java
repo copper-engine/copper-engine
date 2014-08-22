@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.screenshotgen.view.dashboard;
+package org.copperengine.monitoring.client.screenshotgen.view.configuration;
 
 import javafx.scene.layout.BorderPane;
 import org.copperengine.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import org.copperengine.monitoring.client.screenshotgen.view.fixture.TestFormContext;
 
-public class Dashboard extends ScreenshotPageBase {
+public class Configuration extends ScreenshotPageBase {
 
     @Override
     public void initGui(BorderPane pane, TestFormContext testFormContext) {
-        testFormContext.createDashboardForm().show();
+        testFormContext.createConfigurationForm().show();
 
     }
 
     @Override
     public String getTitle() {
-        return "Dashboard";
+        return "Configuration";
     }
 
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.ui.dashboard.result.pool;
+package org.copperengine.monitoring.client.ui.configuration.result.pool;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -91,7 +91,7 @@ public class ProccessorPoolController implements Initializable, FxmlController {
                     @Override
                     public void closed(Integer inputValue) {
                         dataProvider.setThreadPriority(engine.getId(), pool.getId(), inputValue);
-                        context.createDashboardForm().delayedRefresh();
+                        context.createConfigurationForm().delayedRefresh();
                     }
                 });
             }
@@ -104,7 +104,7 @@ public class ProccessorPoolController implements Initializable, FxmlController {
                     @Override
                     public void closed(Integer inputValue) {
                         dataProvider.setNumberOfThreads(engine.getId(), pool.getId(), inputValue);
-                        context.createDashboardForm().delayedRefresh();
+                        context.createConfigurationForm().delayedRefresh();
                     }
                 });
             }

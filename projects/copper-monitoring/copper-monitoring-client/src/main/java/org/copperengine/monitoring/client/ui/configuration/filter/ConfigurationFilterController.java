@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.ui.dashboard.filter;
+package org.copperengine.monitoring.client.ui.configuration.filter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -26,10 +26,10 @@ import org.copperengine.monitoring.client.form.filter.FilterController;
 import org.copperengine.monitoring.client.form.filter.defaultfilter.DefaultFilterFactory;
 import org.copperengine.monitoring.client.form.filter.defaultfilter.FromToMaxCountFilterModel;
 
-public class DashboardFilterController extends BaseFilterController<FromToMaxCountFilterModel> implements Initializable, FxmlController {
+public class ConfigurationFilterController extends BaseFilterController<FromToMaxCountFilterModel> implements Initializable, FxmlController {
     private final FromToMaxCountFilterModel model = new FromToMaxCountFilterModel();
 
-    public DashboardFilterController() {
+    public ConfigurationFilterController() {
     }
 
     @Override
@@ -45,7 +45,7 @@ public class DashboardFilterController extends BaseFilterController<FromToMaxCou
 
     @Override
     public URL getFxmlResource() {
-        return getClass().getResource("DashboardFilter.fxml");
+        return getClass().getResource("ConfigurationFilter.fxml");
     }
 
     @Override

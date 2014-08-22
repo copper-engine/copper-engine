@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.ui.dashboard.result.engines;
+package org.copperengine.monitoring.client.ui.configuration.result.engines;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -24,11 +24,12 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TabPane;
+
 import org.copperengine.monitoring.client.form.Form;
 import org.copperengine.monitoring.client.form.FormCreator;
 import org.copperengine.monitoring.client.form.FxmlController;
 import org.copperengine.monitoring.client.form.TabPaneShowFormStrategy;
-import org.copperengine.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
+import org.copperengine.monitoring.client.ui.configuration.result.engine.ProcessingEngineController;
 import org.copperengine.monitoring.core.model.ConfigurationInfo;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 

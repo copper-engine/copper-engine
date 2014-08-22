@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.ui.dashboard.result.engine;
+package org.copperengine.monitoring.client.ui.configuration.result.engine;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -30,13 +30,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.context.FormContext;
 import org.copperengine.monitoring.client.form.Form;
 import org.copperengine.monitoring.client.form.FxmlController;
 import org.copperengine.monitoring.client.form.dialog.DefaultInputDialogCreator;
 import org.copperengine.monitoring.client.form.dialog.InputDialogCreator;
-import org.copperengine.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
+import org.copperengine.monitoring.client.ui.configuration.result.pool.ProccessorPoolController;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 import org.copperengine.monitoring.core.model.ProcessorPoolInfo;
 
@@ -151,7 +152,7 @@ public class ProcessingEngineController implements Initializable, FxmlController
                     @Override
                     public void closed(Integer inputValue) {
                         dataProvider.setBatcherNumThreads(id.getText(), inputValue);
-                        context.createDashboardForm().delayedRefresh();
+                        context.createConfigurationForm().delayedRefresh();
                     }
                 });
             }
@@ -169,7 +170,6 @@ public class ProcessingEngineController implements Initializable, FxmlController
     public void update(ProcessingEngineInfo processingEngineInfo){
 
         id.setText(processingEngineInfo.getId());
-        // row.setText(dashboardResultModel.getStateSummery(processingEngineInfo.getId()).getNumberOfWorkflowInstancesWithState().get(WorkflowInstanceState.RAW).toString());
         typ.setText(processingEngineInfo.getTyp().toString());
         workflowRepositoryId.setText(processingEngineInfo.getRepositoryInfo().getName());
         workflowRepositoryTyp.setText(processingEngineInfo.getRepositoryInfo().getWorkflowRepositorTyp().toString());
@@ -188,10 +188,6 @@ public class ProcessingEngineController implements Initializable, FxmlController
         state_FINISHED.setText("?");//Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.FINISHED)));
         state_INVALID.setText("?");//Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.INVALID)));
         state_WAITING.setText("?");//Integer.toString(workflowStateSummary.getCount(WorkflowInstanceState.WAITING)));
-
-
-
-        //dashboardResultModel.getStateSummery(processingEngineInfo.getId()
 
         updateProcessorPools(processingEngineInfo);
     }
