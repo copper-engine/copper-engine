@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?scenebuilder-stylesheet ../../../../../../../../resources/org/copperengine/gui/css/base-colors.css?>
+<?scenebuilder-stylesheet ../../../../../../../../resources/org/copperengine/gui/css/base.css?>
+
+<VBox prefHeight="676.0" prefWidth="1200.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+  <ScrollPane fitToHeight="false" fitToWidth="false" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color:transparent;" VBox.vgrow="ALWAYS">
+    <content>
+      <HBox fillHeight="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pickOnBounds="true" prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-style1, copper-container">
+        <children>
+          <VBox fx:id="leftPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="676.0" minWidth="600.0" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+          <VBox fx:id="rightPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="676.0" minWidth="600.0" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+        </children>
+      </HBox>
+    </content>
+  </ScrollPane>
+</VBox>

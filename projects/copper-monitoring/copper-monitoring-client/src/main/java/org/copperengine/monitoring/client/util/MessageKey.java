@@ -32,6 +32,7 @@ public enum MessageKey {
     resource_title("resource.title"),
     loadGroup_title("loadGroup.title"),
     configuration_title("configuration.title"),
+    dashboard_title("dashboard.title"),
     measurePoint_title("measurePoint.title"),
     message_title("message.title"),
     workflowGroup_title("workflowGroup.title"),

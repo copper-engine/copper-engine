@@ -71,6 +71,10 @@ import org.copperengine.monitoring.client.ui.custommeasurepoint.filter.CustomMea
 import org.copperengine.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterModel;
 import org.copperengine.monitoring.client.ui.custommeasurepoint.result.CustomMeasurePointResultController;
 import org.copperengine.monitoring.client.ui.custommeasurepoint.result.CustomMeasurePointResultModel;
+import org.copperengine.monitoring.client.ui.dashboard.filter.DashboardFilterController;
+import org.copperengine.monitoring.client.ui.dashboard.result.DashboardDependencyFactory;
+import org.copperengine.monitoring.client.ui.dashboard.result.DashboardEngineController;
+import org.copperengine.monitoring.client.ui.dashboard.result.DashboardResultController;
 import org.copperengine.monitoring.client.ui.databasemonitor.result.DatabaseMonitorResultController;
 import org.copperengine.monitoring.client.ui.load.filter.EngineLoadFilterController;
 import org.copperengine.monitoring.client.ui.load.filter.EngineLoadFilterModel;
@@ -134,8 +138,7 @@ import org.copperengine.monitoring.core.model.SystemResourcesInfo;
 import org.copperengine.monitoring.core.model.WorkflowStateSummary;
 
 public class FormContext implements ConfigurationDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory,
-        WorkflowSummaryDependencyFactory {
-
+        WorkflowSummaryDependencyFactory, DashboardDependencyFactory {
     protected final TabPane mainTabPane;
     protected final BorderPane mainPane;
     protected final FormCreatorGroup formGroup;
@@ -147,7 +150,8 @@ public class FormContext implements ConfigurationDependencyFactory, WorkflowInst
 
     private FxmlForm<SettingsController> settingsForSingleton;
     private FxmlForm<HotfixController> hotfixFormSingleton;
-    private FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> dasboardFormSingleton;
+    private FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> configurationFormSingleton;
+    private FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> dashboardFormSingleton;
     private final InputDialogCreator inputDialogCreator;
 
     public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton, IssueReporter issueReporter, InputDialogCreator inputDialogCreator) {
@@ -166,6 +170,13 @@ public class FormContext implements ConfigurationDependencyFactory, WorkflowInst
             @Override
             public Form<?> createFormImpl() {
                 return createConfigurationForm();
+            }
+        }));
+
+        mainCreators.add(new FormCreatorGroup(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
+            @Override
+            public Form<?> createFormImpl() {
+                return createDashboardForm();
             }
         }));
 
@@ -477,18 +488,33 @@ public class FormContext implements ConfigurationDependencyFactory, WorkflowInst
     }
 
     public FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> createConfigurationForm() {
-        if (dasboardFormSingleton == null) {
-            dasboardFormSingleton = new FormBuilder<FromToMaxCountFilterModel, ConfigurationInfo, ConfigurationFilterController, ConfigurationResultController>(
+        if (configurationFormSingleton == null) {
+            configurationFormSingleton = new FormBuilder<FromToMaxCountFilterModel, ConfigurationInfo, ConfigurationFilterController, ConfigurationResultController>(
                     new ConfigurationFilterController(),
                     new ConfigurationResultController(guiCopperDataProvider, this),
                     this
             ).build();
         }
-        return dasboardFormSingleton;
+        return configurationFormSingleton;
+    }
+
+    public FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> createDashboardForm() {
+        if (dashboardFormSingleton == null) {
+            dashboardFormSingleton = new FormBuilder<FromToMaxCountFilterModel, ConfigurationInfo, DashboardFilterController, DashboardResultController>(
+                    new DashboardFilterController(),
+                    new DashboardResultController(guiCopperDataProvider, this),
+                    this
+            ).build();
+        }
+        return dashboardFormSingleton;
     }
 
     public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool) {
         return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider, inputDialogCreator), new TabPaneShowFormStrategy(tabPane));
+    }
+
+    public Form<DashboardEngineController> createDashboardEngineForm(VBox target) {
+        return new FxmlForm<DashboardEngineController>("", new DashboardEngineController(guiCopperDataProvider), new PaneShowFormStrategy(target));
     }
 
     public Form<ProcessingEngineController> createEngineForm() {
