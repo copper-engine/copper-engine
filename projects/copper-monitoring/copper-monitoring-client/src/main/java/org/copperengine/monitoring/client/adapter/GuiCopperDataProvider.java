@@ -24,6 +24,7 @@ import java.util.List;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
 import org.copperengine.monitoring.client.form.filter.enginefilter.EnginePoolFilterModel;
 import org.copperengine.monitoring.client.ui.adaptermonitoring.result.AdapterCallRowModel;
 import org.copperengine.monitoring.client.ui.adaptermonitoring.result.AdapterLaunchRowModel;
@@ -39,10 +40,10 @@ import org.copperengine.monitoring.client.ui.sql.filter.SqlFilterModel;
 import org.copperengine.monitoring.client.ui.sql.result.SqlResultModel;
 import org.copperengine.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
 import org.copperengine.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import org.copperengine.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterModel;
 import org.copperengine.monitoring.client.ui.workflowsummary.result.WorkflowSummaryResultModel;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import org.copperengine.monitoring.client.util.WorkflowVersion;
 import org.copperengine.monitoring.core.CopperMonitoringService;
 import org.copperengine.monitoring.core.data.filter.DistinctAndTypeFilter;
@@ -68,7 +69,7 @@ import org.copperengine.monitoring.core.model.WorkflowInstanceInfo;
 import org.copperengine.monitoring.core.model.WorkflowStateSummary;
 import org.copperengine.monitoring.core.model.WorkflowSummary;
 import org.copperengine.monitoring.core.statistic.AggregateFunction;
-import org.copperengine.monitoring.core.statistic.AggregateSystemRessourceAvg;
+import org.copperengine.monitoring.core.statistic.AggregateSystemResourceAvg;
 import org.copperengine.monitoring.core.statistic.AvgAggregateFunction;
 import org.copperengine.monitoring.core.statistic.CountAggregateFunction;
 import org.copperengine.monitoring.core.statistic.QuantilAggregateFunction;
@@ -136,7 +137,7 @@ public class GuiCopperDataProvider {
         return result;
     }
 
-    public List<WorkflowSummaryResultModel> getWorkflowSummery(WorkflowSummaryFilterModel filter) {
+    public List<WorkflowSummaryResultModel> getWorkflowSummary(WorkflowSummaryFilterModel filter) {
         List<WorkflowSummary> summaries;
         try {
             summaries = copperMonitoringService.getWorkflowSummary(getPoolId(filter), filter.version.classname.get());
@@ -144,8 +145,8 @@ public class GuiCopperDataProvider {
             throw new RuntimeException(e);
         }
         ArrayList<WorkflowSummaryResultModel> result = new ArrayList<WorkflowSummaryResultModel>();
-        for (WorkflowSummary workflowSummery : summaries) {
-            result.add(new WorkflowSummaryResultModel(workflowSummery));
+        for (WorkflowSummary workflowSummary : summaries) {
+            result.add(new WorkflowSummaryResultModel(workflowSummary));
         }
         return result;
     }
@@ -212,7 +213,7 @@ public class GuiCopperDataProvider {
                 to = copperMonitoringService.getMonitoringDataMaxDate();
             }
 
-            final AggregateFunction<SystemResourcesInfo, SystemResourcesInfo> aggregateFunction = new AggregateSystemRessourceAvg();
+            final AggregateFunction<SystemResourcesInfo, SystemResourcesInfo> aggregateFunction = new AggregateSystemResourceAvg();
             final TimeConverter<SystemResourcesInfo> dateConverter = new SystemResourcesInfoDateConverter();
 
             final StatisticCreator<SystemResourcesInfo, SystemResourcesInfo> statisticCreator = new StatisticCreator<SystemResourcesInfo, SystemResourcesInfo>(TimeframeGroup.<SystemResourcesInfo, SystemResourcesInfo>createGroups(

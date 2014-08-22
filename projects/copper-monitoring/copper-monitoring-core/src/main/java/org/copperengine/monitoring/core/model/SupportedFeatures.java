@@ -19,16 +19,16 @@ import java.io.Serializable;
 
 public class SupportedFeatures implements Serializable {
 
-    boolean supportsLoggingStatisticCollector;
+    boolean supportsLoggingStatisticsCollector;
 
     public SupportedFeatures() {
     }
 
-    public boolean isSupportsLoggingStatisticCollector() {
-        return supportsLoggingStatisticCollector;
+    public boolean isSupportsLoggingStatisticsCollector() {
+        return supportsLoggingStatisticsCollector;
     }
 
-    public void setSupportsLoggingStatisticCollector(boolean supportsLoggingStatisticCollector) {
-        this.supportsLoggingStatisticCollector = supportsLoggingStatisticCollector;
+    public void setSupportsLoggingStatisticsCollector(boolean supportsLoggingStatisticCollector) {
+        this.supportsLoggingStatisticsCollector = supportsLoggingStatisticCollector;
     }
 }

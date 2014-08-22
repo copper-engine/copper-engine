@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.screenshotgen.view.worklowinstancedetail;
+package org.copperengine.monitoring.client.screenshotgen.view.audittrail;
 
 import javafx.scene.layout.BorderPane;
 
 import org.copperengine.monitoring.client.screenshotgen.view.fixture.ScreenshotPageBase;
 import org.copperengine.monitoring.client.screenshotgen.view.fixture.TestFormContext;
-import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 
-public class Worklowinstancedetail extends ScreenshotPageBase {
+public class AuditTrail extends ScreenshotPageBase {
 
     @Override
     public void initGui(BorderPane pane, TestFormContext testFormContext) {
-        testFormContext.createWorkflowInstanceDetailForm("id 42", new ProcessingEngineInfo()).show();
+        testFormContext.createAuditTrailForm().show();
     }
 
     @Override
     public String getTitle() {
-        return "Worklowinstance detail";
+        return "AuditTrail";
     }
 
 }

@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.copperengine.monitoring.core.model.SystemResourcesInfo;
 
-public class AggregateSystemRessourceAvg implements AggregateFunction<SystemResourcesInfo, SystemResourcesInfo> {
+public class AggregateSystemResourceAvg implements AggregateFunction<SystemResourcesInfo, SystemResourcesInfo> {
     private static final long serialVersionUID = 3878459713886031263L;
 
     @Override

@@ -664,12 +664,6 @@ public class MonitoringDataStorage {
         }
     }
     
-    @Deprecated
-    /* will be removed in 4.0 */
-    public MonitoringDataStorageInfo getMonitroingDataStorageInfo() {
-        return getMonitoringDataStorageInfo();
-    }
-
     public MonitoringDataStorageInfo getMonitoringDataStorageInfo() {
         long lSize = 0;
         synchronized (lock) {

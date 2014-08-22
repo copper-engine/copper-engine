@@ -37,7 +37,7 @@ import org.copperengine.monitoring.client.form.Form;
 import org.copperengine.monitoring.client.form.FxmlController;
 import org.copperengine.monitoring.client.form.dialog.DefaultInputDialogCreator;
 import org.copperengine.monitoring.client.form.dialog.InputDialogCreator;
-import org.copperengine.monitoring.client.ui.configuration.result.pool.ProccessorPoolController;
+import org.copperengine.monitoring.client.ui.configuration.result.pool.ProcessorPoolController;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 import org.copperengine.monitoring.core.model.ProcessorPoolInfo;
 
@@ -160,7 +160,7 @@ public class ProcessingEngineController implements Initializable, FxmlController
         batcherNumSet.disableProperty().bind(batcherId.textProperty().isEqualTo(""));
     }
 
-    private final Map<String, ProccessorPoolController> poolControllers = new TreeMap<String, ProccessorPoolController>();
+    private final Map<String, ProcessorPoolController> poolControllers = new TreeMap<String, ProcessorPoolController>();
 
     @Override
     public URL getFxmlResource() {
@@ -202,7 +202,7 @@ public class ProcessingEngineController implements Initializable, FxmlController
             pools.getTabs().clear();
             poolControllers.clear();
             for (ProcessorPoolInfo processorPoolInfo : processingEngineInfo.getPools()) {
-                Form<ProccessorPoolController> poolForm = context.createPoolForm(pools, processingEngineInfo, processorPoolInfo);
+                Form<ProcessorPoolController> poolForm = context.createPoolForm(pools, processingEngineInfo, processorPoolInfo);
                 String id = processorPoolInfo.getId();
                 poolControllers.put(id, poolForm.getController());
                 poolForm.show();
@@ -210,7 +210,7 @@ public class ProcessingEngineController implements Initializable, FxmlController
         } else {
             for (ProcessorPoolInfo processorPoolInfo : processingEngineInfo.getPools()) {
                 String id = processorPoolInfo.getId();
-                ProccessorPoolController poolController = poolControllers.get(id);
+                ProcessorPoolController poolController = poolControllers.get(id);
                 poolController.setPool(processorPoolInfo);
             }
         }

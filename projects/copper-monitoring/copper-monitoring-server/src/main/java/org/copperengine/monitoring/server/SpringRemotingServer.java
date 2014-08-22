@@ -73,7 +73,7 @@ public class SpringRemotingServer {
 
         ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
 
-        // Servlet adress is defined with the bean name
+        // Servlet address is defined with the bean name
         // try to avoid xml config (dont sacrifice type safety)
         GenericWebApplicationContext genericWebApplicationContext = new GenericWebApplicationContext();
         genericWebApplicationContext.registerBeanDefinition("/loginService",

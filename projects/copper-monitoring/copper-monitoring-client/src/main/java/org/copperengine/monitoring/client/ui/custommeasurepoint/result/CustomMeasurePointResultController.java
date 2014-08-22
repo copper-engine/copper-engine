@@ -89,8 +89,8 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
     private LineChart<Number, Number> quantilChart; // Value injected by FXMLLoader
 
     @FXML
-    // fx:id="ressourceChart"
-    private AreaChart<Number, Number> ressourceChart; // Value injected by FXMLLoader
+    // fx:id="resourceChart"
+    private AreaChart<Number, Number> resourceChart; // Value injected by FXMLLoader
 
     @FXML
     // fx:id="textChart"
@@ -125,7 +125,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
         assert measurePointField != null : "fx:id=\"measurePointField\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert numberAxis != null : "fx:id=\"numberAxis\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert quantilChart != null : "fx:id=\"quantilChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
-        assert ressourceChart != null : "fx:id=\"ressourceChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
+        assert resourceChart != null : "fx:id=\"resourceChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert textChart != null : "fx:id=\"textChart\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert timeAxis != null : "fx:id=\"timeAxis\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
         assert timeRange != null : "fx:id=\"timeRange\" was not injected: check your FXML file 'CustomMeasurePointResult.fxml'.";
@@ -240,7 +240,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
         {
             HashMap<String, List<TimeValuePair<Double>>> map = new HashMap<String, List<TimeValuePair<Double>>>();
             map.put("system cpu load", measurePointResultModel.avgCpuCreator);
-            updateChart(ressourceChart, map);
+            updateChart(resourceChart, map);
             seriesTitleToDataForText.putAll(map);
         }
 
@@ -307,7 +307,7 @@ public class CustomMeasurePointResultController extends FilterResultControllerBa
         avgChart.getData().clear();
         countChart.getData().clear();
         quantilChart.getData().clear();
-        ressourceChart.getData().clear();
+        resourceChart.getData().clear();
         logText.clear();
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.ui.worklowinstancedetail.result;
+package org.copperengine.monitoring.client.ui.workflowinstancedetail.result;
 
 import javafx.beans.property.SimpleObjectProperty;
 

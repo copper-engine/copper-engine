@@ -53,8 +53,8 @@ import org.copperengine.monitoring.client.form.issuereporting.IssueReporter;
 import org.copperengine.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import org.copperengine.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
 import org.copperengine.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import org.copperengine.monitoring.client.util.TableColumnHelper;
 import org.copperengine.monitoring.core.model.WorkflowInstanceState;
 
@@ -158,7 +158,7 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
         assert timeoutColumn != null : "fx:id=\"timeoutColumn\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert errorInfo != null : "fx:id=\"errorInfo\" was not injected: check your FXML file 'WorkflowInstanceResult.fxml'.";
         assert tableBorderPane != null;
-        tableBorderPane.setBottom(createTabelControlls(resultTable));
+        tableBorderPane.setBottom(createTableControls(resultTable));
 
         idColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowInstanceResultModel, String>, ObservableValue<String>>() {
             @Override
@@ -290,11 +290,11 @@ public class WorkflowInstanceResultController extends FilterResultControllerBase
         });
         detailMenuItem.disableProperty().bind(resultTable.getSelectionModel().selectedItemProperty().isNull());
         contextMenu.getItems().add(detailMenuItem);
-        MenuItem audittrailMenuItem = new MenuItem("Audittrail");
+        MenuItem audittrailMenuItem = new MenuItem("AuditTrail");
         audittrailMenuItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                FilterAbleForm<AuditTrailFilterModel, AuditTrailResultModel> audittrailForm = navigation.createAudittrailForm();
+                FilterAbleForm<AuditTrailFilterModel, AuditTrailResultModel> audittrailForm = navigation.createAuditTrailForm();
                 audittrailForm.getFilter().workflowInstanceId.set(resultTable.getSelectionModel().getSelectedItem().id.get());
                 audittrailForm.show();
             }

@@ -23,12 +23,12 @@ import org.copperengine.monitoring.client.form.filter.FilterResultController;
 import org.copperengine.monitoring.client.form.filter.enginefilter.EngineFilterAbleForm;
 import org.copperengine.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import org.copperengine.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 
 public interface WorkflowInstanceDependencyFactory {
-    public FilterAbleForm<AuditTrailFilterModel, AuditTrailResultModel> createAudittrailForm();
+    public FilterAbleForm<AuditTrailFilterModel, AuditTrailResultModel> createAuditTrailForm();
 
     public EngineFilterAbleForm<WorkflowInstanceDetailFilterModel, WorkflowInstanceDetailResultModel> createWorkflowInstanceDetailForm(String workflowInstanceId, ProcessingEngineInfo engine);
 

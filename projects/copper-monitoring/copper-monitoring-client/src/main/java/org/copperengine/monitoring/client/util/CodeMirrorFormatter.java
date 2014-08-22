@@ -35,10 +35,10 @@ public class CodeMirrorFormatter {
         java = convertStreamToString("/codemirror/mode/clike.js");
     }
 
-    private String convertStreamToString(String ressourceclasspath) {
+    private String convertStreamToString(String resourceclasspath) {
         InputStream input = null;
         try {
-            input = getClass().getResourceAsStream(ressourceclasspath);
+            input = getClass().getResourceAsStream(resourceclasspath);
             @SuppressWarnings("resource")
             java.util.Scanner s = new java.util.Scanner(input).useDelimiter("\\A");
             return s.hasNext() ? s.next() : "";

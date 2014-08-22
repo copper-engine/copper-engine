@@ -23,7 +23,7 @@ public class ProcessorPoolInfo implements Serializable {
     private String id;
     private ProcessorPoolTyp processorPoolTyp;
 
-    // priorty only
+    // priority only
     private int lowerThreshold;
     private int upperThreshold;
     private int upperThresholdReachedWaitMSec;

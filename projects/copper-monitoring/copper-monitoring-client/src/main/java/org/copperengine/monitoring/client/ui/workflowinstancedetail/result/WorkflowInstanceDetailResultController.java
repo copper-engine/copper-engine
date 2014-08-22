@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.client.ui.worklowinstancedetail.result;
+package org.copperengine.monitoring.client.ui.workflowinstancedetail.result;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -39,7 +39,7 @@ import javafx.util.Callback;
 
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.form.filter.FilterResultControllerBase;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
 import org.copperengine.monitoring.client.util.CodeMirrorFormatter;
 import org.copperengine.monitoring.client.util.CodeMirrorFormatter.CodeFormatLanguage;
 import org.copperengine.monitoring.core.debug.DisplayableNode;

@@ -22,7 +22,7 @@
                      text="Monitoring-Server (http)" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1"
               GridPane.rowIndex="0">
-            <TextField fx:id="serverAdress" prefWidth="210.0" promptText="e.g. http://localhost:8080" text=""/>
+            <TextField fx:id="serverAddress" prefWidth="210.0" promptText="e.g. http://localhost:8080" text=""/>
             <Label text="user"/>
             <TextField fx:id="user" prefWidth="112.0"/>
             <Label graphicTextGap="4.0" text="password"/>

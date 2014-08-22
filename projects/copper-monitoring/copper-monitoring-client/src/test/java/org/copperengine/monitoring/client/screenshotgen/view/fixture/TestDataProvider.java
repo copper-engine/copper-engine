@@ -114,10 +114,10 @@ public class TestDataProvider implements CopperMonitoringService {
         }
 
         ArrayList<WorkflowSummary> result = new ArrayList<WorkflowSummary>();
-        WorkflowSummary workflowSummery = new WorkflowSummary("", 10,
+        WorkflowSummary workflowSummary = new WorkflowSummary("", 10,
                 new WorkflowClassMetaData("WorkflowClass1", "alias", 0L, +(long) (Math.random() * 100), 0L, ""),
                 new WorkflowStateSummary(map));
-        result.add(workflowSummery);
+        result.add(workflowSummary);
 
         return result;
     }
@@ -358,7 +358,7 @@ public class TestDataProvider implements CopperMonitoringService {
     // for (int i=0;i<20;i++){
     // final MeasurePointData measurepoint = new MeasurePointData("Measurepoint");
     // measurepoint.setElapsedTimeMicros((long) (Math.random()*50));
-    // measurepoint.setSystemResourcesInfo(new PerformanceMonitor().createRessourcenInfo());
+    // measurepoint.setSystemResourcesInfo(new PerformanceMonitor().createResourcenInfo());
     // measurepoint.setTime(new Date(i));
     // list.add(measurepoint);
     // }

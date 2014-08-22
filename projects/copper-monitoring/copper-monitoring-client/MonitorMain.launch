@@ -7,6 +7,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.copperengine.monitoring.client.main.MonitorMain"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--monitorServerAdress=http://localhost:8080&#13;&#10;--monitorServerUser=user1&#13;&#10;--monitorServerPassword=pass1"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--monitorServerAddress=http://localhost:8080&#13;&#10;--monitorServerUser=user1&#13;&#10;--monitorServerPassword=pass1"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="copper-monitoring-client"/>
 </launchConfiguration>

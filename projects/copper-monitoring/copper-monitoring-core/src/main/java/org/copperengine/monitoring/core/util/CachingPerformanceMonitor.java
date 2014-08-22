@@ -26,13 +26,13 @@ public class CachingPerformanceMonitor {
     private Method method_getFreePhysicalMemorySize;
 
     public CachingPerformanceMonitor(final PerformanceMonitor performanceMonitor) {
-        cachedSystemResourcesInfo=performanceMonitor.createRessourcenInfo();
+        cachedSystemResourcesInfo=performanceMonitor.createResourcesInfo();
         Thread thread = new Thread(){
             @Override
             public void run() {
                 super.run();
                 try {
-                    cachedSystemResourcesInfo=performanceMonitor.createRessourcenInfo();
+                    cachedSystemResourcesInfo=performanceMonitor.createResourcesInfo();
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

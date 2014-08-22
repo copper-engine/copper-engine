@@ -123,11 +123,11 @@ public class DashboardEngineController implements Initializable, FxmlController 
         engineId.setText(processingEngineInfo.getId());
         
         WorkflowSummaryFilterModel wfFilter = new WorkflowSummaryFilterModel();
-        List<WorkflowSummaryResultModel> workflowSummary = dataProvider.getWorkflowSummery(wfFilter);
+        List<WorkflowSummaryResultModel> workflowSummary = dataProvider.getWorkflowSummary(wfFilter);
         ObservableList<WorkflowSummaryDashboardModel> wfDashboardModel = FXCollections.observableArrayList();        
         for(WorkflowSummaryResultModel wfModel : workflowSummary) {
             for(WorkflowInstanceState state : WorkflowInstanceState.values()) {
-                int count = wfModel.workflowStateSummery.getCount(state);
+                int count = wfModel.workflowStateSummary.getCount(state);
                 wfDashboardModel.add(new WorkflowSummaryDashboardModel(state, count));
             }
         }

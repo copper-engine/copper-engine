@@ -32,10 +32,10 @@ import org.copperengine.monitoring.client.ui.systemresource.filter.ResourceFilte
 import org.copperengine.monitoring.client.util.ComponentUtil;
 import org.copperengine.monitoring.core.model.SystemResourcesInfo;
 
-public class RessourceResultController extends FilterResultControllerBase<ResourceFilterModel, SystemResourcesInfo> implements Initializable {
+public class ResourceResultController extends FilterResultControllerBase<ResourceFilterModel, SystemResourcesInfo> implements Initializable {
     private final GuiCopperDataProvider copperDataProvider;
 
-    public RessourceResultController(GuiCopperDataProvider copperDataProvider) {
+    public ResourceResultController(GuiCopperDataProvider copperDataProvider) {
         super();
         this.copperDataProvider = copperDataProvider;
     }
@@ -117,15 +117,15 @@ public class RessourceResultController extends FilterResultControllerBase<Resour
     @Override
     public void showFilteredResult(List<SystemResourcesInfo> filteredlist, ResourceFilterModel usedFilter) {
         clear();
-        for (SystemResourcesInfo systemRessourcesInfo : filteredlist) {
-            Date date = systemRessourcesInfo.getTimeStamp();
-            updateChart(systemRessourcesInfo.getSystemCpuLoad(), date, seriesSystemCpuLoad);
-            updateChart(systemRessourcesInfo.getProcessCpuLoad(), date, seriesProcessCpuLoad);
+        for (SystemResourcesInfo systemResourcesInfo : filteredlist) {
+            Date date = systemResourcesInfo.getTimeStamp();
+            updateChart(systemResourcesInfo.getSystemCpuLoad(), date, seriesSystemCpuLoad);
+            updateChart(systemResourcesInfo.getProcessCpuLoad(), date, seriesProcessCpuLoad);
 
-            updateChart(systemRessourcesInfo.getLiveThreadsCount(), date, seriesThread);
-            updateChart(systemRessourcesInfo.getTotalLoadedClassCount(), date, seriesClasses);
-            updateChart(systemRessourcesInfo.getHeapMemoryUsage() / 1000000, date, seriesMemory);
-            updateChart(systemRessourcesInfo.getFreePhysicalMemorySize() / 1000000, date, seriesFreeSystemMem);
+            updateChart(systemResourcesInfo.getLiveThreadsCount(), date, seriesThread);
+            updateChart(systemResourcesInfo.getTotalLoadedClassCount(), date, seriesClasses);
+            updateChart(systemResourcesInfo.getHeapMemoryUsage() / 1000000, date, seriesMemory);
+            updateChart(systemResourcesInfo.getFreePhysicalMemorySize() / 1000000, date, seriesFreeSystemMem);
 
         }
         ComponentUtil.setupXAxis((NumberAxis) cpuChart.getXAxis(), cpuChart.getData());

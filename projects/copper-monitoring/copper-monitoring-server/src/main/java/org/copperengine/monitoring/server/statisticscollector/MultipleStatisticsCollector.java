@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.monitoring.server.statisticcollector;
+package org.copperengine.monitoring.server.statisticscollector;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,15 +22,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 
-public class MultipleStatistikCollector implements RuntimeStatisticsCollector {
+public class MultipleStatisticsCollector implements RuntimeStatisticsCollector {
 
     CopyOnWriteArrayList<RuntimeStatisticsCollector> runtimeStatisticsCollectors = new CopyOnWriteArrayList<RuntimeStatisticsCollector>();
 
-    public MultipleStatistikCollector(List<RuntimeStatisticsCollector> runtimeStatisticsCollectors) {
+    public MultipleStatisticsCollector(List<RuntimeStatisticsCollector> runtimeStatisticsCollectors) {
         this.runtimeStatisticsCollectors.addAll(runtimeStatisticsCollectors);
     }
 
-    public MultipleStatistikCollector(RuntimeStatisticsCollector... runtimeStatisticsCollectors) {
+    public MultipleStatisticsCollector(RuntimeStatisticsCollector... runtimeStatisticsCollectors) {
         this.runtimeStatisticsCollectors.addAll(Arrays.asList(runtimeStatisticsCollectors));
     }
 

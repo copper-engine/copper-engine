@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class SecureLoginService implements LoginService {
     private static final long serialVersionUID = 8412747004504683148L;
-    static final Logger logger = LoggerFactory.getLogger(SpringRemotingServer.class);
+    static final Logger logger = LoggerFactory.getLogger(SecureLoginService.class);
 
     public SecureLoginService(Realm realm) {
         super();

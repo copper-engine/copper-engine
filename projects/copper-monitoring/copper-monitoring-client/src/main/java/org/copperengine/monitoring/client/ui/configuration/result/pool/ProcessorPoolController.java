@@ -33,14 +33,14 @@ import org.copperengine.monitoring.client.form.dialog.InputDialogCreator;
 import org.copperengine.monitoring.core.model.ProcessingEngineInfo;
 import org.copperengine.monitoring.core.model.ProcessorPoolInfo;
 
-public class ProccessorPoolController implements Initializable, FxmlController {
+public class ProcessorPoolController implements Initializable, FxmlController {
     private ProcessorPoolInfo pool;
     private final ProcessingEngineInfo engine;
     private final FormContext context;
     private final GuiCopperDataProvider dataProvider;
     private final InputDialogCreator inputDialogCreator;
 
-    public ProccessorPoolController(ProcessingEngineInfo engine, ProcessorPoolInfo pool, FormContext context, GuiCopperDataProvider dataProvider, InputDialogCreator inputDialogCreator) {
+    public ProcessorPoolController(ProcessingEngineInfo engine, ProcessorPoolInfo pool, FormContext context, GuiCopperDataProvider dataProvider, InputDialogCreator inputDialogCreator) {
         this.pool = pool;
         this.engine = engine;
         this.context = context;
@@ -53,16 +53,16 @@ public class ProccessorPoolController implements Initializable, FxmlController {
     private TextField id; // Value injected by FXMLLoader
 
     @FXML
-    // fx:id="nummerbutton"
-    private Button nummerbutton; // Value injected by FXMLLoader
+    // fx:id="numberButton"
+    private Button numberButton; // Value injected by FXMLLoader
 
     @FXML
     // fx:id="prioButton"
     private Button prioButton; // Value injected by FXMLLoader
 
     @FXML
-    // fx:id="threadNummerInfo"
-    private TextField threadNummerInfo; // Value injected by FXMLLoader
+    // fx:id="threadNumberInfo"
+    private TextField threadNumberInfo; // Value injected by FXMLLoader
 
     @FXML
     // fx:id="threadPrioritaetInfo"
@@ -76,9 +76,9 @@ public class ProccessorPoolController implements Initializable, FxmlController {
     // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert id != null : "fx:id=\"id\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
-        assert nummerbutton != null : "fx:id=\"nummerbutton\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
+        assert numberButton != null : "fx:id=\"numberButton\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
         assert prioButton != null : "fx:id=\"prioButton\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
-        assert threadNummerInfo != null : "fx:id=\"threadNummerInfo\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
+        assert threadNumberInfo != null : "fx:id=\"threadNumberInfo\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
         assert threadPrioritaetInfo != null : "fx:id=\"threadPrioritaetInfo\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
         assert typ != null : "fx:id=\"typ\" was not injected: check your FXML file 'ProcessorPool.fxml'.";
 
@@ -97,7 +97,7 @@ public class ProccessorPoolController implements Initializable, FxmlController {
             }
         });
 
-        nummerbutton.setOnAction(new EventHandler<ActionEvent>() {
+        numberButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 inputDialogCreator.showIntInputDialog("Thread count", pool.getNumberOfThreads(), new DefaultInputDialogCreator.DialogClosed<Integer>() {
@@ -120,7 +120,7 @@ public class ProccessorPoolController implements Initializable, FxmlController {
         id.setText(pool.getId());
         typ.setText(pool.getProcessorPoolTyp().toString());
 
-        threadNummerInfo.setText(String.valueOf(pool.getNumberOfThreads()));
+        threadNumberInfo.setText(String.valueOf(pool.getNumberOfThreads()));
         threadPrioritaetInfo.setText(String.valueOf(pool.getThreadPriority()));
     }
 

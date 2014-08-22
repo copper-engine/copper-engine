@@ -27,8 +27,8 @@ import org.copperengine.monitoring.client.form.FxmlForm;
 import org.copperengine.monitoring.client.form.filter.FilterResultController;
 import org.copperengine.monitoring.client.form.issuereporting.IssueReporter;
 import org.copperengine.monitoring.client.ui.workflowinstance.filter.WorkflowInstanceFilterModel;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import org.copperengine.monitoring.client.util.ComponentUtil;
 
 public final class DetailLoadService extends Service<Void> {

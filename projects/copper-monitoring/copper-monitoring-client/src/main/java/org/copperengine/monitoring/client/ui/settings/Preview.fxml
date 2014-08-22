@@ -77,7 +77,7 @@
                             <Label text="status" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                             <TextField editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" promptText="" text="SystemResourceDataProvider" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="0" />
                             <TextField editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" text="STARTED" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                            <Button id="nummerbutton" alignment="TOP_CENTER" disable="true" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="start" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                            <Button id="numberButton" alignment="TOP_CENTER" disable="true" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="start" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                             <Button id="prioButton" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="stop" GridPane.columnIndex="3" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                           </GridPane>
                         </Pane>
@@ -99,7 +99,7 @@
                             <Label text="status" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                             <TextField editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" promptText="STARTED" text="MonitoringLogbackDataProvider" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="0" />
                             <TextField editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                            <Button id="nummerbutton" alignment="TOP_CENTER" disable="true" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="start" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                            <Button id="numberButton" alignment="TOP_CENTER" disable="true" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="start" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                             <Button id="prioButton" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="stop" GridPane.columnIndex="3" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                           </GridPane>
                         </Pane>
@@ -121,7 +121,7 @@
                             <Label text="status" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                             <TextField editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" promptText="STARTED" text="GcDataProvider" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="0" />
                             <TextField editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" text="STARTED" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                            <Button id="nummerbutton" alignment="TOP_CENTER" disable="true" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="start" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                            <Button id="numberButton" alignment="TOP_CENTER" disable="true" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="start" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                             <Button id="prioButton" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="stop" GridPane.columnIndex="3" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                           </GridPane>
                         </Pane>

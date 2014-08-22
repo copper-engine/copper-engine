@@ -81,9 +81,9 @@ public class MessageResultController extends FilterResultControllerBase<MessageF
         assert timeout != null;
         assert borderPane != null;
 
-        final HBox createTabelControlls = createTabelControlls(resultTable);
-        BorderPane.setMargin(createTabelControlls, new Insets(3));
-        borderPane.setBottom(createTabelControlls);
+        final HBox createTableControls = createTableControls(resultTable);
+        BorderPane.setMargin(createTableControls, new Insets(3));
+        borderPane.setBottom(createTableControls);
 
         timeColumn.setCellValueFactory(new Callback<CellDataFeatures<MessageResultModel, Date>, ObservableValue<Date>>() {
             @Override

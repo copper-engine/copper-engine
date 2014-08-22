@@ -237,10 +237,10 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         final VBox filterAreaPanes = new VBox();
 
 
-        Node customFormFilteContent = this.createFilterContent();
+        Node customFormFilterContent = this.createFilterContent();
         final BorderPane customFormFilter = new BorderPane();
         customFormFilter.getStyleClass().add("filter-pane");
-        customFormFilter.setCenter(customFormFilteContent);
+        customFormFilter.setCenter(customFormFilterContent);
 
         final FilterFadeHandler filderFadeHandler = new FilterFadeHandler(allFilterParent);
         allFilterParent.setOnMouseEntered(filderFadeHandler.getEnter());

@@ -18,22 +18,22 @@ package org.copperengine.monitoring.server.provider;
 import org.copperengine.monitoring.core.util.PerformanceMonitor;
 import org.copperengine.monitoring.server.monitoring.MonitoringDataCollector;
 
-public class SystemRessourceDataProvider extends RepeatingMonitoringDataProviderBase {
+public class SystemResourceDataProvider extends RepeatingMonitoringDataProviderBase {
 
     private final PerformanceMonitor performanceMonitor;
 
-    public SystemRessourceDataProvider(MonitoringDataCollector monitoringDataCollector, PerformanceMonitor performanceMonitor) {
+    public SystemResourceDataProvider(MonitoringDataCollector monitoringDataCollector, PerformanceMonitor performanceMonitor) {
         super(monitoringDataCollector);
         this.performanceMonitor = performanceMonitor;
     }
 
-    public SystemRessourceDataProvider(MonitoringDataCollector monitoringDataCollector) {
+    public SystemResourceDataProvider(MonitoringDataCollector monitoringDataCollector) {
         this(monitoringDataCollector, new PerformanceMonitor());
     }
 
     @Override
     protected void provideData() {
-        monitoringDataCollector.submitSystemRessource(performanceMonitor.createRessourcenInfo());
+        monitoringDataCollector.submitSystemResource(performanceMonitor.createResourcesInfo());
     }
 
 }

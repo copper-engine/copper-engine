@@ -49,8 +49,8 @@ public class LoginController implements Initializable, FxmlController {
     private PasswordField password; // Value injected by FXMLLoader
 
     @FXML
-    // fx:id="serverAdress"
-    private TextField serverAdress; // Value injected by FXMLLoader
+    // fx:id="serverAddress"
+    private TextField serverAddress; // Value injected by FXMLLoader
 
     @FXML
     // fx:id="serverRadioButton"
@@ -68,7 +68,7 @@ public class LoginController implements Initializable, FxmlController {
     // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         assert password != null : "fx:id=\"password\" was not injected: check your FXML file 'Login.fxml'.";
-        assert serverAdress != null : "fx:id=\"serverAdress\" was not injected: check your FXML file 'Login.fxml'.";
+        assert serverAddress != null : "fx:id=\"serverAddress\" was not injected: check your FXML file 'Login.fxml'.";
         assert serverRadioButton != null : "fx:id=\"serverRadioButton\" was not injected: check your FXML file 'Login.fxml'.";
         assert startButton != null : "fx:id=\"startButton\" was not injected: check your FXML file 'Login.fxml'.";
         assert user != null : "fx:id=\"user\" was not injected: check your FXML file 'Login.fxml'.";
@@ -79,9 +79,9 @@ public class LoginController implements Initializable, FxmlController {
 
         user.disableProperty().bind(serverRadioButton.selectedProperty().not());
         password.disableProperty().bind(serverRadioButton.selectedProperty().not());
-        serverAdress.disableProperty().bind(serverRadioButton.selectedProperty().not());
+        serverAddress.disableProperty().bind(serverRadioButton.selectedProperty().not());
 
-        startButton.disableProperty().bind(serverAdress.textProperty().isEqualTo(""));
+        startButton.disableProperty().bind(serverAddress.textProperty().isEqualTo(""));
 
         startButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -89,7 +89,7 @@ public class LoginController implements Initializable, FxmlController {
                 try {
                     if (serverRadioButton.isSelected()) {
                         cleanup();
-                        mainFactory.setHttpGuiCopperDataProvider(serverAdress.getText(), user.getText(), password.getText());
+                        mainFactory.setHttpGuiCopperDataProvider(serverAddress.getText(), user.getText(), password.getText());
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -97,12 +97,12 @@ public class LoginController implements Initializable, FxmlController {
             }
         });
 
-        serverAdress.textProperty().bindBidirectional(settingsModelSingleton.lastConnectedServer);
+        serverAddress.textProperty().bindBidirectional(settingsModelSingleton.lastConnectedServer);
 
     }
 
     private void cleanup() {
-        serverAdress.textProperty().unbindBidirectional(settingsModelSingleton.lastConnectedServer);
+        serverAddress.textProperty().unbindBidirectional(settingsModelSingleton.lastConnectedServer);
     }
 
     public void addshorstcut() {
@@ -118,7 +118,7 @@ public class LoginController implements Initializable, FxmlController {
         };
         user.setOnKeyReleased(eventHandler);
         password.setOnKeyReleased(eventHandler);
-        serverAdress.setOnKeyReleased(eventHandler);
+        serverAddress.setOnKeyReleased(eventHandler);
     }
 
     @Override

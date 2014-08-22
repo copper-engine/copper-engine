@@ -75,7 +75,7 @@ public abstract class MonitoringDbDialectTestBase {
     }
 
     @Test
-    public void test_selectAudittrail() throws SQLException, Exception {
+    public void test_selectAuditTrail() throws SQLException, Exception {
 
         BatcherImpl batcher = new BatcherImpl(3);
         @SuppressWarnings("rawtypes")

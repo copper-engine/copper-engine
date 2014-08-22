@@ -28,22 +28,22 @@ import org.copperengine.monitoring.core.model.WorkflowStateSummary;
 public class ConfigurationResultModel {
 
     public final List<ProcessingEngineInfo> engines = new ArrayList<ProcessingEngineInfo>();
-    private final Map<String, WorkflowStateSummary> engineIdToStateSummery = new HashMap<String, WorkflowStateSummary>();
+    private final Map<String, WorkflowStateSummary> engineIdToStateSummary = new HashMap<String, WorkflowStateSummary>();
     public List<MonitoringDataProviderInfo> providers = new ArrayList<MonitoringDataProviderInfo>();
     public final MonitoringDataStorageInfo monitoringDataStorageInfo;
 
-    public ConfigurationResultModel(Map<String, WorkflowStateSummary> engineIdToStateSummery,
+    public ConfigurationResultModel(Map<String, WorkflowStateSummary> engineIdToStateSummary,
             List<ProcessingEngineInfo> processingEngineInfo,
             List<MonitoringDataProviderInfo> providers,
             MonitoringDataStorageInfo monitoringDataStorageInfo) {
-        this.engineIdToStateSummery.putAll(engineIdToStateSummery);
+        this.engineIdToStateSummary.putAll(engineIdToStateSummary);
         this.engines.addAll(processingEngineInfo);
         this.providers = providers;
         this.monitoringDataStorageInfo = monitoringDataStorageInfo;
     }
 
-    public WorkflowStateSummary getStateSummery(String engineId) {
-        return engineIdToStateSummery.get(engineId);
+    public WorkflowStateSummary getStateSummary(String engineId) {
+        return engineIdToStateSummary.get(engineId);
     }
 
 }

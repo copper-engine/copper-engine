@@ -196,7 +196,7 @@ public class DefaultCopperMonitoringService implements CopperMonitoringService {
     @Override
     public CopperInterfaceSettings getSettings() throws RemoteException {
         final SupportedFeatures supportedFeatures = new SupportedFeatures();
-        supportedFeatures.setSupportsLoggingStatisticCollector(statisticsCollectorMXBean!=null);
+        supportedFeatures.setSupportsLoggingStatisticsCollector(statisticsCollectorMXBean!=null);
         copperInterfaceSettings.setSupportedFeatures(supportedFeatures);
         return copperInterfaceSettings;
     }
