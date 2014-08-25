@@ -1,3 +1,12 @@
+COPPER 3.2.1
+============
+- Refactoring: Fixed many typos in copper-monitoring.
+- Refactoring: Renamed Dashboard as Configuration in copper-monitoring-client.
+- New feature: Preliminary version of the new Dashboard view.
+- Bugfix: Issue #43: Copper Monitoring Workflows View - Total Count always 0.
+- Bugfix: Issue #44: Copper Monitoring View - Workflow Repository multiple entry for workflow names.
+- Bugfix: Issue #45: Copper Monitoring: High loading times for Dashboard and Resources views.
+
 COPPER 3.2
 ============
 - New feature: Support for Java 8
