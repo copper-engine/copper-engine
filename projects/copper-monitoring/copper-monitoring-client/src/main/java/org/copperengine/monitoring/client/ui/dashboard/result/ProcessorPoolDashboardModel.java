@@ -16,7 +16,7 @@ public class ProcessorPoolDashboardModel {
         this.poolName = new SimpleStringProperty(poolName);
         this.queueSize = new SimpleIntegerProperty(queueSize);
         this.threadCount = new SimpleIntegerProperty(threadCount);
-        this.poolType = new SimpleObjectProperty<>(poolType);
+        this.poolType = new SimpleObjectProperty<ProcessorPoolTyp>(poolType);
     }
 
     public String getPoolName() {

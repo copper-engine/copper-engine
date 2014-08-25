@@ -10,7 +10,7 @@ public class WorkflowSummaryDashboardModel {
     private final SimpleIntegerProperty count;
     
     public WorkflowSummaryDashboardModel(WorkflowInstanceState state, int count) {
-        this.state = new SimpleObjectProperty<>(state);
+        this.state = new SimpleObjectProperty<WorkflowInstanceState>(state);
         this.count = new SimpleIntegerProperty(count);
     }
 
