@@ -40,9 +40,12 @@ public class SecureLoginService implements LoginService {
     }
 
     @Override
-    public String doLogin(String username, String password) throws RemoteException {
+    public String doLogin(String username, String password) throws RemoteException {        
         // get the currently executing user:
         Subject currentUser = SecurityUtils.getSubject();
+        
+        currentUser.logout();
+        
         // Session session = currentUser.getSession(true);
         // log.info(session.getId().toString());
 
