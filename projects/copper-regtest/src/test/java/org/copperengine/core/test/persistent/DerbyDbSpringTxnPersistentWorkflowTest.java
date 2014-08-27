@@ -35,13 +35,13 @@ public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersist
     }
 
     @Test
-    public void testAsnychResponse() throws Exception {
-        super.testAsnychResponse(DS_CONTEXT);
+    public void testAsynchResponse() throws Exception {
+        super.testAsynchResponse(DS_CONTEXT);
     }
 
     @Test
-    public void testAsnychResponseLargeData() throws Exception {
-        super.testAsnychResponseLargeData(DS_CONTEXT, 10000);
+    public void testAsynchResponseLargeData() throws Exception {
+        super.testAsynchResponseLargeData(DS_CONTEXT, 10000);
     }
 
     @Test

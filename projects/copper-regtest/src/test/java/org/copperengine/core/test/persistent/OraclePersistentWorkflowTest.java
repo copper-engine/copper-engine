@@ -69,15 +69,15 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
     }
 
     @Test
-    public void testAsnychResponse() throws Exception {
+    public void testAsynchResponse() throws Exception {
         assertTrue("DBMS not available", dbmsAvailable);
-        super.testAsnychResponse(DS_CONTEXT);
+        super.testAsynchResponse(DS_CONTEXT);
     }
 
     @Test
-    public void testAsnychResponseLargeData() throws Exception {
+    public void testAsynchResponseLargeData() throws Exception {
         assertTrue("DBMS not available", dbmsAvailable);
-        super.testAsnychResponseLargeData(DS_CONTEXT, 65536);
+        super.testAsynchResponseLargeData(DS_CONTEXT, 65536);
     }
 
     @Test
