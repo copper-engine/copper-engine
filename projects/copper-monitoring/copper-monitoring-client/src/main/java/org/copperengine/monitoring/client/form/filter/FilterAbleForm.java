@@ -17,8 +17,13 @@ package org.copperengine.monitoring.client.form.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -54,11 +59,14 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+
 import org.copperengine.monitoring.client.form.Form;
 import org.copperengine.monitoring.client.form.ShowFormsStrategy;
 import org.copperengine.monitoring.client.form.filter.FilterController.ActionsWithFilterForm;
 import org.copperengine.monitoring.client.form.issuereporting.IssueReporter;
+import org.copperengine.monitoring.client.form.issuereporting.LogIssueReporter;
 import org.copperengine.monitoring.client.util.ComponentUtil;
+import org.copperengine.monitoring.client.util.DelayedUIExecutor;
 import org.copperengine.monitoring.client.util.MessageKey;
 import org.copperengine.monitoring.client.util.MessageProvider;
 import org.copperengine.monitoring.client.util.NumberOnlyTextField;
@@ -75,6 +83,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
     protected final Form<FilterController<F>> filterForm;
     protected final Form<FilterResultController<F, R>> resultForm;
     private final BackgroundFilterService<F, R> filterService;
+    private final BackgroundFilterService<F, R> quietFilterService;
     private final BackgroundRepeatFilterService<F, R> repeatFilterService;
     private final MessageProvider messageProvider;
 
@@ -87,6 +96,7 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         this.filterForm = filterForm;
         this.resultForm = resultForm;
         filterService = new BackgroundFilterService<F, R>(resultForm.getController(), filterForm, exceptionHandlerParm);
+        quietFilterService = new BackgroundFilterService<F, R>(resultForm.getController(), filterForm, LogIssueReporter.INSTANCE);
         repeatFilterService = new BackgroundRepeatFilterService<F, R>(resultForm.getController(), filterForm, exceptionHandlerParm);
 
         filterForm.getController().getActionsWithFilterForm().addListener(new ListChangeListener<ActionsWithFilterForm>() {
@@ -227,10 +237,10 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         final VBox filterAreaPanes = new VBox();
 
 
-        Node customFormFilteContent = this.createFilterContent();
+        Node customFormFilterContent = this.createFilterContent();
         final BorderPane customFormFilter = new BorderPane();
         customFormFilter.getStyleClass().add("filter-pane");
-        customFormFilter.setCenter(customFormFilteContent);
+        customFormFilter.setCenter(customFormFilterContent);
 
         final FilterFadeHandler filderFadeHandler = new FilterFadeHandler(allFilterParent);
         allFilterParent.setOnMouseEntered(filderFadeHandler.getEnter());
@@ -377,12 +387,6 @@ public class FilterAbleForm<F, R> extends Form<Object> {
         });
         filterButton.setPrefWidth(20);
         result.add(filterButton);
-//        if (filterForm.getController().createDefaultFilter() != null) {
-//            defaultFilterContent.setContent(filterForm.getController().createDefaultFilter());
-//        } else {
-//            defaultFilterButton.setDisable(true);
-//        }
-
 
         result.add(new Separator(Orientation.HORIZONTAL));
         final List<? extends Node> contributedButtons = resultForm.getController().getContributedButtons(messageProvider);
@@ -425,6 +429,18 @@ public class FilterAbleForm<F, R> extends Form<Object> {
     public void refresh() {
         filterService.reset();
         filterService.start();
+    }
+
+    public void quietRefresh() {
+        quietFilterService.reset();
+        quietFilterService.start();
+    }
+
+    public void delayedRefresh() {
+        DelayedUIExecutor executor = new DelayedUIExecutor() {            
+            @Override public void execute() { quietRefresh(); }
+        };
+        executor.executeWithDelays(0, 1, 3, 10);
     }
 
     final SimpleStringProperty refreshRateInMs = new SimpleStringProperty();

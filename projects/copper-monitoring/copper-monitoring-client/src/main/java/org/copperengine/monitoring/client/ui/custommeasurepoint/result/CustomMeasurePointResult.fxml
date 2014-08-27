@@ -47,7 +47,7 @@
               </LineChart>
           </TitledPane>
           <TitledPane animated="false" expanded="true" text="cpu" VBox.vgrow="ALWAYS">
-              <AreaChart fx:id="ressourceChart" minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
+              <AreaChart fx:id="resourceChart" minHeight="-1.0" prefHeight="2000.0" prefWidth="-1.0">
                   <xAxis>
                       <NumberAxis id="timeAxis" fx:id="timeResAxis" side="BOTTOM"/>
                   </xAxis>

@@ -23,7 +23,7 @@ public class SystemResource extends ScreenshotPageBase {
 
     @Override
     public void initGui(BorderPane pane, TestFormContext testFormContext) {
-        testFormContext.createRessourceForm().show();
+        testFormContext.createResourceForm().show();
 //        final FilterAbleFormFixture filterAbleFormFixture = new FilterAbleFormFixture(scene);
 //        for (int i = 0; i < 10; i++) {
 //            final int ifinal = i;

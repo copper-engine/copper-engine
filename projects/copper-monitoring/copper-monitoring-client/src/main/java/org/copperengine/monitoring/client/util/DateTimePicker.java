@@ -302,7 +302,7 @@ public class DateTimePicker extends Application implements Widget {
             hour.getItems().add(i);
         }
         final ComboBox<Integer> minute = new ComboBox<Integer>();
-        for (int i = 1; i < 61; i++) {
+        for (int i = 0; i < 60; i++) {
             minute.getItems().add(i);
         }
         minute.valueProperty().bindBidirectional(model.minute);
@@ -310,7 +310,7 @@ public class DateTimePicker extends Application implements Widget {
         minute.setConverter(new IntegerStringConverter());
         minute.setPrefWidth(20);
         final ComboBox<Integer> secound = new ComboBox<Integer>();
-        for (int i = 1; i < 61; i++) {
+        for (int i = 0; i < 60; i++) {
             secound.getItems().add(i);
         }
         secound.valueProperty().bindBidirectional(model.secound);

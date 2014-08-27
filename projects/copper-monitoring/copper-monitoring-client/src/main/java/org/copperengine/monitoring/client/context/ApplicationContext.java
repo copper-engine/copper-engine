@@ -56,21 +56,28 @@ import org.springframework.remoting.support.RemoteInvocationFactory;
 import org.springframework.util.StringUtils;
 
 public class ApplicationContext {
-
+    private final static String DEFAULT_CONTEXT_ID = "default";
     final Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
 
+    protected final String contextId;
     protected final BorderPane mainPane;
     protected final StackPane mainStackPane;
     protected final MessageProvider messageProvider;
     protected SettingsModel settingsModelSingleton;
+    protected GuiCopperDataProvider guiCopperDataProvider;
 
-    protected final SimpleStringProperty serverAdress = new SimpleStringProperty();
+    protected final SimpleStringProperty serverAddress = new SimpleStringProperty();
 
-    public SimpleStringProperty serverAdressProperty() {
-        return serverAdress;
+    public SimpleStringProperty serverAddressProperty() {
+        return serverAddress;
     }
 
     public ApplicationContext() {
+        this(DEFAULT_CONTEXT_ID);
+    }
+    
+    public ApplicationContext(String contextId) {
+        this.contextId = contextId;
         mainStackPane = new StackPane();
         mainPane = new BorderPane();
         mainStackPane.getChildren().add(mainPane);
@@ -105,7 +112,7 @@ public class ApplicationContext {
         }
 
         try {
-            settingsModelSingleton = SettingsModel.from(prefs, defaultModelbytes);
+            settingsModelSingleton = SettingsModel.from(prefs, defaultModelbytes, contextId);
         } catch (Exception e) {
             logger.error("", e);
             getIssueReporterSingleton().reportWarning("Can't load settings from (Preferences: " + prefs + ") use defaults instead", e);
@@ -117,31 +124,33 @@ public class ApplicationContext {
                         new Runnable() {
                             @Override
                             public void run() {
-                                settingsModelSingleton.saveSettings(prefs);
+                                settingsModelSingleton.saveSettings(prefs, ApplicationContext.this.contextId);
                             }
                         }
                  )
         );
     }
 
-    protected GuiCopperDataProvider guiCopperDataProvider;
-
+    public String getContextId() {
+        return contextId;
+    }
+    
     public SettingsModel getSettingsModel() {
         return settingsModelSingleton;
     }
     
-    public void setGuiCopperDataProvider(CopperMonitoringService copperDataProvider, String serverAdress, String sessionId) {
-        this.serverAdress.set(serverAdress);
+    public void setGuiCopperDataProvider(CopperMonitoringService copperDataProvider, String serverAddress, String sessionId) {
+        this.serverAddress.set(serverAddress);
         this.guiCopperDataProvider = new GuiCopperDataProvider(copperDataProvider);
         getFormContextSingleton().setupGUIStructure();
     }
 
-    public void setHttpGuiCopperDataProvider(final String serverAdressParam, final String user, final String password) {
+    public void setHttpGuiCopperDataProvider(final String serverAddressParam, final String user, final String password) {
         ComponentUtil.executeWithProgressDialogInBackground(new Runnable() {
             @Override
             public void run() {
                 try {
-                    connect(serverAdressParam, user, password);
+                    connect(serverAddressParam, user, password);
                 } catch (final Exception e) {
                     logger.error("", e);
                     getIssueReporterSingleton().reportError("Can't Connect: \n" + e.getMessage(), e);
@@ -150,11 +159,11 @@ public class ApplicationContext {
         }, mainStackPane, "connecting");
     }
 
-    protected void connect(final String serverAdressParam, final String user, final String password) {
+    protected void connect(final String serverAddressParam, final String user, final String password) {
         boolean secureConnect = StringUtils.hasText(user) && StringUtils.hasText(password);
-        String serverAdress = serverAdressParam;
-        if (!serverAdress.endsWith("/")) {
-            serverAdress = serverAdress + "/";
+        String serverAddress = serverAddressParam;
+        if (!serverAddress.endsWith("/")) {
+            serverAddress = serverAddress + "/";
         }
 
         final LoginService loginService;
@@ -164,9 +173,9 @@ public class ApplicationContext {
         httpInvokerRequestExecutor.getHttpClient().getParams().setSoTimeout(1000 * 60 * 5);
         {
             HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-            httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
+            httpInvokerProxyFactoryBean.setServiceUrl(serverAddress + "copperMonitoringService");
             httpInvokerProxyFactoryBean.setServiceInterface(LoginService.class);
-            httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "loginService");
+            httpInvokerProxyFactoryBean.setServiceUrl(serverAddress + "loginService");
             httpInvokerProxyFactoryBean.afterPropertiesSet();
             httpInvokerProxyFactoryBean.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
             loginService = (LoginService) httpInvokerProxyFactoryBean.getObject();
@@ -192,7 +201,7 @@ public class ApplicationContext {
             });
         } else {
             HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
-            httpInvokerProxyFactoryBean.setServiceUrl(serverAdress + "copperMonitoringService");
+            httpInvokerProxyFactoryBean.setServiceUrl(serverAddress + "copperMonitoringService");
             httpInvokerProxyFactoryBean.setServiceInterface(CopperMonitoringService.class);
             RemoteInvocationFactory remoteInvocationFactory = secureConnect ?
                     new SecureRemoteInvocationFactory(sessionId) : new DefaultRemoteInvocationFactory();
@@ -201,11 +210,11 @@ public class ApplicationContext {
             httpInvokerProxyFactoryBean.afterPropertiesSet();
             final CopperMonitoringService copperMonitoringService = (CopperMonitoringService) httpInvokerProxyFactoryBean.getObject();
 
-            final String serverAdressFinal = serverAdress;
+            final String serverAddressFinal = serverAddress;
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    setGuiCopperDataProvider(copperMonitoringService, serverAdressFinal, sessionId);
+                    setGuiCopperDataProvider(copperMonitoringService, serverAddressFinal, sessionId);
                 }
             });
         }

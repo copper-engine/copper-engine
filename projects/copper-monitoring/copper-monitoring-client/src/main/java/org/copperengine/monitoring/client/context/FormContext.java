@@ -16,24 +16,20 @@
 package org.copperengine.monitoring.client.context;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+
 import org.copperengine.monitoring.client.adapter.GuiCopperDataProvider;
 import org.copperengine.monitoring.client.context.FormBuilder.EngineFormBuilder;
 import org.copperengine.monitoring.client.form.BorderPaneShowFormStrategie;
@@ -64,17 +60,21 @@ import org.copperengine.monitoring.client.ui.audittrail.filter.AuditTrailFilterC
 import org.copperengine.monitoring.client.ui.audittrail.filter.AuditTrailFilterModel;
 import org.copperengine.monitoring.client.ui.audittrail.result.AuditTrailResultController;
 import org.copperengine.monitoring.client.ui.audittrail.result.AuditTrailResultModel;
+import org.copperengine.monitoring.client.ui.configuration.filter.ConfigurationFilterController;
+import org.copperengine.monitoring.client.ui.configuration.result.ConfigurationDependencyFactory;
+import org.copperengine.monitoring.client.ui.configuration.result.ConfigurationResultController;
+import org.copperengine.monitoring.client.ui.configuration.result.engine.ProcessingEngineController;
+import org.copperengine.monitoring.client.ui.configuration.result.engines.ProcessingEnginesController;
+import org.copperengine.monitoring.client.ui.configuration.result.pool.ProcessorPoolController;
+import org.copperengine.monitoring.client.ui.configuration.result.provider.ProviderController;
 import org.copperengine.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterController;
 import org.copperengine.monitoring.client.ui.custommeasurepoint.filter.CustomMeasurePointFilterModel;
 import org.copperengine.monitoring.client.ui.custommeasurepoint.result.CustomMeasurePointResultController;
 import org.copperengine.monitoring.client.ui.custommeasurepoint.result.CustomMeasurePointResultModel;
 import org.copperengine.monitoring.client.ui.dashboard.filter.DashboardFilterController;
 import org.copperengine.monitoring.client.ui.dashboard.result.DashboardDependencyFactory;
+import org.copperengine.monitoring.client.ui.dashboard.result.DashboardEngineController;
 import org.copperengine.monitoring.client.ui.dashboard.result.DashboardResultController;
-import org.copperengine.monitoring.client.ui.dashboard.result.engine.ProcessingEngineController;
-import org.copperengine.monitoring.client.ui.dashboard.result.engines.ProcessingEnginesController;
-import org.copperengine.monitoring.client.ui.dashboard.result.pool.ProccessorPoolController;
-import org.copperengine.monitoring.client.ui.dashboard.result.provider.ProviderController;
 import org.copperengine.monitoring.client.ui.databasemonitor.result.DatabaseMonitorResultController;
 import org.copperengine.monitoring.client.ui.load.filter.EngineLoadFilterController;
 import org.copperengine.monitoring.client.ui.load.filter.EngineLoadFilterModel;
@@ -106,7 +106,7 @@ import org.copperengine.monitoring.client.ui.sql.result.SqlResultController;
 import org.copperengine.monitoring.client.ui.sql.result.SqlResultModel;
 import org.copperengine.monitoring.client.ui.systemresource.filter.ResourceFilterController;
 import org.copperengine.monitoring.client.ui.systemresource.filter.ResourceFilterModel;
-import org.copperengine.monitoring.client.ui.systemresource.result.RessourceResultController;
+import org.copperengine.monitoring.client.ui.systemresource.result.ResourceResultController;
 import org.copperengine.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController;
 import org.copperengine.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeController.DisplayWorkflowClassesModel;
 import org.copperengine.monitoring.client.ui.workflowclasssesctree.WorkflowClassesTreeForm;
@@ -115,15 +115,15 @@ import org.copperengine.monitoring.client.ui.workflowinstance.filter.WorkflowIns
 import org.copperengine.monitoring.client.ui.workflowinstance.result.WorkflowInstanceDependencyFactory;
 import org.copperengine.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultController;
 import org.copperengine.monitoring.client.ui.workflowinstance.result.WorkflowInstanceResultModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.filter.WorkflowInstanceDetailFilterController;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.result.WorkflowInstanceDetailResultController;
+import org.copperengine.monitoring.client.ui.workflowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import org.copperengine.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterController;
 import org.copperengine.monitoring.client.ui.workflowsummary.filter.WorkflowSummaryFilterModel;
 import org.copperengine.monitoring.client.ui.workflowsummary.result.WorkflowSummaryDependencyFactory;
 import org.copperengine.monitoring.client.ui.workflowsummary.result.WorkflowSummaryResultController;
 import org.copperengine.monitoring.client.ui.workflowsummary.result.WorkflowSummaryResultModel;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterController;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.filter.WorkflowInstanceDetailFilterModel;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultController;
-import org.copperengine.monitoring.client.ui.worklowinstancedetail.result.WorkflowInstanceDetailResultModel;
 import org.copperengine.monitoring.client.util.CodeMirrorFormatter;
 import org.copperengine.monitoring.client.util.MessageKey;
 import org.copperengine.monitoring.client.util.MessageProvider;
@@ -137,8 +137,8 @@ import org.copperengine.monitoring.core.model.ProcessorPoolInfo;
 import org.copperengine.monitoring.core.model.SystemResourcesInfo;
 import org.copperengine.monitoring.core.model.WorkflowStateSummary;
 
-public class FormContext implements DashboardDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory,
-        WorkflowSummaryDependencyFactory {
+public class FormContext implements ConfigurationDependencyFactory, WorkflowInstanceDependencyFactory, WorkflowRepositoryDependencyFactory,
+        WorkflowSummaryDependencyFactory, DashboardDependencyFactory {
     protected final TabPane mainTabPane;
     protected final BorderPane mainPane;
     protected final FormCreatorGroup formGroup;
@@ -150,7 +150,8 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
     private FxmlForm<SettingsController> settingsForSingleton;
     private FxmlForm<HotfixController> hotfixFormSingleton;
-    private FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> dasboardFormSingleton;
+    private FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> configurationFormSingleton;
+    private FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> dashboardFormSingleton;
     private final InputDialogCreator inputDialogCreator;
 
     public FormContext(BorderPane mainPane, GuiCopperDataProvider guiCopperDataProvider, MessageProvider messageProvider, SettingsModel settingsModelSingleton, IssueReporter issueReporter, InputDialogCreator inputDialogCreator) {
@@ -165,6 +166,13 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         CopperInterfaceSettings copperInterfaceSettings = guiCopperDataProvider.getInterfaceSettings();
 
         List<FormCreatorGroup> mainCreators = new ArrayList<FormCreatorGroup>();
+        mainCreators.add(new FormCreatorGroup(new FormCreator(messageProvider.getText(MessageKey.configuration_title)) {
+            @Override
+            public Form<?> createFormImpl() {
+                return createConfigurationForm();
+            }
+        }));
+
         mainCreators.add(new FormCreatorGroup(new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
             @Override
             public Form<?> createFormImpl() {
@@ -229,7 +237,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         loggroup.add(new FormCreator(messageProvider.getText(MessageKey.audittrail_title)) {
             @Override
             public Form<?> createFormImpl() {
-                return createAudittrailForm();
+                return createAuditTrailForm();
             }
         });
         loggroup.add(new FormCreator(messageProvider.getText(MessageKey.logs_title)) {
@@ -275,7 +283,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         loadCreator.add(new FormCreator(messageProvider.getText(MessageKey.resource_title)) {
             @Override
             public Form<?> createFormImpl() {
-                return createRessourceForm();
+                return createResourceForm();
             }
         });
         final FormCreator measurePointCreator = new FormCreator(messageProvider.getText(MessageKey.measurePoint_title)) {
@@ -285,7 +293,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
             }
         };
         loadCreator.add(measurePointCreator);
-        if (copperInterfaceSettings.getSupportedFeatures() != null && !copperInterfaceSettings.getSupportedFeatures().isSupportsLoggingStatisticCollector()) {
+        if (copperInterfaceSettings.getSupportedFeatures() != null && !copperInterfaceSettings.getSupportedFeatures().isSupportsLoggingStatisticsCollector()) {
             measurePointCreator.setEnabled(false);
             measurePointCreator.setTooltip(new Tooltip("not available in copper"));
         }
@@ -312,44 +320,14 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
 
         VBox topPane = new VBox();
         topPane.getChildren().add(createMenuBar());
-//        final ToolBar toolBar = new ToolBar();
-//
-//        final Button back = new Button();
-//        back.setGraphic(new Region());
-//        back.setPrefSize(30, 30);
-//        back.getStyleClass().add("back-button");
-//        back.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent actionEvent) {
-//                getDefaultShowFormStrategy().back();
-//            }
-//        });
-//
-//        final Button forward = new Button();
-//        forward.setGraphic(new Region());
-//        forward.setPrefSize(30,30);
-//        forward.getStyleClass().add("forward-button");
-//        forward.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent actionEvent) {
-//                getDefaultShowFormStrategy().forward();
-//            }
-//        });
-//
-//        HBox navigation = new HBox();
-//        navigation.getChildren().add(back);
-//        navigation.getChildren().add(forward);
-//        toolBar.getItems().add(navigation);
-//
-//        topPane.getChildren().add(toolBar);
         mainPane.setTop(topPane);
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                new FormCreator(messageProvider.getText(MessageKey.dashboard_title)) {
+                new FormCreator(messageProvider.getText(MessageKey.configuration_title)) {
                     @Override
                     public Form<?> createFormImpl() {
-                        return createDashboardForm();
+                        return createConfigurationForm();
                     }
                 }.show();
             }
@@ -405,7 +383,7 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
     }
 
     @Override
-    public FilterAbleForm<AuditTrailFilterModel, AuditTrailResultModel> createAudittrailForm() {
+    public FilterAbleForm<AuditTrailFilterModel, AuditTrailResultModel> createAuditTrailForm() {
         return new FormBuilder<AuditTrailFilterModel, AuditTrailResultModel, AuditTrailFilterController, AuditTrailResultController>(
                 new AuditTrailFilterController(),
                 new AuditTrailResultController(guiCopperDataProvider, settingsModelSingleton, codeMirrorFormatterSingelton),
@@ -484,33 +462,59 @@ public class FormContext implements DashboardDependencyFactory, WorkflowInstance
         return filterAbleForm;
     }
 
-    FilterAbleForm<ResourceFilterModel, SystemResourcesInfo> ressourceFormSingelton = null;
+    FilterAbleForm<ResourceFilterModel, SystemResourcesInfo> resourceFormSingelton = null;
     private List<ProcessingEngineInfo> engineList;
 
-    public FilterAbleForm<ResourceFilterModel, SystemResourcesInfo> createRessourceForm() {
-        if (ressourceFormSingelton == null) {
-            ressourceFormSingelton = new FormBuilder<ResourceFilterModel, SystemResourcesInfo, ResourceFilterController, RessourceResultController>(
-                    new ResourceFilterController(),
-                    new RessourceResultController(guiCopperDataProvider),
+    
+    private int resourceFilterMaxCount = -1;
+    private Date resourceFilterFrom = null;
+    private Date resourceFilterTo = null;
+    
+    public void setInitialResourceFilter(int maxCount, Date from, Date to) {
+        this.resourceFilterMaxCount = maxCount;
+        this.resourceFilterFrom = from;
+        this.resourceFilterTo = to;
+    }
+
+    public FilterAbleForm<ResourceFilterModel, SystemResourcesInfo> createResourceForm() {
+        if (resourceFormSingelton == null) {
+            resourceFormSingelton = new FormBuilder<ResourceFilterModel, SystemResourcesInfo, ResourceFilterController, ResourceResultController>(
+                    new ResourceFilterController(resourceFilterMaxCount, resourceFilterFrom, resourceFilterTo),
+                    new ResourceResultController(guiCopperDataProvider),
                     this
                     ).build();
         }
-        return ressourceFormSingelton;
+        return resourceFormSingelton;
+    }
+
+    public FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> createConfigurationForm() {
+        if (configurationFormSingleton == null) {
+            configurationFormSingleton = new FormBuilder<FromToMaxCountFilterModel, ConfigurationInfo, ConfigurationFilterController, ConfigurationResultController>(
+                    new ConfigurationFilterController(),
+                    new ConfigurationResultController(guiCopperDataProvider, this),
+                    this
+            ).build();
+        }
+        return configurationFormSingleton;
     }
 
     public FilterAbleForm<FromToMaxCountFilterModel, ConfigurationInfo> createDashboardForm() {
-        if (dasboardFormSingleton == null) {
-            dasboardFormSingleton = new FormBuilder<FromToMaxCountFilterModel, ConfigurationInfo, DashboardFilterController, DashboardResultController>(
+        if (dashboardFormSingleton == null) {
+            dashboardFormSingleton = new FormBuilder<FromToMaxCountFilterModel, ConfigurationInfo, DashboardFilterController, DashboardResultController>(
                     new DashboardFilterController(),
                     new DashboardResultController(guiCopperDataProvider, this),
                     this
             ).build();
         }
-        return dasboardFormSingleton;
+        return dashboardFormSingleton;
     }
 
-    public Form<ProccessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool) {
-        return new FxmlForm<ProccessorPoolController>(pool.getId(), new ProccessorPoolController(engine, pool, this, guiCopperDataProvider, inputDialogCreator), new TabPaneShowFormStrategy(tabPane));
+    public Form<ProcessorPoolController> createPoolForm(TabPane tabPane, ProcessingEngineInfo engine, ProcessorPoolInfo pool) {
+        return new FxmlForm<ProcessorPoolController>(pool.getId(), new ProcessorPoolController(engine, pool, this, guiCopperDataProvider, inputDialogCreator), new TabPaneShowFormStrategy(tabPane));
+    }
+
+    public Form<DashboardEngineController> createDashboardEngineForm(VBox target) {
+        return new FxmlForm<DashboardEngineController>("", new DashboardEngineController(guiCopperDataProvider), new PaneShowFormStrategy(target));
     }
 
     public Form<ProcessingEngineController> createEngineForm() {

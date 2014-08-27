@@ -16,15 +16,15 @@
 package org.copperengine.monitoring.client.ui.dashboard.result;
 
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+
 import org.copperengine.monitoring.client.form.Form;
-import org.copperengine.monitoring.client.ui.dashboard.result.engines.ProcessingEnginesController;
-import org.copperengine.monitoring.client.ui.dashboard.result.provider.ProviderController;
+import org.copperengine.monitoring.client.ui.configuration.result.provider.ProviderController;
 import org.copperengine.monitoring.core.model.MonitoringDataProviderInfo;
 
 public interface DashboardDependencyFactory {
 
-    public Form<ProcessingEnginesController> createEnginesForm(Pane target);
+    public Form<DashboardEngineController> createDashboardEngineForm(VBox target);
 
     public Form<ProviderController> createMonitoringDataProviderForm(MonitoringDataProviderInfo monitoringDataProviderInfo, BorderPane target);
 }

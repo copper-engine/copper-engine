@@ -15,77 +15,14 @@
 <?scenebuilder-stylesheet ../../../../../../../../resources/org/copperengine/gui/css/base.css?>
 
 <VBox prefHeight="676.0" prefWidth="1200.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
-  <StackPane prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-    <children>
-      <ScrollPane fitToHeight="false" fitToWidth="false" maxHeight="654.0" maxWidth="1207.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color:transparent;" StackPane.alignment="CENTER">
-        <content>
-          <Pane prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-style1, copper-container">
-            <children>
-              <Pane prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-style2, copper-container">
-                <Rectangle height="645.0" layoutX="0.0" layoutY="0.0" styleClass="copper-rectangle" width="446.0" />
-                <Label layoutX="9.0" layoutY="23.0" styleClass="copper-big-title" text="Monitoring" />
-                <Pane prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-style3, copper-container">
-                  <children>
-                    <Rectangle height="204.0" layoutX="28.0" layoutY="59.0" styleClass="copper-rectangle" width="395.0" />
-                    <Label layoutX="41.0" layoutY="63.0" styleClass="copper-title" text="MonitoringDataStorage" />
-                    <HBox alignment="CENTER_LEFT" layoutX="38.0" layoutY="81.0" prefHeight="-1.0" prefWidth="370.0" spacing="3.0">
-                      <Label minWidth="50.0" text="location" />
-                      <TextField fx:id="location" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                      <Label minWidth="25.0" text="size" />
-                      <TextField id="location" fx:id="size" prefWidth="200.0" />
-                      <padding>
-                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                      </padding>
-                    </HBox>
-                    <TableView fx:id="storageContentTable" layoutX="39.0" layoutY="109.0" prefHeight="120.0" prefWidth="367.0">
-                      <columns>
-                        <TableColumn prefWidth="75.0" text="Type" fx:id="typeCol" />
-                        <TableColumn prefWidth="75.0" text="Count" fx:id="countCol" />
-                      </columns>
-                    </TableView>
-                    <Button fx:id="storageDetailRefresh" layoutX="39.0" layoutY="236.0" mnemonicParsing="false" text="refresh" />
-                  </children>
-                </Pane>
-                <ScrollPane layoutX="29.0" layoutY="289.0" prefHeight="343.0" prefWidth="395.0">
-                  <content>
-                    <HBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-style4, copper-container">
-                      <children>
-                        <VBox fx:id="monitoringPane" alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" HBox.hgrow="ALWAYS">
-                          <padding>
-                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                          </padding>
-                        </VBox>
-                      </children>
-                    </HBox>
-                  </content>
-                </ScrollPane>
-              </Pane>
-              <Pane layoutX="484.0" prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-style2, copper-container">
-                <Rectangle height="645.0" layoutX="0.0" layoutY="0.0" styleClass="copper-rectangle" width="706.0" />
-                <Label layoutX="10.0" layoutY="23.0" styleClass="copper-big-title" text="Core" />
-                <Pane fx:id="enginesTarget" layoutX="20.0" layoutY="59.0" prefHeight="572.0" prefWidth="664.0" style="-fx-background-color: transparent;" />
-              </Pane>
-            </children>
-            <padding>
-              <Insets />
-            </padding>
-          </Pane>
-        </content>
-      </ScrollPane>
-      <Pane fx:id="disableOverlay" opacity="0.48" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color:grey;">
-        <effect>
-          <GaussianBlur radius="36.0" />
-        </effect>
-      </Pane>
-    </children>
-  </StackPane>
-  <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
-    <children>
-      <Slider fx:id="timeSlider" showTickLabels="false" HBox.hgrow="ALWAYS" />
-      <Pane fx:id="datePickerTarget" prefHeight="-1.0" prefWidth="-1.0" />
-    </children>
-    <padding>
-      <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-    </padding>
-  </HBox>
+  <ScrollPane fitToHeight="false" fitToWidth="false" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color:transparent;" VBox.vgrow="ALWAYS">
+    <content>
+      <HBox fillHeight="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pickOnBounds="true" prefHeight="-1.0" prefWidth="-1.0" styleClass="copper-style1, copper-container">
+        <children>
+          <VBox fx:id="leftPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="676.0" minWidth="600.0" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+          <VBox fx:id="rightPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="676.0" minWidth="600.0" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+        </children>
+      </HBox>
+    </content>
+  </ScrollPane>
 </VBox>

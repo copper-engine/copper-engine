@@ -21,19 +21,19 @@ public class WorkflowSummary implements Serializable {
     private static final long serialVersionUID = 4867510351238162279L;
 
     private String alias;
-    private int totalcount;
-    private WorkflowStateSummary stateSummery;
+    private int totalCount;
+    private WorkflowStateSummary stateSummary;
     private WorkflowClassMetaData classDescription;
 
     public WorkflowSummary() {
         super();
     }
 
-    public WorkflowSummary(String alias, int totalcount, WorkflowClassMetaData classDescription, WorkflowStateSummary stateSummery) {
+    public WorkflowSummary(String alias, int totalCount, WorkflowClassMetaData classDescription, WorkflowStateSummary stateSummary) {
         super();
         this.alias = alias;
-        this.totalcount = totalcount;
-        this.stateSummery = stateSummery;
+        this.totalCount = totalCount;
+        this.stateSummary = stateSummary;
         this.classDescription = classDescription;
     }
 
@@ -45,20 +45,24 @@ public class WorkflowSummary implements Serializable {
         this.alias = alias;
     }
 
-    public int getTotalcount() {
-        return totalcount;
+    public int getTotalCount() {
+        return totalCount;
     }
 
-    public void setTotalcount(int totalcount) {
-        this.totalcount = totalcount;
+    public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
+    }
+    
+    public void setComputedTotalCount() {
+        this.totalCount = stateSummary.getTotalCount();
     }
 
     public WorkflowStateSummary getStateSummary() {
-        return stateSummery;
+        return stateSummary;
     }
 
-    public void setStateSummary(WorkflowStateSummary stateSummery) {
-        this.stateSummery = stateSummery;
+    public void setStateSummary(WorkflowStateSummary stateSummary) {
+        this.stateSummary = stateSummary;
     }
 
     public WorkflowClassMetaData getClassDescription() {

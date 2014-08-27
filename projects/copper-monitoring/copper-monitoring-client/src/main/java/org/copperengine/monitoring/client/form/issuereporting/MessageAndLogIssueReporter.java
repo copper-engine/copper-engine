@@ -58,7 +58,7 @@ public class MessageAndLogIssueReporter implements IssueReporter {
 
     @Override
     public void reportError(String message, Throwable e) {
-        logger.error("", e);
+        logger.error(message, e);
         showErrorMessage(message, e);
     }
 
@@ -70,19 +70,19 @@ public class MessageAndLogIssueReporter implements IssueReporter {
 
     @Override
     public void reportWarning(String message, Throwable e) {
-        logger.warn("", e);
+        logger.warn(message, e);
         showWarningMessage(message, e);
     }
 
     @Override
     public void reportError(String message, Throwable e, Runnable finishAction) {
-        logger.error("", e);
+        logger.error(message, e);
         showErrorMessage(message, e, finishAction);
     }
 
     @Override
     public void reportWarning(String message, Throwable e, Runnable finishAction) {
-        logger.warn("", e);
+        logger.warn(message, e);
         showWarningMessage(message, e, finishAction);
     }
 

@@ -136,7 +136,7 @@ public class MonitoringDataCollector {
         });
     }
 
-    public void submitSystemRessource(final SystemResourcesInfo resourcesInfo) {
+    public void submitSystemResource(final SystemResourcesInfo resourcesInfo) {
         monitoringQueue.offer(new MonitoringDataAwareRunnable() {
             @Override
             public void run() {

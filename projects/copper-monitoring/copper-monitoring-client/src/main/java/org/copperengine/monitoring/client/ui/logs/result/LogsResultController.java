@@ -149,7 +149,7 @@ public class LogsResultController extends FilterResultControllerBase<LogsFilterM
             }
         });
 
-        tableBorderPane.setBottom(createTabelControlls(resultTable));
+        tableBorderPane.setBottom(createTableControls(resultTable));
 
         timeColumn.setCellValueFactory(new Callback<CellDataFeatures<LogsRowModel, Date>, ObservableValue<Date>>() {
             @Override

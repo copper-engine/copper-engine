@@ -67,9 +67,9 @@ import org.copperengine.monitoring.server.persistent.MonitoringDbStorage;
 import org.copperengine.monitoring.server.provider.ConfigurationDataProvider;
 import org.copperengine.monitoring.server.provider.MonitoringDataProviderManager;
 import org.copperengine.monitoring.server.provider.MonitoringLogbackDataProvider;
-import org.copperengine.monitoring.server.provider.SystemRessourceDataProvider;
-import org.copperengine.monitoring.server.statisticcollector.MonitoringStatisticCollector;
-import org.copperengine.monitoring.server.statisticcollector.MultipleStatistikCollector;
+import org.copperengine.monitoring.server.provider.SystemResourceDataProvider;
+import org.copperengine.monitoring.server.statisticscollector.MonitoringStatisticCollector;
+import org.copperengine.monitoring.server.statisticscollector.MultipleStatisticsCollector;
 import org.copperengine.monitoring.server.wrapper.MonitoringAdapterProcessingEngine;
 import org.copperengine.monitoring.server.wrapper.MonitoringDependencyInjector;
 import org.springframework.remoting.support.DefaultRemoteInvocationExecutor;
@@ -77,7 +77,7 @@ import org.springframework.remoting.support.RemoteInvocationExecutor;
 
 public class ApplicationContext {
 
-    private MultipleStatistikCollector statistikCollector;
+    private MultipleStatisticsCollector statisticsCollector;
     private PojoDependencyInjector dependyInjector;
     private PersistentScottyEngine persistentengine;
     protected BatchingAuditTrail auditTrail;
@@ -105,13 +105,13 @@ public class ApplicationContext {
 
         loggingStatisticsCollector = new LoggingStatisticCollector();
         loggingStatisticsCollector.start();
-        statistikCollector = new MultipleStatistikCollector(loggingStatisticsCollector);
+        statisticsCollector = new MultipleStatisticsCollector(loggingStatisticsCollector);
 
 
-        DatabaseUtil databaseData = setupDatabase(wfRepository, statistikCollector);
+        DatabaseUtil databaseData = setupDatabase(wfRepository, statisticsCollector);
 
         BatcherImpl batcher = new BatcherImpl(3);
-        batcher.setStatisticsCollector(statistikCollector);
+        batcher.setStatisticsCollector(statisticsCollector);
 
         @SuppressWarnings("rawtypes")
         RetryingTxnBatchRunner batchRunner = new RetryingTxnBatchRunner();
@@ -135,7 +135,7 @@ public class ApplicationContext {
         persistentengine.setDbStorage(persistentdbStorage);
         persistentengine.setWfRepository(wfRepository);
         persistentengine.setEngineIdProvider(getEngineIdProvider());
-        persistentengine.setStatisticsCollector(statistikCollector);
+        persistentengine.setStatisticsCollector(statisticsCollector);
 
         DefaultProcessorPoolManager<PersistentPriorityProcessorPool> defaultProcessorPoolManager = new DefaultProcessorPoolManager<PersistentPriorityProcessorPool>();
         defaultProcessorPoolManager.setProcessorPools(Arrays.asList(persistentPriorityProcessorPool));
@@ -173,7 +173,7 @@ public class ApplicationContext {
         billAdapterImpl.initWithEngine(new MonitoringAdapterProcessingEngine(billAdapterImpl, persistentengine, monitoringDataCollector));
         dependyInjector.register("billAdapter", billAdapterImpl);
         dependyInjector.register("auditTrail", auditTrail);
-        statistikCollector.addStatisticsCollector(new MonitoringStatisticCollector(monitoringDataCollector));
+        statisticsCollector.addStatisticsCollector(new MonitoringStatisticCollector(monitoringDataCollector));
 
         persistentengine.setDependencyInjector(monitoringDependencyInjector);
         persistentengine.startup();
@@ -188,7 +188,7 @@ public class ApplicationContext {
 
         monitoringLogbackDataProvider = new MonitoringLogbackDataProvider(monitoringDataCollector);
         final ConfigurationDataProvider configurationDataProvider = new ConfigurationDataProvider(monitoringDataCollector, Arrays.<ProcessingEngineMXBean>asList(persistentengine), monitoringDataStorage);
-        monitoringDataProviderManager = new MonitoringDataProviderManager(new SystemRessourceDataProvider(monitoringDataCollector), monitoringLogbackDataProvider, new GcDataProvider(monitoringDataCollector), configurationDataProvider);
+        monitoringDataProviderManager = new MonitoringDataProviderManager(new SystemResourceDataProvider(monitoringDataCollector), monitoringLogbackDataProvider, new GcDataProvider(monitoringDataCollector), configurationDataProvider);
         configurationDataProvider.setMonitoringDataProviderManager(monitoringDataProviderManager);
         monitoringDataProviderManager.startAll();
     }

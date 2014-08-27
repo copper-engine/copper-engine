@@ -65,7 +65,7 @@ public abstract class FilterResultControllerBase<F, R> implements FilterResultCo
     private final List<TableView<?>> tableViews = new ArrayList<TableView<?>>();
     private final Map<TableView<?>, ObservableList<?>> originalItemsMap = new HashMap<TableView<?>, ObservableList<?>>(); 
 
-    public <M> HBox createTabelControlls(final TableView<M> tableView) {        
+    public <M> HBox createTableControls(final TableView<M> tableView) {        
         this.tableViews.add(tableView);
 
         if (tableView.getContextMenu() == null) {

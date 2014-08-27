@@ -94,12 +94,12 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
     @Override
     // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        assert countColumn != null : "fx:id=\"countColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
-        assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
-        assert workflowClassColumn != null : "fx:id=\"workflowClassColumn\" was not injected: check your FXML file 'WorkflowSummeryResult.fxml'.";
+        assert countColumn != null : "fx:id=\"countColumn\" was not injected: check your FXML file 'WorkflowSummaryResult.fxml'.";
+        assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'WorkflowSummaryResult.fxml'.";
+        assert workflowClassColumn != null : "fx:id=\"workflowClassColumn\" was not injected: check your FXML file 'WorkflowSummaryResult.fxml'.";
         assert borderPane != null;
 
-        borderPane.setBottom(createTabelControlls(resultTable));
+        borderPane.setBottom(createTableControls(resultTable));
 
         workflowClassColumn.setCellValueFactory(new Callback<CellDataFeatures<WorkflowSummaryResultModel, String>, ObservableValue<String>>() {
             @Override
@@ -113,7 +113,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
             @Override
             public ObservableValue<String> call(
                     CellDataFeatures<WorkflowSummaryResultModel, String> p) {
-                return p.getValue().totalcount;
+                return p.getValue().totalCount;
             }
         });
 
@@ -128,7 +128,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
                 public ObservableValue<String> call(
                         CellDataFeatures<WorkflowSummaryResultModel, String> p) {
                     return new SimpleStringProperty(
-                            String.valueOf(p.getValue().workflowStateSummery.getNumberOfWorkflowInstancesWithState().get(workflowInstanceState)));
+                            String.valueOf(p.getValue().workflowStateSummary.getNumberOfWorkflowInstancesWithState().get(workflowInstanceState)));
                 }
             });
             tableColumn.prefWidthProperty().bind(resultTable.widthProperty().subtract(2).multiply(totalSpaceForStateColumns / WorkflowInstanceState.values().length));
@@ -182,7 +182,7 @@ public class WorkflowSummaryResultController extends FilterResultControllerBase<
 
     @Override
     public List<WorkflowSummaryResultModel> applyFilterInBackgroundThread(WorkflowSummaryFilterModel filter) {
-        return copperDataProvider.getWorkflowSummery(filter);
+        return copperDataProvider.getWorkflowSummary(filter);
     }
 
     @Override

@@ -50,4 +50,13 @@ public class WorkflowStateSummary implements Serializable {
         }
     }
 
+    public int getTotalCount() {
+        int totalCount = 0;
+        for(Integer count : numberOfWorkflowInstancesWithState.values()) {
+            if(count != null) {
+                totalCount += count;
+            }
+        }
+        return totalCount;
+    }
 }

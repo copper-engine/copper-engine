@@ -23,6 +23,7 @@ import java.util.List;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
@@ -116,14 +117,19 @@ public class WorkflowClassesTreeController {
         }
     }
 
-    private Optional<TreeItem<DisplayWorkflowClassesModel>> findMajorItem(WorkflowVersion newWorkflowVersion, List<TreeItem<DisplayWorkflowClassesModel>> result) {
+    private Optional<TreeItem<DisplayWorkflowClassesModel>> findClassNameItem(WorkflowVersion newWorkflowVersion, List<TreeItem<DisplayWorkflowClassesModel>> result) {
         for (TreeItem<DisplayWorkflowClassesModel> classnameItem : result) {
             if (newWorkflowVersion.alias.getValue() != null && newWorkflowVersion.alias.getValue().equals(classnameItem.getValue().value.alias.getValue())) {
-                for (TreeItem<DisplayWorkflowClassesModel> majorItem : classnameItem.getChildren()) {
-                    if (newWorkflowVersion.versionMajor.getValue().equals(majorItem.getValue().value.versionMajor.getValue())) {
-                        return Optional.of(majorItem);
-                    }
-                }
+                return Optional.of(classnameItem);
+            }
+        }
+        return Optional.absent();
+    }
+
+    private Optional<TreeItem<DisplayWorkflowClassesModel>> findMajorItem(WorkflowVersion newWorkflowVersion, TreeItem<DisplayWorkflowClassesModel> classNameItem) {
+        for (TreeItem<DisplayWorkflowClassesModel> majorItem : classNameItem.getChildren()) {
+            if (newWorkflowVersion.versionMajor.getValue().equals(majorItem.getValue().value.versionMajor.getValue())) {
+                return Optional.of(majorItem);
             }
         }
         return Optional.absent();
@@ -170,6 +176,12 @@ public class WorkflowClassesTreeController {
         return alias;
     }
 
+    private static final Comparator<TreeItem<DisplayWorkflowClassesModel>> comparator = new Comparator<TreeItem<DisplayWorkflowClassesModel>>() {
+        @Override
+        public int compare(TreeItem<DisplayWorkflowClassesModel> item1, TreeItem<DisplayWorkflowClassesModel> item2) {
+            return item1.getValue().compareTo(item2.getValue());
+        }
+    };
     public List<TreeItem<DisplayWorkflowClassesModel>> groupToTreeItem(List<WorkflowVersion> list) {
         // from flat List: alias , majorversion, minorversion
         // totree:
@@ -180,35 +192,44 @@ public class WorkflowClassesTreeController {
 
         List<TreeItem<DisplayWorkflowClassesModel>> result = new ArrayList<TreeItem<DisplayWorkflowClassesModel>>();
         for (WorkflowVersion newWorkflowVersion : list) {
-            Optional<TreeItem<DisplayWorkflowClassesModel>> existingMajorItem = findMajorItem(newWorkflowVersion, result);
-
-            TreeItem<DisplayWorkflowClassesModel> majorVersionItemToAdd;
-            if (existingMajorItem.isPresent()) {
-                majorVersionItemToAdd = existingMajorItem.get();
+            
+            Optional<TreeItem<DisplayWorkflowClassesModel>> existingClassNameItem = findClassNameItem(newWorkflowVersion, result);
+            TreeItem<DisplayWorkflowClassesModel> classNameItem;
+            if(existingClassNameItem.isPresent()) {
+                classNameItem = existingClassNameItem.get();
             } else {
-                TreeItem<DisplayWorkflowClassesModel> classnameItemToAdd;
-                classnameItemToAdd = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getAlias(newWorkflowVersion)));
-                result.add(classnameItemToAdd);
-                majorVersionItemToAdd = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getMajorVersionText(newWorkflowVersion)));
-                classnameItemToAdd.getChildren().add(majorVersionItemToAdd);
+                classNameItem = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getAlias(newWorkflowVersion)));
+                result.add(classNameItem);                
+            }
+            
+            Optional<TreeItem<DisplayWorkflowClassesModel>> existingMajorItem = findMajorItem(newWorkflowVersion, classNameItem);
+
+            TreeItem<DisplayWorkflowClassesModel> majorVersionItem;
+            if (existingMajorItem.isPresent()) {
+                majorVersionItem = existingMajorItem.get();
+            } else {
+                majorVersionItem = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getMajorVersionText(newWorkflowVersion)));
+                ObservableList<TreeItem<DisplayWorkflowClassesModel>> majorVersionItems = classNameItem.getChildren();
+                
+                int index = Collections.binarySearch(majorVersionItems, majorVersionItem, comparator);
+                if(index < 0) {
+                    index = -index - 1;
+                }
+                majorVersionItems.add(index, majorVersionItem);
             }
 
-            Optional<TreeItem<DisplayWorkflowClassesModel>> exintingMinorItem = findMinorVersion(newWorkflowVersion.versionMinor.get(), majorVersionItemToAdd);
-            TreeItem<DisplayWorkflowClassesModel> minorItem = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getMinorVersionText(newWorkflowVersion)));
-            if (exintingMinorItem.isPresent()) {
-                minorItem = exintingMinorItem.get();
+            Optional<TreeItem<DisplayWorkflowClassesModel>> existingMinorItem = findMinorVersion(newWorkflowVersion.versionMinor.get(), majorVersionItem);
+            TreeItem<DisplayWorkflowClassesModel> minorItem;
+            if (existingMinorItem.isPresent()) {
+                minorItem = existingMinorItem.get();
             } else {
-                majorVersionItemToAdd.getChildren().add(minorItem);
+                minorItem = new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getMinorVersionText(newWorkflowVersion)));
+                majorVersionItem.getChildren().add(minorItem);
             }
             minorItem.getChildren().add(new TreeItem<DisplayWorkflowClassesModel>(new DisplayWorkflowClassesModel(newWorkflowVersion, getPatchVersionText(newWorkflowVersion))));
 
         }
-        Collections.sort(result, new Comparator<TreeItem<DisplayWorkflowClassesModel>>() {
-            @Override
-            public int compare(TreeItem<DisplayWorkflowClassesModel> item1, TreeItem<DisplayWorkflowClassesModel> item2) {
-                return item1.getValue().compareTo(item2.getValue());
-            }
-        });
+        Collections.sort(result, comparator);
         return result;
     }
 

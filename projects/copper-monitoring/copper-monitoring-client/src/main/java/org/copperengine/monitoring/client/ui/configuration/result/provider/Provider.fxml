@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?scenebuilder-stylesheet ../../../../../../../../../resources/org/copperengine/gui/css/base-colors.css?>
+<?scenebuilder-stylesheet ../../../../../../../../../resources/org/copperengine/gui/css/base.css?>
+
+<Pane prefHeight="113.0" prefWidth="254.0" styleClass="copper-style3, copper-container" visible="true" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+  <Rectangle height="113.0" layoutX="0.0" layoutY="0.0" styleClass="copper-rectangle" width="254.0" />
+  <Label layoutX="43.0" layoutY="2.0" styleClass="copper-title" text="Monitoring data provider" />
+  <GridPane hgap="3.0" layoutX="3.0" layoutY="34.0" prefWidth="237.0" vgap="3.0">
+    <columnConstraints>
+      <ColumnConstraints hgrow="NEVER" maxWidth="38.0" prefWidth="35.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="120.0" prefWidth="90.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="55.0" prefWidth="51.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="55.0" prefWidth="52.0" />
+    </columnConstraints>
+    <rowConstraints>
+      <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="-1.0" prefHeight="-1.0" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <Label text="name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+    <Label text="status" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+    <TextField fx:id="name" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" promptText="" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="0" />
+    <TextField fx:id="status" editable="false" opacity="0.75" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+    <Button id="numberButton" fx:id="start" alignment="TOP_CENTER" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="start" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+    <Button id="prioButton" fx:id="stop" minHeight="-1.0" mnemonicParsing="false" prefHeight="-1.0" prefWidth="51.0" styleClass="copper-action-button" text="stop" GridPane.columnIndex="3" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+  </GridPane>
+</Pane>

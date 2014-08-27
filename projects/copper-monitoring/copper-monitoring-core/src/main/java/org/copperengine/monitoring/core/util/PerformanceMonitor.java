@@ -51,7 +51,7 @@ public class PerformanceMonitor {
     }
 
     // http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
-    public SystemResourcesInfo createRessourcenInfo() {
+    public SystemResourcesInfo createResourcesInfo() {
         OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
         java.lang.management.ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();

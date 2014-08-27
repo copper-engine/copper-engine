@@ -206,9 +206,9 @@ public class AdapterMonitoringResultController extends FilterResultControllerBas
         assert timeNotifyCol != null : "fx:id=\"timeNotifyCol\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
         assert visualisationStackpane != null : "fx:id=\"visualisationStackpane\" was not injected: check your FXML file 'AdapterMonitoringResult.fxml'.";
 
-        launchBorderPane.setBottom(createTabelControlls(adapterOutputLaunchTable));
-        inputBorderPane.setBottom(createTabelControlls(adapterInputTable));
-        notifyBorderPane.setBottom(createTabelControlls(adapterOutputNotifyTable));
+        launchBorderPane.setBottom(createTableControls(adapterOutputLaunchTable));
+        inputBorderPane.setBottom(createTableControls(adapterInputTable));
+        notifyBorderPane.setBottom(createTableControls(adapterOutputNotifyTable));
 
         source.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<AdapterCallRowModel, String>, ObservableValue<String>>() {
             @Override

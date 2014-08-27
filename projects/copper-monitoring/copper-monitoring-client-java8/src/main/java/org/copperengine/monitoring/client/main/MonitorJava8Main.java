@@ -18,6 +18,6 @@ package org.copperengine.monitoring.client.main;
 public class MonitorJava8Main {
 
     public static void main(final String[] arguments) {
-        MonitorMain.main(new String[]{"--monitorServerAdress=http://localhost:8080","--monitorServerUser=user1","--monitorServerPassword=pass1"});
+        MonitorMain.main(new String[]{"--monitorServerAddress=http://localhost:8080","--monitorServerUser=user1","--monitorServerPassword=pass1"});
     }
 }

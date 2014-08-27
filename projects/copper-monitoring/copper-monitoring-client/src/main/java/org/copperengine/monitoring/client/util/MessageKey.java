@@ -31,6 +31,7 @@ public enum MessageKey {
     sql_title("sql.title"),
     resource_title("resource.title"),
     loadGroup_title("loadGroup.title"),
+    configuration_title("configuration.title"),
     dashboard_title("dashboard.title"),
     measurePoint_title("measurePoint.title"),
     message_title("message.title"),

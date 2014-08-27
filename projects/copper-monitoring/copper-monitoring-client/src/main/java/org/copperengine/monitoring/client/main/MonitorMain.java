@@ -46,7 +46,7 @@ public class MonitorMain extends Application {
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/org/copperengine/gui/logo/logo128.png")));
 
         ApplicationContext applicationContext = new ApplicationContext();
-        primaryStage.titleProperty().bind(new SimpleStringProperty("Copper Monitor (server: ").concat(applicationContext.serverAdressProperty().concat(")")));
+        primaryStage.titleProperty().bind(new SimpleStringProperty("Copper Monitor (server: ").concat(applicationContext.serverAddressProperty().concat(")")));
         new Button(); // Trigger loading of default stylesheet
         final Scene scene = new Scene(applicationContext.getMainPane(), 1280, 800);
 
@@ -65,12 +65,12 @@ public class MonitorMain extends Application {
 
         // "--name=value".
         Map<String, String> parameter = getParameters().getNamed();
-        String monitorServerAdress = parameter.get("monitorServerAdress");
+        String monitorServerAddress = parameter.get("monitorServerAddress");
         String monitorServerUser = parameter.get("monitorServerUser");
         String monitorServerPassword = parameter.get("monitorServerPassword");
 
-        if (!Strings.isNullOrEmpty(monitorServerAdress)) {
-            applicationContext.setHttpGuiCopperDataProvider(monitorServerAdress, monitorServerUser, monitorServerPassword);
+        if (!Strings.isNullOrEmpty(monitorServerAddress)) {
+            applicationContext.setHttpGuiCopperDataProvider(monitorServerAddress, monitorServerUser, monitorServerPassword);
         } else {
             applicationContext.createLoginForm().show();
         }

@@ -59,7 +59,7 @@ public class SqlResultController extends FilterResultControllerBase<SqlFilterMod
         assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'SqlResult.fxml'.";
         assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'SqlResult.fxml'.";
 
-        borderPane.setBottom(createTabelControlls(resultTable));
+        borderPane.setBottom(createTableControls(resultTable));
     }
 
     @Override

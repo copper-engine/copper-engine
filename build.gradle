@@ -3,7 +3,7 @@ import groovy.xml.QName
 
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '2.0'
 }
 
 
@@ -307,11 +307,11 @@ project(':projects:copper-coreengine') {
         compile project(':projects:copper-jmx-interface')
 
         // asm
-        compile 'org.ow2.asm:asm:4.1'
-        compile 'org.ow2.asm:asm-commons:4.1'
-        compile 'org.ow2.asm:asm-tree:4.1'
-        compile 'org.ow2.asm:asm-util:4.1'
-        compile 'org.ow2.asm:asm-analysis:4.1'
+        compile 'org.ow2.asm:asm:5.0.3'
+        compile 'org.ow2.asm:asm-commons:5.0.3'
+        compile 'org.ow2.asm:asm-tree:5.0.3'
+        compile 'org.ow2.asm:asm-util:5.0.3'
+        compile 'org.ow2.asm:asm-analysis:5.0.3'
     }
 
     task scriptsZip(type: Zip) {
@@ -600,7 +600,9 @@ project(':projects:copper-monitoring:copper-monitoring-core') {
     dependencies {
         compile 'org.apache.shiro:shiro-core:1.2.2'
         compile 'org.apache.shiro:shiro-spring:1.2.2'
-        compile 'com.esotericsoftware.kryo:kryo:2.21'
+        compile ('com.esotericsoftware.kryo:kryo:2.21') {
+          exclude group: 'org.ow2.asm'
+        }
         compile 'com.google.guava:guava:14.0.1'
     }
 }
