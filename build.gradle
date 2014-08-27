@@ -20,7 +20,7 @@ buildscript {
         // by providing the task 'nexusStagingRelease'.
         // See https://github.com/adaptivecomputing/plugins-gradle/tree/master/nexus-workflow
         // and http://stackoverflow.com/questions/20432907/automated-release-to-maven-central-with-gradle
-        classpath 'com.adaptc.gradle:nexus-workflow:0.5'
+        classpath 'com.adaptc.gradle:nexus-workflow:0.6'
         // the license plugin, see https://github.com/hierynomus/license-gradle-plugin
         classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.7.0'
     }
