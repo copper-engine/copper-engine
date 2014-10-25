@@ -3,7 +3,7 @@ copper-engine
 
 COPPER - the high performance Java workflow engine.
 
-COPPER is an open-source, powerful, light-weight, and easily configurable **workflow engine**. The power of COPPER is that it uses **Java** as a description language for workflows. See [copper-engine.org](http://www.copper-engine.org) for more information.
+COPPER is an open-source, powerful, light-weight, and easily configurable **workflow engine**. The power of COPPER is that it uses **Java** as a description language for workflows. The project artifacts can be found at [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.copper-engine/copper-coreengine/badge.svg)](http://maven-badges.herokuapp.com/maven-central/org.copper-engine/copper-coreengine). See [copper-engine.org](http://www.copper-engine.org) for more information.
 
 
 How to build

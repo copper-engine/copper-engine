@@ -82,7 +82,7 @@ public class LockingWorkflowTest {
         }
         engine.runBatch(wfid);
         for (WorkflowInstanceDescr<?> x : wfid) {
-            Boolean res = (Boolean) backchannel.wait(x.getId(), 10, TimeUnit.SECONDS);
+            Boolean res = (Boolean) backchannel.wait(x.getId(), 30, TimeUnit.SECONDS);
             org.junit.Assert.assertNotNull(res);
             org.junit.Assert.assertTrue(res);
         }
