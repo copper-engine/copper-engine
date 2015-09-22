@@ -44,6 +44,7 @@ configure(subprojects.findAll {
     println "configuring java module " + project.path
 
     apply plugin: 'java'
+    apply plugin: 'osgi'
     compileJava.options.encoding = 'utf-8'
     compileJava.sourceCompatibility = JavaVersion.VERSION_1_6
     compileJava.targetCompatibility = JavaVersion.VERSION_1_6
