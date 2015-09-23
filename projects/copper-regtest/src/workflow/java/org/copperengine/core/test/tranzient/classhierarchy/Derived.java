@@ -45,6 +45,12 @@ public abstract class Derived extends Base {
 
         doubleWait();
 
+        String cid = getEngine().createUUID();
+        String res = waitAndReturnString(cid);
+        if (!cid.equals(res)) {
+            throw new AssertionError("cid != res ('" + cid + "' != '" + res + "')");
+        }
+
         logger.info("setting response");
         getData().setResponse(counter);
 

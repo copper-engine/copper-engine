@@ -16,6 +16,7 @@
 package org.copperengine.examples.orchestration.adapter;
 
 import org.copperengine.core.ProcessingEngine;
+import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.examples.orchestration.data.ResetMailboxData;
 import org.copperengine.examples.orchestration.wf.ResetMailboxDef;
 import org.copperengine.orchestration.OrchestrationService;
@@ -50,7 +51,9 @@ public class OrchestrationInputAdapter implements OrchestrationService {
             ResetMailboxData data = new ResetMailboxData();
             data.setMsisdn(msisdn);
             data.setSecret(secret);
-            engine.run(wfName, data);
+            WorkflowInstanceDescr<ResetMailboxData> desc = new WorkflowInstanceDescr<ResetMailboxData>(ResetMailboxDef.NAME);
+            desc.setData(data);
+            engine.run(desc);
             logger.info("Workflow instance {} launched", wfName);
         } catch (Exception e) {
             logger.error("resetMailbox failed", e);

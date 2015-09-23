@@ -83,7 +83,8 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
             testWaitFirst();
 
             for (int i = 0; i < 5; i++) {
-                callFoo();
+                final String result = callFoo();
+                assertEquals(getData(), result);
                 assertNotNull(this.getCreationTS());
             }
 
@@ -97,7 +98,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
         }
     }
 
-    private void callFoo() throws Interrupt {
+    private String callFoo() throws Interrupt {
         String cid = getEngine().createUUID();
         mockAdapter.fooWithMultiResponse(getData(), cid, 3);
         List<Response<Object>> responseList = new ArrayList<Response<Object>>();
@@ -109,14 +110,18 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
             responseList.addAll(tmpResponses);
         }
         assertEquals(3, responseList.size());
+        String result = null;
         for (Response<Object> res : responseList) {
             logger.info(res.toString());
             assertNotNull(res);
             assertFalse(res.isTimeout());
             assertEquals(getData(), res.getResponse());
             assertNull(res.getException());
+            if (result == null)
+                result = (String) res.getResponse();
         }
         auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
+        return result;
     }
 
     private void callFooWithWaitHook() throws Interrupt {

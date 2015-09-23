@@ -90,4 +90,12 @@ public abstract class Base extends Workflow<BlockingResponseReceiver<Integer>> {
         waitForAll(cid);
         counter = ((Integer) getAndRemoveResponse(cid).getResponse()).intValue();
     }
+
+    protected String waitAndReturnString(String cid) throws Interrupt {
+        wait(WaitMode.ALL, 50, cid);
+        Response<?> r = getAndRemoveResponse(cid);
+        if (!r.isTimeout())
+            throw new AssertionError();
+        return cid;
+    }
 }
