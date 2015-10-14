@@ -40,13 +40,13 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractWorkflowRepository implements WorkflowRepository {
+public abstract class AbstractWorkflowRepository implements WorkflowRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractWorkflowRepository.class);
 
     private static final int flags = ClassReader.EXPAND_FRAMES;
 
-    void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, Map<String, ClassInfo> classInfos, File compileTargetDir) throws IOException {
+    protected void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, Map<String, ClassInfo> classInfos, File compileTargetDir) throws IOException {
         logger.info("Instrumenting classfiles");
         URLClassLoader tmpClassLoader = new URLClassLoader(new URL[] { compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
         for (Clazz clazz : clazzMap.values()) {

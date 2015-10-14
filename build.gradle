@@ -282,6 +282,20 @@ project(':projects:copper-regtest') {
     }
 }
 
+project(':projects:copper-wfrext') {
+    dependencies {
+        compile project(':projects:copper-jmx-interface')
+        compile project(':projects:copper-coreengine')
+        // compile 'org.reflections:reflections-maven:0.9.8'
+	compile 'commons-io:commons-io:2.4'
+	compile 'com.google.guava:guava:18.0'
+    
+    	testCompile 'org.slf4j:slf4j-log4j12:1.6.6'
+        testCompile 'log4j:log4j:1.2.17'
+    }
+}
+
+
 
 project(':projects:copper-spring') {
     dependencies {
@@ -306,13 +320,14 @@ project(':projects:copper-spring') {
 project(':projects:copper-coreengine') {
     dependencies {
         compile project(':projects:copper-jmx-interface')
-
+        
         // asm
         compile 'org.ow2.asm:asm:5.0.3'
         compile 'org.ow2.asm:asm-commons:5.0.3'
         compile 'org.ow2.asm:asm-tree:5.0.3'
         compile 'org.ow2.asm:asm-util:5.0.3'
         compile 'org.ow2.asm:asm-analysis:5.0.3'
+        
     }
 
     task scriptsZip(type: Zip) {
