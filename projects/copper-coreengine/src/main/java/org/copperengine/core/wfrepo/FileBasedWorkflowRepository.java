@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,6 +51,7 @@ import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.WorkflowVersion;
+import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.instrument.ClassInfo;
 import org.copperengine.core.instrument.ScottyFindInterruptableMethodsVisitor;
 import org.copperengine.core.util.FileUtil;
@@ -64,7 +66,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author austermann
  */
-public class FileBasedWorkflowRepository extends AbstractWorkflowRepository implements FileBasedWorkflowRepositoryMXBean {
+public class FileBasedWorkflowRepository extends AbstractWorkflowRepository implements WorkflowRepository, FileBasedWorkflowRepositoryMXBean {
 
     private static final class VolatileState {
         final Map<String, Class<?>> wfClassMap;
@@ -156,7 +158,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
      * workflow files. If it finds a changed file, all contained workflows are recompiled. The default is 15 seconds.
      *
      * @param checkIntervalMSec
-     *         check interval in milliseconds
+     *        check interval in milliseconds
      */
     public void setCheckIntervalMSec(int checkIntervalMSec) {
         this.checkIntervalMSec = checkIntervalMSec;
@@ -255,7 +257,6 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     public java.lang.Class<?> resolveClass(String classname) throws java.io.IOException, ClassNotFoundException {
         return Class.forName(classname, false, volatileState.classLoader);
     }
-
 
     static class ObserverThread extends Thread {
 
@@ -371,7 +372,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         Map<String, File> sourceFiles = compile(compileTargetDir, additionalSourcesDir);
         final Map<String, Clazz> clazzMap = findInterruptableMethods(compileTargetDir);
         final Map<String, ClassInfo> clazzInfoMap = new HashMap<String, ClassInfo>();
-        instrumentWorkflows(adaptedTargetDir, clazzMap, clazzInfoMap, compileTargetDir);
+        instrumentWorkflows(adaptedTargetDir, clazzMap, clazzInfoMap, new URLClassLoader(new URL[] { compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader()));
         for (Clazz clazz : clazzMap.values()) {
             File f = sourceFiles.get(clazz.classname + ".java");
             ClassInfo info = clazzInfoMap.get(clazz.classname);
@@ -442,18 +443,6 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         return data;
     }
 
-    private String createAliasName(final String alias, final WorkflowVersion version) {
-        return alias + "#" + version.format();
-    }
-
-    private void checkConstraints(Map<String, Class<?>> workflowClasses) throws CopperRuntimeException {
-        for (Class<?> c : workflowClasses.values()) {
-            if (c.getName().length() > 512) {
-                throw new CopperRuntimeException("Workflow class names are limited to 256 characters");
-            }
-        }
-    }
-
     private static void extractAdditionalSources(File additionalSourcesDir, List<String> sourceArchives) throws IOException {
         for (String _url : sourceArchives) {
             URL url = new URL(_url);
@@ -498,7 +487,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
             }
             Clazz clazz = new Clazz();
             clazz.interruptableMethods = visitor.getInterruptableMethods();
-            clazz.classfile = f;
+            clazz.classfile = f.toURI().toURL();
             clazz.classname = visitor.getClassname();
             clazz.superClassname = visitor.getSuperClassname();
             clazzMap.put(clazz.classname, clazz);

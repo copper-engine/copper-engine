@@ -286,7 +286,6 @@ project(':projects:copper-wfrext') {
     dependencies {
         compile project(':projects:copper-jmx-interface')
         compile project(':projects:copper-coreengine')
-        // compile 'org.reflections:reflections-maven:0.9.8'
 	compile 'commons-io:commons-io:2.4'
 	compile 'com.google.guava:guava:18.0'
     

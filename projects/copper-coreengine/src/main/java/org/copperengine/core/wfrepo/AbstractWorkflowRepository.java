@@ -16,9 +16,9 @@
 package org.copperengine.core.wfrepo;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -27,7 +27,8 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.copperengine.core.common.WorkflowRepository;
+import org.copperengine.core.CopperRuntimeException;
+import org.copperengine.core.WorkflowVersion;
 import org.copperengine.core.instrument.ClassInfo;
 import org.copperengine.core.instrument.ScottyClassAdapter;
 import org.copperengine.core.instrument.Transformed;
@@ -40,20 +41,19 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractWorkflowRepository implements WorkflowRepository {
+public abstract class AbstractWorkflowRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractWorkflowRepository.class);
 
     private static final int flags = ClassReader.EXPAND_FRAMES;
 
-    protected void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, Map<String, ClassInfo> classInfos, File compileTargetDir) throws IOException {
+    protected final void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, Map<String, ClassInfo> classInfos, ClassLoader tmpClassLoader) throws IOException {
         logger.info("Instrumenting classfiles");
-        URLClassLoader tmpClassLoader = new URLClassLoader(new URL[] { compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
         for (Clazz clazz : clazzMap.values()) {
             byte[] bytes;
-            FileInputStream fis = new FileInputStream(clazz.classfile);
+            InputStream is = clazz.classfile.openStream();
             try {
-                ClassReader cr2 = new ClassReader(fis);
+                ClassReader cr2 = new ClassReader(is);
                 ClassNode cn = new ClassNode();
                 cr2.accept(cn, flags);
 
@@ -94,7 +94,7 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository {
                 }
 
             } finally {
-                fis.close();
+                is.close();
             }
 
             File adaptedClassfileName = new File(adaptedTargetDir, clazz.classname + ".class");
@@ -108,7 +108,7 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository {
         }
     }
 
-    ClassLoader createClassLoader(Map<String, Class<?>> map, File adaptedTargetDir, File compileTargetDir, Map<String, Clazz> clazzMap) throws MalformedURLException, ClassNotFoundException {
+    protected final ClassLoader createClassLoader(Map<String, Class<?>> map, File adaptedTargetDir, File compileTargetDir, Map<String, Clazz> clazzMap) throws MalformedURLException, ClassNotFoundException {
         logger.info("Creating classes");
         final Map<String, Clazz> clazzMapCopy = new HashMap<String, Clazz>(clazzMap);
         URLClassLoader classLoader = new URLClassLoader(new URL[] { adaptedTargetDir.toURI().toURL(), compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader()) {
@@ -144,4 +144,15 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository {
         return classLoader;
     }
 
+    protected final void checkConstraints(Map<String, Class<?>> workflowClasses) throws CopperRuntimeException {
+        for (Class<?> c : workflowClasses.values()) {
+            if (c.getName().length() > 512) {
+                throw new CopperRuntimeException("Workflow class names are limited to 256 characters");
+            }
+        }
+    }
+
+    protected final String createAliasName(final String alias, final WorkflowVersion version) {
+        return alias + "#" + version.format();
+    }
 }

@@ -15,14 +15,14 @@
  */
 package org.copperengine.core.wfrepo;
 
-import java.io.File;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
-final class Clazz {
-    File classfile;
-    String classname;
-    String superClassname;
-    Set<String> interruptableMethods = new HashSet<String>();
-    Set<String> aggregatedInterruptableMethods = new HashSet<String>();
+public final class Clazz {
+    public URL classfile;
+    public String classname;
+    public String superClassname;
+    public Set<String> interruptableMethods = new HashSet<String>();
+    public Set<String> aggregatedInterruptableMethods = new HashSet<String>();
 }
