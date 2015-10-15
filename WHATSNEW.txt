@@ -1,3 +1,7 @@
+COPPER 3.3.0
+============
+- New feature: New WorkflowRepository - ClasspathWorkflowRepository: Very easy to use but with less features in comparison to FileBasedWorkflowRepository
+
 COPPER 3.2.2
 ============
 - New feature: Added support for OSGi metadata in build artefacts

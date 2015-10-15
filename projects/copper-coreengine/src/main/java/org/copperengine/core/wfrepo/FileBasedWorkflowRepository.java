@@ -47,16 +47,13 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
 import org.copperengine.core.CopperRuntimeException;
-import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowDescription;
-import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.WorkflowVersion;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.instrument.ClassInfo;
 import org.copperengine.core.instrument.ScottyFindInterruptableMethodsVisitor;
 import org.copperengine.core.util.FileUtil;
 import org.copperengine.management.FileBasedWorkflowRepositoryMXBean;
-import org.copperengine.management.model.WorkflowClassInfo;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,28 +64,6 @@ import org.slf4j.LoggerFactory;
  * @author austermann
  */
 public class FileBasedWorkflowRepository extends AbstractWorkflowRepository implements WorkflowRepository, FileBasedWorkflowRepositoryMXBean {
-
-    private static final class VolatileState {
-        final Map<String, Class<?>> wfClassMap;
-        final Map<String, Class<?>> wfMapLatest;
-        final Map<String, Class<?>> wfMapVersioned;
-        final Map<String, List<WorkflowVersion>> wfVersions;
-        final Map<String, String> javaSources;
-        final Map<String, ClassInfo> classInfoMap;
-        final ClassLoader classLoader;
-        final long checksum;
-
-        VolatileState(Map<String, Class<?>> wfMap, Map<String, Class<?>> wfMapVersioned, Map<String, List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum, Map<String, Class<?>> wfClassMap, Map<String, String> javaSources, Map<String, ClassInfo> classInfoMap) {
-            this.wfMapLatest = wfMap;
-            this.wfMapVersioned = wfMapVersioned;
-            this.classLoader = classLoader;
-            this.checksum = checksum;
-            this.wfVersions = wfVersions;
-            this.wfClassMap = wfClassMap;
-            this.javaSources = javaSources;
-            this.classInfoMap = classInfoMap;
-        }
-    }
 
     private static final Logger logger = LoggerFactory.getLogger(FileBasedWorkflowRepository.class);
 
@@ -213,49 +188,6 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         if (preprocessors == null)
             throw new NullPointerException();
         this.preprocessors = new ArrayList<Runnable>(preprocessors);
-    }
-
-    @Override
-    public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName) throws ClassNotFoundException {
-        return createWorkflowFactory(wfName, null);
-    }
-
-    @Override
-    public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName, final WorkflowVersion version) throws ClassNotFoundException {
-        if (wfName == null)
-            throw new NullPointerException();
-        if (stopped)
-            throw new IllegalStateException("Repo is stopped");
-
-        if (version == null) {
-            if (!volatileState.wfMapLatest.containsKey(wfName)) {
-                throw new ClassNotFoundException("Workflow " + wfName + " not found");
-            }
-            return new WorkflowFactory<E>() {
-                @SuppressWarnings("unchecked")
-                @Override
-                public Workflow<E> newInstance() throws InstantiationException, IllegalAccessException {
-                    return (Workflow<E>) volatileState.wfMapLatest.get(wfName).newInstance();
-                }
-            };
-        }
-
-        final String alias = createAliasName(wfName, version);
-        if (!volatileState.wfMapVersioned.containsKey(alias)) {
-            throw new ClassNotFoundException("Workflow " + wfName + " with version " + version + " not found");
-        }
-        return new WorkflowFactory<E>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public Workflow<E> newInstance() throws InstantiationException, IllegalAccessException {
-                return (Workflow<E>) volatileState.wfMapVersioned.get(alias).newInstance();
-            }
-        };
-    }
-
-    @Override
-    public java.lang.Class<?> resolveClass(String classname) throws java.io.IOException, ClassNotFoundException {
-        return Class.forName(classname, false, volatileState.classLoader);
     }
 
     static class ObserverThread extends Thread {
@@ -651,38 +583,6 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         sourceDirs.add(dir);
     }
 
-    @Override
-    public WorkflowVersion findLatestMajorVersion(String wfName, long majorVersion) {
-        final List<WorkflowVersion> versionsList = volatileState.wfVersions.get(wfName);
-        if (versionsList == null)
-            return null;
-
-        WorkflowVersion rv = null;
-        for (WorkflowVersion v : versionsList) {
-            if (v.getMajorVersion() > majorVersion) {
-                break;
-            }
-            rv = v;
-        }
-        return rv;
-    }
-
-    @Override
-    public WorkflowVersion findLatestMinorVersion(String wfName, long majorVersion, long minorVersion) {
-        final List<WorkflowVersion> versionsList = volatileState.wfVersions.get(wfName);
-        if (versionsList == null)
-            return null;
-
-        WorkflowVersion rv = null;
-        for (WorkflowVersion v : versionsList) {
-            if ((v.getMajorVersion() > majorVersion) || (v.getMajorVersion() == majorVersion && v.getMinorVersion() > minorVersion)) {
-                break;
-            }
-            rv = v;
-        }
-        return rv;
-    }
-
     protected ClassLoader getClassLoader() {
         return volatileState.classLoader;
     }
@@ -693,29 +593,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     @Override
-    public List<WorkflowClassInfo> getWorkflows() {
-        final List<WorkflowClassInfo> resultList = new ArrayList<WorkflowClassInfo>();
-        final VolatileState localVolatileState = volatileState;
-        for (Class<?> wfClass : localVolatileState.wfClassMap.values()) {
-            WorkflowClassInfo wfi = new WorkflowClassInfo();
-            wfi.setClassname(wfClass.getName());
-            wfi.setSourceCode(localVolatileState.javaSources.get(wfClass.getName()));
-            WorkflowDescription wfDesc = wfClass.getAnnotation(WorkflowDescription.class);
-            if (wfDesc != null) {
-                wfi.setAlias(wfDesc.alias());
-                wfi.setMajorVersion(wfDesc.majorVersion());
-                wfi.setMinorVersion(wfDesc.minorVersion());
-                wfi.setPatchLevel(wfDesc.patchLevelVersion());
-            }
-            resultList.add(wfi);
-        }
-        return resultList;
-    }
-
-    @Override
-    public ClassInfo getClassInfo(@SuppressWarnings("rawtypes") Class<? extends Workflow> wfClazz) {
-        final VolatileState localVolatileState = volatileState;
-        return localVolatileState.classInfoMap.get(wfClazz.getCanonicalName().replace(".", "/"));
+    protected VolatileState getVolatileState() {
+        return volatileState;
     }
 
 }
