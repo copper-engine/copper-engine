@@ -37,6 +37,7 @@ import org.copperengine.core.instrument.ClassInfo;
 import org.copperengine.core.instrument.ScottyFindInterruptableMethodsVisitor;
 import org.copperengine.core.wfrepo.AbstractWorkflowRepository;
 import org.copperengine.core.wfrepo.Clazz;
+import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 import org.copperengine.management.FileBasedWorkflowRepositoryMXBean;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
@@ -45,6 +46,42 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 
+/**
+ * Easy to use implementation of the {@link WorkflowRepository} interface.
+ * This workflow repository looks for its workflows in the normal classpath, just one or more package names of those
+ * packages containing the workflow classes need to be configured.
+ * <p>
+ * Compared to the {@link FileBasedWorkflowRepository} this is quite easy to use, because workflows do not need to
+ * reside in a dedicated source folder, they don't need to be deployed as java source files and no java compiler (JDK)
+ * is needed to run the application.
+ * <P>
+ * On the other hand there is no hot deployment feature and the JMX interface does not show the java source code of the
+ * deployed workflows. Anyhow, this workflow repo is probably suitable for most simple COPPER applications.
+ * <p>
+ * See {@link ClasspathWorkflowRepositoryTest#testExec()} for sample usage.
+ * <p>
+ * 
+ * <pre>
+ * {
+ *     final ClasspathWorkflowRepository wfRepo = new ClasspathWorkflowRepository(&quot;org.copperengine.core.wfrepo.testworkflows&quot;);
+ *     final TransientEngineFactory factory = new TransientEngineFactory() {
+ *         protected WorkflowRepository createWorkflowRepository() {
+ *             return wfRepo;
+ *         }
+ * 
+ *         protected File getWorkflowSourceDirectory() {
+ *             return null;
+ *         }
+ *     };
+ *     TransientScottyEngine engine = factory.create();
+ *     engine.run(&quot;org.copperengine.core.wfrepo.testworkflows.TestWorkflowThree&quot;, &quot;foo&quot;);
+ * }
+ * </pre>
+ *
+ * 
+ * @author austermann
+ *
+ */
 public class ClasspathWorkflowRepository extends AbstractWorkflowRepository implements WorkflowRepository, FileBasedWorkflowRepositoryMXBean {
 
     private static final Logger logger = LoggerFactory.getLogger(ClasspathWorkflowRepository.class);

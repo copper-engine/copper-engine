@@ -56,7 +56,7 @@ public class ClasspathWorkflowRepositoryTest {
             engine.run("org.copperengine.core.wfrepo.testworkflows.TestWorkflowThree", "foo");
             Thread.sleep(1000);
         } finally {
-            // wfRepo.shutdown();
+            wfRepo.shutdown();
         }
     }
 }
