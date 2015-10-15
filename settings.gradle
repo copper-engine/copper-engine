@@ -1,5 +1,6 @@
 include ":projects:copper-coreengine", 
 ":projects:copper-wfrext", 
+":projects:copper-cassandra",
 ":projects:copper-jmx-interface", 
 ":projects:copper-spring",
 ":projects:copper-regtest",
