@@ -22,7 +22,7 @@ public class TestWorkflowThree extends TestWorkflowTwo {
 
     private static final long serialVersionUID = 1L;
 
-    static class MyInnerClass {
+    private static class MyInnerClass {
         public void printFoo() {
             System.out.println("foo");
         }
@@ -31,6 +31,15 @@ public class TestWorkflowThree extends TestWorkflowTwo {
     @Override
     public void main() throws Interrupt {
         new MyInnerClass().printFoo();
+
+        new Runnable() {
+
+            @Override
+            public void run() {
+                System.out.println("foo");
+
+            }
+        }.run();
     }
 
 }

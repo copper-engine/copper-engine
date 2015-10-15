@@ -39,7 +39,7 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 
     private static final long serialVersionUID = 3232137844188440549L;
 
-    transient RegisterCall registerCall;
+    public transient RegisterCall registerCall; // FIXME make package private again
     transient Set<String> waitCidList;
     transient List<String> responseIdList;
     transient String rowid;

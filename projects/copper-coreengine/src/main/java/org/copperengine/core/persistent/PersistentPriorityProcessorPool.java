@@ -108,8 +108,6 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
     @Override
     public synchronized void startup() {
         super.startup();
-        if (transactionController == null)
-            throw new NullPointerException("property transactionController is null");
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
