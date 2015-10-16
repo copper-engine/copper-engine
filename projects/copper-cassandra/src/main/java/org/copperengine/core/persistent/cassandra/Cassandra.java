@@ -1,7 +1,5 @@
 package org.copperengine.core.persistent.cassandra;
 
-import java.util.Iterator;
-
 import org.copperengine.core.Response;
 
 public interface Cassandra {
@@ -12,7 +10,7 @@ public interface Cassandra {
 
     public CassandraWorkflow readCassandraWorkflow(String wfId) throws Exception;
 
-    public Iterator<CassandraWorkflow> readAllWorkflowInstances() throws Exception;
+    public void initialize(InternalStorageAccessor internalStorageAccessor) throws Exception;
 
     public void safeEarlyResponse(Response<?> r) throws Exception;
 

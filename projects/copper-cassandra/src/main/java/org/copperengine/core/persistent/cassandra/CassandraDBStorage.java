@@ -3,15 +3,18 @@ package org.copperengine.core.persistent.cassandra;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
@@ -24,18 +27,18 @@ import org.copperengine.core.persistent.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CassandraStorage implements ScottyDBStorageInterface {
+public class CassandraDBStorage implements ScottyDBStorageInterface, InternalStorageAccessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(CassandraStorage.class);
+    private static final Logger logger = LoggerFactory.getLogger(CassandraDBStorage.class);
     private static final Acknowledge.BestEffortAcknowledge ACK = new Acknowledge.BestEffortAcknowledge();
 
-    private final Map<String, Queue<String>> ppoolId2queueMap;
+    private final Map<String, Queue<QueueElement>> ppoolId2queueMap;
     private final Map<String, String> correlationId2wfIdMap;
     private final Serializer serializer;
     private final WorkflowRepository wfRepo;
     private final Cassandra cassandra;
 
-    public CassandraStorage(Serializer serializer, WorkflowRepository wfRepo, Cassandra cassandra) {
+    public CassandraDBStorage(Serializer serializer, WorkflowRepository wfRepo, Cassandra cassandra) {
         this.ppoolId2queueMap = new ConcurrentHashMap<>();
         this.correlationId2wfIdMap = new ConcurrentHashMap<>();
         this.serializer = serializer;
@@ -57,19 +60,32 @@ public class CassandraStorage implements ScottyDBStorageInterface {
 
         cassandra.safeWorkflowInstance(cw);
 
-        final Queue<String> queue = findQueue(wf.getProcessorPoolId());
-        queue.add(wf.getId());
+        final Queue<QueueElement> queue = findQueue(wf.getProcessorPoolId());
+        queue.add(new QueueElement(wf.getId(), wf.getPriority()));
 
         if (ack != null)
             ack.onSuccess();
 
     }
 
-    private Queue<String> findQueue(final String ppoolId) {
+    private Queue<QueueElement> findQueue(final String ppoolId) {
         synchronized (ppoolId2queueMap) {
-            Queue<String> queue = ppoolId2queueMap.get(ppoolId);
+            Queue<QueueElement> queue = ppoolId2queueMap.get(ppoolId);
             if (queue == null) {
-                queue = new ConcurrentLinkedQueue<String>();
+                queue = new PriorityQueue<>(new Comparator<QueueElement>() {
+                    @Override
+                    public int compare(QueueElement o1, QueueElement o2) {
+                        if (o1.prio != o2.prio) {
+                            return o1.prio - o2.prio;
+                        } else {
+                            if (o1.enqueueTS == o2.enqueueTS)
+                                return 0;
+                            if (o1.enqueueTS > o2.enqueueTS)
+                                return 1;
+                            return -1;
+                        }
+                    }
+                });
                 ppoolId2queueMap.put(ppoolId, queue);
             }
             return queue;
@@ -106,17 +122,17 @@ public class CassandraStorage implements ScottyDBStorageInterface {
 
     @Override
     public List<Workflow<?>> dequeue(String ppoolId, int max) throws Exception {
-        final Queue<String> queue = findQueue(ppoolId);
+        final Queue<QueueElement> queue = findQueue(ppoolId);
         if (queue.isEmpty())
             return Collections.emptyList();
 
         final List<Workflow<?>> wfList = new ArrayList<>(max);
         while (wfList.size() < max) {
-            final String wfId = queue.poll();
-            if (wfId == null)
+            final QueueElement element = queue.poll();
+            if (element == null)
                 break;
 
-            CassandraWorkflow cw = cassandra.readCassandraWorkflow(wfId);
+            CassandraWorkflow cw = cassandra.readCassandraWorkflow(element.wfId);
 
             Workflow<?> wf = serializer.deserializeWorkflow(cw.serializedWorkflow, wfRepo);
             wf.setId(cw.id);
@@ -154,8 +170,8 @@ public class CassandraStorage implements ScottyDBStorageInterface {
         cassandra.safeWorkflowInstance(cw);
 
         if (cw.waitMode == WaitMode.FIRST || cw.waitMode == WaitMode.ALL && cw.cid2ResponseMap.size() == 1 || cw.waitMode == WaitMode.ALL && allResponsesAvailable(cw)) {
-            Queue<String> queue = findQueue(cw.ppoolId);
-            queue.add(wfId);
+            Queue<QueueElement> queue = findQueue(cw.ppoolId);
+            queue.add(new QueueElement(cw.id, cw.prio));
         }
 
         ack.onSuccess();
@@ -187,7 +203,7 @@ public class CassandraStorage implements ScottyDBStorageInterface {
         cw.creationTS = rc.workflow.getCreationTS();
         cw.serializedWorkflow = serializer.serializeWorkflow(rc.workflow);
         cw.waitMode = rc.waitMode;
-        cw.timeout = rc.timeout;
+        cw.timeout = rc.timeout != null ? new Date(rc.timeout) : null;
         cw.ppoolId = rc.workflow.getProcessorPoolId();
         cw.cid2ResponseMap = new HashMap<String, String>();
         for (String cid : rc.correlationIds) {
@@ -204,8 +220,16 @@ public class CassandraStorage implements ScottyDBStorageInterface {
 
     @Override
     public void startup() {
-        // TODO reconstruct queues and maps
+        try {
+            cassandra.initialize(this);
+        } catch (RuntimeException e) {
+            logger.error("startup failed", e);
+            throw e;
 
+        } catch (Exception e) {
+            logger.error("startup failed", e);
+            throw new CopperRuntimeException("startup failed", e);
+        }
     }
 
     @Override
@@ -236,6 +260,16 @@ public class CassandraStorage implements ScottyDBStorageInterface {
     @Override
     public Workflow<?> read(String workflowInstanceId) throws Exception {
         throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public void enqueue(String wfId, String ppoolId, int prio) {
+        findQueue(ppoolId).add(new QueueElement(wfId, prio));
+    }
+
+    @Override
+    public void registerCorrelationId(String correlationId, String wfId) {
+        correlationId2wfIdMap.put(correlationId, wfId);
     }
 
 }

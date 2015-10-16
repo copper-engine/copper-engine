@@ -17,6 +17,7 @@
 package org.copperengine.core.persistent.cassandra;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -41,12 +42,18 @@ public class SimpleCassandraTest {
     private Backchannel backchannel = new BackchannelDefaultImpl();
 
     private PersistentScottyEngine createTestEngine() {
+        CassandraSessionManagerImpl cassandraSessionManagerImpl = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
+        cassandraSessionManagerImpl.startup();
+
         EngineIdProvider engineIdProvider = new EngineIdProviderBean("default");
         ClasspathWorkflowRepository wfRepository = new ClasspathWorkflowRepository("org.copperengine.core.persistent.cassandra.workflows");
         wfRepository.start();
 
-        CassandraStorage storage = new CassandraStorage(new StandardJavaSerializer(), wfRepository, new CassandraImpl());
+        Cassandra cassandra;
+        // cassandra = new CassandraMock();
+        cassandra = new CassandraImpl(cassandraSessionManagerImpl);
 
+        CassandraDBStorage storage = new CassandraDBStorage(new StandardJavaSerializer(), wfRepository, cassandra);
         PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, new CassandraTransactionController());
         ppool.setEmptyQueueWaitMSec(2);
         List<PersistentProcessorPool> pools = new ArrayList<PersistentProcessorPool>();

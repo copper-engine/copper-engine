@@ -18,6 +18,11 @@ public class CassandraWorkflow {
     public SerializedWorkflow serializedWorkflow;
     public Map<String, String> cid2ResponseMap;
     public WaitMode waitMode;
-    public Long timeout;
+    public Date timeout;
+
+    @Override
+    public String toString() {
+        return "CassandraWorkflow [id=" + id + ", ppoolId=" + ppoolId + ", prio=" + prio + ", creationTS=" + creationTS + ", waitMode=" + waitMode + ", timeout=" + timeout + ", cid2ResponseMap.size=" + (cid2ResponseMap != null ? cid2ResponseMap.size() : 0) + "]";
+    }
 
 }
