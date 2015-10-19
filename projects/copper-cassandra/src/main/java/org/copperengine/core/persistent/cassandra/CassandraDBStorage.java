@@ -3,7 +3,6 @@ package org.copperengine.core.persistent.cassandra;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -72,20 +71,7 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
         synchronized (ppoolId2queueMap) {
             Queue<QueueElement> queue = ppoolId2queueMap.get(ppoolId);
             if (queue == null) {
-                queue = new PriorityQueue<>(new Comparator<QueueElement>() {
-                    @Override
-                    public int compare(QueueElement o1, QueueElement o2) {
-                        if (o1.prio != o2.prio) {
-                            return o1.prio - o2.prio;
-                        } else {
-                            if (o1.enqueueTS == o2.enqueueTS)
-                                return 0;
-                            if (o1.enqueueTS > o2.enqueueTS)
-                                return 1;
-                            return -1;
-                        }
-                    }
-                });
+                queue = new PriorityQueue<QueueElement>(100, new QueueElementComparator());
                 ppoolId2queueMap.put(ppoolId, queue);
             }
             return queue;

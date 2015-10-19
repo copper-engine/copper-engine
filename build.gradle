@@ -46,11 +46,11 @@ configure(subprojects.findAll {
     apply plugin: 'java'
     apply plugin: 'osgi'
     compileJava.options.encoding = 'utf-8'
-    compileJava.sourceCompatibility = JavaVersion.VERSION_1_6
-    compileJava.targetCompatibility = JavaVersion.VERSION_1_6
+    compileJava.sourceCompatibility = JavaVersion.VERSION_1_7
+    compileJava.targetCompatibility = JavaVersion.VERSION_1_7
     compileTestJava.options.encoding = 'utf-8'
-    compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_6
-    compileTestJava.targetCompatibility = JavaVersion.VERSION_1_6
+    compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_7
+    compileTestJava.targetCompatibility = JavaVersion.VERSION_1_7
 
     apply plugin: 'findbugs'
     findbugs {

@@ -33,9 +33,8 @@ import org.copperengine.core.persistent.StandardJavaSerializer;
 import org.copperengine.core.util.Backchannel;
 import org.copperengine.core.util.BackchannelDefaultImpl;
 import org.copperengine.core.util.PojoDependencyInjector;
+import org.copperengine.ext.wfrepo.classpath.ClasspathWorkflowRepository;
 import org.junit.Test;
-
-import de.scoopgmbh.copper.wfrepo.classpath.ClasspathWorkflowRepository;
 
 public class SimpleCassandraTest {
 

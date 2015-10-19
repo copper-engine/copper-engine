@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package org.copperengine.core.wfrepo.testworkflows;
+package org.copperengine.ext.wfrepo.classpath.testworkflows;
 
-import org.copperengine.core.Interrupt;
+import org.copperengine.core.Workflow;
 
-public class TestWorkflowTwo extends TestWorkflowOne {
+public abstract class TestWorkflowOne extends Workflow<String> {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public void main() throws Interrupt {
-    }
 
 }
