@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.scoopgmbh.copper.wfrepo.classpath;
+package org.copperengine.ext.wfrepo.classpath;
 
 import java.io.File;
 import java.util.Collections;
@@ -28,13 +28,13 @@ import org.junit.Test;
 
 public class ClasspathWorkflowRepositoryTest {
 
-    private static final String TESTWORKFLOWS_PACKAGE = "org.copperengine.core.wfrepo.testworkflows";
+    private static final String TESTWORKFLOWS_PACKAGE = "org.copperengine.ext.wfrepo.classpath.testworkflows";
 
     @Test
     public void testFindWorkflowClasses() throws Exception {
         Set<Class<?>> set = ClasspathWorkflowRepository.findWorkflowClasses(Collections.singletonList(TESTWORKFLOWS_PACKAGE), Thread.currentThread().getContextClassLoader());
-        Assert.assertEquals(4, set.size());
-        Assert.assertNotNull(set.contains(Class.forName("org.copperengine.core.wfrepo.testworkflows.TestWorkflowThree")));
+        Assert.assertEquals(5, set.size());
+        Assert.assertNotNull(set.contains(Class.forName("org.copperengine.ext.wfrepo.classpath.testworkflows.TestWorkflowThree")));
     }
 
     @Test
@@ -53,7 +53,7 @@ public class ClasspathWorkflowRepositoryTest {
                 }
             };
             TransientScottyEngine engine = factory.create();
-            engine.run("org.copperengine.core.wfrepo.testworkflows.TestWorkflowThree", "foo");
+            engine.run("org.copperengine.ext.wfrepo.classpath.testworkflows.TestWorkflowThree", "foo");
             Thread.sleep(1000);
         } finally {
             wfRepo.shutdown();

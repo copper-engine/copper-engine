@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package org.copperengine.core.wfrepo.testworkflows;
+package org.copperengine.ext.wfrepo.classpath.testworkflows;
 
 import org.copperengine.core.Interrupt;
 
-public class TestWorkflowThree extends TestWorkflowTwo {
+public class TestWorkflowTwo extends TestWorkflowOne {
 
     private static final long serialVersionUID = 1L;
 
-    static class MyInnerClass {
-        public void printFoo() {
-            System.out.println("foo");
-        }
-    }
-
     @Override
     public void main() throws Interrupt {
-        new MyInnerClass().printFoo();
     }
 
 }

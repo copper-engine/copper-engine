@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.scoopgmbh.copper.wfrepo.classpath;
+package org.copperengine.ext.wfrepo.classpath;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +63,7 @@ import com.google.common.reflect.ClassPath;
  * 
  * <pre>
  * {
- *     final ClasspathWorkflowRepository wfRepo = new ClasspathWorkflowRepository(&quot;org.copperengine.core.wfrepo.testworkflows&quot;);
+ *     final ClasspathWorkflowRepository wfRepo = new ClasspathWorkflowRepository(&quot;org.copperengine.ext.wfrepo.classpath.testworkflows&quot;);
  *     final TransientEngineFactory factory = new TransientEngineFactory() {
  *         protected WorkflowRepository createWorkflowRepository() {
  *             return wfRepo;
@@ -74,7 +74,7 @@ import com.google.common.reflect.ClassPath;
  *         }
  *     };
  *     TransientScottyEngine engine = factory.create();
- *     engine.run(&quot;org.copperengine.core.wfrepo.testworkflows.TestWorkflowThree&quot;, &quot;foo&quot;);
+ *     engine.run(&quot;org.copperengine.ext.wfrepo.classpath.testworkflows.TestWorkflowThree&quot;, &quot;foo&quot;);
  * }
  * </pre>
  *
@@ -192,9 +192,23 @@ public class ClasspathWorkflowRepository extends AbstractWorkflowRepository impl
                 final Class<?> c = cl.loadClass(ci.getName());
                 set.add(c);
                 set.addAll(Arrays.asList(c.getDeclaredClasses()));
+                loadAnonymousInnerClasses(cl, set, c);
             }
         }
         return set;
+    }
+
+    private static void loadAnonymousInnerClasses(final ClassLoader cl, final Set<Class<?>> set, final Class<?> c) {
+        // TODO Austermann, 19.10.2015 - find a better way to load the anonymous inner classes - this is just a work
+        // arround
+        try {
+            for (int i = 1; i < Integer.MAX_VALUE; i++) {
+                final String anonymousInnerclassName = c.getName() + "$" + i;
+                set.add(cl.loadClass(anonymousInnerclassName));
+            }
+        } catch (ClassNotFoundException e) {
+            // ignore
+        }
     }
 
     private Map<String, Clazz> findInterruptableMethods(final Set<Class<?>> wfSet, ClassLoader cl) throws IOException {
