@@ -3,6 +3,7 @@ package org.copperengine.core.persistent.cassandra;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
 
 public class CassandraMock implements Cassandra {
@@ -43,6 +44,11 @@ public class CassandraMock implements Cassandra {
     @Override
     public void initialize(InternalStorageAccessor internalStorageAccessor) throws Exception {
 
+    }
+
+    @Override
+    public void updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception {
+        map.get(wfId).state = state;
     }
 
 }

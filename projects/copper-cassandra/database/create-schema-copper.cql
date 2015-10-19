@@ -1,5 +1,6 @@
 CREATE TABLE COP_WORKFLOW_INSTANCE  (
     ID varchar,
+    STATE varchar,
     PPOOL_ID varchar,
     PRIO int,
     CREATION_TS timestamp,

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.NullArgumentException;
+import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.SerializedWorkflow;
@@ -20,11 +21,14 @@ public class CassandraImpl implements Cassandra {
 
     private static final Logger logger = LoggerFactory.getLogger(CassandraImpl.class);
 
-    private static final String CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING = "UPDATE COP_WORKFLOW_INSTANCE SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=? WHERE ID=?";
-    private static final String CQL_UPD_WORKFLOW_INSTANCE_WAITING = "UPDATE COP_WORKFLOW_INSTANCE SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, WAIT_MODE=?, TIMEOUT=?, RESPONSE_MAP_JSON=? WHERE ID=?";
-    private static final String CQL_DEL_WORKFLOW_INSTANCE_WAITING = "DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?";
-    private static final String CQL_SEL_WORKFLOW_INSTANCE_WAITING = "SELECT * FROM COP_WORKFLOW_INSTANCE WHERE ID=?";
-    private static final String CQL_SEL_ALL_WORKFLOW_INSTANCES = "SELECT ID, PPOOL_ID, PRIO, WAIT_MODE, RESPONSE_MAP_JSON FROM COP_WORKFLOW_INSTANCE";
+    private static final String TABLE_PLACEHOLDER = "<table>";
+    private static final String DEFAULT_TABLE_NAME = "COP_WORKFLOW_INSTANCE";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING = "UPDATE <table> SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, STATE=? WHERE ID=?";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_WAITING = "UPDATE <table> SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, WAIT_MODE=?, TIMEOUT=?, RESPONSE_MAP_JSON=?, STATE=? WHERE ID=?";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE = "UPDATE <table> SET STATE=? WHERE ID=?";
+    private static final String CQL_DEL_WORKFLOW_INSTANCE_WAITING = "DELETE FROM <table> WHERE ID=?";
+    private static final String CQL_SEL_WORKFLOW_INSTANCE_WAITING = "SELECT * FROM <table> WHERE ID=?";
+    private static final String CQL_SEL_ALL_WORKFLOW_INSTANCES = "SELECT ID, PPOOL_ID, PRIO, WAIT_MODE, RESPONSE_MAP_JSON, STATE FROM <table>";
 
     private final Session session;
     private final Map<String, PreparedStatement> preparedStatements = new HashMap<>();
@@ -39,11 +43,13 @@ public class CassandraImpl implements Cassandra {
         prepare(CQL_DEL_WORKFLOW_INSTANCE_WAITING);
         prepare(CQL_SEL_WORKFLOW_INSTANCE_WAITING);
         prepare(CQL_SEL_ALL_WORKFLOW_INSTANCES);
+        prepare(CQL_UPD_WORKFLOW_INSTANCE_STATE);
     }
 
     private void prepare(String cql) {
-        logger.info("Preparing cql stmt {}", cql);
-        preparedStatements.put(cql, session.prepare(cql));
+        String replaced = cql.replace(TABLE_PLACEHOLDER, DEFAULT_TABLE_NAME);
+        logger.info("Preparing cql stmt {}", replaced);
+        preparedStatements.put(cql, session.prepare(replaced));
     }
 
     @Override
@@ -51,12 +57,12 @@ public class CassandraImpl implements Cassandra {
         logger.debug("safeWorkflow({})", cw);
         if (cw.cid2ResponseMap == null || cw.cid2ResponseMap.isEmpty()) {
             final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
-            session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.id));
+            session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.state.name(), cw.id));
         }
         else {
             final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
             final String responseMapJson = jsonMapper.toJSON(cw.cid2ResponseMap);
-            session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.waitMode.name(), cw.timeout, responseMapJson, cw.id));
+            session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.waitMode.name(), cw.timeout, responseMapJson, cw.state.name(), cw.id));
         }
     }
 
@@ -88,6 +94,7 @@ public class CassandraImpl implements Cassandra {
         cw.serializedWorkflow.setData(row.getString("DATA"));
         cw.serializedWorkflow.setObjectState(row.getString("OBJECT_STATE"));
         cw.cid2ResponseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
+        cw.state = ProcessingState.valueOf(row.getString("STATE"));
         return cw;
     }
 
@@ -119,6 +126,10 @@ public class CassandraImpl implements Cassandra {
             final int prio = row.getInt("PRIO");
             final WaitMode waitMode = toWaitMode(row.getString("WAIT_MODE"));
             final Map<String, String> responseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
+            final ProcessingState state = ProcessingState.valueOf(row.getString("STATE"));
+            if (state == ProcessingState.ERROR)
+                continue;
+
             if (waitMode == null) {
                 internalStorageAccessor.enqueue(wfId, ppoolId, prio);
             }
@@ -147,4 +158,9 @@ public class CassandraImpl implements Cassandra {
         return v == null ? null : WaitMode.valueOf(v);
     }
 
+    @Override
+    public void updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception {
+        logger.debug("updateWorkflowInstanceState({}, {})", wfId, state);
+        session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE).bind(wfId, state.name()));
+    }
 }

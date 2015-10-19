@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.DuplicateIdException;
+import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
@@ -56,6 +57,7 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
         cw.ppoolId = wf.getProcessorPoolId();
         cw.prio = wf.getPriority();
         cw.creationTS = wf.getCreationTS();
+        cw.state = ProcessingState.ENQUEUED;
 
         cassandra.safeWorkflowInstance(cw);
 
@@ -68,19 +70,25 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
     }
 
     private Queue<QueueElement> findQueue(final String ppoolId) {
+        Queue<QueueElement> queue = ppoolId2queueMap.get(ppoolId);
+        if (queue != null)
+            return queue;
         synchronized (ppoolId2queueMap) {
-            Queue<QueueElement> queue = ppoolId2queueMap.get(ppoolId);
-            if (queue == null) {
-                queue = new PriorityQueue<QueueElement>(100, new QueueElementComparator());
-                ppoolId2queueMap.put(ppoolId, queue);
-            }
+            queue = ppoolId2queueMap.get(ppoolId);
+            if (queue != null)
+                return queue;
+            queue = new PriorityQueue<QueueElement>(100, new QueueElementComparator());
+            ppoolId2queueMap.put(ppoolId, queue);
             return queue;
         }
     }
 
     @Override
     public void insert(List<Workflow<?>> wfs, Acknowledge ack) throws DuplicateIdException, Exception {
-        throw new UnsupportedOperationException();
+        for (Workflow<?> wf : wfs) {
+            insert(wf, ACK);
+        }
+        ack.onSuccess();
     }
 
     @Override
@@ -90,7 +98,9 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
 
     @Override
     public void insert(List<Workflow<?>> wfs, Connection con) throws DuplicateIdException, Exception {
-        throw new UnsupportedOperationException();
+        for (Workflow<?> wf : wfs) {
+            insert(wf, ACK);
+        }
     }
 
     @Override
@@ -118,26 +128,34 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
             if (element == null)
                 break;
 
-            CassandraWorkflow cw = cassandra.readCassandraWorkflow(element.wfId);
+            // TODO remove all correlationIds for this wfId from correlationId2wfIdMap
 
-            Workflow<?> wf = serializer.deserializeWorkflow(cw.serializedWorkflow, wfRepo);
-            wf.setId(cw.id);
-            wf.setProcessorPoolId(cw.ppoolId);
-            wf.setPriority(cw.prio);
-            WorkflowAccessor.setCreationTS(wf, cw.creationTS);
-
-            if (cw.cid2ResponseMap != null) {
-                for (Entry<String, String> e : cw.cid2ResponseMap.entrySet()) {
-                    if (e.getValue() != null) {
-                        Response<?> r = serializer.deserializeResponse(e.getValue());
-                        wf.putResponse(r);
-                    }
-                }
-            }
-
+            final CassandraWorkflow cw = cassandra.readCassandraWorkflow(element.wfId);
+            final Workflow<?> wf = convert2workflow(cw);
             wfList.add(wf);
         }
         return wfList;
+    }
+
+    private Workflow<?> convert2workflow(CassandraWorkflow cw) throws Exception {
+        if (cw == null)
+            return null;
+
+        Workflow<?> wf = serializer.deserializeWorkflow(cw.serializedWorkflow, wfRepo);
+        wf.setId(cw.id);
+        wf.setProcessorPoolId(cw.ppoolId);
+        wf.setPriority(cw.prio);
+        WorkflowAccessor.setCreationTS(wf, cw.creationTS);
+
+        if (cw.cid2ResponseMap != null) {
+            for (Entry<String, String> e : cw.cid2ResponseMap.entrySet()) {
+                if (e.getValue() != null) {
+                    Response<?> r = serializer.deserializeResponse(e.getValue());
+                    wf.putResponse(r);
+                }
+            }
+        }
+        return wf;
     }
 
     @Override
@@ -153,9 +171,14 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
         if (cw.cid2ResponseMap.containsKey(cid)) {
             cw.cid2ResponseMap.put(cid, serializer.serializeResponse(response));
         }
+        final boolean enqueue = (cw.waitMode == WaitMode.FIRST || cw.waitMode == WaitMode.ALL && cw.cid2ResponseMap.size() == 1 || cw.waitMode == WaitMode.ALL && allResponsesAvailable(cw));
+
+        if (enqueue) {
+            cw.state = ProcessingState.ENQUEUED;
+        }
         cassandra.safeWorkflowInstance(cw);
 
-        if (cw.waitMode == WaitMode.FIRST || cw.waitMode == WaitMode.ALL && cw.cid2ResponseMap.size() == 1 || cw.waitMode == WaitMode.ALL && allResponsesAvailable(cw)) {
+        if (enqueue) {
             Queue<QueueElement> queue = findQueue(cw.ppoolId);
             queue.add(new QueueElement(cw.id, cw.prio));
         }
@@ -172,19 +195,25 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
     }
 
     @Override
-    public void notify(List<Response<?>> response, Acknowledge ack) throws Exception {
-        throw new UnsupportedOperationException(); // TODO
+    public void notify(List<Response<?>> responses, Acknowledge ack) throws Exception {
+        for (Response<?> r : responses) {
+            notify(r, ACK);
+        }
+        ack.onSuccess();
     }
 
     @Override
     public void notify(List<Response<?>> responses, Connection c) throws Exception {
-        throw new UnsupportedOperationException(); // TODO
+        for (Response<?> r : responses) {
+            notify(r, ACK);
+        }
     }
 
     @Override
     public void registerCallback(RegisterCall rc, Acknowledge callback) throws Exception {
         CassandraWorkflow cw = new CassandraWorkflow();
         cw.id = rc.workflow.getId();
+        cw.state = ProcessingState.WAITING;
         cw.prio = rc.workflow.getPriority();
         cw.creationTS = rc.workflow.getCreationTS();
         cw.serializedWorkflow = serializer.serializeWorkflow(rc.workflow);
@@ -201,6 +230,9 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
         for (String cid : rc.correlationIds) {
             correlationId2wfIdMap.put(cid, rc.workflow.getId());
         }
+
+        // TODO check for early responses
+
         callback.onSuccess();
     }
 
@@ -225,27 +257,40 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
 
     @Override
     public void error(Workflow<?> w, Throwable t, Acknowledge callback) {
-        finish(w, callback); // TODO
+        try {
+            cassandra.updateWorkflowInstanceState(w.getId(), ProcessingState.ERROR);
+            if (callback != null)
+                callback.onSuccess();
+        } catch (Exception e) {
+            logger.error("error failed", e);
+            if (callback != null)
+                callback.onException(e);
+        }
     }
 
     @Override
     public void restart(String workflowInstanceId) throws Exception {
-        throw new UnsupportedOperationException(); // TODO
+        CassandraWorkflow cw = cassandra.readCassandraWorkflow(workflowInstanceId);
+        if (cw == null)
+            throw new CopperRuntimeException("No workflow found with id " + workflowInstanceId);
+        if (cw.state != ProcessingState.ERROR)
+            throw new CopperRuntimeException("Workflow found with id " + workflowInstanceId + " is not in state ERROR");
+        enqueue(cw.id, cw.ppoolId, cw.prio);
     }
 
     @Override
     public void setRemoveWhenFinished(boolean removeWhenFinished) {
-        throw new UnsupportedOperationException(); // TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void restartAll() throws Exception {
-        throw new UnsupportedOperationException(); // TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Workflow<?> read(String workflowInstanceId) throws Exception {
-        throw new UnsupportedOperationException(); // TODO
+        return convert2workflow(cassandra.readCassandraWorkflow(workflowInstanceId));
     }
 
     @Override
