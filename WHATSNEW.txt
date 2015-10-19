@@ -1,6 +1,7 @@
 COPPER 3.3.0
 ============
 - New feature: New WorkflowRepository - ClasspathWorkflowRepository: Very easy to use but with less features in comparison to FileBasedWorkflowRepository
+- Maintenance: Now using ASM 5.0.4
 
 COPPER 3.2.2
 ============
