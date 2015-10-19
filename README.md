@@ -37,7 +37,7 @@ How to contribute
    * Ensure, that your sources are UTF-8 encoded!
    * Ensure, that your sources start with our [Apache License header](common/apache-license-file.txt). (The build will fail if they don't.)
 6. Build all and run tests:
-       ./gradlew build
+       ./gradlew clean build
 7. Push your changes to your fork.
 8. Create a pull request on GtHub.
 
