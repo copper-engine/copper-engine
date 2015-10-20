@@ -1,4 +1,4 @@
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.hybrid;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -30,9 +30,9 @@ import org.copperengine.core.util.Blocker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CassandraDBStorage implements ScottyDBStorageInterface, InternalStorageAccessor {
+public class HybridDBStorage implements ScottyDBStorageInterface {
 
-    private static final Logger logger = LoggerFactory.getLogger(CassandraDBStorage.class);
+    private static final Logger logger = LoggerFactory.getLogger(HybridDBStorage.class);
     private static final Acknowledge.BestEffortAcknowledge ACK = new Acknowledge.BestEffortAcknowledge();
 
     private Blocker startupBlocker = new Blocker(true);
@@ -40,12 +40,12 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
     private final CorrelationIdMap correlationIdMap = new CorrelationIdMap();
     private final Serializer serializer;
     private final WorkflowRepository wfRepo;
-    private final Cassandra cassandra;
+    private final Storage cassandra;
     private final Object[] mutexArray = new Object[2003];
     private final Set<String> currentlyProcessingEarlyResponses = new HashSet<>();
     private boolean started = false;
 
-    public CassandraDBStorage(Serializer serializer, WorkflowRepository wfRepo, Cassandra cassandra) {
+    public HybridDBStorage(Serializer serializer, WorkflowRepository wfRepo, Storage cassandra) {
         this.ppoolId2queueMap = new ConcurrentHashMap<>();
         this.serializer = serializer;
         this.wfRepo = wfRepo;
@@ -62,7 +62,7 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
 
         startupBlocker.pass();
 
-        CassandraWorkflow cw = new CassandraWorkflow();
+        WorkflowInstance cw = new WorkflowInstance();
         cw.id = wf.getId();
         cw.serializedWorkflow = serializer.serializeWorkflow(wf);
         cw.ppoolId = wf.getProcessorPoolId();
@@ -149,7 +149,7 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
             synchronized (findMutex(element.wfId)) {
                 correlationIdMap.removeAll4Workflow(element.wfId);
                 try {
-                    final CassandraWorkflow cw = cassandra.readCassandraWorkflow(element.wfId);
+                    final WorkflowInstance cw = cassandra.readCassandraWorkflow(element.wfId);
                     final Workflow<?> wf = convert2workflow(cw);
                     wfList.add(wf);
                 } catch (Exception e) {
@@ -162,7 +162,7 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
         return wfList;
     }
 
-    private Workflow<?> convert2workflow(CassandraWorkflow cw) throws Exception {
+    private Workflow<?> convert2workflow(WorkflowInstance cw) throws Exception {
         if (cw == null)
             return null;
 
@@ -189,7 +189,7 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
 
         startupBlocker.pass();
 
-        CassandraWorkflow cw = new CassandraWorkflow();
+        WorkflowInstance cw = new WorkflowInstance();
         cw.id = rc.workflow.getId();
         cw.state = ProcessingState.WAITING;
         cw.prio = rc.workflow.getPriority();
@@ -253,7 +253,7 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
                 // check if this workflow instance has just been dequeued - in this case we do not find the
                 // correlationId any more...
                 if (correlationIdMap.getWorkflowId(cid) != null) {
-                    CassandraWorkflow cw = cassandra.readCassandraWorkflow(wfId);
+                    WorkflowInstance cw = cassandra.readCassandraWorkflow(wfId);
                     if (cw.cid2ResponseMap.containsKey(cid)) {
                         cw.cid2ResponseMap.put(cid, serializer.serializeResponse(response));
                     }
@@ -294,7 +294,7 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
         ack.onSuccess();
     }
 
-    private boolean allResponsesAvailable(CassandraWorkflow cw) {
+    private boolean allResponsesAvailable(WorkflowInstance cw) {
         for (Entry<String, String> e : cw.cid2ResponseMap.entrySet()) {
             if (e.getValue() == null)
                 return false;
@@ -324,7 +324,17 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
 
         logger.info("Starting up...");
         try {
-            cassandra.initialize(this);
+            cassandra.initialize(new HybridDBStorageAccessor() {
+                @Override
+                public void registerCorrelationId(String correlationId, String wfId) {
+                    this.registerCorrelationId(correlationId, wfId);
+                }
+
+                @Override
+                public void enqueue(String wfId, String ppoolId, int prio) {
+                    this.enqueue(wfId, ppoolId, prio);
+                }
+            });
         } catch (RuntimeException e) {
             logger.error("startup failed", e);
             throw e;
@@ -364,7 +374,7 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
     public void restart(String workflowInstanceId) throws Exception {
         startupBlocker.pass();
 
-        CassandraWorkflow cw = cassandra.readCassandraWorkflow(workflowInstanceId);
+        WorkflowInstance cw = cassandra.readCassandraWorkflow(workflowInstanceId);
         if (cw == null)
             throw new CopperRuntimeException("No workflow found with id " + workflowInstanceId);
         if (cw.state != ProcessingState.ERROR)
@@ -387,13 +397,11 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
         return convert2workflow(cassandra.readCassandraWorkflow(workflowInstanceId));
     }
 
-    @Override
-    public void enqueue(String wfId, String ppoolId, int prio) {
+    private void enqueue(String wfId, String ppoolId, int prio) {
         findQueue(ppoolId).add(new QueueElement(wfId, prio));
     }
 
-    @Override
-    public void registerCorrelationId(String correlationId, String wfId) {
+    private void registerCorrelationId(String correlationId, String wfId) {
         correlationIdMap.addCorrelationId(wfId, correlationId);
     }
 

@@ -4,13 +4,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.copperengine.core.ProcessingState;
+import org.copperengine.core.persistent.hybrid.Storage;
+import org.copperengine.core.persistent.hybrid.WorkflowInstance;
+import org.copperengine.core.persistent.hybrid.HybridDBStorageAccessor;
 
-public class CassandraMock implements Cassandra {
+public class CassandraMock implements Storage {
 
-    private Map<String, CassandraWorkflow> map = new ConcurrentHashMap<String, CassandraWorkflow>();
+    private Map<String, WorkflowInstance> map = new ConcurrentHashMap<String, WorkflowInstance>();
 
     @Override
-    public void safeWorkflowInstance(CassandraWorkflow cw) throws Exception {
+    public void safeWorkflowInstance(WorkflowInstance cw) throws Exception {
         map.put(cw.id, cw);
     }
 
@@ -20,12 +23,12 @@ public class CassandraMock implements Cassandra {
     }
 
     @Override
-    public CassandraWorkflow readCassandraWorkflow(String wfId) throws Exception {
+    public WorkflowInstance readCassandraWorkflow(String wfId) throws Exception {
         return map.get(wfId);
     }
 
     @Override
-    public void initialize(InternalStorageAccessor internalStorageAccessor) throws Exception {
+    public void initialize(HybridDBStorageAccessor internalStorageAccessor) throws Exception {
 
     }
 

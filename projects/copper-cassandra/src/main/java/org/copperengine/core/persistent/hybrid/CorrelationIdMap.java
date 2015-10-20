@@ -1,11 +1,11 @@
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.hybrid;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CorrelationIdMap {
+class CorrelationIdMap {
 
     private final Object mutex = new Object();
     private final Map<String, String> correlationId2wfIdMap = new HashMap<>();

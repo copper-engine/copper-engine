@@ -1,4 +1,4 @@
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.hybrid;
 
 import java.util.Date;
 import java.util.Map;
@@ -7,9 +7,9 @@ import org.copperengine.core.ProcessingState;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.SerializedWorkflow;
 
-public class CassandraWorkflow {
+public class WorkflowInstance {
 
-    public CassandraWorkflow() {
+    public WorkflowInstance() {
     }
 
     public String id;
@@ -24,7 +24,7 @@ public class CassandraWorkflow {
 
     @Override
     public String toString() {
-        return "CassandraWorkflow [id=" + id + ", state=" + state + ", ppoolId=" + ppoolId + ", prio=" + prio + ", creationTS=" + creationTS + ", waitMode=" + waitMode + ", timeout=" + timeout + ", cid2ResponseMap.size=" + (cid2ResponseMap != null ? cid2ResponseMap.size() : 0) + "]";
+        return "WorkflowInstance [id=" + id + ", state=" + state + ", ppoolId=" + ppoolId + ", prio=" + prio + ", creationTS=" + creationTS + ", waitMode=" + waitMode + ", timeout=" + timeout + ", cid2ResponseMap.size=" + (cid2ResponseMap != null ? cid2ResponseMap.size() : 0) + "]";
     }
 
 }

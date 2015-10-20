@@ -30,6 +30,9 @@ import org.copperengine.core.persistent.PersistentPriorityProcessorPool;
 import org.copperengine.core.persistent.PersistentProcessorPool;
 import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.persistent.StandardJavaSerializer;
+import org.copperengine.core.persistent.hybrid.HybridDBStorage;
+import org.copperengine.core.persistent.hybrid.HybridTransactionController;
+import org.copperengine.core.persistent.hybrid.Storage;
 import org.copperengine.core.util.Backchannel;
 import org.copperengine.core.util.BackchannelDefaultImpl;
 import org.copperengine.core.util.PojoDependencyInjector;
@@ -48,12 +51,12 @@ public class SimpleCassandraTest {
         ClasspathWorkflowRepository wfRepository = new ClasspathWorkflowRepository("org.copperengine.core.persistent.cassandra.workflows");
         wfRepository.start();
 
-        Cassandra cassandra;
+        Storage cassandra;
         // cassandra = new CassandraMock();
-        cassandra = new CassandraImpl(cassandraSessionManagerImpl);
+        cassandra = new CassandraStorage(cassandraSessionManagerImpl);
 
-        CassandraDBStorage storage = new CassandraDBStorage(new StandardJavaSerializer(), wfRepository, cassandra);
-        PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, new CassandraTransactionController());
+        HybridDBStorage storage = new HybridDBStorage(new StandardJavaSerializer(), wfRepository, cassandra);
+        PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, new HybridTransactionController());
         ppool.setEmptyQueueWaitMSec(2);
         List<PersistentProcessorPool> pools = new ArrayList<PersistentProcessorPool>();
         pools.add(ppool);

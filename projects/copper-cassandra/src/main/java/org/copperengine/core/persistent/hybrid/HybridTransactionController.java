@@ -1,10 +1,10 @@
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.hybrid;
 
 import org.copperengine.core.persistent.txn.DatabaseTransaction;
 import org.copperengine.core.persistent.txn.Transaction;
 import org.copperengine.core.persistent.txn.TransactionController;
 
-public class CassandraTransactionController implements TransactionController {
+public class HybridTransactionController implements TransactionController {
 
     @Override
     public <T> T run(DatabaseTransaction<T> txn) throws Exception {

@@ -1,16 +1,16 @@
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.hybrid;
 
 import org.copperengine.core.ProcessingState;
 
-public interface Cassandra {
+public interface Storage {
 
-    public void safeWorkflowInstance(CassandraWorkflow cw) throws Exception;
+    public void safeWorkflowInstance(WorkflowInstance cw) throws Exception;
 
     public void deleteWorkflowInstance(String wfId) throws Exception;
 
-    public CassandraWorkflow readCassandraWorkflow(String wfId) throws Exception;
+    public WorkflowInstance readCassandraWorkflow(String wfId) throws Exception;
 
-    public void initialize(InternalStorageAccessor internalStorageAccessor) throws Exception;
+    public void initialize(HybridDBStorageAccessor internalStorageAccessor) throws Exception;
 
     public void safeEarlyResponse(String correlationId, String serializedResponse) throws Exception;
 

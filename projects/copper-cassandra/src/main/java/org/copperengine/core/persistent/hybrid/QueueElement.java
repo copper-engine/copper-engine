@@ -1,4 +1,4 @@
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.hybrid;
 
 class QueueElement {
 

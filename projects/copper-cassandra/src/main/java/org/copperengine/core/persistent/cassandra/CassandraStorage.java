@@ -10,6 +10,9 @@ import org.apache.commons.lang.NullArgumentException;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.SerializedWorkflow;
+import org.copperengine.core.persistent.hybrid.HybridDBStorageAccessor;
+import org.copperengine.core.persistent.hybrid.Storage;
+import org.copperengine.core.persistent.hybrid.WorkflowInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +22,9 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 
-public class CassandraImpl implements Cassandra {
+public class CassandraStorage implements Storage {
 
-    private static final Logger logger = LoggerFactory.getLogger(CassandraImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(CassandraStorage.class);
 
     private static final String TABLE_PLACEHOLDER = "<table>";
     private static final String DEFAULT_TABLE_NAME = "COP_WORKFLOW_INSTANCE";
@@ -43,11 +46,11 @@ public class CassandraImpl implements Cassandra {
     private int ttlEarlyResponseSeconds = 1 * 24 * 60 * 60; // one day
     private final ConsistencyLevel consistencyLevel;
 
-    public CassandraImpl(final CassandraSessionManager sessionManager) {
+    public CassandraStorage(final CassandraSessionManager sessionManager) {
         this(sessionManager, ConsistencyLevel.LOCAL_QUORUM);
     }
 
-    public CassandraImpl(final CassandraSessionManager sessionManager, ConsistencyLevel consistencyLevel) {
+    public CassandraStorage(final CassandraSessionManager sessionManager, ConsistencyLevel consistencyLevel) {
         if (sessionManager == null)
             throw new NullArgumentException("sessionManager");
 
@@ -75,7 +78,7 @@ public class CassandraImpl implements Cassandra {
     }
 
     @Override
-    public void safeWorkflowInstance(final CassandraWorkflow cw) throws Exception {
+    public void safeWorkflowInstance(final WorkflowInstance cw) throws Exception {
         logger.debug("safeWorkflow({})", cw);
         if (cw.cid2ResponseMap == null || cw.cid2ResponseMap.isEmpty()) {
             final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
@@ -96,7 +99,7 @@ public class CassandraImpl implements Cassandra {
     }
 
     @Override
-    public CassandraWorkflow readCassandraWorkflow(String wfId) throws Exception {
+    public WorkflowInstance readCassandraWorkflow(String wfId) throws Exception {
         logger.debug("readCassandraWorkflow({})", wfId);
         final PreparedStatement pstmt = preparedStatements.get(CQL_SEL_WORKFLOW_INSTANCE_WAITING);
         ResultSet rs = session.execute(pstmt.bind(wfId));
@@ -105,7 +108,7 @@ public class CassandraImpl implements Cassandra {
             logger.warn("No workflow instance with id {} found", wfId);
             return null;
         }
-        final CassandraWorkflow cw = new CassandraWorkflow();
+        final WorkflowInstance cw = new WorkflowInstance();
         cw.id = wfId;
         cw.ppoolId = row.getString("PPOOL_ID");
         cw.prio = row.getInt("PRIO");
@@ -145,7 +148,7 @@ public class CassandraImpl implements Cassandra {
     }
 
     @Override
-    public void initialize(InternalStorageAccessor internalStorageAccessor) throws Exception {
+    public void initialize(HybridDBStorageAccessor internalStorageAccessor) throws Exception {
         final long startTS = System.currentTimeMillis();
         final List<String> missingResponseCorrelationIds = new ArrayList<String>();
         final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_ALL_WORKFLOW_INSTANCES).bind().setFetchSize(2000));
