@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.copperengine.core.Acknowledge;
@@ -24,6 +26,7 @@ import org.copperengine.core.internal.WorkflowAccessor;
 import org.copperengine.core.persistent.RegisterCall;
 import org.copperengine.core.persistent.ScottyDBStorageInterface;
 import org.copperengine.core.persistent.Serializer;
+import org.copperengine.core.util.Blocker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,24 +35,32 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
     private static final Logger logger = LoggerFactory.getLogger(CassandraDBStorage.class);
     private static final Acknowledge.BestEffortAcknowledge ACK = new Acknowledge.BestEffortAcknowledge();
 
+    private Blocker startupBlocker = new Blocker(true);
     private final Map<String, Queue<QueueElement>> ppoolId2queueMap;
-    private final Map<String, String> correlationId2wfIdMap;
+    private final CorrelationIdMap correlationIdMap = new CorrelationIdMap();
     private final Serializer serializer;
     private final WorkflowRepository wfRepo;
     private final Cassandra cassandra;
+    private final Object[] mutexArray = new Object[2003];
+    private final Set<String> currentlyProcessingEarlyResponses = new HashSet<>();
+    private boolean started = false;
 
     public CassandraDBStorage(Serializer serializer, WorkflowRepository wfRepo, Cassandra cassandra) {
         this.ppoolId2queueMap = new ConcurrentHashMap<>();
-        this.correlationId2wfIdMap = new ConcurrentHashMap<>();
         this.serializer = serializer;
         this.wfRepo = wfRepo;
         this.cassandra = cassandra;
+        for (int i = 0; i < mutexArray.length; i++) {
+            mutexArray[i] = new Object();
+        }
     }
 
     @Override
     public void insert(Workflow<?> wf, Acknowledge ack) throws DuplicateIdException, Exception {
         if (wf == null)
             throw new NullPointerException();
+
+        startupBlocker.pass();
 
         CassandraWorkflow cw = new CassandraWorkflow();
         cw.id = wf.getId();
@@ -106,6 +117,9 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
     @Override
     public void finish(Workflow<?> w, Acknowledge callback) {
         try {
+            startupBlocker.pass();
+
+            // TODO mit Futures arbeiten
             cassandra.deleteWorkflowInstance(w.getId());
             if (callback != null)
                 callback.onSuccess();
@@ -118,6 +132,10 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
 
     @Override
     public List<Workflow<?>> dequeue(String ppoolId, int max) throws Exception {
+        logger.debug("dequeue({},{})", ppoolId, max);
+
+        startupBlocker.pass();
+
         final Queue<QueueElement> queue = findQueue(ppoolId);
         if (queue.isEmpty())
             return Collections.emptyList();
@@ -128,11 +146,18 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
             if (element == null)
                 break;
 
-            // TODO remove all correlationIds for this wfId from correlationId2wfIdMap
-
-            final CassandraWorkflow cw = cassandra.readCassandraWorkflow(element.wfId);
-            final Workflow<?> wf = convert2workflow(cw);
-            wfList.add(wf);
+            synchronized (findMutex(element.wfId)) {
+                correlationIdMap.removeAll4Workflow(element.wfId);
+                try {
+                    final CassandraWorkflow cw = cassandra.readCassandraWorkflow(element.wfId);
+                    final Workflow<?> wf = convert2workflow(cw);
+                    wfList.add(wf);
+                } catch (Exception e) {
+                    logger.error("Unable to read workflow instance " + element.wfId + " - setting state to INVALID", e);
+                    cassandra.updateWorkflowInstanceState(element.wfId, ProcessingState.INVALID);
+                    // TODO - what happens if even this fails?
+                }
+            }
         }
         return wfList;
     }
@@ -159,30 +184,113 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
     }
 
     @Override
-    public void notify(Response<?> response, Acknowledge ack) throws Exception {
-        // TODO take care of concurrent notifies for the same wf
+    public void registerCallback(RegisterCall rc, Acknowledge callback) throws Exception {
+        logger.debug("registerCallback({})", rc);
 
-        final String cid = response.getCorrelationId();
-        final String wfId = correlationId2wfIdMap.get(cid);
-        if (wfId == null) {
-            // TODO handle early response
-        }
-        CassandraWorkflow cw = cassandra.readCassandraWorkflow(wfId);
-        if (cw.cid2ResponseMap.containsKey(cid)) {
-            cw.cid2ResponseMap.put(cid, serializer.serializeResponse(response));
-        }
-        final boolean enqueue = (cw.waitMode == WaitMode.FIRST || cw.waitMode == WaitMode.ALL && cw.cid2ResponseMap.size() == 1 || cw.waitMode == WaitMode.ALL && allResponsesAvailable(cw));
+        startupBlocker.pass();
 
-        if (enqueue) {
-            cw.state = ProcessingState.ENQUEUED;
+        CassandraWorkflow cw = new CassandraWorkflow();
+        cw.id = rc.workflow.getId();
+        cw.state = ProcessingState.WAITING;
+        cw.prio = rc.workflow.getPriority();
+        cw.creationTS = rc.workflow.getCreationTS();
+        cw.serializedWorkflow = serializer.serializeWorkflow(rc.workflow);
+        cw.waitMode = rc.waitMode;
+        cw.timeout = rc.timeout != null ? new Date(rc.timeout) : null;
+        cw.ppoolId = rc.workflow.getProcessorPoolId();
+        cw.cid2ResponseMap = new HashMap<String, String>();
+        for (String cid : rc.correlationIds) {
+            cw.cid2ResponseMap.put(cid, null);
         }
+
         cassandra.safeWorkflowInstance(cw);
 
-        if (enqueue) {
-            Queue<QueueElement> queue = findQueue(cw.ppoolId);
-            queue.add(new QueueElement(cw.id, cw.prio));
+        correlationIdMap.addCorrelationIds(rc.workflow.getId(), rc.correlationIds);
+
+        // check for early responses
+        //
+        // 1st make sure that all currently working threads writing early responses do NOT write a response with one of
+        // our correlationIds
+        synchronized (currentlyProcessingEarlyResponses) {
+            for (;;) {
+                boolean didWait = false;
+                for (String cid : rc.correlationIds) {
+                    if (currentlyProcessingEarlyResponses.contains(cid)) {
+                        currentlyProcessingEarlyResponses.wait();
+                        didWait = true;
+                    }
+                }
+                if (!didWait)
+                    break;
+            }
+        }
+        // 2nd read early responses and connect them to the workflow instance
+        for (String cid : rc.correlationIds) {
+            Response<?> response = serializer.deserializeResponse(cassandra.readEarlyResponse(cid));
+            if (response != null) {
+                logger.debug("found early response with correlationId {} for workflow {} - doing notify...", cid, cw.id);
+                notify(response, ACK);
+                cassandra.deleteEarlyResponse(cid);
+            }
         }
 
+        callback.onSuccess();
+    }
+
+    @Override
+    public void notify(Response<?> response, Acknowledge ack) throws Exception {
+        logger.debug("notify({})", response);
+
+        startupBlocker.pass();
+
+        final String cid = response.getCorrelationId();
+        final String wfId = correlationIdMap.getWorkflowId(cid);
+
+        if (wfId != null) {
+            // we have to take care of concurrent notifies for the same workflow instance
+            // but we don't want to block everything - it's sufficient to block this workflows id (more or less...)
+            synchronized (findMutex(wfId)) {
+                // check if this workflow instance has just been dequeued - in this case we do not find the
+                // correlationId any more...
+                if (correlationIdMap.getWorkflowId(cid) != null) {
+                    CassandraWorkflow cw = cassandra.readCassandraWorkflow(wfId);
+                    if (cw.cid2ResponseMap.containsKey(cid)) {
+                        cw.cid2ResponseMap.put(cid, serializer.serializeResponse(response));
+                    }
+                    final boolean enqueue = cw.state == ProcessingState.WAITING && (cw.waitMode == WaitMode.FIRST || cw.waitMode == WaitMode.ALL && cw.cid2ResponseMap.size() == 1 || cw.waitMode == WaitMode.ALL && allResponsesAvailable(cw));
+
+                    if (enqueue) {
+                        cw.state = ProcessingState.ENQUEUED;
+                    }
+
+                    cassandra.safeWorkflowInstance(cw);
+
+                    if (enqueue) {
+                        final Queue<QueueElement> queue = findQueue(cw.ppoolId);
+                        queue.add(new QueueElement(cw.id, cw.prio));
+                    }
+
+                    ack.onSuccess();
+
+                    return;
+                }
+
+            }
+        }
+        handleEarlyResponse(response, ack);
+    }
+
+    private void handleEarlyResponse(Response<?> response, Acknowledge ack) throws Exception {
+        synchronized (currentlyProcessingEarlyResponses) {
+            currentlyProcessingEarlyResponses.add(response.getCorrelationId());
+        }
+        cassandra.safeEarlyResponse(response.getCorrelationId(), serializer.serializeResponse(response));
+
+        // TODO mit Futures arbeiten -
+        synchronized (currentlyProcessingEarlyResponses) {
+            currentlyProcessingEarlyResponses.remove(response.getCorrelationId());
+            currentlyProcessingEarlyResponses.notifyAll();
+        }
         ack.onSuccess();
     }
 
@@ -210,34 +318,11 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
     }
 
     @Override
-    public void registerCallback(RegisterCall rc, Acknowledge callback) throws Exception {
-        CassandraWorkflow cw = new CassandraWorkflow();
-        cw.id = rc.workflow.getId();
-        cw.state = ProcessingState.WAITING;
-        cw.prio = rc.workflow.getPriority();
-        cw.creationTS = rc.workflow.getCreationTS();
-        cw.serializedWorkflow = serializer.serializeWorkflow(rc.workflow);
-        cw.waitMode = rc.waitMode;
-        cw.timeout = rc.timeout != null ? new Date(rc.timeout) : null;
-        cw.ppoolId = rc.workflow.getProcessorPoolId();
-        cw.cid2ResponseMap = new HashMap<String, String>();
-        for (String cid : rc.correlationIds) {
-            cw.cid2ResponseMap.put(cid, null);
-        }
+    public synchronized void startup() {
+        if (started)
+            return;
 
-        cassandra.safeWorkflowInstance(cw);
-
-        for (String cid : rc.correlationIds) {
-            correlationId2wfIdMap.put(cid, rc.workflow.getId());
-        }
-
-        // TODO check for early responses
-
-        callback.onSuccess();
-    }
-
-    @Override
-    public void startup() {
+        logger.info("Starting up...");
         try {
             cassandra.initialize(this);
         } catch (RuntimeException e) {
@@ -248,16 +333,23 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
             logger.error("startup failed", e);
             throw new CopperRuntimeException("startup failed", e);
         }
+
+        started = true;
+        startupBlocker.unblock();
+
+        logger.info("Startup finished!");
     }
 
     @Override
     public void shutdown() {
-
+        // empty
     }
 
     @Override
     public void error(Workflow<?> w, Throwable t, Acknowledge callback) {
         try {
+            startupBlocker.pass();
+
             cassandra.updateWorkflowInstanceState(w.getId(), ProcessingState.ERROR);
             if (callback != null)
                 callback.onSuccess();
@@ -270,6 +362,8 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
 
     @Override
     public void restart(String workflowInstanceId) throws Exception {
+        startupBlocker.pass();
+
         CassandraWorkflow cw = cassandra.readCassandraWorkflow(workflowInstanceId);
         if (cw == null)
             throw new CopperRuntimeException("No workflow found with id " + workflowInstanceId);
@@ -300,7 +394,13 @@ public class CassandraDBStorage implements ScottyDBStorageInterface, InternalSto
 
     @Override
     public void registerCorrelationId(String correlationId, String wfId) {
-        correlationId2wfIdMap.put(correlationId, wfId);
+        correlationIdMap.addCorrelationId(wfId, correlationId);
     }
 
+    Object findMutex(String id) {
+        long hash = id.hashCode();
+        hash = Math.abs(hash);
+        int x = (int) (hash % mutexArray.length);
+        return mutexArray[x];
+    }
 }

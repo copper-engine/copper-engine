@@ -11,3 +11,9 @@ CREATE TABLE COP_WORKFLOW_INSTANCE  (
     OBJECT_STATE varchar,
     primary key (ID)
 );
+
+CREATE TABLE COP_EARLY_RESPONSE (
+    CORRELATION_ID varchar,
+    RESPONSE varchar,
+    primary key (CORRELATION_ID)
+);

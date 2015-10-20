@@ -83,10 +83,12 @@ public class SimpleCassandraTest {
     public void testExec() throws Exception {
         PersistentScottyEngine engine = createTestEngine();
         try {
-            final String cid = engine.createUUID();
-            engine.run("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid);
-            Object response = backchannel.wait(cid, 1000, TimeUnit.MILLISECONDS);
-            org.junit.Assert.assertNotNull(response);
+            for (int i = 0; i < 10; i++) {
+                final String cid = engine.createUUID();
+                engine.run("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid);
+                Object response = backchannel.wait(cid, 1000, TimeUnit.MILLISECONDS);
+                org.junit.Assert.assertNotNull(response);
+            }
         } finally {
             engine.shutdown();
         }

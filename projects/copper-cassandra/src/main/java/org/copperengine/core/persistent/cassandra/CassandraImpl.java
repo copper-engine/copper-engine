@@ -1,17 +1,19 @@
 package org.copperengine.core.persistent.cassandra;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.NullArgumentException;
 import org.copperengine.core.ProcessingState;
-import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.SerializedWorkflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
@@ -26,17 +28,33 @@ public class CassandraImpl implements Cassandra {
     private static final String CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING = "UPDATE <table> SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, STATE=? WHERE ID=?";
     private static final String CQL_UPD_WORKFLOW_INSTANCE_WAITING = "UPDATE <table> SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, WAIT_MODE=?, TIMEOUT=?, RESPONSE_MAP_JSON=?, STATE=? WHERE ID=?";
     private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE = "UPDATE <table> SET STATE=? WHERE ID=?";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP = "UPDATE <table> SET STATE=?, RESPONSE_MAP_JSON=?  WHERE ID=?";
     private static final String CQL_DEL_WORKFLOW_INSTANCE_WAITING = "DELETE FROM <table> WHERE ID=?";
     private static final String CQL_SEL_WORKFLOW_INSTANCE_WAITING = "SELECT * FROM <table> WHERE ID=?";
     private static final String CQL_SEL_ALL_WORKFLOW_INSTANCES = "SELECT ID, PPOOL_ID, PRIO, WAIT_MODE, RESPONSE_MAP_JSON, STATE FROM <table>";
+    private static final String CQL_INS_EARLY_RESPONSE = "INSERT INTO COP_EARLY_RESPONSE (CORRELATION_ID, RESPONSE) VALUES (?,?) USING TTL ?";
+    private static final String CQL_DEL_EARLY_RESPONSE = "DELETE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
+    private static final String CQL_SEL_EARLY_RESPONSE = "SELECT RESPONSE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
 
     private final Session session;
     private final Map<String, PreparedStatement> preparedStatements = new HashMap<>();
     private final JsonMapper jsonMapper = new JsonMapperImpl();
 
+    private int ttlEarlyResponseSeconds = 1 * 24 * 60 * 60; // one day
+    private final ConsistencyLevel consistencyLevel;
+
     public CassandraImpl(final CassandraSessionManager sessionManager) {
+        this(sessionManager, ConsistencyLevel.LOCAL_QUORUM);
+    }
+
+    public CassandraImpl(final CassandraSessionManager sessionManager, ConsistencyLevel consistencyLevel) {
         if (sessionManager == null)
             throw new NullArgumentException("sessionManager");
+
+        if (consistencyLevel == null)
+            throw new NullArgumentException("consistencyLevel");
+
+        this.consistencyLevel = consistencyLevel;
         this.session = sessionManager.getSession();
         prepare(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
         prepare(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
@@ -44,12 +62,16 @@ public class CassandraImpl implements Cassandra {
         prepare(CQL_SEL_WORKFLOW_INSTANCE_WAITING);
         prepare(CQL_SEL_ALL_WORKFLOW_INSTANCES);
         prepare(CQL_UPD_WORKFLOW_INSTANCE_STATE);
+        prepare(CQL_INS_EARLY_RESPONSE);
+        prepare(CQL_DEL_EARLY_RESPONSE);
+        prepare(CQL_SEL_EARLY_RESPONSE);
+        prepare(CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP);
     }
 
-    private void prepare(String cql) {
-        String replaced = cql.replace(TABLE_PLACEHOLDER, DEFAULT_TABLE_NAME);
-        logger.info("Preparing cql stmt {}", replaced);
-        preparedStatements.put(cql, session.prepare(replaced));
+    public void setTtlEarlyResponseSeconds(int ttlEarlyResponseSeconds) {
+        if (ttlEarlyResponseSeconds <= 0)
+            throw new IllegalArgumentException();
+        this.ttlEarlyResponseSeconds = ttlEarlyResponseSeconds;
     }
 
     @Override
@@ -99,54 +121,98 @@ public class CassandraImpl implements Cassandra {
     }
 
     @Override
-    public void safeEarlyResponse(Response<?> r) throws Exception {
-        throw new UnsupportedOperationException();
-
+    public void safeEarlyResponse(String correlationId, String serializedResponse) throws Exception {
+        logger.debug("safeEarlyResponse({})", correlationId);
+        session.execute(preparedStatements.get(CQL_INS_EARLY_RESPONSE).bind(correlationId, serializedResponse, ttlEarlyResponseSeconds));
     }
 
     @Override
-    public Response<?> readEarlyResponse(String cid) throws Exception {
-        throw new UnsupportedOperationException();
+    public String readEarlyResponse(String correlationId) throws Exception {
+        logger.debug("readEarlyResponse({})", correlationId);
+        final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_EARLY_RESPONSE).bind(correlationId));
+        Row row = rs.one();
+        if (row != null) {
+            logger.debug("early response with correlationId {} found!", correlationId);
+            return row.getString("RESPONSE");
+        }
+        return null;
     }
 
     @Override
-    public void deleteEarlyResponse(String cid) throws Exception {
-        throw new UnsupportedOperationException();
+    public void deleteEarlyResponse(String correlationId) throws Exception {
+        logger.debug("deleteEarlyResponse({})", correlationId);
+        session.executeAsync(preparedStatements.get(CQL_DEL_EARLY_RESPONSE).bind(correlationId));
     }
 
     @Override
     public void initialize(InternalStorageAccessor internalStorageAccessor) throws Exception {
         final long startTS = System.currentTimeMillis();
-        final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_ALL_WORKFLOW_INSTANCES).bind());
+        final List<String> missingResponseCorrelationIds = new ArrayList<String>();
+        final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_ALL_WORKFLOW_INSTANCES).bind().setFetchSize(2000));
         long counter = 0;
         Row row;
         while ((row = rs.one()) != null) {
+            counter++;
             final String wfId = row.getString("ID");
             final String ppoolId = row.getString("PPOOL_ID");
             final int prio = row.getInt("PRIO");
             final WaitMode waitMode = toWaitMode(row.getString("WAIT_MODE"));
             final Map<String, String> responseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
             final ProcessingState state = ProcessingState.valueOf(row.getString("STATE"));
-            if (state == ProcessingState.ERROR)
-                continue;
 
-            if (waitMode == null) {
-                internalStorageAccessor.enqueue(wfId, ppoolId, prio);
+            if (state == ProcessingState.ERROR) {
+                continue;
             }
-            else {
+
+            if (state == ProcessingState.ENQUEUED) {
+                internalStorageAccessor.enqueue(wfId, ppoolId, prio);
+                continue;
+            }
+
+            if (responseMap != null) {
+                missingResponseCorrelationIds.clear();
                 int numberOfAvailableResponses = 0;
                 for (Entry<String, String> e : responseMap.entrySet()) {
-                    internalStorageAccessor.registerCorrelationId(e.getKey(), wfId);
-                    if (e.getValue() != null)
+                    final String correlationId = e.getKey();
+                    final String response = e.getValue();
+                    internalStorageAccessor.registerCorrelationId(correlationId, wfId);
+                    if (response != null) {
                         numberOfAvailableResponses++;
+                    }
+                    else {
+                        missingResponseCorrelationIds.add(correlationId);
+                    }
                 }
-                if (numberOfAvailableResponses == responseMap.size() || (numberOfAvailableResponses == 1 && waitMode == WaitMode.FIRST)) {
-                    internalStorageAccessor.enqueue(wfId, ppoolId, prio);
+                if (!missingResponseCorrelationIds.isEmpty()) {
+                    // check for early responses
+                    boolean modified = false;
+                    for (String cid : missingResponseCorrelationIds) {
+                        String earlyResponse = readEarlyResponse(cid);
+                        if (earlyResponse != null) {
+                            responseMap.put(cid, earlyResponse);
+                            numberOfAvailableResponses++;
+                            modified = true;
+                        }
+                    }
+                    if (modified) {
+                        ProcessingState newState = (numberOfAvailableResponses == responseMap.size() || (numberOfAvailableResponses == 1 && waitMode == WaitMode.FIRST)) ? ProcessingState.ENQUEUED : ProcessingState.WAITING;
+                        String responseMapJson = jsonMapper.toJSON(responseMap);
+                        session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP).bind(newState.name(), responseMapJson, wfId));
+                        if (newState == ProcessingState.ENQUEUED) {
+                            internalStorageAccessor.enqueue(wfId, ppoolId, prio);
+                        }
+                    }
                 }
+
             }
-            counter++;
         }
         logger.info("Read {} rows in {} msec", counter, System.currentTimeMillis() - startTS);
+    }
+
+    @Override
+    public void updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception {
+        logger.debug("updateWorkflowInstanceState({}, {})", wfId, state);
+        session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE).bind(state.name(), wfId));
     }
 
     @SuppressWarnings("unchecked")
@@ -158,9 +224,11 @@ public class CassandraImpl implements Cassandra {
         return v == null ? null : WaitMode.valueOf(v);
     }
 
-    @Override
-    public void updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception {
-        logger.debug("updateWorkflowInstanceState({}, {})", wfId, state);
-        session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE).bind(wfId, state.name()));
+    private void prepare(String cql) {
+        String replaced = cql.replace(TABLE_PLACEHOLDER, DEFAULT_TABLE_NAME);
+        logger.info("Preparing cql stmt {}", replaced);
+        PreparedStatement pstmt = session.prepare(replaced);
+        pstmt.setConsistencyLevel(consistencyLevel);
+        preparedStatements.put(cql, pstmt);
     }
 }

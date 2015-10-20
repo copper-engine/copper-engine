@@ -1,7 +1,6 @@
 package org.copperengine.core.persistent.cassandra;
 
 import org.copperengine.core.ProcessingState;
-import org.copperengine.core.Response;
 
 public interface Cassandra {
 
@@ -13,11 +12,11 @@ public interface Cassandra {
 
     public void initialize(InternalStorageAccessor internalStorageAccessor) throws Exception;
 
-    public void safeEarlyResponse(Response<?> r) throws Exception;
+    public void safeEarlyResponse(String correlationId, String serializedResponse) throws Exception;
 
-    public Response<?> readEarlyResponse(String cid) throws Exception;
+    public String readEarlyResponse(String correlationId) throws Exception;
 
-    public void deleteEarlyResponse(String cid) throws Exception;
+    public void deleteEarlyResponse(String correlationId) throws Exception;
 
     public void updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception;
 

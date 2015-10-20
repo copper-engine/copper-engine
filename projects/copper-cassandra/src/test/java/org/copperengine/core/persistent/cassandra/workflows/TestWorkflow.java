@@ -49,12 +49,26 @@ public class TestWorkflow extends PersistentWorkflow<String> {
     public void main() throws Interrupt {
         logger.info("started");
 
-        final String cid = getEngine().createUUID();
-        dummyResponseSender.foo(cid, 100, TimeUnit.MILLISECONDS);
-        wait(WaitMode.ALL, 1000, cid);
+        logger.info("Testing delayed response...");
+        delayedResponse();
+
+        logger.info("Testing early response...");
+        earlyResponse();
 
         backchannel.notify(getData(), getData());
         logger.info("finished");
+    }
+
+    private void delayedResponse() throws Interrupt {
+        final String cid = getEngine().createUUID();
+        dummyResponseSender.foo(cid, 100, TimeUnit.MILLISECONDS);
+        wait(WaitMode.ALL, 1000, cid);
+    }
+
+    private void earlyResponse() throws Interrupt {
+        final String cid = getEngine().createUUID();
+        dummyResponseSender.foo(cid, 0, TimeUnit.MILLISECONDS);
+        wait(WaitMode.ALL, 1000, cid);
     }
 
 }

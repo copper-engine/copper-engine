@@ -23,12 +23,17 @@ public class DummyResponseSender {
     }
 
     public void foo(final String cid, final int delay, final TimeUnit timeUnit) {
-        exec.schedule(new Runnable() {
-            @Override
-            public void run() {
-                logger.info("notify for cid={}", cid);
-                engine.notify(new Response<>(cid), new Acknowledge.BestEffortAcknowledge());
-            }
-        }, delay, timeUnit);
+        if (delay == 0) {
+            engine.notify(new Response<>(cid), new Acknowledge.BestEffortAcknowledge());
+        }
+        else {
+            exec.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    logger.info("notify for cid={}", cid);
+                    engine.notify(new Response<>(cid), new Acknowledge.BestEffortAcknowledge());
+                }
+            }, delay, timeUnit);
+        }
     }
 }

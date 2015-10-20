@@ -122,7 +122,7 @@ public class StandardJavaSerializer implements Serializer {
      * deserialization of workflow instances and reponses.
      * This can be removed in one of the future releases.
      */
-     String classnameReplacement(String classname) {
+    String classnameReplacement(String classname) {
         if (classname.startsWith(COPPER_2X_PACKAGE_PREFIX)) {
             String className3x = classname.replace(COPPER_2X_PACKAGE_PREFIX, COPPER_3_PACKAGE_PREFIX);
             if ((COPPER_3_PACKAGE_PREFIX + COPPER_2X_INTERRUPT_NAME).equals(className3x)) {
@@ -163,6 +163,8 @@ public class StandardJavaSerializer implements Serializer {
 
     @Override
     public Response<?> deserializeResponse(String _data) throws Exception {
+        if (_data == null)
+            return null;
         return (Response<?>) deserialize(_data, null);
     }
 

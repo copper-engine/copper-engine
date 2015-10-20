@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.copperengine.core.ProcessingState;
-import org.copperengine.core.Response;
 
 public class CassandraMock implements Cassandra {
 
@@ -26,22 +25,6 @@ public class CassandraMock implements Cassandra {
     }
 
     @Override
-    public void safeEarlyResponse(Response<?> r) throws Exception {
-        throw new UnsupportedOperationException();
-
-    }
-
-    @Override
-    public Response<?> readEarlyResponse(String cid) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void deleteEarlyResponse(String cid) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void initialize(InternalStorageAccessor internalStorageAccessor) throws Exception {
 
     }
@@ -49,6 +32,21 @@ public class CassandraMock implements Cassandra {
     @Override
     public void updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception {
         map.get(wfId).state = state;
+    }
+
+    @Override
+    public void safeEarlyResponse(String correlationId, String serializedResponse) throws Exception {
+
+    }
+
+    @Override
+    public String readEarlyResponse(String correlationId) throws Exception {
+        return null;
+    }
+
+    @Override
+    public void deleteEarlyResponse(String correlationId) throws Exception {
+
     }
 
 }
