@@ -212,17 +212,19 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
             }
         }
         // 2nd read early responses and connect them to the workflow instance
+        boolean enqueued = false;
         for (String cid : rc.correlationIds) {
             Response<?> response = serializer.deserializeResponse(cassandra.readEarlyResponse(cid));
             if (response != null) {
                 logger.debug("found early response with correlationId {} for workflow {} - doing notify...", cid, wfId);
-                notify(response, ACK);
+                if (notifyInternal(response, ACK)) {
+                    enqueued = true;
+                }
                 cassandra.deleteEarlyResponse(cid);
             }
         }
 
-        if (cw.timeout != null) {
-            // TODO ggf. muss dieses register gar nicht mehr gemacht werden
+        if (cw.timeout != null && !enqueued) {
             timeoutManager.registerTimeout(cw.timeout, wfId, new Runnable() {
                 @Override
                 public void run() {
@@ -239,6 +241,19 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         logger.debug("notify({})", response);
 
         startupBlocker.pass();
+
+        notifyInternal(response, ack);
+    }
+
+    /**
+     * 
+     * @param response
+     * @param ack
+     * @return true, if the corresponding workflow instance has been enqueued due to this response
+     * @throws Exception
+     */
+    private boolean notifyInternal(Response<?> response, Acknowledge ack) throws Exception {
+        logger.debug("notifyInternal({})", response);
 
         final String cid = response.getCorrelationId();
         final String wfId = correlationIdMap.getWorkflowId(cid);
@@ -268,12 +283,13 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
                     }
 
                     ack.onSuccess();
-
-                    return;
+                    return enqueue;
                 }
             }
         }
+
         handleEarlyResponse(response, ack);
+        return false;
     }
 
     private void onTimeout(final String wfId) {
