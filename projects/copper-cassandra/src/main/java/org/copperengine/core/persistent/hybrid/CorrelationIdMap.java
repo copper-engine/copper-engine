@@ -17,6 +17,12 @@ class CorrelationIdMap {
         }
     }
 
+    public boolean containsWorkflowId(String workflowId) {
+        synchronized (mutex) {
+            return wfId2correlationIdMap.containsKey(workflowId);
+        }
+    }
+
     public void removeAll4Workflow(String workflowId) {
         synchronized (mutex) {
             List<String> list = wfId2correlationIdMap.remove(workflowId);

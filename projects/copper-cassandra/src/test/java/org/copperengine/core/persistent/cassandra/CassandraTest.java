@@ -1,19 +1,3 @@
-/*
- * Copyright 2002-2015 SCOOP Software GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.copperengine.core.persistent.cassandra;
 
 import java.util.ArrayList;
@@ -24,12 +8,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.EngineIdProvider;
 import org.copperengine.core.EngineIdProviderBean;
+import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.common.DefaultProcessorPoolManager;
 import org.copperengine.core.common.JdkRandomUUIDFactory;
 import org.copperengine.core.persistent.PersistentPriorityProcessorPool;
 import org.copperengine.core.persistent.PersistentProcessorPool;
 import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.persistent.StandardJavaSerializer;
+import org.copperengine.core.persistent.hybrid.DefaultTimeoutManager;
 import org.copperengine.core.persistent.hybrid.HybridDBStorage;
 import org.copperengine.core.persistent.hybrid.HybridTransactionController;
 import org.copperengine.core.persistent.hybrid.Storage;
@@ -37,13 +23,52 @@ import org.copperengine.core.util.Backchannel;
 import org.copperengine.core.util.BackchannelDefaultImpl;
 import org.copperengine.core.util.PojoDependencyInjector;
 import org.copperengine.ext.wfrepo.classpath.ClasspathWorkflowRepository;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class SimpleCassandraTest {
+public class CassandraTest {
 
-    private Backchannel backchannel = new BackchannelDefaultImpl();
+    private static Backchannel backchannel;
+    private static PersistentScottyEngine engine;
 
-    private PersistentScottyEngine createTestEngine() {
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        backchannel = new BackchannelDefaultImpl();
+        engine = createTestEngine();
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        engine.shutdown();
+    }
+
+    @Test
+    public void testParallel() throws Exception {
+        List<String> cids = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            final String cid = engine.createUUID();
+            final WorkflowInstanceDescr<String> wfid = new WorkflowInstanceDescr<String>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid, cid, 1, null);
+            engine.run(wfid);
+            cids.add(cid);
+        }
+        for (String cid : cids) {
+            Object response = backchannel.wait(cid, 2000, TimeUnit.MILLISECONDS);
+            org.junit.Assert.assertNotNull("no response for workflow instance " + cid, response);
+        }
+    }
+
+    @Test
+    public void testSerial() throws Exception {
+        for (int i = 0; i < 3; i++) {
+            final String cid = engine.createUUID();
+            engine.run("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid);
+            Object response = backchannel.wait(cid, 1000, TimeUnit.MILLISECONDS);
+            org.junit.Assert.assertNotNull(response);
+        }
+    }
+
+    private static PersistentScottyEngine createTestEngine() {
         CassandraSessionManagerImpl cassandraSessionManagerImpl = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
         cassandraSessionManagerImpl.startup();
 
@@ -55,9 +80,10 @@ public class SimpleCassandraTest {
         // cassandra = new CassandraMock();
         cassandra = new CassandraStorage(cassandraSessionManagerImpl);
 
-        HybridDBStorage storage = new HybridDBStorage(new StandardJavaSerializer(), wfRepository, cassandra);
+        HybridDBStorage storage = new HybridDBStorage(new StandardJavaSerializer(), wfRepository, cassandra, new DefaultTimeoutManager().startup());
         PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, new HybridTransactionController());
         ppool.setEmptyQueueWaitMSec(2);
+        ppool.setDequeueBulkSize(50);
         List<PersistentProcessorPool> pools = new ArrayList<PersistentProcessorPool>();
         pools.add(ppool);
         DefaultProcessorPoolManager<PersistentProcessorPool> processorPoolManager = new DefaultProcessorPoolManager<PersistentProcessorPool>();
@@ -82,18 +108,4 @@ public class SimpleCassandraTest {
         return engine;
     }
 
-    @Test
-    public void testExec() throws Exception {
-        PersistentScottyEngine engine = createTestEngine();
-        try {
-            for (int i = 0; i < 10; i++) {
-                final String cid = engine.createUUID();
-                engine.run("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid);
-                Object response = backchannel.wait(cid, 1000, TimeUnit.MILLISECONDS);
-                org.junit.Assert.assertNotNull(response);
-            }
-        } finally {
-            engine.shutdown();
-        }
-    }
 }

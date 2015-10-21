@@ -55,6 +55,9 @@ public class TestWorkflow extends PersistentWorkflow<String> {
         logger.info("Testing early response...");
         earlyResponse();
 
+        logger.info("Testing timeout response...");
+        timeoutResponse();
+
         backchannel.notify(getData(), getData());
         logger.info("finished");
     }
@@ -68,7 +71,12 @@ public class TestWorkflow extends PersistentWorkflow<String> {
     private void earlyResponse() throws Interrupt {
         final String cid = getEngine().createUUID();
         dummyResponseSender.foo(cid, 0, TimeUnit.MILLISECONDS);
-        wait(WaitMode.ALL, 1000, cid);
+        wait(WaitMode.ALL, 0, cid);
+    }
+
+    private void timeoutResponse() throws Interrupt {
+        final String cid = getEngine().createUUID();
+        wait(WaitMode.ALL, 100, cid);
     }
 
 }

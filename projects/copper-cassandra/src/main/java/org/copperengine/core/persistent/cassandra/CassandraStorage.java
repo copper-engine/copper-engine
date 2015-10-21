@@ -1,6 +1,7 @@
 package org.copperengine.core.persistent.cassandra;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class CassandraStorage implements Storage {
     private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP = "UPDATE <table> SET STATE=?, RESPONSE_MAP_JSON=?  WHERE ID=?";
     private static final String CQL_DEL_WORKFLOW_INSTANCE_WAITING = "DELETE FROM <table> WHERE ID=?";
     private static final String CQL_SEL_WORKFLOW_INSTANCE_WAITING = "SELECT * FROM <table> WHERE ID=?";
-    private static final String CQL_SEL_ALL_WORKFLOW_INSTANCES = "SELECT ID, PPOOL_ID, PRIO, WAIT_MODE, RESPONSE_MAP_JSON, STATE FROM <table>";
+    private static final String CQL_SEL_ALL_WORKFLOW_INSTANCES = "SELECT ID, PPOOL_ID, PRIO, WAIT_MODE, RESPONSE_MAP_JSON, STATE, TIMEOUT FROM <table>";
     private static final String CQL_INS_EARLY_RESPONSE = "INSERT INTO COP_EARLY_RESPONSE (CORRELATION_ID, RESPONSE) VALUES (?,?) USING TTL ?";
     private static final String CQL_DEL_EARLY_RESPONSE = "DELETE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
     private static final String CQL_SEL_EARLY_RESPONSE = "SELECT RESPONSE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
@@ -42,9 +43,9 @@ public class CassandraStorage implements Storage {
     private final Session session;
     private final Map<String, PreparedStatement> preparedStatements = new HashMap<>();
     private final JsonMapper jsonMapper = new JsonMapperImpl();
+    private final ConsistencyLevel consistencyLevel;
 
     private int ttlEarlyResponseSeconds = 1 * 24 * 60 * 60; // one day
-    private final ConsistencyLevel consistencyLevel;
 
     public CassandraStorage(final CassandraSessionManager sessionManager) {
         this(sessionManager, ConsistencyLevel.LOCAL_QUORUM);
@@ -162,6 +163,8 @@ public class CassandraStorage implements Storage {
             final WaitMode waitMode = toWaitMode(row.getString("WAIT_MODE"));
             final Map<String, String> responseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
             final ProcessingState state = ProcessingState.valueOf(row.getString("STATE"));
+            final Date timeout = row.getDate("TIMEOUT");
+            final boolean timeoutOccured = timeout != null && timeout.getTime() <= System.currentTimeMillis();
 
             if (state == ProcessingState.ERROR) {
                 continue;
@@ -186,9 +189,9 @@ public class CassandraStorage implements Storage {
                         missingResponseCorrelationIds.add(correlationId);
                     }
                 }
+                boolean modified = false;
                 if (!missingResponseCorrelationIds.isEmpty()) {
                     // check for early responses
-                    boolean modified = false;
                     for (String cid : missingResponseCorrelationIds) {
                         String earlyResponse = readEarlyResponse(cid);
                         if (earlyResponse != null) {
@@ -197,13 +200,13 @@ public class CassandraStorage implements Storage {
                             modified = true;
                         }
                     }
-                    if (modified) {
-                        ProcessingState newState = (numberOfAvailableResponses == responseMap.size() || (numberOfAvailableResponses == 1 && waitMode == WaitMode.FIRST)) ? ProcessingState.ENQUEUED : ProcessingState.WAITING;
-                        String responseMapJson = jsonMapper.toJSON(responseMap);
-                        session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP).bind(newState.name(), responseMapJson, wfId));
-                        if (newState == ProcessingState.ENQUEUED) {
-                            internalStorageAccessor.enqueue(wfId, ppoolId, prio);
-                        }
+                }
+                if (modified || timeoutOccured) {
+                    ProcessingState newState = (timeoutOccured || numberOfAvailableResponses == responseMap.size() || (numberOfAvailableResponses == 1 && waitMode == WaitMode.FIRST)) ? ProcessingState.ENQUEUED : ProcessingState.WAITING;
+                    String responseMapJson = jsonMapper.toJSON(responseMap);
+                    session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP).bind(newState.name(), responseMapJson, wfId));
+                    if (newState == ProcessingState.ENQUEUED) {
+                        internalStorageAccessor.enqueue(wfId, ppoolId, prio);
                     }
                 }
 

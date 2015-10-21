@@ -2,17 +2,15 @@ package org.copperengine.core.persistent.hybrid;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.CopperRuntimeException;
@@ -35,8 +33,9 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     private static final Logger logger = LoggerFactory.getLogger(HybridDBStorage.class);
     private static final Acknowledge.BestEffortAcknowledge ACK = new Acknowledge.BestEffortAcknowledge();
 
-    private Blocker startupBlocker = new Blocker(true);
-    private final Map<String, Queue<QueueElement>> ppoolId2queueMap;
+    private final TimeoutManager timeoutManager;
+    private final Blocker startupBlocker = new Blocker(true);
+    private final Map<String, ConcurrentSkipListSet<QueueElement>> ppoolId2queueMap;
     private final CorrelationIdMap correlationIdMap = new CorrelationIdMap();
     private final Serializer serializer;
     private final WorkflowRepository wfRepo;
@@ -45,11 +44,12 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     private final Set<String> currentlyProcessingEarlyResponses = new HashSet<>();
     private boolean started = false;
 
-    public HybridDBStorage(Serializer serializer, WorkflowRepository wfRepo, Storage cassandra) {
+    public HybridDBStorage(Serializer serializer, WorkflowRepository wfRepo, Storage storage, TimeoutManager timeoutManager) {
         this.ppoolId2queueMap = new ConcurrentHashMap<>();
         this.serializer = serializer;
         this.wfRepo = wfRepo;
-        this.cassandra = cassandra;
+        this.cassandra = storage;
+        this.timeoutManager = timeoutManager;
         for (int i = 0; i < mutexArray.length; i++) {
             mutexArray[i] = new Object();
         }
@@ -59,6 +59,8 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     public void insert(Workflow<?> wf, Acknowledge ack) throws DuplicateIdException, Exception {
         if (wf == null)
             throw new NullPointerException();
+
+        logger.info("insert({})", wf.getId());
 
         startupBlocker.pass();
 
@@ -72,26 +74,11 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
 
         cassandra.safeWorkflowInstance(cw);
 
-        final Queue<QueueElement> queue = findQueue(wf.getProcessorPoolId());
-        queue.add(new QueueElement(wf.getId(), wf.getPriority()));
+        _enqueue(wf.getId(), wf.getProcessorPoolId(), wf.getPriority());
 
         if (ack != null)
             ack.onSuccess();
 
-    }
-
-    private Queue<QueueElement> findQueue(final String ppoolId) {
-        Queue<QueueElement> queue = ppoolId2queueMap.get(ppoolId);
-        if (queue != null)
-            return queue;
-        synchronized (ppoolId2queueMap) {
-            queue = ppoolId2queueMap.get(ppoolId);
-            if (queue != null)
-                return queue;
-            queue = new PriorityQueue<QueueElement>(100, new QueueElementComparator());
-            ppoolId2queueMap.put(ppoolId, queue);
-            return queue;
-        }
     }
 
     @Override
@@ -120,7 +107,9 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
             startupBlocker.pass();
 
             // TODO mit Futures arbeiten
+            correlationIdMap.removeAll4Workflow(w.getId());
             cassandra.deleteWorkflowInstance(w.getId());
+
             if (callback != null)
                 callback.onSuccess();
         } catch (Exception e) {
@@ -131,18 +120,14 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     }
 
     @Override
-    public List<Workflow<?>> dequeue(String ppoolId, int max) throws Exception {
+    public List<Workflow<?>> dequeue(final String ppoolId, final int max) throws Exception {
         logger.debug("dequeue({},{})", ppoolId, max);
 
         startupBlocker.pass();
 
-        final Queue<QueueElement> queue = findQueue(ppoolId);
-        if (queue.isEmpty())
-            return Collections.emptyList();
-
         final List<Workflow<?>> wfList = new ArrayList<>(max);
         while (wfList.size() < max) {
-            final QueueElement element = queue.poll();
+            final QueueElement element = _dequeue(ppoolId);
             if (element == null)
                 break;
 
@@ -151,6 +136,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
                 try {
                     final WorkflowInstance cw = cassandra.readCassandraWorkflow(element.wfId);
                     final Workflow<?> wf = convert2workflow(cw);
+                    timeoutManager.unregisterTimeout(cw.timeout, cw.id);
                     wfList.add(wf);
                 } catch (Exception e) {
                     logger.error("Unable to read workflow instance " + element.wfId + " - setting state to INVALID", e);
@@ -189,14 +175,15 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
 
         startupBlocker.pass();
 
-        WorkflowInstance cw = new WorkflowInstance();
-        cw.id = rc.workflow.getId();
+        final String wfId = rc.workflow.getId();
+        final WorkflowInstance cw = new WorkflowInstance();
+        cw.id = wfId;
         cw.state = ProcessingState.WAITING;
         cw.prio = rc.workflow.getPriority();
         cw.creationTS = rc.workflow.getCreationTS();
         cw.serializedWorkflow = serializer.serializeWorkflow(rc.workflow);
         cw.waitMode = rc.waitMode;
-        cw.timeout = rc.timeout != null ? new Date(rc.timeout) : null;
+        cw.timeout = rc.timeout != null && rc.timeout > 0 ? new Date(System.currentTimeMillis() + rc.timeout) : null;
         cw.ppoolId = rc.workflow.getProcessorPoolId();
         cw.cid2ResponseMap = new HashMap<String, String>();
         for (String cid : rc.correlationIds) {
@@ -205,7 +192,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
 
         cassandra.safeWorkflowInstance(cw);
 
-        correlationIdMap.addCorrelationIds(rc.workflow.getId(), rc.correlationIds);
+        correlationIdMap.addCorrelationIds(wfId, rc.correlationIds);
 
         // check for early responses
         //
@@ -228,10 +215,20 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         for (String cid : rc.correlationIds) {
             Response<?> response = serializer.deserializeResponse(cassandra.readEarlyResponse(cid));
             if (response != null) {
-                logger.debug("found early response with correlationId {} for workflow {} - doing notify...", cid, cw.id);
+                logger.debug("found early response with correlationId {} for workflow {} - doing notify...", cid, wfId);
                 notify(response, ACK);
                 cassandra.deleteEarlyResponse(cid);
             }
+        }
+
+        if (cw.timeout != null) {
+            // TODO ggf. muss dieses register gar nicht mehr gemacht werden
+            timeoutManager.registerTimeout(cw.timeout, wfId, new Runnable() {
+                @Override
+                public void run() {
+                    onTimeout(wfId);
+                }
+            });
         }
 
         callback.onSuccess();
@@ -257,7 +254,8 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
                     if (cw.cid2ResponseMap.containsKey(cid)) {
                         cw.cid2ResponseMap.put(cid, serializer.serializeResponse(response));
                     }
-                    final boolean enqueue = cw.state == ProcessingState.WAITING && (cw.waitMode == WaitMode.FIRST || cw.waitMode == WaitMode.ALL && cw.cid2ResponseMap.size() == 1 || cw.waitMode == WaitMode.ALL && allResponsesAvailable(cw));
+                    final boolean timeoutOccured = cw.timeout != null && cw.timeout.getTime() <= System.currentTimeMillis();
+                    final boolean enqueue = cw.state == ProcessingState.WAITING && (timeoutOccured || cw.waitMode == WaitMode.FIRST || cw.waitMode == WaitMode.ALL && cw.cid2ResponseMap.size() == 1 || cw.waitMode == WaitMode.ALL && allResponsesAvailable(cw));
 
                     if (enqueue) {
                         cw.state = ProcessingState.ENQUEUED;
@@ -266,18 +264,39 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
                     cassandra.safeWorkflowInstance(cw);
 
                     if (enqueue) {
-                        final Queue<QueueElement> queue = findQueue(cw.ppoolId);
-                        queue.add(new QueueElement(cw.id, cw.prio));
+                        _enqueue(cw.id, cw.ppoolId, cw.prio);
                     }
 
                     ack.onSuccess();
 
                     return;
                 }
-
             }
         }
         handleEarlyResponse(response, ack);
+    }
+
+    private void onTimeout(final String wfId) {
+        logger.info("onTimeout(wfId={})", wfId);
+        try {
+            synchronized (findMutex(wfId)) {
+                // check if this workflow instance has just been dequeued - in this case we do not find the
+                // correlationId any more...
+                if (correlationIdMap.containsWorkflowId(wfId)) {
+                    final WorkflowInstance cw = cassandra.readCassandraWorkflow(wfId);
+                    logger.debug("workflow instance={}", cw);
+                    final boolean enqueue = cw.state == ProcessingState.WAITING;
+
+                    if (enqueue) {
+                        cw.state = ProcessingState.ENQUEUED;
+                        cassandra.safeWorkflowInstance(cw);
+                        _enqueue(cw.id, cw.ppoolId, cw.prio);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("onTimeout failed for wfId " + wfId, e);
+        }
     }
 
     private void handleEarlyResponse(Response<?> response, Acknowledge ack) throws Exception {
@@ -292,14 +311,6 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
             currentlyProcessingEarlyResponses.notifyAll();
         }
         ack.onSuccess();
-    }
-
-    private boolean allResponsesAvailable(WorkflowInstance cw) {
-        for (Entry<String, String> e : cw.cid2ResponseMap.entrySet()) {
-            if (e.getValue() == null)
-                return false;
-        }
-        return true;
     }
 
     @Override
@@ -327,12 +338,12 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
             cassandra.initialize(new HybridDBStorageAccessor() {
                 @Override
                 public void registerCorrelationId(String correlationId, String wfId) {
-                    this.registerCorrelationId(correlationId, wfId);
+                    _registerCorrelationId(correlationId, wfId);
                 }
 
                 @Override
                 public void enqueue(String wfId, String ppoolId, int prio) {
-                    this.enqueue(wfId, ppoolId, prio);
+                    _enqueue(wfId, ppoolId, prio);
                 }
             });
         } catch (RuntimeException e) {
@@ -359,7 +370,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     public void error(Workflow<?> w, Throwable t, Acknowledge callback) {
         try {
             startupBlocker.pass();
-
+            correlationIdMap.removeAll4Workflow(w.getId());
             cassandra.updateWorkflowInstanceState(w.getId(), ProcessingState.ERROR);
             if (callback != null)
                 callback.onSuccess();
@@ -379,7 +390,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
             throw new CopperRuntimeException("No workflow found with id " + workflowInstanceId);
         if (cw.state != ProcessingState.ERROR)
             throw new CopperRuntimeException("Workflow found with id " + workflowInstanceId + " is not in state ERROR");
-        enqueue(cw.id, cw.ppoolId, cw.prio);
+        _enqueue(cw.id, cw.ppoolId, cw.prio);
     }
 
     @Override
@@ -397,15 +408,51 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         return convert2workflow(cassandra.readCassandraWorkflow(workflowInstanceId));
     }
 
-    private void enqueue(String wfId, String ppoolId, int prio) {
-        findQueue(ppoolId).add(new QueueElement(wfId, prio));
+    // TODO enqueue/dequeue is too slow - speed this up somehow
+    void _enqueue(String wfId, String ppoolId, int prio) {
+        logger.trace("enqueue(wfId={}, ppoolId={}, prio={})", wfId, ppoolId, prio);
+        ConcurrentSkipListSet<QueueElement> queue = _findQueue(ppoolId);
+        boolean rv = queue.add(new QueueElement(wfId, prio));
+        assert rv : "queue already contains workflow id " + wfId;
     }
 
-    private void registerCorrelationId(String correlationId, String wfId) {
+    QueueElement _dequeue(String ppoolId) {
+        logger.trace("_dequeue({})", ppoolId);
+        ConcurrentSkipListSet<QueueElement> queue = _findQueue(ppoolId);
+        QueueElement qe = queue.pollFirst();
+        if (qe != null) {
+            logger.debug("dequeued for ppoolId={}: wfId={}", ppoolId, qe.wfId);
+        }
+        return qe;
+    }
+
+    private ConcurrentSkipListSet<QueueElement> _findQueue(final String ppoolId) {
+        ConcurrentSkipListSet<QueueElement> queue = ppoolId2queueMap.get(ppoolId);
+        if (queue != null)
+            return queue;
+        synchronized (ppoolId2queueMap) {
+            queue = ppoolId2queueMap.get(ppoolId);
+            if (queue != null)
+                return queue;
+            queue = new ConcurrentSkipListSet<>(new QueueElementComparator());
+            ppoolId2queueMap.put(ppoolId, queue);
+            return queue;
+        }
+    }
+
+    private void _registerCorrelationId(String correlationId, String wfId) {
         correlationIdMap.addCorrelationId(wfId, correlationId);
     }
 
-    Object findMutex(String id) {
+    private boolean allResponsesAvailable(WorkflowInstance cw) {
+        for (Entry<String, String> e : cw.cid2ResponseMap.entrySet()) {
+            if (e.getValue() == null)
+                return false;
+        }
+        return true;
+    }
+
+    private Object findMutex(String id) {
         long hash = id.hashCode();
         hash = Math.abs(hash);
         int x = (int) (hash % mutexArray.length);
