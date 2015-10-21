@@ -408,7 +408,6 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         return convert2workflow(cassandra.readCassandraWorkflow(workflowInstanceId));
     }
 
-    // TODO enqueue/dequeue is too slow - speed this up somehow
     void _enqueue(String wfId, String ppoolId, int prio) {
         logger.trace("enqueue(wfId={}, ppoolId={}, prio={})", wfId, ppoolId, prio);
         ConcurrentSkipListSet<QueueElement> queue = _findQueue(ppoolId);

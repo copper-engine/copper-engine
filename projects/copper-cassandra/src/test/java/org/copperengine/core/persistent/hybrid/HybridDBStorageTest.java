@@ -42,7 +42,7 @@ public class HybridDBStorageTest {
     public void test_enqueue_dequeue_parallel() throws Exception {
         final int numberOfThreads = Runtime.getRuntime().availableProcessors();
         final String ppoolId = "DEFAULT";
-        final int max = 20000;
+        final int max = 10000;
         final HybridDBStorage dbStorage = new HybridDBStorage(new StandardJavaSerializer(), Mockito.mock(WorkflowRepository.class), Mockito.mock(Storage.class), Mockito.mock(TimeoutManager.class));
         ExecutorService exec = Executors.newFixedThreadPool(numberOfThreads);
 
