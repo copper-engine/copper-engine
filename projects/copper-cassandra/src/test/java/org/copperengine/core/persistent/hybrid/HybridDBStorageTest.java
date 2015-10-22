@@ -1,6 +1,7 @@
 package org.copperengine.core.persistent.hybrid;
 
 import java.util.UUID;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +29,7 @@ public class HybridDBStorageTest {
     public void test_enqueue_dequeue_serial() {
         final String ppoolId = "DEFAULT";
         final int max = 100;
-        final HybridDBStorage dbStorage = new HybridDBStorage(new StandardJavaSerializer(), Mockito.mock(WorkflowRepository.class), Mockito.mock(Storage.class), Mockito.mock(TimeoutManager.class));
+        final HybridDBStorage dbStorage = new HybridDBStorage(new StandardJavaSerializer(), Mockito.mock(WorkflowRepository.class), Mockito.mock(Storage.class), Mockito.mock(TimeoutManager.class), Mockito.mock(Executor.class));
         for (int i = 0; i < max; i++) {
             dbStorage._enqueue(Integer.toString(i), ppoolId, max - i);
         }
@@ -43,7 +44,7 @@ public class HybridDBStorageTest {
         final int numberOfThreads = Runtime.getRuntime().availableProcessors();
         final String ppoolId = "DEFAULT";
         final int max = 10000;
-        final HybridDBStorage dbStorage = new HybridDBStorage(new StandardJavaSerializer(), Mockito.mock(WorkflowRepository.class), Mockito.mock(Storage.class), Mockito.mock(TimeoutManager.class));
+        final HybridDBStorage dbStorage = new HybridDBStorage(new StandardJavaSerializer(), Mockito.mock(WorkflowRepository.class), Mockito.mock(Storage.class), Mockito.mock(TimeoutManager.class), Mockito.mock(Executor.class));
         ExecutorService exec = Executors.newFixedThreadPool(numberOfThreads);
 
         for (int i = 0; i < max; i++) {

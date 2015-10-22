@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.CopperRuntimeException;
@@ -28,11 +30,14 @@ import org.copperengine.core.util.Blocker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 public class HybridDBStorage implements ScottyDBStorageInterface {
 
     private static final Logger logger = LoggerFactory.getLogger(HybridDBStorage.class);
     private static final Acknowledge.BestEffortAcknowledge ACK = new Acknowledge.BestEffortAcknowledge();
 
+    private final Executor executor;
     private final TimeoutManager timeoutManager;
     private final Blocker startupBlocker = new Blocker(true);
     private final Map<String, ConcurrentSkipListSet<QueueElement>> ppoolId2queueMap;
@@ -44,12 +49,13 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     private final Set<String> currentlyProcessingEarlyResponses = new HashSet<>();
     private boolean started = false;
 
-    public HybridDBStorage(Serializer serializer, WorkflowRepository wfRepo, Storage storage, TimeoutManager timeoutManager) {
+    public HybridDBStorage(Serializer serializer, WorkflowRepository wfRepo, Storage storage, TimeoutManager timeoutManager, final Executor executor) {
         this.ppoolId2queueMap = new ConcurrentHashMap<>();
         this.serializer = serializer;
         this.wfRepo = wfRepo;
         this.cassandra = storage;
         this.timeoutManager = timeoutManager;
+        this.executor = executor;
         for (int i = 0; i < mutexArray.length; i++) {
             mutexArray[i] = new Object();
         }
@@ -60,7 +66,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         if (wf == null)
             throw new NullPointerException();
 
-        logger.info("insert({})", wf.getId());
+        logger.debug("insert({})", wf.getId());
 
         startupBlocker.pass();
 
@@ -102,20 +108,30 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     }
 
     @Override
-    public void finish(Workflow<?> w, Acknowledge callback) {
+    public void finish(final Workflow<?> w, final Acknowledge _callback) {
+        logger.debug("finish({})", w.getId());
+        final Acknowledge callback = _callback != null ? _callback : ACK;
         try {
             startupBlocker.pass();
 
-            // TODO mit Futures arbeiten
-            correlationIdMap.removeAll4Workflow(w.getId());
-            cassandra.deleteWorkflowInstance(w.getId());
-
-            if (callback != null)
-                callback.onSuccess();
+            final String wfId = w.getId();
+            correlationIdMap.removeAll4Workflow(wfId);
+            final ListenableFuture<Void> future = cassandra.deleteWorkflowInstance(w.getId());
+            future.addListener(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        future.get();
+                        callback.onSuccess();
+                    } catch (InterruptedException | ExecutionException e) {
+                        logger.error("finish(" + wfId + ") failed", e);
+                        callback.onException(e);
+                    }
+                }
+            }, executor);
         } catch (Exception e) {
             logger.error("finish failed", e);
-            if (callback != null)
-                callback.onException(e);
+            callback.onException(e);
         }
     }
 
@@ -293,7 +309,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     }
 
     private void onTimeout(final String wfId) {
-        logger.info("onTimeout(wfId={})", wfId);
+        logger.debug("onTimeout(wfId={})", wfId);
         try {
             synchronized (findMutex(wfId)) {
                 // check if this workflow instance has just been dequeued - in this case we do not find the
@@ -315,18 +331,30 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         }
     }
 
-    private void handleEarlyResponse(Response<?> response, Acknowledge ack) throws Exception {
+    private void handleEarlyResponse(final Response<?> response, final Acknowledge ack) throws Exception {
         synchronized (currentlyProcessingEarlyResponses) {
             currentlyProcessingEarlyResponses.add(response.getCorrelationId());
         }
-        cassandra.safeEarlyResponse(response.getCorrelationId(), serializer.serializeResponse(response));
-
-        // TODO mit Futures arbeiten -
-        synchronized (currentlyProcessingEarlyResponses) {
-            currentlyProcessingEarlyResponses.remove(response.getCorrelationId());
-            currentlyProcessingEarlyResponses.notifyAll();
-        }
-        ack.onSuccess();
+        final ListenableFuture<Void> future = cassandra.safeEarlyResponse(response.getCorrelationId(), serializer.serializeResponse(response));
+        future.addListener(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    future.get();
+                    ack.onSuccess();
+                }
+                catch (Exception e) {
+                    logger.error("safeEarlyResponse failed", e);
+                    ack.onException(e);
+                }
+                finally {
+                    synchronized (currentlyProcessingEarlyResponses) {
+                        currentlyProcessingEarlyResponses.remove(response.getCorrelationId());
+                        currentlyProcessingEarlyResponses.notifyAll();
+                    }
+                }
+            }
+        }, executor);
     }
 
     @Override

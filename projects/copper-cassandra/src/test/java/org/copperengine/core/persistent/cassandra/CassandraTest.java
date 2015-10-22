@@ -3,6 +3,7 @@ package org.copperengine.core.persistent.cassandra;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -29,18 +30,27 @@ import org.junit.Test;
 
 public class CassandraTest {
 
+    private static CassandraSessionManagerImpl cassandraSessionManager;
     private static Backchannel backchannel;
     private static PersistentScottyEngine engine;
+    private static ExecutorService executor;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
+        cassandraSessionManager = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
+        cassandraSessionManager.startup();
         backchannel = new BackchannelDefaultImpl();
+        executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         engine = createTestEngine();
     }
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
         engine.shutdown();
+
+        cassandraSessionManager.shutdown();
+
+        executor.shutdown();
     }
 
     @Test
@@ -53,7 +63,7 @@ public class CassandraTest {
             cids.add(cid);
         }
         for (String cid : cids) {
-            Object response = backchannel.wait(cid, 2000, TimeUnit.MILLISECONDS);
+            Object response = backchannel.wait(cid, 10000, TimeUnit.MILLISECONDS);
             org.junit.Assert.assertNotNull("no response for workflow instance " + cid, response);
         }
     }
@@ -69,18 +79,15 @@ public class CassandraTest {
     }
 
     private static PersistentScottyEngine createTestEngine() {
-        CassandraSessionManagerImpl cassandraSessionManagerImpl = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
-        cassandraSessionManagerImpl.startup();
-
         EngineIdProvider engineIdProvider = new EngineIdProviderBean("default");
         ClasspathWorkflowRepository wfRepository = new ClasspathWorkflowRepository("org.copperengine.core.persistent.cassandra.workflows");
         wfRepository.start();
 
         Storage cassandra;
         // cassandra = new CassandraMock();
-        cassandra = new CassandraStorage(cassandraSessionManagerImpl);
+        cassandra = new CassandraStorage(cassandraSessionManager, executor);
 
-        HybridDBStorage storage = new HybridDBStorage(new StandardJavaSerializer(), wfRepository, cassandra, new DefaultTimeoutManager().startup());
+        HybridDBStorage storage = new HybridDBStorage(new StandardJavaSerializer(), wfRepository, cassandra, new DefaultTimeoutManager().startup(), executor);
         PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, new HybridTransactionController());
         ppool.setEmptyQueueWaitMSec(2);
         ppool.setDequeueBulkSize(50);

@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 
 import org.apache.commons.lang.NullArgumentException;
 import org.copperengine.core.ProcessingState;
@@ -20,8 +22,11 @@ import org.slf4j.LoggerFactory;
 import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 
 public class CassandraStorage implements Storage {
 
@@ -40,6 +45,7 @@ public class CassandraStorage implements Storage {
     private static final String CQL_DEL_EARLY_RESPONSE = "DELETE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
     private static final String CQL_SEL_EARLY_RESPONSE = "SELECT RESPONSE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
 
+    private final Executor executor;
     private final Session session;
     private final Map<String, PreparedStatement> preparedStatements = new HashMap<>();
     private final JsonMapper jsonMapper = new JsonMapperImpl();
@@ -47,17 +53,22 @@ public class CassandraStorage implements Storage {
 
     private int ttlEarlyResponseSeconds = 1 * 24 * 60 * 60; // one day
 
-    public CassandraStorage(final CassandraSessionManager sessionManager) {
-        this(sessionManager, ConsistencyLevel.LOCAL_QUORUM);
+    public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor) {
+        this(sessionManager, executor, ConsistencyLevel.LOCAL_QUORUM);
+
     }
 
-    public CassandraStorage(final CassandraSessionManager sessionManager, ConsistencyLevel consistencyLevel) {
+    public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor, final ConsistencyLevel consistencyLevel) {
         if (sessionManager == null)
             throw new NullArgumentException("sessionManager");
 
         if (consistencyLevel == null)
             throw new NullArgumentException("consistencyLevel");
 
+        if (executor == null)
+            throw new NullArgumentException("executor");
+
+        this.executor = executor;
         this.consistencyLevel = consistencyLevel;
         this.session = sessionManager.getSession();
         prepare(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
@@ -93,10 +104,30 @@ public class CassandraStorage implements Storage {
     }
 
     @Override
-    public void deleteWorkflowInstance(String wfId) throws Exception {
+    public ListenableFuture<Void> deleteWorkflowInstance(String wfId) throws Exception {
         logger.debug("deleteWorkflowInstance({})", wfId);
         final PreparedStatement pstmt = preparedStatements.get(CQL_DEL_WORKFLOW_INSTANCE_WAITING);
-        session.execute(pstmt.bind(wfId));
+        final ResultSetFuture rsf = session.executeAsync(pstmt.bind(wfId));
+        return createSettableFuture(rsf);
+    }
+
+    private SettableFuture<Void> createSettableFuture(final ResultSetFuture rsf) {
+        final SettableFuture<Void> rv = SettableFuture.create();
+        rsf.addListener(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    rsf.get();
+                    rv.set(null);
+                } catch (InterruptedException e) {
+                    rv.setException(e);
+                } catch (ExecutionException e) {
+                    rv.setException(e.getCause());
+                }
+
+            }
+        }, executor);
+        return rv;
     }
 
     @Override
@@ -125,9 +156,10 @@ public class CassandraStorage implements Storage {
     }
 
     @Override
-    public void safeEarlyResponse(String correlationId, String serializedResponse) throws Exception {
+    public ListenableFuture<Void> safeEarlyResponse(String correlationId, String serializedResponse) throws Exception {
         logger.debug("safeEarlyResponse({})", correlationId);
-        session.execute(preparedStatements.get(CQL_INS_EARLY_RESPONSE).bind(correlationId, serializedResponse, ttlEarlyResponseSeconds));
+        final ResultSetFuture rsf = session.executeAsync(preparedStatements.get(CQL_INS_EARLY_RESPONSE).bind(correlationId, serializedResponse, ttlEarlyResponseSeconds));
+        return createSettableFuture(rsf);
     }
 
     @Override
@@ -143,9 +175,10 @@ public class CassandraStorage implements Storage {
     }
 
     @Override
-    public void deleteEarlyResponse(String correlationId) throws Exception {
+    public ListenableFuture<Void> deleteEarlyResponse(String correlationId) throws Exception {
         logger.debug("deleteEarlyResponse({})", correlationId);
-        session.executeAsync(preparedStatements.get(CQL_DEL_EARLY_RESPONSE).bind(correlationId));
+        final ResultSetFuture rsf = session.executeAsync(preparedStatements.get(CQL_DEL_EARLY_RESPONSE).bind(correlationId));
+        return createSettableFuture(rsf);
     }
 
     @Override
@@ -212,7 +245,7 @@ public class CassandraStorage implements Storage {
 
             }
         }
-        logger.info("Read {} rows in {} msec", counter, System.currentTimeMillis() - startTS);
+        logger.debug("Read {} rows in {} msec", counter, System.currentTimeMillis() - startTS);
     }
 
     @Override

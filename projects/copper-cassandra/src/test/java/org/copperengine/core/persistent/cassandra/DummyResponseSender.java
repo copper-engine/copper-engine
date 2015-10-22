@@ -30,7 +30,7 @@ public class DummyResponseSender {
             exec.schedule(new Runnable() {
                 @Override
                 public void run() {
-                    logger.info("notify for cid={}", cid);
+                    logger.debug("notify for cid={}", cid);
                     engine.notify(new Response<>(cid), new Acknowledge.BestEffortAcknowledge());
                 }
             }, delay, timeUnit);

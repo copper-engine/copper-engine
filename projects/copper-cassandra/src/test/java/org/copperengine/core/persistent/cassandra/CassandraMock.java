@@ -4,9 +4,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.copperengine.core.ProcessingState;
+import org.copperengine.core.persistent.hybrid.HybridDBStorageAccessor;
 import org.copperengine.core.persistent.hybrid.Storage;
 import org.copperengine.core.persistent.hybrid.WorkflowInstance;
-import org.copperengine.core.persistent.hybrid.HybridDBStorageAccessor;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class CassandraMock implements Storage {
 
@@ -18,8 +20,9 @@ public class CassandraMock implements Storage {
     }
 
     @Override
-    public void deleteWorkflowInstance(String wfId) throws Exception {
+    public ListenableFuture<Void> deleteWorkflowInstance(String wfId) throws Exception {
         map.remove(wfId);
+        return null;
     }
 
     @Override
@@ -38,8 +41,8 @@ public class CassandraMock implements Storage {
     }
 
     @Override
-    public void safeEarlyResponse(String correlationId, String serializedResponse) throws Exception {
-
+    public ListenableFuture<Void> safeEarlyResponse(String correlationId, String serializedResponse) throws Exception {
+        return null;
     }
 
     @Override
@@ -48,8 +51,8 @@ public class CassandraMock implements Storage {
     }
 
     @Override
-    public void deleteEarlyResponse(String correlationId) throws Exception {
-
+    public ListenableFuture<Void> deleteEarlyResponse(String correlationId) throws Exception {
+        return null;
     }
 
 }
