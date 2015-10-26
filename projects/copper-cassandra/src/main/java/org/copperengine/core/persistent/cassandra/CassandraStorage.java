@@ -8,10 +8,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.NullArgumentException;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.WaitMode;
+import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.persistent.SerializedWorkflow;
 import org.copperengine.core.persistent.hybrid.HybridDBStorageAccessor;
 import org.copperengine.core.persistent.hybrid.Storage;
@@ -50,15 +52,16 @@ public class CassandraStorage implements Storage {
     private final Map<String, PreparedStatement> preparedStatements = new HashMap<>();
     private final JsonMapper jsonMapper = new JsonMapperImpl();
     private final ConsistencyLevel consistencyLevel;
+    private final RuntimeStatisticsCollector runtimeStatisticsCollector;
 
     private int ttlEarlyResponseSeconds = 1 * 24 * 60 * 60; // one day
 
-    public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor) {
-        this(sessionManager, executor, ConsistencyLevel.LOCAL_QUORUM);
+    public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor, final RuntimeStatisticsCollector runtimeStatisticsCollector) {
+        this(sessionManager, executor, runtimeStatisticsCollector, ConsistencyLevel.LOCAL_QUORUM);
 
     }
 
-    public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor, final ConsistencyLevel consistencyLevel) {
+    public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor, final RuntimeStatisticsCollector runtimeStatisticsCollector, final ConsistencyLevel consistencyLevel) {
         if (sessionManager == null)
             throw new NullArgumentException("sessionManager");
 
@@ -68,9 +71,14 @@ public class CassandraStorage implements Storage {
         if (executor == null)
             throw new NullArgumentException("executor");
 
+        if (runtimeStatisticsCollector == null)
+            throw new NullArgumentException("runtimeStatisticsCollector");
+
         this.executor = executor;
         this.consistencyLevel = consistencyLevel;
         this.session = sessionManager.getSession();
+        this.runtimeStatisticsCollector = runtimeStatisticsCollector;
+
         prepare(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
         prepare(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
         prepare(CQL_DEL_WORKFLOW_INSTANCE_WAITING);
@@ -94,12 +102,16 @@ public class CassandraStorage implements Storage {
         logger.debug("safeWorkflow({})", cw);
         if (cw.cid2ResponseMap == null || cw.cid2ResponseMap.isEmpty()) {
             final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
+            final long startTS = System.nanoTime();
             session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.state.name(), cw.id));
+            runtimeStatisticsCollector.submit("wfi.update.nowait", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
         }
         else {
             final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
             final String responseMapJson = jsonMapper.toJSON(cw.cid2ResponseMap);
+            final long startTS = System.nanoTime();
             session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.waitMode.name(), cw.timeout, responseMapJson, cw.state.name(), cw.id));
+            runtimeStatisticsCollector.submit("wfi.update.wait", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
         }
     }
 
@@ -107,16 +119,18 @@ public class CassandraStorage implements Storage {
     public ListenableFuture<Void> deleteWorkflowInstance(String wfId) throws Exception {
         logger.debug("deleteWorkflowInstance({})", wfId);
         final PreparedStatement pstmt = preparedStatements.get(CQL_DEL_WORKFLOW_INSTANCE_WAITING);
+        final long startTS = System.nanoTime();
         final ResultSetFuture rsf = session.executeAsync(pstmt.bind(wfId));
-        return createSettableFuture(rsf);
+        return createSettableFuture(rsf, "wfi.delete", startTS);
     }
 
-    private SettableFuture<Void> createSettableFuture(final ResultSetFuture rsf) {
+    private SettableFuture<Void> createSettableFuture(final ResultSetFuture rsf, final String mpId, final long startTsNanos) {
         final SettableFuture<Void> rv = SettableFuture.create();
         rsf.addListener(new Runnable() {
             @Override
             public void run() {
                 try {
+                    runtimeStatisticsCollector.submit(mpId, 1, System.nanoTime() - startTsNanos, TimeUnit.NANOSECONDS);
                     rsf.get();
                     rv.set(null);
                 } catch (InterruptedException e) {
@@ -134,6 +148,7 @@ public class CassandraStorage implements Storage {
     public WorkflowInstance readCassandraWorkflow(String wfId) throws Exception {
         logger.debug("readCassandraWorkflow({})", wfId);
         final PreparedStatement pstmt = preparedStatements.get(CQL_SEL_WORKFLOW_INSTANCE_WAITING);
+        final long startTS = System.nanoTime();
         ResultSet rs = session.execute(pstmt.bind(wfId));
         Row row = rs.one();
         if (row == null) {
@@ -152,21 +167,25 @@ public class CassandraStorage implements Storage {
         cw.serializedWorkflow.setObjectState(row.getString("OBJECT_STATE"));
         cw.cid2ResponseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
         cw.state = ProcessingState.valueOf(row.getString("STATE"));
+        runtimeStatisticsCollector.submit("wfi.read", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
         return cw;
     }
 
     @Override
     public ListenableFuture<Void> safeEarlyResponse(String correlationId, String serializedResponse) throws Exception {
         logger.debug("safeEarlyResponse({})", correlationId);
+        final long startTS = System.nanoTime();
         final ResultSetFuture rsf = session.executeAsync(preparedStatements.get(CQL_INS_EARLY_RESPONSE).bind(correlationId, serializedResponse, ttlEarlyResponseSeconds));
-        return createSettableFuture(rsf);
+        return createSettableFuture(rsf, "ear.insert", startTS);
     }
 
     @Override
     public String readEarlyResponse(String correlationId) throws Exception {
         logger.debug("readEarlyResponse({})", correlationId);
+        final long startTS = System.nanoTime();
         final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_EARLY_RESPONSE).bind(correlationId));
         Row row = rs.one();
+        runtimeStatisticsCollector.submit("ear.read", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
         if (row != null) {
             logger.debug("early response with correlationId {} found!", correlationId);
             return row.getString("RESPONSE");
@@ -177,8 +196,9 @@ public class CassandraStorage implements Storage {
     @Override
     public ListenableFuture<Void> deleteEarlyResponse(String correlationId) throws Exception {
         logger.debug("deleteEarlyResponse({})", correlationId);
+        final long startTS = System.nanoTime();
         final ResultSetFuture rsf = session.executeAsync(preparedStatements.get(CQL_DEL_EARLY_RESPONSE).bind(correlationId));
-        return createSettableFuture(rsf);
+        return createSettableFuture(rsf, "ear.delete", startTS);
     }
 
     @Override
@@ -251,7 +271,9 @@ public class CassandraStorage implements Storage {
     @Override
     public void updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception {
         logger.debug("updateWorkflowInstanceState({}, {})", wfId, state);
+        long startTS = System.nanoTime();
         session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE).bind(state.name(), wfId));
+        runtimeStatisticsCollector.submit("wfi.update.state", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
     }
 
     @SuppressWarnings("unchecked")

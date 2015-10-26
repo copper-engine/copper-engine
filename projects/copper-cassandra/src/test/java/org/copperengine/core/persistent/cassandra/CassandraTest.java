@@ -12,6 +12,7 @@ import org.copperengine.core.EngineIdProviderBean;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.common.DefaultProcessorPoolManager;
 import org.copperengine.core.common.JdkRandomUUIDFactory;
+import org.copperengine.core.monitoring.LoggingStatisticCollector;
 import org.copperengine.core.persistent.PersistentPriorityProcessorPool;
 import org.copperengine.core.persistent.PersistentProcessorPool;
 import org.copperengine.core.persistent.PersistentScottyEngine;
@@ -34,10 +35,17 @@ public class CassandraTest {
     private static Backchannel backchannel;
     private static PersistentScottyEngine engine;
     private static ExecutorService executor;
+    private static LoggingStatisticCollector statisticCollector;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        cassandraSessionManager = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
+        statisticCollector = new LoggingStatisticCollector();
+        statisticCollector.setLoggingIntervalSec(5);
+        statisticCollector.start();
+
+        // cassandraSessionManager = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null,
+        // "copper");
+        cassandraSessionManager = new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper");
         cassandraSessionManager.startup();
         backchannel = new BackchannelDefaultImpl();
         executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -51,12 +59,14 @@ public class CassandraTest {
         cassandraSessionManager.shutdown();
 
         executor.shutdown();
+
+        statisticCollector.shutdown();
     }
 
     @Test
     public void testParallel() throws Exception {
         List<String> cids = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
             final String cid = engine.createUUID();
             final WorkflowInstanceDescr<String> wfid = new WorkflowInstanceDescr<String>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid, cid, 1, null);
             engine.run(wfid);
@@ -85,7 +95,7 @@ public class CassandraTest {
 
         Storage cassandra;
         // cassandra = new CassandraMock();
-        cassandra = new CassandraStorage(cassandraSessionManager, executor);
+        cassandra = new CassandraStorage(cassandraSessionManager, executor, statisticCollector);
 
         HybridDBStorage storage = new HybridDBStorage(new StandardJavaSerializer(), wfRepository, cassandra, new DefaultTimeoutManager().startup(), executor);
         PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, new HybridTransactionController());
