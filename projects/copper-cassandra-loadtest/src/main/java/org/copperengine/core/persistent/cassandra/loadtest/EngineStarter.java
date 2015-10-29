@@ -1,4 +1,4 @@
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.cassandra.loadtest;
 
 public class EngineStarter {
 

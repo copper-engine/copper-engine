@@ -1,4 +1,4 @@
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.cassandra.loadtest;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.copperengine.core.WorkflowInstanceDescr;
 
 public class PermanentLoadCreator {
+
+    private static final String WF_CLASS = "org.copperengine.core.persistent.cassandra.loadtest.workflows.LoadTestWorkflow";
 
     private CassandraEngineFactory factory;
     private final AtomicInteger counter = new AtomicInteger();
@@ -54,8 +56,8 @@ public class PermanentLoadCreator {
             List<String> cids = new ArrayList<>();
             for (int i = 0; i < 100; i++) {
                 final String cid = factory.engine.createUUID();
-                final TestData data = new TestData(cid, payload);
-                final WorkflowInstanceDescr<TestData> wfid = new WorkflowInstanceDescr<TestData>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", data, cid, 1, null);
+                final LoadTestData data = new LoadTestData(cid, payload);
+                final WorkflowInstanceDescr<LoadTestData> wfid = new WorkflowInstanceDescr<LoadTestData>(WF_CLASS, data, cid, 1, null);
                 factory.engine.run(wfid);
                 cids.add(cid);
             }

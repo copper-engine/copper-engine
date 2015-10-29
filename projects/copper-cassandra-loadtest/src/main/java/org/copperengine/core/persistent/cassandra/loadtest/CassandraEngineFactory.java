@@ -1,4 +1,4 @@
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.cassandra.loadtest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +15,8 @@ import org.copperengine.core.persistent.PersistentPriorityProcessorPool;
 import org.copperengine.core.persistent.PersistentProcessorPool;
 import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.persistent.StandardJavaSerializer;
+import org.copperengine.core.persistent.cassandra.CassandraSessionManagerImpl;
+import org.copperengine.core.persistent.cassandra.CassandraStorage;
 import org.copperengine.core.persistent.hybrid.DefaultTimeoutManager;
 import org.copperengine.core.persistent.hybrid.HybridDBStorage;
 import org.copperengine.core.persistent.hybrid.HybridTransactionController;
@@ -59,15 +61,15 @@ public class CassandraEngineFactory {
 
     protected CassandraSessionManagerImpl createCassandraSessionManager() {
         CassandraSessionManagerImpl x =
-                new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
-        // new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper");
+                // new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
+                new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper");
         x.startup();
         return x;
     }
 
     protected LoggingStatisticCollector createStatisticsLogger() {
         LoggingStatisticCollector statisticCollector = new LoggingStatisticCollector();
-        statisticCollector.setLoggingIntervalSec(5);
+        statisticCollector.setLoggingIntervalSec(30);
         statisticCollector.start();
         return statisticCollector;
     }
@@ -88,13 +90,13 @@ public class CassandraEngineFactory {
 
     protected PersistentScottyEngine createTestEngine() {
         EngineIdProvider engineIdProvider = new EngineIdProviderBean("default");
-        ClasspathWorkflowRepository wfRepository = new ClasspathWorkflowRepository("org.copperengine.core.persistent.cassandra.workflows");
+        ClasspathWorkflowRepository wfRepository = new ClasspathWorkflowRepository("org.copperengine.core.persistent.cassandra.loadtest.workflows");
         wfRepository.start();
 
         Storage cassandra = createCassandraStorage();
 
         HybridDBStorage storage = createStorage(wfRepository, cassandra);
-        PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, new HybridTransactionController(), Runtime.getRuntime().availableProcessors());
+        PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, new HybridTransactionController(), Runtime.getRuntime().availableProcessors() * 4);
         ppool.setEmptyQueueWaitMSec(2);
         ppool.setDequeueBulkSize(50);
         List<PersistentProcessorPool> pools = new ArrayList<PersistentProcessorPool>();

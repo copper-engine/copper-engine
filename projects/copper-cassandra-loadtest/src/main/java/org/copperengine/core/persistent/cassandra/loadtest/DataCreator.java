@@ -1,4 +1,4 @@
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.cassandra.loadtest;
 
 import java.util.Collections;
 import java.util.List;
@@ -7,6 +7,7 @@ import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.persistent.StandardJavaSerializer;
+import org.copperengine.core.persistent.cassandra.TestData;
 import org.copperengine.core.persistent.hybrid.DefaultTimeoutManager;
 import org.copperengine.core.persistent.hybrid.HybridDBStorage;
 import org.copperengine.core.persistent.hybrid.Storage;
