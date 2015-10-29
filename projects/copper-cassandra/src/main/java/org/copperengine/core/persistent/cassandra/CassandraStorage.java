@@ -266,7 +266,7 @@ public class CassandraStorage implements Storage {
             }
         }
         logger.debug("Read {} rows in {} msec", counter, System.currentTimeMillis() - startTS);
-        runtimeStatisticsCollector.submit("init", counter, System.currentTimeMillis() - startTS, TimeUnit.MILLISECONDS);
+        runtimeStatisticsCollector.submit("storage.init", counter, System.currentTimeMillis() - startTS, TimeUnit.MILLISECONDS);
     }
 
     @Override

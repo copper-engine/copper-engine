@@ -103,9 +103,9 @@ public class TestWorkflow extends PersistentWorkflow<TestData> {
         final String cid = getEngine().createUUID();
         wait(WaitMode.ALL, 100, cid);
         Response<String> r = getAndRemoveResponse(cid);
-        // Assert.assertNotNull(r); FIXME
-        // Assert.assertNull(r.getResponse());
-        // Assert.assertTrue(r.isTimeout());
+        Assert.assertNotNull(r);
+        Assert.assertNull(r.getResponse());
+        Assert.assertTrue(r.isTimeout());
     }
 
     private void delayedMultiResponse() throws Interrupt {

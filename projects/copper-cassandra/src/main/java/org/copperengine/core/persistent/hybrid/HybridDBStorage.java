@@ -180,6 +180,9 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
                     Response<?> r = serializer.deserializeResponse(e.getValue());
                     wf.putResponse(r);
                 }
+                else {
+                    wf.putResponse(new Response<>(e.getKey())); // Set timeout response
+                }
             }
         }
         return wf;
