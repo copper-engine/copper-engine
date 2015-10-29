@@ -295,6 +295,10 @@ project(':projects:copper-wfrext') {
 }
 
 project(':projects:copper-cassandra') {
+    apply plugin:'application'
+    
+    mainClassName = "org.copperengine.core.persistent.cassandra.PermanentLoadCreator"
+    
     dependencies {
         compile project(':projects:copper-jmx-interface')
         compile project(':projects:copper-coreengine')
@@ -305,9 +309,11 @@ project(':projects:copper-cassandra') {
 	compile 'commons-lang:commons-lang:2.6'
        	compile 'com.fasterxml.jackson.core:jackson-core:2.6.3'
        	compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
+        
+        compile 'junit:junit:4.11' // TODO remove
 
-    	testCompile 'org.slf4j:slf4j-log4j12:1.6.6'
-        testCompile 'log4j:log4j:1.2.17'
+    	compile 'org.slf4j:slf4j-log4j12:1.6.6' // TODO testCompile
+        compile 'log4j:log4j:1.2.17' // TODO testCompiles
     }
 }
 
