@@ -15,7 +15,7 @@ public class CassandraTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        factory.createEngine();
+        factory.createEngine(true);
     }
 
     @AfterClass
@@ -26,15 +26,17 @@ public class CassandraTest {
     @Test
     public void testParallel() throws Exception {
         List<String> cids = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 50; i++) {
             final String cid = factory.engine.createUUID();
-            final WorkflowInstanceDescr<String> wfid = new WorkflowInstanceDescr<String>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid, cid, 1, null);
+            final TestData data = new TestData(cid, "foo");
+            final WorkflowInstanceDescr<TestData> wfid = new WorkflowInstanceDescr<TestData>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", data, cid, 1, null);
             factory.engine.run(wfid);
             cids.add(cid);
         }
         for (String cid : cids) {
             Object response = factory.backchannel.wait(cid, 10000, TimeUnit.MILLISECONDS);
             org.junit.Assert.assertNotNull("no response for workflow instance " + cid, response);
+            org.junit.Assert.assertEquals("OK", response);
         }
     }
 
@@ -42,23 +44,12 @@ public class CassandraTest {
     public void testSerial() throws Exception {
         for (int i = 0; i < 3; i++) {
             final String cid = factory.engine.createUUID();
-            factory.engine.run("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid);
-            Object response = factory.backchannel.wait(cid, 1000, TimeUnit.MILLISECONDS);
-            org.junit.Assert.assertNotNull(response);
-        }
-    }
-
-    @Test
-    public void testSerialPerfTestWf() throws Exception {
-        for (int i = 0; i < 3; i++) {
-            final String cid = factory.engine.createUUID();
-            final PerfTestData data = new PerfTestData();
-            data.id = cid;
-            data.someData = "foo";
-            final WorkflowInstanceDescr<PerfTestData> wfid = new WorkflowInstanceDescr<PerfTestData>("org.copperengine.core.persistent.cassandra.workflows.PerfTestWorkflow", data, cid, 1, null);
+            final TestData data = new TestData(cid, "foo");
+            final WorkflowInstanceDescr<TestData> wfid = new WorkflowInstanceDescr<TestData>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", data, cid, 1, null);
             factory.engine.run(wfid);
-            Object response = factory.backchannel.wait(cid, 1000, TimeUnit.MILLISECONDS);
+            Object response = factory.backchannel.wait(cid, 10000, TimeUnit.MILLISECONDS);
             org.junit.Assert.assertNotNull(response);
+            org.junit.Assert.assertEquals("OK", response);
         }
     }
 

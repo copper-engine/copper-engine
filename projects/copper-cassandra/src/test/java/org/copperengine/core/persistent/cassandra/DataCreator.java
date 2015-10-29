@@ -26,7 +26,7 @@ public class DataCreator {
             }
         };
         try {
-            factory.createEngine();
+            factory.createEngine(false);
             createData(factory.engine);
         } catch (Exception e) {
             e.printStackTrace();
@@ -44,10 +44,10 @@ public class DataCreator {
 
         for (int i = 0; i < 100000; i++) {
             final String cid = engine.createUUID();
-            final PerfTestData data = new PerfTestData();
+            final TestData data = new TestData();
             data.id = cid;
             data.someData = payload;
-            final WorkflowInstanceDescr<PerfTestData> wfid = new WorkflowInstanceDescr<PerfTestData>("org.copperengine.core.persistent.cassandra.workflows.PerfTestWorkflow", data, cid, 1, null);
+            final WorkflowInstanceDescr<TestData> wfid = new WorkflowInstanceDescr<TestData>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", data, cid, 1, null);
             engine.run(wfid);
         }
     }

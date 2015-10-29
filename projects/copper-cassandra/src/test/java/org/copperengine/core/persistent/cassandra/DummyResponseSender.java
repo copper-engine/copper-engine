@@ -24,14 +24,14 @@ public class DummyResponseSender {
 
     public void foo(final String cid, final int delay, final TimeUnit timeUnit) {
         if (delay == 0) {
-            engine.notify(new Response<>(cid), new Acknowledge.BestEffortAcknowledge());
+            engine.notify(new Response<String>(cid, "foo" + cid, null), new Acknowledge.BestEffortAcknowledge());
         }
         else {
             exec.schedule(new Runnable() {
                 @Override
                 public void run() {
                     logger.debug("notify for cid={}", cid);
-                    engine.notify(new Response<>(cid), new Acknowledge.BestEffortAcknowledge());
+                    engine.notify(new Response<String>(cid, "foo" + cid, null), new Acknowledge.BestEffortAcknowledge());
                 }
             }, delay, timeUnit);
         }

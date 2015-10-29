@@ -5,7 +5,7 @@ public class EngineStarter {
     public static void main(final String[] args) {
         final CassandraEngineFactory factory = new CassandraEngineFactory();
         try {
-            factory.createEngine();
+            factory.createEngine(false);
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {

@@ -20,17 +20,21 @@ import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Interrupt;
+import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.core.persistent.cassandra.DummyResponseSender;
+import org.copperengine.core.persistent.cassandra.TestData;
 import org.copperengine.core.util.Backchannel;
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestWorkflow extends PersistentWorkflow<String> {
+public class TestWorkflow extends PersistentWorkflow<TestData> {
 
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(TestWorkflow.class);
+    private static final int DEFAULT_TIMEOUT = 5000;
 
     private transient DummyResponseSender dummyResponseSender;
     private transient Backchannel backchannel;
@@ -47,36 +51,75 @@ public class TestWorkflow extends PersistentWorkflow<String> {
 
     @Override
     public void main() throws Interrupt {
-        logger.info("started");
+        try {
+            logger.info("started");
 
-        logger.info("Testing delayed response...");
-        delayedResponse();
+            logger.info("Testing delayed response...");
+            delayedResponse();
 
-        logger.info("Testing early response...");
-        earlyResponse();
+            logger.info("Testing early response...");
+            earlyResponse();
 
-        logger.info("Testing timeout response...");
-        timeoutResponse();
+            logger.info("Testing timeout response...");
+            timeoutResponse();
 
-        backchannel.notify(getData(), getData());
-        logger.info("finished");
+            logger.info("Testing delayed multi response...");
+            delayedMultiResponse();
+
+            backchannel.notify(getData().id, "OK");
+            logger.info("finished");
+        } catch (Exception e) {
+            logger.error("workflow failed", e);
+            backchannel.notify(getData().id, e);
+            System.exit(0);
+        } catch (AssertionError e) {
+            logger.error("workflow failed", e);
+            backchannel.notify(getData().id, e);
+            System.exit(0);
+        }
     }
 
     private void delayedResponse() throws Interrupt {
         final String cid = getEngine().createUUID();
         dummyResponseSender.foo(cid, 100, TimeUnit.MILLISECONDS);
-        wait(WaitMode.ALL, 1000, cid);
+        wait(WaitMode.ALL, DEFAULT_TIMEOUT, cid);
+        checkResponse(cid);
     }
 
     private void earlyResponse() throws Interrupt {
         final String cid = getEngine().createUUID();
         dummyResponseSender.foo(cid, 0, TimeUnit.MILLISECONDS);
-        wait(WaitMode.ALL, 1000, cid);
+        wait(WaitMode.ALL, DEFAULT_TIMEOUT, cid);
+        checkResponse(cid);
+    }
+
+    private void checkResponse(final String cid) {
+        Response<String> r = getAndRemoveResponse(cid);
+        Assert.assertNotNull("Response is null for wfid=" + getId() + " and cid=" + cid, r);
+        Assert.assertEquals("Unexpected response for  wfid=" + getId() + " and cid=" + cid, "foo" + cid, r.getResponse());
     }
 
     private void timeoutResponse() throws Interrupt {
         final String cid = getEngine().createUUID();
         wait(WaitMode.ALL, 100, cid);
+        Response<String> r = getAndRemoveResponse(cid);
+        // Assert.assertNotNull(r); FIXME
+        // Assert.assertNull(r.getResponse());
+        // Assert.assertTrue(r.isTimeout());
+    }
+
+    private void delayedMultiResponse() throws Interrupt {
+        final String cid1 = getEngine().createUUID();
+        final String cid2 = getEngine().createUUID();
+        final String cid3 = getEngine().createUUID();
+        dummyResponseSender.foo(cid1, 50, TimeUnit.MILLISECONDS);
+        dummyResponseSender.foo(cid2, 100, TimeUnit.MILLISECONDS);
+        dummyResponseSender.foo(cid3, 150, TimeUnit.MILLISECONDS);
+        wait(WaitMode.ALL, DEFAULT_TIMEOUT, cid1, cid2, cid3);
+        checkResponse(cid1);
+        checkResponse(cid2);
+        checkResponse(cid3);
+
     }
 
 }

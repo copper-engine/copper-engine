@@ -32,10 +32,15 @@ public class CassandraEngineFactory {
     protected ExecutorService executor;
     protected LoggingStatisticCollector statisticCollector;
 
-    public void createEngine() throws Exception {
+    public void createEngine(boolean truncate) throws Exception {
         statisticCollector = createStatisticsLogger();
 
         cassandraSessionManager = createCassandraSessionManager();
+
+        if (truncate) {
+            cassandraSessionManager.getSession().execute("truncate COP_WORKFLOW_INSTANCE");
+            cassandraSessionManager.getSession().execute("truncate COP_EARLY_RESPONSE");
+        }
 
         backchannel = createBackchannel();
 
@@ -53,7 +58,9 @@ public class CassandraEngineFactory {
     }
 
     protected CassandraSessionManagerImpl createCassandraSessionManager() {
-        CassandraSessionManagerImpl x = new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper");
+        CassandraSessionManagerImpl x =
+                new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
+        // new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper");
         x.startup();
         return x;
     }
@@ -105,7 +112,7 @@ public class CassandraEngineFactory {
         engine.setProcessorPoolManager(processorPoolManager);
         engine.setDependencyInjector(pojoDependencyInjector);
 
-        DummyResponseSender dummyResponseSender = new DummyResponseSender(Executors.newSingleThreadScheduledExecutor(), engine);
+        DummyResponseSender dummyResponseSender = new DummyResponseSender(Executors.newScheduledThreadPool(4), engine);
         pojoDependencyInjector.register("dummyResponseSender", dummyResponseSender);
         pojoDependencyInjector.register("backchannel", backchannel);
 
