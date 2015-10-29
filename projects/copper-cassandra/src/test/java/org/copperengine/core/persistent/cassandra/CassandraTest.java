@@ -1,79 +1,39 @@
 package org.copperengine.core.persistent.cassandra;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.copperengine.core.EngineIdProvider;
-import org.copperengine.core.EngineIdProviderBean;
 import org.copperengine.core.WorkflowInstanceDescr;
-import org.copperengine.core.common.DefaultProcessorPoolManager;
-import org.copperengine.core.common.JdkRandomUUIDFactory;
-import org.copperengine.core.monitoring.LoggingStatisticCollector;
-import org.copperengine.core.persistent.PersistentPriorityProcessorPool;
-import org.copperengine.core.persistent.PersistentProcessorPool;
-import org.copperengine.core.persistent.PersistentScottyEngine;
-import org.copperengine.core.persistent.StandardJavaSerializer;
-import org.copperengine.core.persistent.hybrid.DefaultTimeoutManager;
-import org.copperengine.core.persistent.hybrid.HybridDBStorage;
-import org.copperengine.core.persistent.hybrid.HybridTransactionController;
-import org.copperengine.core.persistent.hybrid.Storage;
-import org.copperengine.core.util.Backchannel;
-import org.copperengine.core.util.BackchannelDefaultImpl;
-import org.copperengine.core.util.PojoDependencyInjector;
-import org.copperengine.ext.wfrepo.classpath.ClasspathWorkflowRepository;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class CassandraTest {
 
-    private static CassandraSessionManagerImpl cassandraSessionManager;
-    private static Backchannel backchannel;
-    private static PersistentScottyEngine engine;
-    private static ExecutorService executor;
-    private static LoggingStatisticCollector statisticCollector;
+    private static final CassandraEngineFactory factory = new CassandraEngineFactory();
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        statisticCollector = new LoggingStatisticCollector();
-        statisticCollector.setLoggingIntervalSec(5);
-        statisticCollector.start();
-
-        // cassandraSessionManager = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null,
-        // "copper");
-        cassandraSessionManager = new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper");
-        cassandraSessionManager.startup();
-        backchannel = new BackchannelDefaultImpl();
-        executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        engine = createTestEngine();
+        factory.createEngine();
     }
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
-        engine.shutdown();
-
-        cassandraSessionManager.shutdown();
-
-        executor.shutdown();
-
-        statisticCollector.shutdown();
+        factory.destroyEngine();
     }
 
     @Test
     public void testParallel() throws Exception {
         List<String> cids = new ArrayList<>();
-        for (int i = 0; i < 10000; i++) {
-            final String cid = engine.createUUID();
+        for (int i = 0; i < 100; i++) {
+            final String cid = factory.engine.createUUID();
             final WorkflowInstanceDescr<String> wfid = new WorkflowInstanceDescr<String>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid, cid, 1, null);
-            engine.run(wfid);
+            factory.engine.run(wfid);
             cids.add(cid);
         }
         for (String cid : cids) {
-            Object response = backchannel.wait(cid, 10000, TimeUnit.MILLISECONDS);
+            Object response = factory.backchannel.wait(cid, 10000, TimeUnit.MILLISECONDS);
             org.junit.Assert.assertNotNull("no response for workflow instance " + cid, response);
         }
     }
@@ -81,48 +41,25 @@ public class CassandraTest {
     @Test
     public void testSerial() throws Exception {
         for (int i = 0; i < 3; i++) {
-            final String cid = engine.createUUID();
-            engine.run("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid);
-            Object response = backchannel.wait(cid, 1000, TimeUnit.MILLISECONDS);
+            final String cid = factory.engine.createUUID();
+            factory.engine.run("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", cid);
+            Object response = factory.backchannel.wait(cid, 1000, TimeUnit.MILLISECONDS);
             org.junit.Assert.assertNotNull(response);
         }
     }
 
-    private static PersistentScottyEngine createTestEngine() {
-        EngineIdProvider engineIdProvider = new EngineIdProviderBean("default");
-        ClasspathWorkflowRepository wfRepository = new ClasspathWorkflowRepository("org.copperengine.core.persistent.cassandra.workflows");
-        wfRepository.start();
-
-        Storage cassandra;
-        // cassandra = new CassandraMock();
-        cassandra = new CassandraStorage(cassandraSessionManager, executor, statisticCollector);
-
-        HybridDBStorage storage = new HybridDBStorage(new StandardJavaSerializer(), wfRepository, cassandra, new DefaultTimeoutManager().startup(), executor);
-        PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, new HybridTransactionController());
-        ppool.setEmptyQueueWaitMSec(2);
-        ppool.setDequeueBulkSize(50);
-        List<PersistentProcessorPool> pools = new ArrayList<PersistentProcessorPool>();
-        pools.add(ppool);
-        DefaultProcessorPoolManager<PersistentProcessorPool> processorPoolManager = new DefaultProcessorPoolManager<PersistentProcessorPool>();
-        processorPoolManager.setProcessorPools(pools);
-
-        PojoDependencyInjector pojoDependencyInjector = new PojoDependencyInjector();
-
-        PersistentScottyEngine engine = new PersistentScottyEngine();
-        engine.setDbStorage(storage);
-        engine.setWfRepository(wfRepository);
-        engine.setEngineIdProvider(engineIdProvider);
-        engine.setIdFactory(new JdkRandomUUIDFactory());
-        engine.setProcessorPoolManager(processorPoolManager);
-        engine.setDependencyInjector(pojoDependencyInjector);
-
-        DummyResponseSender dummyResponseSender = new DummyResponseSender(Executors.newSingleThreadScheduledExecutor(), engine);
-        pojoDependencyInjector.register("dummyResponseSender", dummyResponseSender);
-        pojoDependencyInjector.register("backchannel", backchannel);
-
-        engine.startup();
-
-        return engine;
+    @Test
+    public void testSerialPerfTestWf() throws Exception {
+        for (int i = 0; i < 3; i++) {
+            final String cid = factory.engine.createUUID();
+            final PerfTestData data = new PerfTestData();
+            data.id = cid;
+            data.someData = "foo";
+            final WorkflowInstanceDescr<PerfTestData> wfid = new WorkflowInstanceDescr<PerfTestData>("org.copperengine.core.persistent.cassandra.workflows.PerfTestWorkflow", data, cid, 1, null);
+            factory.engine.run(wfid);
+            Object response = factory.backchannel.wait(cid, 1000, TimeUnit.MILLISECONDS);
+            org.junit.Assert.assertNotNull(response);
+        }
     }
 
 }

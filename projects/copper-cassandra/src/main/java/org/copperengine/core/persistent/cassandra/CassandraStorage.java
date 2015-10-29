@@ -206,7 +206,7 @@ public class CassandraStorage implements Storage {
         final long startTS = System.currentTimeMillis();
         final List<String> missingResponseCorrelationIds = new ArrayList<String>();
         final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_ALL_WORKFLOW_INSTANCES).bind().setFetchSize(2000));
-        long counter = 0;
+        int counter = 0;
         Row row;
         while ((row = rs.one()) != null) {
             counter++;
@@ -266,6 +266,7 @@ public class CassandraStorage implements Storage {
             }
         }
         logger.debug("Read {} rows in {} msec", counter, System.currentTimeMillis() - startTS);
+        runtimeStatisticsCollector.submit("init", counter, System.currentTimeMillis() - startTS, TimeUnit.MILLISECONDS);
     }
 
     @Override
