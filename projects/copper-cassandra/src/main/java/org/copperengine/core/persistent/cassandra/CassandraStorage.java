@@ -224,7 +224,7 @@ public class CassandraStorage implements Storage {
         logger.info("Starting to initialize...");
         final long startTS = System.currentTimeMillis();
         final List<String> missingResponseCorrelationIds = new ArrayList<String>();
-        final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_ALL_WORKFLOW_INSTANCES).bind().setFetchSize(2000).setConsistencyLevel(ConsistencyLevel.ONE));
+        final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_ALL_WORKFLOW_INSTANCES).bind().setFetchSize(2000).setConsistencyLevel(ConsistencyLevel.QUORUM));
         int counter = 0;
         Row row;
         while ((row = rs.one()) != null) {

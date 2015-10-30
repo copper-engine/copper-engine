@@ -46,6 +46,7 @@ public class CassandraSessionManagerImpl implements CassandraSessionManager {
             b.withPort(port);
         }
         cassandraCluster = b.build();
+        cassandraCluster.getConfiguration().getSocketOptions().setReadTimeoutMillis(60000);
 
         logger.info("Connected to cluster: {}", cassandraCluster.getMetadata().getClusterName());
         for (Host host : cassandraCluster.getMetadata().getAllHosts()) {
