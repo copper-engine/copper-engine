@@ -100,19 +100,25 @@ public class CassandraStorage implements Storage {
     @Override
     public void safeWorkflowInstance(final WorkflowInstance cw) throws Exception {
         logger.debug("safeWorkflow({})", cw);
-        if (cw.cid2ResponseMap == null || cw.cid2ResponseMap.isEmpty()) {
-            final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
-            final long startTS = System.nanoTime();
-            session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.state.name(), cw.id));
-            runtimeStatisticsCollector.submit("wfi.update.nowait", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
-        }
-        else {
-            final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
-            final String responseMapJson = jsonMapper.toJSON(cw.cid2ResponseMap);
-            final long startTS = System.nanoTime();
-            session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.waitMode.name(), cw.timeout, responseMapJson, cw.state.name(), cw.id));
-            runtimeStatisticsCollector.submit("wfi.update.wait", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
-        }
+        new CassandraOperation<Void>(logger) {
+            @Override
+            protected Void execute() throws Exception {
+                if (cw.cid2ResponseMap == null || cw.cid2ResponseMap.isEmpty()) {
+                    final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
+                    final long startTS = System.nanoTime();
+                    session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.state.name(), cw.id));
+                    runtimeStatisticsCollector.submit("wfi.update.nowait", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
+                }
+                else {
+                    final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
+                    final String responseMapJson = jsonMapper.toJSON(cw.cid2ResponseMap);
+                    final long startTS = System.nanoTime();
+                    session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.waitMode.name(), cw.timeout, responseMapJson, cw.state.name(), cw.id));
+                    runtimeStatisticsCollector.submit("wfi.update.wait", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
+                }
+                return null;
+            }
+        }.run();
     }
 
     @Override
@@ -145,30 +151,35 @@ public class CassandraStorage implements Storage {
     }
 
     @Override
-    public WorkflowInstance readCassandraWorkflow(String wfId) throws Exception {
+    public WorkflowInstance readCassandraWorkflow(final String wfId) throws Exception {
         logger.debug("readCassandraWorkflow({})", wfId);
-        final PreparedStatement pstmt = preparedStatements.get(CQL_SEL_WORKFLOW_INSTANCE_WAITING);
-        final long startTS = System.nanoTime();
-        ResultSet rs = session.execute(pstmt.bind(wfId));
-        Row row = rs.one();
-        if (row == null) {
-            logger.warn("No workflow instance with id {} found", wfId);
-            return null;
-        }
-        final WorkflowInstance cw = new WorkflowInstance();
-        cw.id = wfId;
-        cw.ppoolId = row.getString("PPOOL_ID");
-        cw.prio = row.getInt("PRIO");
-        cw.creationTS = row.getDate("CREATION_TS");
-        cw.timeout = row.getDate("TIMEOUT");
-        cw.waitMode = toWaitMode(row.getString("WAIT_MODE"));
-        cw.serializedWorkflow = new SerializedWorkflow();
-        cw.serializedWorkflow.setData(row.getString("DATA"));
-        cw.serializedWorkflow.setObjectState(row.getString("OBJECT_STATE"));
-        cw.cid2ResponseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
-        cw.state = ProcessingState.valueOf(row.getString("STATE"));
-        runtimeStatisticsCollector.submit("wfi.read", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
-        return cw;
+        return new CassandraOperation<WorkflowInstance>(logger) {
+            @Override
+            protected WorkflowInstance execute() throws Exception {
+                final PreparedStatement pstmt = preparedStatements.get(CQL_SEL_WORKFLOW_INSTANCE_WAITING);
+                final long startTS = System.nanoTime();
+                ResultSet rs = session.execute(pstmt.bind(wfId));
+                Row row = rs.one();
+                if (row == null) {
+                    logger.warn("No workflow instance with id {} found", wfId);
+                    return null;
+                }
+                final WorkflowInstance cw = new WorkflowInstance();
+                cw.id = wfId;
+                cw.ppoolId = row.getString("PPOOL_ID");
+                cw.prio = row.getInt("PRIO");
+                cw.creationTS = row.getDate("CREATION_TS");
+                cw.timeout = row.getDate("TIMEOUT");
+                cw.waitMode = toWaitMode(row.getString("WAIT_MODE"));
+                cw.serializedWorkflow = new SerializedWorkflow();
+                cw.serializedWorkflow.setData(row.getString("DATA"));
+                cw.serializedWorkflow.setObjectState(row.getString("OBJECT_STATE"));
+                cw.cid2ResponseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
+                cw.state = ProcessingState.valueOf(row.getString("STATE"));
+                runtimeStatisticsCollector.submit("wfi.read", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
+                return cw;
+            }
+        }.run();
     }
 
     @Override
@@ -180,17 +191,22 @@ public class CassandraStorage implements Storage {
     }
 
     @Override
-    public String readEarlyResponse(String correlationId) throws Exception {
+    public String readEarlyResponse(final String correlationId) throws Exception {
         logger.debug("readEarlyResponse({})", correlationId);
-        final long startTS = System.nanoTime();
-        final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_EARLY_RESPONSE).bind(correlationId));
-        Row row = rs.one();
-        runtimeStatisticsCollector.submit("ear.read", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
-        if (row != null) {
-            logger.debug("early response with correlationId {} found!", correlationId);
-            return row.getString("RESPONSE");
-        }
-        return null;
+        return new CassandraOperation<String>(logger) {
+            @Override
+            protected String execute() throws Exception {
+                final long startTS = System.nanoTime();
+                final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_EARLY_RESPONSE).bind(correlationId));
+                Row row = rs.one();
+                runtimeStatisticsCollector.submit("ear.read", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
+                if (row != null) {
+                    logger.debug("early response with correlationId {} found!", correlationId);
+                    return row.getString("RESPONSE");
+                }
+                return null;
+            }
+        }.run();
     }
 
     @Override
@@ -203,6 +219,7 @@ public class CassandraStorage implements Storage {
 
     @Override
     public void initialize(HybridDBStorageAccessor internalStorageAccessor) throws Exception {
+        logger.info("Starting to initialize...");
         final long startTS = System.currentTimeMillis();
         final List<String> missingResponseCorrelationIds = new ArrayList<String>();
         final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_ALL_WORKFLOW_INSTANCES).bind().setFetchSize(2000));
@@ -265,16 +282,22 @@ public class CassandraStorage implements Storage {
 
             }
         }
-        logger.debug("Read {} rows in {} msec", counter, System.currentTimeMillis() - startTS);
+        logger.info("Finished initialization - read {} rows in {} msec", counter, System.currentTimeMillis() - startTS);
         runtimeStatisticsCollector.submit("storage.init", counter, System.currentTimeMillis() - startTS, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public void updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception {
+    public void updateWorkflowInstanceState(final String wfId, final ProcessingState state) throws Exception {
         logger.debug("updateWorkflowInstanceState({}, {})", wfId, state);
-        long startTS = System.nanoTime();
-        session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE).bind(state.name(), wfId));
-        runtimeStatisticsCollector.submit("wfi.update.state", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
+        new CassandraOperation<Void>(logger) {
+            @Override
+            protected Void execute() throws Exception {
+                long startTS = System.nanoTime();
+                session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE).bind(state.name(), wfId));
+                runtimeStatisticsCollector.submit("wfi.update.state", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
+                return null;
+            }
+        }.run();
     }
 
     @SuppressWarnings("unchecked")
