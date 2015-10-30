@@ -61,8 +61,8 @@ public class CassandraEngineFactory {
 
     protected CassandraSessionManagerImpl createCassandraSessionManager() {
         CassandraSessionManagerImpl x =
-                new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
-        // new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper");
+                // new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
+                new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper");
         x.startup();
         return x;
     }
