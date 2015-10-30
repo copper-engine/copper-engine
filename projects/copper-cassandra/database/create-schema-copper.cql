@@ -17,3 +17,11 @@ CREATE TABLE COP_EARLY_RESPONSE (
     RESPONSE varchar,
     primary key (CORRELATION_ID)
 );
+
+
+
+-- 12 h
+alter table COP_WORKFLOW_INSTANCE with GC_GRACE_SECONDS  = 43200;
+
+-- 2 days
+alter table COP_EARLY_RESPONSE with GC_GRACE_SECONDS  = 172800;
