@@ -27,6 +27,8 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.policies.LoggingRetryPolicy;
+import com.datastax.driver.core.policies.RetryPolicy;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
@@ -53,7 +55,7 @@ public class CassandraStorage implements Storage {
     private final JsonMapper jsonMapper = new JsonMapperImpl();
     private final ConsistencyLevel consistencyLevel;
     private final RuntimeStatisticsCollector runtimeStatisticsCollector;
-
+    private final RetryPolicy alwaysRetry = new LoggingRetryPolicy(new AlwaysRetryPolicy());
     private int ttlEarlyResponseSeconds = 1 * 24 * 60 * 60; // one day
 
     public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor, final RuntimeStatisticsCollector runtimeStatisticsCollector) {
@@ -314,6 +316,7 @@ public class CassandraStorage implements Storage {
         logger.info("Preparing cql stmt {}", replaced);
         PreparedStatement pstmt = session.prepare(replaced);
         pstmt.setConsistencyLevel(consistencyLevel);
+        pstmt.setRetryPolicy(alwaysRetry);
         preparedStatements.put(cql, pstmt);
     }
 }
