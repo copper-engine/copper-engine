@@ -27,6 +27,7 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.policies.DefaultRetryPolicy;
 import com.datastax.driver.core.policies.LoggingRetryPolicy;
 import com.datastax.driver.core.policies.RetryPolicy;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -85,7 +86,7 @@ public class CassandraStorage implements Storage {
         prepare(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
         prepare(CQL_DEL_WORKFLOW_INSTANCE_WAITING);
         prepare(CQL_SEL_WORKFLOW_INSTANCE_WAITING);
-        prepare(CQL_SEL_ALL_WORKFLOW_INSTANCES);
+        prepare(CQL_SEL_ALL_WORKFLOW_INSTANCES, DefaultRetryPolicy.INSTANCE);
         prepare(CQL_UPD_WORKFLOW_INSTANCE_STATE);
         prepare(CQL_INS_EARLY_RESPONSE);
         prepare(CQL_DEL_EARLY_RESPONSE);
@@ -312,6 +313,10 @@ public class CassandraStorage implements Storage {
     }
 
     private void prepare(String cql) {
+        prepare(cql, alwaysRetry);
+    }
+
+    private void prepare(String cql, RetryPolicy petryPolicy) {
         String replaced = cql.replace(TABLE_PLACEHOLDER, DEFAULT_TABLE_NAME);
         logger.info("Preparing cql stmt {}", replaced);
         PreparedStatement pstmt = session.prepare(replaced);
@@ -319,4 +324,5 @@ public class CassandraStorage implements Storage {
         pstmt.setRetryPolicy(alwaysRetry);
         preparedStatements.put(cql, pstmt);
     }
+
 }
