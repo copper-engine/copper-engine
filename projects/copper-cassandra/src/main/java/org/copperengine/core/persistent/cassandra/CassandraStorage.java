@@ -8,9 +8,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.NullArgumentException;
+import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
@@ -61,6 +64,7 @@ public class CassandraStorage implements Storage {
     private final RuntimeStatisticsCollector runtimeStatisticsCollector;
     private final RetryPolicy alwaysRetry = new LoggingRetryPolicy(new AlwaysRetryPolicy());
     private int ttlEarlyResponseSeconds = 1 * 24 * 60 * 60; // one day
+    private int initializationTimeoutSeconds = 1 * 24 * 60 * 60; // one day
 
     public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor, final RuntimeStatisticsCollector runtimeStatisticsCollector) {
         this(sessionManager, executor, runtimeStatisticsCollector, ConsistencyLevel.LOCAL_QUORUM);
@@ -104,6 +108,12 @@ public class CassandraStorage implements Storage {
         if (ttlEarlyResponseSeconds <= 0)
             throw new IllegalArgumentException();
         this.ttlEarlyResponseSeconds = ttlEarlyResponseSeconds;
+    }
+
+    public void setInitializationTimeoutSeconds(int initializationTimeoutSeconds) {
+        if (initializationTimeoutSeconds <= 0)
+            throw new IllegalArgumentException();
+        this.initializationTimeoutSeconds = initializationTimeoutSeconds;
     }
 
     @Override
@@ -233,83 +243,108 @@ public class CassandraStorage implements Storage {
     }
 
     @Override
-    public void initialize(HybridDBStorageAccessor internalStorageAccessor) throws Exception {
-        // TODO parallelize
-        logger.info("Starting to initialize...");
+    public void initialize(final HybridDBStorageAccessor internalStorageAccessor, int numberOfThreads) throws Exception {
+        // TODO instead of blocking the startup until all active workflow instances are read and resumed, it is
+        // sufficient to read just their existing IDs in COP_WFI_ID and resume them in the background while already
+        // starting the engine an accepting new instances.
+
+        if (numberOfThreads <= 0)
+            numberOfThreads = 1;
+        logger.info("Starting to initialize with {} threads ...", numberOfThreads);
+        final ExecutorService execService = Executors.newFixedThreadPool(numberOfThreads);
         final long startTS = System.currentTimeMillis();
-        final List<String> missingResponseCorrelationIds = new ArrayList<String>();
         final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_WFI_ID_ALL).bind().setFetchSize(500).setConsistencyLevel(ConsistencyLevel.ONE));
         int counter = 0;
         Row row;
         while ((row = rs.one()) != null) {
             counter++;
             final String wfId = row.getString("ID");
-
-            final ResultSet rs2 = session.execute(preparedStatements.get(CQL_SEL_WORKFLOW_INSTANCE).bind(wfId));
-            Row row2 = rs2.one();
-            if (row2 == null) {
-                logger.info("No workflow instance {} found - deleting row in COP_WFI_ID");
-                session.executeAsync(preparedStatements.get(CQL_DEL_WFI_ID).bind(wfId));
-                continue;
-            }
-
-            final String ppoolId = row2.getString("PPOOL_ID");
-            final int prio = row2.getInt("PRIO");
-            final WaitMode waitMode = toWaitMode(row2.getString("WAIT_MODE"));
-            final Map<String, String> responseMap = toResponseMap(row2.getString("RESPONSE_MAP_JSON"));
-            final ProcessingState state = ProcessingState.valueOf(row2.getString("STATE"));
-            final Date timeout = row2.getDate("TIMEOUT");
-            final boolean timeoutOccured = timeout != null && timeout.getTime() <= System.currentTimeMillis();
-
-            if (state == ProcessingState.ERROR) {
-                continue;
-            }
-
-            if (state == ProcessingState.ENQUEUED) {
-                internalStorageAccessor.enqueue(wfId, ppoolId, prio);
-                continue;
-            }
-
-            if (responseMap != null) {
-                missingResponseCorrelationIds.clear();
-                int numberOfAvailableResponses = 0;
-                for (Entry<String, String> e : responseMap.entrySet()) {
-                    final String correlationId = e.getKey();
-                    final String response = e.getValue();
-                    internalStorageAccessor.registerCorrelationId(correlationId, wfId);
-                    if (response != null) {
-                        numberOfAvailableResponses++;
+            execService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        resume(wfId, internalStorageAccessor);
                     }
-                    else {
-                        missingResponseCorrelationIds.add(correlationId);
+                    catch (Exception e) {
+                        logger.error("resume failed", e);
                     }
                 }
-                boolean modified = false;
-                if (!missingResponseCorrelationIds.isEmpty()) {
-                    // check for early responses
-                    for (String cid : missingResponseCorrelationIds) {
-                        String earlyResponse = readEarlyResponse(cid);
-                        if (earlyResponse != null) {
-                            responseMap.put(cid, earlyResponse);
-                            numberOfAvailableResponses++;
-                            modified = true;
-                        }
-                    }
-                }
-                if (modified || timeoutOccured) {
-                    ProcessingState newState = (timeoutOccured || numberOfAvailableResponses == responseMap.size() || (numberOfAvailableResponses == 1 && waitMode == WaitMode.FIRST)) ? ProcessingState.ENQUEUED : ProcessingState.WAITING;
-                    String responseMapJson = jsonMapper.toJSON(responseMap);
-                    session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP).bind(newState.name(), responseMapJson, wfId));
-                    if (newState == ProcessingState.ENQUEUED) {
-                        internalStorageAccessor.enqueue(wfId, ppoolId, prio);
-                    }
-                }
-
-            }
+            });
+        }
+        logger.info("Read {} IDs in {} msec", counter, System.currentTimeMillis() - startTS);
+        execService.shutdown();
+        final boolean timeoutHappened = !execService.awaitTermination(initializationTimeoutSeconds, TimeUnit.SECONDS);
+        if (timeoutHappened) {
+            throw new CopperRuntimeException("initialize timed out!");
         }
         logger.info("Finished initialization - read {} rows in {} msec", counter, System.currentTimeMillis() - startTS);
         runtimeStatisticsCollector.submit("storage.init", counter, System.currentTimeMillis() - startTS, TimeUnit.MILLISECONDS);
+    }
 
+    private void resume(final String wfId, final HybridDBStorageAccessor internalStorageAccessor) throws Exception {
+        logger.trace("resume(wfId={})", wfId);
+
+        final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_WORKFLOW_INSTANCE).bind(wfId));
+        final Row row = rs.one();
+        if (row == null) {
+            logger.info("No workflow instance {} found - deleting row in COP_WFI_ID");
+            session.executeAsync(preparedStatements.get(CQL_DEL_WFI_ID).bind(wfId));
+            return;
+        }
+
+        final String ppoolId = row.getString("PPOOL_ID");
+        final int prio = row.getInt("PRIO");
+        final WaitMode waitMode = toWaitMode(row.getString("WAIT_MODE"));
+        final Map<String, String> responseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
+        final ProcessingState state = ProcessingState.valueOf(row.getString("STATE"));
+        final Date timeout = row.getDate("TIMEOUT");
+        final boolean timeoutOccured = timeout != null && timeout.getTime() <= System.currentTimeMillis();
+
+        if (state == ProcessingState.ERROR || state == ProcessingState.INVALID) {
+            return;
+        }
+
+        if (state == ProcessingState.ENQUEUED) {
+            internalStorageAccessor.enqueue(wfId, ppoolId, prio);
+            return;
+        }
+
+        if (responseMap != null) {
+            final List<String> missingResponseCorrelationIds = new ArrayList<String>();
+            int numberOfAvailableResponses = 0;
+            for (Entry<String, String> e : responseMap.entrySet()) {
+                final String correlationId = e.getKey();
+                final String response = e.getValue();
+                internalStorageAccessor.registerCorrelationId(correlationId, wfId);
+                if (response != null) {
+                    numberOfAvailableResponses++;
+                }
+                else {
+                    missingResponseCorrelationIds.add(correlationId);
+                }
+            }
+            boolean modified = false;
+            if (!missingResponseCorrelationIds.isEmpty()) {
+                // check for early responses
+                for (String cid : missingResponseCorrelationIds) {
+                    String earlyResponse = readEarlyResponse(cid);
+                    if (earlyResponse != null) {
+                        responseMap.put(cid, earlyResponse);
+                        numberOfAvailableResponses++;
+                        modified = true;
+                    }
+                }
+            }
+            if (modified || timeoutOccured) {
+                final ProcessingState newState = (timeoutOccured || numberOfAvailableResponses == responseMap.size() || (numberOfAvailableResponses == 1 && waitMode == WaitMode.FIRST)) ? ProcessingState.ENQUEUED : ProcessingState.WAITING;
+                final String responseMapJson = jsonMapper.toJSON(responseMap);
+                session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP).bind(newState.name(), responseMapJson, wfId));
+                if (newState == ProcessingState.ENQUEUED) {
+                    internalStorageAccessor.enqueue(wfId, ppoolId, prio);
+                }
+            }
+
+        }
     }
 
     public void initialize_old(HybridDBStorageAccessor internalStorageAccessor) throws Exception {

@@ -43,13 +43,13 @@ public class DataCreator {
         }
         final String payload = sb.toString();
 
-        for (int i = 0; i < 100000; i++) {
-            final String cid = engine.createUUID();
+        for (int i = 0; i < 500000; i++) {
+            final String id = engine.createUUID();
             final TestData data = new TestData();
-            data.id = cid;
+            data.id = id;
             data.someData = payload;
-            final WorkflowInstanceDescr<TestData> wfid = new WorkflowInstanceDescr<TestData>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", data, cid, 1, null);
-            engine.run(wfid);
+            final WorkflowInstanceDescr<TestData> wfInstanceDescr = new WorkflowInstanceDescr<TestData>("org.copperengine.core.persistent.cassandra.loadtest.workflows.LoadTestWorkflow", data, id, 1, null);
+            engine.run(wfInstanceDescr);
         }
     }
 }

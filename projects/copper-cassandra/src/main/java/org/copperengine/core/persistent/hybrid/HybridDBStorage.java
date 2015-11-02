@@ -404,7 +404,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
                 public void enqueue(String wfId, String ppoolId, int prio) {
                     _enqueue(wfId, ppoolId, prio);
                 }
-            });
+            }, Runtime.getRuntime().availableProcessors());
         } catch (RuntimeException e) {
             logger.error("startup failed", e);
             throw e;

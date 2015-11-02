@@ -75,7 +75,7 @@ public class PermanentLoadCreator {
 
     public static void main(String[] args) {
         try {
-            new PermanentLoadCreator(4096 * 2).start().startThread().startThread().startThread();
+            new PermanentLoadCreator(4096).start().startThread().startThread().startThread();
             System.out.println("Started!");
         } catch (Exception e) {
             e.printStackTrace();

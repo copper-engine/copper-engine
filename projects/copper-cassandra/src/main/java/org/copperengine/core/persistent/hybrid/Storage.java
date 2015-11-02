@@ -12,7 +12,7 @@ public interface Storage {
 
     public WorkflowInstance readWorkflowInstance(String wfId) throws Exception;
 
-    public void initialize(HybridDBStorageAccessor internalStorageAccessor) throws Exception;
+    public void initialize(HybridDBStorageAccessor internalStorageAccessor, int numberOfThreads) throws Exception;
 
     public ListenableFuture<Void> safeEarlyResponse(String correlationId, String serializedResponse) throws Exception;
 
