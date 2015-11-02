@@ -78,7 +78,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         cw.creationTS = wf.getCreationTS();
         cw.state = ProcessingState.ENQUEUED;
 
-        storage.safeWorkflowInstance(cw);
+        storage.safeWorkflowInstance(cw, true);
 
         _enqueue(wf.getId(), wf.getProcessorPoolId(), wf.getPriority());
 
@@ -221,7 +221,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
             cw.cid2ResponseMap.put(cid, null);
         }
 
-        storage.safeWorkflowInstance(cw);
+        storage.safeWorkflowInstance(cw, false);
 
         correlationIdMap.addCorrelationIds(wfId, rc.correlationIds);
 
@@ -307,7 +307,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
                         cw.state = ProcessingState.ENQUEUED;
                     }
 
-                    storage.safeWorkflowInstance(cw);
+                    storage.safeWorkflowInstance(cw, false);
 
                     if (enqueue) {
                         _enqueue(cw.id, cw.ppoolId, cw.prio);
@@ -336,7 +336,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
 
                     if (enqueue) {
                         cw.state = ProcessingState.ENQUEUED;
-                        storage.safeWorkflowInstance(cw);
+                        storage.safeWorkflowInstance(cw, false);
                         _enqueue(cw.id, cw.ppoolId, cw.prio);
                     }
                 }

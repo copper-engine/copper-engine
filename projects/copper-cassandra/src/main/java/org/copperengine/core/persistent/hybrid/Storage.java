@@ -6,7 +6,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 public interface Storage {
 
-    public void safeWorkflowInstance(WorkflowInstance cw) throws Exception;
+    public void safeWorkflowInstance(WorkflowInstance cw, boolean initialInsert) throws Exception;
 
     public ListenableFuture<Void> deleteWorkflowInstance(String wfId) throws Exception;
 

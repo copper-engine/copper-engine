@@ -62,7 +62,7 @@ public class CassandraEngineFactory {
     protected CassandraSessionManagerImpl createCassandraSessionManager() {
         CassandraSessionManagerImpl x =
                 // new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
-                new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper_red");
+                new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper");
         x.startup();
         return x;
     }
@@ -70,6 +70,7 @@ public class CassandraEngineFactory {
     protected LoggingStatisticCollector createStatisticsLogger() {
         LoggingStatisticCollector statisticCollector = new LoggingStatisticCollector();
         statisticCollector.setLoggingIntervalSec(30);
+        statisticCollector.setResetAfterLogging(true);
         statisticCollector.start();
         return statisticCollector;
     }

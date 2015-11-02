@@ -54,7 +54,7 @@ public class PermanentLoadCreator {
     public void work() {
         try {
             List<String> cids = new ArrayList<>();
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 1000; i++) {
                 final String cid = factory.engine.createUUID();
                 final LoadTestData data = new LoadTestData(cid, payload);
                 final WorkflowInstanceDescr<LoadTestData> wfid = new WorkflowInstanceDescr<LoadTestData>(WF_CLASS, data, cid, 1, null);
@@ -75,7 +75,7 @@ public class PermanentLoadCreator {
 
     public static void main(String[] args) {
         try {
-            new PermanentLoadCreator(4096).start().startThread().startThread().startThread();
+            new PermanentLoadCreator(4096 * 2).start().startThread().startThread().startThread();
             System.out.println("Started!");
         } catch (Exception e) {
             e.printStackTrace();

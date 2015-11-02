@@ -44,11 +44,14 @@ public class CassandraStorage implements Storage {
     private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE = "UPDATE <table> SET STATE=? WHERE ID=?";
     private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP = "UPDATE <table> SET STATE=?, RESPONSE_MAP_JSON=?  WHERE ID=?";
     private static final String CQL_DEL_WORKFLOW_INSTANCE_WAITING = "DELETE FROM <table> WHERE ID=?";
-    private static final String CQL_SEL_WORKFLOW_INSTANCE_WAITING = "SELECT * FROM <table> WHERE ID=?";
+    private static final String CQL_SEL_WORKFLOW_INSTANCE = "SELECT * FROM <table> WHERE ID=?";
     private static final String CQL_SEL_ALL_WORKFLOW_INSTANCES = "SELECT ID, PPOOL_ID, PRIO, WAIT_MODE, RESPONSE_MAP_JSON, STATE, TIMEOUT FROM <table>";
     private static final String CQL_INS_EARLY_RESPONSE = "INSERT INTO COP_EARLY_RESPONSE (CORRELATION_ID, RESPONSE) VALUES (?,?) USING TTL ?";
     private static final String CQL_DEL_EARLY_RESPONSE = "DELETE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
     private static final String CQL_SEL_EARLY_RESPONSE = "SELECT RESPONSE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
+    private static final String CQL_INS_WFI_ID = "INSERT INTO COP_WFI_ID (ID) VALUES (?)";
+    private static final String CQL_DEL_WFI_ID = "DELETE FROM COP_WFI_ID WHERE ID=?";
+    private static final String CQL_SEL_WFI_ID_ALL = "SELECT * FROM COP_WFI_ID";
 
     private final Executor executor;
     private final Session session;
@@ -85,13 +88,16 @@ public class CassandraStorage implements Storage {
         prepare(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
         prepare(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
         prepare(CQL_DEL_WORKFLOW_INSTANCE_WAITING);
-        prepare(CQL_SEL_WORKFLOW_INSTANCE_WAITING);
+        prepare(CQL_SEL_WORKFLOW_INSTANCE);
         prepare(CQL_SEL_ALL_WORKFLOW_INSTANCES, DefaultRetryPolicy.INSTANCE);
         prepare(CQL_UPD_WORKFLOW_INSTANCE_STATE);
         prepare(CQL_INS_EARLY_RESPONSE);
         prepare(CQL_DEL_EARLY_RESPONSE);
         prepare(CQL_SEL_EARLY_RESPONSE);
         prepare(CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP);
+        prepare(CQL_INS_WFI_ID);
+        prepare(CQL_DEL_WFI_ID);
+        prepare(CQL_SEL_WFI_ID_ALL);
     }
 
     public void setTtlEarlyResponseSeconds(int ttlEarlyResponseSeconds) {
@@ -101,11 +107,17 @@ public class CassandraStorage implements Storage {
     }
 
     @Override
-    public void safeWorkflowInstance(final WorkflowInstance cw) throws Exception {
+    public void safeWorkflowInstance(final WorkflowInstance cw, final boolean initialInsert) throws Exception {
         logger.debug("safeWorkflow({})", cw);
         new CassandraOperation<Void>(logger) {
             @Override
             protected Void execute() throws Exception {
+                if (initialInsert) {
+                    final PreparedStatement pstmt = preparedStatements.get(CQL_INS_WFI_ID);
+                    final long startTS = System.nanoTime();
+                    session.execute(pstmt.bind(cw.id));
+                    runtimeStatisticsCollector.submit("wfii.ins", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
+                }
                 if (cw.cid2ResponseMap == null || cw.cid2ResponseMap.isEmpty()) {
                     final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
                     final long startTS = System.nanoTime();
@@ -127,6 +139,7 @@ public class CassandraStorage implements Storage {
     @Override
     public ListenableFuture<Void> deleteWorkflowInstance(String wfId) throws Exception {
         logger.debug("deleteWorkflowInstance({})", wfId);
+        session.executeAsync(preparedStatements.get(CQL_DEL_WFI_ID).bind(wfId));
         final PreparedStatement pstmt = preparedStatements.get(CQL_DEL_WORKFLOW_INSTANCE_WAITING);
         final long startTS = System.nanoTime();
         final ResultSetFuture rsf = session.executeAsync(pstmt.bind(wfId));
@@ -159,7 +172,7 @@ public class CassandraStorage implements Storage {
         return new CassandraOperation<WorkflowInstance>(logger) {
             @Override
             protected WorkflowInstance execute() throws Exception {
-                final PreparedStatement pstmt = preparedStatements.get(CQL_SEL_WORKFLOW_INSTANCE_WAITING);
+                final PreparedStatement pstmt = preparedStatements.get(CQL_SEL_WORKFLOW_INSTANCE);
                 final long startTS = System.nanoTime();
                 ResultSet rs = session.execute(pstmt.bind(wfId));
                 Row row = rs.one();
@@ -221,6 +234,85 @@ public class CassandraStorage implements Storage {
 
     @Override
     public void initialize(HybridDBStorageAccessor internalStorageAccessor) throws Exception {
+        // TODO parallelize
+        logger.info("Starting to initialize...");
+        final long startTS = System.currentTimeMillis();
+        final List<String> missingResponseCorrelationIds = new ArrayList<String>();
+        final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_WFI_ID_ALL).bind().setFetchSize(500).setConsistencyLevel(ConsistencyLevel.ONE));
+        int counter = 0;
+        Row row;
+        while ((row = rs.one()) != null) {
+            counter++;
+            final String wfId = row.getString("ID");
+
+            final ResultSet rs2 = session.execute(preparedStatements.get(CQL_SEL_WORKFLOW_INSTANCE).bind(wfId));
+            Row row2 = rs2.one();
+            if (row2 == null) {
+                logger.info("No workflow instance {} found - deleting row in COP_WFI_ID");
+                session.executeAsync(preparedStatements.get(CQL_DEL_WFI_ID).bind(wfId));
+                continue;
+            }
+
+            final String ppoolId = row2.getString("PPOOL_ID");
+            final int prio = row2.getInt("PRIO");
+            final WaitMode waitMode = toWaitMode(row2.getString("WAIT_MODE"));
+            final Map<String, String> responseMap = toResponseMap(row2.getString("RESPONSE_MAP_JSON"));
+            final ProcessingState state = ProcessingState.valueOf(row2.getString("STATE"));
+            final Date timeout = row2.getDate("TIMEOUT");
+            final boolean timeoutOccured = timeout != null && timeout.getTime() <= System.currentTimeMillis();
+
+            if (state == ProcessingState.ERROR) {
+                continue;
+            }
+
+            if (state == ProcessingState.ENQUEUED) {
+                internalStorageAccessor.enqueue(wfId, ppoolId, prio);
+                continue;
+            }
+
+            if (responseMap != null) {
+                missingResponseCorrelationIds.clear();
+                int numberOfAvailableResponses = 0;
+                for (Entry<String, String> e : responseMap.entrySet()) {
+                    final String correlationId = e.getKey();
+                    final String response = e.getValue();
+                    internalStorageAccessor.registerCorrelationId(correlationId, wfId);
+                    if (response != null) {
+                        numberOfAvailableResponses++;
+                    }
+                    else {
+                        missingResponseCorrelationIds.add(correlationId);
+                    }
+                }
+                boolean modified = false;
+                if (!missingResponseCorrelationIds.isEmpty()) {
+                    // check for early responses
+                    for (String cid : missingResponseCorrelationIds) {
+                        String earlyResponse = readEarlyResponse(cid);
+                        if (earlyResponse != null) {
+                            responseMap.put(cid, earlyResponse);
+                            numberOfAvailableResponses++;
+                            modified = true;
+                        }
+                    }
+                }
+                if (modified || timeoutOccured) {
+                    ProcessingState newState = (timeoutOccured || numberOfAvailableResponses == responseMap.size() || (numberOfAvailableResponses == 1 && waitMode == WaitMode.FIRST)) ? ProcessingState.ENQUEUED : ProcessingState.WAITING;
+                    String responseMapJson = jsonMapper.toJSON(responseMap);
+                    session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP).bind(newState.name(), responseMapJson, wfId));
+                    if (newState == ProcessingState.ENQUEUED) {
+                        internalStorageAccessor.enqueue(wfId, ppoolId, prio);
+                    }
+                }
+
+            }
+        }
+        logger.info("Finished initialization - read {} rows in {} msec", counter, System.currentTimeMillis() - startTS);
+        runtimeStatisticsCollector.submit("storage.init", counter, System.currentTimeMillis() - startTS, TimeUnit.MILLISECONDS);
+
+    }
+
+    public void initialize_old(HybridDBStorageAccessor internalStorageAccessor) throws Exception {
         logger.info("Starting to initialize...");
         final long startTS = System.currentTimeMillis();
         final List<String> missingResponseCorrelationIds = new ArrayList<String>();

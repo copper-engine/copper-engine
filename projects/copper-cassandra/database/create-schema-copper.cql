@@ -1,3 +1,11 @@
+CREATE TABLE COP_WFI_ID  (
+    ID varchar,
+    primary key (ID)
+);
+
+alter table COP_WFI_ID with GC_GRACE_SECONDS  = 1;
+
+
 CREATE TABLE COP_WORKFLOW_INSTANCE  (
     ID varchar,
     STATE varchar,
@@ -20,8 +28,8 @@ CREATE TABLE COP_EARLY_RESPONSE (
 
 
 
--- 12 h
-alter table COP_WORKFLOW_INSTANCE with GC_GRACE_SECONDS  = 43200;
+-- 5 days
+alter table COP_WORKFLOW_INSTANCE with GC_GRACE_SECONDS  = 432000;
 
 -- 2 days
 alter table COP_EARLY_RESPONSE with GC_GRACE_SECONDS  = 172800;
