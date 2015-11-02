@@ -154,7 +154,7 @@ public class CassandraStorage implements Storage {
     }
 
     @Override
-    public WorkflowInstance readCassandraWorkflow(final String wfId) throws Exception {
+    public WorkflowInstance readWorkflowInstance(final String wfId) throws Exception {
         logger.debug("readCassandraWorkflow({})", wfId);
         return new CassandraOperation<WorkflowInstance>(logger) {
             @Override
@@ -164,7 +164,6 @@ public class CassandraStorage implements Storage {
                 ResultSet rs = session.execute(pstmt.bind(wfId));
                 Row row = rs.one();
                 if (row == null) {
-                    logger.warn("No workflow instance with id {} found", wfId);
                     return null;
                 }
                 final WorkflowInstance cw = new WorkflowInstance();
@@ -290,17 +289,11 @@ public class CassandraStorage implements Storage {
     }
 
     @Override
-    public void updateWorkflowInstanceState(final String wfId, final ProcessingState state) throws Exception {
+    public ListenableFuture<Void> updateWorkflowInstanceState(final String wfId, final ProcessingState state) throws Exception {
         logger.debug("updateWorkflowInstanceState({}, {})", wfId, state);
-        new CassandraOperation<Void>(logger) {
-            @Override
-            protected Void execute() throws Exception {
-                long startTS = System.nanoTime();
-                session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE).bind(state.name(), wfId));
-                runtimeStatisticsCollector.submit("wfi.update.state", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
-                return null;
-            }
-        }.run();
+        final long startTS = System.nanoTime();
+        final ResultSetFuture rsf = session.executeAsync(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE).bind(state.name(), wfId));
+        return createSettableFuture(rsf, "wfi.update.state", startTS);
     }
 
     @SuppressWarnings("unchecked")

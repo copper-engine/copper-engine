@@ -26,7 +26,7 @@ public class CassandraMock implements Storage {
     }
 
     @Override
-    public WorkflowInstance readCassandraWorkflow(String wfId) throws Exception {
+    public WorkflowInstance readWorkflowInstance(String wfId) throws Exception {
         return map.get(wfId);
     }
 
@@ -36,8 +36,9 @@ public class CassandraMock implements Storage {
     }
 
     @Override
-    public void updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception {
+    public ListenableFuture<Void> updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception {
         map.get(wfId).state = state;
+        return null;
     }
 
     @Override

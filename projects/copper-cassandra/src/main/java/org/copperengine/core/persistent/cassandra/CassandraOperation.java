@@ -2,6 +2,7 @@ package org.copperengine.core.persistent.cassandra;
 
 import org.slf4j.Logger;
 
+import com.datastax.driver.core.exceptions.NoHostAvailableException;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 
 abstract class CassandraOperation<T> {
@@ -16,7 +17,7 @@ abstract class CassandraOperation<T> {
         for (int i = 1;; i++) {
             try {
                 return execute();
-            } catch (QueryExecutionException e) {
+            } catch (QueryExecutionException | NoHostAvailableException e) {
                 logger.warn("Cassandra operation failed - retrying...", e);
             } catch (Exception e) {
                 throw e;

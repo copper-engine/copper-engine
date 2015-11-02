@@ -10,7 +10,7 @@ public interface Storage {
 
     public ListenableFuture<Void> deleteWorkflowInstance(String wfId) throws Exception;
 
-    public WorkflowInstance readCassandraWorkflow(String wfId) throws Exception;
+    public WorkflowInstance readWorkflowInstance(String wfId) throws Exception;
 
     public void initialize(HybridDBStorageAccessor internalStorageAccessor) throws Exception;
 
@@ -20,6 +20,6 @@ public interface Storage {
 
     public ListenableFuture<Void> deleteEarlyResponse(String correlationId) throws Exception;
 
-    public void updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception;
+    public ListenableFuture<Void> updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception;
 
 }
