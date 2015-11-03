@@ -100,8 +100,11 @@ public class ClasspathWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     @Override
-    public void start() {
+    public synchronized void start() {
         try {
+            if (adaptedTargetDir != null) {
+                return;
+            }
             logger.info("Starting up with wfPackages={}", wfPackages);
             final ClassLoader tcl = Thread.currentThread().getContextClassLoader();
             adaptedTargetDir = new File(System.getProperty("java.io.tmpdir") + "/cpwfrepo" + System.currentTimeMillis());
@@ -175,9 +178,12 @@ public class ClasspathWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     @Override
-    public void shutdown() {
+    public synchronized void shutdown() {
         try {
-            FileUtils.deleteDirectory(adaptedTargetDir);
+            if (adaptedTargetDir != null) {
+                FileUtils.deleteDirectory(adaptedTargetDir);
+                adaptedTargetDir = null;
+            }
         } catch (IOException e) {
             logger.warn("Unable to delete directory {}", adaptedTargetDir);
         }

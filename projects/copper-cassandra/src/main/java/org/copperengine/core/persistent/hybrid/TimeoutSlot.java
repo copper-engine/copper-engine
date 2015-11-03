@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.copperengine.core.persistent.hybrid;
 
-package org.copperengine.ext.wfrepo.classpath.testworkflows;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.copperengine.core.Interrupt;
+/**
+ * Internally used class.
+ *
+ * @author austermann
+ */
+final class TimeoutSlot {
 
-public class TestWorkflowThree extends TestWorkflowTwo {
+    private final long timeoutTS;
+    private final Map<String, Runnable> wfId2RunnableMap = new HashMap<>();
 
-    private static final long serialVersionUID = 1L;
-
-    private static class MyInnerClass {
-        public void printFoo() {
-            System.out.println("foo");
-        }
+    public TimeoutSlot(long timeoutTS) {
+        assert timeoutTS > 0;
+        this.timeoutTS = timeoutTS;
     }
 
-    @Override
-    public void main() throws Interrupt {
-        new MyInnerClass().printFoo();
-        new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("Anonymous inner class!");
-            }
-        }.run();
+    public long getTimeoutTS() {
+        return timeoutTS;
     }
 
+    public Map<String, Runnable> getWfId2RunnableMap() {
+        return wfId2RunnableMap;
+    }
 }

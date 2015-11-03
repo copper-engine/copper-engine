@@ -13,30 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.copperengine.core.persistent.hybrid;
 
-package org.copperengine.ext.wfrepo.classpath.testworkflows;
+import java.util.Date;
 
-import org.copperengine.core.Interrupt;
+/**
+ * public interface for a timeout manager used in a transient processing engine.
+ * The timeout manager is responsible to wake up waiting workflow instances in case of a timeout.
+ *
+ * @author austermann
+ */
+public interface TimeoutManager {
 
-public class TestWorkflowThree extends TestWorkflowTwo {
+    public void registerTimeout(Date timeoutTS, String workflowId, Runnable onTimeout);
 
-    private static final long serialVersionUID = 1L;
+    public void unregisterTimeout(Date timeoutTS, String workflowId);
 
-    private static class MyInnerClass {
-        public void printFoo() {
-            System.out.println("foo");
-        }
-    }
+    public TimeoutManager startup();
 
-    @Override
-    public void main() throws Interrupt {
-        new MyInnerClass().printFoo();
-        new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("Anonymous inner class!");
-            }
-        }.run();
-    }
-
+    public TimeoutManager shutdown();
 }
