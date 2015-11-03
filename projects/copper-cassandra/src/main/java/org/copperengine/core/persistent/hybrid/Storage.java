@@ -19,6 +19,12 @@ import org.copperengine.core.ProcessingState;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+/**
+ * Map-like persistent storage for a {@link HybridDBStorage}
+ * 
+ * @author austermann
+ *
+ */
 public interface Storage {
 
     public void safeWorkflowInstance(WorkflowInstance cw, boolean initialInsert) throws Exception;

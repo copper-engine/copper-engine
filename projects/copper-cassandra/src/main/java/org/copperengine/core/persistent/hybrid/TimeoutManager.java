@@ -18,7 +18,7 @@ package org.copperengine.core.persistent.hybrid;
 import java.util.Date;
 
 /**
- * public interface for a timeout manager used in a transient processing engine.
+ * public interface for a timeout manager used in a {@link HybridDBStorage}.
  * The timeout manager is responsible to wake up waiting workflow instances in case of a timeout.
  *
  * @author austermann

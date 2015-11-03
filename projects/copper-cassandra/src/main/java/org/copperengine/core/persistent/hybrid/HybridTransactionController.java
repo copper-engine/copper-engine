@@ -19,6 +19,13 @@ import org.copperengine.core.persistent.txn.DatabaseTransaction;
 import org.copperengine.core.persistent.txn.Transaction;
 import org.copperengine.core.persistent.txn.TransactionController;
 
+/**
+ * empty implementation of the {@link TransactionController} interface, as the HybridDBStorage does NOT support
+ * transactions.
+ * 
+ * @author austermann
+ *
+ */
 public class HybridTransactionController implements TransactionController {
 
     @Override

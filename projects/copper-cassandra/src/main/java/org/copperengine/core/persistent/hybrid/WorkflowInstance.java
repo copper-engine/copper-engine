@@ -22,6 +22,12 @@ import org.copperengine.core.ProcessingState;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.SerializedWorkflow;
 
+/**
+ * DTO representation of a copper workflow instance used in {@link Storage}
+ * 
+ * @author austermann
+ *
+ */
 public class WorkflowInstance {
 
     public WorkflowInstance() {

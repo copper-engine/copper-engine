@@ -20,6 +20,12 @@ import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.WriteType;
 import com.datastax.driver.core.policies.RetryPolicy;
 
+/**
+ * A Cassandra {@link RetryPolicy} that will always retry.
+ * 
+ * @author austermann
+ *
+ */
 public class AlwaysRetryPolicy implements RetryPolicy {
 
     @Override
