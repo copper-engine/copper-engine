@@ -15,6 +15,8 @@
  */
 package org.copperengine.core.persistent.cassandra;
 
+import static org.junit.Assume.assumeFalse;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -22,26 +24,28 @@ import java.util.concurrent.TimeUnit;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
-public class CassandraTest {
+public class CassandraTest extends CassandraUnitTest {
 
     private static final CassandraEngineFactory factory = new CassandraEngineFactory();
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        factory.createEngine(true);
+        if (!skipTests())
+            factory.createEngine(true);
     }
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
-        factory.destroyEngine();
+        if (!skipTests())
+            factory.destroyEngine();
     }
 
     @Test
     public void testParallel() throws Exception {
+        assumeFalse(skipTests());
+
         List<String> cids = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             final String cid = factory.engine.createUUID();
@@ -59,6 +63,8 @@ public class CassandraTest {
 
     @Test
     public void testSerial() throws Exception {
+        assumeFalse(skipTests());
+
         for (int i = 0; i < 3; i++) {
             final String cid = factory.engine.createUUID();
             final TestData data = new TestData(cid, "foo");

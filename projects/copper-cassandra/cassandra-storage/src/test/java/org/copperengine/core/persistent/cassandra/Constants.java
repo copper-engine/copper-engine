@@ -15,20 +15,6 @@
  */
 package org.copperengine.core.persistent.cassandra;
 
-import static org.junit.Assume.assumeFalse;
-
-import java.util.Collections;
-
-import org.junit.Test;
-
-public class CassandraSessionManagerImplTest extends CassandraUnitTest {
-
-    @Test()
-    public void test() {
-        assumeFalse(skipTests());
-        CassandraSessionManagerImpl cassandraSessionManagerImpl = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
-        cassandraSessionManagerImpl.startup();
-        cassandraSessionManagerImpl.shutdown();
-    }
-
+public interface Constants {
+    public static final String SKIP_EXTERNAL_DB_TESTS_KEY = "copper.unittest.skip.external.db.tests";
 }

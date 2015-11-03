@@ -55,6 +55,7 @@ public class CassandraEngineFactory {
         if (truncate) {
             cassandraSessionManager.getSession().execute("truncate COP_WORKFLOW_INSTANCE");
             cassandraSessionManager.getSession().execute("truncate COP_EARLY_RESPONSE");
+            cassandraSessionManager.getSession().execute("truncate COP_WFI_ID");
         }
 
         backchannel = createBackchannel();
@@ -73,9 +74,7 @@ public class CassandraEngineFactory {
     }
 
     protected CassandraSessionManagerImpl createCassandraSessionManager() {
-        CassandraSessionManagerImpl x =
-                new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
-        // new CassandraSessionManagerImpl(Collections.singletonList("nuc1.scoop-gmbh.de"), null, "copper");
+        CassandraSessionManagerImpl x = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
         x.startup();
         return x;
     }
