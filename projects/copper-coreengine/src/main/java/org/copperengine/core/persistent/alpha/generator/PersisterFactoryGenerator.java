@@ -167,9 +167,8 @@ public class PersisterFactoryGenerator {
     }
 
     public String getColumnList(GenerationDescription desc, String alias) {
-        StringBuilder sb = new StringBuilder(alias).append(".\\\"WORKFLOWID\\\", ")
-                .append(alias).append(".\\\"ENTITYID\\\"");
         alias = alias != null && !"".equals(alias) ? alias + "." : "";
+        StringBuilder sb = new StringBuilder(alias).append(".\\\"WORKFLOWID\\\", ").append(alias).append(".\\\"ENTITYID\\\"");
         if (desc.getPersistentMembers().iterator().hasNext()) {
             sb.append(", ").append(getColumnListForPersistentMembers(desc, alias + "\\\"", "\\\"", ", "));
         }
@@ -356,7 +355,7 @@ public class PersisterFactoryGenerator {
             return null;
         int idx = reg.start;
         StringBuilder prefix = new StringBuilder();
-        for (; --idx > -1; ) {
+        for (; --idx > -1;) {
             if (Character.isWhitespace(template.charAt(idx))) {
                 prefix.append(template.charAt(idx));
             } else {
@@ -401,7 +400,7 @@ public class PersisterFactoryGenerator {
                 + reg.linePrefix + "\"WHERE tab.\\\"WORKFLOWID\\\" IN (\"";
         template = replace(template, reg, selectStmt);
 
-        for (; ; ) {
+        for (;;) {
             reg = findRegion(template, "SQL_SELECT_GETMEMBERS");
             if (reg == null)
                 break;

@@ -44,9 +44,11 @@ public class BackchannelDefaultImpl implements Backchannel {
             }
             latches.put(correlationId, latch);
         }
-        latch.await(timeout, timeunit);
+        final boolean timeoutOccured = !latch.await(timeout, timeunit);
         synchronized (mutex) {
             latches.remove(correlationId);
+            if (timeoutOccured)
+                return null;
             Payload payload = notifications.remove(correlationId);
             return payload != null ? payload.object : null;
         }
