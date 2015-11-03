@@ -10,7 +10,10 @@ task wrapper(type: Wrapper) {
 buildscript {
     repositories {
         jcenter() // needed for gradle-nexus-plugin
-        mavenCentral() // needed for nexus-workflow plugin and license-gradle-plugin
+        mavenCentral() // needed for nexus-workflow plugin
+        maven { // needed for license-gradle-plugin
+	      url "https://plugins.gradle.org/m2/"
+    	}
     }
     dependencies {
         // The nexus plugin makes uploading to Sonatype Nexus repository easier.
@@ -22,7 +25,7 @@ buildscript {
         // and http://stackoverflow.com/questions/20432907/automated-release-to-maven-central-with-gradle
         classpath 'com.adaptc.gradle:nexus-workflow:0.6'
         // the license plugin, see https://github.com/hierynomus/license-gradle-plugin
-        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.7.0'
+        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
     }
 }
 
@@ -70,18 +73,25 @@ configure(subprojects.findAll {
         }
     }
 
-    apply plugin: 'license'
+    apply plugin: 'com.github.hierynomus.license'
     license {
         // verify that every java file has our Apache License header; fail build if header is missing
         header file("$rootDir/common/apache-license-file.txt")
-        skipExistingHeaders false
+        skipExistingHeaders true
         ignoreFailures false
+//        sourceSets = project.sourceSets
+        //what style your comment should be
+//	mapping {
+//	        //in this case it's the following: /* and then continuing with stars.
+//	        java = 'SLASHSTAR_STYLE'
+//    	}
+    	exclude "**/generated/*.java"
     }
-    tasks.withType(nl.javadude.gradle.plugins.license.License).each { licenseTask ->
-        // only check java files, not sql or html; omit files generated from wsdl
-        licenseTask.include '**/*.java'
-        licenseTask.exclude { FileTreeElement f -> f.file.path.contains('generated')  }
-    }
+//    tasks.withType(type:nl.javadude.gradle.plugins.license.License).each { licenseTask ->
+//        // only check java files, not sql or html; omit files generated from wsdl
+//        licenseTask.include '**/*.java'
+//        licenseTask.exclude { FileTreeElement f -> f.file.path.contains('generated')  }
+//    }
 
     apply plugin: 'eclipse'
     eclipse {
