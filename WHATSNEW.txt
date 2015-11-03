@@ -1,5 +1,6 @@
-COPPER 3.3.0
+COPPER 4.0.0
 ============
+- New feature: Apache Cassandra Support! Use a Cassandra NoSQL DB for persistence - this enables really high available solutions
 - New feature: New WorkflowRepository - ClasspathWorkflowRepository: Very easy to use but with less features in comparison to FileBasedWorkflowRepository
 - Maintenance: Now using ASM 5.0.4
 
