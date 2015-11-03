@@ -22,8 +22,10 @@ import java.util.concurrent.TimeUnit;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class CassandraTest {
 
     private static final CassandraEngineFactory factory = new CassandraEngineFactory();
