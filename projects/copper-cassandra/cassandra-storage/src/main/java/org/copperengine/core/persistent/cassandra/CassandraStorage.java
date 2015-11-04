@@ -55,15 +55,13 @@ public class CassandraStorage implements Storage {
 
     private static final Logger logger = LoggerFactory.getLogger(CassandraStorage.class);
 
-    private static final String TABLE_PLACEHOLDER = "<table>";
-    private static final String DEFAULT_TABLE_NAME = "COP_WORKFLOW_INSTANCE";
-    private static final String CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING = "UPDATE <table> SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, STATE=? WHERE ID=?";
-    private static final String CQL_UPD_WORKFLOW_INSTANCE_WAITING = "UPDATE <table> SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, WAIT_MODE=?, TIMEOUT=?, RESPONSE_MAP_JSON=?, STATE=? WHERE ID=?";
-    private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE = "UPDATE <table> SET STATE=? WHERE ID=?";
-    private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP = "UPDATE <table> SET STATE=?, RESPONSE_MAP_JSON=?  WHERE ID=?";
-    private static final String CQL_DEL_WORKFLOW_INSTANCE_WAITING = "DELETE FROM <table> WHERE ID=?";
-    private static final String CQL_SEL_WORKFLOW_INSTANCE = "SELECT * FROM <table> WHERE ID=?";
-    private static final String CQL_SEL_ALL_WORKFLOW_INSTANCES = "SELECT ID, PPOOL_ID, PRIO, WAIT_MODE, RESPONSE_MAP_JSON, STATE, TIMEOUT FROM <table>";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING = "UPDATE COP_WORKFLOW_INSTANCE SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, STATE=? WHERE ID=?";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_WAITING = "UPDATE COP_WORKFLOW_INSTANCE SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, WAIT_MODE=?, TIMEOUT=?, RESPONSE_MAP_JSON=?, STATE=? WHERE ID=?";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE = "UPDATE COP_WORKFLOW_INSTANCE SET STATE=? WHERE ID=?";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP = "UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, RESPONSE_MAP_JSON=?  WHERE ID=?";
+    private static final String CQL_DEL_WORKFLOW_INSTANCE_WAITING = "DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?";
+    private static final String CQL_SEL_WORKFLOW_INSTANCE = "SELECT * FROM COP_WORKFLOW_INSTANCE WHERE ID=?";
+    private static final String CQL_SEL_ALL_WORKFLOW_INSTANCES = "SELECT ID, PPOOL_ID, PRIO, WAIT_MODE, RESPONSE_MAP_JSON, STATE, TIMEOUT FROM COP_WORKFLOW_INSTANCE";
     private static final String CQL_INS_EARLY_RESPONSE = "INSERT INTO COP_EARLY_RESPONSE (CORRELATION_ID, RESPONSE) VALUES (?,?) USING TTL ?";
     private static final String CQL_DEL_EARLY_RESPONSE = "DELETE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
     private static final String CQL_SEL_EARLY_RESPONSE = "SELECT RESPONSE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
@@ -452,9 +450,8 @@ public class CassandraStorage implements Storage {
     }
 
     private void prepare(String cql, RetryPolicy petryPolicy) {
-        String replaced = cql.replace(TABLE_PLACEHOLDER, DEFAULT_TABLE_NAME);
-        logger.info("Preparing cql stmt {}", replaced);
-        PreparedStatement pstmt = session.prepare(replaced);
+        logger.info("Preparing cql stmt {}", cql);
+        PreparedStatement pstmt = session.prepare(cql);
         pstmt.setConsistencyLevel(consistencyLevel);
         pstmt.setRetryPolicy(alwaysRetry);
         preparedStatements.put(cql, pstmt);
