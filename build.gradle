@@ -79,13 +79,14 @@ configure(subprojects.findAll {
         }
     }
 
-    apply plugin: 'com.github.hierynomus.license'
-    license {
-        // verify that every java file has our Apache License header; fail build if header is missing
-        header file("$rootDir/common/apache-license-file.txt")
-        skipExistingHeaders true
-        ignoreFailures false
-    	exclude "**/generated/*.java"
+    if (!project.getName().contains('orch-interfaces')) {
+        apply plugin: 'com.github.hierynomus.license'
+        license {
+            // verify that every java file has our Apache License header; fail build if header is missing
+            header file("$rootDir/common/apache-license-file.txt")
+            skipExistingHeaders true
+            ignoreFailures false
+        }
     }
 
     apply plugin: 'eclipse'
