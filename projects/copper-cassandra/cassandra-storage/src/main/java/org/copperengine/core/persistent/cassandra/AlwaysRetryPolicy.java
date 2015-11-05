@@ -26,7 +26,7 @@ import com.datastax.driver.core.policies.RetryPolicy;
  * @author austermann
  *
  */
-public class AlwaysRetryPolicy implements RetryPolicy {
+class AlwaysRetryPolicy implements RetryPolicy {
 
     @Override
     public RetryDecision onReadTimeout(Statement statement, ConsistencyLevel cl, int requiredResponses, int receivedResponses, boolean dataRetrieved, int nbRetry) {

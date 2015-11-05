@@ -51,6 +51,12 @@ import com.datastax.driver.core.policies.RetryPolicy;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
+/**
+ * Implementation of the {@link Storage} interface backed by a Apache Cassandra DB.
+ * 
+ * @author austermann
+ *
+ */
 public class CassandraStorage implements Storage {
 
     private static final Logger logger = LoggerFactory.getLogger(CassandraStorage.class);
@@ -61,7 +67,6 @@ public class CassandraStorage implements Storage {
     private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP = "UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, RESPONSE_MAP_JSON=?  WHERE ID=?";
     private static final String CQL_DEL_WORKFLOW_INSTANCE_WAITING = "DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?";
     private static final String CQL_SEL_WORKFLOW_INSTANCE = "SELECT * FROM COP_WORKFLOW_INSTANCE WHERE ID=?";
-    private static final String CQL_SEL_ALL_WORKFLOW_INSTANCES = "SELECT ID, PPOOL_ID, PRIO, WAIT_MODE, RESPONSE_MAP_JSON, STATE, TIMEOUT FROM COP_WORKFLOW_INSTANCE";
     private static final String CQL_INS_EARLY_RESPONSE = "INSERT INTO COP_EARLY_RESPONSE (CORRELATION_ID, RESPONSE) VALUES (?,?) USING TTL ?";
     private static final String CQL_DEL_EARLY_RESPONSE = "DELETE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
     private static final String CQL_SEL_EARLY_RESPONSE = "SELECT RESPONSE FROM COP_EARLY_RESPONSE WHERE CORRELATION_ID=?";
@@ -106,7 +111,6 @@ public class CassandraStorage implements Storage {
         prepare(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
         prepare(CQL_DEL_WORKFLOW_INSTANCE_WAITING);
         prepare(CQL_SEL_WORKFLOW_INSTANCE);
-        prepare(CQL_SEL_ALL_WORKFLOW_INSTANCES, DefaultRetryPolicy.INSTANCE);
         prepare(CQL_UPD_WORKFLOW_INSTANCE_STATE);
         prepare(CQL_INS_EARLY_RESPONSE);
         prepare(CQL_DEL_EARLY_RESPONSE);
@@ -114,7 +118,7 @@ public class CassandraStorage implements Storage {
         prepare(CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP);
         prepare(CQL_INS_WFI_ID);
         prepare(CQL_DEL_WFI_ID);
-        prepare(CQL_SEL_WFI_ID_ALL);
+        prepare(CQL_SEL_WFI_ID_ALL, DefaultRetryPolicy.INSTANCE);
     }
 
     public void setTtlEarlyResponseSeconds(int ttlEarlyResponseSeconds) {
@@ -358,74 +362,6 @@ public class CassandraStorage implements Storage {
             }
 
         }
-    }
-
-    public void initialize_old(HybridDBStorageAccessor internalStorageAccessor) throws Exception {
-        logger.info("Starting to initialize...");
-        final long startTS = System.currentTimeMillis();
-        final List<String> missingResponseCorrelationIds = new ArrayList<String>();
-        final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_ALL_WORKFLOW_INSTANCES).bind().setFetchSize(500).setConsistencyLevel(ConsistencyLevel.ONE));
-        int counter = 0;
-        Row row;
-        while ((row = rs.one()) != null) {
-            counter++;
-            final String wfId = row.getString("ID");
-            final String ppoolId = row.getString("PPOOL_ID");
-            final int prio = row.getInt("PRIO");
-            final WaitMode waitMode = toWaitMode(row.getString("WAIT_MODE"));
-            final Map<String, String> responseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
-            final ProcessingState state = ProcessingState.valueOf(row.getString("STATE"));
-            final Date timeout = row.getDate("TIMEOUT");
-            final boolean timeoutOccured = timeout != null && timeout.getTime() <= System.currentTimeMillis();
-
-            if (state == ProcessingState.ERROR) {
-                continue;
-            }
-
-            if (state == ProcessingState.ENQUEUED) {
-                internalStorageAccessor.enqueue(wfId, ppoolId, prio);
-                continue;
-            }
-
-            if (responseMap != null) {
-                missingResponseCorrelationIds.clear();
-                int numberOfAvailableResponses = 0;
-                for (Entry<String, String> e : responseMap.entrySet()) {
-                    final String correlationId = e.getKey();
-                    final String response = e.getValue();
-                    internalStorageAccessor.registerCorrelationId(correlationId, wfId);
-                    if (response != null) {
-                        numberOfAvailableResponses++;
-                    }
-                    else {
-                        missingResponseCorrelationIds.add(correlationId);
-                    }
-                }
-                boolean modified = false;
-                if (!missingResponseCorrelationIds.isEmpty()) {
-                    // check for early responses
-                    for (String cid : missingResponseCorrelationIds) {
-                        String earlyResponse = readEarlyResponse(cid);
-                        if (earlyResponse != null) {
-                            responseMap.put(cid, earlyResponse);
-                            numberOfAvailableResponses++;
-                            modified = true;
-                        }
-                    }
-                }
-                if (modified || timeoutOccured) {
-                    ProcessingState newState = (timeoutOccured || numberOfAvailableResponses == responseMap.size() || (numberOfAvailableResponses == 1 && waitMode == WaitMode.FIRST)) ? ProcessingState.ENQUEUED : ProcessingState.WAITING;
-                    String responseMapJson = jsonMapper.toJSON(responseMap);
-                    session.execute(preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP).bind(newState.name(), responseMapJson, wfId));
-                    if (newState == ProcessingState.ENQUEUED) {
-                        internalStorageAccessor.enqueue(wfId, ppoolId, prio);
-                    }
-                }
-
-            }
-        }
-        logger.info("Finished initialization - read {} rows in {} msec", counter, System.currentTimeMillis() - startTS);
-        runtimeStatisticsCollector.submit("storage.init", counter, System.currentTimeMillis() - startTS, TimeUnit.MILLISECONDS);
     }
 
     @Override
