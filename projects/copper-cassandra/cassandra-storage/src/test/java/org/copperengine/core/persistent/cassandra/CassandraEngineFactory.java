@@ -34,6 +34,7 @@ import org.copperengine.core.persistent.hybrid.DefaultTimeoutManager;
 import org.copperengine.core.persistent.hybrid.HybridDBStorage;
 import org.copperengine.core.persistent.hybrid.HybridTransactionController;
 import org.copperengine.core.persistent.hybrid.Storage;
+import org.copperengine.core.persistent.hybrid.StorageCache;
 import org.copperengine.core.util.Backchannel;
 import org.copperengine.core.util.BackchannelDefaultImpl;
 import org.copperengine.core.util.PojoDependencyInjector;
@@ -139,8 +140,7 @@ public class CassandraEngineFactory {
         return new HybridDBStorage(new StandardJavaSerializer(), wfRepository, cassandra, new DefaultTimeoutManager().startup(), executor);
     }
 
-    protected CassandraStorage createCassandraStorage() {
-        return new CassandraStorage(cassandraSessionManager, executor, statisticCollector);
+    protected Storage createCassandraStorage() {
+        return new StorageCache(new CassandraStorage(cassandraSessionManager, executor, statisticCollector));
     }
-
 }

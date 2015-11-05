@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.EngineIdProvider;
 import org.copperengine.core.EngineIdProviderBean;
@@ -36,6 +38,7 @@ import org.copperengine.core.persistent.hybrid.DefaultTimeoutManager;
 import org.copperengine.core.persistent.hybrid.HybridDBStorage;
 import org.copperengine.core.persistent.hybrid.HybridTransactionController;
 import org.copperengine.core.persistent.hybrid.Storage;
+import org.copperengine.core.persistent.hybrid.StorageCache;
 import org.copperengine.core.util.Backchannel;
 import org.copperengine.core.util.BackchannelDefaultImpl;
 import org.copperengine.core.util.PojoDependencyInjector;
@@ -43,11 +46,14 @@ import org.copperengine.ext.wfrepo.classpath.ClasspathWorkflowRepository;
 
 public class CassandraEngineFactory {
 
+    private static final boolean enableCaching = false;
+
     protected CassandraSessionManagerImpl cassandraSessionManager;
     protected Backchannel backchannel;
     protected PersistentScottyEngine engine;
     protected ExecutorService executor;
     protected LoggingStatisticCollector statisticCollector;
+    protected ScheduledExecutorService scheduledExecutorService;
 
     public void createEngine(boolean truncate) throws Exception {
         statisticCollector = createStatisticsLogger();
@@ -57,11 +63,14 @@ public class CassandraEngineFactory {
         if (truncate) {
             cassandraSessionManager.getSession().execute("truncate COP_WORKFLOW_INSTANCE");
             cassandraSessionManager.getSession().execute("truncate COP_EARLY_RESPONSE");
+            cassandraSessionManager.getSession().execute("truncate COP_WFI_ID");
         }
 
         backchannel = createBackchannel();
 
         executor = createExecutorService();
+
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
         engine = createTestEngine();
     }
@@ -99,6 +108,9 @@ public class CassandraEngineFactory {
 
         if (executor != null)
             executor.shutdown();
+
+        if (scheduledExecutorService != null)
+            scheduledExecutorService.shutdown();
 
         if (statisticCollector != null)
             statisticCollector.shutdown();
@@ -143,8 +155,20 @@ public class CassandraEngineFactory {
         return new HybridDBStorage(new StandardJavaSerializer(), wfRepository, cassandra, new DefaultTimeoutManager().startup(), executor);
     }
 
-    protected CassandraStorage createCassandraStorage() {
-        return new CassandraStorage(cassandraSessionManager, executor, statisticCollector);
+    protected Storage createCassandraStorage() {
+        final Storage cassandraStorage = new CassandraStorage(cassandraSessionManager, executor, statisticCollector);
+        if (enableCaching) {
+            final StorageCache storageCache = new StorageCache(cassandraStorage);
+            scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    storageCache.logCacheStats();
+                }
+            }, 60, 60, TimeUnit.SECONDS);
+            return storageCache;
+        }
+        else {
+            return cassandraStorage;
+        }
     }
-
 }

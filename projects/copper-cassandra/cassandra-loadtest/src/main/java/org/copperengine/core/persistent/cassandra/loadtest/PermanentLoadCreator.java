@@ -79,7 +79,7 @@ public class PermanentLoadCreator {
             for (String cid : cids) {
                 factory.backchannel.wait(cid, 5, TimeUnit.MINUTES);
                 int value = counter.incrementAndGet();
-                if (value % 100 == 0) {
+                if (value % 10000 == 0) {
                     System.out.println(new Date() + " - " + value + " workflow instances processed so far.");
                 }
             }

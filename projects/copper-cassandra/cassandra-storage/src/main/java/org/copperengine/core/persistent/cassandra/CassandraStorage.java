@@ -304,7 +304,7 @@ public class CassandraStorage implements Storage {
         final ResultSet rs = session.execute(preparedStatements.get(CQL_SEL_WORKFLOW_INSTANCE).bind(wfId));
         final Row row = rs.one();
         if (row == null) {
-            logger.info("No workflow instance {} found - deleting row in COP_WFI_ID");
+            logger.warn("No workflow instance {} found - deleting row in COP_WFI_ID", wfId);
             session.executeAsync(preparedStatements.get(CQL_DEL_WFI_ID).bind(wfId));
             return;
         }
