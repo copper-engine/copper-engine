@@ -48,6 +48,7 @@ public class CassandraSessionManagerImpl implements CassandraSessionManager {
         this.keyspace = keyspace;
     }
 
+    @Override
     public synchronized void startup() {
         if (cassandraCluster != null)
             return;
@@ -71,6 +72,7 @@ public class CassandraSessionManagerImpl implements CassandraSessionManager {
         session = cassandraCluster.connect(keyspace);
     }
 
+    @Override
     public synchronized void shutdown() {
         cassandraCluster.close();
     }

@@ -20,7 +20,12 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BackchannelDefaultImpl implements Backchannel {
+
+    private static final Logger logger = LoggerFactory.getLogger(BackchannelDefaultImpl.class);
 
     private static final class Payload {
         final Object object;
@@ -56,13 +61,16 @@ public class BackchannelDefaultImpl implements Backchannel {
 
     @Override
     public void notify(String correlationId, Object payload) {
+        logger.debug("notify(correlationId={})", correlationId);
+        boolean latchFound = false;
         synchronized (mutex) {
             notifications.put(correlationId, new Payload(payload));
             final CountDownLatch latch = latches.get(correlationId);
             if (latch != null) {
                 latch.countDown();
+                latchFound = true;
             }
         }
+        logger.debug("notify(correlationId={} - latch {}", correlationId, latchFound ? "found" : "not found");
     }
-
 }

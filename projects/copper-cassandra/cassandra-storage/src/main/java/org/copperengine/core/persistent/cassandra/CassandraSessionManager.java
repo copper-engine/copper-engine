@@ -19,4 +19,8 @@ import com.datastax.driver.core.Session;
 
 public interface CassandraSessionManager {
     public Session getSession();
+
+    public void startup();
+
+    public void shutdown();
 }

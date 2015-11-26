@@ -34,4 +34,14 @@ public class CassandraSessionManagerPojo implements CassandraSessionManager {
         return session;
     }
 
+    @Override
+    public void startup() {
+
+    }
+
+    @Override
+    public void shutdown() {
+
+    }
+
 }
