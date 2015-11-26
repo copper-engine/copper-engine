@@ -11,7 +11,7 @@ import org.copperengine.core.util.PojoDependencyInjector;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 
-public class UnitTestCassandraEngineFactory extends CassandraEngineFactory {
+public class UnitTestCassandraEngineFactory extends CassandraEngineFactory<PojoDependencyInjector> {
 
     public final Supplier<Backchannel> backchannel;
     public final Supplier<DummyResponseSender> dummyResponseSender;
@@ -40,9 +40,8 @@ public class UnitTestCassandraEngineFactory extends CassandraEngineFactory {
                 return Executors.newScheduledThreadPool(4);
             }
         });
-        ((PojoDependencyInjector) dependencyInjector.get()).register("dummyResponseSender", dummyResponseSender.get());
-        ((PojoDependencyInjector) dependencyInjector.get()).register("backchannel", backchannel.get());
-
+        dependencyInjector.get().register("dummyResponseSender", dummyResponseSender.get());
+        dependencyInjector.get().register("backchannel", backchannel.get());
     }
 
     @Override
@@ -54,6 +53,11 @@ public class UnitTestCassandraEngineFactory extends CassandraEngineFactory {
             csm.getSession().execute("truncate COP_WFI_ID");
         }
         return csm;
+    }
+
+    @Override
+    protected PojoDependencyInjector createDependencyInjector() {
+        return new PojoDependencyInjector();
     }
 
     @Override

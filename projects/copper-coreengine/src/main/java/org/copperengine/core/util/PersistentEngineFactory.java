@@ -44,6 +44,13 @@ import org.copperengine.core.persistent.txn.CopperTransactionController;
 import org.copperengine.core.persistent.txn.TransactionController;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 
+/**
+ * 
+ * @author austermann
+ *
+ *         Deprecated - use RdbmsEngineFactory instead
+ */
+@Deprecated
 public class PersistentEngineFactory {
 
     public static final class Engine {

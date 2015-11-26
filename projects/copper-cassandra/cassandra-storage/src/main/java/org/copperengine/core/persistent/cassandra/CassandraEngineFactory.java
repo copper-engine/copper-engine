@@ -18,6 +18,8 @@ package org.copperengine.core.persistent.cassandra;
 import java.util.Collections;
 import java.util.List;
 
+import org.copperengine.core.DependencyInjector;
+import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.persistent.hybrid.HybridEngineFactory;
 import org.copperengine.core.persistent.hybrid.Storage;
 import org.copperengine.core.persistent.hybrid.StorageCache;
@@ -26,7 +28,26 @@ import org.slf4j.Logger;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 
-public class CassandraEngineFactory extends HybridEngineFactory {
+/**
+ * Utility class to create a {@link PersistentScottyEngine} using a cassandra cluster as underlying storage.
+ * <p>
+ * Usage is quite simple, e.g. using a PojoDependencyInjector:
+ * 
+ * <pre>
+ * CassandraEngineFactory&lt;PojoDependencyInjector&gt; engineFactory = new CassandraEngineFactory&lt;PojoDependencyInjector&gt;(Arrays.asList(&quot;package.of.copper.workflow.classes&quot;)) {
+ *     &#064;Override
+ *     protected PojoDependencyInjector createDependencyInjector() {
+ *         return new PojoDependencyInjector();
+ *     }
+ * };
+ * engineFactory.getEngine().startup();
+ * </pre>
+ * 
+ * @author austermann
+ *
+ * @param <T>
+ */
+public abstract class CassandraEngineFactory<T extends DependencyInjector> extends HybridEngineFactory<T> {
 
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(CassandraEngineFactory.class);
 
