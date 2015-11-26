@@ -131,7 +131,6 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             logger.info("starting up...");
 
             processorPoolManager.setEngine(this);
-            dependencyInjector.setEngine(this);
 
             wfRepository.start();
             dbStorage.startup();
@@ -186,9 +185,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
      * Enqueues the specified list of workflow instances into the engine for execution.
      *
      * @param list
-     *         the list of workflow instances to run
+     *        the list of workflow instances to run
      * @param con
-     *         connection used for the inserting the workflow to the database
+     *        connection used for the inserting the workflow to the database
      * @throws CopperException
      *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id
      */
@@ -236,9 +235,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
      * Enqueues the specified workflow instance into the engine for execution.
      *
      * @param wf
-     *         the workflow instance to run
+     *        the workflow instance to run
      * @param con
-     *         connection used for the inserting the workflow to the database
+     *        connection used for the inserting the workflow to the database
      * @throws CopperException
      *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id
      */

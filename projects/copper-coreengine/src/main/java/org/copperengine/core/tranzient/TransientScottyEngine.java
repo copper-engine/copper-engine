@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.CopperRuntimeException;
-import org.copperengine.core.DependencyInjector;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.ProcessingEngine;
@@ -220,7 +219,6 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
         wfRepository.start();
         timeoutManager.setEngine(this);
         poolManager.setEngine(this);
-        dependencyInjector.setEngine(this);
         timeoutManager.startup();
         earlyResponseContainer.startup();
         poolManager.startup();

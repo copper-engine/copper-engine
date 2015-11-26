@@ -1,7 +1,8 @@
 COPPER 4.0.0
 ============
-- New feature: Apache Cassandra Support! Use a Cassandra NoSQL DB for persistence - this enables really high available solutions
+- New feature: Apache Cassandra Support! Use a Cassandra NoSQL DB for persistence - this enables high available and scalable solutions
 - New feature: New WorkflowRepository - ClasspathWorkflowRepository: Very easy to use but with less features in comparison to FileBasedWorkflowRepository
+- New feature: Simplified creation of a persistent engine with CassandraEngineFactory and RdbmsEngineFactory - these factories do most of the work for you, creating and plugging everything together
 - Maintenance: Now using ASM 5.0.4
 - Info:        Java 6 no more supported (only 7 and 8)
 

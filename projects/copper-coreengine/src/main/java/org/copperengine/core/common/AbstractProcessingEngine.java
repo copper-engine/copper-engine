@@ -72,11 +72,6 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         this.dependencyInjector = dependencyInjector;
     }
 
-    @Deprecated
-    public DependencyInjector getDependencyInjector() {
-        return dependencyInjector;
-    }
-
     @Override
     public String getDependencyInjectorType() {
         return (dependencyInjector != null) ? dependencyInjector.getType() : "UNKNOWN";

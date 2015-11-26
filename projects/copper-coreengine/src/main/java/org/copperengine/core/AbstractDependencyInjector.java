@@ -89,9 +89,5 @@ public abstract class AbstractDependencyInjector implements DependencyInjector {
         }
     }
 
-    @Deprecated
-    public void setEngine(ProcessingEngine e) {
-    }
-
     protected abstract Object getBean(String beanId);
 }

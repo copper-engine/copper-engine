@@ -26,13 +26,6 @@ package org.copperengine.core;
  */
 public interface DependencyInjector {
 
-    /**
-     * Will be removed in release 4.0
-     * 
-     * @deprecated
-     */
-    public void setEngine(ProcessingEngine e);
-
     public void inject(Workflow<?> workflow);
 
     public String getType();
