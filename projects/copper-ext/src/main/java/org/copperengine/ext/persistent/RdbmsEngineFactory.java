@@ -46,14 +46,14 @@ import com.google.common.base.Suppliers;
 /**
  * Utility class to create a RDBMS (e.g. oracle or mysql) {@link PersistentScottyEngine}.
  * <p>
- * Usage is quite simple, e.g. using a PojoDependencyInjector:
+ * Usage is quite simple, e.g. using a SupplierDependencyInjector:
  * 
  * <pre>
- * RdbmsEngineFactory&lt;PojoDependencyInjector&gt; engineFactory = new
- *         RdbmsEngineFactory&lt;PojoDependencyInjector&gt;(Arrays.asList(&quot;package.of.copper.workflow.classes&quot;)) {
+ * RdbmsEngineFactory&lt;SupplierDependencyInjector&gt; engineFactory = new
+ *         RdbmsEngineFactory&lt;SupplierDependencyInjector&gt;(Arrays.asList(&quot;package.of.copper.workflow.classes&quot;)) {
  * 
- *             protected PojoDependencyInjector createDependencyInjector() {
- *                 return new PojoDependencyInjector();
+ *             protected SupplierDependencyInjector createDependencyInjector() {
+ *                 return new SupplierDependencyInjector();
  *             }
  * 
  *             protected DataSource createDataSource() {

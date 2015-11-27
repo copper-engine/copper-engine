@@ -17,6 +17,9 @@ package org.copperengine.core.persistent.cassandra;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.DependencyInjector;
 import org.copperengine.core.persistent.PersistentScottyEngine;
@@ -31,13 +34,13 @@ import com.google.common.base.Suppliers;
 /**
  * Utility class to create a {@link PersistentScottyEngine} using a cassandra cluster as underlying storage.
  * <p>
- * Usage is quite simple, e.g. using a PojoDependencyInjector:
+ * Usage is quite simple, e.g. using a SupplierDependencyInjector:
  * 
  * <pre>
- * CassandraEngineFactory&lt;PojoDependencyInjector&gt; engineFactory = new CassandraEngineFactory&lt;PojoDependencyInjector&gt;(Arrays.asList(&quot;package.of.copper.workflow.classes&quot;)) {
+ * CassandraEngineFactory&lt;SupplierDependencyInjector&gt; engineFactory = new CassandraEngineFactory&lt;SupplierDependencyInjector&gt;(Arrays.asList(&quot;package.of.copper.workflow.classes&quot;)) {
  *     &#064;Override
- *     protected PojoDependencyInjector createDependencyInjector() {
- *         return new PojoDependencyInjector();
+ *     protected SupplierDependencyInjector createDependencyInjector() {
+ *         return new SupplierDependencyInjector();
  *     }
  * };
  * engineFactory.getEngine().startup();
@@ -57,6 +60,7 @@ public abstract class CassandraEngineFactory<T extends DependencyInjector> exten
     private boolean withCache = false;
 
     protected final Supplier<CassandraSessionManager> cassandraSessionManager;
+    protected final Supplier<ScheduledExecutorService> scheduledExecutorService;
 
     public CassandraEngineFactory(List<String> wfPackges) {
         super(wfPackges);
@@ -66,6 +70,14 @@ public abstract class CassandraEngineFactory<T extends DependencyInjector> exten
             public CassandraSessionManager get() {
                 logger.info("Creating CassandraSessionManager...");
                 return createCassandraSessionManager();
+            }
+        });
+
+        scheduledExecutorService = Suppliers.memoize(new Supplier<ScheduledExecutorService>() {
+            @Override
+            public ScheduledExecutorService get() {
+                logger.info("Creating ScheduledExecutorService...");
+                return createScheduledExecutorService();
             }
         });
     }
@@ -86,10 +98,21 @@ public abstract class CassandraEngineFactory<T extends DependencyInjector> exten
         this.withCache = withCache;
     }
 
+    protected ScheduledExecutorService createScheduledExecutorService() {
+        return Executors.newScheduledThreadPool(2);
+    }
+
     protected Storage createStorage() {
         final CassandraStorage cs = new CassandraStorage(cassandraSessionManager.get(), executorService.get(), statisticCollector.get());
         if (withCache) {
-            return new StorageCache(cs);
+            final StorageCache storageCache = new StorageCache(cs);
+            scheduledExecutorService.get().scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    storageCache.logCacheStats();
+                }
+            }, getStatLoggerIntervalSeconds(), getStatLoggerIntervalSeconds(), TimeUnit.SECONDS);
+            return storageCache;
         }
         else {
             return cs;
@@ -106,6 +129,8 @@ public abstract class CassandraEngineFactory<T extends DependencyInjector> exten
         super.destroyEngine();
 
         cassandraSessionManager.get().shutdown();
+
+        scheduledExecutorService.get().shutdown();
     }
 
     public CassandraSessionManager getCassandraSessionManager() {

@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.persistent.cassandra;
+package org.copperengine.core.persistent.cassandra.loadtest;
 
 import java.util.Arrays;
 
+import org.copperengine.core.persistent.cassandra.CassandraSessionManager;
 import org.copperengine.core.util.Backchannel;
 import org.copperengine.core.util.BackchannelDefaultImpl;
 import org.copperengine.core.util.PojoDependencyInjector;
@@ -25,15 +26,15 @@ import org.copperengine.ext.util.Supplier2Provider;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 
-public class UnitTestCassandraEngineFactory extends CassandraEngineFactory<PojoDependencyInjector> {
+public class LoadTestCassandraEngineFactory extends org.copperengine.core.persistent.cassandra.CassandraEngineFactory<PojoDependencyInjector> {
 
     public final Supplier<Backchannel> backchannel;
     public final Supplier<DummyResponseSender> dummyResponseSender;
-    protected final boolean truncate;
+    protected final boolean truncate = false;
 
-    public UnitTestCassandraEngineFactory(boolean truncate) {
-        super(Arrays.asList("org.copperengine.core.persistent.cassandra.workflows"));
-        this.truncate = truncate;
+    public LoadTestCassandraEngineFactory() {
+        super(Arrays.asList("org.copperengine.core.persistent.cassandra.loadtest.workflows"));
+        super.setCassandraHosts(Arrays.asList("nuc1.scoop-gmbh.de"));
 
         backchannel = Suppliers.memoize(new Supplier<Backchannel>() {
             @Override
@@ -65,6 +66,10 @@ public class UnitTestCassandraEngineFactory extends CassandraEngineFactory<PojoD
     @Override
     protected PojoDependencyInjector createDependencyInjector() {
         return new PojoDependencyInjector();
+    }
+
+    public Backchannel getBackchannel() {
+        return backchannel.get();
     }
 
 }

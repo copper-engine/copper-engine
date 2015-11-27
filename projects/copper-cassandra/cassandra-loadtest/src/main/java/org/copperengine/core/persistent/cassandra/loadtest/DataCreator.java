@@ -21,18 +21,16 @@ import java.util.List;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.persistent.PersistentScottyEngine;
-import org.copperengine.core.persistent.StandardJavaSerializer;
-import org.copperengine.core.persistent.hybrid.DefaultTimeoutManager;
+import org.copperengine.core.persistent.ScottyDBStorageInterface;
 import org.copperengine.core.persistent.hybrid.HybridDBStorage;
-import org.copperengine.core.persistent.hybrid.Storage;
-import org.copperengine.ext.wfrepo.classpath.ClasspathWorkflowRepository;
 
 public class DataCreator {
 
     public static void main(final String[] args) {
-        final CassandraEngineFactory factory = new CassandraEngineFactory() {
-            protected HybridDBStorage createStorage(ClasspathWorkflowRepository wfRepository, Storage cassandra) {
-                return new HybridDBStorage(new StandardJavaSerializer(), wfRepository, cassandra, new DefaultTimeoutManager().startup(), executor) {
+        final LoadTestCassandraEngineFactory factory = new LoadTestCassandraEngineFactory() {
+            @Override
+            protected ScottyDBStorageInterface createDBStorage() {
+                return new HybridDBStorage(serializer.get(), workflowRepository.get(), storage.get(), timeoutManager.get(), executorService.get()) {
                     @Override
                     public List<Workflow<?>> dequeue(String ppoolId, int max) throws Exception {
                         return Collections.emptyList();
@@ -41,8 +39,8 @@ public class DataCreator {
             }
         };
         try {
-            factory.createEngine(false);
-            createData(factory.engine);
+            factory.getEngine().startup();
+            createData(factory.getEngine());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

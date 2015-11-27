@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.persistent.cassandra.loadtest;
+package org.copperengine.ext.util;
 
-public class EngineStarter {
+import org.copperengine.core.util.PojoDependencyInjector.Provider;
 
-    public static void main(final String[] args) {
-        final LoadTestCassandraEngineFactory factory = new LoadTestCassandraEngineFactory();
-        try {
-            factory.getEngine().startup();
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    factory.destroyEngine();
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+import com.google.common.base.Supplier;
+
+public class Supplier2Provider<T> implements Provider<T> {
+
+    private final Supplier<T> supplier;
+
+    public Supplier2Provider(Supplier<T> supplier) {
+        if (supplier == null)
+            throw new IllegalArgumentException("supplier is null");
+        this.supplier = supplier;
     }
 
+    @Override
+    public T get() {
+        return supplier.get();
+    }
 }

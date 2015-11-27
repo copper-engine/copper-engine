@@ -22,12 +22,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.copperengine.core.WorkflowInstanceDescr;
+import org.copperengine.core.persistent.PersistentScottyEngine;
 
 public class PermanentLoadCreator {
 
     private static final String WF_CLASS = "org.copperengine.core.persistent.cassandra.loadtest.workflows.LoadTestWorkflow";
 
-    private CassandraEngineFactory factory;
+    private LoadTestCassandraEngineFactory factory;
     private final AtomicInteger counter = new AtomicInteger();
     private final String payload;
 
@@ -43,8 +44,8 @@ public class PermanentLoadCreator {
         if (factory != null)
             return this;
 
-        factory = new CassandraEngineFactory();
-        factory.createEngine(false);
+        factory = new LoadTestCassandraEngineFactory();
+        factory.getEngine().startup();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -68,16 +69,17 @@ public class PermanentLoadCreator {
 
     public void work() {
         try {
+            final PersistentScottyEngine engine = factory.getEngine();
             List<String> cids = new ArrayList<>();
             for (int i = 0; i < 1000; i++) {
-                final String cid = factory.engine.createUUID();
+                final String cid = engine.createUUID();
                 final LoadTestData data = new LoadTestData(cid, payload);
                 final WorkflowInstanceDescr<LoadTestData> wfid = new WorkflowInstanceDescr<LoadTestData>(WF_CLASS, data, cid, 1, null);
-                factory.engine.run(wfid);
+                engine.run(wfid);
                 cids.add(cid);
             }
             for (String cid : cids) {
-                factory.backchannel.wait(cid, 5, TimeUnit.MINUTES);
+                factory.getBackchannel().wait(cid, 5, TimeUnit.MINUTES);
                 int value = counter.incrementAndGet();
                 if (value % 10000 == 0) {
                     System.out.println(new Date() + " - " + value + " workflow instances processed so far.");

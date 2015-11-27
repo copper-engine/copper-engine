@@ -158,6 +158,10 @@ public abstract class AbstractPersistentEngineFactory<T extends DependencyInject
         this.statLoggerIntervalSeconds = statLoggerIntervalSeconds;
     }
 
+    protected int getStatLoggerIntervalSeconds() {
+        return statLoggerIntervalSeconds;
+    }
+
     protected ProcessorPoolManager<PersistentProcessorPool> createProcessorPoolManager() {
         PersistentPriorityProcessorPool ppool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, transactionController.get(), Runtime.getRuntime().availableProcessors());
         ppool.setEmptyQueueWaitMSec(2);
