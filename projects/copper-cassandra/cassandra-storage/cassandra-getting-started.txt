@@ -31,7 +31,7 @@ Quit the cqlsh
 In your Java project
 
 add copper to your dependencies, e.g. when using gradle like this:
-   compile 'org.copper-engine:cassandra-storage-4.0.0-SNAPSHOT' 
+   compile 'org.copper-engine:cassandra-storage-4.0.0-alpha1' 
    
 Create and start the copper engine:
    
