@@ -10,7 +10,6 @@ ext {
 	slf4jVersion = "1.7.12"
 	springVersion = '3.1.4.RELEASE'
 	c3p0Version = '0.9.2.1'
-	apacheCxfVersion = '3.0.5'
 }
 
 buildscript {
