@@ -68,7 +68,7 @@
     -fx-stroke: -fx-const-stroke;
     -fx-stroke-width: -fx-const-stroke-width;
     
-    -fx-font: 12pt "Arial";
+    -fx-font: 9pt "Arial";
 
     -fx-copper-base: -fx-const-base;
     -fx-copper-background-color: -fx-const-pane-background;
@@ -96,7 +96,7 @@
 }
 
 .copper-big-title {
-     -fx-font-size: 16pt;
+     -fx-font-size: 12pt;
      -fx-font-weight: bold;
 }
 
@@ -167,7 +167,7 @@
 }
 
 .consoleFont {
-    -fx-font: 12px "Courier New";
+    -fx-font: 9px "Courier New";
 }
 
 .chart-series-line {    
