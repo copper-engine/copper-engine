@@ -3,7 +3,7 @@ import groovy.xml.QName
 
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.0'
+    gradleVersion = '2.9'
 }
 
 ext {
