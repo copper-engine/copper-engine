@@ -84,7 +84,7 @@ configure(subprojects.findAll {
             // verify that every java file has our Apache License header; fail build if header is missing
             header file("$rootDir/common/apache-license-file.txt")
             skipExistingHeaders true
-            ignoreFailures false
+            ignoreFailures true
         }
     }
 
