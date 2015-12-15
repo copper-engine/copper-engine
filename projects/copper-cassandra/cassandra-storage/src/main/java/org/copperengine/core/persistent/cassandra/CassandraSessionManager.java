@@ -15,10 +15,13 @@
  */
 package org.copperengine.core.persistent.cassandra;
 
+import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 
 public interface CassandraSessionManager {
     public Session getSession();
+
+    public Cluster getCluster();
 
     public void startup();
 

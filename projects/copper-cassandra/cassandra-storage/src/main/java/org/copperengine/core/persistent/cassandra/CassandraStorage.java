@@ -15,6 +15,8 @@
  */
 package org.copperengine.core.persistent.cassandra;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,7 +41,9 @@ import org.copperengine.core.persistent.hybrid.WorkflowInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.KeyspaceMetadata;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.ResultSetFuture;
@@ -76,6 +80,7 @@ public class CassandraStorage implements Storage {
 
     private final Executor executor;
     private final Session session;
+    private final Cluster cluster;
     private final Map<String, PreparedStatement> preparedStatements = new HashMap<>();
     private final JsonMapper jsonMapper = new JsonMapperImpl();
     private final ConsistencyLevel consistencyLevel;
@@ -83,6 +88,7 @@ public class CassandraStorage implements Storage {
     private final RetryPolicy alwaysRetry = new LoggingRetryPolicy(new AlwaysRetryPolicy());
     private int ttlEarlyResponseSeconds = 1 * 24 * 60 * 60; // one day
     private int initializationTimeoutSeconds = 1 * 24 * 60 * 60; // one day
+    private boolean createSchemaOnStartup = true;
 
     public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor, final RuntimeStatisticsCollector runtimeStatisticsCollector) {
         this(sessionManager, executor, runtimeStatisticsCollector, ConsistencyLevel.LOCAL_QUORUM);
@@ -105,8 +111,16 @@ public class CassandraStorage implements Storage {
         this.executor = executor;
         this.consistencyLevel = consistencyLevel;
         this.session = sessionManager.getSession();
+        this.cluster = sessionManager.getCluster();
         this.runtimeStatisticsCollector = runtimeStatisticsCollector;
 
+    }
+
+    public void setCreateSchemaOnStartup(boolean createSchemaOnStartup) {
+        this.createSchemaOnStartup = createSchemaOnStartup;
+    }
+
+    protected void prepareStatements() throws Exception {
         prepare(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
         prepare(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
         prepare(CQL_DEL_WORKFLOW_INSTANCE_WAITING);
@@ -119,6 +133,42 @@ public class CassandraStorage implements Storage {
         prepare(CQL_INS_WFI_ID);
         prepare(CQL_DEL_WFI_ID);
         prepare(CQL_SEL_WFI_ID_ALL, DefaultRetryPolicy.INSTANCE);
+    }
+
+    protected void createSchema(Session session, Cluster cluster) throws Exception {
+        if (!createSchemaOnStartup)
+            return;
+
+        final KeyspaceMetadata metaData = cluster.getMetadata().getKeyspace(session.getLoggedKeyspace());
+        if (metaData.getTable("COP_WORKFLOW_INSTANCE") != null) {
+            logger.info("skipping schema creation");
+            return;
+        }
+
+        logger.info("Creating tables...");
+        try (final BufferedReader br = new BufferedReader(new InputStreamReader(CassandraStorage.class.getResourceAsStream("copper-schema.cql")))) {
+            StringBuilder cql = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty())
+                    continue;
+                if (line.startsWith("--"))
+                    continue;
+                if (line.endsWith(";")) {
+                    if (line.length() > 1)
+                        cql.append(line.substring(0, line.length() - 1));
+                    String cqlCmd = cql.toString();
+                    cql = new StringBuilder();
+                    logger.info("Executing CQL {}", cqlCmd);
+                    session.execute(cqlCmd);
+                }
+                else {
+                    cql.append(line).append(" ");
+                }
+            }
+        }
+
     }
 
     public void setTtlEarlyResponseSeconds(int ttlEarlyResponseSeconds) {
@@ -261,6 +311,10 @@ public class CassandraStorage implements Storage {
 
     @Override
     public void initialize(final HybridDBStorageAccessor internalStorageAccessor, int numberOfThreads) throws Exception {
+        createSchema(session, cluster);
+
+        prepareStatements();
+
         // TODO instead of blocking the startup until all active workflow instances are read and resumed, it is
         // sufficient to read just their existing IDs in COP_WFI_ID and resume them in the background while already
         // starting the engine an accepting new instances.

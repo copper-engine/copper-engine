@@ -18,10 +18,12 @@ package org.copperengine.core.persistent.cassandra;
 import java.util.Arrays;
 
 import org.copperengine.core.util.PojoDependencyInjector;
+import org.junit.Test;
 
-public class CassandraEngineFactoryUsage {
+public class CassandraEngineFactoryUsage extends CassandraTest {
 
-    public void test() {
+    @Test
+    public void test() throws Exception {
         CassandraEngineFactory<PojoDependencyInjector> engineFactory = new CassandraEngineFactory<PojoDependencyInjector>(Arrays.asList("package.of.copper.workflow.classes")) {
             @Override
             protected PojoDependencyInjector createDependencyInjector() {
@@ -29,6 +31,8 @@ public class CassandraEngineFactoryUsage {
             }
         };
         engineFactory.getEngine().startup();
+        Thread.sleep(500);
+        engineFactory.getEngine().shutdown();
     }
 
 }

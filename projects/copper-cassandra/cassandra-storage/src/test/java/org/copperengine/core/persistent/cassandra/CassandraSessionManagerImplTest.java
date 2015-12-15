@@ -15,18 +15,15 @@
  */
 package org.copperengine.core.persistent.cassandra;
 
-import static org.junit.Assume.assumeFalse;
-
 import java.util.Collections;
 
 import org.junit.Test;
 
-public class CassandraSessionManagerImplTest extends CassandraUnitTest {
+public class CassandraSessionManagerImplTest extends CassandraTest {
 
     @Test()
     public void test() {
-        assumeFalse(skipTests());
-        CassandraSessionManagerImpl cassandraSessionManagerImpl = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), null, "copper");
+        CassandraSessionManagerImpl cassandraSessionManagerImpl = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), CassandraTest.CASSANDRA_PORT, "copper");
         cassandraSessionManagerImpl.startup();
         cassandraSessionManagerImpl.shutdown();
     }

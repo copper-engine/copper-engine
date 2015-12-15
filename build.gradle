@@ -289,15 +289,17 @@ project(':projects:copper-cassandra:cassandra-storage') {
         compile project(':projects:copper-jmx-interface')
         compile project(':projects:copper-coreengine')
         compile project(':projects:copper-ext')
+        compile "org.slf4j:slf4j-api:$slf4jVersion"
 	compile 'commons-io:commons-io:2.4'
 	compile 'com.google.guava:guava:18.0'
-	compile 'com.datastax.cassandra:cassandra-driver-core:2.1.8'
+	compile 'com.datastax.cassandra:cassandra-driver-core:2.1.9'
 	compile 'commons-lang:commons-lang:2.6'
        	compile 'com.fasterxml.jackson.core:jackson-core:2.6.3'
        	compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
         
         testCompile "org.slf4j:slf4j-log4j12:$slf4jVersion"
-        testCompile "org.slf4j:slf4j-api:$slf4jVersion"
+        testCompile 'org.cassandraunit:cassandra-unit:2.1.9.2'
+        testCompile 'io.netty:netty-all:4.0.27.Final'
     }
     
     test {
@@ -553,4 +555,8 @@ project(':projects:copper-monitoring:copper-monitoring-example') {
         compile 'org.apache.derby:derby:10.10.1.1'
         compile "com.mchange:c3p0:$c3p0Version"
     }
+}
+
+subprojects {
+    task allDeps(type: DependencyReportTask) {}
 }

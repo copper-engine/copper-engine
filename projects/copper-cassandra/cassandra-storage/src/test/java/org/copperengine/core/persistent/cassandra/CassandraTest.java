@@ -15,68 +15,46 @@
  */
 package org.copperengine.core.persistent.cassandra;
 
-import static org.junit.Assume.assumeFalse;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.copperengine.core.WorkflowInstanceDescr;
-import org.junit.AfterClass;
+import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class CassandraTest extends CassandraUnitTest {
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.Cluster.Builder;
+import com.datastax.driver.core.Session;
 
-    private static UnitTestCassandraEngineFactory factory;
+public class CassandraTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(CassandraTest.class);
+
+    public static final int CASSANDRA_PORT = 9142;
+
+    protected static UnitTestCassandraEngineFactory factory;
 
     @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        if (!skipTests()) {
-            factory = new UnitTestCassandraEngineFactory(true);
+    public synchronized static void setUpBeforeClass() throws Exception {
+        if (factory == null) {
+            logger.info("Starting embedded cassandra...");
+            EmbeddedCassandraServerHelper.startEmbeddedCassandra("unittest-cassandra.yaml", "./build/cassandra");
+            Thread.sleep(100);
+            logger.info("Successfully started embedded cassandra.");
+
+            final Cluster cluster = new Builder().addContactPoint("localhost").withPort(CASSANDRA_PORT).build();
+            final Session session = cluster.newSession();
+            session.execute("CREATE KEYSPACE copper WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };");
+
+            factory = new UnitTestCassandraEngineFactory(false);
+            factory.setCassandraPort(CASSANDRA_PORT);
             factory.getEngine().startup();
         }
     }
 
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        if (!skipTests() && factory != null) {
-            factory.destroyEngine();
-        }
-    }
-
-    @Test
-    public void testParallel() throws Exception {
-        assumeFalse(skipTests());
-
-        List<String> cids = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            final String cid = factory.getEngine().createUUID();
-            final TestData data = new TestData(cid, "foo");
-            final WorkflowInstanceDescr<TestData> wfid = new WorkflowInstanceDescr<TestData>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", data, cid, 1, null);
-            factory.getEngine().run(wfid);
-            cids.add(cid);
-        }
-        for (String cid : cids) {
-            Object response = factory.backchannel.get().wait(cid, 10000, TimeUnit.MILLISECONDS);
-            org.junit.Assert.assertNotNull("no response for workflow instance " + cid, response);
-            org.junit.Assert.assertEquals("OK", response);
-        }
-    }
-
-    @Test
-    public void testSerial() throws Exception {
-        assumeFalse(skipTests());
-
-        for (int i = 0; i < 3; i++) {
-            final String cid = factory.getEngine().createUUID();
-            final TestData data = new TestData(cid, "foo");
-            final WorkflowInstanceDescr<TestData> wfid = new WorkflowInstanceDescr<TestData>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", data, cid, 1, null);
-            factory.getEngine().run(wfid);
-            Object response = factory.backchannel.get().wait(cid, 10000, TimeUnit.MILLISECONDS);
-            org.junit.Assert.assertNotNull(response);
-            org.junit.Assert.assertEquals("OK", response);
-        }
-    }
+    // @AfterClass
+    // public synchronized static void tearDownAfterClass() throws Exception {
+    // if (factory != null) {
+    // factory.destroyEngine();
+    // }
+    // }
 
 }

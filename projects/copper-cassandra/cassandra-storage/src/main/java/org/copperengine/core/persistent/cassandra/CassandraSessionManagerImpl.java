@@ -82,4 +82,9 @@ public class CassandraSessionManagerImpl implements CassandraSessionManager {
         return session;
     }
 
+    @Override
+    public Cluster getCluster() {
+        return cassandraCluster;
+    }
+
 }
