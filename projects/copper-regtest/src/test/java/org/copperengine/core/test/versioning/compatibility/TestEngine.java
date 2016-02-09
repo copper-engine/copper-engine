@@ -59,17 +59,17 @@ public class TestEngine implements PersistentProcessingEngine {
     }
 
     @Override
-    public void run(String wfname, Object data) throws CopperException {
+    public String run(String wfname, Object data) throws CopperException {
+        return null;
     }
 
     @Override
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr)
-            throws CopperException {
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
+        return null;
     }
 
     @Override
-    public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr)
-            throws CopperException {
+    public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr) throws CopperException {
     }
 
     @Override
@@ -87,8 +87,8 @@ public class TestEngine implements PersistentProcessingEngine {
     }
 
     @Override
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con)
-            throws CopperException {
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws CopperException {
+        return null;
     }
 
     @Override

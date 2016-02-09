@@ -162,8 +162,8 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     }
 
     @Override
-    protected void run(Workflow<?> wf) throws CopperException {
-        run(wf, null);
+    protected String run(Workflow<?> wf) throws CopperException {
+        return run(wf, null);
     }
 
     private void notifyProcessorPool(String ppoolId) {
@@ -241,7 +241,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
      * @throws CopperException
      *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id
      */
-    public void run(Workflow<?> wf, Connection con) throws CopperException {
+    public String run(Workflow<?> wf, Connection con) throws CopperException {
         if (logger.isTraceEnabled())
             logger.trace("run(" + wf + ")");
         if (!(wf instanceof PersistentWorkflow<?>)) {
@@ -262,6 +262,8 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             }
             dbStorage.insert(wf, con);
             notifyProcessorPool(wf.getProcessorPoolId());
+
+            return wf.getId();
         } catch (RuntimeException e) {
             throw e;
         } catch (CopperException e) {
@@ -324,9 +326,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     }
 
     @Override
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws CopperException {
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws CopperException {
         try {
-            this.run(createWorkflowInstance(wfInstanceDescr), con);
+            return this.run(createWorkflowInstance(wfInstanceDescr), con);
         } catch (CopperException e) {
             throw e;
         } catch (RuntimeException e) {

@@ -66,11 +66,4 @@ public class CassandraTest {
         }
     }
 
-    // @AfterClass
-    // public synchronized static void tearDownAfterClass() throws Exception {
-    // if (factory != null) {
-    // factory.destroyEngine();
-    // }
-    // }
-
 }

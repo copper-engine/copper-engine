@@ -88,15 +88,15 @@ public class MonitoringAdapterProcessingEngine implements ProcessingEngine {
     }
 
     @Override
-    public void run(String wfname, Object data) throws CopperException {
+    public String run(String wfname, Object data) throws CopperException {
         monitoringDataCollector.submitAdapterWfLaunch(wfname, adapter);
-        processingEngine.run(wfname, data);
+        return processingEngine.run(wfname, data);
     }
 
     @Override
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
         monitoringDataCollector.submitAdapterWfLaunch(wfInstanceDescr.getWfName(), adapter);
-        processingEngine.run(wfInstanceDescr);
+        return processingEngine.run(wfInstanceDescr);
     }
 
     @Override

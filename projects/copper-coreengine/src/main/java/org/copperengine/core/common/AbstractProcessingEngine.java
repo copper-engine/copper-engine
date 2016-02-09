@@ -139,16 +139,16 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         return wfi;
     }
 
-    protected abstract void run(Workflow<?> w) throws CopperException;
+    protected abstract String run(Workflow<?> w) throws CopperException;
 
     protected abstract void run(List<Workflow<?>> w) throws CopperException;
 
     @Override
-    public void run(String wfname, Object data) throws CopperException {
+    public String run(String wfname, Object data) throws CopperException {
         try {
             Workflow<Object> wf = createWorkflowFactory(wfname).newInstance();
             wf.setData(data);
-            run(wf);
+            return run(wf);
         } catch (CopperException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -159,9 +159,9 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     }
 
     @Override
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
         try {
-            run(createWorkflowInstance(wfInstanceDescr));
+            return run(createWorkflowInstance(wfInstanceDescr));
         } catch (CopperException e) {
             throw e;
         } catch (RuntimeException e) {

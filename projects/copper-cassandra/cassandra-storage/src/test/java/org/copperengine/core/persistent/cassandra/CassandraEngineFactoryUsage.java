@@ -20,6 +20,7 @@ import java.util.Arrays;
 import org.copperengine.core.util.PojoDependencyInjector;
 import org.junit.Test;
 
+@org.junit.Ignore
 public class CassandraEngineFactoryUsage extends CassandraTest {
 
     @Test

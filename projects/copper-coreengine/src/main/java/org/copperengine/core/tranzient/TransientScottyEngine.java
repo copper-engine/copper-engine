@@ -148,7 +148,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     }
 
     @Override
-    protected void run(Workflow<?> w) throws DuplicateIdException {
+    protected String run(Workflow<?> w) throws DuplicateIdException {
         try {
             startupBlocker.pass();
         } catch (InterruptedException e) {
@@ -173,6 +173,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
             }
             injectDependencies(w);
             enqueue(w);
+            return w.getId();
         } catch (DuplicateIdException e) {
             ticketPoolManager.release(w);
             throw e;
