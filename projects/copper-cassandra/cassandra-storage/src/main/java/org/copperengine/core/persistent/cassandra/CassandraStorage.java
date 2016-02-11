@@ -443,7 +443,7 @@ public class CassandraStorage implements Storage {
         logger.info("Preparing cql stmt {}", cql);
         PreparedStatement pstmt = session.prepare(cql);
         pstmt.setConsistencyLevel(consistencyLevel);
-        pstmt.setRetryPolicy(alwaysRetry);
+        pstmt.setRetryPolicy(petryPolicy);
         preparedStatements.put(cql, pstmt);
     }
 
