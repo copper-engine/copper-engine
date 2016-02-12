@@ -54,7 +54,7 @@ public class CassandraSessionManagerImpl implements CassandraSessionManager {
             return;
 
         Builder b = Cluster.builder();
-        b.withLoadBalancingPolicy(new TokenAwarePolicy(new DCAwareRoundRobinPolicy()));
+        b.withLoadBalancingPolicy(new TokenAwarePolicy(DCAwareRoundRobinPolicy.builder().build()));
         for (String host : hosts) {
             b.addContactPoint(host);
         }
