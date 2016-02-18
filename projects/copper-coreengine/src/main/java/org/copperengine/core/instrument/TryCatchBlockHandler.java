@@ -56,12 +56,12 @@ public class TryCatchBlockHandler {
             if (!m.exceptions.contains(INTERRUPT_EXCEPTION_NAME) || m.tryCatchBlocks.isEmpty()) {
                 continue;
             }
-            logger.info("Instrument " + cn.name + "." + m.name);
+            logger.debug("Instrument " + cn.name + "." + m.name);
             HashSet<Label> labels = new HashSet<Label>();
             for (TryCatchBlockNode catchNode : (List<TryCatchBlockNode>) m.tryCatchBlocks) {
                 if (labels.contains(catchNode.handler.getLabel())) {
                     // some handlers share their handling code - check it out to prevent double instrumentation
-                    logger.info("skipping node");
+                    logger.debug("skipping node");
                     continue;
                 }
                 labels.add(catchNode.handler.getLabel());
