@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,13 @@ import org.copperengine.core.persistent.txn.CopperTransactionController;
 import org.copperengine.core.persistent.txn.TransactionController;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 
+/**
+ * 
+ * @author austermann
+ *
+ *         Deprecated - use RdbmsEngineFactory instead
+ */
+@Deprecated
 public class PersistentEngineFactory {
 
     public static final class Engine {

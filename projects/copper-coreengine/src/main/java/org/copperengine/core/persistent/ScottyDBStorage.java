@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 
     private Thread enqueueThread;
     private ScheduledExecutorService scheduledExecutorService;
-    private boolean shutdown = false;
+    private volatile boolean shutdown = false;
     private boolean checkDbConsistencyAtStartup = false;
 
     private CountDownLatch enqueueThreadTerminated = new CountDownLatch(1);
@@ -265,6 +265,8 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         int n = 0;
         final int MAX_ROWS = 20000;
         do {
+            if (shutdown)
+                break;
             n = run(new DatabaseTransaction<Integer>() {
                 @Override
                 public Integer run(Connection con) throws Exception {

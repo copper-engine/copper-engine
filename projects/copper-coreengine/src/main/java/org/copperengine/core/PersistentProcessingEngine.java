@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,30 +26,31 @@ import java.util.List;
 public interface PersistentProcessingEngine extends ProcessingEngine {
 
     /**
-     * Enqueues the specified list of workflow instances into the engine for execution.
+     * Enqueues the workflow instance into the engine for execution.
      * 
      * @param wfInstanceDescr
-     *            workflow instance descriptions to run
+     *        workflow instance descriptions to run
      * @param con
-     *            connection used for the inserting the workflow to the database
+     *        connection used for the inserting the workflow to the database
      * @throws CopperException
-     *             if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id
      * @throws DuplicateIdException
-     *             if a workflow instance with the same id already exists
+     *         if a workflow instance with the same id already exists
+     * @return workflow instance ID
      */
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws DuplicateIdException, CopperException;
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws DuplicateIdException, CopperException;
 
     /**
      * Enqueues the specified list of workflow instances into the engine for execution.
      * 
      * @param wfInstanceDescr
-     *            the list of workflow instance descriptions to run
+     *        the list of workflow instance descriptions to run
      * @param con
-     *            connection used for the inserting the workflow to the database
+     *        connection used for the inserting the workflow to the database
      * @throws CopperException
-     *             if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id
      * @throws DuplicateIdException
-     *             if a workflow instance with the same id already exists
+     *         if a workflow instance with the same id already exists
      */
     public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr, Connection con) throws DuplicateIdException, CopperException;
 
@@ -75,7 +76,7 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      * the number of open responses, the workflow may or may not be resumed.
      * 
      * @param response
-     *            the reponse
+     *        the reponse
      * @throws CopperRuntimeException
      */
     public void notify(Response<?> response, Connection c) throws CopperRuntimeException;
@@ -88,7 +89,7 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      * the number of open responses, the workflow may or may not be resumed.
      * 
      * @param responses
-     *            the list of reponses
+     *        the list of reponses
      * @throws CopperRuntimeException
      */
     public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException;

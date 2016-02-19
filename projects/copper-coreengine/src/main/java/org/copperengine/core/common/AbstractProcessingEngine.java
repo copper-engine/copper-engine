@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,11 +72,6 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         this.dependencyInjector = dependencyInjector;
     }
 
-    @Deprecated
-    public DependencyInjector getDependencyInjector() {
-        return dependencyInjector;
-    }
-
     @Override
     public String getDependencyInjectorType() {
         return (dependencyInjector != null) ? dependencyInjector.getType() : "UNKNOWN";
@@ -144,16 +139,16 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         return wfi;
     }
 
-    protected abstract void run(Workflow<?> w) throws CopperException;
+    protected abstract String run(Workflow<?> w) throws CopperException;
 
     protected abstract void run(List<Workflow<?>> w) throws CopperException;
 
     @Override
-    public void run(String wfname, Object data) throws CopperException {
+    public String run(String wfname, Object data) throws CopperException {
         try {
             Workflow<Object> wf = createWorkflowFactory(wfname).newInstance();
             wf.setData(data);
-            run(wf);
+            return run(wf);
         } catch (CopperException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -164,9 +159,9 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     }
 
     @Override
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
         try {
-            run(createWorkflowInstance(wfInstanceDescr));
+            return run(createWorkflowInstance(wfInstanceDescr));
         } catch (CopperException e) {
             throw e;
         } catch (RuntimeException e) {

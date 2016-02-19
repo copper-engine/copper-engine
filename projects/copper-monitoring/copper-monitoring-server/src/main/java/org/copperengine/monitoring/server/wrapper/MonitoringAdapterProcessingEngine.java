@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,15 +88,15 @@ public class MonitoringAdapterProcessingEngine implements ProcessingEngine {
     }
 
     @Override
-    public void run(String wfname, Object data) throws CopperException {
+    public String run(String wfname, Object data) throws CopperException {
         monitoringDataCollector.submitAdapterWfLaunch(wfname, adapter);
-        processingEngine.run(wfname, data);
+        return processingEngine.run(wfname, data);
     }
 
     @Override
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
         monitoringDataCollector.submitAdapterWfLaunch(wfInstanceDescr.getWfName(), adapter);
-        processingEngine.run(wfInstanceDescr);
+        return processingEngine.run(wfInstanceDescr);
     }
 
     @Override

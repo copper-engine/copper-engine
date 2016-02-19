@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,31 @@
 package org.copperengine.core.wfrepo;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.copperengine.core.CopperRuntimeException;
+import org.copperengine.core.Workflow;
+import org.copperengine.core.WorkflowDescription;
+import org.copperengine.core.WorkflowFactory;
+import org.copperengine.core.WorkflowVersion;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.instrument.ClassInfo;
 import org.copperengine.core.instrument.ScottyClassAdapter;
 import org.copperengine.core.instrument.Transformed;
 import org.copperengine.core.instrument.TryCatchBlockHandler;
+import org.copperengine.management.FileBasedWorkflowRepositoryMXBean;
+import org.copperengine.management.model.WorkflowClassInfo;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -40,20 +49,145 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractWorkflowRepository implements WorkflowRepository {
+public abstract class AbstractWorkflowRepository implements WorkflowRepository, FileBasedWorkflowRepositoryMXBean {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractWorkflowRepository.class);
 
     private static final int flags = ClassReader.EXPAND_FRAMES;
 
-    void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, Map<String, ClassInfo> classInfos, File compileTargetDir) throws IOException {
+    protected static final class VolatileState {
+        public final Map<String, Class<?>> wfClassMap;
+        public final Map<String, Class<?>> wfMapLatest;
+        public final Map<String, Class<?>> wfMapVersioned;
+        public final Map<String, List<WorkflowVersion>> wfVersions;
+        public final Map<String, String> javaSources;
+        public final Map<String, ClassInfo> classInfoMap;
+        public final ClassLoader classLoader;
+        public final long checksum;
+
+        public VolatileState(Map<String, Class<?>> wfMap, Map<String, Class<?>> wfMapVersioned, Map<String, List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum, Map<String, Class<?>> wfClassMap, Map<String, String> javaSources, Map<String, ClassInfo> classInfoMap) {
+            this.wfMapLatest = wfMap;
+            this.wfMapVersioned = wfMapVersioned;
+            this.classLoader = classLoader;
+            this.checksum = checksum;
+            this.wfVersions = wfVersions;
+            this.wfClassMap = wfClassMap;
+            this.javaSources = javaSources;
+            this.classInfoMap = classInfoMap;
+        }
+    }
+
+    @Override
+    public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName) throws ClassNotFoundException {
+        return createWorkflowFactory(wfName, null);
+    }
+
+    @Override
+    public <E> WorkflowFactory<E> createWorkflowFactory(final String wfName, final WorkflowVersion version) throws ClassNotFoundException {
+        if (wfName == null)
+            throw new NullPointerException();
+
+        final VolatileState volatileState = getVolatileState();
+        if (version == null) {
+            if (!volatileState.wfMapLatest.containsKey(wfName)) {
+                throw new ClassNotFoundException("Workflow " + wfName + " not found");
+            }
+            return new WorkflowFactory<E>() {
+                @SuppressWarnings("unchecked")
+                @Override
+                public Workflow<E> newInstance() throws InstantiationException, IllegalAccessException {
+                    return (Workflow<E>) volatileState.wfMapLatest.get(wfName).newInstance();
+                }
+            };
+        }
+
+        final String alias = createAliasName(wfName, version);
+        if (!volatileState.wfMapVersioned.containsKey(alias)) {
+            throw new ClassNotFoundException("Workflow " + wfName + " with version " + version + " not found");
+        }
+        return new WorkflowFactory<E>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public Workflow<E> newInstance() throws InstantiationException, IllegalAccessException {
+                return (Workflow<E>) volatileState.wfMapVersioned.get(alias).newInstance();
+            }
+        };
+    }
+
+    @Override
+    public java.lang.Class<?> resolveClass(String classname) throws java.io.IOException, ClassNotFoundException {
+        final VolatileState volatileState = getVolatileState();
+        return Class.forName(classname, false, volatileState.classLoader);
+    }
+
+    @Override
+    public WorkflowVersion findLatestMajorVersion(String wfName, long majorVersion) {
+        final VolatileState volatileState = getVolatileState();
+        final List<WorkflowVersion> versionsList = volatileState.wfVersions.get(wfName);
+        if (versionsList == null)
+            return null;
+
+        WorkflowVersion rv = null;
+        for (WorkflowVersion v : versionsList) {
+            if (v.getMajorVersion() > majorVersion) {
+                break;
+            }
+            rv = v;
+        }
+        return rv;
+    }
+
+    @Override
+    public WorkflowVersion findLatestMinorVersion(String wfName, long majorVersion, long minorVersion) {
+        final VolatileState volatileState = getVolatileState();
+        final List<WorkflowVersion> versionsList = volatileState.wfVersions.get(wfName);
+        if (versionsList == null)
+            return null;
+
+        WorkflowVersion rv = null;
+        for (WorkflowVersion v : versionsList) {
+            if ((v.getMajorVersion() > majorVersion) || (v.getMajorVersion() == majorVersion && v.getMinorVersion() > minorVersion)) {
+                break;
+            }
+            rv = v;
+        }
+        return rv;
+    }
+
+    @Override
+    public ClassInfo getClassInfo(@SuppressWarnings("rawtypes") Class<? extends Workflow> wfClazz) {
+        return getVolatileState().classInfoMap.get(wfClazz.getCanonicalName().replace(".", "/"));
+    }
+
+    @Override
+    public List<WorkflowClassInfo> getWorkflows() {
+        final List<WorkflowClassInfo> resultList = new ArrayList<WorkflowClassInfo>();
+        final VolatileState localVolatileState = getVolatileState();
+        for (Class<?> wfClass : localVolatileState.wfClassMap.values()) {
+            WorkflowClassInfo wfi = new WorkflowClassInfo();
+            wfi.setClassname(wfClass.getName());
+            wfi.setSourceCode(localVolatileState.javaSources.get(wfClass.getName()));
+            if (wfi.getSourceCode() == null)
+                wfi.setSourceCode("NA");
+            WorkflowDescription wfDesc = wfClass.getAnnotation(WorkflowDescription.class);
+            if (wfDesc != null) {
+                wfi.setAlias(wfDesc.alias());
+                wfi.setMajorVersion(wfDesc.majorVersion());
+                wfi.setMinorVersion(wfDesc.minorVersion());
+                wfi.setPatchLevel(wfDesc.patchLevelVersion());
+            }
+            resultList.add(wfi);
+        }
+        return resultList;
+    }
+
+    protected void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, Map<String, ClassInfo> classInfos, ClassLoader tmpClassLoader) throws IOException {
         logger.info("Instrumenting classfiles");
-        URLClassLoader tmpClassLoader = new URLClassLoader(new URL[] { compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
         for (Clazz clazz : clazzMap.values()) {
             byte[] bytes;
-            FileInputStream fis = new FileInputStream(clazz.classfile);
+            InputStream is = clazz.classfile.openStream();
             try {
-                ClassReader cr2 = new ClassReader(fis);
+                ClassReader cr2 = new ClassReader(is);
                 ClassNode cn = new ClassNode();
                 cr2.accept(cn, flags);
 
@@ -94,7 +228,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
                 }
 
             } finally {
-                fis.close();
+                is.close();
             }
 
             File adaptedClassfileName = new File(adaptedTargetDir, clazz.classname + ".class");
@@ -108,7 +242,7 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
         }
     }
 
-    ClassLoader createClassLoader(Map<String, Class<?>> map, File adaptedTargetDir, File compileTargetDir, Map<String, Clazz> clazzMap) throws MalformedURLException, ClassNotFoundException {
+    protected ClassLoader createClassLoader(Map<String, Class<?>> map, File adaptedTargetDir, File compileTargetDir, Map<String, Clazz> clazzMap) throws MalformedURLException, ClassNotFoundException {
         logger.info("Creating classes");
         final Map<String, Clazz> clazzMapCopy = new HashMap<String, Clazz>(clazzMap);
         URLClassLoader classLoader = new URLClassLoader(new URL[] { adaptedTargetDir.toURI().toURL(), compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader()) {
@@ -144,4 +278,17 @@ abstract class AbstractWorkflowRepository implements WorkflowRepository {
         return classLoader;
     }
 
+    protected void checkConstraints(Map<String, Class<?>> workflowClasses) throws CopperRuntimeException {
+        for (Class<?> c : workflowClasses.values()) {
+            if (c.getName().length() > 512) {
+                throw new CopperRuntimeException("Workflow class names are limited to 256 characters");
+            }
+        }
+    }
+
+    protected String createAliasName(final String alias, final WorkflowVersion version) {
+        return alias + "#" + version.format();
+    }
+
+    protected abstract VolatileState getVolatileState();
 }

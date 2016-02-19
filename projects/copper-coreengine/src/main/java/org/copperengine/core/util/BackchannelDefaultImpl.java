@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,12 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BackchannelDefaultImpl implements Backchannel {
+
+    private static final Logger logger = LoggerFactory.getLogger(BackchannelDefaultImpl.class);
 
     private static final class Payload {
         final Object object;
@@ -44,9 +49,11 @@ public class BackchannelDefaultImpl implements Backchannel {
             }
             latches.put(correlationId, latch);
         }
-        latch.await(timeout, timeunit);
+        final boolean timeoutOccured = !latch.await(timeout, timeunit);
         synchronized (mutex) {
             latches.remove(correlationId);
+            if (timeoutOccured)
+                return null;
             Payload payload = notifications.remove(correlationId);
             return payload != null ? payload.object : null;
         }
@@ -54,13 +61,16 @@ public class BackchannelDefaultImpl implements Backchannel {
 
     @Override
     public void notify(String correlationId, Object payload) {
+        logger.debug("notify(correlationId={})", correlationId);
+        boolean latchFound = false;
         synchronized (mutex) {
             notifications.put(correlationId, new Payload(payload));
             final CountDownLatch latch = latches.get(correlationId);
             if (latch != null) {
                 latch.countDown();
+                latchFound = true;
             }
         }
+        logger.debug("notify(correlationId={} - latch {}", correlationId, latchFound ? "found" : "not found");
     }
-
 }

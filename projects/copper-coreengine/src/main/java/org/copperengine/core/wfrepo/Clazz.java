@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 package org.copperengine.core.wfrepo;
 
-import java.io.File;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
-final class Clazz {
-    File classfile;
-    String classname;
-    String superClassname;
-    Set<String> interruptableMethods = new HashSet<String>();
-    Set<String> aggregatedInterruptableMethods = new HashSet<String>();
+public final class Clazz {
+    public URL classfile;
+    public String classname;
+    public String superClassname;
+    public Set<String> interruptableMethods = new HashSet<String>();
+    public Set<String> aggregatedInterruptableMethods = new HashSet<String>();
 }

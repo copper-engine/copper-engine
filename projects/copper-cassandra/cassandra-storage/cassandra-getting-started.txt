@@ -1,0 +1,45 @@
+1.
+Set up your Apache Cassandra database
+see http://wiki.apache.org/cassandra/GettingStarted
+
+2.
+Create a keyspace
+
+Connect to your Cassandra database, using Cassandra's cqlsh:
+> cqlsh
+
+If you have a single node cluster, create a keyspace as follows:
+> CREATE KEYSPACE copper WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+
+If you have a multi node cluster, create an appropriate keyspace. Here is an example for
+a keyspace in a single datacenter named DC1 with a replication factor of three:
+> CREATE KEYSPACE copper WITH REPLICATION = {'class' : 'NetworkTopologyStrategy', 'DC1' : 3 };
+
+3.
+Create the copper schema
+
+In the cqlsh, switch to keyspace copper:
+> use copper;
+
+Create the schema:
+copy the content of file /cassandra-storage/database/create-schema-copper.cql into the cqlsh shell
+
+Quit the cqlsh
+> quit;
+
+4. 
+In your Java project
+
+add copper to your dependencies, e.g. when using gradle like this:
+   compile 'org.copper-engine:cassandra-storage-4.0.0-alpha1' 
+   
+Create and start the copper engine:
+   
+   PojoCassandraEngineFactory factory = new PojoCassandraEngineFactory(
+   	Arrays.asList("package.of.your.copper.workflow.classes"),  // replace this with the java package(s) containing your copper workflows
+   	Arrays.asList("cassandraHost1", "cassandraHost2")          // replace this with the cassandra seed host(s) - "localhost" for a local cassandra installation
+   );
+   factory.getEngine().startup();
+   
+
+   

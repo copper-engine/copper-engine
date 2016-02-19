@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.CopperRuntimeException;
-import org.copperengine.core.DependencyInjector;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.ProcessingEngine;
@@ -149,7 +148,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     }
 
     @Override
-    protected void run(Workflow<?> w) throws DuplicateIdException {
+    protected String run(Workflow<?> w) throws DuplicateIdException {
         try {
             startupBlocker.pass();
         } catch (InterruptedException e) {
@@ -174,6 +173,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
             }
             injectDependencies(w);
             enqueue(w);
+            return w.getId();
         } catch (DuplicateIdException e) {
             ticketPoolManager.release(w);
             throw e;
@@ -220,7 +220,6 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
         wfRepository.start();
         timeoutManager.setEngine(this);
         poolManager.setEngine(this);
-        dependencyInjector.setEngine(this);
         timeoutManager.startup();
         earlyResponseContainer.startup();
         poolManager.startup();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,10 +87,6 @@ public abstract class AbstractDependencyInjector implements DependencyInjector {
                 throw new CopperRuntimeException(e);
             }
         }
-    }
-
-    @Deprecated
-    public void setEngine(ProcessingEngine e) {
     }
 
     protected abstract Object getBean(String beanId);

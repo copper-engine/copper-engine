@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public interface ProcessingEngine {
      * observer is called subsequently.
      * 
      * @param observer
-     *            the observer/hook to add
+     *        the observer/hook to add
      */
     public void addShutdownObserver(Runnable observer);
 
@@ -55,13 +55,13 @@ public interface ProcessingEngine {
      * Registers a workflow instance to we waiting for a number of correlation ids.
      * 
      * @param w
-     *            the workflow instance waiting for one or more response
+     *        the workflow instance waiting for one or more response
      * @param mode
-     *            the wait mode
+     *        the wait mode
      * @param timeoutMsec
-     *            the relative timeout in milliseconds or <code>0</code> for no an infinite timeout
+     *        the relative timeout in milliseconds or <code>0</code> for no an infinite timeout
      * @param correlationIds
-     *            the correlation ids of the expected responses
+     *        the correlation ids of the expected responses
      * @throws CopperRuntimeException
      */
     public void registerCallbacks(Workflow<?> w, WaitMode mode, long timeoutMsec, String... correlationIds) throws CopperRuntimeException;
@@ -74,7 +74,7 @@ public interface ProcessingEngine {
      * may or may not be resumed.
      * 
      * @param response
-     *            the reponse
+     *        the reponse
      * @throws CopperRuntimeException
      * @deprecated This method is unsafe. The control might be returned to the caller before the notification has been
      *             safeley delivered.
@@ -91,9 +91,9 @@ public interface ProcessingEngine {
      * may or may not be resumed.
      * 
      * @param response
-     *            the reponse
+     *        the reponse
      * @param ack
-     *            the object to notify upon processing of the message.
+     *        the object to notify upon processing of the message.
      * @throws CopperRuntimeException
      */
     public void notify(Response<?> response, Acknowledge ack) throws CopperRuntimeException;
@@ -107,33 +107,35 @@ public interface ProcessingEngine {
      * Enqueues the specified workflow instance into the engine for execution.
      * 
      * @param wfname
-     *            name or alias of the workflows class
+     *        name or alias of the workflows class
      * @param data
-     *            the data to pass to the workflow
+     *        the data to pass to the workflow
      * @throws CopperException
-     *             if the engine can not run the workflow, e.g. in case of a unkown processor pool id.
+     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id.
      * @throws DuplicateIdException
-     *             if a workflow instance with the same id already exists
+     *         if a workflow instance with the same id already exists
+     * @return workflow instance Id
      */
-    public void run(String wfname, Object data) throws CopperException, DuplicateIdException;
+    public String run(String wfname, Object data) throws CopperException, DuplicateIdException;
 
     /**
      * Enqueues the specified workflow instance description into the engine for execution.
      * 
      * @throws CopperException
-     *             if the engine can not run the workflow, e.g. in case of a unkown processor pool id.
+     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id.
      * @throws DuplicateIdException
-     *             if a workflow instance with the same id already exists
+     *         if a workflow instance with the same id already exists
+     * @return workflow instance Id
      */
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException, DuplicateIdException;
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException, DuplicateIdException;
 
     /**
      * Enqueues the specified batch of workflow instance description into the engine for execution.
      * 
      * @throws CopperException
-     *             if the engine can not run the workflows, e.g. in case of a unkown processor pool id.
+     *         if the engine can not run the workflows, e.g. in case of a unkown processor pool id.
      * @throws DuplicateIdException
-     *             if a workflow instance with the same id already exists
+     *         if a workflow instance with the same id already exists
      */
     public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr) throws CopperException, DuplicateIdException;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 SCOOP Software GmbH
+ * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,6 @@ public class TestEngine implements PersistentProcessingEngine {
     }
 
     @Override
-    @Deprecated
     public void notify(Response<?> response) throws CopperRuntimeException {
     }
 
@@ -60,17 +59,17 @@ public class TestEngine implements PersistentProcessingEngine {
     }
 
     @Override
-    public void run(String wfname, Object data) throws CopperException {
+    public String run(String wfname, Object data) throws CopperException {
+        return null;
     }
 
     @Override
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr)
-            throws CopperException {
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException {
+        return null;
     }
 
     @Override
-    public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr)
-            throws CopperException {
+    public void runBatch(List<WorkflowInstanceDescr<?>> wfInstanceDescr) throws CopperException {
     }
 
     @Override
@@ -88,8 +87,8 @@ public class TestEngine implements PersistentProcessingEngine {
     }
 
     @Override
-    public void run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con)
-            throws CopperException {
+    public String run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws CopperException {
+        return null;
     }
 
     @Override
