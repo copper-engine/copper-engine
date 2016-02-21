@@ -30,6 +30,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
@@ -62,8 +63,9 @@ public class BasePersistentWorkflowTest {
     private static final Logger logger = LoggerFactory.getLogger(BasePersistentWorkflowTest.class);
 
     private static final long DEQUEUE_TIMEOUT = 120;
-    
+
     static final String PersistentUnitTestWorkflow_NAME = "org.copperengine.core.test.persistent.PersistentUnitTestWorkflow";
+    static final String WaitForEverTestWF_NAME = "org.copperengine.core.test.WaitForEverTestWF";
 
     public final void testDummy() {
         // for junit only
@@ -117,6 +119,30 @@ public class BasePersistentWorkflowTest {
             dataSB.append("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!§$%&/()=?".substring(pos, pos + 1));
         }
         return dataSB.toString();
+    }
+
+    public void testWaitForEver(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        logger.info("running testWaitForEver");
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        engine.startup();
+        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
+        try {
+            assertEquals(EngineState.STARTED, engine.getEngineState());
+
+            final String uuid = UUID.randomUUID().toString();
+            engine.run(WaitForEverTestWF_NAME, uuid);
+
+            WorkflowResult x = backChannelQueue.dequeue(5, TimeUnit.SECONDS);
+            assertNull(x);
+
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
 
     public void testAsynchResponse(String dsContext) throws Exception {

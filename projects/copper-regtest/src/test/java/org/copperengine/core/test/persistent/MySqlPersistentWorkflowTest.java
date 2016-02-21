@@ -137,4 +137,9 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
         super.testFailOnDuplicateInsert(DS_CONTEXT);
     }
 
+    @Test
+    public void testWaitForEver() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testWaitForEver(DS_CONTEXT);
+    }
 }
