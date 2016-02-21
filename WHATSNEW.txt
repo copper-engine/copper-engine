@@ -1,5 +1,6 @@
 COPPER 4.0.0
 ============
+- Bugfix:      Issue #53 Workflow.wait(..NO_TIMEOUT..) does not work for MySQL
 - New feature: Apache Cassandra Support! Use a Cassandra NoSQL DB for persistence - this enables high available and scalable solutions
 - New feature: New WorkflowRepository - ClasspathWorkflowRepository: Very easy to use but with less features in comparison to FileBasedWorkflowRepository
 - New feature: Simplified creation of a persistent engine with CassandraEngineFactory and RdbmsEngineFactory - these factories do most of the work for you, creating and plugging everything together
