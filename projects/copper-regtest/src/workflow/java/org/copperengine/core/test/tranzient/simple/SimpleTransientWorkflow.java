@@ -86,6 +86,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
                     counter = ((Integer) getAndRemoveResponse(cid).getResponse()).intValue();
 
                     resubmit(); // just for fun...
+                    savepoint();
 
                     cid = getEngine().createUUID();
                     mockAdapter.incrementSync(counter, cid);

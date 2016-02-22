@@ -43,6 +43,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
         waitMethods.add("wait(Lorg/copperengine/core/WaitMode;JLjava/util/concurrent/TimeUnit;[Ljava/lang/String;)V");
         waitMethods.add("wait(Lorg/copperengine/core/WaitMode;JLjava/util/concurrent/TimeUnit;[Lorg/copperengine/core/Callback;)V");
         waitMethods.add("resubmit()V");
+        waitMethods.add("savepoint()V");
     }
 
     private final String currentClassName;
