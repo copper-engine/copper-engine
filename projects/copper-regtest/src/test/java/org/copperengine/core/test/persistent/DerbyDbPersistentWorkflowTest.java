@@ -118,4 +118,8 @@ public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
         super.testFailOnDuplicateInsert(DS_CONTEXT);
     }
 
+    @Test
+    public void testWaitForEver() throws Exception {
+        super.testWaitForEver(DS_CONTEXT);
+    }
 }

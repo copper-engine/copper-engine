@@ -168,7 +168,7 @@ public class ClasspathWorkflowRepository extends AbstractWorkflowRepository impl
                 }
             }
 
-            volatileState = new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, 0L, wfClassMap, Collections.<String, String>emptyMap(), classInfos);
+            volatileState = new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, 0L, wfClassMap, Collections.<String, String>emptyMap(), classInfos, createWorkflowClassInfoMap(wfMapLatest, Collections.<String, String>emptyMap()));
 
             logger.info("Startup finished");
         } catch (Exception e) {

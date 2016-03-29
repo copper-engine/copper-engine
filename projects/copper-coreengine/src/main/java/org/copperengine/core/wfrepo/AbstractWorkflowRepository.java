@@ -62,10 +62,11 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
         public final Map<String, List<WorkflowVersion>> wfVersions;
         public final Map<String, String> javaSources;
         public final Map<String, ClassInfo> classInfoMap;
+        public final Map<String, WorkflowClassInfo> workflowClassInfoMap;
         public final ClassLoader classLoader;
         public final long checksum;
 
-        public VolatileState(Map<String, Class<?>> wfMap, Map<String, Class<?>> wfMapVersioned, Map<String, List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum, Map<String, Class<?>> wfClassMap, Map<String, String> javaSources, Map<String, ClassInfo> classInfoMap) {
+        public VolatileState(Map<String, Class<?>> wfMap, Map<String, Class<?>> wfMapVersioned, Map<String, List<WorkflowVersion>> wfVersions, ClassLoader classLoader, long checksum, Map<String, Class<?>> wfClassMap, Map<String, String> javaSources, Map<String, ClassInfo> classInfoMap, Map<String, WorkflowClassInfo> workflowClassInfoMap) {
             this.wfMapLatest = wfMap;
             this.wfMapVersioned = wfMapVersioned;
             this.classLoader = classLoader;
@@ -74,6 +75,7 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
             this.wfClassMap = wfClassMap;
             this.javaSources = javaSources;
             this.classInfoMap = classInfoMap;
+            this.workflowClassInfoMap = workflowClassInfoMap;
         }
     }
 
@@ -161,12 +163,15 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
 
     @Override
     public List<WorkflowClassInfo> getWorkflows() {
-        final List<WorkflowClassInfo> resultList = new ArrayList<WorkflowClassInfo>();
-        final VolatileState localVolatileState = getVolatileState();
-        for (Class<?> wfClass : localVolatileState.wfClassMap.values()) {
+        return new ArrayList<>(getVolatileState().workflowClassInfoMap.values());
+    }
+
+    protected static Map<String, WorkflowClassInfo> createWorkflowClassInfoMap(final Map<String, Class<?>> wfClassMap, final Map<String, String> javaSources) {
+        final Map<String, WorkflowClassInfo> map = new HashMap<>();
+        for (Class<?> wfClass : wfClassMap.values()) {
             WorkflowClassInfo wfi = new WorkflowClassInfo();
             wfi.setClassname(wfClass.getName());
-            wfi.setSourceCode(localVolatileState.javaSources.get(wfClass.getName()));
+            wfi.setSourceCode(javaSources.get(wfClass.getName()));
             if (wfi.getSourceCode() == null)
                 wfi.setSourceCode("NA");
             WorkflowDescription wfDesc = wfClass.getAnnotation(WorkflowDescription.class);
@@ -176,9 +181,9 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
                 wfi.setMinorVersion(wfDesc.minorVersion());
                 wfi.setPatchLevel(wfDesc.patchLevelVersion());
             }
-            resultList.add(wfi);
+            map.put(wfClass.getName(), wfi);
         }
-        return resultList;
+        return map;
     }
 
     protected void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, Map<String, ClassInfo> classInfos, ClassLoader tmpClassLoader) throws IOException {
@@ -291,4 +296,9 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
     }
 
     protected abstract VolatileState getVolatileState();
+
+    @Override
+    public WorkflowClassInfo getWorkflowInfo(String classname) {
+        return getVolatileState().workflowClassInfoMap.get(classname);
+    }
 }

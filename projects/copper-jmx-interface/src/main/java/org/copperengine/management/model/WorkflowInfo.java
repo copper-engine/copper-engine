@@ -28,12 +28,13 @@ public class WorkflowInfo implements Serializable {
     private int priority;
     private String processorPoolId;
     private Date timeout;
+    private WorkflowClassInfo workflowClassInfo;
 
     public WorkflowInfo() {
     }
 
-    @ConstructorProperties({ "id", "state", "priority", "processorPoolId", "timeout" })
-    public WorkflowInfo(String id, String state, int priority, String processorPoolId, Date timeout) {
+    @ConstructorProperties({ "id", "state", "priority", "processorPoolId", "timeout", "workflowClassInfo" })
+    public WorkflowInfo(String id, String state, int priority, String processorPoolId, Date timeout, WorkflowClassInfo workflowClassInfo) {
         super();
         this.id = id;
         this.state = state;
@@ -82,11 +83,17 @@ public class WorkflowInfo implements Serializable {
         this.timeout = timeout;
     }
 
+    public WorkflowClassInfo getWorkflowClassInfo() {
+        return workflowClassInfo;
+    }
+
+    public void setWorkflowClassInfo(WorkflowClassInfo workflowClassInfo) {
+        this.workflowClassInfo = workflowClassInfo;
+    }
+
     @Override
     public String toString() {
-        return "WorkflowInfo [id=" + id + ", state=" + state + ", priority="
-                + priority + ", processorPoolId=" + processorPoolId
-                + ", timeout=" + timeout + "]";
+        return "WorkflowInfo [id=" + id + ", state=" + state + ", priority=" + priority + ", processorPoolId=" + processorPoolId + ", timeout=" + timeout + ", workflowClassInfo=" + workflowClassInfo + "]";
     }
 
 }

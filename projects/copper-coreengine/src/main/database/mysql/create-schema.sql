@@ -63,7 +63,7 @@ create table COP_WAIT (
    	CORRELATION_ID			VARCHAR(128) not null,
    	WORKFLOW_INSTANCE_ID  	VARCHAR(128) not null,
 	MIN_NUMB_OF_RESP		SMALLINT not null,
-	TIMEOUT_TS				TIMESTAMP,
+	TIMEOUT_TS				TIMESTAMP null,
    	STATE					TINYINT not null,
     PRIORITY            	TINYINT not null,
     PPOOL_ID      			VARCHAR(32) not null,

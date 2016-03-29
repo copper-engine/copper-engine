@@ -23,4 +23,6 @@ public interface WorkflowRepositoryMXBean {
     public String getDescription();
 
     public List<WorkflowClassInfo> getWorkflows();
+
+    public WorkflowClassInfo getWorkflowInfo(String classname);
 }

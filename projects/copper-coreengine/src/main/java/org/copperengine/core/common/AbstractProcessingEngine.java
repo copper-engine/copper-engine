@@ -28,6 +28,7 @@ import org.copperengine.core.EngineState;
 import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
+import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.monitoring.NullRuntimeStatisticsCollector;
@@ -35,6 +36,7 @@ import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.util.Blocker;
 import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.WorkflowRepositoryMXBean;
+import org.copperengine.management.model.WorkflowClassInfo;
 import org.copperengine.management.model.WorkflowInfo;
 
 /**
@@ -130,7 +132,19 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     protected WorkflowInfo convert2Wfi(Workflow<?> wf) {
         if (wf == null)
             return null;
+
+        WorkflowClassInfo wfci = new WorkflowClassInfo();
+        wfci.setClassname(wf.getClass().getName());
+        WorkflowDescription wfd = wf.getClass().getAnnotation(WorkflowDescription.class);
+        if (wfd != null) {
+            wfci.setAlias(wfd.alias());
+            wfci.setMajorVersion(wfd.majorVersion());
+            wfci.setMinorVersion(wfd.minorVersion());
+            wfci.setPatchLevel(wfd.patchLevelVersion());
+        }
+
         WorkflowInfo wfi = new WorkflowInfo();
+        wfi.setWorkflowClassInfo(wfci);
         wfi.setId(wf.getId());
         wfi.setPriority(wf.getPriority());
         wfi.setProcessorPoolId(wf.getProcessorPoolId());
