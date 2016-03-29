@@ -358,7 +358,10 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
                 logger.trace("wfMapVersioned.key={}, class={}", e.getKey(), e.getValue().getName());
             }
         }
-        return new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, checksum, wfClassMap, readJavaFiles(wfClassMap, sourceDirs, additionalSourcesDir), clazzInfoMap);
+
+        final Map<String, String> sources = readJavaFiles(wfClassMap, sourceDirs, additionalSourcesDir);
+
+        return new VolatileState(wfMapLatest, wfMapVersioned, versions, cl, checksum, wfClassMap, sources, clazzInfoMap, createWorkflowClassInfoMap(wfMapLatest, sources));
     }
 
     private byte[] readFully(File f) throws IOException {
