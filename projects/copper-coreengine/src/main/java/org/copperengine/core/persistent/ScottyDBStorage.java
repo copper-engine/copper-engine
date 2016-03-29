@@ -99,6 +99,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         });
     }
 
+    @Override
     public void insert(final Workflow<?> wf, final Acknowledge ack) throws Exception {
         logger.trace("insert({})", wf);
         try {
@@ -116,6 +117,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         }
     }
 
+    @Override
     public void insert(final List<Workflow<?>> wfs, final Acknowledge ack) throws Exception {
         logger.trace("insert(wfs.size={})", wfs.size());
         try {
@@ -200,11 +202,13 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         return r;
     }
 
+    @Override
     public void notify(final List<Response<?>> response, Acknowledge ack) throws Exception {
         for (Response<?> r : response)
             notify(r, ack);
     }
 
+    @Override
     public synchronized void startup() {
         try {
             dialect.startup();
@@ -276,6 +280,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         } while (n == MAX_ROWS);
     }
 
+    @Override
     public synchronized void shutdown() {
         if (shutdown)
             return;
@@ -354,6 +359,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             dialect.insert(wfs, con);
     }
 
+    @Override
     public void restart(final String workflowInstanceId) throws Exception {
         run(new DatabaseTransaction<Void>() {
             @Override
@@ -422,6 +428,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         }
     }
 
+    @Override
     public void registerCallback(final RegisterCall rc, final Acknowledge callback) throws Exception {
         if (logger.isTraceEnabled())
             logger.trace("registerCallback(" + rc + ")");
@@ -430,6 +437,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         executeBatchCommand(dialect.createBatchCommand4registerCallback(rc, this, callback));
     }
 
+    @Override
     public void notify(final Response<?> response, final Acknowledge callback) throws Exception {
         if (logger.isTraceEnabled())
             logger.trace("notify(" + response + ")");
@@ -450,6 +458,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         executeBatchCommand(dialect.createBatchCommand4Notify(response, notify));
     }
 
+    @Override
     public void finish(final Workflow<?> w, final Acknowledge callback) {
         if (logger.isTraceEnabled())
             logger.trace("finish(" + w.getId() + ")");
@@ -482,6 +491,16 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             @Override
             public Workflow<?> run(Connection con) throws Exception {
                 return dialect.read(workflowInstanceId, con);
+            }
+        });
+    }
+
+    @Override
+    public List<Workflow<?>> queryAllActive(final String className) throws Exception {
+        return run(new DatabaseTransaction<List<Workflow<?>>>() {
+            @Override
+            public List<Workflow<?>> run(Connection con) throws Exception {
+                return dialect.queryAllActive(className, con);
             }
         });
     }

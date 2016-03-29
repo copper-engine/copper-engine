@@ -79,6 +79,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         return (dependencyInjector != null) ? dependencyInjector.getType() : "UNKNOWN";
     }
 
+    @Override
     public EngineState getEngineState() {
         return engineState;
     }
@@ -87,6 +88,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         this.engineIdProvider = engineIdProvider;
     }
 
+    @Override
     public String getEngineId() {
         return engineIdProvider.getEngineId();
     }
@@ -118,6 +120,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         return wfRepository.createWorkflowFactory(classname);
     }
 
+    @Override
     public synchronized void addShutdownObserver(Runnable observer) {
         shutdownObserver.add(observer);
     }
@@ -148,7 +151,9 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         wfi.setId(wf.getId());
         wfi.setPriority(wf.getPriority());
         wfi.setProcessorPoolId(wf.getProcessorPoolId());
-        wfi.setState(wf.getProcessingState().name());
+        if (wf.getProcessingState() != null) {
+            wfi.setState(wf.getProcessingState().name());
+        }
         wfi.setTimeout(null); // TODO
         return wfi;
     }

@@ -316,6 +316,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
         getAndRemoveWaitHooks(wf); // Clean up...
     }
 
+    @Override
     public int getNumberOfWorkflowInstances() {
         return workflowMap.size();
     }
@@ -424,6 +425,22 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     @Override
     public DBStorageMXBean getDBStorage() {
         return (DBStorageMXBean) (dbStorage instanceof DBStorageMXBean ? dbStorage : null);
+    }
+
+    @Override
+    public List<WorkflowInfo> queryActiveWorkflowInstances(String className) {
+        List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
+        try {
+            List<Workflow<?>> wfs = dbStorage.queryAllActive(className);
+            for (Workflow<?> wf : wfs) {
+                WorkflowInfo wfi = convert2Wfi(wf);
+                rv.add(wfi);
+            }
+        } catch (Exception e) {
+            logger.error("queryWorkflowInstances failed: " + e.getMessage(), e);
+        }
+        logger.info("queryWorkflowInstances returned " + rv.size() + " instance(s)");
+        return rv;
     }
 
 }
