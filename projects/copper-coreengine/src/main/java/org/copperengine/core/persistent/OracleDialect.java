@@ -673,40 +673,44 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     }
 
     @Override
-    public List<Workflow<?>> queryAllActive(final String className, Connection c) throws SQLException {
-        final PreparedStatement queryStmt;
-        if (className != null) {
-            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=?");
-            queryStmt.setString(1, className);
-        } else {
-            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2)");
-        }
-        final ResultSet rs = queryStmt.executeQuery();
-        final List<Workflow<?>> result = new ArrayList<Workflow<?>>();
-        while (rs.next()) {
-            final String id = rs.getString(1);
-            final int prio = rs.getInt(3);
-            final String ppoolId = rs.getString(4);
-            try {
-                SerializedWorkflow sw = new SerializedWorkflow();
-                sw.setData(rs.getString(5));
-                sw.setObjectState(rs.getString(6));
-                PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
-                wf.setId(id);
-                wf.setProcessorPoolId(ppoolId);
-                wf.setPriority(prio);
-                DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt(2));
-                ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
-                WorkflowAccessor.setProcessingState(wf, state);
-                WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(7).getTime()));
-                result.add(wf);
-            } catch (Exception e) {
-                logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
+    public List<Workflow<?>> queryAllActive(final String className, final Connection c, final int max) throws SQLException {
+        PreparedStatement queryStmt = null;
+        try {
+            if (className != null) {
+                queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=? and rownum <=?");
+                queryStmt.setString(1, className);
+                queryStmt.setInt(2, max);
+            } else {
+                queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and rownum <=?");
+                queryStmt.setInt(1, max);
             }
+            final ResultSet rs = queryStmt.executeQuery();
+            final List<Workflow<?>> result = new ArrayList<Workflow<?>>();
+            while (rs.next()) {
+                final String id = rs.getString(1);
+                final int prio = rs.getInt(3);
+                final String ppoolId = rs.getString(4);
+                try {
+                    SerializedWorkflow sw = new SerializedWorkflow();
+                    sw.setData(rs.getString(5));
+                    sw.setObjectState(rs.getString(6));
+                    PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
+                    wf.setId(id);
+                    wf.setProcessorPoolId(ppoolId);
+                    wf.setPriority(prio);
+                    DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt(2));
+                    ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
+                    WorkflowAccessor.setProcessingState(wf, state);
+                    WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(7).getTime()));
+                    result.add(wf);
+                } catch (Exception e) {
+                    logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
+                }
+            }
+            return result;
+        } finally {
+            JdbcUtils.closeStatement(queryStmt);
         }
-        rs.close();
-        queryStmt.close();
-        return result;
     }
 
 }

@@ -29,7 +29,7 @@ public interface ProcessingEngineMXBean {
 
     public List<WorkflowInfo> queryWorkflowInstances();
 
-    public List<WorkflowInfo> queryActiveWorkflowInstances(String className);
+    public List<WorkflowInfo> queryActiveWorkflowInstances(String className, int max);
 
     public WorkflowInfo queryWorkflowInstance(String id);
 

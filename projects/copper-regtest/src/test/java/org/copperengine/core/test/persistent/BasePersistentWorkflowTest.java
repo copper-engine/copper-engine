@@ -746,4 +746,21 @@ public class BasePersistentWorkflowTest {
         assertEquals(0, engine.getNumberOfWorkflowInstances());
 
     }
+
+    public void testQueryAllActive(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        try {
+            engine.startup();
+            // just check, that the underlying SQL statements are ok.
+            assertEquals(0, engine.queryActiveWorkflowInstances(null, 100).size());
+            assertEquals(0, engine.queryActiveWorkflowInstances("foo.john.Doe", 100).size());
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
 }

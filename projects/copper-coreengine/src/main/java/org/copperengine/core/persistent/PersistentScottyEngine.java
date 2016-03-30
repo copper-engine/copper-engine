@@ -428,10 +428,10 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     }
 
     @Override
-    public List<WorkflowInfo> queryActiveWorkflowInstances(String className) {
+    public List<WorkflowInfo> queryActiveWorkflowInstances(final String className, final int max) {
         List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
         try {
-            List<Workflow<?>> wfs = dbStorage.queryAllActive(className);
+            List<Workflow<?>> wfs = dbStorage.queryAllActive(className, max);
             for (Workflow<?> wf : wfs) {
                 WorkflowInfo wfi = convert2Wfi(wf);
                 rv.add(wfi);

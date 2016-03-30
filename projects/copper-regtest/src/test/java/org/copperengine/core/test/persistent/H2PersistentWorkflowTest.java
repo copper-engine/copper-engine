@@ -119,4 +119,10 @@ public class H2PersistentWorkflowTest extends BasePersistentWorkflowTest {
     public void testWaitForEver() throws Exception {
         super.testWaitForEver(DS_CONTEXT);
     }
+
+    @Test
+    public void testQueryAllActive() throws Exception {
+        super.testQueryAllActive(DS_CONTEXT);
+    }
+
 }

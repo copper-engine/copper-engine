@@ -89,6 +89,6 @@ public interface DatabaseDialect {
      * @return
      * @throws Exception
      */
-    public List<Workflow<?>> queryAllActive(final String className, Connection con) throws SQLException;
+    public List<Workflow<?>> queryAllActive(String className, Connection con, int max) throws SQLException;
 
 }

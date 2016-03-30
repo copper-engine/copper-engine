@@ -496,11 +496,11 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     }
 
     @Override
-    public List<Workflow<?>> queryAllActive(final String className) throws Exception {
+    public List<Workflow<?>> queryAllActive(final String className, final int max) throws Exception {
         return run(new DatabaseTransaction<List<Workflow<?>>>() {
             @Override
             public List<Workflow<?>> run(Connection con) throws Exception {
-                return dialect.queryAllActive(className, con);
+                return dialect.queryAllActive(className, con, max);
             }
         });
     }

@@ -113,7 +113,8 @@ public class H2Dialect extends AbstractSqlDialect {
             super.insert(wfs, con);
         } catch (SQLException e) {
             if ("23505".equals(e.getSQLState())) {
-                // The error with code 23505 is thrown when trying to insert a row that would violate a unique index or primary key.
+                // The error with code 23505 is thrown when trying to insert a row that would violate a unique index or
+                // primary key.
                 // See http://www.h2database.com/javadoc/org/h2/constant/ErrorCode.html#c23505
                 throw new DuplicateIdException(e);
             }
@@ -169,6 +170,18 @@ public class H2Dialect extends AbstractSqlDialect {
         } finally {
             stmt.close();
         }
+    }
+
+    @Override
+    protected PreparedStatement createQueryAllActiveStmt(Connection c, String className, int max) throws SQLException {
+        PreparedStatement queryStmt;
+        if (className != null) {
+            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=? LIMIT " + max);
+            queryStmt.setString(1, className);
+        } else {
+            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) LIMIT " + max);
+        }
+        return queryStmt;
     }
 
 }
