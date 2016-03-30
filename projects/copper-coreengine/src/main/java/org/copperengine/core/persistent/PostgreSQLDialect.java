@@ -34,6 +34,7 @@ import org.copperengine.core.batcher.BatchCommand;
  */
 public class PostgreSQLDialect extends AbstractSqlDialect {
 
+    @Override
     protected PreparedStatement createUpdateStateStmt(final Connection c, final int max) throws SQLException {
         final Timestamp NOW = new Timestamp(System.currentTimeMillis());
         PreparedStatement pstmt = c.prepareStatement(queryUpdateQueueState + " LIMIT " + max);
@@ -42,12 +43,14 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
         return pstmt;
     }
 
+    @Override
     protected PreparedStatement createDequeueStmt(final Connection c, final String ppoolId, final int max) throws SQLException {
         PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from COP_QUEUE where ppool_id = ? order by priority, last_mod_ts) LIMIT " + max);
         dequeueStmt.setString(1, ppoolId);
         return dequeueStmt;
     }
 
+    @Override
     protected PreparedStatement createDeleteStaleResponsesStmt(final Connection c, final int MAX_ROWS) throws SQLException {
         PreparedStatement stmt = c.prepareStatement("delete from COP_RESPONSE where response_timeout < ? and not exists (select * from COP_WAIT w where w.correlation_id = COP_RESPONSE.correlation_id LIMIT " + MAX_ROWS + ")");
         stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));

@@ -15,11 +15,43 @@
  */
 package org.copperengine.core.persistent;
 
+import org.copperengine.core.ProcessingState;
+
 public enum DBProcessingState {
     ENQUEUED,
     PROCESSING /* so far unused */,
     WAITING,
     FINISHED,
     INVALID,
-    ERROR
+    ERROR;
+
+    public static DBProcessingState getByOrdinal(int ordinal) {
+        return values()[ordinal];
+    }
+
+    public static ProcessingState getProcessingStateByState(DBProcessingState state){
+        ProcessingState processingState;
+        switch (state) {
+            case ENQUEUED:
+            case PROCESSING:
+                processingState = ProcessingState.RUNNING;
+                break;
+            case WAITING:
+                processingState = ProcessingState.WAITING;
+                break;
+            case FINISHED:
+                processingState = ProcessingState.FINISHED;
+                break;
+            case INVALID:
+                processingState = ProcessingState.INVALID;
+                break;
+            case ERROR:
+                processingState = ProcessingState.ERROR;
+                break;
+            default:
+                processingState = ProcessingState.RAW;
+        }
+        return processingState;
+    }
+
 }

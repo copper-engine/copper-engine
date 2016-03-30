@@ -133,4 +133,15 @@ public interface ScottyDBStorageInterface {
      */
     public Workflow<?> read(final String workflowInstanceId) throws Exception;
 
+    /**
+     * Query all active workflowinstances from the backing storage
+     * 
+     * @param className
+     *        optional - className of the active workflow instances
+     * @return list of deserialized workflow instance
+     * @throws Exception
+     */
+    public List<Workflow<?>> queryAllActive(final String className) throws Exception;
+
+
 }

@@ -29,6 +29,8 @@ public interface ProcessingEngineMXBean {
 
     public List<WorkflowInfo> queryWorkflowInstances();
 
+    public List<WorkflowInfo> queryActiveWorkflowInstances(String className);
+
     public WorkflowInfo queryWorkflowInstance(String id);
 
     public int getNumberOfWorkflowInstances();

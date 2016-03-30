@@ -76,7 +76,7 @@ public class H2SpringTxnPersistentWorkflowTest extends BaseSpringTxnPersistentWo
         super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testErrorHandlingInCoreEngine_restartAll() throws Exception {
         super.testErrorHandlingInCoreEngine_restartAll(DS_CONTEXT);
     }
