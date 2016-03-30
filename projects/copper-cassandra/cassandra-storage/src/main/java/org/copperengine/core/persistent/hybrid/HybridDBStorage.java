@@ -531,4 +531,9 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         int x = (int) (hash % mutexArray.length);
         return mutexArray[x];
     }
+
+    @Override
+    public List<Workflow<?>> queryAllActive(String className) throws Exception {
+        throw new UnsupportedOperationException();
+    }
 }

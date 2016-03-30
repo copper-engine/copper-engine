@@ -698,7 +698,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     }
 
     @Override
-    public List<Workflow<?>> queryAllActive(final String className, Connection c) throws SQLException {
+    public List<Workflow<?>> queryAllActive(final String className, final Connection c) throws SQLException {
         final PreparedStatement queryStmt;
         if (className != null) {
             queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=?");

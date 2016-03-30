@@ -341,9 +341,8 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     public List<WorkflowInfo> queryActiveWorkflowInstances(String className) {
         List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
         for (Workflow<?> wf : workflowMap.values()) {
-            WorkflowInfo wfi = convert2Wfi(wf);
-            if (wfi.getWorkflowClassInfo() != null && wfi.getWorkflowClassInfo().getClassname().equals(className)) {
-                rv.add(wfi);
+            if (wf.getClass().getName().equals(className)) {
+                rv.add(convert2Wfi(wf));
             }
         }
         return rv;
