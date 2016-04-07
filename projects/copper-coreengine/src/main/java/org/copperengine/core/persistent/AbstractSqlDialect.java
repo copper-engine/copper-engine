@@ -658,6 +658,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             wf.setPriority(prio);
             wf.setProcessorPoolId(rs.getString(6));
             WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(5).getTime()));
+            DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt(7));
+            ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
+            WorkflowAccessor.setProcessingState(wf, state);
             rs.close();
             readStmt.close();
 
@@ -692,7 +695,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     }
 
     protected PreparedStatement createReadStmt(final Connection c, final String workflowId) throws SQLException {
-        PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts,PPOOL_ID from COP_WORKFLOW_INSTANCE where id = ?");
+        PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts,PPOOL_ID,state from COP_WORKFLOW_INSTANCE where id = ?");
         dequeueStmt.setString(1, workflowId);
         return dequeueStmt;
     }

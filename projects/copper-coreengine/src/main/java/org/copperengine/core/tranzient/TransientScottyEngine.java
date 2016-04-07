@@ -351,4 +351,10 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
         return rv;
     }
 
+    @Override
+    public WorkflowInfo queryActiveWorkflowInstance(final String id) {
+        // Same as this one for transient engine
+        return queryWorkflowInstance(id);
+    }
+
 }

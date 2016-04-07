@@ -27,11 +27,36 @@ public interface ProcessingEngineMXBean {
 
     public EngineType getEngineType();
 
+    /**
+     * Query all <b>currently Running</b> instances from memory only, <b>Note it WON'T return instances in WAITING
+     * state</b>
+     * 
+     */
     public List<WorkflowInfo> queryWorkflowInstances();
 
+    /**
+     * Query all active instances, this includes instances in ENQUEUED, WAITING and RUNNING state
+     * 
+     * @param className
+     *        - optional, returns workflow instances
+     * @param max
+     *        - to limit of number of workflows returned
+     */
     public List<WorkflowInfo> queryActiveWorkflowInstances(String className, int max);
 
+    /**
+     * query one workflow instance from memory, <b>Note it WON'T return instances in WAITING state</b>
+     * 
+     * @param id
+     */
     public WorkflowInfo queryWorkflowInstance(String id);
+
+    /**
+     * query one workflow instance from memory or db regardless of its state
+     * 
+     * @param id
+     */
+    public WorkflowInfo queryActiveWorkflowInstance(String id);
 
     public int getNumberOfWorkflowInstances();
 
