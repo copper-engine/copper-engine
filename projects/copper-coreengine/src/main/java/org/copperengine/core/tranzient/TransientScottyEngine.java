@@ -67,6 +67,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     private TicketPoolManager ticketPoolManager;
     private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
 
+    @Override
     public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
         this.statisticsCollector = statisticsCollector;
     }
@@ -310,6 +311,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
         return convert2Wfi(workflowMap.get(id));
     }
 
+    @Override
     public int getNumberOfWorkflowInstances() {
         return workflowMap.size();
     }
@@ -333,6 +335,20 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     @Override
     public EngineType getEngineType() {
         return EngineType.tranzient;
+    }
+
+    @Override
+    public List<WorkflowInfo> queryActiveWorkflowInstances(final String className, final int max) {
+        final List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
+        for (Workflow<?> wf : workflowMap.values()) {
+            if (rv.size() >= max) {
+                break;
+            }
+            if (wf.getClass().getName().equals(className)) {
+                rv.add(convert2Wfi(wf));
+            }
+        }
+        return rv;
     }
 
 }

@@ -83,4 +83,16 @@ public class MySqlDialect extends AbstractSqlDialect {
     public String getDialectDescription() {
         return "MySQL";
     }
+
+    @Override
+    protected PreparedStatement createQueryAllActiveStmt(Connection c, String className, int max) throws SQLException {
+        PreparedStatement queryStmt;
+        if (className != null) {
+            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=? LIMIT 0," + max);
+            queryStmt.setString(1, className);
+        } else {
+            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) LIMIT 0," + max);
+        }
+        return queryStmt;
+    }
 }

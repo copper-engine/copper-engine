@@ -79,4 +79,16 @@ public interface DatabaseDialect {
 
     public abstract Workflow<?> read(String workflowInstanceId, Connection con) throws Exception;
 
+    /**
+     * Query workflows that were active at the moment (in ENQUEU, RUNNING OR WAITING state)
+     * 
+     * @param className
+     *        - optional, specify which className it want to return
+     * @param con
+     *        - database connection
+     * @return
+     * @throws Exception
+     */
+    public List<Workflow<?>> queryAllActive(String className, Connection con, int max) throws SQLException;
+
 }

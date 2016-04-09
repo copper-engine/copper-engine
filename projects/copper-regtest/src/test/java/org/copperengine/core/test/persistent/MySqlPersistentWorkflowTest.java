@@ -142,4 +142,17 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
         assertTrue("DBMS not available", dbmsAvailable);
         super.testWaitForEver(DS_CONTEXT);
     }
+
+    @Test
+    public void testErrorHandlingInCoreEngine_restartAll() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testErrorHandlingInCoreEngine_restartAll(DS_CONTEXT);
+    }
+
+    @Test
+    public void testQueryAllActive() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testQueryAllActive(DS_CONTEXT);
+    }
+
 }

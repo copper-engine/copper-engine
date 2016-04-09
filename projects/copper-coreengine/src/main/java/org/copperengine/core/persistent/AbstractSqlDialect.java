@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.DuplicateIdException;
+import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
@@ -76,15 +77,18 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     }
 
+    @Override
     public void startup() {
         initStats();
     }
 
+    @Override
     public void setDbBatchingLatencyMSec(int dbBatchingLatencyMSec) {
         logger.info("setDbBatchingLatencyMSec({})", dbBatchingLatencyMSec);
         this.dbBatchingLatencyMSec = dbBatchingLatencyMSec;
     }
 
+    @Override
     public int getDbBatchingLatencyMSec() {
         return dbBatchingLatencyMSec;
     }
@@ -96,11 +100,13 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
      * @param defaultStaleResponseRemovalTimeout
      *        removal timeout
      */
+    @Override
     public void setDefaultStaleResponseRemovalTimeout(long defaultStaleResponseRemovalTimeout) {
         logger.info("setDefaultStaleResponseRemovalTimeout({})", defaultStaleResponseRemovalTimeout);
         this.defaultStaleResponseRemovalTimeout = defaultStaleResponseRemovalTimeout;
     }
 
+    @Override
     public long getDefaultStaleResponseRemovalTimeout() {
         return defaultStaleResponseRemovalTimeout;
     }
@@ -267,7 +273,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                         PersistentWorkflow<?> wf = (PersistentWorkflow<?>) map.get(bpId);
                         Response<?> r = null;
                         if (response != null) {
-                            r = (Response<?>) serializer.deserializeResponse(response);
+                            r = serializer.deserializeResponse(response);
                             wf.addResponseId(r.getResponseId());
                         } else if (isTimeout) {
                             // timeout
@@ -286,7 +292,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 queueDeleteStmtStatistic.stop(map.size());
 
                 @SuppressWarnings("unchecked")
-                Collection<PersistentWorkflow<?>> workflows = (Collection<PersistentWorkflow<?>>) (Collection) map.values();
+                Collection<PersistentWorkflow<?>> workflows = (Collection) map.values();
                 workflowPersistencePlugin.onWorkflowsLoaded(con, workflows);
                 rv.addAll(workflows);
             }
@@ -403,7 +409,28 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     @Override
     public void restartAll(Connection c) throws Exception {
-        throw new UnsupportedOperationException();
+        PreparedStatement insertStmt = null;
+        PreparedStatement stmtInstance = null;
+        try {
+            insertStmt = c.prepareStatement("insert into COP_QUEUE (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) (select ppool_id, priority, last_mod_ts, id from COP_WORKFLOW_INSTANCE where state=? or state=?)");
+            insertStmt.setInt(1, DBProcessingState.ERROR.ordinal());
+            insertStmt.setInt(2, DBProcessingState.INVALID.ordinal());
+            logger.info("Adding all BPs in state INVALID & ERROR to queue...");
+            int rowCount = insertStmt.executeUpdate();
+            if (rowCount > 0) {
+                final Timestamp NOW = new Timestamp(System.currentTimeMillis());
+                stmtInstance = c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE STATE=? OR STATE=?");
+                stmtInstance.setInt(1, DBProcessingState.ENQUEUED.ordinal());
+                stmtInstance.setTimestamp(2, NOW);
+                stmtInstance.setInt(3, DBProcessingState.ERROR.ordinal());
+                stmtInstance.setInt(4, DBProcessingState.INVALID.ordinal());
+                stmtInstance.execute();
+            }
+            logger.info("done - restartAll invalid: " + rowCount + " BP(s).");
+        } finally {
+            JdbcUtils.closeStatement(stmtInstance);
+            JdbcUtils.closeStatement(insertStmt);
+        }
     }
 
     @Override
@@ -644,7 +671,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 String response = rsResponses.getString(4);
                 Response<?> r = null;
                 if (response != null) {
-                    r = (Response<?>) serializer.deserializeResponse(response);
+                    r = serializer.deserializeResponse(response);
                     wf.addResponseId(r.getResponseId());
                 } else if (isTimeout) {
                     // timeout
@@ -670,4 +697,38 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         return dequeueStmt;
     }
 
+    protected abstract PreparedStatement createQueryAllActiveStmt(final Connection c, final String className, final int max) throws SQLException;
+
+    @Override
+    public List<Workflow<?>> queryAllActive(final String className, final Connection c, final int max) throws SQLException {
+        final PreparedStatement queryStmt = createQueryAllActiveStmt(c, className, max);
+        try {
+            final ResultSet rs = queryStmt.executeQuery();
+            final List<Workflow<?>> result = new ArrayList<Workflow<?>>();
+            while (rs.next()) {
+                final String id = rs.getString(1);
+                final int prio = rs.getInt(3);
+                final String ppoolId = rs.getString(4);
+                try {
+                    SerializedWorkflow sw = new SerializedWorkflow();
+                    sw.setData(rs.getString(5));
+                    sw.setObjectState(rs.getString(6));
+                    PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
+                    wf.setId(id);
+                    wf.setProcessorPoolId(ppoolId);
+                    wf.setPriority(prio);
+                    DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt(2));
+                    ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
+                    WorkflowAccessor.setProcessingState(wf, state);
+                    WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(7).getTime()));
+                    result.add(wf);
+                } catch (Exception e) {
+                    logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
+                }
+            }
+            return result;
+        } finally {
+            JdbcUtils.closeStatement(queryStmt);
+        }
+    }
 }
