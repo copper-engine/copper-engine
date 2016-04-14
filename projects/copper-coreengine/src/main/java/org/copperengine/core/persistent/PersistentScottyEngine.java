@@ -443,4 +443,20 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
         return rv;
     }
 
+    @Override
+    public WorkflowInfo queryActiveWorkflowInstance(final String id) {
+        // first, get from map
+        WorkflowInfo wfi = convert2Wfi(workflowMap.get(id));
+        if (wfi == null) {
+            // try get from db
+            try {
+                Workflow<?> wf = dbStorage.read(id);
+                wfi = convert2Wfi(wf);
+            } catch (Exception e) {
+                logger.error("queryActiveWorkflowInstance failed: id=" + id + ", " + e.getMessage(), e);
+            }
+        }
+        return wfi;
+    }
+
 }
