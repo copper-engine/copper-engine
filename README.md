@@ -61,4 +61,4 @@ Before committing you should always reformat the code. You can configure Intelli
 
 
 <hr>
-Copyright 2002-2014 Copper Engine Development Team
+Copyright 2002-2016 Copper Engine Development Team
