@@ -256,7 +256,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             dequeueStmtStatistic.stop(map.size());
 
             if (!map.isEmpty()) {
-                selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, w.timeout_ts, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id, timeout_ts from COP_WAIT where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w LEFT OUTER JOIN COP_RESPONSE r ON w.correlation_id = r.correlation_id order by r.RESPONSE_TS");
+                selectResponsesStmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, w.timeout_ts, r.response from (select WORKFLOW_INSTANCE_ID, correlation_id, timeout_ts from COP_WAIT where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w LEFT OUTER JOIN COP_RESPONSE r ON w.correlation_id = r.correlation_id order by r.correlation_id, r.response_id");
                 List<List<String>> ids = splitt(map.keySet(), 25);
                 for (List<String> id : ids) {
                     selectResponsesStmt.clearParameters();

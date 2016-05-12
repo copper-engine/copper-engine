@@ -73,20 +73,21 @@ class OracleNotifyNoEarlyResponseHandling {
         @Override
         public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
             final Timestamp now = new Timestamp(System.currentTimeMillis());
-            final PreparedStatement stmt = con.prepareStatement(SQL);
-            for (BatchCommand<Executor, Command> _cmd : commands) {
-                Command cmd = (Command) _cmd;
-                stmt.setString(1, cmd.response.getCorrelationId());
-                stmt.setString(2, cmd.response.getCorrelationId());
-                stmt.setTimestamp(3, now);
-                String payload = cmd.serializer.serializeResponse(cmd.response);
-                stmt.setString(4, payload.length() > 4000 ? null : payload);
-                stmt.setString(5, payload.length() > 4000 ? payload : null);
-                stmt.setTimestamp(6, TimeoutProcessor.processTimout(cmd.response.getInternalProcessingTimeout(), cmd.defaultStaleResponseRemovalTimeout));
-                stmt.setString(7, cmd.response.getMetaData());
-                stmt.addBatch();
+            try (final PreparedStatement stmt = con.prepareStatement(SQL)) {
+                for (BatchCommand<Executor, Command> _cmd : commands) {
+                    Command cmd = (Command) _cmd;
+                    stmt.setString(1, cmd.response.getCorrelationId());
+                    stmt.setString(2, cmd.response.getCorrelationId());
+                    stmt.setTimestamp(3, now);
+                    String payload = cmd.serializer.serializeResponse(cmd.response);
+                    stmt.setString(4, payload.length() > 4000 ? null : payload);
+                    stmt.setString(5, payload.length() > 4000 ? payload : null);
+                    stmt.setTimestamp(6, TimeoutProcessor.processTimout(cmd.response.getInternalProcessingTimeout(), cmd.defaultStaleResponseRemovalTimeout));
+                    stmt.setString(7, cmd.response.getMetaData());
+                    stmt.addBatch();
+                }
+                stmt.executeBatch();
             }
-            stmt.executeBatch();
         }
 
     }

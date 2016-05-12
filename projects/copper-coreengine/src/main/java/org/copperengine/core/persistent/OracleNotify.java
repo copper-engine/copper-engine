@@ -26,7 +26,6 @@ import org.copperengine.core.batcher.AbstractBatchCommand;
 import org.copperengine.core.batcher.AcknowledgeCallbackWrapper;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.batcher.BatchExecutor;
-import org.copperengine.core.db.utility.JdbcUtils;
 
 class OracleNotify {
 
@@ -67,8 +66,7 @@ class OracleNotify {
         @Override
         public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
             final Timestamp now = new Timestamp(System.currentTimeMillis());
-            final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT, RESPONSE_ID) VALUES (?,?,?,?,?,?,?)");
-            try {
+            try (final PreparedStatement stmt = con.prepareStatement("INSERT INTO COP_RESPONSE (CORRELATION_ID, RESPONSE_TS, RESPONSE, LONG_RESPONSE, RESPONSE_META_DATA, RESPONSE_TIMEOUT, RESPONSE_ID) VALUES (?,?,?,?,?,?,?)")) {
                 for (BatchCommand<Executor, Command> _cmd : commands) {
                     Command cmd = (Command) _cmd;
                     stmt.setString(1, cmd.response.getCorrelationId());
@@ -82,8 +80,6 @@ class OracleNotify {
                     stmt.addBatch();
                 }
                 stmt.executeBatch();
-            } finally {
-                JdbcUtils.closeStatement(stmt);
             }
         }
 
