@@ -253,7 +253,7 @@ public abstract class Workflow<D> implements Serializable {
         synchronized (responseMap) {
             List<Response<?>> l = responseMap.get(r.getCorrelationId());
             if (l == null) {
-                l = new ArrayList<Response<?>>();
+                l = new SortedReponseList();
                 responseMap.put(r.getCorrelationId(), l);
             }
             l.add(r);
@@ -290,7 +290,7 @@ public abstract class Workflow<D> implements Serializable {
     protected <T> List<Response<T>> getAndRemoveResponses(final String correlationId) {
         synchronized (responseMap) {
             final List rv = responseMap.remove(correlationId);
-            return rv == null ? Collections.emptyList() : rv;
+            return rv == null ? Collections.emptyList() : new ArrayList(rv);
         }
     }
 

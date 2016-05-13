@@ -1,7 +1,5 @@
 package org.copperengine.core.test.persistent;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.copperengine.core.Interrupt;
@@ -22,6 +20,7 @@ public class MulipleResponsesForSameCidPersistentTestWorkflow extends Persistent
     @Override
     public final void main() throws Interrupt
     {
+        String lastResponse = "Response#0";
         String cid = getData();
         logger.info("WF started, id=" + getId() + ", cid=" + cid);
         boolean done = false;
@@ -29,12 +28,7 @@ public class MulipleResponsesForSameCidPersistentTestWorkflow extends Persistent
         {
             wait(WaitMode.ALL, NO_TIMEOUT, cid);
             List<Response<String>> responses = getAndRemoveResponses(cid);
-            Collections.sort(responses, new Comparator<Response<String>>() {
-                @Override
-                public int compare(Response<String> o1, Response<String> o2) {
-                    return o1.getResponse().compareTo(o2.getResponse());
-                }
-            });
+            logger.info("responses.size={}", responses.size());
             for (Response<String> response : responses) {
                 String res = response.getResponse();
                 logger.info("received: " + res);
@@ -42,6 +36,12 @@ public class MulipleResponsesForSameCidPersistentTestWorkflow extends Persistent
                 {
                     done = true;
                 }
+                else {
+                    if (lastResponse.compareTo(res) > 0) {
+                        throw new AssertionError("Responses are not in correct order!");
+                    }
+                }
+                lastResponse = res;
             }
         }
         logger.info("WF end, GG...");

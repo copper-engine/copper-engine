@@ -155,4 +155,10 @@ public class PostgreSQLPersistentWorkflowTest extends BasePersistentWorkflowTest
         super.testQueryAllActive(DS_CONTEXT);
     }
 
+    @Test
+    public void testMulipleResponsesForSameCidPersistentTestWorkflow() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testMulipleResponsesForSameCidPersistentTestWorkflow(DS_CONTEXT);
+    }
+
 }

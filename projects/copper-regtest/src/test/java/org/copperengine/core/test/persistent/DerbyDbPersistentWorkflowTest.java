@@ -127,4 +127,9 @@ public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
     public void testQueryAllActive() throws Exception {
         super.testQueryAllActive(DS_CONTEXT);
     }
+
+    @Test
+    public void testMulipleResponsesForSameCidPersistentTestWorkflow() throws Exception {
+        super.testMulipleResponsesForSameCidPersistentTestWorkflow(DS_CONTEXT);
+    }
 }

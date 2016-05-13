@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.CopperException;
@@ -63,6 +64,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     private boolean notifyProcessorPoolsOnResponse = false;
     private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
     private final Map<String, List<WaitHook>> waitHookMap = new HashMap<String, List<WaitHook>>();
+    private final AtomicLong sequenceIdFactory = new AtomicLong(System.currentTimeMillis() * 10000L);
 
     /**
      * If true, the engine notifies all processor pools about a new reponse available.
@@ -94,6 +96,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
         try {
             if (response.getResponseId() == null) {
                 response.setResponseId(createUUID());
+            }
+            if (response.getSequenceId() == null) {
+                response.setSequenceId(sequenceIdFactory.incrementAndGet());
             }
             startupBlocker.pass();
             dbStorage.notify(response, ack);
@@ -369,6 +374,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             for (Response<?> r : responses) {
                 if (r.getResponseId() == null) {
                     r.setResponseId(createUUID());
+                }
+                if (r.getSequenceId() == null) {
+                    r.setSequenceId(sequenceIdFactory.incrementAndGet());
                 }
             }
             dbStorage.notify(responses, c);

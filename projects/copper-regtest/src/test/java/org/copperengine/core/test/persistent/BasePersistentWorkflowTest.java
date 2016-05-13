@@ -768,6 +768,8 @@ public class BasePersistentWorkflowTest {
 
     private <T> void manualSend(PersistentProcessingEngine engine, String correlationId, T data) {
         Response<T> response = new Response<>(correlationId, data, null);
+        response.setResponseId(UUID.randomUUID().toString());
+        System.out.println("manualSend: " + response.getResponseId());
         Acknowledge.DefaultAcknowledge ack = new Acknowledge.DefaultAcknowledge();
         engine.notify(response, ack);
         ack.waitForAcknowledge();
@@ -786,11 +788,9 @@ public class BasePersistentWorkflowTest {
             {
                 engine.run("MulipleResponsesForSameCidPersistentTestWorkflow", cid);
                 Thread.sleep(1000); // wait for it to start up
-
-                for (int i = 1; i <= 10; i++)
+                for (int i = 1; i <= 9; i++)
                 {
                     manualSend(engine, cid, "Response#" + i);
-                    // Thread.sleep(100); // uncomment this and it will work fine
                 }
                 manualSend(engine, cid, "GG");
                 Thread.sleep(1000);

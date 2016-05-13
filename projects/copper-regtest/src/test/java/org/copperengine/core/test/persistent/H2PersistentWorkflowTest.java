@@ -125,4 +125,9 @@ public class H2PersistentWorkflowTest extends BasePersistentWorkflowTest {
         super.testQueryAllActive(DS_CONTEXT);
     }
 
+    @Test
+    public void testMulipleResponsesForSameCidPersistentTestWorkflow() throws Exception {
+        super.testMulipleResponsesForSameCidPersistentTestWorkflow(DS_CONTEXT);
+    }
+
 }
