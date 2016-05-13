@@ -1,10 +1,10 @@
 package org.copperengine.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.function.Consumer;
 
 class SortedReponseList extends ArrayList<Response<?>> {
 
@@ -15,14 +15,8 @@ class SortedReponseList extends ArrayList<Response<?>> {
     private void makeSureListIsSorted() {
         if (sorted)
             return;
-        this.sort(ResponseComparator.INSTANCE);
+        Collections.sort(this, ResponseComparator.INSTANCE);
         sorted = true;
-    }
-
-    @Override
-    public void forEach(Consumer<? super Response<?>> action) {
-        makeSureListIsSorted();
-        super.forEach(action);
     }
 
     @Override
