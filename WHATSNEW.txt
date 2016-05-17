@@ -1,4 +1,4 @@
-COPPER ?.?.?
+COPPER 4.0.2
 ============
 - Bugfix:      Issue #56 preserve response order
 - Bugfix:      Issue #58 PreparedStatement leak in org.copperengine.core.persistent.SqlNotify
