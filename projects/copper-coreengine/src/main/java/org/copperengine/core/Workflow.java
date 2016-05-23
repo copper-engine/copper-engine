@@ -253,7 +253,7 @@ public abstract class Workflow<D> implements Serializable {
         synchronized (responseMap) {
             List<Response<?>> l = responseMap.get(r.getCorrelationId());
             if (l == null) {
-                l = new SortedReponseList();
+                l = new SortedResponseList();
                 responseMap.put(r.getCorrelationId(), l);
             }
             l.add(r);
