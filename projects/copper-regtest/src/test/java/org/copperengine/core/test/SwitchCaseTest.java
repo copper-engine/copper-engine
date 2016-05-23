@@ -18,32 +18,24 @@ package org.copperengine.core.test;
 import static org.junit.Assert.assertEquals;
 
 import org.copperengine.core.EngineState;
-import org.copperengine.core.tranzient.TransientScottyEngine;
+import org.copperengine.core.test.tranzient.TransientTestContext;
 import org.copperengine.core.util.BlockingResponseReceiver;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class SwitchCaseTest {
 
     @Test
     public void testWorkflow() throws Exception {
-        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
-        TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
-        assertEquals(EngineState.STARTED, engine.getEngineState());
-
-        try {
+        try (TransientTestContext ctx = new TransientTestContext()) {
+            ctx.startup();
+            assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
             SwitchCaseTestData data = new SwitchCaseTestData();
             data.testEnumValue = TestEnum.C;
             data.asyncResponseReceiver = new BlockingResponseReceiver<Integer>();
-            engine.run("org.copperengine.core.test.SwitchCaseTestWF", data);
+            ctx.getEngine().run("org.copperengine.core.test.SwitchCaseTestWF", data);
             data.asyncResponseReceiver.wait4response(5000L);
             assertEquals(0, data.asyncResponseReceiver.getResponse().intValue());
-        } finally {
-            context.close();
         }
-        assertEquals(EngineState.STOPPED, engine.getEngineState());
-
     }
 
 }

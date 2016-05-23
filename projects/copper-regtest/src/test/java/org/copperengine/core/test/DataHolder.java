@@ -18,23 +18,31 @@ package org.copperengine.core.test;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DataHolder {
+
+    private static final Logger logger = LoggerFactory.getLogger(DataHolder.class);
 
     private final Map<String, Object> map = new HashMap<String, Object>();
 
     public void clear(String id) {
+        logger.info("{} - clear({})", this, id);
         synchronized (map) {
             map.remove(id);
         }
     }
 
     public void put(String id, Object data) {
+        logger.info("{} - put({}, {})", this, id, data);
         synchronized (map) {
             map.put(id, data);
         }
     }
 
     public Object get(String id) {
+        logger.info("{} - get({})", this, id);
         synchronized (map) {
             return map.get(id);
         }

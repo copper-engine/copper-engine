@@ -134,11 +134,11 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
             public void onWait(Workflow<?> wf, Connection con) throws Exception {
                 assertNotNull(wf);
                 assertNotNull(con);
-                dataHolder.put(cid, wf.getId());
+                dataHolder.put(cid, "TEST#" + wf.getId());
             }
         });
         wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
-        assertEquals(getId(), dataHolder.get(cid));
+        assertEquals("TEST#" + getId(), dataHolder.get(cid));
         dataHolder.clear(cid);
 
         Response<?> res = getAndRemoveResponse(cid);

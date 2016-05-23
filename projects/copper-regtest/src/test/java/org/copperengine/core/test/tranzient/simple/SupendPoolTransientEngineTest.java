@@ -19,30 +19,30 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import org.copperengine.core.EngineState;
+import org.copperengine.core.test.tranzient.TransientTestContext;
 import org.copperengine.core.tranzient.TransientProcessorPool;
-import org.copperengine.core.tranzient.TransientScottyEngine;
 import org.copperengine.core.util.BlockingResponseReceiver;
+import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class SupendPoolTransientEngineTest {
 
     @Test
     public void testWorkflow() throws Exception {
-        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
-        TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
-        TransientProcessorPool processorPool = (TransientProcessorPool) context.getBean("T_ProcessorPool_DEFAULT");
-        assertEquals(EngineState.STARTED, engine.getEngineState());
+        try (TransientTestContext ctx = new TransientTestContext()) {
+            ctx.startup();
+            assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
-        try {
+            TransientProcessorPool processorPool = ctx.getPpoolManager().getProcessorPool(TransientTestContext.PPOOL_DEFAULT);
+            Assert.assertNotNull(processorPool);
+
             final BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
             Thread.sleep(10);
             assertFalse(brr.isResponseReceived());
 
             processorPool.suspend();
 
-            engine.run("org.copperengine.core.test.tranzient.simple.NopTransientWorkflow", brr);
+            ctx.getEngine().run("org.copperengine.core.test.tranzient.simple.NopTransientWorkflow", brr);
 
             brr.wait4response(100L);
 
@@ -53,10 +53,7 @@ public class SupendPoolTransientEngineTest {
             brr.wait4response(100L);
 
             assertEquals(1, brr.getResponse().intValue());
-        } finally {
-            context.close();
         }
-        assertEquals(EngineState.STOPPED, engine.getEngineState());
 
     }
 

@@ -21,32 +21,15 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import org.copperengine.core.EngineState;
-import org.copperengine.core.Workflow;
-import org.copperengine.core.test.TestResponseReceiver;
-import org.copperengine.core.tranzient.TransientScottyEngine;
+import org.copperengine.core.test.tranzient.TransientTestContext;
 import org.copperengine.core.util.BlockingResponseReceiver;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * This class test the instrumentation of the core engine, called Scotty.
  */
 public class ScottyTest {
-    private final TestData[] response = { new TestData() };
 
-    // public interface BadInterface {
-    // default void x() {
-    // }
-    //
-    // default void y() {
-    // x();
-    // }
-    //
-    // static void z() {
-    // }
-    // }
-    //
     public static class TestData implements Serializable {
 
         private static final long serialVersionUID = 1L;
@@ -134,29 +117,15 @@ public class ScottyTest {
 
     @Test
     public void testWorkflow() throws Exception {
-        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
-        TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
-        context.getBeanFactory().registerSingleton("OutputChannel4711", new TestResponseReceiver<String, TestData>() {
-            @Override
-            public void setResponse(Workflow<String> wf, TestData r) {
-                synchronized (response) {
-                    response[0] = r;
-                    response.notifyAll();
-                }
-            }
-        });
+        try (TransientTestContext ctx = new TransientTestContext()) {
+            ctx.startup();
+            assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
-        assertEquals(EngineState.STARTED, engine.getEngineState());
-
-        try {
             BlockingResponseReceiver<TestData> brr = new BlockingResponseReceiver<TestData>();
-            engine.run("org.copperengine.core.test.tranzient.simple.ScottyTestTransientWorkflow", brr);
+            ctx.getEngine().run("org.copperengine.core.test.tranzient.simple.ScottyTestTransientWorkflow", brr);
             brr.wait4response(5000L);
             assertEquals(new TestData(), brr.getResponse());
-        } finally {
-            context.close();
         }
-        assertEquals(EngineState.STOPPED, engine.getEngineState());
     }
 
 }

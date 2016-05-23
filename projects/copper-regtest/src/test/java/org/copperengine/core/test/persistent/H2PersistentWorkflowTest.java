@@ -20,11 +20,10 @@ import javax.sql.DataSource;
 import org.copperengine.core.persistent.H2Dialect;
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
 
-public class H2PersistentWorkflowTest extends BasePersistentWorkflowTest {
+public class H2PersistentWorkflowTest extends SpringlessBasePersistentWorkflowTest {
 
-    private static final String DS_CONTEXT = "/datasources/datasource-h2.xml";
+    private static final DataSourceType DS_CONTEXT = DataSourceType.H2;
 
     @Override
     void cleanDB(DataSource ds) throws Exception {
@@ -76,10 +75,6 @@ public class H2PersistentWorkflowTest extends BasePersistentWorkflowTest {
         super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
     }
 
-    // public void testCompressedAuditTrail() throws Exception {
-    // super.testCompressedAuditTrail(DS_CONTEXT);
-    // }
-
     @Test
     public void testAutoCommit() throws Exception {
         super.testAutoCommit(DS_CONTEXT);
@@ -101,13 +96,13 @@ public class H2PersistentWorkflowTest extends BasePersistentWorkflowTest {
     }
 
     @Override
-    protected void closeContext(final ConfigurableApplicationContext context) {
+    protected void closeContext(final TestContext context) {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
             // ignore
         }
-        context.close();
+        super.closeContext(context);
     }
 
     @Test

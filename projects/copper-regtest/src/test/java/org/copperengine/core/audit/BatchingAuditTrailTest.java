@@ -94,11 +94,9 @@ public class BatchingAuditTrailTest {
         assertEquals("INSERT INTO COP_AUDIT_TRAIL_EVENT (LOGLEVEL,OCCURRENCE,CONVERSATION_ID,CONTEXT,INSTANCE_ID,CORRELATION_ID,TRANSACTION_ID,MESSAGE_TYPE,LONG_MESSAGE) VALUES (?,?,?,?,?,?,?,?,?)", batchingAuditTrail.getSqlStmt());
     }
 
-    private void doSynchLog(BatchingAuditTrail batchingAuditTrail,
-            Connection con, AuditTrailEvent e) throws Exception {
+    private void doSynchLog(BatchingAuditTrail batchingAuditTrail, Connection con, AuditTrailEvent e) throws Exception {
         @SuppressWarnings("unchecked")
         BatchCommand<Executor, Command> cmd = batchingAuditTrail.createBatchCommand(e, true, NullCallback.instance);
-        @SuppressWarnings("unchecked")
         Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>>asList(cmd);
         cmd.executor().doExec(cmdList, con);
     }

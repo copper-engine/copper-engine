@@ -17,17 +17,11 @@ package org.copperengine.core.test.persistent;
 
 import static org.junit.Assert.assertTrue;
 
-import javax.sql.DataSource;
-
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 
-public class PostgreSQLPersistentWorkflowTest extends BasePersistentWorkflowTest {
+public class PostgreSQLPersistentWorkflowTest extends SpringlessBasePersistentWorkflowTest {
 
-    private static final String DS_CONTEXT = "/datasources/datasource-postgresql.xml";
-    private static final Logger logger = LoggerFactory.getLogger(PostgreSQLPersistentWorkflowTest.class);
+    private static final DataSourceType DS_CONTEXT = DataSourceType.Postgres;
 
     private static boolean dbmsAvailable = false;
 
@@ -35,17 +29,8 @@ public class PostgreSQLPersistentWorkflowTest extends BasePersistentWorkflowTest
         if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
             dbmsAvailable = true;
         } else {
-            final ConfigurableApplicationContext context = new PostgreSQLPersistentWorkflowTest().createContext(DS_CONTEXT);
-            try {
-                DataSource ds = context.getBean(DataSource.class);
-                ds.setLoginTimeout(10);
-                ds.getConnection();
-                dbmsAvailable = true;
-            } catch (Exception e) {
-                logger.error("PostgreSQL not available! Skipping PostgreSQL unit tests.", e);
-                e.printStackTrace();
-            } finally {
-                context.close();
+            try (TestContext context = new TestContext(DS_CONTEXT, false)) {
+                dbmsAvailable = context.isDbmsAvailable();
             }
         }
     }

@@ -17,69 +17,38 @@ package org.copperengine.core.test.tranzient.simple;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.concurrent.TimeUnit;
+
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineState;
-import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowInstanceDescr;
-import org.copperengine.core.test.TestResponseReceiver;
-import org.copperengine.core.tranzient.TransientScottyEngine;
-import org.copperengine.core.util.BlockingResponseReceiver;
+import org.copperengine.core.test.backchannel.WorkflowResult;
+import org.copperengine.core.test.tranzient.TransientTestContext;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class SimpleTransientEngineTest {
 
-    private final int[] response = { -1 };
-
     @Test
     public void testWorkflow() throws Exception {
-        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
-        TransientScottyEngine engine = context.getBean("transientEngine", TransientScottyEngine.class);
-        context.getBeanFactory().registerSingleton("OutputChannel4711", new TestResponseReceiver<String, Integer>() {
-            @Override
-            public void setResponse(Workflow<String> wf, Integer r) {
-                synchronized (response) {
-                    response[0] = r.intValue();
-                    response.notifyAll();
-                }
-            }
-        });
+        try (TransientTestContext ctx = new TransientTestContext()) {
+            ctx.startup();
+            assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
-        assertEquals(EngineState.STARTED, engine.getEngineState());
-
-        try {
-            BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
-            engine.run("org.copperengine.core.test.tranzient.simple.SimpleTransientWorkflow", brr);
-            synchronized (response) {
-                if (response[0] == -1) {
-                    response.wait(30000);
-                }
-            }
-            assertEquals(10, response[0]);
-        } finally {
-            context.close();
+            ctx.getEngine().run("org.copperengine.core.test.tranzient.simple.SimpleTransientWorkflow", null);
+            WorkflowResult response = ctx.getBackChannelQueue().dequeue(5000, TimeUnit.MILLISECONDS);
+            assertEquals(Integer.valueOf(10), response.getResult());
         }
-        assertEquals(EngineState.STOPPED, engine.getEngineState());
 
     }
 
     @Test(expected = DuplicateIdException.class)
     public void testDuplicateIdException() throws Exception {
-        final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
-        final TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
+        try (TransientTestContext ctx = new TransientTestContext()) {
+            ctx.startup();
+            assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
-        assertEquals(EngineState.STARTED, engine.getEngineState());
-
-        try {
-            engine.run(new WorkflowInstanceDescr<String>("org.copperengine.core.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null,
-                    null));
-            engine.run(new WorkflowInstanceDescr<String>("org.copperengine.core.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null,
-                    null));
-        } finally {
-            context.close();
+            ctx.getEngine().run(new WorkflowInstanceDescr<String>("org.copperengine.core.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null, null));
+            ctx.getEngine().run(new WorkflowInstanceDescr<String>("org.copperengine.core.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null, null));
         }
-        assertEquals(EngineState.STOPPED, engine.getEngineState());
-
     }
 }

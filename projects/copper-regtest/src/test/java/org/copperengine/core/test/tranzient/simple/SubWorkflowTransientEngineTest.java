@@ -21,32 +21,21 @@ import static org.junit.Assert.assertNotNull;
 import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.EngineState;
-import org.copperengine.core.test.backchannel.BackChannelQueue;
 import org.copperengine.core.test.backchannel.WorkflowResult;
-import org.copperengine.core.tranzient.TransientScottyEngine;
+import org.copperengine.core.test.tranzient.TransientTestContext;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class SubWorkflowTransientEngineTest {
 
     @Test
     public void testWorkflow() throws Exception {
-        final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
-        final TransientScottyEngine engine = (TransientScottyEngine) context.getBean("transientEngine");
-        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-
-        assertEquals(EngineState.STARTED, engine.getEngineState());
-
-        try {
-            engine.run("org.copperengine.core.test.tranzient.simple.SimpleTestParentWorkflow", "testData");
-            WorkflowResult r = backChannelQueue.dequeue(2000, TimeUnit.MILLISECONDS);
+        try (TransientTestContext ctx = new TransientTestContext()) {
+            ctx.startup();
+            assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
+            ctx.getEngine().run("org.copperengine.core.test.tranzient.simple.SimpleTestParentWorkflow", "testData");
+            WorkflowResult r = ctx.getBackChannelQueue().dequeue(2000, TimeUnit.MILLISECONDS);
             assertNotNull(r);
-        } finally {
-            context.close();
         }
-        assertEquals(EngineState.STOPPED, engine.getEngineState());
-
     }
 
 }

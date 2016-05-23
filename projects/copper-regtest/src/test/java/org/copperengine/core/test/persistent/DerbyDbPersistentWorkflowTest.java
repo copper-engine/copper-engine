@@ -15,24 +15,11 @@
  */
 package org.copperengine.core.test.persistent;
 
-import javax.sql.DataSource;
-
-import org.junit.After;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
 
-public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
+public class DerbyDbPersistentWorkflowTest extends SpringlessBasePersistentWorkflowTest {
 
-    private static final String DS_CONTEXT = "/datasources/datasource-derbydb.xml";
-
-    @Override
-    void cleanDB(DataSource ds) throws Exception {
-        super.cleanDB(ds);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
+    private static final DataSourceType DS_CONTEXT = DataSourceType.DerbyDB;
 
     @Test
     public void testAsynchResponse() throws Exception {
@@ -74,10 +61,6 @@ public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
         super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
     }
 
-    // public void testCompressedAuditTrail() throws Exception {
-    // super.testCompressedAuditTrail(DS_CONTEXT);
-    // }
-
     @Test
     public void testAutoCommit() throws Exception {
         super.testAutoCommit(DS_CONTEXT);
@@ -99,13 +82,13 @@ public class DerbyDbPersistentWorkflowTest extends BasePersistentWorkflowTest {
     }
 
     @Override
-    protected void closeContext(final ConfigurableApplicationContext context) {
+    protected void closeContext(final TestContext context) {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
             // ignore
         }
-        context.close();
+        super.closeContext(context);
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {

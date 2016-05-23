@@ -41,7 +41,6 @@ import org.copperengine.core.EngineState;
 import org.copperengine.core.PersistentProcessingEngine;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
-import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.audit.AuditTrailEvent;
@@ -59,7 +58,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@WorkflowDescription(alias = "org.copperengine.core.test.persistent.BasePersistentWorkflowTest", majorVersion = 1, minorVersion = 2, patchLevelVersion = 3)
 public class BasePersistentWorkflowTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BasePersistentWorkflowTest.class);
