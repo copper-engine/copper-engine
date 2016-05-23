@@ -1,3 +1,8 @@
+COPPER ?.?.?
+============
+- Bugfix:      Issue #59 SortedReponseList StackOverflow 
+- Refactoring: No NOT use spring framework in regression tests where possible
+
 COPPER 4.0.2
 ============
 - Bugfix:      Issue #56 preserve response order
