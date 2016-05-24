@@ -18,7 +18,7 @@ package org.copperengine.core.test.tranzient.simple;
 import static org.junit.Assert.assertEquals;
 
 import org.copperengine.core.EngineState;
-import org.copperengine.core.test.tranzient.TransientTestContext;
+import org.copperengine.core.test.tranzient.TransientEngineTestContext;
 import org.copperengine.core.util.BlockingResponseReceiver;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class WaitInMethodTransientEngineTest {
 
     @Test
     public void testWorkflow() throws Exception {
-        try (TransientTestContext ctx = new TransientTestContext()) {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 

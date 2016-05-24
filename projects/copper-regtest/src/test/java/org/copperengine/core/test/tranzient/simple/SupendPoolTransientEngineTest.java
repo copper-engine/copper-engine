@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import org.copperengine.core.EngineState;
-import org.copperengine.core.test.tranzient.TransientTestContext;
+import org.copperengine.core.test.tranzient.TransientEngineTestContext;
 import org.copperengine.core.tranzient.TransientProcessorPool;
 import org.copperengine.core.util.BlockingResponseReceiver;
 import org.junit.Assert;
@@ -29,11 +29,11 @@ public class SupendPoolTransientEngineTest {
 
     @Test
     public void testWorkflow() throws Exception {
-        try (TransientTestContext ctx = new TransientTestContext()) {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
-            TransientProcessorPool processorPool = ctx.getPpoolManager().getProcessorPool(TransientTestContext.PPOOL_DEFAULT);
+            TransientProcessorPool processorPool = ctx.getPpoolManager().getProcessorPool(TransientEngineTestContext.PPOOL_DEFAULT);
             Assert.assertNotNull(processorPool);
 
             final BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();

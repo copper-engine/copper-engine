@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.WorkflowVersion;
-import org.copperengine.core.test.tranzient.TransientTestContext;
+import org.copperengine.core.test.tranzient.TransientEngineTestContext;
 import org.copperengine.core.util.BlockingResponseReceiver;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class VersioningTest {
 
     @Test
     public void testFindLatest() throws Exception {
-        try (TransientTestContext ctx = new TransientTestContext()) {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
 
             WorkflowVersion v = ctx.getRepo().findLatestMajorVersion(VersionTestWorkflowDef.NAME, 9);
@@ -41,7 +41,7 @@ public class VersioningTest {
 
     @Test
     public void testLatest() throws Exception {
-        try (TransientTestContext ctx = new TransientTestContext()) {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
@@ -60,7 +60,7 @@ public class VersioningTest {
 
     @Test
     public void testVersion() throws Exception {
-        try (TransientTestContext ctx = new TransientTestContext()) {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 

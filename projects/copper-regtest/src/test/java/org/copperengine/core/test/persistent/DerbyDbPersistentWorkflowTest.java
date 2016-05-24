@@ -82,7 +82,7 @@ public class DerbyDbPersistentWorkflowTest extends SpringlessBasePersistentWorkf
     }
 
     @Override
-    protected void closeContext(final TestContext context) {
+    protected void closeContext(final PersistentEngineTestContext context) {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {

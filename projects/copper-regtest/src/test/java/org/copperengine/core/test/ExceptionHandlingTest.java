@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNull;
 
 import org.copperengine.core.EngineState;
 import org.copperengine.core.WorkflowInstanceDescr;
-import org.copperengine.core.test.tranzient.TransientTestContext;
+import org.copperengine.core.test.tranzient.TransientEngineTestContext;
 import org.copperengine.management.model.WorkflowInfo;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class ExceptionHandlingTest {
 
     @Test
     public void testExceptionHandlingTestWF() throws Exception {
-        try (TransientTestContext ctx = new TransientTestContext()) {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
@@ -50,7 +50,7 @@ public class ExceptionHandlingTest {
 
     @Test
     public void testIssueClassCastExceptionWorkflow3() throws Exception {
-        try (TransientTestContext ctx = new TransientTestContext()) {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 

@@ -150,7 +150,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
                     logger.trace("Dequeueing elements from DB...");
                     rv = dbStorage.dequeue(getId(), dequeueBulkSize);
                 } else {
-                    logger.trace("dequeueBulkSize is zero - dequeue subspendet.");
+                    logger.trace("dequeueBulkSize is zero - dequeue suspended.");
                     rv = Collections.emptyList();
                 }
 

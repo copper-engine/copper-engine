@@ -4,16 +4,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.copperengine.core.AbstractDependencyInjector;
 import org.copperengine.core.DependencyInjector;
+import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.db.utility.RetryingTransaction;
@@ -24,6 +20,7 @@ import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.test.DBMockAdapter;
 import org.copperengine.core.test.DataHolder;
 import org.copperengine.core.test.MockAdapter;
+import org.copperengine.core.test.TestContext;
 import org.copperengine.core.test.backchannel.BackChannelQueue;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 import org.copperengine.ext.persistent.RdbmsEngineFactory;
@@ -32,24 +29,19 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-public class TestContext implements AutoCloseable {
+public class PersistentEngineTestContext extends TestContext {
 
-    protected final Map<String, Supplier<?>> suppliers = new HashMap<>();
-    protected final Supplier<Properties> properties;
-    protected final Supplier<MockAdapter> mockAdapter;
     protected final Supplier<RdbmsEngineFactory<DependencyInjector>> engineFactoryRed;
-    protected final Supplier<DependencyInjector> dependencyInjector;
     protected final Supplier<ComboPooledDataSource> dataSource;
-    protected final Supplier<BackChannelQueue> backChannelQueue;
     protected final Supplier<DataHolder> dataHolder;
     protected final Supplier<BatchingAuditTrail> auditTrail;
     protected final Supplier<DBMockAdapter> dbMockAdapter;
 
-    public TestContext(final DataSourceType dataSourceType, final boolean cleanDB) {
+    public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB) {
         this(dataSourceType, cleanDB, "default", false);
     }
 
-    public TestContext(final DataSourceType dataSourceType, final boolean cleanDB, final String engineId, final boolean multiEngineMode) {
+    public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB, final String engineId, final boolean multiEngineMode) {
         dbMockAdapter = Suppliers.memoize(new Supplier<DBMockAdapter>() {
             @Override
             public DBMockAdapter get() {
@@ -66,14 +58,6 @@ public class TestContext implements AutoCloseable {
         });
         suppliers.put("auditTrail", auditTrail);
 
-        properties = Suppliers.memoize(new Supplier<Properties>() {
-            @Override
-            public Properties get() {
-                return createProperties();
-            }
-        });
-        suppliers.put("properties", properties);
-
         dataHolder = Suppliers.memoize(new Supplier<DataHolder>() {
             @Override
             public DataHolder get() {
@@ -81,14 +65,6 @@ public class TestContext implements AutoCloseable {
             }
         });
         suppliers.put("dataHolder", dataHolder);
-
-        backChannelQueue = Suppliers.memoize(new Supplier<BackChannelQueue>() {
-            @Override
-            public BackChannelQueue get() {
-                return createBackChannelQueue();
-            }
-        });
-        suppliers.put("backChannelQueue", backChannelQueue);
 
         dataSource = Suppliers.memoize(new Supplier<ComboPooledDataSource>() {
             @Override
@@ -101,22 +77,6 @@ public class TestContext implements AutoCloseable {
             }
         });
         suppliers.put("dataSource", dataSource);
-
-        dependencyInjector = Suppliers.memoize(new Supplier<DependencyInjector>() {
-            @Override
-            public DependencyInjector get() {
-                return createDependencyInjector();
-            }
-        });
-        suppliers.put("dependencyInjector", dependencyInjector);
-
-        mockAdapter = Suppliers.memoize(new Supplier<MockAdapter>() {
-            @Override
-            public MockAdapter get() {
-                return createMockAdapter();
-            }
-        });
-        suppliers.put("mockAdapter", mockAdapter);
 
         engineFactoryRed = Suppliers.memoize(new Supplier<RdbmsEngineFactory<DependencyInjector>>() {
             @Override
@@ -182,18 +142,6 @@ public class TestContext implements AutoCloseable {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT);
     }
 
-    protected Properties createProperties() {
-        try {
-            Properties p = new Properties();
-            p.load(getClass().getResourceAsStream("/regtest.properties"));
-            return p;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("failed to load properties", e);
-        }
-    }
-
     protected ComboPooledDataSource createDataSource(final DataSourceType dataSourceType) {
         ComboPooledDataSource ds;
         if (dataSourceType == DataSourceType.H2) {
@@ -217,33 +165,8 @@ public class TestContext implements AutoCloseable {
         return ds;
     }
 
-    protected BackChannelQueue createBackChannelQueue() {
-        return new BackChannelQueue();
-    }
-
     protected DataHolder createDataHolder() {
         return new DataHolder();
-    }
-
-    protected DependencyInjector createDependencyInjector() {
-        AbstractDependencyInjector dependencyInjector = new AbstractDependencyInjector() {
-            @Override
-            public String getType() {
-                return null;
-            }
-
-            @Override
-            protected Object getBean(String beanId) {
-                Supplier<?> supplier = suppliers.get(beanId);
-                if (supplier == null) {
-                    throw new RuntimeException("No supplier with id '" + beanId + "' found!");
-                }
-                else {
-                    return supplier.get();
-                }
-            }
-        };
-        return dependencyInjector;
     }
 
     protected RdbmsEngineFactory<DependencyInjector> createRdbmsEngineFactory(final String engineId, final boolean multiEngineMode) {
@@ -251,18 +174,18 @@ public class TestContext implements AutoCloseable {
 
             @Override
             protected DataSource createDataSource() {
-                return TestContext.this.dataSource.get();
+                return PersistentEngineTestContext.this.dataSource.get();
             }
 
             @Override
             protected DependencyInjector createDependencyInjector() {
-                return TestContext.this.dependencyInjector.get();
+                return PersistentEngineTestContext.this.dependencyInjector.get();
             }
 
             @Override
             protected WorkflowRepository createWorkflowRepository() {
                 FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
-                repo.setSourceDirs(Arrays.asList(new String[] { "src/workflow/java" }));
+                repo.setSourceDirs("src/workflow/java");
                 repo.setTargetDir("build/compiled_workflow_" + engineId);
                 repo.setLoadNonWorkflowClasses(true);
                 return repo;
@@ -287,19 +210,13 @@ public class TestContext implements AutoCloseable {
         return x;
     }
 
-    protected MockAdapter createMockAdapter() {
-        MockAdapter x = new MockAdapter();
-        x.setEngine(engineFactoryRed.get().getEngine());
-        return x;
-    }
-
+    @Override
     public void startup() {
+        super.startup();
         try {
-            for (Supplier<?> s : suppliers.values()) {
-                s.get();
-            }
             mockAdapter.get().startup();
             dbMockAdapter.get().startup();
+            engineFactoryRed.get().getEngine().setNotifyProcessorPoolsOnResponse(true);
             engineFactoryRed.get().getEngine().startup();
             auditTrail.get().startup();
         } catch (RuntimeException e) {
@@ -309,11 +226,13 @@ public class TestContext implements AutoCloseable {
         }
     }
 
+    @Override
     public void shutdown() {
         engineFactoryRed.get().destroyEngine();
         mockAdapter.get().shutdown();
         dbMockAdapter.get().shutdown();
         dataSource.get().close();
+        super.shutdown();
     }
 
     public MockAdapter getMockAdapter() {
@@ -347,13 +266,13 @@ public class TestContext implements AutoCloseable {
         }
     }
 
-    @Override
-    public void close() {
-        shutdown();
-    }
-
     public DataHolder getDataHolder() {
         return dataHolder.get();
+    }
+
+    @Override
+    protected ProcessingEngine getProcessingEngine() {
+        return getEngine();
     }
 
 }
