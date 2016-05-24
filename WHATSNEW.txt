@@ -1,5 +1,6 @@
-COPPER ?.?.?
+COPPER 4.0.3
 ============
+- Bugfix:      Issue #60 PersistentScottyEngine.notifyProcessorPoolsOnResponse without effect when using PersistentLockManager
 - Bugfix:      Issue #59 SortedReponseList StackOverflow 
 - Refactoring: No NOT use spring framework in regression tests where possible
 
