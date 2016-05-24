@@ -102,15 +102,29 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             }
             startupBlocker.pass();
             dbStorage.notify(response, ack);
-            if (notifyProcessorPoolsOnResponse) {
-                for (PersistentProcessorPool ppp : processorPoolManager.processorPools()) {
-                    ppp.doNotify();
-                }
-            }
+            notifyProcessorPools();
         } catch (Exception e) {
             throw new CopperRuntimeException("notify failed", e);
         }
 
+    }
+
+    /**
+     * Manually notifies all underlying processor pools to check their corresponding persistent queues for new entries,
+     * if and only if <code>notifyProcessorPoolsOnResponse</code> is true (see
+     * {@link #setNotifyProcessorPoolsOnResponse(boolean)}).
+     * This may lead to shorter latency times, but may also increase CPU load or database I/O, so use with care.
+     */
+    public void notifyProcessorPools() {
+        if (notifyProcessorPoolsOnResponse) {
+            for (PersistentProcessorPool ppp : processorPoolManager.processorPools()) {
+                try {
+                    ppp.doNotify();
+                } catch (Exception e) {
+                    logger.error("doNotify failed for PersistentProcessorPool " + ppp, e);
+                }
+            }
+        }
     }
 
     @Override

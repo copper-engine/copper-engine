@@ -119,4 +119,9 @@ public class TestEngine implements PersistentProcessingEngine {
             throws CopperRuntimeException {
     }
 
+    @Override
+    public void notifyProcessorPools() {
+
+    }
+
 }

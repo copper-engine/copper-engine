@@ -77,6 +77,8 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      * 
      * @param response
      *        the reponse
+     * @param c
+     *        jdbc connection to use
      * @throws CopperRuntimeException
      */
     public void notify(Response<?> response, Connection c) throws CopperRuntimeException;
@@ -90,7 +92,15 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      * 
      * @param responses
      *        the list of reponses
+     * @param c
+     *        jdbc connection to use
      * @throws CopperRuntimeException
      */
     public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException;
+
+    /**
+     * Notifies all underlying processor pools to check their corresponding persistent queues for new entries.
+     * This may lead to shorter latency times, but may also increase CPU load or database I/O, so use with care
+     */
+    public void notifyProcessorPools();
 }

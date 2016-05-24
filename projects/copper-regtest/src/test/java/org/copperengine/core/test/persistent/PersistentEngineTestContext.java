@@ -216,6 +216,7 @@ public class PersistentEngineTestContext extends TestContext {
         try {
             mockAdapter.get().startup();
             dbMockAdapter.get().startup();
+            engineFactoryRed.get().getEngine().setNotifyProcessorPoolsOnResponse(true);
             engineFactoryRed.get().getEngine().startup();
             auditTrail.get().startup();
         } catch (RuntimeException e) {

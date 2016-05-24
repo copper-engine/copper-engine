@@ -56,6 +56,7 @@ public class PersistentLockManagerImpl implements PersistentLockManager {
                     return null;
                 }
             });
+            engine.notifyProcessorPools();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -76,6 +77,7 @@ public class PersistentLockManagerImpl implements PersistentLockManager {
                     return null;
                 }
             });
+            engine.notifyProcessorPools();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
