@@ -158,6 +158,15 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     /**
+     * Configures the local directory/directories that contain the COPPER workflows as <code>.java</code> files.
+     */
+    public void setSourceDirs(String... sourceDirs) {
+        if (sourceDirs == null)
+            throw new IllegalArgumentException();
+        this.sourceDirs = Arrays.asList(sourceDirs);
+    }
+
+    /**
      * Returns the configured local directory/directories
      */
     public List<String> getSourceDirs() {
