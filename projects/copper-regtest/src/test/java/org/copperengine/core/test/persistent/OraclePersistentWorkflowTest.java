@@ -45,7 +45,7 @@ public class OraclePersistentWorkflowTest extends SpringlessBasePersistentWorkfl
         if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
             dbmsAvailable = true;
         } else {
-            try (TestContext context = new TestContext(DS_CONTEXT, false)) {
+            try (PersistentEngineTestContext context = new PersistentEngineTestContext(DS_CONTEXT, false)) {
                 dbmsAvailable = context.isDbmsAvailable();
             }
         }
@@ -95,10 +95,10 @@ public class OraclePersistentWorkflowTest extends SpringlessBasePersistentWorkfl
         logger.info("running testMultipleEngines");
         final int NUMB = 50;
 
-        final TestContext contextRed = new TestContext(DS_CONTEXT, true, "red", true);
+        final PersistentEngineTestContext contextRed = new PersistentEngineTestContext(DS_CONTEXT, true, "red", true);
         contextRed.startup();
 
-        final TestContext contextBlue = new TestContext(DS_CONTEXT, false, "blue", true) {
+        final PersistentEngineTestContext contextBlue = new PersistentEngineTestContext(DS_CONTEXT, false, "blue", true) {
             @Override
             protected DataHolder createDataHolder() {
                 return contextRed.getDataHolder();

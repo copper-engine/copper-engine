@@ -29,7 +29,7 @@ public class MySqlPersistentWorkflowTest extends SpringlessBasePersistentWorkflo
         if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
             dbmsAvailable = true;
         } else {
-            try (TestContext context = new TestContext(DS_CONTEXT, false)) {
+            try (PersistentEngineTestContext context = new PersistentEngineTestContext(DS_CONTEXT, false)) {
                 dbmsAvailable = context.isDbmsAvailable();
             }
         }

@@ -120,7 +120,7 @@ public class SpringlessBasePersistentWorkflowTest {
     public void testWaitForEver(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
         logger.info("running testWaitForEver");
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         try {
@@ -139,7 +139,7 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
 
-    protected void closeContext(final TestContext context) {
+    protected void closeContext(final PersistentEngineTestContext context) {
         context.shutdown();
     }
 
@@ -148,7 +148,7 @@ public class SpringlessBasePersistentWorkflowTest {
         logger.info("running testAsynchResponse");
         final int NUMB = 50;
         final String DATA = createTestData(50);
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         try {
@@ -178,7 +178,7 @@ public class SpringlessBasePersistentWorkflowTest {
         logger.info("running testFailOnDuplicateInsert");
         final String DATA = createTestData(50);
 
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         engine.getDbStorage().setRemoveWhenFinished(false);
         try {
@@ -201,7 +201,7 @@ public class SpringlessBasePersistentWorkflowTest {
         logger.info("running testAsynchResponse");
         final int NUMB = 20;
         final String DATA = createTestData(dataSize);
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         try {
@@ -226,8 +226,8 @@ public class SpringlessBasePersistentWorkflowTest {
 
     }
 
-    protected TestContext createContext(DataSourceType dsType) {
-        TestContext ctx = new TestContext(dsType, true);
+    protected PersistentEngineTestContext createContext(DataSourceType dsType) {
+        PersistentEngineTestContext ctx = new PersistentEngineTestContext(dsType, true);
         ctx.startup();
         return ctx;
     }
@@ -236,7 +236,7 @@ public class SpringlessBasePersistentWorkflowTest {
         assumeFalse(skipTests());
         logger.info("running testWithConnection");
         final int NUMB = 20;
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         try {
@@ -270,7 +270,7 @@ public class SpringlessBasePersistentWorkflowTest {
         assumeFalse(skipTests());
         logger.info("running testWithConnectionBulkInsert");
         final int NUMB = 50;
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         try {
@@ -309,7 +309,7 @@ public class SpringlessBasePersistentWorkflowTest {
         assumeFalse(skipTests());
         logger.info("running testTimeouts");
         final int NUMB = 10;
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         try {
@@ -335,7 +335,7 @@ public class SpringlessBasePersistentWorkflowTest {
 
     public void testErrorHandlingInCoreEngine(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         try {
             final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
@@ -385,7 +385,7 @@ public class SpringlessBasePersistentWorkflowTest {
 
     public void testErrorHandlingInCoreEngine_restartAll(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         try {
             final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.ExceptionThrowingPersistentUnitTestWorkflow");
@@ -437,7 +437,7 @@ public class SpringlessBasePersistentWorkflowTest {
         assumeFalse(skipTests());
         logger.info("running testParentChildWorkflow");
         final int NUMB = 20;
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         try {
@@ -465,7 +465,7 @@ public class SpringlessBasePersistentWorkflowTest {
         logger.info("running testErrorKeepWorkflowInstanceInDB");
         final int NUMB = 20;
         final String DATA = createTestData(50);
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         engine.getDbStorage().setRemoveWhenFinished(false);
@@ -511,7 +511,7 @@ public class SpringlessBasePersistentWorkflowTest {
         final int NUMB = 20;
         final String DATA = createTestData(50);
 
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         context.getAuditTrail().setMessagePostProcessor(new CompressedBase64PostProcessor());
@@ -564,7 +564,7 @@ public class SpringlessBasePersistentWorkflowTest {
     public void testAutoCommit(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
         logger.info("running testAutoCommit");
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         try {
             DataSource ds = context.getDataSource();
             new RetryingTransaction<Void>(ds) {
@@ -591,7 +591,7 @@ public class SpringlessBasePersistentWorkflowTest {
     public void testAuditTrailUncompressed(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
         logger.info("running testAuditTrailSmallData");
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         try {
             BatchingAuditTrail auditTrail = context.getAuditTrail();
             auditTrail.setMessagePostProcessor(new DummyPostProcessor());
@@ -606,7 +606,7 @@ public class SpringlessBasePersistentWorkflowTest {
 
     public void testErrorHandlingWithWaitHook(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         try {
             final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.ErrorWaitHookUnitTestWorkflow");
@@ -638,7 +638,7 @@ public class SpringlessBasePersistentWorkflowTest {
     public void testAuditTrailCustomSeqNr(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
         logger.info("running testAuditTrailCustomSeqNr");
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final BatchingAuditTrail auditTrail = context.getAuditTrail();
         auditTrail.setMessagePostProcessor(new DummyPostProcessor());
         try {
@@ -675,7 +675,7 @@ public class SpringlessBasePersistentWorkflowTest {
     public void testNotifyWithoutEarlyResponseHandling(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
         logger.info("running testNotifyWithoutEarlyResponseHandling");
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         try {
             new RetryingTransaction<Void>(context.getDataSource()) {
@@ -716,7 +716,7 @@ public class SpringlessBasePersistentWorkflowTest {
 
     public void testQueryAllActive(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         try {
             // just check, that the underlying SQL statements are ok.
@@ -741,7 +741,7 @@ public class SpringlessBasePersistentWorkflowTest {
 
     public void testMulipleResponsesForSameCidPersistentTestWorkflow(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
-        final TestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
         try {
             String cid = "testSingleCID";

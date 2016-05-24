@@ -25,7 +25,7 @@ import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 
-public class TransientTestContext implements AutoCloseable {
+public class TransientEngineTestContext implements AutoCloseable {
 
     public static final String PPOOL_DEFAULT = "T#DEFAULT";
 
@@ -37,7 +37,7 @@ public class TransientTestContext implements AutoCloseable {
     protected final Supplier<BackChannelQueue> backChannelQueue;
     protected final Supplier<DefaultProcessorPoolManager<TransientProcessorPool>> ppoolManager;
 
-    public TransientTestContext() {
+    public TransientEngineTestContext() {
         ppoolManager = Suppliers.memoize(new Supplier<DefaultProcessorPoolManager<TransientProcessorPool>>() {
             @Override
             public DefaultProcessorPoolManager<TransientProcessorPool> get() {
@@ -133,7 +133,7 @@ public class TransientTestContext implements AutoCloseable {
         return x;
     }
 
-    public TransientTestContext startup() {
+    public TransientEngineTestContext startup() {
         mockAdapter.get().startup();
         engine.get().startup();
         return this;

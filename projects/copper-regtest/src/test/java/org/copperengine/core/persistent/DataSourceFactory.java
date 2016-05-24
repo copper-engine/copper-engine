@@ -17,6 +17,7 @@ package org.copperengine.core.persistent;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
+// TODO read config parameter from properties file
 public class DataSourceFactory {
 
     public static ComboPooledDataSource createOracleDatasource() {

@@ -32,7 +32,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-public class TestContext implements AutoCloseable {
+public class PersistentEngineTestContext implements AutoCloseable {
 
     protected final Map<String, Supplier<?>> suppliers = new HashMap<>();
     protected final Supplier<Properties> properties;
@@ -45,11 +45,11 @@ public class TestContext implements AutoCloseable {
     protected final Supplier<BatchingAuditTrail> auditTrail;
     protected final Supplier<DBMockAdapter> dbMockAdapter;
 
-    public TestContext(final DataSourceType dataSourceType, final boolean cleanDB) {
+    public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB) {
         this(dataSourceType, cleanDB, "default", false);
     }
 
-    public TestContext(final DataSourceType dataSourceType, final boolean cleanDB, final String engineId, final boolean multiEngineMode) {
+    public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB, final String engineId, final boolean multiEngineMode) {
         dbMockAdapter = Suppliers.memoize(new Supplier<DBMockAdapter>() {
             @Override
             public DBMockAdapter get() {
@@ -251,12 +251,12 @@ public class TestContext implements AutoCloseable {
 
             @Override
             protected DataSource createDataSource() {
-                return TestContext.this.dataSource.get();
+                return PersistentEngineTestContext.this.dataSource.get();
             }
 
             @Override
             protected DependencyInjector createDependencyInjector() {
-                return TestContext.this.dependencyInjector.get();
+                return PersistentEngineTestContext.this.dependencyInjector.get();
             }
 
             @Override

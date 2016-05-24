@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import org.copperengine.core.CopperException;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.test.backchannel.WorkflowResult;
-import org.copperengine.core.test.tranzient.TransientTestContext;
+import org.copperengine.core.test.tranzient.TransientEngineTestContext;
 import org.junit.Test;
 
 public class LocalVarTest {
@@ -40,7 +40,7 @@ public class LocalVarTest {
 
     private void doTest(String wfClassname, int expectedResult) throws CopperException, InterruptedException {
 
-        try (TransientTestContext ctx = new TransientTestContext()) {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 

@@ -18,7 +18,7 @@ package org.copperengine.core.test.tranzient.classhierarchy;
 import static org.junit.Assert.assertEquals;
 
 import org.copperengine.core.EngineState;
-import org.copperengine.core.test.tranzient.TransientTestContext;
+import org.copperengine.core.test.tranzient.TransientEngineTestContext;
 import org.copperengine.core.util.BlockingResponseReceiver;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class DerivedTransientEngineTest {
 
     @Test
     public void testWorkflow() throws Exception {
-        TransientTestContext ctx = new TransientTestContext();
+        TransientEngineTestContext ctx = new TransientEngineTestContext();
         try {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());

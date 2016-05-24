@@ -23,14 +23,14 @@ import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.test.backchannel.WorkflowResult;
-import org.copperengine.core.test.tranzient.TransientTestContext;
+import org.copperengine.core.test.tranzient.TransientEngineTestContext;
 import org.junit.Test;
 
 public class SimpleTransientEngineTest {
 
     @Test
     public void testWorkflow() throws Exception {
-        try (TransientTestContext ctx = new TransientTestContext()) {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
@@ -43,7 +43,7 @@ public class SimpleTransientEngineTest {
 
     @Test(expected = DuplicateIdException.class)
     public void testDuplicateIdException() throws Exception {
-        try (TransientTestContext ctx = new TransientTestContext()) {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
