@@ -35,11 +35,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
+import org.copperengine.core.Acknowledge;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineState;
+import org.copperengine.core.PersistentProcessingEngine;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
-import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.audit.AuditTrailEvent;
@@ -57,7 +58,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@WorkflowDescription(alias = "org.copperengine.core.test.persistent.BasePersistentWorkflowTest", majorVersion = 1, minorVersion = 2, patchLevelVersion = 3)
 public class BasePersistentWorkflowTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BasePersistentWorkflowTest.class);
@@ -757,6 +757,46 @@ public class BasePersistentWorkflowTest {
             // just check, that the underlying SQL statements are ok.
             assertEquals(0, engine.queryActiveWorkflowInstances(null, 100).size());
             assertEquals(0, engine.queryActiveWorkflowInstances("foo.john.Doe", 100).size());
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    private <T> void manualSend(PersistentProcessingEngine engine, String correlationId, T data) {
+        Response<T> response = new Response<>(correlationId, data, null);
+        response.setResponseId(UUID.randomUUID().toString());
+        System.out.println("manualSend: " + response.getResponseId());
+        Acknowledge.DefaultAcknowledge ack = new Acknowledge.DefaultAcknowledge();
+        engine.notify(response, ack);
+        ack.waitForAcknowledge();
+
+    }
+
+    public void testMulipleResponsesForSameCidPersistentTestWorkflow(String dsContext) throws Exception {
+        assumeFalse(skipTests());
+        final ConfigurableApplicationContext context = createContext(dsContext);
+        cleanDB(context.getBean(DataSource.class));
+        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
+        try {
+            engine.startup();
+            String cid = "testSingleCID";
+            try
+            {
+                engine.run("MulipleResponsesForSameCidPersistentTestWorkflow", cid);
+                Thread.sleep(1000); // wait for it to start up
+                for (int i = 1; i <= 9; i++)
+                {
+                    manualSend(engine, cid, "Response#" + i);
+                }
+                manualSend(engine, cid, "GG");
+                Thread.sleep(1000);
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
         } finally {
             closeContext(context);
         }

@@ -99,7 +99,7 @@ class ResponseLoader extends ConcurrentBatchedWorker {
         for (PersistentWorkflow<?> wf : list) {
             map.put(wf.getId(), wf);
         }
-        PreparedStatement stmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response, r.long_response, w.is_timed_out from (select WORKFLOW_INSTANCE_ID, correlation_id, case when timeout_ts < systimestamp then 1 else 0 end is_timed_out from COP_WAIT where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w, COP_RESPONSE r where w.correlation_id = r.correlation_id(+)");
+        PreparedStatement stmt = con.prepareStatement("select w.WORKFLOW_INSTANCE_ID, w.correlation_id, r.response, r.long_response, w.is_timed_out from (select WORKFLOW_INSTANCE_ID, correlation_id, case when timeout_ts < systimestamp then 1 else 0 end is_timed_out from COP_WAIT where WORKFLOW_INSTANCE_ID in (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) w, COP_RESPONSE r where w.correlation_id = r.correlation_id(+) order by r.correlation_id");
         try {
             for (int i = 0; i < flushSize; i++) {
                 stmt.setString(i + 1, list.size() >= i + 1 ? list.get(i).getId() : null);

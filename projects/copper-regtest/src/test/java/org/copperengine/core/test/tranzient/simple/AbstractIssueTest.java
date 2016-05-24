@@ -20,46 +20,26 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.copperengine.core.EngineState;
-import org.copperengine.core.Workflow;
-import org.copperengine.core.test.TestResponseReceiver;
-import org.copperengine.core.tranzient.TransientScottyEngine;
+import org.copperengine.core.test.tranzient.TransientTestContext;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class AbstractIssueTest {
 
-    private final int[] response = { -1 };
-
     @Test
     public void testWorkflow() throws Exception {
-        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
-        TransientScottyEngine engine = context.getBean("transientEngine", TransientScottyEngine.class);
-        context.getBeanFactory().registerSingleton("OutputChannel4711", new TestResponseReceiver<String, Integer>() {
-            @Override
-            public void setResponse(Workflow<String> wf, Integer r) {
-                synchronized (response) {
-                    response[0] = r.intValue();
-                    response.notifyAll();
-                }
-            }
-        });
 
-        assertEquals(EngineState.STARTED, engine.getEngineState());
+        try (TransientTestContext ctx = new TransientTestContext()) {
+            ctx.startup();
+            assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
-        try {
             final CompletionIndicator data = new CompletionIndicator();
-            engine.run("org.copperengine.core.test.tranzient.simple.IssueClassCastExceptionWorkflow", data);
+            ctx.getEngine().run("org.copperengine.core.test.tranzient.simple.IssueClassCastExceptionWorkflow", data);
 
             Thread.sleep(2500);
 
             assertTrue(data.done);
             assertFalse(data.error);
-        } finally {
-            context.close();
         }
-        assertEquals(EngineState.STOPPED, engine.getEngineState());
-
     }
 
 }

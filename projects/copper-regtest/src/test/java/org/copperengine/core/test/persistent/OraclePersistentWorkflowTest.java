@@ -23,23 +23,20 @@ import static org.junit.Assume.assumeFalse;
 
 import java.sql.ResultSet;
 
-import javax.sql.DataSource;
-
 import org.copperengine.core.EngineState;
 import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.db.utility.RetryingTransaction;
 import org.copperengine.core.persistent.PersistentScottyEngine;
+import org.copperengine.core.test.DataHolder;
 import org.copperengine.core.test.backchannel.BackChannelQueue;
 import org.copperengine.core.test.backchannel.WorkflowResult;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
+public class OraclePersistentWorkflowTest extends SpringlessBasePersistentWorkflowTest {
 
-    private static final String DS_CONTEXT = "/datasources/datasource-oracle.xml";
+    private static final DataSourceType DS_CONTEXT = DataSourceType.Oracle;
     private static final Logger logger = LoggerFactory.getLogger(OraclePersistentWorkflowTest.class);
 
     private static boolean dbmsAvailable = false;
@@ -48,17 +45,8 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
         if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
             dbmsAvailable = true;
         } else {
-            final ConfigurableApplicationContext context = new OraclePersistentWorkflowTest().createContext(DS_CONTEXT);
-            try {
-                DataSource ds = context.getBean(DataSource.class);
-                ds.setLoginTimeout(10);
-                ds.getConnection();
-                dbmsAvailable = true;
-            } catch (Exception e) {
-                logger.error("Oracle DBMS not available! Skipping Oracle unit tests.", e);
-                e.printStackTrace();
-            } finally {
-                context.close();
+            try (TestContext context = new TestContext(DS_CONTEXT, false)) {
+                dbmsAvailable = context.isDbmsAvailable();
             }
         }
     }
@@ -106,13 +94,26 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 
         logger.info("running testMultipleEngines");
         final int NUMB = 50;
-        final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "/CopperTxnPersistentWorkflowTest/multiengine-oracle-unittest-context.xml" });
-        cleanDB(context.getBean(DataSource.class));
-        final PersistentScottyEngine engineRed = context.getBean("persistent.engine.red", PersistentScottyEngine.class);
-        final PersistentScottyEngine engineBlue = context.getBean("persistent.engine.blue", PersistentScottyEngine.class);
-        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-        engineRed.startup();
-        engineBlue.startup();
+
+        final TestContext contextRed = new TestContext(DS_CONTEXT, true, "red", true);
+        contextRed.startup();
+
+        final TestContext contextBlue = new TestContext(DS_CONTEXT, false, "blue", true) {
+            @Override
+            protected DataHolder createDataHolder() {
+                return contextRed.getDataHolder();
+            }
+
+            @Override
+            protected BackChannelQueue createBackChannelQueue() {
+                return contextRed.getBackChannelQueue();
+            }
+        };
+        contextBlue.startup();
+
+        final PersistentScottyEngine engineRed = contextRed.getEngine();
+        final PersistentScottyEngine engineBlue = contextBlue.getEngine();
+        final BackChannelQueue backChannelQueue = contextRed.getBackChannelQueue();
         try {
             assertEquals(EngineState.STARTED, engineRed.getEngineState());
             assertEquals(EngineState.STARTED, engineBlue.getEngineState());
@@ -124,8 +125,9 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
 
             int x = 0;
             long startTS = System.currentTimeMillis();
-            while (x < NUMB && startTS + 60000 > System.currentTimeMillis()) {
+            while (x < NUMB && startTS + 15000 > System.currentTimeMillis()) {
                 WorkflowResult wfr = backChannelQueue.poll();
+
                 if (wfr != null) {
                     assertNull(wfr.getResult());
                     assertNull(wfr.getException());
@@ -142,7 +144,7 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
             assertNull(backChannelQueue.poll());
 
             // check AuditTrail Log
-            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
+            new RetryingTransaction<Void>(contextRed.getDataSource()) {
                 @Override
                 protected Void execute() throws Exception {
                     ResultSet rs = getConnection().createStatement().executeQuery("SELECT count(*) FROM COP_AUDIT_TRAIL_EVENT");
@@ -154,7 +156,8 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
                 }
             }.run();
         } finally {
-            context.close();
+            contextRed.close();
+            contextBlue.close();
         }
         assertEquals(EngineState.STOPPED, engineRed.getEngineState());
         assertEquals(EngineState.STOPPED, engineBlue.getEngineState());
@@ -239,6 +242,12 @@ public class OraclePersistentWorkflowTest extends BasePersistentWorkflowTest {
     public void testQueryAllActive() throws Exception {
         assertTrue("DBMS not available", dbmsAvailable);
         super.testQueryAllActive(DS_CONTEXT);
+    }
+
+    @Test
+    public void testMulipleResponsesForSameCidPersistentTestWorkflow() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testMulipleResponsesForSameCidPersistentTestWorkflow(DS_CONTEXT);
     }
 
 }

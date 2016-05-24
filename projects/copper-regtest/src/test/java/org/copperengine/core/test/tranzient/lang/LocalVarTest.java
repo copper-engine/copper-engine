@@ -17,19 +17,15 @@ package org.copperengine.core.test.tranzient.lang;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.concurrent.TimeUnit;
+
 import org.copperengine.core.CopperException;
 import org.copperengine.core.EngineState;
-import org.copperengine.core.Workflow;
-import org.copperengine.core.test.TestResponseReceiver;
-import org.copperengine.core.tranzient.TransientScottyEngine;
-import org.copperengine.core.util.BlockingResponseReceiver;
+import org.copperengine.core.test.backchannel.WorkflowResult;
+import org.copperengine.core.test.tranzient.TransientTestContext;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class LocalVarTest {
-
-    private final int[] response = { -1 };
 
     @Test
     public void testWorkflow() throws Exception {
@@ -43,33 +39,16 @@ public class LocalVarTest {
     }
 
     private void doTest(String wfClassname, int expectedResult) throws CopperException, InterruptedException {
-        ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "transient-engine-application-context.xml", "SimpleTransientEngineTest-application-context.xml" });
-        TransientScottyEngine engine = context.getBean("transientEngine", TransientScottyEngine.class);
-        context.getBeanFactory().registerSingleton("OutputChannel4711", new TestResponseReceiver<String, Integer>() {
-            @Override
-            public void setResponse(Workflow<String> wf, Integer r) {
-                synchronized (response) {
-                    response[0] = r.intValue();
-                    response.notifyAll();
-                }
-            }
-        });
 
-        assertEquals(EngineState.STARTED, engine.getEngineState());
+        try (TransientTestContext ctx = new TransientTestContext()) {
+            ctx.startup();
+            assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
-        try {
-            BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
-            engine.run(wfClassname, brr);
-            synchronized (response) {
-                if (response[0] == -1) {
-                    response.wait(30000);
-                }
-            }
-            assertEquals(expectedResult, response[0]);
-        } finally {
-            context.close();
+            ctx.getEngine().run(wfClassname, null);
+
+            WorkflowResult response = ctx.getBackChannelQueue().dequeue(30000, TimeUnit.MILLISECONDS);
+
+            assertEquals(expectedResult, ((Integer) response.getResult()).intValue());
         }
-        assertEquals(EngineState.STOPPED, engine.getEngineState());
     }
-
 }

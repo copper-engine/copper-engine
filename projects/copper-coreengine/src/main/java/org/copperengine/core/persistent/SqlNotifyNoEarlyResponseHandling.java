@@ -55,7 +55,6 @@ class SqlNotifyNoEarlyResponseHandling {
         }
     }
 
-
     static final class Executor extends BatchExecutor<Executor, Command> {
 
         private static final Executor INSTANCE = new Executor();
@@ -112,6 +111,7 @@ class SqlNotifyNoEarlyResponseHandling {
                 throw e;
             } finally {
                 JdbcUtils.closeStatement(insertStmt);
+                JdbcUtils.closeStatement(selectStmt);
             }
         }
     }

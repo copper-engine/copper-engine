@@ -603,7 +603,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         PreparedStatement readStmt = null;
         PreparedStatement selectResponsesStmt = null;
         try {
-            readStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state,ppool_id from COP_WORKFLOW_INSTANCE where id = ?");
+            readStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state,ppool_id,state from COP_WORKFLOW_INSTANCE where id = ?");
             readStmt.setString(1, workflowInstanceId);
 
             final ResultSet rs = readStmt.executeQuery();
@@ -633,6 +633,10 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             wf.oldPrio = prio;
             wf.oldProcessorPoolId = rs.getString(9);
             WorkflowAccessor.setCreationTS(wf, new Date(creationTS.getTime()));
+            DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt(10));
+            ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
+            WorkflowAccessor.setProcessingState(wf, state);
+
             rs.close();
             readStmt.close();
 

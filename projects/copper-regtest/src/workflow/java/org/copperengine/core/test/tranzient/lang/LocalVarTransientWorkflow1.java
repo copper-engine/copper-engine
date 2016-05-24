@@ -27,7 +27,8 @@ import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.test.MockAdapter;
-import org.copperengine.core.test.TestResponseReceiver;
+import org.copperengine.core.test.backchannel.BackChannelQueue;
+import org.copperengine.core.test.backchannel.WorkflowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,21 +40,20 @@ public class LocalVarTransientWorkflow1 extends Workflow<String> {
     private int counter = 0;
 
     private MockAdapter mockAdapter;
-    private TestResponseReceiver<String, Integer> rr;
+    private BackChannelQueue backChannelQueue;
 
     @AutoWire
     public void setMockAdapter(MockAdapter mockAdapter) {
         this.mockAdapter = mockAdapter;
     }
 
-    @AutoWire(beanId = "OutputChannel4711")
-    public void setResponseReceiver(TestResponseReceiver<String, Integer> rr) {
-        this.rr = rr;
+    @AutoWire
+    public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
+        this.backChannelQueue = backChannelQueue;
     }
 
     private void reply() {
-        if (rr != null)
-            rr.setResponse(this, counter);
+        backChannelQueue.enqueue(new WorkflowResult(counter, null));
     }
 
     public class Innerclass {

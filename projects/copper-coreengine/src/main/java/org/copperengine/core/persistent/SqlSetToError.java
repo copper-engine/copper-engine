@@ -56,30 +56,33 @@ class SqlSetToError {
 
         @Override
         public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
-            final PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
-            final PreparedStatement stmtUpdateState = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE ID=?");
-            final PreparedStatement stmtInsertError = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, EXCEPTION, ERROR_TS) VALUES (?,?,?)");
-            for (BatchCommand<Executor, Command> _cmd : commands) {
-                final Timestamp NOW = new Timestamp(System.currentTimeMillis());
-                Command cmd = (Command) _cmd;
-                stmtUpdateState.setInt(1, cmd.dbProcessingState.ordinal());
-                stmtUpdateState.setTimestamp(2, NOW);
-                stmtUpdateState.setString(3, cmd.wf.getId());
-                stmtUpdateState.addBatch();
+            try (
+                    final PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
+                    final PreparedStatement stmtUpdateState = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE ID=?");
+                    final PreparedStatement stmtInsertError = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, EXCEPTION, ERROR_TS) VALUES (?,?,?)")) {
 
-                stmtInsertError.setString(1, cmd.wf.getId());
-                stmtInsertError.setString(2, convert2String(cmd.error));
-                stmtInsertError.setTimestamp(3, NOW);
-                stmtInsertError.addBatch();
+                for (BatchCommand<Executor, Command> _cmd : commands) {
+                    final Timestamp NOW = new Timestamp(System.currentTimeMillis());
+                    Command cmd = (Command) _cmd;
+                    stmtUpdateState.setInt(1, cmd.dbProcessingState.ordinal());
+                    stmtUpdateState.setTimestamp(2, NOW);
+                    stmtUpdateState.setString(3, cmd.wf.getId());
+                    stmtUpdateState.addBatch();
 
-                stmtDelQueue.setString(1, cmd.wf.getId());
-                stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
-                stmtDelQueue.setInt(3, cmd.wf.oldPrio);
-                stmtDelQueue.addBatch();
+                    stmtInsertError.setString(1, cmd.wf.getId());
+                    stmtInsertError.setString(2, convert2String(cmd.error));
+                    stmtInsertError.setTimestamp(3, NOW);
+                    stmtInsertError.addBatch();
+
+                    stmtDelQueue.setString(1, cmd.wf.getId());
+                    stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
+                    stmtDelQueue.setInt(3, cmd.wf.oldPrio);
+                    stmtDelQueue.addBatch();
+                }
+                stmtUpdateState.executeBatch();
+                stmtInsertError.executeBatch();
+                stmtDelQueue.executeBatch();
             }
-            stmtUpdateState.executeBatch();
-            stmtInsertError.executeBatch();
-            stmtDelQueue.executeBatch();
         }
 
         @Override

@@ -17,17 +17,11 @@ package org.copperengine.core.test.persistent;
 
 import static org.junit.Assert.assertTrue;
 
-import javax.sql.DataSource;
-
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 
-public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
+public class MySqlPersistentWorkflowTest extends SpringlessBasePersistentWorkflowTest {
 
-    private static final String DS_CONTEXT = "/datasources/datasource-mysql.xml";
-    private static final Logger logger = LoggerFactory.getLogger(MySqlPersistentWorkflowTest.class);
+    private static final DataSourceType DS_CONTEXT = DataSourceType.MySQL;
 
     private static boolean dbmsAvailable = false;
 
@@ -35,17 +29,8 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
         if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
             dbmsAvailable = true;
         } else {
-            final ConfigurableApplicationContext context = new MySqlPersistentWorkflowTest().createContext(DS_CONTEXT);
-            try {
-                DataSource ds = context.getBean(DataSource.class);
-                ds.setLoginTimeout(10);
-                ds.getConnection();
-                dbmsAvailable = true;
-            } catch (Exception e) {
-                logger.error("MySQL not available! Skipping MySQL unit tests.", e);
-                e.printStackTrace();
-            } finally {
-                context.close();
+            try (TestContext context = new TestContext(DS_CONTEXT, false)) {
+                dbmsAvailable = context.isDbmsAvailable();
             }
         }
     }
@@ -153,6 +138,12 @@ public class MySqlPersistentWorkflowTest extends BasePersistentWorkflowTest {
     public void testQueryAllActive() throws Exception {
         assertTrue("DBMS not available", dbmsAvailable);
         super.testQueryAllActive(DS_CONTEXT);
+    }
+
+    @Test
+    public void testMulipleResponsesForSameCidPersistentTestWorkflow() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testMulipleResponsesForSameCidPersistentTestWorkflow(DS_CONTEXT);
     }
 
 }

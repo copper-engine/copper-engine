@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.CopperRuntimeException;
@@ -66,6 +67,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     private EarlyResponseContainer earlyResponseContainer;
     private TicketPoolManager ticketPoolManager;
     private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
+    private final AtomicLong sequenceIdFactory = new AtomicLong(System.currentTimeMillis() * 10000L);
 
     @Override
     public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
@@ -101,6 +103,10 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
         logger.debug("notify({})", response);
         if (response == null)
             throw new NullPointerException();
+
+        if (response.getSequenceId() == null) {
+            response.setSequenceId(sequenceIdFactory.incrementAndGet());
+        }
 
         try {
             startupBlocker.pass();
@@ -349,6 +355,12 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
             }
         }
         return rv;
+    }
+
+    @Override
+    public WorkflowInfo queryActiveWorkflowInstance(final String id) {
+        // Same as this one for transient engine
+        return queryWorkflowInstance(id);
     }
 
 }

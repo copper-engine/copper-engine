@@ -31,8 +31,10 @@ import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.persistent.DatabaseDialect;
 import org.copperengine.core.persistent.DerbyDbDialect;
 import org.copperengine.core.persistent.H2Dialect;
+import org.copperengine.core.persistent.MySqlDialect;
 import org.copperengine.core.persistent.OracleDialect;
 import org.copperengine.core.persistent.PersistentScottyEngine;
+import org.copperengine.core.persistent.PostgreSQLDialect;
 import org.copperengine.core.persistent.ScottyDBStorage;
 import org.copperengine.core.persistent.ScottyDBStorageInterface;
 import org.copperengine.core.persistent.txn.CopperTransactionController;
@@ -72,7 +74,7 @@ public abstract class RdbmsEngineFactory<T extends DependencyInjector> extends A
     private static final Logger logger = LoggerFactory.getLogger(RdbmsEngineFactory.class);
 
     protected final Supplier<DataSource> dataSource;
-    protected final Supplier<Batcher> batcher;
+    protected final Supplier<BatcherImpl> batcher;
 
     private int numberOfBatcherThreads = 4;
 
@@ -85,9 +87,9 @@ public abstract class RdbmsEngineFactory<T extends DependencyInjector> extends A
                 return createDataSource();
             }
         });
-        batcher = Suppliers.memoize(new Supplier<Batcher>() {
+        batcher = Suppliers.memoize(new Supplier<BatcherImpl>() {
             @Override
-            public Batcher get() {
+            public BatcherImpl get() {
                 logger.info("Creating Batcher...");
                 return createBatcher();
             }
@@ -100,7 +102,7 @@ public abstract class RdbmsEngineFactory<T extends DependencyInjector> extends A
 
     protected abstract DataSource createDataSource();
 
-    protected Batcher createBatcher() {
+    protected BatcherImpl createBatcher() {
         @SuppressWarnings("rawtypes")
         RetryingTxnBatchRunner batchRunner = new RetryingTxnBatchRunner();
         batchRunner.setDataSource(dataSource.get());
@@ -119,8 +121,7 @@ public abstract class RdbmsEngineFactory<T extends DependencyInjector> extends A
 
     @Override
     protected ScottyDBStorageInterface createDBStorage() {
-        DatabaseDialect dialect = createDialect(dataSource.get(), workflowRepository.get(), engineIdProvider.get());
-        dialect.startup();
+        DatabaseDialect dialect = createDatabaseDialect();
 
         final ScottyDBStorage dbStorage = new ScottyDBStorage();
         dbStorage.setDialect(dialect);
@@ -128,6 +129,12 @@ public abstract class RdbmsEngineFactory<T extends DependencyInjector> extends A
         dbStorage.setBatcher(batcher.get());
 
         return dbStorage;
+    }
+
+    protected DatabaseDialect createDatabaseDialect() {
+        DatabaseDialect dialect = createDialect(dataSource.get(), workflowRepository.get(), engineIdProvider.get());
+        dialect.startup();
+        return dialect;
     }
 
     protected DatabaseDialect createDialect(DataSource ds, WorkflowRepository wfRepository, EngineIdProvider engineIdProvider) {
@@ -154,6 +161,16 @@ public abstract class RdbmsEngineFactory<T extends DependencyInjector> extends A
                 dialect.setWfRepository(wfRepository);
                 return dialect;
             }
+            if ("MySQL".equalsIgnoreCase(name)) {
+                MySqlDialect dialect = new MySqlDialect();
+                dialect.setWfRepository(wfRepository);
+                return dialect;
+            }
+            if ("PostgreSQL".equalsIgnoreCase(name)) {
+                PostgreSQLDialect dialect = new PostgreSQLDialect();
+                dialect.setWfRepository(wfRepository);
+                return dialect;
+            }
             throw new Error("No dialect available for DBMS " + name);
         } catch (Exception e) {
             throw new CopperRuntimeException("Unable to create dialect", e);
@@ -167,4 +184,13 @@ public abstract class RdbmsEngineFactory<T extends DependencyInjector> extends A
         }
     }
 
+    public Batcher getBatcher() {
+        return batcher.get();
+    }
+
+    @Override
+    public void destroyEngine() {
+        super.destroyEngine();
+        batcher.get().shutdown();
+    }
 }

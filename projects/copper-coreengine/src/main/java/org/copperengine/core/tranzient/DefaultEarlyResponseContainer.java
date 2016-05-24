@@ -176,6 +176,7 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
         logger.info("started");
         while (!shutdown) {
             try {
+                List<EarlyResponse> removedEarlyResponses = new ArrayList<>();
                 synchronized (responseMap) {
                     Iterator<List<EarlyResponse>> responseMapIterator = responseMap.values().iterator();
                     while (responseMapIterator.hasNext()) {
@@ -185,6 +186,7 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
                             EarlyResponse earlyResponse = erListIterator.next();
                             if (earlyResponse.ts < System.currentTimeMillis()) {
                                 responseMapIterator.remove();
+                                removedEarlyResponses.add(earlyResponse);
                             }
                         }
                         if (erList.isEmpty()) {
@@ -192,6 +194,10 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
                         }
                     }
                 }
+                for (EarlyResponse er : removedEarlyResponses) {
+                    logger.info("Removed early response with correlationId {} and responseId {}", er.response.getCorrelationId(), er.response.getResponseId());
+                }
+                removedEarlyResponses = null; // let the GC do its job :-)
                 Thread.sleep(checkInterval);
             } catch (InterruptedException e) {
                 // ignore

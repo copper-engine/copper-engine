@@ -34,12 +34,13 @@ public class Response<E> implements Serializable {
     private final Long internalProcessingTimeout;
     private boolean earlyResponseHandling = true;
     private String responseId;
+    private Long sequenceId;
 
     /**
      * Constructor.
      * 
      * @param internalProcessingTimeout
-     *            timeout in msec
+     *        timeout in msec
      */
     public Response(String correlationId, E response, Exception exception, boolean isTimeout, String metaData, Long internalProcessingTimeout, final String responseId) {
         super();
@@ -138,14 +139,17 @@ public class Response<E> implements Serializable {
         this.responseId = responseId;
     }
 
+    public Long getSequenceId() {
+        return sequenceId;
+    }
+
+    public void setSequenceId(Long sequenceId) {
+        this.sequenceId = sequenceId;
+    }
+
     @Override
     public String toString() {
-        return "Response [correlationId=" + correlationId + ", response="
-                + response + ", exception=" + exception + ", timeout="
-                + timeout + ", metaData=" + metaData
-                + ", internalProcessingTimeout=" + internalProcessingTimeout
-                + ", earlyResponseHandling=" + earlyResponseHandling
-                + ", responseId=" + responseId + "]";
+        return "Response [correlationId=" + correlationId + ", response=" + response + ", exception=" + exception + ", timeout=" + timeout + ", metaData=" + metaData + ", internalProcessingTimeout=" + internalProcessingTimeout + ", earlyResponseHandling=" + earlyResponseHandling + ", responseId=" + responseId + ", sequenceId=" + sequenceId + "]";
     }
 
 }

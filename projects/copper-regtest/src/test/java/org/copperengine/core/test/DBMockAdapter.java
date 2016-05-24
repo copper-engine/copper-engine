@@ -66,8 +66,11 @@ public class DBMockAdapter {
     }
 
     public synchronized void shutdown() {
-        logger.info("Shutting down...");
-        this.pool.shutdown();
+        if (pool != null) {
+            logger.info("Shutting down...");
+            pool.shutdown();
+            pool = null;
+        }
     }
 
     public int getInvokationCounter() {
@@ -75,8 +78,10 @@ public class DBMockAdapter {
     }
 
     public synchronized void startup() {
-        logger.info("Starting up...");
-        pool = Executors.newScheduledThreadPool(2);
+        if (pool == null) {
+            logger.info("Starting up...");
+            pool = Executors.newScheduledThreadPool(2);
+        }
     }
 
     // generate and return the correlation id

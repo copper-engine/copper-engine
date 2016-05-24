@@ -253,6 +253,9 @@ project(':projects:copper-regtest') {
         compile project(':projects:copper-jmx-interface')
         compile project(':projects:copper-coreengine')
         compile project(':projects:copper-spring')
+        compile project(':projects:copper-ext')
+
+	compile group: 'com.google.guava', name: 'guava', version: '18.0'
 
         testCompile 'mysql:mysql-connector-java:5.1.25'
         testCompile 'org.apache.derby:derby:10.12.1.1'

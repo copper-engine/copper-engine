@@ -97,10 +97,6 @@
 	  	<property name="dataSource" ref="datasource_default"/>
 	</bean>	
 	
-<!-- 	<bean id="jdbcTemplate4wf" class="org.springframework.jdbc.core.JdbcTemplate"> -->
-<!-- 	  	<property name="dataSource" ref="datasource_default"/> -->
-<!-- 	</bean>	 -->
-	
 	<bean id="persistent.dbStorage" class="org.copperengine.core.persistent.ScottyDBStorage" scope="singleton">
 		<property name="transactionController" ref="txnController"/>
 		<property name="dialect" ref="dbDialect"/>
