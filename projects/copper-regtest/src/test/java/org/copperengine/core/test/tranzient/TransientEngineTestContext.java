@@ -1,9 +1,7 @@
 package org.copperengine.core.test.tranzient;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.copperengine.core.AbstractDependencyInjector;
@@ -18,8 +16,6 @@ import org.copperengine.core.tranzient.DefaultTimeoutManager;
 import org.copperengine.core.tranzient.TransientPriorityProcessorPool;
 import org.copperengine.core.tranzient.TransientProcessorPool;
 import org.copperengine.core.tranzient.TransientScottyEngine;
-import org.copperengine.core.wfrepo.CompilerOptionsProvider;
-import org.copperengine.core.wfrepo.ConfigurableStringOptionsProvider;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 
 import com.google.common.base.Supplier;
@@ -96,11 +92,7 @@ public class TransientEngineTestContext implements AutoCloseable {
         repo.setSourceDirs(Arrays.asList(new String[] { "src/workflow/java" }));
         repo.setTargetDir("build/compiled_workflow");
         repo.setLoadNonWorkflowClasses(true);
-        List<CompilerOptionsProvider> compilerOptionsProviders = new ArrayList<>();
-        ConfigurableStringOptionsProvider x = new ConfigurableStringOptionsProvider();
-        x.setOptions(Arrays.asList(new String[] { "-g" }));
-        compilerOptionsProviders.add(x);
-        repo.setCompilerOptionsProviders(compilerOptionsProviders);
+        repo.setCompilerOptions("-g");
         return repo;
     }
 

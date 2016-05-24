@@ -30,6 +30,7 @@ import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -598,6 +599,18 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     @Override
     protected VolatileState getVolatileState() {
         return volatileState;
+    }
+
+    /**
+     * Sets the list of compiler options. They are called before compiling the workflow files to append compiler
+     * options (internally invokes {@link FileBasedWorkflowRepository#setCompilerOptionsProviders(List)}.
+     */
+    public void setCompilerOptions(String... options) {
+        List<CompilerOptionsProvider> compilerOptionsProviders = new ArrayList<>();
+        ConfigurableStringOptionsProvider x = new ConfigurableStringOptionsProvider();
+        x.setOptions(Arrays.asList(options));
+        compilerOptionsProviders.add(x);
+        setCompilerOptionsProviders(compilerOptionsProviders);
     }
 
 }
