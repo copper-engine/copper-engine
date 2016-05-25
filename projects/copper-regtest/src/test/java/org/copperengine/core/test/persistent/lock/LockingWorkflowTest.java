@@ -33,15 +33,44 @@ public class LockingWorkflowTest {
     private static final Logger logger = LoggerFactory.getLogger(LockingWorkflowTest.class);
 
     @Test
-    public void testMain() throws Exception {
-        try (PersistentEngineTestContext ctx = new PersistentEngineTestContext(DataSourceType.MySQL, true)) {
+    public void testDerbyDB() throws Exception {
+        testMain(DataSourceType.DerbyDB);
+    }
+
+    @Test
+    public void testOracle() throws Exception {
+        testMain(DataSourceType.Oracle);
+    }
+
+    @Test
+    public void testMySQL() throws Exception {
+        testMain(DataSourceType.MySQL);
+    }
+
+    @Test
+    public void testH2() throws Exception {
+        testMain(DataSourceType.H2);
+    }
+
+    @Test
+    public void testPostgres() throws Exception {
+        testMain(DataSourceType.Postgres);
+    }
+
+    private void testMain(DataSourceType dsType) throws Exception {
+        logger.info("Testing {}", dsType);
+        try (PersistentEngineTestContext ctx = new PersistentEngineTestContext(dsType, true)) {
+            if (!ctx.isDbmsAvailable()) {
+                logger.warn("DBMS {} not available - test skipped!", dsType);
+                return;
+            }
             ctx.startup();
 
             PersistentProcessingEngine engine = ctx.getEngine();
             Backchannel backchannel = ctx.getBackchannel();
 
             List<WorkflowInstanceDescr<?>> wfid = new ArrayList<WorkflowInstanceDescr<?>>();
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 10; i++) {
                 String wfId = engine.createUUID();
                 wfid.add(new WorkflowInstanceDescr<String>("org.copperengine.core.test.persistent.lock.LockingWorkflow", "COPPER", wfId, null, null));
             }

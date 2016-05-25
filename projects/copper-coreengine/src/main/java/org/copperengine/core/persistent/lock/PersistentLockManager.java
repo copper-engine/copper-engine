@@ -24,19 +24,23 @@ package org.copperengine.core.persistent.lock;
 public interface PersistentLockManager {
 
     /**
-     * Acquires a lock with the specified id. As soon as this lock is asigned to the caller, the lock manager creates a
-     * {@link Response} for the specified correlationId, containing the {@link PersistentLockResult}.
+     * Acquires a lock with the specified id. If the lock is free, then the lock is assigned to the caller and the
+     * methods return <code>null</code>.
+     * <p>
+     * Otherwise, if the lock is currently held by another entity, then the method returns a correlationId that the
+     * caller has to use to wait for. As soon as this lock is assigned to the caller, the lock manager creates a
+     * {@link Response} for this specified correlationId, containing the {@link PersistentLockResult}.
      * 
      * @param lockId
      *        symbolic lock id
-     * @param correlationId
-     *        correlationId for retrieving the COPPER {@link Response}
      * @param workflowInstanceId
      *        requestor/owner of this lock
-     * @throws Exception
+     * @throws RuntimeException
      *         in case of technical problems
+     * @return <code>null</code> if the lock was free and was assigned to the caller (workflowInstanceId) otherwise a
+     *         correlationId to wait for.
      */
-    void acquireLock(String lockId, String correlationId, String workflowInstanceId);
+    String acquireLock(String lockId, String workflowInstanceId);
 
     /**
      * Releases the specified lock. If the workflow with the specified workflowId is not yet the owner of the lock (i.e.
@@ -46,7 +50,7 @@ public interface PersistentLockManager {
      *        symbolic lock id
      * @param workflowInstanceId
      *        requestor/owner of this lock
-     * @throws Exception
+     * @throws RuntimeException
      *         in case of technical problems
      */
     void releaseLock(String lockId, String workflowInstanceId);

@@ -21,6 +21,7 @@ import org.copperengine.core.persistent.lock.PersistentLockManager;
 import org.copperengine.core.persistent.lock.PersistentLockManagerDialectSQL;
 import org.copperengine.core.persistent.lock.PersistentLockManagerImpl;
 import org.copperengine.core.persistent.txn.CopperTransactionController;
+import org.copperengine.core.persistent.txn.TransactionController;
 import org.copperengine.core.test.DBMockAdapter;
 import org.copperengine.core.test.DataHolder;
 import org.copperengine.core.test.MockAdapter;
@@ -236,6 +237,14 @@ public class PersistentEngineTestContext extends TestContext {
                     }
                 }
                 return x;
+            }
+
+            @Override
+            protected TransactionController createTransactionController() {
+                CopperTransactionController txnController = new CopperTransactionController();
+                txnController.setDataSource(dataSource.get());
+                txnController.setMaxConnectRetries(1);
+                return txnController;
             }
 
         };

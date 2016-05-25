@@ -50,7 +50,7 @@ public class PersistentLockManagerDialectPostgres extends PersistentLockManagerD
                         throw e;
                     }
                 }
-                return findNewLockOwner(_lockId, con);
+                return findNewLockOwnerAfterAquire(_lockId, _workflowInstanceId, con);
             }
         } finally {
             getRwl().readLock().unlock();

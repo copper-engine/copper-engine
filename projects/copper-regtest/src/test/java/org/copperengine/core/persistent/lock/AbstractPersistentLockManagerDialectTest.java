@@ -80,7 +80,7 @@ public abstract class AbstractPersistentLockManagerDialectTest {
             String _lockId = "4711";
             String _workflowInstanceId = "123456";
             String rv = x.acquireLock(_lockId, _workflowInstanceId, _correlationId, _insertTS, con);
-            org.junit.Assert.assertEquals(_correlationId, rv);
+            org.junit.Assert.assertNull(rv);
 
             rv = x.releaseLock(_lockId, _workflowInstanceId, con);
             org.junit.Assert.assertNull(rv);
@@ -92,7 +92,7 @@ public abstract class AbstractPersistentLockManagerDialectTest {
     }
 
     @Test
-    public void testAcquireLock_Dubbled() throws Exception {
+    public void testAcquireLock_Doubled() throws Exception {
         Assume.assumeFalse(skipTests());
 
         Connection con = getConnection();
@@ -103,7 +103,7 @@ public abstract class AbstractPersistentLockManagerDialectTest {
             String _lockId = "4711";
             String _workflowInstanceId = "123456";
             String rv = x.acquireLock(_lockId, _workflowInstanceId, _correlationId, _insertTS, con);
-            org.junit.Assert.assertEquals(_correlationId, rv);
+            org.junit.Assert.assertNull(rv);
 
             rv = x.acquireLock(_lockId, _workflowInstanceId, _correlationId, _insertTS, con);
             org.junit.Assert.assertNull(rv);
@@ -143,7 +143,7 @@ public abstract class AbstractPersistentLockManagerDialectTest {
             String workflowInstanceId3 = UUID.randomUUID().toString();
 
             String rv = x.acquireLock(_lockId, workflowInstanceId1, correlationId1, _insertTS1, con);
-            org.junit.Assert.assertEquals(correlationId1, rv);
+            org.junit.Assert.assertNull(rv);
             Thread.sleep(5);
 
             rv = x.acquireLock(_lockId, workflowInstanceId1, correlationId1, _insertTS1, con);
@@ -151,11 +151,11 @@ public abstract class AbstractPersistentLockManagerDialectTest {
             Thread.sleep(5);
 
             rv = x.acquireLock(_lockId, workflowInstanceId2, correlationId2, _insertTS2, con);
-            org.junit.Assert.assertNull(rv);
+            org.junit.Assert.assertEquals(correlationId2, rv);
             Thread.sleep(5);
 
             rv = x.acquireLock(_lockId, workflowInstanceId3, correlationId3, _insertTS3, con);
-            org.junit.Assert.assertNull(rv);
+            org.junit.Assert.assertEquals(correlationId3, rv);
             Thread.sleep(5);
 
             rv = x.releaseLock(_lockId, workflowInstanceId1, con);

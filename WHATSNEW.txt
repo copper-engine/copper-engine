@@ -1,3 +1,7 @@
+COPPER 4.1.0
+============
+- New feature: Issue #61 Speed up PersistentLockManager 
+
 COPPER 4.0.3
 ============
 - Bugfix:      Issue #60 PersistentScottyEngine.notifyProcessorPoolsOnResponse without effect when using PersistentLockManager
