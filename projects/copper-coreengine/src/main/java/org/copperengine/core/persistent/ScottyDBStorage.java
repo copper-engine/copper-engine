@@ -16,8 +16,6 @@
 package org.copperengine.core.persistent;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -194,25 +192,6 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         }
     }
 
-    protected List<List<String>> splitt(Collection<String> keySet, int n) {
-        if (keySet.isEmpty())
-            return Collections.emptyList();
-
-        List<List<String>> r = new ArrayList<List<String>>(keySet.size() / n + 1);
-        List<String> l = new ArrayList<String>(n);
-        for (String s : keySet) {
-            l.add(s);
-            if (l.size() == n) {
-                r.add(l);
-                l = new ArrayList<String>(n);
-            }
-        }
-        if (l.size() > 0) {
-            r.add(l);
-        }
-        return r;
-    }
-
     @Override
     public void notify(final List<Response<?>> response, Acknowledge ack) throws Exception {
         for (Response<?> r : response)
@@ -277,7 +256,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         if (logger.isTraceEnabled())
             logger.trace("deleteStaleResponse()");
 
-        int n = 0;
+        int n;
         final int MAX_ROWS = 20000;
         do {
             if (shutdown)
@@ -347,7 +326,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             if (sleepTime > 0) {
                 try {
                     waitForQueueState(sleepTime);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignore) {
                 }
             }
         }
