@@ -19,72 +19,44 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.sql.DataSource;
-
 import org.copperengine.core.PersistentProcessingEngine;
 import org.copperengine.core.WorkflowInstanceDescr;
-import org.copperengine.core.persistent.DataSourceFactory;
-import org.copperengine.core.persistent.lock.PersistentLockManagerDialectSQL;
-import org.copperengine.core.persistent.lock.PersistentLockManagerImpl;
-import org.copperengine.core.util.BackchannelDefaultImpl;
-import org.copperengine.core.util.PersistentEngineFactory;
-import org.copperengine.core.util.PersistentEngineFactory.Engine;
-import org.copperengine.core.util.PojoDependencyInjector;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.copperengine.core.test.persistent.DataSourceType;
+import org.copperengine.core.test.persistent.PersistentEngineTestContext;
+import org.copperengine.core.util.Backchannel;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LockingWorkflowTest {
 
-    private DataSource ds;
-    private PersistentLockManagerImpl lockManager;
-    private PojoDependencyInjector dependencyInjector = new PojoDependencyInjector();
-    private PersistentProcessingEngine engine;
-    private BackchannelDefaultImpl backchannel;
-
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        ds = DataSourceFactory.createH2Datasource();
-
-        Engine e = new PersistentEngineFactory().createEngine(ds, "src/workflow/java", "build/compiled_workflow", dependencyInjector);
-        engine = e.engine;
-
-        lockManager = new PersistentLockManagerImpl(engine, new PersistentLockManagerDialectSQL(), e.transactionController);
-
-        backchannel = new BackchannelDefaultImpl();
-
-        dependencyInjector.register("persistentLockManager", lockManager);
-        dependencyInjector.register("backchannel", backchannel);
-
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        engine.shutdown();
-    }
+    private static final Logger logger = LoggerFactory.getLogger(LockingWorkflowTest.class);
 
     @Test
     public void testMain() throws Exception {
-        List<WorkflowInstanceDescr<?>> wfid = new ArrayList<WorkflowInstanceDescr<?>>();
-        for (int i = 0; i < 10; i++) {
-            String wfId = engine.createUUID();
-            wfid.add(new WorkflowInstanceDescr<String>("org.copperengine.core.test.persistent.lock.LockingWorkflow", "COPPER", wfId, null, null));
-        }
-        engine.runBatch(wfid);
-        for (WorkflowInstanceDescr<?> x : wfid) {
-            Boolean res = (Boolean) backchannel.wait(x.getId(), 30, TimeUnit.SECONDS);
-            org.junit.Assert.assertNotNull(res);
-            org.junit.Assert.assertTrue(res);
+        try (PersistentEngineTestContext ctx = new PersistentEngineTestContext(DataSourceType.MySQL, true)) {
+            ctx.startup();
+
+            PersistentProcessingEngine engine = ctx.getEngine();
+            Backchannel backchannel = ctx.getBackchannel();
+
+            List<WorkflowInstanceDescr<?>> wfid = new ArrayList<WorkflowInstanceDescr<?>>();
+            for (int i = 0; i < 1; i++) {
+                String wfId = engine.createUUID();
+                wfid.add(new WorkflowInstanceDescr<String>("org.copperengine.core.test.persistent.lock.LockingWorkflow", "COPPER", wfId, null, null));
+            }
+
+            logger.info("Launching workflow instances...");
+            engine.runBatch(wfid);
+            logger.info("Done launching workflow instances. Now waiting for results...");
+
+            for (WorkflowInstanceDescr<?> x : wfid) {
+                Boolean res = (Boolean) backchannel.wait(x.getId(), 30, TimeUnit.SECONDS);
+                org.junit.Assert.assertNotNull(res);
+                org.junit.Assert.assertTrue(res);
+            }
+
+            logger.info("Test finished!");
         }
     }
 }

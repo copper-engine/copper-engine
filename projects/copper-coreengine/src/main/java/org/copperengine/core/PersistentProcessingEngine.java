@@ -98,9 +98,4 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      */
     public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException;
 
-    /**
-     * Notifies all underlying processor pools to check their corresponding persistent queues for new entries.
-     * This may lead to shorter latency times, but may also increase CPU load or database I/O, so use with care
-     */
-    public void notifyProcessorPools();
 }

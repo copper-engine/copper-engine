@@ -46,31 +46,46 @@ public class LockingWorkflow extends PersistentWorkflow<String> {
 
     @Override
     public void main() throws Interrupt {
-        final String lockId = getData();
+        logger.info("Starting...");
         Boolean success = false;
-        try {
-            acquireLock(lockId);
+        for (int i = 0; i < 10; i++) {
+            final String lockId = getData();
+            try {
+                acquireLock(lockId);
 
-            // sleep for 50 msec
-            wait(WaitMode.ALL, 50, getEngine().createUUID());
+                // logger.info("sleep for 50 msec...");
+                // wait(WaitMode.ALL, 50, getEngine().createUUID());
+                // logger.info("Done sleeping for 50 msec.");
 
-            success = true;
+                logger.info("sleep for 50 msec...");
+                Thread.sleep(600);
+                logger.info("Done sleeping for 50 msec.");
 
-        } catch (Exception e) {
-            logger.error("main failed", e);
+                success = true;
+
+            } catch (Exception e) {
+                logger.error("main failed", e);
+            }
+            releaseLock(lockId);
         }
-        releaseLock(lockId);
         backchannel.notify(getId(), success);
+        logger.info("finished!");
     }
 
     private void releaseLock(final String lockId) {
+        logger.info("releaseLock({})", lockId);
         persistentLockManager.releaseLock(lockId, this.getId());
     }
 
     private void acquireLock(final String lockId) throws Interrupt {
+        logger.info("Going to aquire lock {}", lockId);
         final String correlationId = getEngine().createUUID();
         persistentLockManager.acquireLock(lockId, correlationId, this.getId());
+        logger.info("Calling wait...");
+        long startTS = System.currentTimeMillis();
         wait(WaitMode.ALL, 10000, correlationId);
+        long et = System.currentTimeMillis() - startTS;
+        logger.info("wait returned after {} msesc - getAndRemoveResponse...", et);
         final Response<PersistentLockResult> result = getAndRemoveResponse(correlationId);
         if (result.isTimeout()) {
             throw new RuntimeException("acquireLock timed out");
