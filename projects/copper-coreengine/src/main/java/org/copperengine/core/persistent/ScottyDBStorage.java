@@ -92,6 +92,10 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         this.deleteStaleResponsesIntervalMsec = deleteStaleResponsesIntervalMsec;
     }
 
+    public void setWaitForEnqueueMSec(int waitForEnqueueMSec) {
+        this.waitForEnqueueMSec = waitForEnqueueMSec;
+    }
+
     private void resumeBrokenBusinessProcesses() throws Exception {
         logger.info("resumeBrokenBusinessProcesses");
         run(new DatabaseTransaction<Void>() {
