@@ -75,7 +75,7 @@ public class PersistentLockManagerImpl implements PersistentLockManager {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new CopperRuntimeException("acquireLock failed", e);
+            throw new CopperRuntimeException("releaseLock failed", e);
         }
     }
 
