@@ -104,7 +104,6 @@ IS
 	i_dbms_lock_id NUMBER;
 	l_CORRELATION_ID COP_LOCK.CORRELATION_ID%TYPE;
 	l_WORKFLOW_INSTANCE_ID COP_LOCK.WORKFLOW_INSTANCE_ID%TYPE;
-	l_REPLY_SENT COP_LOCK.REPLY_SENT%TYPE;
 BEGIN
 	SELECT ora_hash(i_LOCK_ID,1073741822) INTO i_dbms_lock_id FROM DUAL;
     o_result_code := REQUEST_LOCK(i_dbms_lock_id);
@@ -126,14 +125,17 @@ BEGIN
         WHEN DUP_VAL_ON_INDEX THEN NULL;
     END;
 	
-    select REPLY_SENT, CORRELATION_ID, WORKFLOW_INSTANCE_ID into l_REPLY_SENT, l_CORRELATION_ID, l_WORKFLOW_INSTANCE_ID from (
-    	select l.REPLY_SENT, l.CORRELATION_ID, l.WORKFLOW_INSTANCE_ID from COP_LOCK l where lock_id = i_LOCK_ID order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id
+    select CORRELATION_ID, WORKFLOW_INSTANCE_ID into l_CORRELATION_ID, l_WORKFLOW_INSTANCE_ID from (
+    	select l.CORRELATION_ID, l.WORKFLOW_INSTANCE_ID from COP_LOCK l where lock_id = i_LOCK_ID order by l.insert_ts, l.workflow_instance_id
     )
     where rownum <= 1;
-    
-    IF l_REPLY_SENT = 'N' THEN
-    	o_CORRELATION_ID := l_CORRELATION_ID;
-    	UPDATE COP_LOCK SET REPLY_SENT='Y' WHERE LOCK_ID=i_LOCK_ID AND WORKFLOW_INSTANCE_ID=l_WORKFLOW_INSTANCE_ID;
+
+    IF l_WORKFLOW_INSTANCE_ID = i_WORKFLOW_INSTANCE_ID THEN
+        -- wfi with id i_WORKFLOW_INSTANCE_ID owns this lock
+    	o_CORRELATION_ID := NULL;
+    ELSE
+        -- wfi with id i_WORKFLOW_INSTANCE_ID does not own this lock - return its correlationId to wait for
+    	SELECT CORRELATION_ID INTO o_CORRELATION_ID FROM COP_LOCK WHERE lock_id = i_LOCK_ID AND WORKFLOW_INSTANCE_ID = i_WORKFLOW_INSTANCE_ID;
     END IF;
 END;
 
@@ -149,7 +151,6 @@ IS
 	i_dbms_lock_id NUMBER;
 	l_CORRELATION_ID COP_LOCK.CORRELATION_ID%TYPE;
 	l_WORKFLOW_INSTANCE_ID COP_LOCK.WORKFLOW_INSTANCE_ID%TYPE;
-	l_REPLY_SENT COP_LOCK.REPLY_SENT%TYPE;
 BEGIN
 	SELECT ora_hash(i_LOCK_ID,1073741822) INTO i_dbms_lock_id FROM DUAL;
     o_result_code := REQUEST_LOCK(i_dbms_lock_id);
@@ -169,15 +170,12 @@ BEGIN
 	
     BEGIN
 	    
-    	select REPLY_SENT, CORRELATION_ID, WORKFLOW_INSTANCE_ID into l_REPLY_SENT, l_CORRELATION_ID, l_WORKFLOW_INSTANCE_ID from (
-    		select l.REPLY_SENT, l.CORRELATION_ID, l.WORKFLOW_INSTANCE_ID from COP_LOCK l where lock_id = i_LOCK_ID order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id
+    	select CORRELATION_ID, WORKFLOW_INSTANCE_ID into l_CORRELATION_ID, l_WORKFLOW_INSTANCE_ID from (
+    		select l.CORRELATION_ID, l.WORKFLOW_INSTANCE_ID from COP_LOCK l where lock_id = i_LOCK_ID order by l.insert_ts, l.workflow_instance_id
     	)
     	where rownum <= 1;
     
-    	IF l_REPLY_SENT = 'N' THEN
-    		o_CORRELATION_ID := l_CORRELATION_ID;
-    		UPDATE COP_LOCK SET REPLY_SENT='Y' WHERE LOCK_ID=i_LOCK_ID AND WORKFLOW_INSTANCE_ID=l_WORKFLOW_INSTANCE_ID;
-    	END IF;
+		o_CORRELATION_ID := l_CORRELATION_ID;
     	
     EXCEPTION
     	WHEN NO_DATA_FOUND THEN NULL;

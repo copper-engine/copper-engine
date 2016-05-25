@@ -46,35 +46,57 @@ public class LockingWorkflow extends PersistentWorkflow<String> {
 
     @Override
     public void main() throws Interrupt {
-        final String lockId = getData();
+        logger.info("Starting...");
         Boolean success = false;
-        try {
-            acquireLock(lockId);
+        for (int i = 0; i < 3; i++) {
+            final String lockId = getData();
+            try {
+                acquireLock(lockId);
 
-            // sleep for 50 msec
-            wait(WaitMode.ALL, 50, getEngine().createUUID());
+                logger.info("sleep for 50 msec...");
+                Thread.sleep(50);
+                logger.info("Done sleeping for 50 msec.");
 
-            success = true;
+                success = true;
 
-        } catch (Exception e) {
-            logger.error("main failed", e);
+            } catch (Exception e) {
+                logger.error("main failed", e);
+            }
+            releaseLock(lockId);
         }
-        releaseLock(lockId);
         backchannel.notify(getId(), success);
-    }
-
-    private void releaseLock(final String lockId) {
-        persistentLockManager.releaseLock(lockId, this.getId());
+        logger.info("finished!");
     }
 
     private void acquireLock(final String lockId) throws Interrupt {
-        final String correlationId = getEngine().createUUID();
-        persistentLockManager.acquireLock(lockId, correlationId, this.getId());
-        wait(WaitMode.ALL, 10000, correlationId);
-        final Response<PersistentLockResult> result = getAndRemoveResponse(correlationId);
-        if (result.isTimeout()) {
-            throw new RuntimeException("acquireLock timed out");
+        for (;;) {
+            logger.info("Going to acquire lock '{}'", lockId);
+            final String cid = persistentLockManager.acquireLock(lockId, this.getId());
+            if (cid == null) {
+                logger.info("Successfully acquired lock '{}'", lockId);
+                return;
+            }
+            else {
+                logger.info("Lock '{}' is currently not free - calling wait...", lockId);
+                wait(WaitMode.ALL, 10000, cid);
+                final Response<PersistentLockResult> result = getAndRemoveResponse(cid);
+                logger.info("lock result={}", result);
+                if (result.isTimeout()) {
+                    logger.info("Failed to acquire lock: Timeout - trying again...");
+                }
+                else if (result.getResponse() != PersistentLockResult.OK) {
+                    logger.error("Failed to acquire lock: {} - trying again...", result.getResponse());
+                }
+                else {
+                    logger.info("Successfully acquired lock '{}'", lockId);
+                    return;
+                }
+            }
         }
-        logger.info("lock result={}", result);
+    }
+
+    private void releaseLock(final String lockId) {
+        logger.info("releaseLock({})", lockId);
+        persistentLockManager.releaseLock(lockId, this.getId());
     }
 }

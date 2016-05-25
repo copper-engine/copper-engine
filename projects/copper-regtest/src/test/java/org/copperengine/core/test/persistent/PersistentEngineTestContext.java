@@ -17,11 +17,18 @@ import org.copperengine.core.persistent.DataSourceFactory;
 import org.copperengine.core.persistent.DatabaseDialect;
 import org.copperengine.core.persistent.OracleDialect;
 import org.copperengine.core.persistent.PersistentScottyEngine;
+import org.copperengine.core.persistent.lock.PersistentLockManager;
+import org.copperengine.core.persistent.lock.PersistentLockManagerDialectSQL;
+import org.copperengine.core.persistent.lock.PersistentLockManagerImpl;
+import org.copperengine.core.persistent.txn.CopperTransactionController;
+import org.copperengine.core.persistent.txn.TransactionController;
 import org.copperengine.core.test.DBMockAdapter;
 import org.copperengine.core.test.DataHolder;
 import org.copperengine.core.test.MockAdapter;
 import org.copperengine.core.test.TestContext;
 import org.copperengine.core.test.backchannel.BackChannelQueue;
+import org.copperengine.core.util.Backchannel;
+import org.copperengine.core.util.BackchannelDefaultImpl;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 import org.copperengine.ext.persistent.RdbmsEngineFactory;
 
@@ -36,12 +43,30 @@ public class PersistentEngineTestContext extends TestContext {
     protected final Supplier<DataHolder> dataHolder;
     protected final Supplier<BatchingAuditTrail> auditTrail;
     protected final Supplier<DBMockAdapter> dbMockAdapter;
+    protected final Supplier<PersistentLockManager> lockManager;
+    protected final Supplier<Backchannel> backchannel;
 
     public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB) {
         this(dataSourceType, cleanDB, "default", false);
     }
 
     public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB, final String engineId, final boolean multiEngineMode) {
+        backchannel = Suppliers.memoize(new Supplier<Backchannel>() {
+            @Override
+            public Backchannel get() {
+                return createBackchannel();
+            }
+        });
+        suppliers.put("backchannel", backchannel);
+
+        lockManager = Suppliers.memoize(new Supplier<PersistentLockManager>() {
+            @Override
+            public PersistentLockManager get() {
+                return createPersistentLockManager();
+            }
+        });
+        suppliers.put("persistentLockManager", lockManager);
+
         dbMockAdapter = Suppliers.memoize(new Supplier<DBMockAdapter>() {
             @Override
             public DBMockAdapter get() {
@@ -85,6 +110,15 @@ public class PersistentEngineTestContext extends TestContext {
             }
         });
         suppliers.put("engineFactoryRed", engineFactoryRed);
+    }
+
+    protected Backchannel createBackchannel() {
+        return new BackchannelDefaultImpl();
+    }
+
+    protected PersistentLockManager createPersistentLockManager() {
+        PersistentLockManagerImpl x = new PersistentLockManagerImpl(engineFactoryRed.get().getEngine(), new PersistentLockManagerDialectSQL(), new CopperTransactionController(dataSource.get()));
+        return x;
     }
 
     protected DBMockAdapter createDBMockAdapter() {
@@ -205,6 +239,14 @@ public class PersistentEngineTestContext extends TestContext {
                 return x;
             }
 
+            @Override
+            protected TransactionController createTransactionController() {
+                CopperTransactionController txnController = new CopperTransactionController();
+                txnController.setDataSource(dataSource.get());
+                txnController.setMaxConnectRetries(1);
+                return txnController;
+            }
+
         };
         x.setEngineId(engineId);
         return x;
@@ -216,7 +258,6 @@ public class PersistentEngineTestContext extends TestContext {
         try {
             mockAdapter.get().startup();
             dbMockAdapter.get().startup();
-            engineFactoryRed.get().getEngine().setNotifyProcessorPoolsOnResponse(true);
             engineFactoryRed.get().getEngine().startup();
             auditTrail.get().startup();
         } catch (RuntimeException e) {
@@ -273,6 +314,10 @@ public class PersistentEngineTestContext extends TestContext {
     @Override
     protected ProcessingEngine getProcessingEngine() {
         return getEngine();
+    }
+
+    public Backchannel getBackchannel() {
+        return backchannel.get();
     }
 
 }

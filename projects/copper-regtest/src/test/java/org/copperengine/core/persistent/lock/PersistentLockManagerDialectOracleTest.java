@@ -74,7 +74,7 @@ public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLo
             final String workflowInstanceId3 = UUID.randomUUID().toString();
 
             String rv = x.acquireLock(_lockId, workflowInstanceId1, correlationId1, null, con);
-            org.junit.Assert.assertEquals(correlationId1, rv);
+            org.junit.Assert.assertNull(correlationId1, rv);
 
             rv = x.acquireLock(_lockId, workflowInstanceId1, correlationId1, null, con);
             org.junit.Assert.assertNull(rv);
@@ -85,7 +85,7 @@ public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLo
                 public void run() {
                     try {
                         String rv = x.acquireLock(_lockId, workflowInstanceId2, correlationId2, null, con2);
-                        org.junit.Assert.assertNull(rv);
+                        org.junit.Assert.assertEquals(correlationId2, rv);
                         con2.commit();
                         latch.countDown();
                     }
@@ -100,7 +100,7 @@ public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLo
             org.junit.Assert.assertEquals(0, latch.getCount());
 
             rv = x.acquireLock(_lockId, workflowInstanceId3, correlationId3, null, con);
-            org.junit.Assert.assertNull(rv);
+            org.junit.Assert.assertEquals(correlationId3, rv);
             con.commit();
 
             rv = x.releaseLock(_lockId, workflowInstanceId1, con);
@@ -125,5 +125,4 @@ public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLo
             executor.shutdown();
         }
     }
-
 }

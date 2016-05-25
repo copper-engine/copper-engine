@@ -27,10 +27,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.copperengine.core.AbstractWaitHook;
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
-import org.copperengine.core.WaitHook;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.audit.AuditTrail;
@@ -129,7 +129,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
         mockAdapter.foo(getData(), cid);
 
         dataHolder.clear(cid);
-        getEngine().addWaitHook(this.getId(), new WaitHook() {
+        getEngine().addWaitHook(this.getId(), new AbstractWaitHook() {
             @Override
             public void onWait(Workflow<?> wf, Connection con) throws Exception {
                 assertNotNull(wf);

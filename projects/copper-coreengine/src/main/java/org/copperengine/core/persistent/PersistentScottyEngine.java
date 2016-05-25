@@ -61,20 +61,14 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
     private ScottyDBStorageInterface dbStorage;
     private ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager;
-    private boolean notifyProcessorPoolsOnResponse = false;
     private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
     private final Map<String, List<WaitHook>> waitHookMap = new HashMap<String, List<WaitHook>>();
     private final AtomicLong sequenceIdFactory = new AtomicLong(System.currentTimeMillis() * 10000L);
 
     /**
-     * If true, the engine notifies all processor pools about a new reponse available.
-     * This may lead to shorter latency times, but may also increase CPU load or database I/O,
-     * so use with care
-     *
-     * @param notifyProcessorPoolsOnResponse
+     * @deprecated without effect - will be removed in future release
      */
     public void setNotifyProcessorPoolsOnResponse(boolean notifyProcessorPoolsOnResponse) {
-        this.notifyProcessorPoolsOnResponse = notifyProcessorPoolsOnResponse;
     }
 
     public void setDbStorage(ScottyDBStorageInterface dbStorage) {
@@ -102,29 +96,10 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             }
             startupBlocker.pass();
             dbStorage.notify(response, ack);
-            notifyProcessorPools();
         } catch (Exception e) {
             throw new CopperRuntimeException("notify failed", e);
         }
 
-    }
-
-    /**
-     * Manually notifies all underlying processor pools to check their corresponding persistent queues for new entries,
-     * if and only if <code>notifyProcessorPoolsOnResponse</code> is true (see
-     * {@link #setNotifyProcessorPoolsOnResponse(boolean)}).
-     * This may lead to shorter latency times, but may also increase CPU load or database I/O, so use with care.
-     */
-    public void notifyProcessorPools() {
-        if (notifyProcessorPoolsOnResponse) {
-            for (PersistentProcessorPool ppp : processorPoolManager.processorPools()) {
-                try {
-                    ppp.doNotify();
-                } catch (Exception e) {
-                    logger.error("doNotify failed for PersistentProcessorPool " + ppp, e);
-                }
-            }
-        }
     }
 
     @Override

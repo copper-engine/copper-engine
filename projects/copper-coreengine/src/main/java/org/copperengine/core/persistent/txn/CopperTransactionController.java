@@ -28,6 +28,7 @@ import org.copperengine.core.db.utility.RetryingTransaction;
 public class CopperTransactionController implements TransactionController {
 
     private DataSource dataSource;
+    private int maxConnectRetries = Integer.MAX_VALUE;
 
     public CopperTransactionController() {
     }
@@ -40,6 +41,10 @@ public class CopperTransactionController implements TransactionController {
         this.dataSource = dataSource;
     }
 
+    public void setMaxConnectRetries(int maxConnectRetries) {
+        this.maxConnectRetries = maxConnectRetries;
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T run(final DatabaseTransaction<T> txn) throws Exception {
         final T[] t = (T[]) new Object[1];
@@ -49,7 +54,7 @@ public class CopperTransactionController implements TransactionController {
                 t[0] = txn.run(getConnection());
                 return null;
             }
-        }.run();
+        }.setMaxConnectRetries(maxConnectRetries).run();
         return t[0];
     }
 

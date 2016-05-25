@@ -19,8 +19,8 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.util.concurrent.TimeUnit;
 
+import org.copperengine.core.AbstractWaitHook;
 import org.copperengine.core.Interrupt;
-import org.copperengine.core.WaitHook;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.persistent.PersistentWorkflow;
@@ -32,7 +32,7 @@ public class ErrorWaitHookUnitTestWorkflow extends PersistentWorkflow<Serializab
     @Override
     public void main() throws Interrupt {
         wait(WaitMode.ALL, 50, TimeUnit.MILLISECONDS, getEngine().createUUID());
-        getEngine().addWaitHook(this.getId(), new WaitHook() {
+        getEngine().addWaitHook(this.getId(), new AbstractWaitHook() {
             @Override
             public void onWait(Workflow<?> wf, Connection con) throws Exception {
                 throw new RuntimeException("TEST Exception");

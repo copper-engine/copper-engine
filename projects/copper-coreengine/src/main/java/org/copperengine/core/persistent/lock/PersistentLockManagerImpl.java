@@ -44,19 +44,14 @@ public class PersistentLockManagerImpl implements PersistentLockManager {
     }
 
     @Override
-    public void acquireLock(final String lockId, final String correlationId, final String workflowInstanceId) {
+    public String acquireLock(final String lockId, final String workflowInstanceId) {
         try {
-            transactionController.run(new DatabaseTransaction<Void>() {
+            return transactionController.run(new DatabaseTransaction<String>() {
                 @Override
-                public Void run(Connection con) throws Exception {
-                    final String replyCorrelationId = dialect.acquireLock(lockId, workflowInstanceId, correlationId, new Date(), con);
-                    if (replyCorrelationId != null) {
-                        engine.notify(new Response<PersistentLockResult>(replyCorrelationId, PersistentLockResult.OK, null), con);
-                    }
-                    return null;
+                public String run(Connection con) throws Exception {
+                    return dialect.acquireLock(lockId, workflowInstanceId, engine.createUUID(), new Date(), con);
                 }
             });
-            engine.notifyProcessorPools();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -77,7 +72,6 @@ public class PersistentLockManagerImpl implements PersistentLockManager {
                     return null;
                 }
             });
-            engine.notifyProcessorPools();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

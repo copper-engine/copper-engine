@@ -53,12 +53,12 @@ public class PersistentLockManagerDialectSQL implements PersistentLockManagerDia
 
     @Override
     public String acquireLock(String _lockId, String _workflowInstanceId, String _correlationId, Date _insertTS, Connection con) throws Exception {
-        logger.debug("acquireLock({},{},{},{})", _lockId, _workflowInstanceId, _correlationId, _insertTS);
+        logger.debug("acquireLock(lockid={}, workflowInstanceId={}, correlationId={}, insertTS={})", _lockId, _workflowInstanceId, _correlationId, _insertTS);
         rwl.readLock().lock();
         try {
             synchronized ((LOCK_PREFIX + _lockId).intern()) {
                 insertOrUpdate(_lockId, _workflowInstanceId, _correlationId, _insertTS, con);
-                return findNewLockOwner(_lockId, con);
+                return findNewLockOwnerAfterAquire(_lockId, _workflowInstanceId, con);
             }
         } finally {
             rwl.readLock().unlock();
@@ -78,7 +78,7 @@ public class PersistentLockManagerDialectSQL implements PersistentLockManagerDia
                     pstmtDeleteLock.setString(2, _workflowInstanceId);
                     pstmtDeleteLock.execute();
                     JdbcUtils.closeStatement(pstmtDeleteLock);
-                    return findNewLockOwner(_lockId, con);
+                    return findNewLockOwnerAfterRelease(_lockId, con);
                 } finally {
                     JdbcUtils.closeStatement(pstmtDeleteLock);
                 }
@@ -117,24 +117,40 @@ public class PersistentLockManagerDialectSQL implements PersistentLockManagerDia
         }
     }
 
-    String findNewLockOwner(String _lockId, Connection con) throws SQLException {
+    String findNewLockOwnerAfterAquire(String _lockId, String _workflowInstanceId, Connection con) throws SQLException {
         PreparedStatement pstmtSelectLock = null;
         PreparedStatement pstmtUpdateLock = null;
         try {
-            pstmtSelectLock = con.prepareStatement("select l.* from COP_LOCK l where lock_id = ? order by l.REPLY_SENT desc, l.insert_ts, l.workflow_instance_id");
+            pstmtSelectLock = con.prepareStatement("select l.* from COP_LOCK l where lock_id = ? order by l.insert_ts, l.workflow_instance_id");
+            pstmtSelectLock.setString(1, _lockId);
+            ResultSet rs = pstmtSelectLock.executeQuery();
+            boolean first = true;
+            while (rs.next()) {
+                final String correlationId = rs.getString("CORRELATION_ID");
+                final String wfInstanceId = rs.getString("WORKFLOW_INSTANCE_ID");
+                if (_workflowInstanceId.equals(wfInstanceId)) {
+                    return first ? null : correlationId;
+                }
+                first = false;
+            }
+            assert false : "should never come here!";
+            return null;
+        } finally {
+            JdbcUtils.closeStatement(pstmtSelectLock);
+            JdbcUtils.closeStatement(pstmtUpdateLock);
+        }
+    }
+
+    String findNewLockOwnerAfterRelease(String _lockId, Connection con) throws SQLException {
+        PreparedStatement pstmtSelectLock = null;
+        PreparedStatement pstmtUpdateLock = null;
+        try {
+            pstmtSelectLock = con.prepareStatement("select l.* from COP_LOCK l where lock_id = ? order by l.insert_ts, l.workflow_instance_id");
             pstmtSelectLock.setString(1, _lockId);
             ResultSet rs = pstmtSelectLock.executeQuery();
             if (rs.next()) {
-                boolean replySent = "Y".equals(rs.getString("REPLY_SENT"));
-                if (!replySent) {
-                    final String correlationId = rs.getString("CORRELATION_ID");
-                    final String wfInstanceId = rs.getString("WORKFLOW_INSTANCE_ID");
-                    pstmtUpdateLock = con.prepareStatement("UPDATE COP_LOCK SET REPLY_SENT='Y' WHERE LOCK_ID=? AND WORKFLOW_INSTANCE_ID=?");
-                    pstmtUpdateLock.setString(1, _lockId);
-                    pstmtUpdateLock.setString(2, wfInstanceId);
-                    pstmtUpdateLock.execute();
-                    return correlationId;
-                }
+                final String correlationId = rs.getString("CORRELATION_ID");
+                return correlationId;
             }
             return null;
         } finally {

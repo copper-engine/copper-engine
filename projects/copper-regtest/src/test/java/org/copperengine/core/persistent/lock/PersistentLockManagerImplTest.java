@@ -77,6 +77,7 @@ public class PersistentLockManagerImplTest {
 
         final String LOCK_ID = "LOCK";
         final PersistentProcessingEngine engine = Mockito.mock(PersistentProcessingEngine.class);
+        Mockito.when(engine.createUUID()).thenReturn(UUID.randomUUID().toString());
         final PersistentLockManager impl = new PersistentLockManagerImpl(engine, new PersistentLockManagerDialectOracleMultiInstance(), new CopperTransactionController(dataSource));
         final List<Thread> threads = new ArrayList<Thread>();
         for (int i = 0; i < 4; i++) {
@@ -88,8 +89,7 @@ public class PersistentLockManagerImplTest {
                         final String workflowInstanceId = UUID.randomUUID().toString();
                         final Random random = new Random();
                         for (int i = 0; i < 1000; i++) {
-                            final String correlationId = UUID.randomUUID().toString();
-                            impl.acquireLock(LOCK_ID, correlationId, workflowInstanceId);
+                            impl.acquireLock(LOCK_ID, workflowInstanceId);
                             Thread.sleep(random.nextInt(10));
                             impl.releaseLock(LOCK_ID, workflowInstanceId);
                             if (i % 100 == 0) {

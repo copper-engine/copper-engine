@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Date;
+import java.util.Objects;
 
 import org.copperengine.core.db.utility.JdbcUtils;
 import org.slf4j.Logger;
@@ -38,12 +39,12 @@ public class PersistentLockManagerDialectOracleMultiInstance implements Persiste
 
     @Override
     public String acquireLock(String _lockId, String _workflowInstanceId, String _correlationId, Date _insertTS, Connection con) throws Exception {
-        logger.debug("acquireLock({},{},{},{},{},{},{})", _lockId, _workflowInstanceId, _correlationId, _insertTS);
+        logger.debug("acquireLock(lockId={}, workflowInstanceId={}, correlationId={}, insertTS={})", _lockId, _workflowInstanceId, _correlationId, _insertTS);
         CallableStatement stmt = con.prepareCall("BEGIN COP_COREENGINE.acquire_lock(?,?,?,?,?,?); END;");
         try {
-            stmt.setString(1, _lockId);
-            stmt.setString(2, _correlationId);
-            stmt.setString(3, _workflowInstanceId);
+            stmt.setString(1, Objects.requireNonNull(_lockId));
+            stmt.setString(2, Objects.requireNonNull(_correlationId));
+            stmt.setString(3, Objects.requireNonNull(_workflowInstanceId));
             stmt.registerOutParameter(4, Types.VARCHAR);
             stmt.registerOutParameter(5, Types.NUMERIC);
             stmt.registerOutParameter(6, Types.VARCHAR);
@@ -62,11 +63,11 @@ public class PersistentLockManagerDialectOracleMultiInstance implements Persiste
 
     @Override
     public String releaseLock(String _lockId, String _workflowInstanceId, Connection con) throws Exception {
-        logger.debug("releaseLock({},{})", _lockId, _workflowInstanceId);
+        logger.debug("releaseLock(lockId={}, workflowInstanceId={})", _lockId, _workflowInstanceId);
         CallableStatement stmt = con.prepareCall("BEGIN COP_COREENGINE.release_lock(?,?,?,?,?); END;");
         try {
-            stmt.setString(1, _lockId);
-            stmt.setString(2, _workflowInstanceId);
+            stmt.setString(1, Objects.requireNonNull(_lockId));
+            stmt.setString(2, Objects.requireNonNull(_workflowInstanceId));
             stmt.registerOutParameter(3, Types.VARCHAR);
             stmt.registerOutParameter(4, Types.NUMERIC);
             stmt.registerOutParameter(5, Types.VARCHAR);
