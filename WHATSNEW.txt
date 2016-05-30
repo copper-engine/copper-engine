@@ -1,6 +1,7 @@
 COPPER 4.1.0
 ============
-- New feature: Issue #61 Speed up PersistentLockManager 
+- New feature: Issue #61 Speed up PersistentLockManager - Attention! The interface and usage of PersistentLockManager has changed in this release! Also Oracle package "copper-body.sql" has changed.
+- Refactoring: Removed hard-coded datasources from regression test - replaced by configuration via property files
 
 COPPER 4.0.3
 ============
