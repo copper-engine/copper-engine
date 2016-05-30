@@ -30,6 +30,40 @@ public interface PersistentLockManager {
      * Otherwise, if the lock is currently held by another entity, then the method returns a correlationId that the
      * caller has to use to wait for. As soon as this lock is assigned to the caller, the lock manager creates a
      * {@link Response} for this specified correlationId, containing the {@link PersistentLockResult}.
+     * <p>
+     * Example:
+     * <p>
+     * 
+     * <pre>
+     * {@code
+     *     private void acquireLock(final String lockId) throws Interrupt {
+     *         for (;;) {
+     *             logger.info("Going to acquire lock '{}'", lockId);
+     *             final String cid = persistentLockManager.acquireLock(lockId, this.getId());
+     *             if (cid == null) {
+     *                 logger.info("Successfully acquired lock '{}'", lockId);
+     *                 return;
+     *             }
+     *             else {
+     *                 logger.info("Lock '{}' is currently not free - calling wait...", lockId);
+     *                 wait(WaitMode.ALL, 10000, cid);
+     *                 final Response<PersistentLockResult> result = getAndRemoveResponse(cid);
+     *                 logger.info("lock result={}", result);
+     *                 if (result.isTimeout()) {
+     *                     logger.info("Failed to acquire lock: Timeout - trying again...");
+     *                 }
+     *                 else if (result.getResponse() != PersistentLockResult.OK) {
+     *                     logger.error("Failed to acquire lock: {} - trying again...", result.getResponse());
+     *                 }
+     *                 else {
+     *                     logger.info("Successfully acquired lock '{}'", lockId);
+     *                     return;
+     *                 }
+     *             }
+     *         }
+     *     }
+     * 
+     * </pre>
      * 
      * @param lockId
      *        symbolic lock id
