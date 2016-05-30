@@ -2,7 +2,6 @@ package org.copperengine.core.test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.copperengine.core.AbstractDependencyInjector;
 import org.copperengine.core.DependencyInjector;
@@ -15,20 +14,11 @@ import com.google.common.base.Suppliers;
 public abstract class TestContext implements AutoCloseable {
 
     protected final Map<String, Supplier<?>> suppliers = new HashMap<>();
-    protected final Supplier<Properties> properties;
     protected final Supplier<MockAdapter> mockAdapter;
     protected final Supplier<DependencyInjector> dependencyInjector;
     protected final Supplier<BackChannelQueue> backChannelQueue;
 
     public TestContext() {
-        properties = Suppliers.memoize(new Supplier<Properties>() {
-            @Override
-            public Properties get() {
-                return createProperties();
-            }
-        });
-        suppliers.put("properties", properties);
-
         mockAdapter = Suppliers.memoize(new Supplier<MockAdapter>() {
             @Override
             public MockAdapter get() {
@@ -56,18 +46,6 @@ public abstract class TestContext implements AutoCloseable {
 
     protected BackChannelQueue createBackChannelQueue() {
         return new BackChannelQueue();
-    }
-
-    protected Properties createProperties() {
-        try {
-            Properties p = new Properties();
-            p.load(getClass().getResourceAsStream("/regtest.properties"));
-            return p;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("failed to load properties", e);
-        }
     }
 
     protected DependencyInjector createDependencyInjector() {
