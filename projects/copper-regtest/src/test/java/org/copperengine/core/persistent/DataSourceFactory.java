@@ -15,69 +15,111 @@
  */
 package org.copperengine.core.persistent;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-// TODO read config parameter from properties file
 public class DataSourceFactory {
 
-    public static ComboPooledDataSource createOracleDatasource() {
+    private static final Logger logger = LoggerFactory.getLogger(DataSourceFactory.class);
+
+    private static Properties createProperties() {
         try {
-            ComboPooledDataSource dataSource = new ComboPooledDataSource();
-            dataSource.setJdbcUrl("jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g");
-            dataSource.setDriverClass("oracle.jdbc.OracleDriver");
-            dataSource.setMinPoolSize(1);
-            dataSource.setMaxPoolSize(8);
-            dataSource.setPreferredTestQuery("SELECT 1 FROM DUAL");
-            return dataSource;
+            Properties defaults = new Properties();
+            logger.info("Loading properties from 'regtest.default.properties'...");
+            defaults.load(DataSourceFactory.class.getResourceAsStream("/regtest.default.properties"));
+
+            Properties specific = new Properties();
+            String username = System.getProperty("user.name", "undefined");
+            InputStream is = DataSourceFactory.class.getResourceAsStream("/regtest." + username + ".properties");
+            if (is != null) {
+                logger.info("Loading properties from 'regtest." + username + ".properties'...");
+                specific.load(is);
+            }
+
+            Properties p = new Properties();
+            p.putAll(defaults);
+            p.putAll(specific);
+
+            List<String> keys = new ArrayList<>();
+            for (Object key : p.keySet()) {
+                keys.add(key.toString());
+            }
+            Collections.sort(keys);
+            for (String key : keys) {
+                logger.info("Property {}='{}'", key, p.getProperty(key));
+            }
+            return p;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("createOracleDatasource failed", e);
+            throw new RuntimeException("failed to load properties", e);
         }
+    }
+
+    private static final Properties props = createProperties();
+
+    private static ComboPooledDataSource createDataSource(final String propertyPrefix) {
+        try {
+            final Boolean active = Boolean.valueOf(props.getProperty(propertyPrefix + "active", "false"));
+            final String jdbcUrl = trim(props.getProperty(propertyPrefix + "jdbcURL"));
+            final String user = trim(props.getProperty(propertyPrefix + "user"));
+            final String password = trim(props.getProperty(propertyPrefix + "password"));
+            final String driverClass = trim(props.getProperty(propertyPrefix + "driverClass"));
+            final String preferredTestQuery = props.getProperty(propertyPrefix + "preferredTestQuery");
+            final int minPoolSize = Integer.valueOf(props.getProperty(propertyPrefix + "minPoolSize", "1"));
+            final int maxPoolSize = Integer.valueOf(props.getProperty(propertyPrefix + "maxPoolSize", "1"));
+            if (active) {
+                ComboPooledDataSource ds = new ComboPooledDataSource();
+                ds.setJdbcUrl(jdbcUrl.replace("${NOW}", Long.toString(System.currentTimeMillis())));
+                if (!isNullOrEmpty(user))
+                    ds.setUser(user);
+                if (!isNullOrEmpty(password))
+                    ds.setPassword(password);
+                if (!isNullOrEmpty(driverClass))
+                    ds.setDriverClass(driverClass);
+                if (!isNullOrEmpty(preferredTestQuery))
+                    ds.setPreferredTestQuery(preferredTestQuery);
+                ds.setMinPoolSize(minPoolSize);
+                ds.setMaxPoolSize(maxPoolSize);
+                return ds;
+            }
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to create datasource for prefix '" + propertyPrefix + "'", e);
+        }
+    }
+
+    private static boolean isNullOrEmpty(String s) {
+        return s == null || s.isEmpty();
+    }
+
+    private static String trim(String s) {
+        return s == null ? null : s.trim();
+    }
+
+    public static ComboPooledDataSource createOracleDatasource() {
+        return createDataSource("copper.regtest.datasource.oracle.");
     }
 
     public static ComboPooledDataSource createMySqlDatasource() {
-        try {
-            ComboPooledDataSource dataSource = new ComboPooledDataSource();
-            dataSource.setJdbcUrl("jdbc:mysql://localhost/COPPER2");
-            dataSource.setDriverClass("com.mysql.jdbc.Driver");
-            dataSource.setMinPoolSize(1);
-            dataSource.setMaxPoolSize(8);
-            dataSource.setUser("root");
-            dataSource.setPassword("geheim");
-            return dataSource;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("createMySqlDatasource failed", e);
-        }
+        return createDataSource("copper.regtest.datasource.mysql.");
     }
 
     public static ComboPooledDataSource createPostgresDatasource() {
-        try {
-            ComboPooledDataSource dataSource = new ComboPooledDataSource();
-            dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/postgres");
-            dataSource.setDriverClass("com.mysql.jdbc.Driver");
-            dataSource.setMinPoolSize(1);
-            dataSource.setMaxPoolSize(8);
-            dataSource.setUser("copper");
-            dataSource.setPassword("copper4711");
-            return dataSource;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("createPostgresDatasource failed", e);
-        }
+        return createDataSource("copper.regtest.datasource.postgres.");
     }
 
     public static ComboPooledDataSource createDerbyDbDatasource() {
         try {
-            ComboPooledDataSource dataSource = new ComboPooledDataSource();
-            // dataSource.setJdbcUrl("jdbc:derby:./build/copperUnitTestDB;create=true");
-            dataSource.setJdbcUrl("jdbc:derby:memory:copperUnitTestDB" + System.currentTimeMillis() + ";create=true");
-            dataSource.setDriverClass("org.apache.derby.jdbc.EmbeddedDriver");
-            dataSource.setMinPoolSize(1);
-            dataSource.setMaxPoolSize(1);
+            ComboPooledDataSource dataSource = createDataSource("copper.regtest.datasource.derby.");
             DerbyDbDialect.checkAndCreateSchema(dataSource);
             return dataSource;
         } catch (RuntimeException e) {
@@ -89,12 +131,7 @@ public class DataSourceFactory {
 
     public static ComboPooledDataSource createH2Datasource() {
         try {
-            ComboPooledDataSource dataSource = new ComboPooledDataSource();
-            // dataSource.setJdbcUrl("jdbc:h2:./build/copperUnitTestH2DB/db;MVCC=TRUE;AUTO_SERVER=TRUE");
-            dataSource.setJdbcUrl("jdbc:h2:mem:copperUnitTestH2DB;MVCC=TRUE");
-            dataSource.setDriverClass("org.h2.Driver");
-            dataSource.setMinPoolSize(1);
-            dataSource.setMaxPoolSize(8);
+            ComboPooledDataSource dataSource = createDataSource("copper.regtest.datasource.h2.");
             H2Dialect.checkAndCreateSchema(dataSource);
             return dataSource;
         } catch (RuntimeException e) {
@@ -103,4 +140,5 @@ public class DataSourceFactory {
             throw new RuntimeException("createH2Datasource failed", e);
         }
     }
+
 }
