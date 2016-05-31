@@ -404,7 +404,8 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     public void notify(List<Response<?>> responses, Connection c) throws Exception {
         logger.trace("notify(responses.size={})", responses.size());
         dialect.notify(responses, c);
-        // TODO hier fehlt das "signalQueueState();"
+        // TODO "signalQueueState();" is missing here - but we don't know when the transaction is commited, so we cannot
+        // trigger it here
     }
 
     @Override
