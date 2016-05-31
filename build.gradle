@@ -61,19 +61,19 @@ configure(subprojects.findAll {
     compileTestJava.targetCompatibility = JavaVersion.VERSION_1_7
 
     apply plugin: 'maven'
-    task sourcesJar(type: Jar, dependsOn: classes) {
+    task createSourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
     }
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
+    task createJavadocJar(type: Jar, dependsOn: javadoc) {
         classifier = 'javadoc'
         from javadoc.destinationDir
     }
 
     artifacts {
-        archives sourcesJar
-        archives javadocJar
+        archives createSourcesJar
+        archives createJavadocJar
     }
 
     apply plugin: 'findbugs'
