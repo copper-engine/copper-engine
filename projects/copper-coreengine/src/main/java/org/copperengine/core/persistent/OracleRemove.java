@@ -17,9 +17,11 @@ package org.copperengine.core.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.copperengine.core.Acknowledge;
@@ -67,12 +69,13 @@ class OracleRemove {
 
         public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection c) throws Exception {
             final PreparedStatement stmtDelQueue = c.prepareStatement("DELETE FROM COP_QUEUE WHERE WFI_ROWID=? AND PPOOL_ID=? AND PRIORITY=?");
-            final PreparedStatement stmtDelResponse = c.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
+            final PreparedStatement stmtDelResponse = c.prepareStatement("DELETE FROM COP_RESPONSE WHERE RESPONSE_ID=?");
             final PreparedStatement stmtDelWait = c.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
             final PreparedStatement stmtDelErrors = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
             final PreparedStatement stmtDelBP = ((Command) commands.iterator().next()).remove ? c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?") : c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=" + DBProcessingState.FINISHED.ordinal() + ", LAST_MOD_TS=SYSTIMESTAMP WHERE ID=?");
             try {
-                HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> wfs = new HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>>();
+                final List<String> responseIds2delete = new ArrayList<>();
+                final HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> wfs = new HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>>();
                 boolean cidsFound = false;
                 for (BatchCommand<Executor, Command> _cmd : commands) {
                     Command cmd = (Command) _cmd;
@@ -81,8 +84,6 @@ class OracleRemove {
 
                     if (cmd.wf.waitCidList != null) {
                         for (String cid : cmd.wf.waitCidList) {
-                            stmtDelResponse.setString(1, cid);
-                            stmtDelResponse.addBatch();
                             stmtDelWait.setString(1, cid);
                             stmtDelWait.addBatch();
                             if (!cidsFound)
@@ -107,14 +108,18 @@ class OracleRemove {
                     }
                     _wfs.add(cmd.wf);
 
+                    if (persistentWorkflow.responseIdList != null)
+                        responseIds2delete.addAll(persistentWorkflow.responseIdList);
+
                 }
                 if (cidsFound) {
-                    stmtDelResponse.executeBatch();
                     stmtDelWait.executeBatch();
                 }
                 stmtDelBP.executeBatch();
                 stmtDelErrors.executeBatch();
                 stmtDelQueue.executeBatch();
+
+                deleteResponses(stmtDelResponse, responseIds2delete, preferredBatchSize());
 
                 for (Map.Entry<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> en : wfs.entrySet()) {
                     en.getKey().onWorkflowsSaved(c, en.getValue());
@@ -127,6 +132,24 @@ class OracleRemove {
                 JdbcUtils.closeStatement(stmtDelBP);
             }
         }
+    }
 
+    private static void deleteResponses(final PreparedStatement stmtDelResponse, final List<String> responseIds2delete, final int batchSize) throws SQLException {
+        int count = 0;
+        for (String id : responseIds2delete) {
+            stmtDelResponse.setString(1, id);
+            stmtDelResponse.addBatch();
+            count++;
+            if (count == batchSize) {
+                stmtDelResponse.executeBatch();
+                stmtDelResponse.clearBatch();
+                count = 0;
+            }
+        }
+        if (count > 0) {
+            stmtDelResponse.executeBatch();
+            stmtDelResponse.clearBatch();
+            count = 0;
+        }
     }
 }

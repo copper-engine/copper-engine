@@ -24,6 +24,7 @@ import static org.junit.Assume.assumeFalse;
 
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -101,6 +102,26 @@ public class SpringlessBasePersistentWorkflowTest {
         }.run();
     }
 
+    private void checkNumbOfResponsesInDB(final PersistentEngineTestContext ctx, final int expected) throws Exception {
+        for (int i = 0; i < 10; i++) {
+            if (ctx.getBatcher().getQueueSize() == 0) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+        new RetryingTransaction<Void>(ctx.getDataSource()) {
+            @Override
+            protected Void execute() throws Exception {
+                PreparedStatement pstmt = getConnection().prepareStatement("SELECT count(*) FROM COP_RESPONSE");
+                ResultSet rs = pstmt.executeQuery();
+                rs.next();
+                int actual = rs.getInt(1);
+                org.junit.Assert.assertEquals(expected, actual);
+                return null;
+            }
+        }.run();
+    }
+
     private Statement createStatement(Connection con) throws SQLException {
         return con.createStatement(
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -165,6 +186,8 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNotNull(x.getResult().toString().length() == DATA.length());
                 assertNull(x.getException());
             }
+            checkNumbOfResponsesInDB(context, 0);
+
         } finally {
             closeContext(context);
         }
@@ -218,6 +241,9 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNotNull(x.getResult().toString().length() == DATA.length());
                 assertNull(x.getException());
             }
+
+            checkNumbOfResponsesInDB(context, 0);
+
         } finally {
             closeContext(context);
         }
@@ -258,6 +284,9 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNull(x.getResult());
                 assertNull(x.getException());
             }
+
+            checkNumbOfResponsesInDB(context, 0);
+
         } finally {
             closeContext(context);
         }
@@ -297,6 +326,9 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNull(x.getResult());
                 assertNull(x.getException());
             }
+
+            checkNumbOfResponsesInDB(context, 0);
+
         } finally {
             closeContext(context);
         }
@@ -325,6 +357,9 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNull(x.getResult());
                 assertNull(x.getException());
             }
+
+            checkNumbOfResponsesInDB(context, 0);
+
         } finally {
             closeContext(context);
         }
@@ -497,6 +532,8 @@ public class SpringlessBasePersistentWorkflowTest {
                     return null;
                 }
             }.run();
+
+            checkNumbOfResponsesInDB(context, 0);
 
         } finally {
             closeContext(context);

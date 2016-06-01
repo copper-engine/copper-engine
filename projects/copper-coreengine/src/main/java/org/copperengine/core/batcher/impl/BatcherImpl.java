@@ -171,4 +171,8 @@ public class BatcherImpl implements Batcher, BatcherMXBean {
         return "Default COPPER Batcher";
     }
 
+    public int getQueueSize() {
+        return queue.size();
+    }
+
 }

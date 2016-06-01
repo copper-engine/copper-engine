@@ -1,3 +1,7 @@
+COPPER 4.1.1
+============
+- Bugfix:      Issue #62 Copper might remove too much responses when a workflow instances finishes
+
 COPPER 4.1.0
 ============
 - New feature: Issue #61 Speed up PersistentLockManager - Attention! The interface and usage of PersistentLockManager has changed in this release! Also Oracle package "copper-body.sql" has changed.

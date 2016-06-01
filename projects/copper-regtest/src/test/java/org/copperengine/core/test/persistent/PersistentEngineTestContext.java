@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 import org.copperengine.core.DependencyInjector;
 import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.audit.BatchingAuditTrail;
+import org.copperengine.core.batcher.impl.BatcherImpl;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.db.utility.RetryingTransaction;
 import org.copperengine.core.persistent.DataSourceFactory;
@@ -318,6 +319,10 @@ public class PersistentEngineTestContext extends TestContext {
 
     public Backchannel getBackchannel() {
         return backchannel.get();
+    }
+
+    public BatcherImpl getBatcher() {
+        return (BatcherImpl) engineFactoryRed.get().getBatcher();
     }
 
 }

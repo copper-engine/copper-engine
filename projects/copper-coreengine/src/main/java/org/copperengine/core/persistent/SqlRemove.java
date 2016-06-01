@@ -17,10 +17,12 @@ package org.copperengine.core.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.copperengine.core.Acknowledge;
@@ -66,9 +68,10 @@ class SqlRemove {
             PreparedStatement stmtDelBP = null;
             PreparedStatement stmtDelErrors = null;
             try {
+                final List<String> responseIds2delete = new ArrayList<>();
                 HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> wfs = new HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>>();
                 stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
-                stmtDelResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID=?");
+                stmtDelResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE RESPONSE_ID=?");
                 stmtDelWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
                 stmtDelBP = remove ? con.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?") : con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=" + DBProcessingState.FINISHED.ordinal() + ", LAST_MOD_TS=? WHERE ID=?");
                 stmtDelErrors = con.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
@@ -80,8 +83,6 @@ class SqlRemove {
                     persistentWorkflow.flushCheckpointAcknowledges();
                     if (cmd.wf.waitCidList != null) {
                         for (String cid : cmd.wf.waitCidList) {
-                            stmtDelResponse.setString(1, cid);
-                            stmtDelResponse.addBatch();
                             stmtDelWait.setString(1, cid);
                             stmtDelWait.addBatch();
                             if (!cidsFound)
@@ -109,14 +110,18 @@ class SqlRemove {
                         wfs.put(cmd.workflowPersistencePlugin, _wfs);
                     }
                     _wfs.add(cmd.wf);
+
+                    if (persistentWorkflow.responseIdList != null)
+                        responseIds2delete.addAll(persistentWorkflow.responseIdList);
                 }
                 if (cidsFound) {
-                    stmtDelResponse.executeBatch();
                     stmtDelWait.executeBatch();
                 }
                 stmtDelBP.executeBatch();
                 stmtDelErrors.executeBatch();
                 stmtDelQueue.executeBatch();
+
+                deleteResponses(stmtDelResponse, responseIds2delete, preferredBatchSize());
 
                 for (Map.Entry<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> en : wfs.entrySet()) {
                     en.getKey().onWorkflowsSaved(con, en.getValue());
@@ -141,5 +146,24 @@ class SqlRemove {
             return 50;
         }
 
+    }
+
+    private static void deleteResponses(final PreparedStatement stmtDelResponse, final List<String> responseIds2delete, final int batchSize) throws SQLException {
+        int count = 0;
+        for (String id : responseIds2delete) {
+            stmtDelResponse.setString(1, id);
+            stmtDelResponse.addBatch();
+            count++;
+            if (count == batchSize) {
+                stmtDelResponse.executeBatch();
+                stmtDelResponse.clearBatch();
+                count = 0;
+            }
+        }
+        if (count > 0) {
+            stmtDelResponse.executeBatch();
+            stmtDelResponse.clearBatch();
+            count = 0;
+        }
     }
 }

@@ -149,6 +149,19 @@ class BatcherQueue {
         }
     }
 
+    public int size() {
+        lock.lock();
+        try {
+            int size = 0;
+            for (BatchInfo x : batches) {
+                size += x.batch.size();
+            }
+            return size;
+        } finally {
+            lock.unlock();
+        }
+    }
+
     void enqueueBatch(BatchInfo batchInfo, Long targetTime) {
         if (targetTime != null && targetTime.longValue() == Long.MAX_VALUE)
             targetTime = null;
@@ -239,8 +252,7 @@ class BatcherQueue {
     public List<BatchCommand<?, ?>> poll() throws InterruptedException {
         lock.lockInterruptibly();
         try {
-            outerLoop:
-            while (true) {
+            outerLoop: while (true) {
                 ++numThreads;
                 Condition myCondition = null;
                 if (!unusedConditions.isEmpty())
@@ -253,8 +265,7 @@ class BatcherQueue {
                 } else {
                     freeConditions.add(myCondition);
                 }
-                waitLoop:
-                while (true) {
+                waitLoop: while (true) {
                     int queuePosition = findQueuePosition(myCondition);
                     if (queuePosition == -1) {
                         if (state == State.STOPPED) {
