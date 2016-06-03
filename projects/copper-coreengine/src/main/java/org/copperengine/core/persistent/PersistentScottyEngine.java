@@ -143,8 +143,13 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
     @Override
     public void registerCallbacks(Workflow<?> w, WaitMode mode, long timeoutMsec, String... correlationIds) {
+        registerCallbacks(w, mode, timeoutMsec, false, correlationIds);
+    }
+
+    private void registerCallbacks(Workflow<?> w, WaitMode mode, long timeoutMsec, boolean isResubmit, String... correlationIds) {
         if (logger.isTraceEnabled())
-            logger.trace("registerCallbacks(" + w + ", " + mode + ", " + timeoutMsec + ", " + Arrays.asList(correlationIds) + ")");
+            logger.trace("registerCallbacks(" + w + ", " + mode + ", " + timeoutMsec + ", " + isResubmit + ", " + Arrays.asList(correlationIds) + ")");
+
         if (correlationIds.length == 0)
             throw new IllegalArgumentException("No correlationids given");
         PersistentWorkflow<?> pw = (PersistentWorkflow<?>) w;
@@ -152,7 +157,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             logger.error("Unkown processor pool '" + pw.getProcessorPoolId() + "' - using default pool instead");
             pw.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
         }
-        pw.registerCall = new RegisterCall(w, mode, timeoutMsec > 0 ? timeoutMsec : null, correlationIds, getAndRemoveWaitHooks(pw));
+        pw.registerCall = new RegisterCall(w, mode, timeoutMsec > 0 ? timeoutMsec : null, correlationIds, getAndRemoveWaitHooks(pw), isResubmit);
     }
 
     @Override
@@ -454,6 +459,13 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             }
         }
         return wfi;
+    }
+
+    @Override
+    public void resubmit(Workflow<?> wf, Acknowledge ack) {
+        final String cid = createUUID();
+        registerCallbacks(wf, WaitMode.ALL, 0, true, cid);
+        notify(new Response<Object>(cid, null, null), ack);
     }
 
 }

@@ -536,4 +536,5 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     public List<Workflow<?>> queryAllActive(final String className, final int max) throws Exception {
         throw new UnsupportedOperationException();
     }
+
 }

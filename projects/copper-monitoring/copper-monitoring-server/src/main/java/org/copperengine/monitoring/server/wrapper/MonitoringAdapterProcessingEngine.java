@@ -129,4 +129,10 @@ public class MonitoringAdapterProcessingEngine implements ProcessingEngine {
         processingEngine.notify(response, ack);
     }
 
+    @Override
+    public void resubmit(Workflow<?> wf, Acknowledge ack) throws CopperRuntimeException {
+        // TODO Auto-generated method stub
+
+    }
+
 }

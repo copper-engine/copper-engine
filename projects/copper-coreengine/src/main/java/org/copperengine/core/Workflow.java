@@ -301,28 +301,28 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * Causes the engine to stop processing of this workflow instance and to enqueue it again.
-     * May be used in case of processor pool change or the create a 'savepoint'.
+     * May be used in case of processor pool change or the create a 'isResubmit'.
      *
      * @throws Interrupt
      */
     protected final void resubmit() throws Interrupt {
-        final String cid = engine.createUUID();
-        engine.registerCallbacks(this, WaitMode.ALL, 0, cid);
         Acknowledge ack = createCheckpointAcknowledge();
-        engine.notify(new Response<Object>(cid, null, null), ack);
+        engine.resubmit(this, ack);
         registerCheckpointAcknowledge(ack);
     }
 
     /**
      * Causes the engine to stop processing of this workflow instance and to enqueue it again.
-     * May be used in case of processor pool change or to create a 'savepoint' in a persistent engine.
+     * May be used in case of processor pool change or to create a 'isResubmit' in a persistent engine.
      * <p>
      * Same as {@link Workflow#resubmit()}
      *
      * @throws Interrupt
      */
     protected final void savepoint() throws Interrupt {
-        resubmit();
+        Acknowledge ack = createCheckpointAcknowledge();
+        engine.resubmit(this, ack);
+        registerCheckpointAcknowledge(ack);
     }
 
     protected final <T> void notify(Response<T> response) {

@@ -36,8 +36,9 @@ public class RegisterCall {
     public String[] correlationIds;
     public Timestamp timeoutTS;
     public List<WaitHook> waitHooks;
+    public boolean isResubmit = false;
 
-    public RegisterCall(Workflow<?> workflow, WaitMode waitMode, Long timeout, String[] correlationIds, List<WaitHook> waitHooks) {
+    public RegisterCall(Workflow<?> workflow, WaitMode waitMode, Long timeout, String[] correlationIds, List<WaitHook> waitHooks, boolean isResubmit) {
         super();
         this.waitMode = waitMode;
         this.timeout = timeout;
@@ -45,14 +46,12 @@ public class RegisterCall {
         this.workflow = workflow;
         this.timeoutTS = timeout != null ? new Timestamp(System.currentTimeMillis() + timeout) : null;
         this.waitHooks = waitHooks;
+        this.isResubmit = isResubmit;
     }
 
     @Override
     public String toString() {
-        return "RegisterCall [correlationIds="
-                + Arrays.toString(correlationIds) + ", timeout=" + timeout
-                + ", timeoutTS=" + timeoutTS + ", waitMode=" + waitMode + ", waitHooks.size=" + waitHooks.size()
-                + ", workflow=" + workflow + "]";
+        return "RegisterCall [workflow=" + workflow + ", waitMode=" + waitMode + ", timeout=" + timeout + ", correlationIds=" + Arrays.toString(correlationIds) + ", timeoutTS=" + timeoutTS + ", waitHooks=" + waitHooks + ", isResubmit=" + isResubmit + "]";
     }
 
 }

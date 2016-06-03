@@ -45,7 +45,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 
     private static final Logger logger = LoggerFactory.getLogger(ScottyDBStorage.class);
 
-    private final Object queueStateSignal = new Object();
+    private final QueueNotifier queueState = new QueueNotifier();
     private final Object enqueueSignal = new Object();
     private int waitForEnqueueMSec = 500;
 
@@ -178,18 +178,11 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     }
 
     private void waitForQueueState(int waitTime) throws InterruptedException {
-        logger.trace("waitForQueueState({})...", waitTime);
-        synchronized (queueStateSignal) {
-            queueStateSignal.wait(waitTime);
-        }
-        logger.trace("waitForQueueState({}) DONE", waitTime);
+        queueState.waitForQueueState(waitTime);
     }
 
     private void signalQueueState() {
-        logger.trace("signalQueueState");
-        synchronized (queueStateSignal) {
-            queueStateSignal.notify();
-        }
+        queueState.signalQueueState();
     }
 
     @Override
@@ -302,6 +295,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         int sleepTimeMaxLowTraffic = 500;
         while (!shutdown) {
             int x = 0;
+            logger.trace("Starting updateQueueState...");
             try {
                 x = run(new DatabaseTransaction<Integer>() {
                     @Override
@@ -431,10 +425,26 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     @Override
     public void registerCallback(final RegisterCall rc, final Acknowledge callback) throws Exception {
         logger.trace("registerCallback({})", rc);
-
         if (rc == null)
             throw new NullPointerException();
-        executeBatchCommand(dialect.createBatchCommand4registerCallback(rc, this, callback));
+
+        Acknowledge ack = new Acknowledge() {
+            @Override
+            public void onException(Throwable t) {
+                if (callback != null)
+                    callback.onException(t);
+            }
+
+            @Override
+            public void onSuccess() {
+                logger.trace("registerCallback successfully finished for {}", rc);
+                if (rc.isResubmit)
+                    signalQueueState();
+                if (callback != null)
+                    callback.onSuccess();
+            }
+        };
+        executeBatchCommand(dialect.createBatchCommand4registerCallback(rc, this, ack));
     }
 
     @Override
@@ -443,9 +453,11 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 
         if (response == null)
             throw new NullPointerException();
+
         Acknowledge notify = new Acknowledge() {
             @Override
             public void onSuccess() {
+                logger.trace("notify successfully finished for response {}", response);
                 signalQueueState();
                 callback.onSuccess();
             }
@@ -455,6 +467,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
                 callback.onException(t);
             }
         };
+
         executeBatchCommand(dialect.createBatchCommand4Notify(response, notify));
     }
 

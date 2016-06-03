@@ -159,4 +159,6 @@ public interface ProcessingEngine {
      */
     public void addWaitHook(String wfInstanceId, WaitHook waitHook);
 
+    public void resubmit(Workflow<?> wf, Acknowledge ack) throws CopperRuntimeException;
+
 }
