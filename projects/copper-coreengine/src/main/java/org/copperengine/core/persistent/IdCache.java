@@ -52,13 +52,13 @@ class IdCache {
         }
     }
 
-    public void remove(String responseId) {
+    public boolean remove(String responseId) {
         synchronized (mutex) {
-            __remove(responseId);
+            return __remove(responseId);
         }
     }
 
-    private void __remove(String responseId) {
+    private boolean __remove(String responseId) {
         ResponseEntry entry = responseMap.remove(responseId);
         if (entry != null) {
             List<String> responseIds = cid2reponseId.get(entry.correlationId);
@@ -68,7 +68,9 @@ class IdCache {
                     cid2reponseId.remove(entry.correlationId);
                 }
             }
+            return true;
         }
+        return false;
     }
 
     public boolean contains(String correlationId) {

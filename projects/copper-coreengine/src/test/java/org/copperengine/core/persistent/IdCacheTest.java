@@ -1,6 +1,9 @@
 package org.copperengine.core.persistent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,4 +53,47 @@ public class IdCacheTest {
         Assert.assertFalse(idCache.contains("c4"));
     }
 
+    @Test
+    public void testConcurrency() throws Exception {
+        final AtomicLong idFactory = new AtomicLong(System.currentTimeMillis() * 1000L);
+        final int number_of_threads = 8;
+        final int number_of_iterations = 100000;
+        final IdCache idCache = new IdCache(100, 10, TimeUnit.SECONDS);
+        final AtomicLong time4all = new AtomicLong();
+        final List<Thread> threads = new ArrayList<>();
+        final List<Throwable> exceptions = new ArrayList<>();
+        for (int i = 0; i < number_of_threads; i++) {
+            Thread t = new Thread() {
+                public void run() {
+                    try {
+                        for (int j = 0; j < number_of_iterations; j++) {
+                            String rid = Long.toString(idFactory.incrementAndGet());
+                            String cid = Long.toString(idFactory.incrementAndGet());
+                            long startTS = System.nanoTime();
+                            idCache.put(rid, cid);
+                            Assert.assertTrue(idCache.contains(cid));
+                            Assert.assertTrue(idCache.remove(rid));
+                            long et = System.nanoTime() - startTS;
+                            time4all.addAndGet(et);
+                        }
+                    }
+                    catch (Throwable e) {
+                        e.printStackTrace();
+                        synchronized (exceptions) {
+                            exceptions.add(e);
+                        }
+                    }
+                };
+            };
+            threads.add(t);
+        }
+        for (Thread t : threads) {
+            t.start();
+        }
+        for (Thread t : threads) {
+            t.join();
+        }
+        Assert.assertTrue(exceptions.isEmpty());
+        System.out.println("time4all=" + (time4all.get() / 1000000L) + " msec");
+    }
 }

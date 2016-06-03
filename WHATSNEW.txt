@@ -1,5 +1,6 @@
 COPPER 4.1.1
 ============
+- New feature: Speed up of "Workflow.resubmit" and wait/notify with response arriving before wait is called
 - Bugfix:      Issue #62 Copper might remove too much responses when a workflow instances finishes
 
 COPPER 4.1.0
