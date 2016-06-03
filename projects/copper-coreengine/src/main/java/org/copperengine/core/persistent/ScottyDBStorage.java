@@ -45,6 +45,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
 
     private static final Logger logger = LoggerFactory.getLogger(ScottyDBStorage.class);
 
+    private final IdCache cidStore4responses = new IdCache(10000, 10, TimeUnit.SECONDS);
     private final QueueNotifier queueState = new QueueNotifier();
     private final Object enqueueSignal = new Object();
     private int waitForEnqueueMSec = 500;
@@ -438,12 +439,26 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             @Override
             public void onSuccess() {
                 logger.trace("registerCallback successfully finished for {}", rc);
-                if (rc.isResubmit)
+
+                // Sometimes the responses arrive _before_ wait is called in the workflow
+                // In this case, we want the queue to be updated immediately to have short latency times
+                if (cidStore4responses.contains(rc.correlationIds)) {
                     signalQueueState();
-                if (callback != null)
+                }
+
+                if (callback != null) {
                     callback.onSuccess();
+                }
             }
         };
+
+        PersistentWorkflow<?> pw = (PersistentWorkflow<?>) rc.workflow;
+        if (pw.responseIdList != null) {
+            for (String responseId : pw.responseIdList) {
+                cidStore4responses.remove(responseId);
+            }
+        }
+
         executeBatchCommand(dialect.createBatchCommand4registerCallback(rc, this, ack));
     }
 
@@ -458,6 +473,8 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             @Override
             public void onSuccess() {
                 logger.trace("notify successfully finished for response {}", response);
+                if (response.isEarlyResponseHandling())
+                    cidStore4responses.put(response.getResponseId(), response.getCorrelationId());
                 signalQueueState();
                 callback.onSuccess();
             }

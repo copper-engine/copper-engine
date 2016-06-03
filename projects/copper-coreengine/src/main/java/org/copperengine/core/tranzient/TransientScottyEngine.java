@@ -363,11 +363,4 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
         return queryWorkflowInstance(id);
     }
 
-    @Override
-    public void resubmit(Workflow<?> wf, Acknowledge ack) {
-        final String cid = createUUID();
-        registerCallbacks(wf, WaitMode.ALL, 0, cid);
-        notify(new Response<Object>(cid, null, null), ack);
-    }
-
 }

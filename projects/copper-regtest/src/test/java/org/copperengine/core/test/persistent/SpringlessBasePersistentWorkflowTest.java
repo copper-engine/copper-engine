@@ -533,8 +533,6 @@ public class SpringlessBasePersistentWorkflowTest {
                 }
             }.run();
 
-            checkNumbOfResponsesInDB(context, 0);
-
         } finally {
             closeContext(context);
         }

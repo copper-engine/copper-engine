@@ -34,7 +34,7 @@ public class WaitNotifyPerfTestWorkflow extends PersistentWorkflow<String> {
         for (int i = 0; i < 100; i++) {
             logger.info("Wait/notify...");
             final String cid = getEngine().createUUID();
-            mockAdapter.foo("foo", cid, 10);
+            mockAdapter.foo("foo", cid, 0);
             final long startTS = System.currentTimeMillis();
             wait(WaitMode.ALL, 1000, cid);
             final long et = System.currentTimeMillis() - startTS;
