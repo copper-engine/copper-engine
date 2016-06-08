@@ -85,13 +85,13 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     private int dbBatchingLatencyMSec = 0;
 
     public OracleDialect() {
-        initStmtStats();
     }
 
     @Override
     public void startup() {
         if (engineIdProvider == null || engineIdProvider.getEngineId() == null)
             throw new NullPointerException("EngineId is NULL! Change your " + getClass().getSimpleName() + " configuration.");
+        initStmtStats();
     }
 
     private void initStmtStats() {
@@ -147,6 +147,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
     public void setRuntimeStatisticsCollector(RuntimeStatisticsCollector runtimeStatisticsCollector) {
         this.runtimeStatisticsCollector = runtimeStatisticsCollector;
+        initStmtStats();
     }
 
     public void setWfRepository(WorkflowRepository wfRepository) {
