@@ -64,8 +64,9 @@ public abstract class Processor extends Thread {
                 synchronized (queue) {
                     wf = queue.poll();
                     if (wf == null) {
-                        // logger.info("queue is empty - waiting");
+                        logger.trace("queue is empty - waiting");
                         queue.wait();
+                        logger.trace("waking up again...");
                         wf = queue.poll();
                     }
                 }
