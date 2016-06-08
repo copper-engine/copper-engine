@@ -49,7 +49,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
     private volatile int lowerThreshold = 3000;
     private volatile int upperThreshold = 6000;
     private volatile int upperThresholdReachedWaitMSec = 50;
-    private volatile int emptyQueueWaitMSec = 500;
+    private volatile int emptyQueueWaitMSec = 10;
     private volatile int _dequeueBulkSize = DEFAULT_DEQUEUE_SIZE;
     private Integer oldDequeueBulkSize = null;
 
@@ -140,8 +140,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
                     if (queueSize < upperThreshold) {
                         break;
                     }
-                    if (logger.isTraceEnabled())
-                        logger.trace("Queue size " + queueSize + " >= upper threshold " + upperThreshold + ". Waiting...");
+                    logger.trace("Queue size {} >= upper threshold " + upperThreshold + ". Waiting...", queueSize);
                     doWait(upperThresholdReachedWaitMSec);
                 }
                 List<Workflow<?>> rv;
@@ -190,8 +189,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
     }
 
     private void doWait(long t) throws InterruptedException {
-        if (logger.isTraceEnabled())
-            logger.trace("doWait(" + t + ")");
+        logger.trace("doWait({})", t);
         synchronized (mutex) {
             mutex.wait(t);
         }
