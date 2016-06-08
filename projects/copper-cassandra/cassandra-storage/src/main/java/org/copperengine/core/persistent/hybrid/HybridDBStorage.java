@@ -153,6 +153,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     @Override
     public List<Workflow<?>> dequeue(final String ppoolId, final int max) throws Exception {
         logger.debug("dequeue({},{})", ppoolId, max);
+        final long startTS = System.currentTimeMillis();
 
         startupBlocker.pass();
 
@@ -188,6 +189,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
                 }
             }
         }
+        logger.debug("dequeue({},{}) finished, returning {} elements in {} msec", ppoolId, max, wfList.size(), (System.currentTimeMillis() - startTS));
         return wfList;
     }
 
