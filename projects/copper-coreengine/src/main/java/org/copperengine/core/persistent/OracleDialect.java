@@ -188,7 +188,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     @Override
     public List<Workflow<?>> dequeue(final String ppoolId, final int max, Connection con) throws Exception {
         logger.trace("dequeue({},{})", ppoolId, max);
-
+        
         final long startTS = System.currentTimeMillis();
         final List<Workflow<?>> rv = new ArrayList<Workflow<?>>(max);
 
@@ -206,10 +206,13 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         try {
             dequeueStmt.setString(1, ppoolId);
             dequeueStmt.setInt(2, max);
+            dequeueStmt.setFetchSize(500);
             dequeueAllStmtStatistic.start();
+            logger.trace("Query next {} elements from queue", max);
             dequeueQueryBPsStmtStatistic.start();
             final ResultSet rs = dequeueStmt.executeQuery();
             dequeueQueryBPsStmtStatistic.stop(1);
+            logger.trace("Query finished - fetching results...");
             while (rs.next()) {
                 final String id = rs.getString(1);
                 final int prio = rs.getInt(2);
@@ -243,10 +246,11 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         } finally {
             JdbcUtils.closeStatement(dequeueStmt);
         }
-
+        logger.trace("Done fetching results. Waiting for response loader to finishe");
         dequeueWait4RespLdrStmtStatistic.start();
         responseLoader.endTxn();
         dequeueWait4RespLdrStmtStatistic.stop(map.size());
+        logger.trace("Done waiting for response loader");
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
         Collection<PersistentWorkflow<?>> workflows = (Collection) map.values();
@@ -257,8 +261,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
         handleInvalidWorkflowInstances(con, invalidWorkflowInstances);
 
-        if (logger.isDebugEnabled())
-            logger.debug("dequeue for pool " + ppoolId + " returns " + rv.size() + " element(s) in " + (System.currentTimeMillis() - startTS) + " msec.");
+        logger.debug("dequeue for pool {} returns {} element(s) in {} msec.", ppoolId, rv.size(), (System.currentTimeMillis() - startTS)); // TODO
         return rv;
     }
 
@@ -426,7 +429,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         synchronized (responseLoaders) {
             responseLoader = responseLoaders.get(ppoolId);
             if (responseLoader == null) {
-                responseLoader = new ResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueMarkStmtStatistic);
+                responseLoader = new DownstreamResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueMarkStmtStatistic);
                 responseLoader.start();
                 responseLoaders.put(ppoolId, responseLoader);
             }
