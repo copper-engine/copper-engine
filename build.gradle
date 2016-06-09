@@ -579,3 +579,48 @@ project(':projects:copper-monitoring:copper-monitoring-example') {
 subprojects {
     task allDeps(type: DependencyReportTask) {}
 }
+
+
+
+project(':projects:copper-performance-test') {
+    dependencies {
+        compile project(':projects:copper-coreengine')
+        compile project(':projects:copper-ext')
+        compile project(':projects:copper-cassandra:cassandra-storage')
+        
+	compile group: 'com.google.guava', name: 'guava', version: '18.0'
+    	compile 'mysql:mysql-connector-java:5.1.39'
+    	compile 'org.apache.derby:derby:10.12.1.1'
+    	compile 'postgresql:postgresql:9.1-901.jdbc4'
+    	compile 'com.h2database:h2:1.4.192'
+    	compile "com.mchange:c3p0:0.9.5.2"
+    	compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
+    	compile "org.slf4j:slf4j-api:$slf4jVersion"
+    	compile fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
+        
+    }
+    
+	jar {
+	    manifest.attributes provider: 'gradle'
+
+	    archiveName = "copper-performance-test.jar"
+
+	    from {
+
+		configurations.runtime.collect {
+		    it.isDirectory() ? it : zipTree(it)
+		}
+
+		configurations.compile.collect {
+		    it.isDirectory() ? it : zipTree(it)
+		}
+	    }
+
+	    manifest {
+		attributes 'Main-Class': 'org.copperengine.performancetest.main.Main'
+	    }
+
+	}    
+
+}
+
