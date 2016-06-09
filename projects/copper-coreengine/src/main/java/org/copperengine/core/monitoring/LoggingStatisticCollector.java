@@ -205,7 +205,7 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
         final long avgElementCount = elementCount / count;
         final double avgTimePerElement = elementCount > 0 ? (double) elapsedTimeMicros / (double) elementCount / 1000.0 : 0.0;
         final double avgTimePerExecution = count > 0 ? (double) elapsedTimeMicros / (double) count / 1000.0 : 0.0;
-        return String.format("%1$55.55s #elements=%2$6d; avgCount=%3$6d; avgTime/Element=%4$12.5f msec; avgTime/Exec=%5$12.5f msec", ss.mpId + DOTS, elementCount, avgElementCount, avgTimePerElement, avgTimePerExecution);
+        return String.format("%1$55.55s #exec=%2$6d; #elements=%3$6d; avgCount=%4$6d; avgTime/Element=%5$12.5f msec; avgTime/Exec=%6$12.5f msec", ss.mpId + DOTS, count, elementCount, avgElementCount, avgTimePerElement, avgTimePerExecution);
     }
 
     public void reset() {
