@@ -159,7 +159,8 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
 
         final List<Workflow<?>> wfList = new ArrayList<>(max);
         while (wfList.size() < max) {
-            final QueueElement element = _dequeue(ppoolId);
+            // block if we read the first element - since we don't want to return an empty list
+            final QueueElement element = wfList.isEmpty() ? _take(ppoolId) : _poll(ppoolId);
             if (element == null)
                 break;
 
@@ -487,18 +488,36 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     void _enqueue(String wfId, String ppoolId, int prio) {
         logger.trace("enqueue(wfId={}, ppoolId={}, prio={})", wfId, ppoolId, prio);
         ConcurrentSkipListSet<QueueElement> queue = _findQueue(ppoolId);
-        boolean rv = queue.add(new QueueElement(wfId, prio));
-        assert rv : "queue already contains workflow id " + wfId;
+        synchronized (queue) {
+            boolean rv = queue.add(new QueueElement(wfId, prio));
+            assert rv : "queue already contains workflow id " + wfId;
+            queue.notify();
+        }
     }
 
-    QueueElement _dequeue(String ppoolId) {
-        logger.trace("_dequeue({})", ppoolId);
+    QueueElement _poll(String ppoolId) {
+        logger.trace("_poll({})", ppoolId);
         ConcurrentSkipListSet<QueueElement> queue = _findQueue(ppoolId);
         QueueElement qe = queue.pollFirst();
         if (qe != null) {
             logger.debug("dequeued for ppoolId={}: wfId={}", ppoolId, qe.wfId);
         }
         return qe;
+    }
+
+    QueueElement _take(String ppoolId) throws InterruptedException {
+        logger.trace("_take({})", ppoolId);
+        ConcurrentSkipListSet<QueueElement> queue = _findQueue(ppoolId);
+        synchronized (queue) {
+            for (;;) {
+                QueueElement qe = queue.pollFirst();
+                if (qe != null) {
+                    logger.debug("dequeued for ppoolId={}: wfId={}", ppoolId, qe.wfId);
+                    return qe;
+                }
+                queue.wait(10L);
+            }
+        }
     }
 
     private ConcurrentSkipListSet<QueueElement> _findQueue(final String ppoolId) {

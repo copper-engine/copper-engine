@@ -49,7 +49,7 @@ public class HybridDBStorageTest {
             dbStorage._enqueue(Integer.toString(i), ppoolId, max - i);
         }
         for (int i = 0; i < max; i++) {
-            QueueElement qe = dbStorage._dequeue(ppoolId);
+            QueueElement qe = dbStorage._poll(ppoolId);
             Assert.assertNotNull(qe);
         }
     }
@@ -80,7 +80,7 @@ public class HybridDBStorageTest {
                 @Override
                 public void run() {
                     for (;;) {
-                        QueueElement qe = dbStorage._dequeue(ppoolId);
+                        QueueElement qe = dbStorage._poll(ppoolId);
                         if (qe == null) {
                             break;
                         }
