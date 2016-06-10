@@ -47,7 +47,7 @@ public class LatencyPerformanceTest {
             final long et = System.currentTimeMillis() - startTS;
             logger.info("Finished performance test with {} workflow instances in {} msec", numbOfWfI, et);
 
-            Thread.sleep(5000); // drain the batcher
+            Thread.sleep(5000); // drain the batcher, etc.
             logger.info("statistics:\n{}", context.getStatisticsCollector().print());
 
         } catch (Exception e) {

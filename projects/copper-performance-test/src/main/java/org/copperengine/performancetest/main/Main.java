@@ -20,6 +20,15 @@ public class Main {
             e.printStackTrace();
             usage();
         }
+
+        System.out.println("Engine is stopped!");
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         System.exit(0);
     }
 

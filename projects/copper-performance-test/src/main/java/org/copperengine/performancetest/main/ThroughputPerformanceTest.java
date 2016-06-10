@@ -43,7 +43,9 @@ public class ThroughputPerformanceTest {
                 final int procPoolNumbOfThreads = context.getConfigInt(ConfigKeys.PROC_POOL_NUMB_OF_THREADS, Runtime.getRuntime().availableProcessors());
                 final String ppoolId = "P" + i;
                 logger.info("Starting additional processor pool {} with {} threads", ppoolId, procPoolNumbOfThreads);
-                context.getProcessorPoolManager().addProcessorPool(new PersistentPriorityProcessorPool(ppoolId, context.getTransactionController(), 1));
+                final PersistentPriorityProcessorPool pool = new PersistentPriorityProcessorPool(ppoolId, context.getTransactionController(), procPoolNumbOfThreads);
+                pool.setDequeueBulkSize(context.getConfigInt(ConfigKeys.PROC_DEQUEUE_BULK_SIZE, PersistentPriorityProcessorPool.DEFAULT_DEQUEUE_SIZE));
+                context.getProcessorPoolManager().addProcessorPool(pool);
             }
 
             logger.info("Starting throughput performance test with {} workflow instances and data size {} chars ...", numbOfWfI, dataSize);

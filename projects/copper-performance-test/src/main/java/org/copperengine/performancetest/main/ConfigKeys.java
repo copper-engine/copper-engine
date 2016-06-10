@@ -4,6 +4,7 @@ public interface ConfigKeys {
 
     // common configuration parameters
     public static final String PROC_POOL_NUMB_OF_THREADS = "procPool.numberOfThreads";
+    public static final String PROC_DEQUEUE_BULK_SIZE = "procPool.dequeueBulkSize";
     public static final String MOCK_ADAPTER_NUMB_OF_THREADS = "mockAdapter.numberOfThreads";
     public static final String COMPRESSION = "compression";
 

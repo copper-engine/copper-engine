@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -59,6 +60,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class PerformanceTestContext implements AutoCloseable {
 
@@ -77,6 +79,7 @@ public class PerformanceTestContext implements AutoCloseable {
     protected final Supplier<Serializer> serializer;
     protected final Supplier<ProcessorPoolManager<PersistentProcessorPool>> processorPoolManager;
     protected TransactionController transactionController = null;
+    private final List<Runnable> shutdownHooks = new ArrayList<>();
 
     public PerformanceTestContext() {
         processorPoolManager = Suppliers.memoize(new Supplier<ProcessorPoolManager<PersistentProcessorPool>>() {
@@ -256,7 +259,7 @@ public class PerformanceTestContext implements AutoCloseable {
             final int batcherNumbOfThreads = getConfigInt(ConfigKeys.BATCHER_NUMB_OF_THREADS, DEFAULT_NUMBER_OF_PROCESSORS);
             logger.info("Starting batcher with {} worker threads", batcherNumbOfThreads);
 
-            final DataSource dataSource = DataSourceFactory.createDataSource(props.get());
+            final ComboPooledDataSource dataSource = DataSourceFactory.createDataSource(props.get());
             transactionController = new CopperTransactionController(dataSource);
 
             final BatcherImpl batcher = new BatcherImpl(batcherNumbOfThreads);
@@ -270,23 +273,52 @@ public class PerformanceTestContext implements AutoCloseable {
             dbStorage.setDialect(createDialect(dataSource, repo.get(), engineIdProvider.get(), statisticsCollector.get(), serializer.get()));
             dbStorage.setTransactionController(transactionController);
             dbStorageInterface = dbStorage;
+
+            shutdownHooks.add(new Runnable() {
+                @Override
+                public void run() {
+                    batcher.shutdown();
+                    dataSource.close();
+                }
+            });
+
         }
         else {
             transactionController = new HybridTransactionController();
 
-            CassandraSessionManagerImpl sessionManager = new CassandraSessionManagerImpl(Arrays.asList(cassandraHosts.split(",")), getConfigInteger(ConfigKeys.CASSANDRA_PORT, null), props.get().getProperty(ConfigKeys.CASSANDRA_KEYSPACE, "copper"));
+            final CassandraSessionManagerImpl sessionManager = new CassandraSessionManagerImpl(Arrays.asList(cassandraHosts.split(",")), getConfigInteger(ConfigKeys.CASSANDRA_PORT, null), props.get().getProperty(ConfigKeys.CASSANDRA_KEYSPACE, "copper"));
             sessionManager.startup();
 
-            ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            final DefaultTimeoutManager timeoutManager = new DefaultTimeoutManager();
+            timeoutManager.startup();
+
+            final ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             CassandraStorage storage = new CassandraStorage(sessionManager, pool, statisticsCollector.get());
-            HybridDBStorage dbStorage = new HybridDBStorage(serializer.get(), repo.get(), new StorageCache(storage), new DefaultTimeoutManager().startup(), pool);
+            HybridDBStorage dbStorage = new HybridDBStorage(serializer.get(), repo.get(), new StorageCache(storage), timeoutManager, pool);
             dbStorageInterface = dbStorage;
+
+            shutdownHooks.add(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        timeoutManager.shutdown();
+                        sessionManager.shutdown();
+                        pool.shutdown();
+                        pool.awaitTermination(5, TimeUnit.SECONDS);
+                    }
+                    catch (Exception e) {
+                        logger.error("shutdown failed", e);
+                    }
+                }
+            });
         }
 
         final int procPoolNumbOfThreads = getConfigInt(ConfigKeys.PROC_POOL_NUMB_OF_THREADS, DEFAULT_NUMBER_OF_PROCESSORS);
         logger.info("Starting default processor pool with {} worker threads", procPoolNumbOfThreads);
         final List<PersistentProcessorPool> pools = new ArrayList<PersistentProcessorPool>();
-        pools.add(new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, transactionController, DEFAULT_NUMBER_OF_PROCESSORS));
+        final PersistentPriorityProcessorPool pool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, transactionController, DEFAULT_NUMBER_OF_PROCESSORS);
+        pool.setDequeueBulkSize(getConfigInt(ConfigKeys.PROC_DEQUEUE_BULK_SIZE, PersistentPriorityProcessorPool.DEFAULT_DEQUEUE_SIZE));
+        pools.add(pool);
         processorPoolManager.get().setProcessorPools(pools);
 
         PersistentScottyEngine engine = new PersistentScottyEngine();
@@ -385,6 +417,9 @@ public class PerformanceTestContext implements AutoCloseable {
         engine.get().shutdown();
         statisticsCollector.get().shutdown();
         mockAdapter.get().shutdown();
+        for (Runnable r : shutdownHooks) {
+            r.run();
+        }
     }
 
     @Override
