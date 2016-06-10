@@ -83,6 +83,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     private boolean removeWhenFinished = true;
     private long defaultStaleResponseRemovalTimeout = 60 * 60 * 1000;
     private int dbBatchingLatencyMSec = 0;
+    private boolean concurrentResponseLoading = true;
 
     public OracleDialect() {
     }
@@ -104,6 +105,10 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         deleteStaleResponsesStmtStatistic = new StmtStatistic("DBStorage.deleteStaleResponses", runtimeStatisticsCollector);
         dequeueWait4RespLdrStmtStatistic = new StmtStatistic("DBStorage.wait4resLoaderStmtStatistic", runtimeStatisticsCollector);
 
+    }
+
+    public void setConcurrentResponseLoading(boolean concurrentResponseLoading) {
+        this.concurrentResponseLoading = concurrentResponseLoading;
     }
 
     @Override
@@ -188,7 +193,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     @Override
     public List<Workflow<?>> dequeue(final String ppoolId, final int max, Connection con) throws Exception {
         logger.trace("dequeue({},{})", ppoolId, max);
-        
+
         final long startTS = System.currentTimeMillis();
         final List<Workflow<?>> rv = new ArrayList<Workflow<?>>(max);
 
@@ -429,7 +434,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         synchronized (responseLoaders) {
             responseLoader = responseLoaders.get(ppoolId);
             if (responseLoader == null) {
-                responseLoader = new DownstreamResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueMarkStmtStatistic);
+                responseLoader = concurrentResponseLoading ? new ConcurrentResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueMarkStmtStatistic) : new DownstreamResponseLoader(dequeueQueryResponsesStmtStatistic, dequeueMarkStmtStatistic);
                 responseLoader.start();
                 responseLoaders.put(ppoolId, responseLoader);
             }
