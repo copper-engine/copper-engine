@@ -266,7 +266,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
         handleInvalidWorkflowInstances(con, invalidWorkflowInstances);
 
-        logger.debug("dequeue for pool {} returns {} element(s) in {} msec.", ppoolId, rv.size(), (System.currentTimeMillis() - startTS)); // TODO
+        logger.debug("dequeue for pool {} returns {} element(s) in {} msec.", ppoolId, rv.size(), (System.currentTimeMillis() - startTS));
         return rv;
     }
 
