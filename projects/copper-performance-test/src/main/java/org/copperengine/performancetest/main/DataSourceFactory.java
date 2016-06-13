@@ -23,13 +23,12 @@ public class DataSourceFactory {
 
     public static ComboPooledDataSource createDataSource(Properties props) {
         try {
-            final String jdbcUrl = trim(props.getProperty(ConfigKeys.DS_JDBC_URL));
-            final String user = trim(props.getProperty(ConfigKeys.DS_USER));
-            final String password = trim(props.getProperty(ConfigKeys.DS_PASSWORD));
-            final String driverClass = trim(props.getProperty(ConfigKeys.DS_DRIVER_CLASS));
-            final String preferredTestQuery = props.getProperty(ConfigKeys.DS_PREFERRED_TEST_QUERY);
-            final int minPoolSize = Integer.valueOf(props.getProperty(ConfigKeys.DS_MIN_POOL_SIZE, Integer.toString(Runtime.getRuntime().availableProcessors())));
-            final int maxPoolSize = Integer.valueOf(props.getProperty(ConfigKeys.DS_MAX_POOL_SIZE, Integer.toString(2 * Runtime.getRuntime().availableProcessors())));
+            final String jdbcUrl = trim(props.getProperty(ConfigParameter.DS_JDBC_URL.getKey()));
+            final String user = trim(props.getProperty(ConfigParameter.DS_USER.getKey()));
+            final String password = trim(props.getProperty(ConfigParameter.DS_PASSWORD.getKey()));
+            final String driverClass = trim(props.getProperty(ConfigParameter.DS_DRIVER_CLASS.getKey()));
+            final int minPoolSize = Integer.valueOf(props.getProperty(ConfigParameter.DS_MIN_POOL_SIZE.getKey(), Integer.toString(Runtime.getRuntime().availableProcessors())));
+            final int maxPoolSize = Integer.valueOf(props.getProperty(ConfigParameter.DS_MAX_POOL_SIZE.getKey(), Integer.toString(2 * Runtime.getRuntime().availableProcessors())));
             ComboPooledDataSource ds = new ComboPooledDataSource();
             ds.setJdbcUrl(jdbcUrl.replace("${NOW}", Long.toString(System.currentTimeMillis())));
             if (!isNullOrEmpty(user))
@@ -38,8 +37,6 @@ public class DataSourceFactory {
                 ds.setPassword(password);
             if (!isNullOrEmpty(driverClass))
                 ds.setDriverClass(driverClass);
-            if (!isNullOrEmpty(preferredTestQuery))
-                ds.setPreferredTestQuery(preferredTestQuery);
             ds.setMinPoolSize(minPoolSize);
             ds.setInitialPoolSize(minPoolSize);
             ds.setMaxPoolSize(maxPoolSize);

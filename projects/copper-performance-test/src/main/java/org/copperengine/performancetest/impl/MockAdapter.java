@@ -134,7 +134,7 @@ public class MockAdapter {
     public synchronized void startup() {
         if (pool == null) {
             logger.debug("Starting up...");
-            pool = Executors.newScheduledThreadPool(4 * Runtime.getRuntime().availableProcessors());
+            pool = Executors.newScheduledThreadPool(numberOfThreads);
         }
     }
 

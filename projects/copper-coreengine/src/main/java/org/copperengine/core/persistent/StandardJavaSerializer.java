@@ -38,12 +38,14 @@ import org.copperengine.core.util.Base64;
  */
 public class StandardJavaSerializer implements Serializer {
 
+    public static final boolean DEFAULT_COMPRESS = true;
+
     private static final String COPPER_3_PACKAGE_PREFIX = "org.copperengine.core.";
     private static final String COPPER_2X_PACKAGE_PREFIX = "de.scoopgmbh.copper.";
     private static final String COPPER_2X_INTERRUPT_NAME = "InterruptException";
     private static final String COPPER_3_INTERRUPT_NAME = "Interrupt";
 
-    private boolean compress = true;
+    private boolean compress = DEFAULT_COMPRESS;
     private int compressThresholdSize = 250;
     private int compressorMaxSize = 128 * 1024;
 

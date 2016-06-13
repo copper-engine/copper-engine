@@ -29,22 +29,22 @@ public class ThroughputPerformanceTest {
 
     public void run() {
         try (PerformanceTestContext context = new PerformanceTestContext()) {
-            final int numberOfExtraProcessorPools = context.getConfigInt(ConfigKeys.THROUGHPUTTEST_NUMBER_OF_EXTRA_PROC_POOLS, 0);
-            final int insertThreads = context.getConfigInt(ConfigKeys.THROUGHPUTTEST_NUMBER_OF_INSERT_THREADS, 1);
-            final int insertBatchSize = context.getConfigInt(ConfigKeys.THROUGHPUTTEST_BATCHS_SIZE, 1);
-            final int dataSize = context.getConfigInt(ConfigKeys.THROUGHPUTTEST_DATA_SIZE, 50);
-            final int numbOfWfI = context.getConfigInt(ConfigKeys.THROUGHPUTTEST_NUMBER_OF_WORKFLOW_INSTANCES, 1000);
+            final int numberOfExtraProcessorPools = context.getConfigManager().getConfigInt(ConfigParameter.THROUGHPUTTEST_NUMBER_OF_EXTRA_PROC_POOLS);
+            final int insertThreads = context.getConfigManager().getConfigInt(ConfigParameter.THROUGHPUTTEST_NUMBER_OF_INSERT_THREADS);
+            final int insertBatchSize = context.getConfigManager().getConfigInt(ConfigParameter.THROUGHPUTTEST_BATCHS_SIZE);
+            final int dataSize = context.getConfigManager().getConfigInt(ConfigParameter.THROUGHPUTTEST_DATA_SIZE);
+            final int numbOfWfI = context.getConfigManager().getConfigInt(ConfigParameter.THROUGHPUTTEST_NUMBER_OF_WORKFLOW_INSTANCES);
             final String data = createTestData(dataSize);
             final PersistentProcessingEngine engine = context.getEngine();
             final Semaphore semaphore = new Semaphore(numbOfWfI);
             context.registerBean("semaphore", semaphore);
 
             for (int i = 0; i < numberOfExtraProcessorPools; i++) {
-                final int procPoolNumbOfThreads = context.getConfigInt(ConfigKeys.PROC_POOL_NUMB_OF_THREADS, Runtime.getRuntime().availableProcessors());
+                final int procPoolNumbOfThreads = context.getConfigManager().getConfigInt(ConfigParameter.PROC_POOL_NUMB_OF_THREADS);
                 final String ppoolId = "P" + i;
                 logger.info("Starting additional processor pool {} with {} threads", ppoolId, procPoolNumbOfThreads);
                 final PersistentPriorityProcessorPool pool = new PersistentPriorityProcessorPool(ppoolId, context.getTransactionController(), procPoolNumbOfThreads);
-                pool.setDequeueBulkSize(context.getConfigInt(ConfigKeys.PROC_DEQUEUE_BULK_SIZE, PersistentPriorityProcessorPool.DEFAULT_DEQUEUE_SIZE));
+                pool.setDequeueBulkSize(context.getConfigManager().getConfigInt(ConfigParameter.PROC_DEQUEUE_BULK_SIZE));
                 context.getProcessorPoolManager().addProcessorPool(pool);
             }
 
@@ -94,10 +94,14 @@ public class ThroughputPerformanceTest {
             semaphore.acquire(numbOfWfI);
             final long et = System.currentTimeMillis() - startTS;
             final long avgWaitNotifyPerSecond = numbOfWfI * 10L * 1000L / et;
-            logger.info("Finished performance test with {} workflow instances in {} msec ==> {} wait/notify cycles per second", numbOfWfI, et, avgWaitNotifyPerSecond);
+            // logger.info("Finished performance test with {} workflow instances in {} msec ==> {} wait/notify cycles per second",
+            // numbOfWfI, et, avgWaitNotifyPerSecond);
 
             Thread.sleep(5000); // drain the batcher
             logger.info("statistics:\n{}", context.getStatisticsCollector().print());
+
+            logger.info("Finished performance test with {} workflow instances in {} msec ==> {} wait/notify cycles per second", numbOfWfI, et, avgWaitNotifyPerSecond);
+            context.getConfigManager().print(System.out);
 
         } catch (Exception e) {
             logger.error("performance test failed", e);

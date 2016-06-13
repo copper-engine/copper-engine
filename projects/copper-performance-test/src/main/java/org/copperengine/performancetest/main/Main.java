@@ -24,6 +24,13 @@ public class Main {
     }
 
     private static void usage() {
-        System.out.println("Usage: ....");
+        System.out.println("Usage: java <parameters> -jar copper-performance-test.jar (latency|throughput)");
+        System.out.println("  with <parameters> as follows");
+        for (ConfigParameterGroup grp : ConfigParameterGroup.values()) {
+            System.out.println("  ** " + grp.getDescription() + "**");
+            for (ConfigParameter p : ConfigParameter.all4group(grp)) {
+                System.out.println("    * -D" + p.getKey() + "=<value>  --> (" + p.getMandatory() + ") " + p.getDescription() + (p.getDefaultValue() != null ? (" - default value is " + p.getDefaultValue()) : ""));
+            }
+        }
     }
 }

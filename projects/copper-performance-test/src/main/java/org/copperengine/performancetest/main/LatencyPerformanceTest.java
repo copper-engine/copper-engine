@@ -50,6 +50,8 @@ public class LatencyPerformanceTest {
             Thread.sleep(5000); // drain the batcher, etc.
             logger.info("statistics:\n{}", context.getStatisticsCollector().print());
 
+            context.getConfigManager().print(System.out);
+
         } catch (Exception e) {
             logger.error("performance test failed", e);
         }

@@ -65,7 +65,6 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 public class PerformanceTestContext implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(PerformanceTestContext.class);
-    private static final int DEFAULT_NUMBER_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
     protected final Map<String, Supplier<?>> suppliers = new HashMap<>();
     protected final Supplier<Properties> props;
@@ -78,10 +77,19 @@ public class PerformanceTestContext implements AutoCloseable {
     protected final Supplier<EngineIdProvider> engineIdProvider;
     protected final Supplier<Serializer> serializer;
     protected final Supplier<ProcessorPoolManager<PersistentProcessorPool>> processorPoolManager;
+    protected final Supplier<ConfigurationManager> configManager;
     protected TransactionController transactionController = null;
     private final List<Runnable> shutdownHooks = new ArrayList<>();
 
     public PerformanceTestContext() {
+        configManager = Suppliers.memoize(new Supplier<ConfigurationManager>() {
+            @Override
+            public ConfigurationManager get() {
+                return createConfigurationManager();
+            }
+        });
+        suppliers.put("configManager", configManager);
+
         processorPoolManager = Suppliers.memoize(new Supplier<ProcessorPoolManager<PersistentProcessorPool>>() {
             @Override
             public ProcessorPoolManager<PersistentProcessorPool> get() {
@@ -165,13 +173,17 @@ public class PerformanceTestContext implements AutoCloseable {
         startup();
     }
 
+    protected ConfigurationManager createConfigurationManager() {
+        return new ConfigurationManager(props.get());
+    }
+
     protected ProcessorPoolManager<PersistentProcessorPool> createProcessorPoolManager() {
         return new DefaultProcessorPoolManager<PersistentProcessorPool>();
     }
 
     protected Serializer createSerializer() {
         StandardJavaSerializer serializer = new StandardJavaSerializer();
-        boolean compression = getConfigBoolean(ConfigKeys.COMPRESSION, true);
+        boolean compression = configManager.get().getConfigBoolean(ConfigParameter.COMPRESSION);
         logger.info("compression={}", compression);
         serializer.setCompress(compression);
         return serializer;
@@ -254,9 +266,9 @@ public class PerformanceTestContext implements AutoCloseable {
     protected PersistentProcessingEngine createPersistentProcessingEngine() {
         ScottyDBStorageInterface dbStorageInterface = null;
 
-        final String cassandraHosts = props.get().getProperty(ConfigKeys.CASSANDRA_HOSTS);
+        final String cassandraHosts = props.get().getProperty(ConfigParameter.CASSANDRA_HOSTS.getKey());
         if (cassandraHosts == null) {
-            final int batcherNumbOfThreads = getConfigInt(ConfigKeys.BATCHER_NUMB_OF_THREADS, DEFAULT_NUMBER_OF_PROCESSORS);
+            final int batcherNumbOfThreads = configManager.get().getConfigInt(ConfigParameter.BATCHER_NUMB_OF_THREADS);
             logger.info("Starting batcher with {} worker threads", batcherNumbOfThreads);
 
             final ComboPooledDataSource dataSource = DataSourceFactory.createDataSource(props.get());
@@ -286,7 +298,7 @@ public class PerformanceTestContext implements AutoCloseable {
         else {
             transactionController = new HybridTransactionController();
 
-            final CassandraSessionManagerImpl sessionManager = new CassandraSessionManagerImpl(Arrays.asList(cassandraHosts.split(",")), getConfigInteger(ConfigKeys.CASSANDRA_PORT, null), props.get().getProperty(ConfigKeys.CASSANDRA_KEYSPACE, "copper"));
+            final CassandraSessionManagerImpl sessionManager = new CassandraSessionManagerImpl(Arrays.asList(cassandraHosts.split(",")), configManager.get().getConfigInteger(ConfigParameter.CASSANDRA_PORT), configManager.get().getConfigString(ConfigParameter.CASSANDRA_KEYSPACE));
             sessionManager.startup();
 
             final DefaultTimeoutManager timeoutManager = new DefaultTimeoutManager();
@@ -313,11 +325,11 @@ public class PerformanceTestContext implements AutoCloseable {
             });
         }
 
-        final int procPoolNumbOfThreads = getConfigInt(ConfigKeys.PROC_POOL_NUMB_OF_THREADS, DEFAULT_NUMBER_OF_PROCESSORS);
+        final int procPoolNumbOfThreads = configManager.get().getConfigInt(ConfigParameter.PROC_POOL_NUMB_OF_THREADS);
         logger.info("Starting default processor pool with {} worker threads", procPoolNumbOfThreads);
         final List<PersistentProcessorPool> pools = new ArrayList<PersistentProcessorPool>();
-        final PersistentPriorityProcessorPool pool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, transactionController, DEFAULT_NUMBER_OF_PROCESSORS);
-        pool.setDequeueBulkSize(getConfigInt(ConfigKeys.PROC_DEQUEUE_BULK_SIZE, PersistentPriorityProcessorPool.DEFAULT_DEQUEUE_SIZE));
+        final PersistentPriorityProcessorPool pool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, transactionController, procPoolNumbOfThreads);
+        pool.setDequeueBulkSize(configManager.get().getConfigInt(ConfigParameter.PROC_DEQUEUE_BULK_SIZE));
         pools.add(pool);
         processorPoolManager.get().setProcessorPools(pools);
 
@@ -393,7 +405,7 @@ public class PerformanceTestContext implements AutoCloseable {
     }
 
     protected MockAdapter createMockAdapter() {
-        int numberOfThreads = getConfigInt(ConfigKeys.MOCK_ADAPTER_NUMB_OF_THREADS, Runtime.getRuntime().availableProcessors());
+        int numberOfThreads = configManager.get().getConfigInt(ConfigParameter.MOCK_ADAPTER_NUMB_OF_THREADS);
         logger.info("MockAdapter.numberOfThreads={}", numberOfThreads);
         MockAdapter x = new MockAdapter(numberOfThreads);
         x.setEngine(engine.get());
@@ -436,27 +448,6 @@ public class PerformanceTestContext implements AutoCloseable {
         });
     }
 
-    public int getConfigInt(String key, int defaultValue) {
-        String v = props.get().getProperty(key);
-        if (v == null || v.trim().isEmpty())
-            return defaultValue;
-        return Integer.parseInt(v);
-    }
-
-    public boolean getConfigBoolean(String key, boolean defaultValue) {
-        String v = props.get().getProperty(key);
-        if (v == null || v.trim().isEmpty())
-            return defaultValue;
-        return Boolean.parseBoolean(v);
-    }
-
-    public Integer getConfigInteger(String key, Integer defaultValue) {
-        String v = props.get().getProperty(key);
-        if (v == null || v.trim().isEmpty())
-            return defaultValue;
-        return Integer.parseInt(v);
-    }
-
     public LoggingStatisticCollector getStatisticsCollector() {
         return statisticsCollector.get();
     }
@@ -471,6 +462,10 @@ public class PerformanceTestContext implements AutoCloseable {
 
     public TransactionController getTransactionController() {
         return transactionController;
+    }
+
+    public ConfigurationManager getConfigManager() {
+        return configManager.get();
     }
 
 }
