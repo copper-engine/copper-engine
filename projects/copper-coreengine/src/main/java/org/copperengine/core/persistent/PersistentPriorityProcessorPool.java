@@ -140,7 +140,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
                     if (queueSize < upperThreshold) {
                         break;
                     }
-                    logger.trace("Queue size {} >= upper threshold " + upperThreshold + ". Waiting...", queueSize);
+                    logger.trace("Queue size {} >= upper threshold {}. Waiting...", queueSize, upperThreshold);
                     doWait(upperThresholdReachedWaitMSec);
                 }
                 List<Workflow<?>> rv;
@@ -156,12 +156,10 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
                 if (shutdown)
                     break;
                 if (rv.isEmpty()) {
-                    if (logger.isTraceEnabled())
-                        logger.trace("Dequeue returned nothing. Waiting...");
+                    logger.trace("Dequeue returned nothing. Waiting...");
                     doWait(emptyQueueWaitMSec);
                 } else {
-                    if (logger.isTraceEnabled())
-                        logger.trace("Dequeue returned " + rv.size() + " elements.");
+                    logger.trace("Dequeue returned {} elements.", rv.size());
                     for (Workflow<?> wf : rv) {
                         WorkflowAccessor.setProcessingState(wf, ProcessingState.DEQUEUED);
                         engine.register(wf);
