@@ -17,7 +17,7 @@ public enum ConfigParameter {
     // configuration parameters used only for RDBMS, e.g. Oracle
     DS_MAX_POOL_SIZE("ds.maxPoolSize", "maximum size of the connection pool", Integer.valueOf(Runtime.getRuntime().availableProcessors() * 2), ConfigParameterGroup.rdbms),
     DS_MIN_POOL_SIZE("ds.minPoolSize", "minimum size of the connection pool", Integer.valueOf(Runtime.getRuntime().availableProcessors()), ConfigParameterGroup.rdbms),
-    DS_DRIVER_CLASS("ds.driverClass", "jdbc driver class", ConfigParameterGroup.rdbms, null, "mandatory when testing RDBMS"),
+    DS_DRIVER_CLASS("ds.driverClass", "jdbc driver class", null, ConfigParameterGroup.rdbms, "mandatory when testing RDBMS"),
     DS_PASSWORD("ds.password", "jdbc password", null, ConfigParameterGroup.rdbms),
     DS_USER("ds.user", "jdbc user", null, ConfigParameterGroup.rdbms),
     DS_JDBC_URL("ds.jdbcURL", "jdbc URL", null, ConfigParameterGroup.rdbms, "mandatory when testing RDBMS"),
