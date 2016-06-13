@@ -44,12 +44,13 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
 
     private Thread thread;
     private volatile boolean shutdown = false;
-    private final Object mutex = new Object();
+    private final Object mutexEnqueue = new Object();
+    private final Object mutexQueueSize = new Object();
 
     private volatile int lowerThreshold = 3000;
     private volatile int upperThreshold = 6000;
     private volatile int upperThresholdReachedWaitMSec = 50;
-    private volatile int emptyQueueWaitMSec = 10;
+    private volatile int emptyQueueWaitMSec = 50;
     private volatile int _dequeueBulkSize = DEFAULT_DEQUEUE_SIZE;
     private Integer oldDequeueBulkSize = null;
 
@@ -93,7 +94,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
             public Workflow<?> poll() {
                 Workflow<?> wf = super.poll();
                 if (!notifiedLowerThreshold && size() < lowerThreshold) {
-                    doNotify();
+                    signalQueueSizeBelowLowerThreshold();
                     notifiedLowerThreshold = true;
                 }
                 if (notifiedLowerThreshold && size() > lowerThreshold) {
@@ -141,7 +142,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
                         break;
                     }
                     logger.trace("Queue size {} >= upper threshold {}. Waiting...", queueSize, upperThreshold);
-                    doWait(upperThresholdReachedWaitMSec);
+                    wait4QueueSizeBelowLowerThreshold();
                 }
                 List<Workflow<?>> rv;
                 final int dequeueBulkSize = _dequeueBulkSize;
@@ -181,15 +182,15 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
     @Override
     public void doNotify() {
         logger.trace("doNotify");
-        synchronized (mutex) {
-            mutex.notify();
+        synchronized (mutexEnqueue) {
+            mutexEnqueue.notify();
         }
     }
 
     private void doWait(long t) throws InterruptedException {
         logger.trace("doWait({})", t);
-        synchronized (mutex) {
-            mutex.wait(t);
+        synchronized (mutexEnqueue) {
+            mutexEnqueue.wait(t);
         }
     }
 
@@ -267,4 +268,15 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
         logger.info("dequeue resumed");
     }
 
+    private void signalQueueSizeBelowLowerThreshold() {
+        synchronized (mutexQueueSize) {
+            mutexQueueSize.notify();
+        }
+    }
+
+    private void wait4QueueSizeBelowLowerThreshold() throws InterruptedException {
+        synchronized (mutexQueueSize) {
+            mutexQueueSize.wait(upperThresholdReachedWaitMSec);
+        }
+    }
 }
