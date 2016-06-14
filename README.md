@@ -62,3 +62,9 @@ Before committing you should always reformat the code. You can configure Intelli
 
 <hr>
 Copyright 2002-2016 Copper Engine Development Team
+
+
+Performance Test
+----------------
+
+See https://github.com/copper-engine/copper-engine/blob/master/projects/copper-performance-test/PERFORMANCE_TEST_HOWTO.MD
