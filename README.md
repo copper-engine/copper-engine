@@ -67,4 +67,4 @@ Copyright 2002-2016 Copper Engine Development Team
 Performance Test
 ----------------
 
-See https://github.com/copper-engine/copper-engine/blob/master/projects/copper-performance-test/PERFORMANCE_TEST_HOWTO.MD
+See [PERFORMANCE_TEST_HOWTO.MD](https://github.com/copper-engine/copper-engine/blob/master/projects/copper-performance-test/PERFORMANCE_TEST_HOWTO.MD)
