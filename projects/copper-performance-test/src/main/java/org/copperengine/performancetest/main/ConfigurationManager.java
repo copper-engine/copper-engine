@@ -3,6 +3,8 @@ package org.copperengine.performancetest.main;
 import java.io.PrintStream;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+
 public class ConfigurationManager {
 
     private final Properties props;
@@ -50,6 +52,14 @@ public class ConfigurationManager {
                 System.out.println(p.getKey() + "=" + getConfig(p));
             }
         }
+    }
 
+    public void log(Logger logger, ConfigParameterGroup... grps) {
+        logger.info("Configuration parameters:");
+        for (ConfigParameterGroup grp : grps) {
+            for (ConfigParameter p : ConfigParameter.all4group(grp)) {
+                logger.info("{}={}", p.getKey(), getConfig(p));
+            }
+        }
     }
 }

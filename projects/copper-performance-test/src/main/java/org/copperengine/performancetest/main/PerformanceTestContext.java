@@ -184,7 +184,7 @@ public class PerformanceTestContext implements AutoCloseable {
     protected Serializer createSerializer() {
         StandardJavaSerializer serializer = new StandardJavaSerializer();
         boolean compression = configManager.get().getConfigBoolean(ConfigParameter.COMPRESSION);
-        logger.info("compression={}", compression);
+        logger.debug("compression={}", compression);
         serializer.setCompress(compression);
         return serializer;
     }
@@ -266,10 +266,9 @@ public class PerformanceTestContext implements AutoCloseable {
     protected PersistentProcessingEngine createPersistentProcessingEngine() {
         ScottyDBStorageInterface dbStorageInterface = null;
 
-        final String cassandraHosts = props.get().getProperty(ConfigParameter.CASSANDRA_HOSTS.getKey());
-        if (cassandraHosts == null) {
+        if (!isCassandraTest()) {
             final int batcherNumbOfThreads = configManager.get().getConfigInt(ConfigParameter.BATCHER_NUMB_OF_THREADS);
-            logger.info("Starting batcher with {} worker threads", batcherNumbOfThreads);
+            logger.debug("Starting batcher with {} worker threads", batcherNumbOfThreads);
 
             final ComboPooledDataSource dataSource = DataSourceFactory.createDataSource(props.get());
             transactionController = new CopperTransactionController(dataSource);
@@ -298,6 +297,7 @@ public class PerformanceTestContext implements AutoCloseable {
         else {
             transactionController = new HybridTransactionController();
 
+            final String cassandraHosts = props.get().getProperty(ConfigParameter.CASSANDRA_HOSTS.getKey());
             final CassandraSessionManagerImpl sessionManager = new CassandraSessionManagerImpl(Arrays.asList(cassandraHosts.split(",")), configManager.get().getConfigInteger(ConfigParameter.CASSANDRA_PORT), configManager.get().getConfigString(ConfigParameter.CASSANDRA_KEYSPACE));
             sessionManager.startup();
 
@@ -326,7 +326,7 @@ public class PerformanceTestContext implements AutoCloseable {
         }
 
         final int procPoolNumbOfThreads = configManager.get().getConfigInt(ConfigParameter.PROC_POOL_NUMB_OF_THREADS);
-        logger.info("Starting default processor pool with {} worker threads", procPoolNumbOfThreads);
+        logger.debug("Starting default processor pool with {} worker threads", procPoolNumbOfThreads);
         final List<PersistentProcessorPool> pools = new ArrayList<PersistentProcessorPool>();
         final PersistentPriorityProcessorPool pool = new PersistentPriorityProcessorPool(PersistentProcessorPool.DEFAULT_POOL_ID, transactionController, procPoolNumbOfThreads);
         pool.setDequeueBulkSize(configManager.get().getConfigInt(ConfigParameter.PROC_DEQUEUE_BULK_SIZE));
@@ -406,7 +406,7 @@ public class PerformanceTestContext implements AutoCloseable {
 
     protected MockAdapter createMockAdapter() {
         int numberOfThreads = configManager.get().getConfigInt(ConfigParameter.MOCK_ADAPTER_NUMB_OF_THREADS);
-        logger.info("MockAdapter.numberOfThreads={}", numberOfThreads);
+        logger.debug("MockAdapter.numberOfThreads={}", numberOfThreads);
         MockAdapter x = new MockAdapter(numberOfThreads);
         x.setEngine(engine.get());
         return x;
@@ -466,6 +466,11 @@ public class PerformanceTestContext implements AutoCloseable {
 
     public ConfigurationManager getConfigManager() {
         return configManager.get();
+    }
+
+    public boolean isCassandraTest() {
+        final String cassandraHosts = props.get().getProperty(ConfigParameter.CASSANDRA_HOSTS.getKey());
+        return cassandraHosts != null && !cassandraHosts.isEmpty();
     }
 
 }

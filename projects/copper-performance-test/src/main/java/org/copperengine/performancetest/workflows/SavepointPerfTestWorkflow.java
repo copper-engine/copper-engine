@@ -37,7 +37,7 @@ public class SavepointPerfTestWorkflow extends PersistentWorkflow<String> {
             savepoint();
             final long etNanos = System.nanoTime() - startTS;
             statisticsCollector.submit("savepoint.latency", 1, etNanos, TimeUnit.NANOSECONDS);
-            logger.info("Savepoint took {} msec", (double) etNanos / 1000000.0d);
+            logger.debug("Savepoint took {} msec", (double) etNanos / 1000000.0d);
         }
         logger.debug("Finished!");
         backchannel.notify(getId(), getId());

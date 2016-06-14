@@ -1,12 +1,11 @@
 package org.copperengine.performancetest.main;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.PersistentProcessingEngine;
 import org.copperengine.core.WorkflowInstanceDescr;
+import org.copperengine.management.model.MeasurePointData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,32 +24,27 @@ public class LatencyPerformanceTest {
 
     public void run() {
         try (PerformanceTestContext context = new PerformanceTestContext()) {
-            final int dataSize = 1000;
-            final int numbOfWfI = 50;
+            final int dataSize = context.getConfigManager().getConfigInt(ConfigParameter.LATENCY_DATA_SIZE);
+            final int numbOfWfI = context.getConfigManager().getConfigInt(ConfigParameter.LATENCY_NUMBER_OF_WORKFLOW_INSTANCES);
             final String data = createTestData(dataSize);
             final PersistentProcessingEngine engine = context.getEngine();
             final Random random = new Random();
 
+            context.getConfigManager().log(logger, ConfigParameterGroup.latency, ConfigParameterGroup.common, context.isCassandraTest() ? ConfigParameterGroup.cassandra : ConfigParameterGroup.rdbms);
             logger.info("Starting latency performance test with {} workflow instances and data size {} chars ...", numbOfWfI, dataSize);
             final long startTS = System.currentTimeMillis();
-            List<WorkflowInstanceDescr<?>> batch = new ArrayList<>();
             for (int i = 0; i < numbOfWfI; i++) {
                 String wfiId = engine.run(new WorkflowInstanceDescr<>("org.copperengine.performancetest.workflows.SavepointPerfTestWorkflow", data));
                 context.getBackchannel().wait(wfiId, 1, TimeUnit.MINUTES);
                 Thread.sleep(random.nextInt(100) + 5);
             }
-            if (!batch.isEmpty()) {
-                engine.runBatch(batch);
-            }
-
-            logger.info("Workflow instances started, waiting...");
             final long et = System.currentTimeMillis() - startTS;
-            logger.info("Finished performance test with {} workflow instances in {} msec", numbOfWfI, et);
+            final MeasurePointData mp = context.getStatisticsCollector().query("savepoint.latency");
+            final double avgLatency = (mp.getElapsedTimeMicros() / mp.getCount()) / 1000.0;
+            logger.info("Finished performance test with {} workflow instances in {} msec, avg latency is {} msec", numbOfWfI, et, avgLatency);
 
             Thread.sleep(5000); // drain the batcher, etc.
             logger.info("statistics:\n{}", context.getStatisticsCollector().print());
-
-            context.getConfigManager().print(System.out);
 
         } catch (Exception e) {
             logger.error("performance test failed", e);

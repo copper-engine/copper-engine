@@ -42,17 +42,18 @@ public class ThroughputPerformanceTest {
             for (int i = 0; i < numberOfExtraProcessorPools; i++) {
                 final int procPoolNumbOfThreads = context.getConfigManager().getConfigInt(ConfigParameter.PROC_POOL_NUMB_OF_THREADS);
                 final String ppoolId = "P" + i;
-                logger.info("Starting additional processor pool {} with {} threads", ppoolId, procPoolNumbOfThreads);
+                logger.debug("Starting additional processor pool {} with {} threads", ppoolId, procPoolNumbOfThreads);
                 final PersistentPriorityProcessorPool pool = new PersistentPriorityProcessorPool(ppoolId, context.getTransactionController(), procPoolNumbOfThreads);
                 pool.setDequeueBulkSize(context.getConfigManager().getConfigInt(ConfigParameter.PROC_DEQUEUE_BULK_SIZE));
                 context.getProcessorPoolManager().addProcessorPool(pool);
             }
 
-            logger.info("Starting throughput performance test with {} workflow instances and data size {} chars ...", numbOfWfI, dataSize);
-            logger.info("number of insert threads is {}", insertThreads);
-            logger.info("insert batch size is {}", insertBatchSize);
-            logger.info("numberOfExtraProcessorPools is {}", numberOfExtraProcessorPools);
+            context.getConfigManager().log(logger, ConfigParameterGroup.throughput, ConfigParameterGroup.common, context.isCassandraTest() ? ConfigParameterGroup.cassandra : ConfigParameterGroup.rdbms);
+            logger.debug("number of insert threads is {}", insertThreads);
+            logger.debug("insert batch size is {}", insertBatchSize);
+            logger.debug("numberOfExtraProcessorPools is {}", numberOfExtraProcessorPools);
 
+            logger.info("Starting throughput performance test with {} workflow instances and data size {} chars ...", numbOfWfI, dataSize);
             semaphore.acquire(numbOfWfI);
             final long startTS = System.currentTimeMillis();
             ExecutorService pool = insertThreads >= 2 ? Executors.newFixedThreadPool(insertThreads) : null;
@@ -94,14 +95,10 @@ public class ThroughputPerformanceTest {
             semaphore.acquire(numbOfWfI);
             final long et = System.currentTimeMillis() - startTS;
             final long avgWaitNotifyPerSecond = numbOfWfI * 10L * 1000L / et;
-            // logger.info("Finished performance test with {} workflow instances in {} msec ==> {} wait/notify cycles per second",
-            // numbOfWfI, et, avgWaitNotifyPerSecond);
+            logger.info("Finished performance test with {} workflow instances in {} msec ==> {} wait/notify cycles per second", numbOfWfI, et, avgWaitNotifyPerSecond);
 
             Thread.sleep(5000); // drain the batcher
             logger.info("statistics:\n{}", context.getStatisticsCollector().print());
-
-            logger.info("Finished performance test with {} workflow instances in {} msec ==> {} wait/notify cycles per second", numbOfWfI, et, avgWaitNotifyPerSecond);
-            context.getConfigManager().print(System.out);
 
         } catch (Exception e) {
             logger.error("performance test failed", e);

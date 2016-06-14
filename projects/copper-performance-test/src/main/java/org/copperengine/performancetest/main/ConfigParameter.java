@@ -33,7 +33,11 @@ public enum ConfigParameter {
     THROUGHPUTTEST_DATA_SIZE("throughput.dataSize", "Size of the data argument passed to the workflow instances", 50, ConfigParameterGroup.throughput),
     THROUGHPUTTEST_NUMBER_OF_INSERT_THREADS("throughput.numberOfInsertThreads", "Number of concurrent insert threads", 1, ConfigParameterGroup.throughput),
     THROUGHPUTTEST_BATCHS_SIZE("throughput.batchSize", "insert batch size", 100, ConfigParameterGroup.throughput),
-    THROUGHPUTTEST_NUMBER_OF_EXTRA_PROC_POOLS("throughput.numberOfExtraProcPools", "number of extra processor pools", 0, ConfigParameterGroup.throughput);
+    THROUGHPUTTEST_NUMBER_OF_EXTRA_PROC_POOLS("throughput.numberOfExtraProcPools", "number of extra processor pools", 0, ConfigParameterGroup.throughput),
+
+    // configuration parameters used only in the latency performance test
+    LATENCY_NUMBER_OF_WORKFLOW_INSTANCES("latency.numberOfWfI", "Number of workflow instances to process in the test", 50, ConfigParameterGroup.latency),
+    LATENCY_DATA_SIZE("latency.dataSize", "Size of the data argument passed to the workflow instances", 1000, ConfigParameterGroup.latency);
 
     private ConfigParameter(String key, String description, Object defaultValue, ConfigParameterGroup grp) {
         this.key = key;
