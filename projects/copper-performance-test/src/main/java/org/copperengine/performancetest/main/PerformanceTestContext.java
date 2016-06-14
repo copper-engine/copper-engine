@@ -226,6 +226,7 @@ public class PerformanceTestContext implements AutoCloseable {
                 dialect.setWfRepository(wfRepository);
                 dialect.setRuntimeStatisticsCollector(runtimeStatisticsCollector);
                 dialect.setSerializer(serializer);
+                DerbyDbDialect.checkAndCreateSchema(ds);
                 return dialect;
             }
             if ("H2".equalsIgnoreCase(name)) {
@@ -234,6 +235,7 @@ public class PerformanceTestContext implements AutoCloseable {
                 dialect.setWfRepository(wfRepository);
                 dialect.setRuntimeStatisticsCollector(runtimeStatisticsCollector);
                 dialect.setSerializer(serializer);
+                H2Dialect.checkAndCreateSchema(ds);
                 return dialect;
             }
             if ("MySQL".equalsIgnoreCase(name)) {
