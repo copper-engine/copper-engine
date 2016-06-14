@@ -1,8 +1,12 @@
 package org.copperengine.performancetest.main;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Main {
 
     public static void main(String[] args) {
+        System.setProperty("ts", new SimpleDateFormat("yyyyMMdd_HHmmSS").format(new Date()));
         try {
             if (args.length == 0) {
                 usage();
