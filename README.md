@@ -60,11 +60,12 @@ Before you open the project in IntelliJ for the first time, run `./gradlew assem
 Before committing you should always reformat the code. You can configure IntelliJ to do this automatically on each commit.
 
 
-<hr>
-Copyright 2002-2016 Copper Engine Development Team
-
-
 Performance Test
 ----------------
 
 See [PERFORMANCE_TEST_HOWTO.MD](https://github.com/copper-engine/copper-engine/blob/master/projects/copper-performance-test/PERFORMANCE_TEST_HOWTO.MD)
+
+
+
+<hr>
+Copyright 2002-2016 Copper Engine Development Team
