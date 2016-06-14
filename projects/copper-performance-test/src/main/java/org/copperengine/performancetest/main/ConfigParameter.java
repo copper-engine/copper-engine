@@ -15,12 +15,12 @@ public enum ConfigParameter {
     COMPRESSION("compression", "compress workflow instances in DB?", StandardJavaSerializer.DEFAULT_COMPRESS, ConfigParameterGroup.common),
 
     // configuration parameters used only for RDBMS, e.g. Oracle
-    DS_MAX_POOL_SIZE("ds.maxPoolSize", "maximum size of the connection pool", Integer.valueOf(Runtime.getRuntime().availableProcessors() * 2), ConfigParameterGroup.rdbms),
-    DS_MIN_POOL_SIZE("ds.minPoolSize", "minimum size of the connection pool", Integer.valueOf(Runtime.getRuntime().availableProcessors()), ConfigParameterGroup.rdbms),
     DS_DRIVER_CLASS("ds.driverClass", "jdbc driver class", null, ConfigParameterGroup.rdbms, "mandatory when testing RDBMS"),
-    DS_PASSWORD("ds.password", "jdbc password", null, ConfigParameterGroup.rdbms),
-    DS_USER("ds.user", "jdbc user", null, ConfigParameterGroup.rdbms),
     DS_JDBC_URL("ds.jdbcURL", "jdbc URL", null, ConfigParameterGroup.rdbms, "mandatory when testing RDBMS"),
+    DS_USER("ds.user", "jdbc user", null, ConfigParameterGroup.rdbms),
+    DS_PASSWORD("ds.password", "jdbc password", null, ConfigParameterGroup.rdbms),
+    DS_MIN_POOL_SIZE("ds.minPoolSize", "minimum size of the connection pool", Integer.valueOf(Runtime.getRuntime().availableProcessors()), ConfigParameterGroup.rdbms),
+    DS_MAX_POOL_SIZE("ds.maxPoolSize", "maximum size of the connection pool", Integer.valueOf(Runtime.getRuntime().availableProcessors() * 2), ConfigParameterGroup.rdbms),
     BATCHER_NUMB_OF_THREADS("batcher.numberOfThreads", "Number of DB batcher threads", Integer.valueOf(Runtime.getRuntime().availableProcessors()), ConfigParameterGroup.rdbms),
 
     // configuration parameters used only for Cassandra DB
