@@ -306,6 +306,8 @@ public class PerformanceTestContext implements AutoCloseable {
 
             final ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             CassandraStorage storage = new CassandraStorage(sessionManager, pool, statisticsCollector.get());
+            storage.setCreateSchemaOnStartup(true);
+
             HybridDBStorage dbStorage = new HybridDBStorage(serializer.get(), repo.get(), new StorageCache(storage), timeoutManager, pool);
             dbStorageInterface = dbStorage;
 
