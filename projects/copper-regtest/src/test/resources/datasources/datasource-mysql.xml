@@ -33,9 +33,9 @@
            
 	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     	<property name="driverClass" value="com.mysql.jdbc.Driver"/>
-    	<property name="jdbcUrl" value="jdbc:mysql://localhost/COPPER2"/>
-    	<property name="user" value="root"/>
-    	<property name="password" value="geheim"/>
+    	<property name="jdbcUrl" value="${copper.regtest.datasource.mysql.jdbcURL}"/>
+    	<property name="user" value="${copper.regtest.datasource.mysql.user}"/>
+    	<property name="password" value="${copper.regtest.datasource.mysql.password}"/>
     	<property name="maxPoolSize" value="4"/>
     	<property name="minPoolSize" value="2"/>
 	</bean>

@@ -31,6 +31,17 @@
            http://www.springframework.org/schema/jee 
            http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
            
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
+        <property name="locations">
+            <list>
+                <value>classpath:regtest.default.properties</value>
+                <value>classpath:regtest.${user.name}.properties</value>
+            </list>
+        </property>
+        <property name="ignoreResourceNotFound" value="true" />
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+    </bean>           
+           
     <bean id="engineId_RED" class="org.copperengine.core.EngineIdProviderBean">
     	<property name="engineId" value="red"/>
     </bean>

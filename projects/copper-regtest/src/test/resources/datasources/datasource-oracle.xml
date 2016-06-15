@@ -33,7 +33,9 @@
            
 	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     	<property name="driverClass" value="oracle.jdbc.OracleDriver"/>
-    	<property name="jdbcUrl" value="jdbc:oracle:thin:COPPER2/COPPER2@localhost:1521:orcl11g"/>
+    	<property name="jdbcUrl" value="${copper.regtest.datasource.oracle.jdbcURL}"/>
+    	<property name="user" value="${copper.regtest.datasource.oracle.user}"/>
+    	<property name="password" value="${copper.regtest.datasource.oracle.password}"/>
     	<property name="minPoolSize" value="1"/>
     	<property name="maxPoolSize" value="8"/>
     	<property name="preferredTestQuery" value="SELECT 1 FROM DUAL"/>

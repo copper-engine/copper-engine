@@ -33,9 +33,9 @@
            
 	<bean id="datasource_default" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     	<property name="driverClass" value="org.postgresql.Driver"/>
-    	<property name="jdbcUrl" value="jdbc:postgresql://localhost:5432/postgres"/>
-    	<property name="user" value="copper"/>
-    	<property name="password" value="copper4711"/>
+    	<property name="jdbcUrl" value="${copper.regtest.datasource.postgres.jdbcURL}"/>
+    	<property name="user" value="${copper.regtest.datasource.postgres.user}"/>
+    	<property name="password" value="${copper.regtest.datasource.postgres.password}"/>
     	<property name="maxPoolSize" value="4"/>
     	<property name="minPoolSize" value="2"/>
 	</bean>
