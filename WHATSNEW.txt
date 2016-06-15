@@ -1,3 +1,9 @@
+COPPER 4.1.2
+============
+- New feature: COPPER performance test available. See https://github.com/copper-engine/copper-engine/blob/master/projects/copper-performance-test/PERFORMANCE_TEST_HOWTO.MD
+- New feature: Configurable concurrent or downstream response loading in OracleDialect
+- New feature: Log also 'count' in LoggingStatisticCollector
+- Bugfix:      Some SQL statistics were missing in OracleDialect
 COPPER 4.1.1
 ============
 - New feature: Speed up of "Workflow.resubmit" and wait/notify with response arriving before wait is called
