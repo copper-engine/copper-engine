@@ -184,4 +184,22 @@ public class H2Dialect extends AbstractSqlDialect {
         return queryStmt;
     }
 
+    @Override
+    protected void lock(Connection con, String lockContext) throws SQLException {
+        if (!multiEngineMode) {
+            return;
+        }
+        logger.warn("H2Dialet doesn't support multiple engine yet");
+        // TODO implement lock for H2Dialet
+    }
+
+    @Override
+    protected void releaseLock(Connection con, String lockContext) {
+        if (!multiEngineMode) {
+            return;
+        }
+        // TODO
+
+    }
+
 }

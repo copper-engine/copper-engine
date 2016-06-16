@@ -26,13 +26,15 @@ import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * PostgreSQL implementation of the {@link ScottyDBStorageInterface}.
  *
  * @author austermann
  */
 public class PostgreSQLDialect extends AbstractSqlDialect {
+    private static final Logger logger = LoggerFactory.getLogger(PostgreSQLDialect.class);
 
     @Override
     protected PreparedStatement createUpdateStateStmt(final Connection c, final int max) throws SQLException {
@@ -96,5 +98,23 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
             queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) LIMIT " + max);
         }
         return queryStmt;
+    }
+
+    @Override
+    protected void lock(Connection con, String lockContext) throws SQLException {
+        if (!multiEngineMode) {
+            return;
+        }
+        logger.warn("PostgreSQLDialet doesn't support multiple engine yet");
+        // TODO implement lock for PostgreSQLDialet
+    }
+
+    @Override
+    protected void releaseLock(Connection con, String lockContext) {
+        if (!multiEngineMode) {
+            return;
+        }
+        // TODO
+
     }
 }

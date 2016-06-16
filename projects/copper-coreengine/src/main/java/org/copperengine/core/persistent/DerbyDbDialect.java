@@ -205,4 +205,21 @@ public class DerbyDbDialect extends AbstractSqlDialect {
         }
         return queryStmt;
     }
+
+    @Override
+    protected void lock(Connection con, String lockContext) throws SQLException {
+        if (!multiEngineMode) {
+            return;
+        }
+        logger.warn("DerbyDbDialect doesn't support multiple engine yet");
+        // TODO implement lock for DerbyDbDialet
+    }
+
+    @Override
+    protected void releaseLock(Connection con, String lockContext) {
+        if (!multiEngineMode) {
+            return;
+        }
+        // TODO
+    }
 }

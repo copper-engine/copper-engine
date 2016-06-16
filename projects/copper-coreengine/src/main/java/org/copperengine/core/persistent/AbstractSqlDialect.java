@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
@@ -61,6 +62,10 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     private WorkflowRepository wfRepository;
     private RuntimeStatisticsCollector runtimeStatisticsCollector = new NullRuntimeStatisticsCollector();
     private boolean removeWhenFinished = true;
+    /**
+     * if multiple engines could be running together, you MUST turn it on
+     */
+    protected boolean multiEngineMode = true;
     protected long defaultStaleResponseRemovalTimeout = 60 * 60 * 1000;
     protected Serializer serializer = new StandardJavaSerializer();
     protected int dbBatchingLatencyMSec = 20;
@@ -217,15 +222,15 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         PreparedStatement deleteStmt = null;
         PreparedStatement selectResponsesStmt = null;
         PreparedStatement updateBpStmt = null;
+        final String lockContext = "dequeue#" + ppoolId;
         try {
             final long startTS = System.currentTimeMillis();
-
+            lock(con, lockContext);
             final List<Workflow<?>> rv = new ArrayList<Workflow<?>>(max);
             final List<BatchCommand> invalidWorkflowInstances = new ArrayList<BatchCommand>();
 
             dequeueStmt = createDequeueStmt(con, ppoolId, max);
             deleteStmt = con.prepareStatement("delete from COP_QUEUE where WORKFLOW_INSTANCE_ID=?");
-
             dequeueStmtStatistic.start();
             final ResultSet rs = dequeueStmt.executeQuery();
             final Map<String, Workflow<?>> map = new HashMap<String, Workflow<?>>(max * 3);
@@ -307,8 +312,10 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             JdbcUtils.closeStatement(dequeueStmt);
             JdbcUtils.closeStatement(deleteStmt);
             JdbcUtils.closeStatement(selectResponsesStmt);
+            releaseLock(con, lockContext);
         }
     }
+
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void handleInvalidWorkflowInstances(Connection con, final List<BatchCommand> invalidWorkflowInstances) throws Exception {
@@ -324,13 +331,15 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         PreparedStatement queryStmt = null;
         PreparedStatement updStmt = null;
         PreparedStatement insStmt = null;
+        final String lockContext = "deleteStaleResponse";
+
         try {
             int rowcount = 0;
             final long startTS = System.currentTimeMillis();
+            lock(con, lockContext);
+
             final Timestamp NOW = new Timestamp(System.currentTimeMillis());
-
             enqueueUpdateStateStmtStatistic.start();
-
             queryStmt = createUpdateStateStmt(con, max);
             ResultSet rs = queryStmt.executeQuery();
             updStmt = con.prepareStatement("update COP_WAIT set state=1, timeout_ts=timeout_ts where WORKFLOW_INSTANCE_ID=?");
@@ -363,22 +372,47 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             JdbcUtils.closeStatement(insStmt);
             JdbcUtils.closeStatement(updStmt);
             JdbcUtils.closeStatement(queryStmt);
+            releaseLock(con, lockContext);
         }
     }
 
     @Override
     public int deleteStaleResponse(Connection con, int maxRows) throws Exception {
-        PreparedStatement stmt = createDeleteStaleResponsesStmt(con, maxRows);
+        if (logger.isTraceEnabled())
+            logger.trace("deleteStaleResponse()");
+
+        final PreparedStatement stmt = createDeleteStaleResponsesStmt(con, maxRows);
+        final String lockContext = "deleteStaleResponse";
         try {
+            lock(con, lockContext);
             deleteStaleResponsesStmtStatistic.start();
-            int rowCount = stmt.executeUpdate();
+            final int rowCount = stmt.executeUpdate();
             deleteStaleResponsesStmtStatistic.stop(rowCount);
             logger.trace("deleted {} stale response(s).", rowCount);
             return rowCount;
         } finally {
             JdbcUtils.closeStatement(stmt);
+            releaseLock(con, lockContext);
         }
     }
+
+    /**
+     * Locks on the lockContext, implement this to provide multiple engine support
+     * It will block wait until the lock was successfully hold, must be used together with {@link #releaseLock}
+     * 
+     * @param con
+     * @param lockContext
+     * @throws SQLException
+     */
+    abstract protected void lock(Connection con, String lockContext) throws SQLException;
+
+    /**
+     * Releases the lock on the lockContext, use together with {@link #lock(Connection, String)}
+     * 
+     * @param con
+     * @param lockContext
+     */
+    abstract protected void releaseLock(Connection con, String lockContext);
 
     @Override
     public void restart(String workflowInstanceId, Connection c) throws Exception {
@@ -585,6 +619,8 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     @Override
     public List<String> checkDbConsistency(Connection con) throws Exception {
+        if (multiEngineMode)
+            throw new CopperRuntimeException("Cannot check DB consistency when multiEngineMode is turned on!");
         final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,object_state,PPOOL_ID from COP_WORKFLOW_INSTANCE where state not in (?,?)");
         try {
             final List<String> idsOfBadWorkflows = new ArrayList<String>();
@@ -733,5 +769,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         } finally {
             JdbcUtils.closeStatement(queryStmt);
         }
+    }
+
+    public void setMultiEngineMode(boolean multiEngineMode) {
+        this.multiEngineMode = multiEngineMode;
     }
 }
