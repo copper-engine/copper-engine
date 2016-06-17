@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.copperengine.core.Acknowledge;
-import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
@@ -619,8 +618,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     @Override
     public List<String> checkDbConsistency(Connection con) throws Exception {
-        if (multiEngineMode)
-            throw new CopperRuntimeException("Cannot check DB consistency when multiEngineMode is turned on!");
+        if (multiEngineMode) {
+            logger.warn("Checking DB consistency when multiEngineMode is turned on!");
+        }
         final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,object_state,PPOOL_ID from COP_WORKFLOW_INSTANCE where state not in (?,?)");
         try {
             final List<String> idsOfBadWorkflows = new ArrayList<String>();
