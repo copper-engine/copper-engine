@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
  */
 public class MySqlDialect extends AbstractSqlDialect {
     private static final Logger logger = LoggerFactory.getLogger(MySqlDialect.class);
-    private static final int ACQUIRE_BLOCKING_WAIT_SEC = 15;
 
     @Override
     protected PreparedStatement createUpdateStateStmt(final Connection c, final int max) throws SQLException {

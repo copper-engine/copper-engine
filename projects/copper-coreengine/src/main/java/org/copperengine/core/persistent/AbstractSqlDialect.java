@@ -66,6 +66,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
      */
     protected boolean multiEngineMode = true;
     protected long defaultStaleResponseRemovalTimeout = 60 * 60 * 1000;
+    protected final int ACQUIRE_BLOCKING_WAIT_SEC = 10;
     protected Serializer serializer = new StandardJavaSerializer();
     protected int dbBatchingLatencyMSec = 20;
     private WorkflowPersistencePlugin workflowPersistencePlugin = WorkflowPersistencePlugin.NULL_PLUGIN;
@@ -129,6 +130,18 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         enqueueUpdateStateStmtStatistic = new StmtStatistic("DBStorage.enqueue.updateState", runtimeStatisticsCollector);
         insertStmtStatistic = new StmtStatistic("DBStorage.insert", runtimeStatisticsCollector);
         deleteStaleResponsesStmtStatistic = new StmtStatistic("DBStorage.deleteStaleResponses", runtimeStatisticsCollector);
+    }
+
+    /**
+     * returns an int value between 0 and 1073741823 (exclusive)
+     */
+    protected static int computeLockId(String s) {
+        // This method handles the following fact: Math.abs(Integer.MIN_VALUE) == Integer.MIN_VALUE
+        int hashCode = s.hashCode();
+        if (hashCode == Integer.MIN_VALUE) {
+            hashCode = 13;
+        }
+        return Math.abs(hashCode) % 1073741823;
     }
 
     protected String getResourceAsString(String name) {
