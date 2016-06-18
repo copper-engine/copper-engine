@@ -343,7 +343,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         PreparedStatement queryStmt = null;
         PreparedStatement updStmt = null;
         PreparedStatement insStmt = null;
-        final String lockContext = "deleteStaleResponse";
+        final String lockContext = "updateQueueState";
 
         try {
             int rowcount = 0;
