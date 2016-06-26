@@ -17,6 +17,7 @@ package org.copperengine.core.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Timestamp;
@@ -27,14 +28,18 @@ import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
-
+import org.copperengine.core.db.utility.JdbcUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * MySQL implementation of the {@link DatabaseDialect} interface.
  *
  * @author austermann
  */
 public class MySqlDialect extends AbstractSqlDialect {
+    private static final Logger logger = LoggerFactory.getLogger(MySqlDialect.class);
 
+    @Override
     protected PreparedStatement createUpdateStateStmt(final Connection c, final int max) throws SQLException {
         final Timestamp NOW = new Timestamp(System.currentTimeMillis());
         PreparedStatement pstmt = c.prepareStatement(queryUpdateQueueState + " LIMIT 0," + max);
@@ -43,12 +48,14 @@ public class MySqlDialect extends AbstractSqlDialect {
         return pstmt;
     }
 
+    @Override
     protected PreparedStatement createDequeueStmt(final Connection c, final String ppoolId, final int max) throws SQLException {
         PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from COP_QUEUE where ppool_id = ? order by priority, last_mod_ts) LIMIT 0," + max);
         dequeueStmt.setString(1, ppoolId);
         return dequeueStmt;
     }
 
+    @Override
     protected PreparedStatement createDeleteStaleResponsesStmt(final Connection c, final int MAX_ROWS) throws SQLException {
         PreparedStatement stmt = c.prepareStatement("delete from COP_RESPONSE where response_timeout < ? and not exists (select * from COP_WAIT w where w.correlation_id = COP_RESPONSE.correlation_id LIMIT " + MAX_ROWS + ")");
         stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
@@ -94,5 +101,86 @@ public class MySqlDialect extends AbstractSqlDialect {
             queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) LIMIT 0," + max);
         }
         return queryStmt;
+    }
+
+    /**
+     * Note: For MySQL the advisory lock only applies to the current connection, if the connection terminates, it will
+     * release the lock automatically.
+     * If you try to lock multiple times on the same lockContext, for the same connection, you need to release multiple
+     * times, it won't deadlock since version 5.7.5, please consult:
+     * http://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock
+     */
+    @Override
+    protected void lock(Connection con, final String lockContext) throws SQLException {
+        if (!multiEngineMode) {
+            return;
+        }
+        if (logger.isDebugEnabled())
+            logger.debug("Trying to acquire db lock for '" + lockContext);
+        PreparedStatement stmt = con.prepareStatement("select get_lock(?,?)");
+        stmt.setString(1, lockContext);
+        stmt.setInt(2, ACQUIRE_BLOCKING_WAIT_SEC);
+        try {
+            final ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                final int lockResult = rs.getInt(1);
+                if (lockResult == 1) {
+                    // success
+                    return;
+                }
+
+                final String errorMsgPrefix = "error acquire lock(" + lockContext + "," + ACQUIRE_BLOCKING_WAIT_SEC + "): ";
+                if (rs.wasNull()) {
+                    throw new SQLException(errorMsgPrefix + "unknown");
+                } else if (lockResult == 0) {
+                    // timeout
+                    throw new SQLException(errorMsgPrefix + "timeout");
+                }
+            }
+            // something else must be horribly wrong
+            throw new SQLException("Please check your version of MySQL, to make sure it supports get_lock() & release_lock()");
+        } finally {
+            JdbcUtils.closeStatement(stmt);
+        }
+    }
+
+    @Override
+    protected void releaseLock(Connection con, final String lockContext) {
+        if (!multiEngineMode) {
+            return;
+        }
+        if (logger.isDebugEnabled())
+            logger.debug("Trying to release db lock for '" + lockContext);
+        PreparedStatement stmt = null;
+        try {
+            stmt = con.prepareStatement("select release_lock(?)");
+            stmt.setString(1, lockContext);
+
+            final ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                final int releaseLockResult = rs.getInt(1);
+                if (releaseLockResult == 1) {
+                    // success
+                    return;
+                }
+
+                final String errorMsgPrefix = "error release_lock(" + lockContext + "): ";
+                if (rs.wasNull()) {
+                    throw new SQLException(errorMsgPrefix + "doesn't exist");
+                } else if (releaseLockResult == 0) {
+                    // failed release the lock
+                    throw new SQLException(errorMsgPrefix + "not current connection's lock");
+                }
+            }
+            // something else must be horribly wrong
+            throw new SQLException("Please check your version of MySQL, to make sure it supports get_lock() & release_lock()");
+        } catch (SQLException e) {
+            logger.error("release_lock failed", e);
+        } finally {
+            if (stmt != null) {
+                JdbcUtils.closeStatement(stmt);
+            }
+        }
+
     }
 }

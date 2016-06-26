@@ -17,6 +17,7 @@ package org.copperengine.core.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -26,13 +27,16 @@ import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
-
+import org.copperengine.core.db.utility.JdbcUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * PostgreSQL implementation of the {@link ScottyDBStorageInterface}.
  *
  * @author austermann
  */
 public class PostgreSQLDialect extends AbstractSqlDialect {
+    private static final Logger logger = LoggerFactory.getLogger(PostgreSQLDialect.class);
 
     @Override
     protected PreparedStatement createUpdateStateStmt(final Connection c, final int max) throws SQLException {
@@ -96,5 +100,63 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
             queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) LIMIT " + max);
         }
         return queryStmt;
+    }
+
+    /**
+     * ref: https://www.postgresql.org/docs/9.5/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
+     * pg_advisory_lock locks an application-defined resource, which can be identified either by a single 64-bit key
+     * value or two 32-bit key values (note that these two key spaces do not overlap). If another session already holds
+     * a lock on the same resource identifier, this function will wait until the resource becomes available. The lock is
+     * exclusive. Multiple lock requests stack, so that if the same resource is locked three times it must then be
+     * unlocked three times to be released for other sessions' use.
+     * DO NOT USE IT WITHOUT finally { release_lock(lockContext)} or it will be deadlocked!!
+     */
+    @Override
+    protected void lock(Connection con, final String lockContext) throws SQLException {
+        if (!multiEngineMode) {
+            return;
+        }
+        if (logger.isDebugEnabled())
+            logger.debug("Trying to acquire db lock for '" + lockContext);
+        final int lockId = computeLockId(lockContext);
+        PreparedStatement stmt = con.prepareStatement("SELECT pg_advisory_lock(?)");
+        stmt.setInt(1, lockId);
+        try {
+            stmt.executeQuery();
+        } finally {
+            JdbcUtils.closeStatement(stmt);
+        }
+    }
+
+    @Override
+    protected void releaseLock(Connection con, final String lockContext) {
+        if (!multiEngineMode) {
+            return;
+        }
+        if (logger.isDebugEnabled())
+            logger.debug("Trying to release db lock for '" + lockContext);
+        PreparedStatement stmt = null;
+        final int lockId = computeLockId(lockContext);
+        try {
+            stmt = con.prepareStatement("select pg_advisory_unlock(?)");
+            stmt.setInt(1, lockId);
+
+            final ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                final boolean releaseLockResult = rs.getBoolean(1);
+                if (releaseLockResult) {
+                    // success
+                    return;
+                }
+                throw new SQLException("error pg_advisory_unlock(" + lockId + ")");
+            }
+        } catch (SQLException e) {
+            logger.error("release_lock failed", e);
+        } finally {
+            if (stmt != null) {
+                JdbcUtils.closeStatement(stmt);
+            }
+        }
+
     }
 }

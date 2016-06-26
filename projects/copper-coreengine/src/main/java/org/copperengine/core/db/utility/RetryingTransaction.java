@@ -79,15 +79,19 @@ public abstract class RetryingTransaction<R> implements Transaction<R> {
 
     /**
      * This function is to be implemented by anonymous inner classes. Usage
-     * should look like this: <code>...
+     * should look like this:
+     * 
+     * <pre>
+     * {@code
      * new RetryingTransaction<ReturnType>("TestTransaction") {
-     *       protected ReturnType execute() {
-     *             doSomething();
-     *             doAnotherThing();
-     *             return ...;
-     *       }
-     *    }.run();
-     *    </code>
+     * protected ReturnType execute() {
+     * doSomething();
+     * doAnotherThing();
+     * return ...;
+     * }
+     * }.run();
+     * }
+     * </pre>
      */
     protected abstract R execute() throws Exception;
 
@@ -100,6 +104,7 @@ public abstract class RetryingTransaction<R> implements Transaction<R> {
      * case of exceptions etc.), and automatic retries in case of deadlocks or
      * timeouts.
      */
+    @Override
     public final R run() throws Exception {
         if (getCurrent() != null) {
             if (logger.isDebugEnabled())
