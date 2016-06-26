@@ -108,7 +108,7 @@ public class MySqlDialect extends AbstractSqlDialect {
      * release the lock automatically.
      * If you try to lock multiple times on the same lockContext, for the same connection, you need to release multiple
      * times, it won't deadlock since version 5.7.5, please consult:
-     * {@linkplain http://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock}
+     * http://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock
      */
     @Override
     protected void lock(Connection con, final String lockContext) throws SQLException {

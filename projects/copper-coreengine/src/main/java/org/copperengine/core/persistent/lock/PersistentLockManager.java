@@ -15,6 +15,8 @@
  */
 package org.copperengine.core.persistent.lock;
 
+import org.copperengine.core.Response;
+
 /**
  * A service to obtain/manager persistent locks, e.g. to functionally synchronize workflow instances.
  * 
@@ -62,7 +64,7 @@ public interface PersistentLockManager {
      *             }
      *         }
      *     }
-     * 
+     *}
      * </pre>
      * 
      * @param lockId

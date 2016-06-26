@@ -43,14 +43,14 @@ public interface PersistentPriorityProcessorPoolMXBean extends ProcessorPoolMXBe
      * Workflow instances that already reside in the transient queue are still processed, i.e.
      * calling this methods runs this processor pool "dry".
      * 
-     * @see PersistentProcessorPool#resumeDequeue()
+     * @see #resumeDequeue()
      */
     public void suspendDequeue();
 
     /**
      * Resumes dequeuing of workflow instances from the storage.
      * 
-     * @see PersistentProcessorPool#suspendDequeue()
+     * @see #suspendDequeue()
      */
     public void resumeDequeue();
 

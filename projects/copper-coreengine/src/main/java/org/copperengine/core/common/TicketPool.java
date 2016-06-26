@@ -96,7 +96,7 @@ public class TicketPool {
      * are obtained.
      * 
      * @param count
-     *            number of tickets to obtain. must be 0 > count < maxTickets
+     *        number of tickets to obtain. must be 0 &gt; count &lt; maxTickets
      * @throws IllegalArgumentException
      */
     public void obtain(int count) throws IllegalArgumentException {
@@ -177,6 +177,7 @@ public class TicketPool {
         notifyAll();
     }
 
+    @Override
     public synchronized String toString() {
         return id + ": " + used + " of " + maxTickets + " tickets used";
     }
