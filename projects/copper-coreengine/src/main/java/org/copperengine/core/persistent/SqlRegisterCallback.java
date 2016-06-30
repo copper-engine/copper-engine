@@ -78,7 +78,7 @@ class SqlRegisterCallback {
         @Override
         public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
             try (
-                    PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
+                    PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=?");
                     PreparedStatement deleteWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
                     PreparedStatement deleteResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE RESPONSE_ID=?");
                     PreparedStatement insertWaitStmt = con.prepareStatement("INSERT INTO COP_WAIT (CORRELATION_ID,WORKFLOW_INSTANCE_ID,MIN_NUMB_OF_RESP,TIMEOUT_TS,STATE,PRIORITY,PPOOL_ID) VALUES (?,?,?,?,?,?,?)");
@@ -125,9 +125,8 @@ class SqlRegisterCallback {
                     updateWfiStmt.addBatch();
 
                     stmtDelQueue.setString(1, ((PersistentWorkflow<?>) rc.workflow).getId());
-                    stmtDelQueue.setString(2, ((PersistentWorkflow<?>) rc.workflow).oldProcessorPoolId);
-                    stmtDelQueue.setInt(3, ((PersistentWorkflow<?>) rc.workflow).oldPrio);
                     stmtDelQueue.addBatch();
+                    logger.debug("Deleting {} from cop_queue", ((PersistentWorkflow<?>) rc.workflow).getId());
 
                     Set<String> cidList = ((PersistentWorkflow<?>) rc.workflow).waitCidList;
                     if (cidList != null) {

@@ -56,7 +56,7 @@ public class MySqlDialect extends AbstractSqlDialect {
 
     @Override
     protected PreparedStatement createDequeueStmt(final Connection c, final String ppoolId, final int max) throws SQLException {
-        PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from COP_QUEUE where ppool_id = ? order by priority, last_mod_ts) LIMIT 0," + max);
+        PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from COP_QUEUE where ppool_id = ?  and engine_id is NULL order by priority, last_mod_ts) LIMIT 0," + max);
         dequeueStmt.setString(1, ppoolId);
         return dequeueStmt;
     }

@@ -83,6 +83,7 @@ create table COP_QUEUE (
    PRIORITY             TINYINT                         not null,
    LAST_MOD_TS          TIMESTAMP                       not null,
    WORKFLOW_INSTANCE_ID	VARCHAR(128) 					not null,
+   ENGINE_ID            VARCHAR(16) NULL,
    PRIMARY KEY (WORKFLOW_INSTANCE_ID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

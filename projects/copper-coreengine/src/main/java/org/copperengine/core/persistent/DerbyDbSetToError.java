@@ -57,7 +57,7 @@ class DerbyDbSetToError {
         @Override
         public void doExec(final Collection<BatchCommand<Executor, Command>> commands, final Connection con) throws Exception {
             try (
-                    final PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
+                    final PreparedStatement stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=?");
                     final PreparedStatement stmtUpdateState = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE ID=?");
                     final PreparedStatement stmtInsertError = con.prepareStatement("INSERT INTO COP_WORKFLOW_INSTANCE_ERROR (WORKFLOW_INSTANCE_ID, \"EXCEPTION\", ERROR_TS) VALUES (?,?,?)")) {
 
@@ -75,8 +75,6 @@ class DerbyDbSetToError {
                     stmtInsertError.addBatch();
 
                     stmtDelQueue.setString(1, cmd.wf.getId());
-                    stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
-                    stmtDelQueue.setInt(3, cmd.wf.oldPrio);
                     stmtDelQueue.addBatch();
                 }
                 stmtUpdateState.executeBatch();

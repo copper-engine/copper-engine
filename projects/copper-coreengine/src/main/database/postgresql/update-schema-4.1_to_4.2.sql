@@ -1,0 +1,1 @@
+ alter table cop_queue add ENGINE_ID VARCHAR(16) NULL;

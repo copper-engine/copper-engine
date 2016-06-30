@@ -75,6 +75,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
     @Override
     public void main() throws Interrupt {
+        logger.info("Started!");
         try {
             // testWaitAllMultiResponseAndTimeout();
 

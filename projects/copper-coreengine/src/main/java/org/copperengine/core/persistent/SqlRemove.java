@@ -70,7 +70,7 @@ class SqlRemove {
             try {
                 final List<String> responseIds2delete = new ArrayList<>();
                 HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>> wfs = new HashMap<WorkflowPersistencePlugin, ArrayList<PersistentWorkflow<?>>>();
-                stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=? AND PPOOL_ID=? AND PRIORITY=?");
+                stmtDelQueue = con.prepareStatement("DELETE FROM COP_QUEUE WHERE WORKFLOW_INSTANCE_ID=?");
                 stmtDelResponse = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE RESPONSE_ID=?");
                 stmtDelWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE CORRELATION_ID=?");
                 stmtDelBP = remove ? con.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?") : con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=" + DBProcessingState.FINISHED.ordinal() + ", LAST_MOD_TS=? WHERE ID=?");
@@ -100,8 +100,6 @@ class SqlRemove {
                     stmtDelErrors.addBatch();
 
                     stmtDelQueue.setString(1, cmd.wf.getId());
-                    stmtDelQueue.setString(2, cmd.wf.oldProcessorPoolId);
-                    stmtDelQueue.setInt(3, cmd.wf.oldPrio);
                     stmtDelQueue.addBatch();
 
                     ArrayList<PersistentWorkflow<?>> _wfs = wfs.get(cmd.workflowPersistencePlugin);

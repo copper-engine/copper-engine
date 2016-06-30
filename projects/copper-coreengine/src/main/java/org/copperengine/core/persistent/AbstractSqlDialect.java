@@ -22,7 +22,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +34,7 @@ import java.util.Map;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.DuplicateIdException;
+import org.copperengine.core.EngineIdProvider;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
@@ -72,6 +72,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     protected int dbBatchingLatencyMSec = 20;
     private WorkflowPersistencePlugin workflowPersistencePlugin = WorkflowPersistencePlugin.NULL_PLUGIN;
     protected String queryUpdateQueueState = getResourceAsString("/sql-query-ready-bpids.sql");
+    private String engineId;
 
     private StmtStatistic dequeueStmtStatistic;
     private StmtStatistic queueDeleteStmtStatistic;
@@ -90,7 +91,22 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     @Override
     public void startup() {
+        if (multiEngineMode && engineId == null) {
+            throw new NullPointerException("EngineId is NULL! Change your " + getClass().getSimpleName() + " configuration.");
+        }
+        if (engineId == null) {
+            engineId = "default";
+            logger.info("Setting engineId to {}", engineId);
+        }
         initStats();
+    }
+
+    public void setEngineId(String engineId) {
+        this.engineId = engineId;
+    }
+
+    public void setEngineIdProvider(EngineIdProvider engineIdProvider) {
+        engineId = engineIdProvider.getEngineId();
     }
 
     @Override
@@ -191,44 +207,15 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     public void resumeBrokenBusinessProcesses(Connection con) throws Exception {
         logger.info("resumeBrokenBusinessProcesses");
 
-        final Statement truncateStmt = con.createStatement();
+        logger.info("Reactivating queue entries...");
+        final PreparedStatement stmt = con.prepareStatement("UPDATE COP_QUEUE SET engine_id = null WHERE engine_id=?");
         try {
-            logger.info("Truncating queue...");
-            truncateStmt.execute("TRUNCATE TABLE COP_QUEUE");
-            logger.info("done!");
+            stmt.setString(1, engineId);
+            stmt.execute();
         } finally {
-            JdbcUtils.closeStatement(truncateStmt);
+            JdbcUtils.closeStatement(stmt);
         }
-
-        final PreparedStatement insertStmt = con.prepareStatement("insert into COP_QUEUE (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) (select ppool_id, priority, last_mod_ts, id from COP_WORKFLOW_INSTANCE where state=0)");
-        try {
-            logger.info("Adding all BPs in state 0 to queue...");
-            int rowcount = insertStmt.executeUpdate();
-            logger.info("done - processed " + rowcount + " BP(s).");
-        } finally {
-            JdbcUtils.closeStatement(insertStmt);
-        }
-
-        final PreparedStatement updateStmt = con.prepareStatement("update COP_WAIT set state=0 where state=1");
-        try {
-            logger.info("Changing all WAITs to state 0...");
-            int rowcount = updateStmt.executeUpdate();
-            logger.info("done - changed " + rowcount + " WAIT(s).");
-        } finally {
-            JdbcUtils.closeStatement(updateStmt);
-        }
-
-        logger.info("Adding all BPs in working state with existing response(s)...");
-        int rowcount = 0;
-        for (;;) {
-            int x = updateQueueState(100000, con);
-            con.commit(); // TODO this is dirty
-            if (x == 0)
-                break;
-            rowcount += x;
-        }
-
-        logger.info("done - processed " + rowcount + " BPs.");
+        logger.info("done!");
     }
 
     @SuppressWarnings("rawtypes")
@@ -237,7 +224,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         logger.trace("dequeue({},{})", ppoolId, max);
 
         PreparedStatement dequeueStmt = null;
-        PreparedStatement deleteStmt = null;
+        PreparedStatement updateQueueStmt = null;
         PreparedStatement selectResponsesStmt = null;
         PreparedStatement updateBpStmt = null;
         final String lockContext = "dequeue#" + ppoolId;
@@ -248,7 +235,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             final List<BatchCommand> invalidWorkflowInstances = new ArrayList<BatchCommand>();
 
             dequeueStmt = createDequeueStmt(con, ppoolId, max);
-            deleteStmt = con.prepareStatement("delete from COP_QUEUE where WORKFLOW_INSTANCE_ID=?");
+            updateQueueStmt = con.prepareStatement("update COP_QUEUE set ENGINE_ID=? where WORKFLOW_INSTANCE_ID=?");
             dequeueStmtStatistic.start();
             final ResultSet rs = dequeueStmt.executeQuery();
             final Map<String, Workflow<?>> map = new HashMap<String, Workflow<?>>(max * 3);
@@ -256,8 +243,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 final String id = rs.getString(1);
                 final int prio = rs.getInt(2);
 
-                deleteStmt.setString(1, id);
-                deleteStmt.addBatch();
+                updateQueueStmt.setString(1, engineId);
+                updateQueueStmt.setString(2, id);
+                updateQueueStmt.addBatch();
 
                 try {
                     SerializedWorkflow sw = new SerializedWorkflow();
@@ -311,7 +299,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 }
 
                 queueDeleteStmtStatistic.start();
-                deleteStmt.executeBatch();
+                updateQueueStmt.executeBatch();
                 queueDeleteStmtStatistic.stop(map.size());
 
                 @SuppressWarnings("unchecked")
@@ -328,7 +316,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         } finally {
             JdbcUtils.closeStatement(updateBpStmt);
             JdbcUtils.closeStatement(dequeueStmt);
-            JdbcUtils.closeStatement(deleteStmt);
+            JdbcUtils.closeStatement(updateQueueStmt);
             JdbcUtils.closeStatement(selectResponsesStmt);
             releaseLock(con, lockContext);
         }
@@ -364,18 +352,20 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             while (rs.next()) {
                 rowcount++;
 
-                final String bpId = rs.getString(1);
+                final String wfiId = rs.getString(1);
                 final String ppoolId = rs.getString(2);
                 final int prio = rs.getInt(3);
 
-                updStmt.setString(1, bpId);
+                updStmt.setString(1, wfiId);
                 updStmt.addBatch();
 
                 insStmt.setString(1, ppoolId);
                 insStmt.setInt(2, prio);
                 insStmt.setTimestamp(3, NOW);
-                insStmt.setString(4, bpId);
+                insStmt.setString(4, wfiId);
                 insStmt.addBatch();
+
+                logger.debug("Inserting {} into COP_QUEUE", wfiId);
             }
             rs.close();
             if (rowcount > 0) {
@@ -385,6 +375,12 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             enqueueUpdateStateStmtStatistic.stop(rowcount == 0 ? 1 : rowcount);
             logger.debug("Queue update in {} msec", (System.currentTimeMillis() - startTS));
             return rowcount;
+        } catch (SQLException e) {
+            ResultSet rs = con.createStatement().executeQuery("SELECT WORKFLOW_INSTANCE_ID FROM COP_QUEUE");
+            while (rs.next()) {
+                logger.info("WORKFLOW_INSTANCE_ID={}", rs.getString(1));
+            }
+            throw e;
         } finally {
             JdbcUtils.closeStatement(insStmt);
             JdbcUtils.closeStatement(updStmt);
@@ -578,6 +574,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             int n = 0;
             for (int i = 0; i < wfs.size(); i++) {
                 Workflow<?> wf = wfs.get(i);
+                logger.debug("insert({})", wf.getId());
                 final SerializedWorkflow sw = serializer.serializeWorkflow(wf);
                 stmtWF.setString(1, wf.getId());
                 stmtWF.setInt(2, DBProcessingState.ENQUEUED.ordinal());

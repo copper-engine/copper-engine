@@ -85,6 +85,7 @@ create table COP_QUEUE (
    PRIORITY             SMALLINT                        not null,
    LAST_MOD_TS          TIMESTAMP                       not null,
    WORKFLOW_INSTANCE_ID	VARCHAR(128) 					not null,
+   ENGINE_ID            VARCHAR(16),
    PRIMARY KEY (WORKFLOW_INSTANCE_ID)
 );
 
