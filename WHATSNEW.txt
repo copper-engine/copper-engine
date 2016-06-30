@@ -1,3 +1,7 @@
+COPPER 4.2.0
+============
+-New feature:  Multi-engine support for MySQL and Postgres
+
 COPPER 4.1.2
 ============
 - New feature: COPPER performance test available. See https://github.com/copper-engine/copper-engine/blob/master/projects/copper-performance-test/PERFORMANCE_TEST_HOWTO.MD
