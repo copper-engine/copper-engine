@@ -1,6 +1,7 @@
 COPPER 4.2.0
 ============
--New feature:  Multi-engine support for MySQL and Postgres
+-New feature:  Multi-engine support for MySQL and Postgres (Attention! DB schema of MySQL, Postgres, DerbyDB and H2 has changed!)
+-Maintenance:  Removed various deprecated methods
 
 COPPER 4.1.2
 ============

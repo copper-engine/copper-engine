@@ -50,10 +50,6 @@ public class TestEngine implements PersistentProcessingEngine {
     }
 
     @Override
-    public void notify(Response<?> response) throws CopperRuntimeException {
-    }
-
-    @Override
     public String createUUID() {
         return Long.toHexString(System.currentTimeMillis());
     }

@@ -18,7 +18,6 @@ package org.copperengine.core.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.copperengine.core.Acknowledge;
 import org.copperengine.core.CopperException;
 import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.DependencyInjector;
@@ -26,7 +25,6 @@ import org.copperengine.core.EngineIdProvider;
 import org.copperengine.core.EngineIdProviderBean;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.ProcessingEngine;
-import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.WorkflowFactory;
@@ -229,13 +227,6 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     @Override
     public WorkflowRepositoryMXBean getWorkflowRepository() {
         return (WorkflowRepositoryMXBean) ((this.wfRepository instanceof WorkflowRepositoryMXBean) ? this.wfRepository : null);
-    }
-
-    @Override
-    @Deprecated
-    public final void notify(Response<?> response) throws CopperRuntimeException {
-        Acknowledge.BestEffortAcknowledge ack = new Acknowledge.BestEffortAcknowledge();
-        notify(response, ack);
     }
 
     public void injectDependencies(Workflow<?> wf) {

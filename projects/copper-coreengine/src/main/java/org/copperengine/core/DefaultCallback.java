@@ -40,18 +40,6 @@ class DefaultCallback<E> implements Callback<E>, Serializable {
     }
 
     @Override
-    @Deprecated
-    public void notify(E response) {
-        engine.notify(new Response<E>(correlationId, response, null), new Acknowledge.BestEffortAcknowledge());
-    }
-
-    @Override
-    @Deprecated
-    public void notify(Exception exception) {
-        engine.notify(new Response<E>(correlationId, null, exception), new Acknowledge.BestEffortAcknowledge());
-    }
-
-    @Override
     public void notify(E response, Acknowledge ack) {
         engine.notify(new Response<E>(correlationId, response, null), ack);
     }
