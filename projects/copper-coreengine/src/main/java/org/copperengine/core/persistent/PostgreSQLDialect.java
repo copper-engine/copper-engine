@@ -17,7 +17,6 @@ package org.copperengine.core.persistent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -30,13 +29,19 @@ import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.db.utility.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * PostgreSQL implementation of the {@link ScottyDBStorageInterface}.
  *
  * @author austermann
  */
 public class PostgreSQLDialect extends AbstractSqlDialect {
+
     private static final Logger logger = LoggerFactory.getLogger(PostgreSQLDialect.class);
+
+    public PostgreSQLDialect() {
+        super(true, false);
+    }
 
     @Override
     protected PreparedStatement createUpdateStateStmt(final Connection c, final int max) throws SQLException {
@@ -112,14 +117,10 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
      * DO NOT USE IT WITHOUT finally { release_lock(lockContext)} or it will be deadlocked!!
      */
     @Override
-    protected void lock(Connection con, final String lockContext) throws SQLException {
-        if (!multiEngineMode) {
-            return;
-        }
-        if (logger.isDebugEnabled())
-            logger.debug("Trying to acquire db lock for '" + lockContext);
+    protected void doLock(Connection con, final String lockContext) throws SQLException {
+        logger.debug("Trying to acquire db lock for '{}'", lockContext);
         final int lockId = computeLockId(lockContext);
-        PreparedStatement stmt = con.prepareStatement("SELECT pg_advisory_lock(?)");
+        PreparedStatement stmt = con.prepareStatement("SELECT pg_advisory_xact_lock (?)");
         stmt.setInt(1, lockId);
         try {
             stmt.executeQuery();
@@ -129,34 +130,7 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
     }
 
     @Override
-    protected void releaseLock(Connection con, final String lockContext) {
-        if (!multiEngineMode) {
-            return;
-        }
-        if (logger.isDebugEnabled())
-            logger.debug("Trying to release db lock for '" + lockContext);
-        PreparedStatement stmt = null;
-        final int lockId = computeLockId(lockContext);
-        try {
-            stmt = con.prepareStatement("select pg_advisory_unlock(?)");
-            stmt.setInt(1, lockId);
-
-            final ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                final boolean releaseLockResult = rs.getBoolean(1);
-                if (releaseLockResult) {
-                    // success
-                    return;
-                }
-                throw new SQLException("error pg_advisory_unlock(" + lockId + ")");
-            }
-        } catch (SQLException e) {
-            logger.error("release_lock failed", e);
-        } finally {
-            if (stmt != null) {
-                JdbcUtils.closeStatement(stmt);
-            }
-        }
-
+    protected void doReleaseLock(Connection con, final String lockContext) {
+        // pg_advisory_xact_lock automatically releases the lock at the end of the transaction
     }
 }

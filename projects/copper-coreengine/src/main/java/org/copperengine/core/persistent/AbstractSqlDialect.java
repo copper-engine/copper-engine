@@ -64,7 +64,8 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     /**
      * if multiple engines could be running together, you MUST turn it on
      */
-    protected boolean multiEngineMode = true;
+    protected boolean multiEngineMode;
+    protected final boolean supportsMultipleEngines;
     protected long defaultStaleResponseRemovalTimeout = 60 * 60 * 1000;
     protected final int ACQUIRE_BLOCKING_WAIT_SEC = 10;
     protected Serializer serializer = new StandardJavaSerializer();
@@ -79,7 +80,12 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     private StmtStatistic deleteStaleResponsesStmtStatistic;
 
     public AbstractSqlDialect() {
+        this(false, false);
+    }
 
+    public AbstractSqlDialect(final boolean supportsMultipleEngines, final boolean defaultMultiEngineMode) {
+        this.supportsMultipleEngines = supportsMultipleEngines;
+        setMultiEngineMode(defaultMultiEngineMode);
     }
 
     @Override
@@ -328,7 +334,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         }
     }
 
-
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void handleInvalidWorkflowInstances(Connection con, final List<BatchCommand> invalidWorkflowInstances) throws Exception {
         logger.debug("invalidWorkflowInstances.size()={}", invalidWorkflowInstances.size());
@@ -408,6 +413,18 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         }
     }
 
+    protected void lock(Connection con, String lockContext) throws SQLException {
+        if (!multiEngineMode)
+            return;
+        doLock(con, lockContext);
+    }
+
+    protected void releaseLock(Connection con, String lockContext) {
+        if (!multiEngineMode)
+            return;
+        doReleaseLock(con, lockContext);
+    }
+
     /**
      * Locks on the lockContext, implement this to provide multiple engine support
      * It will block wait until the lock was successfully hold, must be used together with {@link #releaseLock}
@@ -416,7 +433,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
      * @param lockContext
      * @throws SQLException
      */
-    abstract protected void lock(Connection con, String lockContext) throws SQLException;
+    protected void doLock(Connection con, String lockContext) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Releases the lock on the lockContext, use together with {@link #lock(Connection, String)}
@@ -424,7 +443,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
      * @param con
      * @param lockContext
      */
-    abstract protected void releaseLock(Connection con, String lockContext);
+    protected void doReleaseLock(Connection con, String lockContext) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public void restart(String workflowInstanceId, Connection c) throws Exception {
@@ -785,6 +806,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     }
 
     public void setMultiEngineMode(boolean multiEngineMode) {
+        if (!supportsMultipleEngines && multiEngineMode) {
+            throw new IllegalArgumentException("MultiEngineMode not supported!");
+        }
         this.multiEngineMode = multiEngineMode;
     }
 }
