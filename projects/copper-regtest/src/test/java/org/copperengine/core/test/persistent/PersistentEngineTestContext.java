@@ -14,6 +14,7 @@ import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.batcher.impl.BatcherImpl;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.db.utility.RetryingTransaction;
+import org.copperengine.core.persistent.AbstractSqlDialect;
 import org.copperengine.core.persistent.DataSourceFactory;
 import org.copperengine.core.persistent.DatabaseDialect;
 import org.copperengine.core.persistent.OracleDialect;
@@ -233,8 +234,11 @@ public class PersistentEngineTestContext extends TestContext {
                     if (x instanceof OracleDialect) {
                         ((OracleDialect) x).setMultiEngineMode(true);
                     }
+                    else if (x instanceof AbstractSqlDialect) {
+                        ((AbstractSqlDialect) x).setMultiEngineMode(true);
+                    }
                     else {
-                        throw new IllegalArgumentException("MultiEngineMode only supported for Oracle");
+                        throw new RuntimeException("Unexpected DatabaseDialect: " + x.getClass().getName());
                     }
                 }
                 return x;

@@ -15,21 +15,8 @@
  */
 package org.copperengine.core.test.persistent;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
 
-import java.sql.ResultSet;
-
-import org.copperengine.core.EngineState;
-import org.copperengine.core.ProcessingEngine;
-import org.copperengine.core.db.utility.RetryingTransaction;
-import org.copperengine.core.persistent.PersistentScottyEngine;
-import org.copperengine.core.test.DataHolder;
-import org.copperengine.core.test.backchannel.BackChannelQueue;
-import org.copperengine.core.test.backchannel.WorkflowResult;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,82 +75,8 @@ public class OraclePersistentWorkflowTest extends SpringlessBasePersistentWorkfl
 
     @Test
     public void testMultipleEngines() throws Exception {
-        assumeFalse(skipTests());
-
         assertTrue("DBMS not available", dbmsAvailable);
-
-        logger.info("running testMultipleEngines");
-        final int NUMB = 50;
-
-        final PersistentEngineTestContext contextRed = new PersistentEngineTestContext(DS_CONTEXT, true, "red", true);
-        contextRed.startup();
-
-        final PersistentEngineTestContext contextBlue = new PersistentEngineTestContext(DS_CONTEXT, false, "blue", true) {
-            @Override
-            protected DataHolder createDataHolder() {
-                return contextRed.getDataHolder();
-            }
-
-            @Override
-            protected BackChannelQueue createBackChannelQueue() {
-                return contextRed.getBackChannelQueue();
-            }
-        };
-        contextBlue.startup();
-
-        final PersistentScottyEngine engineRed = contextRed.getEngine();
-        final PersistentScottyEngine engineBlue = contextBlue.getEngine();
-        final BackChannelQueue backChannelQueue = contextRed.getBackChannelQueue();
-        try {
-            assertEquals(EngineState.STARTED, engineRed.getEngineState());
-            assertEquals(EngineState.STARTED, engineBlue.getEngineState());
-
-            for (int i = 0; i < NUMB; i++) {
-                ProcessingEngine engine = i % 2 == 0 ? engineRed : engineBlue;
-                engine.run(PersistentUnitTestWorkflow_NAME, null);
-            }
-
-            int x = 0;
-            long startTS = System.currentTimeMillis();
-            while (x < NUMB && startTS + 15000 > System.currentTimeMillis()) {
-                WorkflowResult wfr = backChannelQueue.poll();
-
-                if (wfr != null) {
-                    assertNull(wfr.getResult());
-                    assertNull(wfr.getException());
-                    x++;
-                } else {
-                    Thread.sleep(50);
-                }
-            }
-            assertSame("Test failed - Timeout - " + x + " responses so far", x, NUMB);
-
-            Thread.sleep(1000);
-
-            // check for late queue entries
-            assertNull(backChannelQueue.poll());
-
-            // check AuditTrail Log
-            new RetryingTransaction<Void>(contextRed.getDataSource()) {
-                @Override
-                protected Void execute() throws Exception {
-                    ResultSet rs = getConnection().createStatement().executeQuery("SELECT count(*) FROM COP_AUDIT_TRAIL_EVENT");
-                    rs.next();
-                    int count = rs.getInt(1);
-                    assertEquals(NUMB * 6, count);
-                    rs.close();
-                    return null;
-                }
-            }.run();
-        } finally {
-            contextRed.close();
-            contextBlue.close();
-        }
-        assertEquals(EngineState.STOPPED, engineRed.getEngineState());
-        assertEquals(EngineState.STOPPED, engineBlue.getEngineState());
-        assertEquals(0, engineRed.getNumberOfWorkflowInstances());
-        assertEquals(0, engineBlue.getNumberOfWorkflowInstances());
-
+        super.testMultipleEngines(DS_CONTEXT);
     }
 
     @Test

@@ -146,4 +146,9 @@ public class PostgreSQLPersistentWorkflowTest extends SpringlessBasePersistentWo
         super.testMulipleResponsesForSameCidPersistentTestWorkflow(DS_CONTEXT);
     }
 
+    @Test
+    public void testMultipleEngines() throws Exception {
+        assertTrue("DBMS not available", dbmsAvailable);
+        super.testMultipleEngines(DS_CONTEXT);
+    }
 }
