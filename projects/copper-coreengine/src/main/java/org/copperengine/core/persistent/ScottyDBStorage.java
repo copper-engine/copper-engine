@@ -87,6 +87,12 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
         this.batcher = batcher;
     }
 
+    /**
+     * Sets the time period after which early responses without a corresponding wait-call are removed from the database.
+     * 
+     * @param deleteStaleResponsesIntervalMsec
+     *        time period in milliseconds
+     */
     public void setDeleteStaleResponsesIntervalMsec(long deleteStaleResponsesIntervalMsec) {
         this.deleteStaleResponsesIntervalMsec = deleteStaleResponsesIntervalMsec;
     }
