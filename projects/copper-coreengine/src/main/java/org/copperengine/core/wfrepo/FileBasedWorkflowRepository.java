@@ -61,7 +61,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A file system based workflow repository for COPPER.
- *
+ * Workflow classes have to be deployed as Java files.
+ * They have to reside in one ore more directories or/and in one or more jarfiles.
+ * On system startup these Java files are automatically compiled and instrumented by this repository.
+ * It offers hot deployment by observing the Java files in the configured directories. In case of modifications, all
+ * Java files are compiled and instrumented again.
+ * 
  * @author austermann
  */
 public class FileBasedWorkflowRepository extends AbstractWorkflowRepository implements WorkflowRepository, FileBasedWorkflowRepositoryMXBean {
