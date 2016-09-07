@@ -37,7 +37,8 @@ INITRANS 5;
 create table COP_WORKFLOW_INSTANCE_ERROR (
    WORKFLOW_INSTANCE_ID		VARCHAR2(128CHAR) not null,
    EXCEPTION				CLOB			  not null,
-   ERROR_TS     	   		TIMESTAMP(3)      not null
+   ERROR_TS     	   		TIMESTAMP(3)      not null,
+   constraint FK_COP_WFIE_REFERENCE_WFI foreign key (WORKFLOW_INSTANCE_ID) references COP_WORKFLOW_INSTANCE (ID)
 );
  
 create index IDX_COP_WFID_WFID on COP_WORKFLOW_INSTANCE_ERROR (
