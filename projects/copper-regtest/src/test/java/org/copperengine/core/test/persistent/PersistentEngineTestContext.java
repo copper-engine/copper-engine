@@ -195,6 +195,9 @@ public class PersistentEngineTestContext extends TestContext {
         else if (dataSourceType == DataSourceType.Postgres) {
             ds = DataSourceFactory.createPostgresDatasource();
         }
+        else if (dataSourceType == DataSourceType.Oracle_simple) {
+            ds = DataSourceFactory.createOracleSimpleDatasource();
+        }
         else {
             throw new IllegalArgumentException(dataSourceType.name());
         }

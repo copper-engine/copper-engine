@@ -33,6 +33,7 @@ import org.copperengine.core.persistent.DerbyDbDialect;
 import org.copperengine.core.persistent.H2Dialect;
 import org.copperengine.core.persistent.MySqlDialect;
 import org.copperengine.core.persistent.OracleDialect;
+import org.copperengine.core.persistent.OracleSimpleDialect;
 import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.persistent.PostgreSQLDialect;
 import org.copperengine.core.persistent.ScottyDBStorage;
@@ -143,11 +144,18 @@ public abstract class RdbmsEngineFactory<T extends DependencyInjector> extends A
             c = ds.getConnection();
             String name = c.getMetaData().getDatabaseProductName();
             if ("oracle".equalsIgnoreCase(name)) {
-                OracleDialect dialect = new OracleDialect();
-                dialect.setWfRepository(wfRepository);
-                dialect.setEngineIdProvider(engineIdProvider);
-                dialect.setMultiEngineMode(false);
-                return dialect;
+                if (OracleDialect.schemaMatches(c)) {
+                    OracleDialect dialect = new OracleDialect();
+                    dialect.setWfRepository(wfRepository);
+                    dialect.setEngineIdProvider(engineIdProvider);
+                    dialect.setMultiEngineMode(false);
+                    return dialect;
+                }
+                else {
+                    OracleSimpleDialect dialect = new OracleSimpleDialect();
+                    dialect.setWfRepository(wfRepository);
+                    return dialect;
+                }
             }
             if ("Apache Derby".equalsIgnoreCase(name)) {
                 DerbyDbDialect dialect = new DerbyDbDialect();

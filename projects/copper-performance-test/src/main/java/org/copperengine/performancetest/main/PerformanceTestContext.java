@@ -2,7 +2,6 @@ package org.copperengine.performancetest.main;
 
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +34,7 @@ import org.copperengine.core.persistent.DerbyDbDialect;
 import org.copperengine.core.persistent.H2Dialect;
 import org.copperengine.core.persistent.MySqlDialect;
 import org.copperengine.core.persistent.OracleDialect;
+import org.copperengine.core.persistent.OracleSimpleDialect;
 import org.copperengine.core.persistent.PersistentPriorityProcessorPool;
 import org.copperengine.core.persistent.PersistentProcessorPool;
 import org.copperengine.core.persistent.PersistentScottyEngine;
@@ -205,20 +205,30 @@ public class PerformanceTestContext implements AutoCloseable {
     }
 
     protected DatabaseDialect createDialect(DataSource ds, WorkflowRepository wfRepository, EngineIdProvider engineIdProvider, RuntimeStatisticsCollector runtimeStatisticsCollector, Serializer serializer) {
-        Connection c = null;
-        try {
-            c = ds.getConnection();
+        try (Connection c = ds.getConnection()) {
             String name = c.getMetaData().getDatabaseProductName();
             logger.info("Test database type is {}", name);
             if ("oracle".equalsIgnoreCase(name)) {
-                OracleDialect dialect = new OracleDialect();
-                dialect.setWfRepository(wfRepository);
-                dialect.setEngineIdProvider(engineIdProvider);
-                dialect.setMultiEngineMode(false);
-                dialect.setRuntimeStatisticsCollector(runtimeStatisticsCollector);
-                dialect.setSerializer(serializer);
-                dialect.startup();
-                return dialect;
+                if (OracleDialect.schemaMatches(c)) {
+                    OracleDialect dialect = new OracleDialect();
+                    dialect.setWfRepository(wfRepository);
+                    dialect.setEngineIdProvider(engineIdProvider);
+                    dialect.setMultiEngineMode(false);
+                    dialect.setRuntimeStatisticsCollector(runtimeStatisticsCollector);
+                    dialect.setSerializer(serializer);
+                    dialect.startup();
+                    return dialect;
+                }
+                else {
+                    OracleSimpleDialect dialect = new OracleSimpleDialect();
+                    dialect.setWfRepository(wfRepository);
+                    dialect.setEngineIdProvider(engineIdProvider);
+                    dialect.setMultiEngineMode(false);
+                    dialect.setRuntimeStatisticsCollector(runtimeStatisticsCollector);
+                    dialect.setSerializer(serializer);
+                    dialect.startup();
+                    return dialect;
+                }
             }
             if ("Apache Derby".equalsIgnoreCase(name)) {
                 DerbyDbDialect dialect = new DerbyDbDialect();
@@ -255,13 +265,6 @@ public class PerformanceTestContext implements AutoCloseable {
             throw new Error("No dialect available for DBMS " + name);
         } catch (Exception e) {
             throw new CopperRuntimeException("Unable to create dialect", e);
-        } finally {
-            if (c != null)
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    logger.error("unable to close connection", e);
-                }
         }
     }
 

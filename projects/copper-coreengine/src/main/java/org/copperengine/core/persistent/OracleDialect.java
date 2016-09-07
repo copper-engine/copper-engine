@@ -725,4 +725,11 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         }
     }
 
+    public static boolean schemaMatches(Connection c) throws SQLException {
+        try (PreparedStatement stmt = c.prepareStatement("select count(*) from user_tab_columns where TABLE_NAME='COP_QUEUE' and COLUMN_NAME='WFI_ROWID'")) {
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+            return rs.getInt(1) == 1;
+        }
+    }
 }
