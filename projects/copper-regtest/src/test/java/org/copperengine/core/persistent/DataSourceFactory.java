@@ -141,4 +141,8 @@ public class DataSourceFactory {
         }
     }
 
+    public static ComboPooledDataSource createOracleSimpleDatasource() {
+        return createDataSource("copper.regtest.datasource.oracle_simple.");
+    }
+
 }

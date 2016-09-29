@@ -115,9 +115,9 @@ class SqlRemove {
                 if (cidsFound) {
                     stmtDelWait.executeBatch();
                 }
-                stmtDelBP.executeBatch();
-                stmtDelErrors.executeBatch();
                 stmtDelQueue.executeBatch();
+                stmtDelErrors.executeBatch();
+                stmtDelBP.executeBatch();
 
                 deleteResponses(stmtDelResponse, responseIds2delete, preferredBatchSize());
 
