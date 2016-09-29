@@ -297,7 +297,8 @@ project(':projects:copper-ext') {
         compile project(':projects:copper-coreengine')
 	compile 'commons-io:commons-io:2.4'
 	compile 'com.google.guava:guava:18.0'
-    
+    	compile group: 'org.yaml', name: 'snakeyaml', version: '1.17'
+    	
         testCompile "org.slf4j:slf4j-log4j12:$slf4jVersion"
         testCompile "org.slf4j:slf4j-api:$slf4jVersion"
     }

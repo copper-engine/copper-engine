@@ -2,6 +2,7 @@ COPPER 4.2.0
 ============
 -New feature:  Multi-engine support for MySQL and Postgres (Attention! DB schema of MySQL, Postgres, DerbyDB and H2 has changed!)
 -Maintenance:  Removed various deprecated methods
+-New feature:  YamlSerializer - using the YAML format for storing workflow data in the database
 
 COPPER 4.1.2
 ============
