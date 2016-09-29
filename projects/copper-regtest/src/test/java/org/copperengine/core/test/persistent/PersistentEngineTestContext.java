@@ -155,10 +155,10 @@ public class PersistentEngineTestContext extends TestContext {
                     stmt.execute("DELETE FROM COP_QUEUE");
                     stmt.close();
                     stmt = createStatement(getConnection());
-                    stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE");
+                    stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
                     stmt.close();
                     stmt = createStatement(getConnection());
-                    stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR");
+                    stmt.execute("DELETE FROM COP_WORKFLOW_INSTANCE");
                     stmt.close();
                     stmt = createStatement(getConnection());
                     stmt.execute("DELETE FROM COP_LOCK");
