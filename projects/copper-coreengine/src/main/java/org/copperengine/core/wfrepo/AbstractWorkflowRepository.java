@@ -286,7 +286,7 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
     protected void checkConstraints(Map<String, Class<?>> workflowClasses) throws CopperRuntimeException {
         for (Class<?> c : workflowClasses.values()) {
             if (c.getName().length() > 512) {
-                throw new CopperRuntimeException("Workflow class names are limited to 256 characters");
+                throw new CopperRuntimeException("Workflow class names are limited to 512 characters");
             }
         }
     }
