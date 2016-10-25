@@ -261,7 +261,12 @@ public abstract class Workflow<D> implements Serializable {
     }
 
     /**
-     * Gets and removes a response for the specified correlation id
+     * Gets and removes a response for the specified correlation id.
+     * <p>
+     * <b>Attention</b>: When a workflow instance is resumed after a <code>Workflow.wait</code> call, all corresponding
+     * responses for this workflow instance in the storage are read. Each of these responses that you do NOT retrieve
+     * using {@link Workflow#getAndRemoveResponse(String)} or {@link Workflow#getAndRemoveResponses(String)} are
+     * discarded when calling the next <code>Workflow.wait</code>
      *
      * @param correlationId
      * @return the response or null, if no response for the specified correlation id is found
@@ -282,6 +287,11 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * Gets and removes all responses for the specified correlation id
+     * <p>
+     * <b>Attention</b>: When a workflow instance is resumed after a <code>Workflow.wait</code> call, all corresponding
+     * responses for this workflow instance in the storage are read. Each of these responses that you do NOT retrieve
+     * using {@link Workflow#getAndRemoveResponse(String)} or {@link Workflow#getAndRemoveResponses(String)} are
+     * discarded when calling the next <code>Workflow.wait</code>
      *
      * @param correlationId
      * @return the list of responses or an empty list, if no response for the specified correlation id is found
