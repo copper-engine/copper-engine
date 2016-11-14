@@ -15,11 +15,17 @@
  */
 package org.copperengine.monitoring.server.util;
 
+import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
+
 public class FileUtil {
 
-    public static String convertStreamToString(java.io.InputStream is) {
-        @SuppressWarnings("resource")
-        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
+    public static String convertStreamToString(InputStream is) {
+        try {
+            return IOUtils.toString(is, "UTF-8");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

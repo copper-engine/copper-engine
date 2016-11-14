@@ -15,8 +15,9 @@
  */
 package org.copperengine.monitoring.client.util;
 
-import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
 
 public class CodeMirrorFormatter {
     private final String codemirrorcss;
@@ -39,17 +40,11 @@ public class CodeMirrorFormatter {
         InputStream input = null;
         try {
             input = getClass().getResourceAsStream(resourceclasspath);
-            @SuppressWarnings("resource")
-            java.util.Scanner s = new java.util.Scanner(input).useDelimiter("\\A");
-            return s.hasNext() ? s.next() : "";
+            return IOUtils.toString(input, "UTF-8");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
-            try {
-                if (input != null) {
-                    input.close();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            IOUtils.closeQuietly(input);
         }
     }
 
@@ -59,7 +54,7 @@ public class CodeMirrorFormatter {
 
     /**
      * @param selectLine
-     *            1=first line
+     *        1=first line
      */
     public String format(String code, CodeFormatLanguage language, boolean ediable, int selectLine) {
         String ediableString = "" + ediable;

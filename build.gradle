@@ -416,6 +416,7 @@ project(':projects:copper-monitoring:copper-monitoring-server') {
         compile "com.mchange:c3p0:$c3p0Version"
 
         compile 'log4j:log4j:1.2.17'
+	compile 'commons-io:commons-io:2.4'
 
         testRuntime 'com.h2database:h2:1.3.171'
     }
@@ -468,6 +469,7 @@ project(':projects:copper-monitoring:copper-monitoring-client') {
         compile 'commons-httpclient:commons-httpclient:3.1'
 
         compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
+	compile 'commons-io:commons-io:2.4'
         
     }
 
