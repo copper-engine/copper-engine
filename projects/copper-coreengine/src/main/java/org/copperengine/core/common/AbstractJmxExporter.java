@@ -71,28 +71,28 @@ public abstract class AbstractJmxExporter {
         }
     }
 
-    /** return a map with entries { "name" -> WorkflowRepositoryMXBean }. The map may be empty. */
+    /** return a map with entries { "name" -&gt; WorkflowRepositoryMXBean }. The map may be empty. */
     protected abstract Map<String, WorkflowRepositoryMXBean> getWorkflowRepositoryMXBeans();
 
-    /** return a map with entries { "name" -> ProcessingEngineMXBean }. The map may be empty. */
+    /** return a map with entries { "name" -&gt; ProcessingEngineMXBean }. The map may be empty. */
     protected abstract Map<String, ProcessingEngineMXBean> getProcessingEngineMXBeans();
 
-    /** return a map with entries { "name" -> ProcessorPoolMXBean }. The map may be empty. */
+    /** return a map with entries { "name" -&gt; ProcessorPoolMXBean }. The map may be empty. */
     protected abstract Map<String, ProcessorPoolMXBean> getProcessorPoolMXBeans();
 
-    /** return a map with entries { "name" -> StatisticsCollectorMXBean }. The map may be empty. */
+    /** return a map with entries { "name" -&gt; StatisticsCollectorMXBean }. The map may be empty. */
     protected abstract Map<String, StatisticsCollectorMXBean> getStatisticsCollectorMXBeans();
 
-    /** return a map with entries { "name" -> AuditTrailMXBean }. The map may be empty. */
+    /** return a map with entries { "name" -&gt; AuditTrailMXBean }. The map may be empty. */
     protected abstract Map<String, AuditTrailMXBean> getAuditTrailMXBeans();
 
-    /** return a map with entries { "name" -> BatcherMXBean }. The map may be empty. */
+    /** return a map with entries { "name" -&gt; BatcherMXBean }. The map may be empty. */
     protected abstract Map<String, BatcherMXBean> getBatcherMXBeans();
 
-    /** return a map with entries { "name" -> DatabaseDialectMXBean }. The map may be empty. */
+    /** return a map with entries { "name" -&gt; DatabaseDialectMXBean }. The map may be empty. */
     protected abstract Map<String, DatabaseDialectMXBean> getDatabaseDialectMXBeans();
 
-    /** return a map with entries { "name" -> AuditTrailQueryMXBean }. The map may be empty. */
+    /** return a map with entries { "name" -&gt; AuditTrailQueryMXBean }. The map may be empty. */
     protected abstract Map<String, AuditTrailQueryMXBean> getAuditTrailQueryMXBeans();
 
     private void register(MBeanServer mBeanServer, Map<String, ?> map, String domain) throws MalformedObjectNameException, InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {

@@ -15,6 +15,8 @@
  */
 package org.copperengine.core.persistent.lock;
 
+import org.copperengine.core.Response;
+
 /**
  * A service to obtain/manager persistent locks, e.g. to functionally synchronize workflow instances.
  * 
@@ -35,34 +37,32 @@ public interface PersistentLockManager {
      * <p>
      * 
      * <pre>
-     * {@code
-     *     private void acquireLock(final String lockId) throws Interrupt {
-     *         for (;;) {
-     *             logger.info("Going to acquire lock '{}'", lockId);
-     *             final String cid = persistentLockManager.acquireLock(lockId, this.getId());
-     *             if (cid == null) {
-     *                 logger.info("Successfully acquired lock '{}'", lockId);
-     *                 return;
+     * private void acquireLock(final String lockId) throws Interrupt {
+     *     for (;;) {
+     *         logger.info(&quot;Going to acquire lock '{}'&quot;, lockId);
+     *         final String cid = persistentLockManager.acquireLock(lockId, this.getId());
+     *         if (cid == null) {
+     *             logger.info(&quot;Successfully acquired lock '{}'&quot;, lockId);
+     *             return;
+     *         }
+     *         else {
+     *             logger.info(&quot;Lock '{}' is currently not free - calling wait...&quot;, lockId);
+     *             wait(WaitMode.ALL, 10000, cid);
+     *             final Response&lt;PersistentLockResult&gt; result = getAndRemoveResponse(cid);
+     *             logger.info(&quot;lock result={}&quot;, result);
+     *             if (result.isTimeout()) {
+     *                 logger.info(&quot;Failed to acquire lock: Timeout - trying again...&quot;);
+     *             }
+     *             else if (result.getResponse() != PersistentLockResult.OK) {
+     *                 logger.error(&quot;Failed to acquire lock: {} - trying again...&quot;, result.getResponse());
      *             }
      *             else {
-     *                 logger.info("Lock '{}' is currently not free - calling wait...", lockId);
-     *                 wait(WaitMode.ALL, 10000, cid);
-     *                 final Response<PersistentLockResult> result = getAndRemoveResponse(cid);
-     *                 logger.info("lock result={}", result);
-     *                 if (result.isTimeout()) {
-     *                     logger.info("Failed to acquire lock: Timeout - trying again...");
-     *                 }
-     *                 else if (result.getResponse() != PersistentLockResult.OK) {
-     *                     logger.error("Failed to acquire lock: {} - trying again...", result.getResponse());
-     *                 }
-     *                 else {
-     *                     logger.info("Successfully acquired lock '{}'", lockId);
-     *                     return;
-     *                 }
+     *                 logger.info(&quot;Successfully acquired lock '{}'&quot;, lockId);
+     *                 return;
      *             }
      *         }
      *     }
-     * 
+     * }
      * </pre>
      * 
      * @param lockId

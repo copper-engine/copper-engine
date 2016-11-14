@@ -58,7 +58,7 @@ import com.google.common.reflect.ClassPath;
  * On the other hand there is no hot deployment feature and the JMX interface does not show the java source code of the
  * deployed workflows. Anyhow, this workflow repo is probably suitable for most simple COPPER applications.
  * <p>
- * See {@link ClasspathWorkflowRepositoryTest#testExec()} for sample usage.
+ * See ClasspathWorkflowRepositoryTest.java testExec() for sample usage.
  * <p>
  * 
  * <pre>

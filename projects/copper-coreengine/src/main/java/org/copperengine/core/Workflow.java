@@ -176,7 +176,7 @@ public abstract class Workflow<D> implements Serializable {
      * @param mode
      *        WaitMode
      * @param timeoutMsec
-     *        timeout in milliseconds or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
+     *        timeout in milliseconds or {@link Workflow#NO_TIMEOUT} (or any value &le; 0) to wait for ever
      * @param correlationIds
      *        one ore more correlation ids
      */
@@ -206,7 +206,7 @@ public abstract class Workflow<D> implements Serializable {
      * @param mode
      *        WaitMode
      * @param timeout
-     *        timeout or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
+     *        timeout or {@link Workflow#NO_TIMEOUT} (or any value &le; 0) to wait for ever
      * @param timeUnit
      *        unit of the timeout; ignored, if a negative timeout is specified
      * @param correlationIds
@@ -230,7 +230,7 @@ public abstract class Workflow<D> implements Serializable {
      * @param mode
      *        WaitMode
      * @param timeout
-     *        timeout or {@link Workflow#NO_TIMEOUT} (or any value <= 0) to wait for ever
+     *        timeout or {@link Workflow#NO_TIMEOUT} (or any value &le; 0) to wait for ever
      * @param timeUnit
      *        unit of the timeout; ignored, if a negative timeout is specified
      * @param callbacks

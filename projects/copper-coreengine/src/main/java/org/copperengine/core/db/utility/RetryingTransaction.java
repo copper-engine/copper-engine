@@ -80,7 +80,7 @@ public abstract class RetryingTransaction<R> implements Transaction<R> {
     /**
      * This function is to be implemented by anonymous inner classes. Usage
      * should look like this: <code>...
-     * new RetryingTransaction<ReturnType>("TestTransaction") {
+     * new RetryingTransaction&lt;ReturnType&gt;("TestTransaction") {
      *       protected ReturnType execute() {
      *             doSomething();
      *             doAnotherThing();
@@ -119,7 +119,7 @@ public abstract class RetryingTransaction<R> implements Transaction<R> {
                 R result = null;
                 currentTransaction.set(this);
                 connection = aquireConnection(false);
-                for (int seqNr = 1; ; seqNr++) {
+                for (int seqNr = 1;; seqNr++) {
                     try {
                         result = execute();
                         if (modificatory) {
@@ -196,7 +196,7 @@ public abstract class RetryingTransaction<R> implements Transaction<R> {
 
     protected Connection aquireConnection(boolean validateNewConnection) throws SQLException {
         int counter = 0;
-        for (; ; ) {
+        for (;;) {
             try {
                 Connection c = ds.getConnection();
                 c.setAutoCommit(false);

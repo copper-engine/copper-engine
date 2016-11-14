@@ -80,10 +80,10 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 
     /**
      * This processor pool wait up to the specified number of milliseconds until all of its Processors are terminated.
-     * A value <= 0 means, that the processor pool will not wait at all.
+     * A value &le; 0 means, that the processor pool will not wait at all.
      * 
      * @param shutdownWaitIntervalMSec
-     *            wait interval in milliseconds
+     *        wait interval in milliseconds
      */
     public void setShutdownWaitIntervalMSec(int shutdownWaitIntervalMSec) {
         this.shutdownWaitIntervalMSec = shutdownWaitIntervalMSec;

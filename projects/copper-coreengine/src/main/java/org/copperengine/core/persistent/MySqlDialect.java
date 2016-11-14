@@ -113,8 +113,9 @@ public class MySqlDialect extends AbstractSqlDialect {
      * Note: For MySQL the advisory lock only applies to the current connection, if the connection terminates, it will
      * release the lock automatically.
      * If you try to lock multiple times on the same lockContext, for the same connection, you need to release multiple
-     * times, it won't deadlock since version 5.7.5, please consult: {@linkplain http
-     * ://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock}
+     * times, it won't deadlock since version 5.7.5, please consult:
+     * <a href="http://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock">
+     * http://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock</a>
      */
     @Override
     protected void doLock(Connection con, final String lockContext) throws SQLException {
