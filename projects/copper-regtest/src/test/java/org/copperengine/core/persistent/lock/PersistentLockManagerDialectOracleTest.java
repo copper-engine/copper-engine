@@ -56,7 +56,7 @@ public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLo
 
     @Test
     public void testAcquireLock_MultiConcurrent() throws Exception {
-        Assume.assumeFalse(skipTests());
+        Assume.assumeFalse(skipTests() || dataSource == null);
 
         final Connection con = getConnection();
         final Connection con2 = getConnection();

@@ -62,18 +62,20 @@ public class PersistentLockManagerImplTest {
             dataSource = DataSourceFactory.createOracleDatasource();
         }
 
-        Connection con = getConnection();
-        try {
-            con.createStatement().execute("DELETE FROM COP_LOCK");
-            con.commit();
-        } finally {
-            JdbcUtils.closeConnection(con);
+        if (dataSource != null) {
+            Connection con = getConnection();
+            try {
+                con.createStatement().execute("DELETE FROM COP_LOCK");
+                con.commit();
+            } finally {
+                JdbcUtils.closeConnection(con);
+            }
         }
     }
 
     @Test
     public void testAcquireLock() throws Exception {
-        Assume.assumeFalse(skipTests());
+        Assume.assumeFalse(skipTests() || dataSource == null);
 
         final String LOCK_ID = "LOCK";
         final PersistentProcessingEngine engine = Mockito.mock(PersistentProcessingEngine.class);

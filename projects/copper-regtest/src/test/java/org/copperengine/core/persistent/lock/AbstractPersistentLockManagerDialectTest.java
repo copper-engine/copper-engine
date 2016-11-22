@@ -30,7 +30,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public abstract class AbstractPersistentLockManagerDialectTest {
 
-    private static ComboPooledDataSource dataSource;
+    protected static ComboPooledDataSource dataSource;
 
     @AfterClass
     public static void afterClass() {
