@@ -41,6 +41,8 @@ public abstract class AbstractPersistentLockManagerDialectTest {
     }
 
     static Connection getConnection() throws SQLException {
+        if (dataSource == null)
+            return null;
         Connection c = dataSource.getConnection();
         c.setAutoCommit(false);
         return c;
@@ -56,11 +58,13 @@ public abstract class AbstractPersistentLockManagerDialectTest {
         }
 
         Connection con = getConnection();
-        try {
-            con.createStatement().execute("DELETE FROM COP_LOCK");
-            con.commit();
-        } finally {
-            JdbcUtils.closeConnection(con);
+        if (con != null) {
+            try {
+                con.createStatement().execute("DELETE FROM COP_LOCK");
+                con.commit();
+            } finally {
+                JdbcUtils.closeConnection(con);
+            }
         }
     }
 
@@ -70,7 +74,7 @@ public abstract class AbstractPersistentLockManagerDialectTest {
 
     @Test
     public void testAcquireLock_Simple() throws Exception {
-        Assume.assumeFalse(skipTests());
+        Assume.assumeFalse(skipTests() || dataSource == null);
 
         Connection con = getConnection();
         try {
@@ -93,7 +97,7 @@ public abstract class AbstractPersistentLockManagerDialectTest {
 
     @Test
     public void testAcquireLock_Doubled() throws Exception {
-        Assume.assumeFalse(skipTests());
+        Assume.assumeFalse(skipTests() || dataSource == null);
 
         Connection con = getConnection();
         try {
@@ -125,7 +129,7 @@ public abstract class AbstractPersistentLockManagerDialectTest {
 
     @Test
     public void testAcquireLock_Multi() throws Exception {
-        Assume.assumeFalse(skipTests());
+        Assume.assumeFalse(skipTests() || dataSource == null);
 
         Connection con = getConnection();
         try {

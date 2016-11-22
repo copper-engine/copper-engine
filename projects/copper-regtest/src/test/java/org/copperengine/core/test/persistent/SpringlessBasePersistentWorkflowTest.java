@@ -126,10 +126,7 @@ public class SpringlessBasePersistentWorkflowTest {
     }
 
     private Statement createStatement(Connection con) throws SQLException {
-        return con.createStatement(
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        return con.createStatement();
     }
 
     final String createTestData(int length) {

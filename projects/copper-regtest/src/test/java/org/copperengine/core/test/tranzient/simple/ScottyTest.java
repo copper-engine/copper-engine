@@ -41,7 +41,7 @@ public class ScottyTest {
         public float theFloat = 105.1516F;
         public double theDouble = 106.1516;
         public boolean theBoolean = true;
-        public char theChar = '€';
+        public char theChar = '\u20AC';
 
         public TestData testData;
         public TestData[] testDatas;

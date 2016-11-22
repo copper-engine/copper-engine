@@ -1,7 +1,6 @@
 package org.copperengine.core.test.persistent;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
@@ -97,7 +96,7 @@ public class PersistentEngineTestContext extends TestContext {
             @Override
             public ComboPooledDataSource get() {
                 ComboPooledDataSource ds = createDataSource(dataSourceType);
-                if (cleanDB) {
+                if (cleanDB && ds != null) {
                     cleanDB(ds);
                 }
                 return ds;
@@ -172,10 +171,7 @@ public class PersistentEngineTestContext extends TestContext {
     }
 
     private Statement createStatement(Connection con) throws SQLException {
-        return con.createStatement(
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        return con.createStatement();
     }
 
     protected ComboPooledDataSource createDataSource(final DataSourceType dataSourceType) {
@@ -277,11 +273,13 @@ public class PersistentEngineTestContext extends TestContext {
 
     @Override
     public void shutdown() {
-        engineFactoryRed.get().destroyEngine();
-        mockAdapter.get().shutdown();
-        dbMockAdapter.get().shutdown();
-        dataSource.get().close();
-        super.shutdown();
+        if (dataSource.get() != null) {
+            engineFactoryRed.get().destroyEngine();
+            mockAdapter.get().shutdown();
+            dbMockAdapter.get().shutdown();
+            dataSource.get().close();
+            super.shutdown();
+        }
     }
 
     public MockAdapter getMockAdapter() {

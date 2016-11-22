@@ -15,8 +15,6 @@
  */
 package org.copperengine.core.test.persistent;
 
-import static org.junit.Assert.assertTrue;
-
 import javax.sql.DataSource;
 
 import org.junit.Test;
@@ -35,8 +33,9 @@ public class OracleSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersiste
         if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
             dbmsAvailable = true;
         } else {
-            final ConfigurableApplicationContext context = new OracleSpringTxnPersistentWorkflowTest().createContext(DS_CONTEXT);
+            ConfigurableApplicationContext context = null;
             try {
+                context = new OracleSpringTxnPersistentWorkflowTest().createContext(DS_CONTEXT);
                 DataSource ds = context.getBean(DataSource.class);
                 ds.setLoginTimeout(10);
                 ds.getConnection();
@@ -45,109 +44,99 @@ public class OracleSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersiste
                 logger.error("Oracle DBMS not available! Skipping Oracle unit tests.", e);
                 e.printStackTrace();
             } finally {
-                context.close();
+                try {
+                    if (context != null)
+                        context.close();
+                }
+                catch(Exception e) {
+                    // ignore
+                }
             }
         }
     }
 
     @Override
     protected boolean skipTests() {
-        return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
+        return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY) || !dbmsAvailable;
     }
 
     @Test
     public void testAsynchResponse() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testAsynchResponse(DS_CONTEXT);
     }
 
     @Test
     public void testAsynchResponseLargeData() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testAsynchResponseLargeData(DS_CONTEXT, 65536);
     }
 
     @Test
     public void testWithConnection() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testWithConnection(DS_CONTEXT);
     }
 
     @Test
     public void testWithConnectionBulkInsert() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testWithConnectionBulkInsert(DS_CONTEXT);
     }
 
     @Test
     public void testTimeouts() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testTimeouts(DS_CONTEXT);
     }
 
     @Test
     public void testErrorHandlingInCoreEngine() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testErrorHandlingInCoreEngine(DS_CONTEXT);
     }
 
     @Test
     public void testParentChildWorkflow() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testParentChildWorkflow(DS_CONTEXT);
     }
 
     @Test
     public void testErrorKeepWorkflowInstanceInDB() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testErrorKeepWorkflowInstanceInDB(DS_CONTEXT);
     }
 
     @Test
     public void testErrorHandlingInCoreEngine_restartAll() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testErrorHandlingInCoreEngine_restartAll(DS_CONTEXT);
     }
 
     @Test
     public void testCompressedAuditTrail() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testCompressedAuditTrail(DS_CONTEXT);
     }
 
     @Test
     public void testAutoCommit() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testAutoCommit(DS_CONTEXT);
     }
 
     @Test
     public void testAuditTrailUncompressed() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testAuditTrailUncompressed(DS_CONTEXT);
     }
 
     @Test
     public void testErrorHandlingWithWaitHook() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testErrorHandlingWithWaitHook(DS_CONTEXT);
     }
 
     @Test
     public void testAuditTrailCustomSeqNr() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testAuditTrailCustomSeqNr(DS_CONTEXT);
     }
 
     @Test
     public void testSpringTxnUnitTestWorkflow() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testSpringTxnUnitTestWorkflow(DS_CONTEXT);
     }
 
     @Test
     public void testFailOnDuplicateInsert() throws Exception {
-        assertTrue("DBMS not available", dbmsAvailable);
         super.testFailOnDuplicateInsert(DS_CONTEXT);
     }
 }
