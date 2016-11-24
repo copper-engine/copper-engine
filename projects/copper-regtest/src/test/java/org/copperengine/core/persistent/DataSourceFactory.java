@@ -75,7 +75,7 @@ public class DataSourceFactory {
             final String driverClass = trim(props.getProperty(propertyPrefix + "driverClass"));
             final String preferredTestQuery = props.getProperty(propertyPrefix + "preferredTestQuery");
             final int minPoolSize = Integer.valueOf(props.getProperty(propertyPrefix + "minPoolSize", "1"));
-            final int maxPoolSize = Integer.valueOf(props.getProperty(propertyPrefix + "maxPoolSize", "1"));
+            final int maxPoolSize = Integer.valueOf(props.getProperty(propertyPrefix + "maxPoolSize", "8"));
             if (active) {
                 ComboPooledDataSource ds = new ComboPooledDataSource();
                 ds.setJdbcUrl(jdbcUrl.replace("${NOW}", Long.toString(System.currentTimeMillis())));
