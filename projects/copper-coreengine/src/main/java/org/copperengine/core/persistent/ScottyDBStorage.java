@@ -16,6 +16,7 @@
 package org.copperengine.core.persistent;
 
 import java.sql.Connection;
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -569,7 +570,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             run(new DatabaseTransaction<Void>() {
                 @Override
                 public Void run(final Connection con) throws Exception {
-                    final Date appServerTS = new Date();
+                    final Timestamp appServerTS = new Timestamp(System.currentTimeMillis());
                     final long now = System.nanoTime();
                     final Date dbServerTS = dialect.readDatabaseClock(con);
                     final long etMSec = (System.nanoTime() - now) / 1000000L;
@@ -581,7 +582,7 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
                             logger.warn("*** ATTENTION! App server and DB server clocks are not in sync: app={} db={} - This might cause timeout handling malfunction! ***", appServerTS, dbServerTS);
                         }
                         else {
-                            logger.info("App server and DB server clocks are (more or less) in sync: app={} db={}", appServerTS, dbServerTS);
+                            logger.debug("App server and DB server clocks are (more or less) in sync: app={} db={}", appServerTS, dbServerTS);
                         }
                     }
                     return null;
