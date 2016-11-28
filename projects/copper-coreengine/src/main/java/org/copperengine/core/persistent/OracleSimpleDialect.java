@@ -18,8 +18,10 @@ package org.copperengine.core.persistent;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Date;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.DuplicateIdException;
@@ -120,4 +122,13 @@ public class OracleSimpleDialect extends AbstractSqlDialect {
             throw e;
         }
     }
+    
+    @Override
+    public Date readDatabaseClock(Connection con) throws SQLException {
+        try (PreparedStatement pstmt = con.prepareStatement("SELECT SYSTIMESTAMP FROM DUAL")) {
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            return rs.getTimestamp(1);
+        }
+    }     
 }

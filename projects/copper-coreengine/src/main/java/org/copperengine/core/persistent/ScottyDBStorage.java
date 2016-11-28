@@ -17,6 +17,7 @@ package org.copperengine.core.persistent;
 
 import java.sql.Connection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -49,6 +50,8 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     private final QueueNotifier queueState = new QueueNotifier();
     private final Object enqueueSignal = new Object();
     private int waitForEnqueueMSec = 500;
+    private volatile int clocksAllowedDeltaMSec = 100;
+    private int clocksCheckIntervalSeconds = 60;
 
     private DatabaseDialect dialect;
     private TransactionController transactionController;
@@ -66,7 +69,19 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     public ScottyDBStorage() {
 
     }
-
+    
+    public void setClocksAllowedDeltaMSec(int clocksAllowedDeltaMSec) {
+        if (clocksAllowedDeltaMSec <= 0) 
+            throw new IllegalArgumentException();
+        this.clocksAllowedDeltaMSec = clocksAllowedDeltaMSec;
+    }
+    
+    public void setClocksCheckIntervalSeconds(int clocksCheckIntervalSeconds) {
+        if (clocksCheckIntervalSeconds <= 0) 
+            throw new IllegalArgumentException();
+        this.clocksCheckIntervalSeconds = clocksCheckIntervalSeconds;
+    }
+   
     public void setCheckDbConsistencyAtStartup(boolean checkDbConsistencyAtStartup) {
         this.checkDbConsistencyAtStartup = checkDbConsistencyAtStartup;
     }
@@ -227,6 +242,14 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
                     }
                 }
             }, deleteStaleResponsesIntervalMsec, deleteStaleResponsesIntervalMsec, TimeUnit.MILLISECONDS);
+            
+            scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    checkClocksAreSynchronized();
+                }
+            }, Math.min(5, clocksCheckIntervalSeconds), clocksCheckIntervalSeconds, TimeUnit.SECONDS);
+            
         } catch (Exception e) {
             throw new Error("Unable to startup", e);
         }
@@ -540,5 +563,35 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             }
         });
     }
+
+    void checkClocksAreSynchronized() {
+        try {
+            run(new DatabaseTransaction<Void>() {
+                @Override
+                public Void run(final Connection con) throws Exception {
+                    final Date appServerTS = new Date();
+                    final long now = System.nanoTime();
+                    final Date dbServerTS = dialect.readDatabaseClock(con);
+                    final long etMSec = (System.nanoTime() - now) / 1000000L;
+                    if (dbServerTS == null) {
+                        logger.debug("readDatabaseClock not implemented for the dialect {} -> no check if DB and App server clocks are in sync", dialect);
+                    }
+                    else {
+                        if (Math.abs(appServerTS.getTime() - dbServerTS.getTime()) > (etMSec+clocksAllowedDeltaMSec)) {
+                            logger.warn("*** ATTENTION! App server and DB server clocks are not in sync: app={} db={} - This might cause timeout handling malfunction! ***", appServerTS, dbServerTS);
+                        }
+                        else {
+                            logger.info("App server and DB server clocks are (more or less) in sync: app={} db={}", appServerTS, dbServerTS);
+                        }
+                    }
+                    return null;
+                }
+            });
+        }
+        catch(Exception e) {
+            logger.error("checkClocksAreSynchronized failed", e);
+        }
+
+    }    
 
 }

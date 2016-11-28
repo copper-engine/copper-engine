@@ -732,4 +732,13 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             return rs.getInt(1) == 1;
         }
     }
+    
+    @Override
+    public Date readDatabaseClock(Connection con) throws SQLException {
+        try (PreparedStatement pstmt = con.prepareStatement("SELECT SYSTIMESTAMP FROM DUAL")) {
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            return rs.getTimestamp(1);
+        }
+    }    
 }

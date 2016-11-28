@@ -17,6 +17,7 @@ package org.copperengine.core.persistent;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import org.copperengine.core.Acknowledge;
@@ -90,5 +91,12 @@ public interface DatabaseDialect {
      * @throws SQLException
      */
     public List<Workflow<?>> queryAllActive(String className, Connection con, int max) throws SQLException;
+    
+    /**
+     * Read the current system time from the underlying database system
+     * @return
+     * @throws SQLException
+     */
+    public Date readDatabaseClock(Connection con) throws SQLException;
 
 }

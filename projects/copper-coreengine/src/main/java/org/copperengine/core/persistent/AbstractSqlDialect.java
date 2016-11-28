@@ -808,4 +808,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         }
         this.multiEngineMode = multiEngineMode;
     }
+    
+    @Override
+    public Date readDatabaseClock(Connection con) throws SQLException {
+        return null;
+    }
 }
