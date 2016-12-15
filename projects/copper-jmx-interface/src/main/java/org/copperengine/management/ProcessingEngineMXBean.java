@@ -17,6 +17,7 @@ package org.copperengine.management;
 
 import java.util.List;
 
+import org.copperengine.management.model.EngineActivity;
 import org.copperengine.management.model.EngineType;
 import org.copperengine.management.model.WorkflowInfo;
 
@@ -67,4 +68,6 @@ public interface ProcessingEngineMXBean {
     public String getDependencyInjectorType();
 
     public String getStatisticsCollectorType();
+    
+    public EngineActivity queryEngineActivity(int minutesInHistory);
 }

@@ -180,6 +180,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
             }
             injectDependencies(w);
             enqueue(w);
+            trackWfiStarted();
             return w.getId();
         } catch (DuplicateIdException e) {
             ticketPoolManager.release(w);
@@ -224,6 +225,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
             throw new IllegalStateException();
 
         logger.info("Engine is starting up...");
+        super.startup();
         wfRepository.start();
         timeoutManager.setEngine(this);
         poolManager.setEngine(this);

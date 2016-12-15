@@ -15,6 +15,7 @@
  */
 package org.copperengine.management.model;
 
+import java.beans.ConstructorProperties;
 import java.io.Serializable;
 
 public class WorkflowClassInfo implements Serializable {
@@ -31,6 +32,7 @@ public class WorkflowClassInfo implements Serializable {
     public WorkflowClassInfo() {
     }
 
+    @ConstructorProperties({"classname", "alias", "majorVersion", "minorVersion", "patchLevel", "sourceCode"})
     public WorkflowClassInfo(String classname, String alias, Long majorVersion, Long minorVersion, Long patchLevel, String sourceCode) {
         this.classname = classname;
         this.alias = alias;

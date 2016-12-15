@@ -16,7 +16,9 @@
 package org.copperengine.core.common;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.copperengine.core.CopperException;
 import org.copperengine.core.CopperRuntimeException;
@@ -31,9 +33,11 @@ import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.monitoring.NullRuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
+import org.copperengine.core.util.EventCounter;
 import org.copperengine.core.util.Blocker;
 import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.WorkflowRepositoryMXBean;
+import org.copperengine.management.model.EngineActivity;
 import org.copperengine.management.model.WorkflowClassInfo;
 import org.copperengine.management.model.WorkflowInfo;
 
@@ -52,6 +56,9 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     private EngineIdProvider engineIdProvider = new EngineIdProviderBean("default");
     protected RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
     protected DependencyInjector dependencyInjector;
+    protected Date startupTS;
+    private final AtomicLong lastActivityTS = new AtomicLong(System.currentTimeMillis());
+    private final EventCounter startedWorkflowInstances = new EventCounter(24*60);
 
     public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
         this.statisticsCollector = statisticsCollector;
@@ -122,12 +129,18 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     public synchronized void addShutdownObserver(Runnable observer) {
         shutdownObserver.add(observer);
     }
+    
+    @Override
+    public void startup() {
+        startupTS = new Date();
+    }
 
     @Override
     public void shutdown() throws CopperRuntimeException {
         for (Runnable observer : shutdownObserver) {
             observer.run();
         }
+        startupTS = null;
     }
 
     protected WorkflowInfo convert2Wfi(Workflow<?> wf) {
@@ -232,6 +245,25 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     public void injectDependencies(Workflow<?> wf) {
         wf.setEngine(this);
         dependencyInjector.inject(wf);
+        trackActivity();
     }
 
+    
+    protected void trackActivity() {
+        final long now = System.currentTimeMillis();
+        if (now > lastActivityTS.get()) {
+            lastActivityTS.set(now);
+        }
+    }
+    
+    protected void trackWfiStarted() {
+        trackActivity();
+        startedWorkflowInstances.countEvent();
+    }
+    
+    @Override
+    public EngineActivity queryEngineActivity(int minutesInHistory) {
+        long countWfiLastNMinutes = startedWorkflowInstances.getNumberOfEvents(minutesInHistory);
+        return new EngineActivity(new Date(this.lastActivityTS.get()), startupTS, countWfiLastNMinutes);
+    }    
 }

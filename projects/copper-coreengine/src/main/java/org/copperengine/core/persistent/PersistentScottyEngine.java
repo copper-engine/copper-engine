@@ -123,6 +123,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             throw new IllegalStateException();
         try {
             logger.info("starting up...");
+            super.startup();
 
             processorPoolManager.setEngine(this);
 
@@ -217,6 +218,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             for (String ppoolId : ppoolIds) {
                 notifyProcessorPool(ppoolId);
             }
+            trackWfiStarted();
         } catch (RuntimeException e) {
             throw e;
         } catch (CopperException e) {
@@ -257,6 +259,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             }
             dbStorage.insert(wf, con);
             notifyProcessorPool(wf.getProcessorPoolId());
+            trackWfiStarted();
 
             return wf.getId();
         } catch (RuntimeException e) {
