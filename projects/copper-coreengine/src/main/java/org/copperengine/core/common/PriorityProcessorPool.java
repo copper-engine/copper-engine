@@ -46,6 +46,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 
     private boolean started = false;
     private boolean shutdown = false;
+    private volatile ProcessorPoolState state = ProcessorPoolState.raw; 
 
     protected ProcessorFactory processorFactory;
 
@@ -164,6 +165,8 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
             return;
 
         logger.info("ProcessorPool " + id + ": Shutting down");
+        
+        state = ProcessorPoolState.shuttingDown;
 
         shutdown = true;
         synchronized (queue) {
@@ -186,6 +189,8 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
                 logger.warn("Unexpected InterruptedException while waiting for 'join' to return", e);
             }
         }
+        
+        state = ProcessorPoolState.down;
     }
 
     public synchronized void startup() {
@@ -201,6 +206,8 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 
         started = true;
         updateThreads();
+        
+        state = ProcessorPoolState.running;
     }
 
     protected ProcessingEngine getEngine() {
@@ -217,6 +224,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
         synchronized (queue) {
             queue.setSuspended(false);
             queue.notifyAll();
+            state = ProcessorPoolState.running;
         }
     }
 
@@ -224,11 +232,31 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
     public void suspend() {
         synchronized (queue) {
             queue.setSuspended(true);
+            state = ProcessorPoolState.suspended;
         }
     }
 
     public void setProcessorFactory(ProcessorFactory processorFactory) {
         this.processorFactory = processorFactory;
     }
+    
+    @Override
+    public String getProcessorPoolState() {
+        return state.name();
+    }
+    
+    public ProcessorPoolState getState() {
+        return state;
+    }
+    
+    @Override
+    public synchronized int getNumberOfActiveThreads() {
+        int rv = 0;
+        for (Processor p : workerThreads) {
+            rv += p.isIdle() ? 0 : 1;
+        }
+        return rv;
+    }
+    
 
 }

@@ -593,6 +593,16 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             logger.error("checkClocksAreSynchronized failed", e);
         }
 
+    }
+
+    @Override
+    public int queryQueueSize(final String processorPoolId) throws Exception {
+        return run(new DatabaseTransaction<Integer>() {
+            @Override
+            public Integer run(Connection con) throws Exception {
+                return dialect.queryQueueSize(processorPoolId, 50000, con);
+            }
+        });
     }    
 
 }

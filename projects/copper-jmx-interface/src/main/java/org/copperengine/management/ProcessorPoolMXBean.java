@@ -17,16 +17,22 @@ package org.copperengine.management;
 
 public interface ProcessorPoolMXBean {
     public String getId();
+    
+    public String getProcessorPoolState();
 
     public void setNumberOfThreads(int numberOfThreads);
 
     public int getNumberOfThreads();
+    
+    public int getNumberOfActiveThreads();
 
     public void setThreadPriority(int threadPriority);
 
     public int getThreadPriority();
 
     public int getMemoryQueueSize();
+
+    public int getQueueSize();
 
     /**
      * Suspend processing of workflows.

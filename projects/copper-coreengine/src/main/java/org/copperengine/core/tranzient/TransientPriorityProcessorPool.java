@@ -62,5 +62,10 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
             }
         }
     }
+    
+    @Override
+    public int getQueueSize() {
+        return getMemoryQueueSize();
+    }
 
 }

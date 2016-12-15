@@ -35,6 +35,7 @@ public abstract class Processor extends Thread {
     protected volatile boolean shutdown = false;
     protected final ProcessingEngine engine;
     protected ProcessingHook processingHook = new MDCProcessingHook();
+    private boolean idle = false; 
 
     public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
         super(name);
@@ -65,7 +66,9 @@ public abstract class Processor extends Thread {
                     wf = queue.poll();
                     if (wf == null) {
                         logger.trace("queue is empty - waiting");
+                        idle = true;
                         queue.wait();
+                        idle = false;
                         logger.trace("waking up again...");
                         wf = queue.poll();
                     }
@@ -104,4 +107,10 @@ public abstract class Processor extends Thread {
     }
 
     protected abstract void process(Workflow<?> wf);
+    
+    public boolean isIdle() {
+        synchronized (queue) {
+            return idle;
+        }
+    }
 }

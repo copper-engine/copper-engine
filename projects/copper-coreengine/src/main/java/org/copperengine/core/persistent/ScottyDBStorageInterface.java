@@ -144,5 +144,7 @@ public interface ScottyDBStorageInterface {
      * @throws Exception
      */
     public List<Workflow<?>> queryAllActive(final String className, final int max) throws Exception;
+    
+    public int queryQueueSize(String processorPoolId) throws Exception;
 
 }

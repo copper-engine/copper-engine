@@ -67,6 +67,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     private StmtStatistic insertStmtStatistic;
     private StmtStatistic deleteStaleResponsesStmtStatistic;
     private StmtStatistic dequeueWait4RespLdrStmtStatistic;
+    private StmtStatistic selectQueueSizeStmtStatistic;
     private final Map<String, ResponseLoader> responseLoaders = new HashMap<String, ResponseLoader>();
     private WorkflowPersistencePlugin workflowPersistencePlugin = WorkflowPersistencePlugin.NULL_PLUGIN;
 
@@ -102,8 +103,8 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         enqueueUpdateStateStmtStatistic = new StmtStatistic("DBStorage.enqueue.updateState", runtimeStatisticsCollector);
         insertStmtStatistic = new StmtStatistic("DBStorage.insert", runtimeStatisticsCollector);
         deleteStaleResponsesStmtStatistic = new StmtStatistic("DBStorage.deleteStaleResponses", runtimeStatisticsCollector);
-        dequeueWait4RespLdrStmtStatistic = new StmtStatistic("DBStorage.wait4resLoaderStmtStatistic", runtimeStatisticsCollector);
-
+        dequeueWait4RespLdrStmtStatistic = new StmtStatistic("DBStorage.wait4resLoader", runtimeStatisticsCollector);
+        selectQueueSizeStmtStatistic = new StmtStatistic("DBStorage.selectQueueSize", runtimeStatisticsCollector);
     }
 
     public void setConcurrentResponseLoading(boolean concurrentResponseLoading) {
@@ -740,5 +741,20 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             rs.next();
             return rs.getTimestamp(1);
         }
-    }    
+    } 
+    
+    @Override
+    public int queryQueueSize(String processorPoolId, int max, Connection con) throws SQLException {
+        int queueSize;
+        selectQueueSizeStmtStatistic.start();
+        try (PreparedStatement pstmt = con.prepareStatement("SELECT count(*) FROM COP_QUEUE WHERE PPOOL_ID=? AND ROWNUM <= ?")) {
+            pstmt.setString(1, processorPoolId);
+            pstmt.setInt(2, max);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            queueSize = rs.getInt(1);
+        }
+        selectQueueSizeStmtStatistic.stop(queueSize);
+        return queueSize;
+    }
 }

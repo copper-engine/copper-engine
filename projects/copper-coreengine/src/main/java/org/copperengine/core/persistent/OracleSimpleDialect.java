@@ -131,4 +131,20 @@ public class OracleSimpleDialect extends AbstractSqlDialect {
             return rs.getTimestamp(1);
         }
     }     
+    
+    @Override
+    public int queryQueueSize(String processorPoolId, int max, Connection con) throws SQLException {
+        int queueSize;
+        selectQueueSizeStmtStatistic.start();
+        try (PreparedStatement pstmt = con.prepareStatement("SELECT count(*) FROM COP_QUEUE WHERE PPOOL_ID=? AND ROWNUM <= ?")) {
+            pstmt.setString(1, processorPoolId);
+            pstmt.setInt(2, max);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            queueSize = rs.getInt(1);
+        }
+        selectQueueSizeStmtStatistic.stop(queueSize);
+        return queueSize;
+    }
+    
 }

@@ -99,4 +99,6 @@ public interface DatabaseDialect {
      */
     public Date readDatabaseClock(Connection con) throws SQLException;
 
+    public int queryQueueSize(String processorPoolId, int max, Connection con) throws SQLException;
+
 }

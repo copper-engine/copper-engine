@@ -279,4 +279,20 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
             mutexQueueSize.wait(upperThresholdReachedWaitMSec);
         }
     }
+
+
+    @Override
+    public int getQueueSize() {
+        try {
+            final PersistentScottyEngine engine = (PersistentScottyEngine) getEngine();
+            final ScottyDBStorageInterface dbStorage = engine.getDbStorage();
+            return dbStorage.queryQueueSize(getId());
+        }
+        catch(RuntimeException e) {
+            throw e;
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e);
+        }
+    }    
 }

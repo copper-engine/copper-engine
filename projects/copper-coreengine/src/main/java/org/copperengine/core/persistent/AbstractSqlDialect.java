@@ -79,6 +79,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     private StmtStatistic enqueueUpdateStateStmtStatistic;
     private StmtStatistic insertStmtStatistic;
     private StmtStatistic deleteStaleResponsesStmtStatistic;
+    protected StmtStatistic selectQueueSizeStmtStatistic;
 
     public AbstractSqlDialect() {
         this(false, false);
@@ -152,6 +153,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         enqueueUpdateStateStmtStatistic = new StmtStatistic("DBStorage.enqueue.updateState", runtimeStatisticsCollector);
         insertStmtStatistic = new StmtStatistic("DBStorage.insert", runtimeStatisticsCollector);
         deleteStaleResponsesStmtStatistic = new StmtStatistic("DBStorage.deleteStaleResponses", runtimeStatisticsCollector);
+        selectQueueSizeStmtStatistic = new StmtStatistic("DBStorage.selectQueueSize", runtimeStatisticsCollector);
     }
 
     /**
@@ -813,4 +815,18 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     public Date readDatabaseClock(Connection con) throws SQLException {
         return null;
     }
+    
+    @Override
+    public int queryQueueSize(String processorPoolId, int max, Connection con) throws SQLException {
+        int queueSize;
+        selectQueueSizeStmtStatistic.start();
+        try (PreparedStatement pstmt = con.prepareStatement("SELECT count(*) FROM COP_QUEUE WHERE PPOOL_ID=?")) {
+            pstmt.setString(1, processorPoolId);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            queueSize = rs.getInt(1);
+        }
+        selectQueueSizeStmtStatistic.stop(queueSize);
+        return queueSize;
+    }    
 }

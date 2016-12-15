@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -556,6 +557,12 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     @Override
     public List<Workflow<?>> queryAllActive(final String className, final int max) throws Exception {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int queryQueueSize(String processorPoolId) throws Exception {
+        final ConcurrentSkipListSet<QueueElement> queue = ppoolId2queueMap.get(Objects.requireNonNull(processorPoolId));
+        return queue == null ? 0 : queue.size();
     }
 
 }
