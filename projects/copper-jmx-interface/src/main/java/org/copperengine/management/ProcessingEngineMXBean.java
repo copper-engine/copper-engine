@@ -20,6 +20,7 @@ import java.util.List;
 import org.copperengine.management.model.EngineActivity;
 import org.copperengine.management.model.EngineType;
 import org.copperengine.management.model.WorkflowInfo;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 
 public interface ProcessingEngineMXBean {
     public String getState();
@@ -70,4 +71,11 @@ public interface ProcessingEngineMXBean {
     public String getStatisticsCollectorType();
     
     public EngineActivity queryEngineActivity(int minutesInHistory);
+    
+    /**
+     * Returns a list of all possible workflow instance states
+     */
+    public List<String> getWorkflowinstanceStates();
+    
+    public List<WorkflowInfo> queryWorkflowInstances(WorkflowInstanceFilter filter);
 }

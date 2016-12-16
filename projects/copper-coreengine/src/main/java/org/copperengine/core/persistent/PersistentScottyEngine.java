@@ -47,6 +47,7 @@ import org.copperengine.management.PersistentProcessingEngineMXBean;
 import org.copperengine.management.ProcessorPoolMXBean;
 import org.copperengine.management.model.EngineType;
 import org.copperengine.management.model.WorkflowInfo;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -458,6 +459,18 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             }
         }
         return wfi;
+    }
+
+    @Override
+    public List<String> getWorkflowinstanceStates() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<WorkflowInfo> queryWorkflowInstances(WorkflowInstanceFilter filter) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

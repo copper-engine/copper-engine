@@ -29,18 +29,24 @@ public class WorkflowInfo implements Serializable {
     private String processorPoolId;
     private Date timeout;
     private WorkflowClassInfo workflowClassInfo;
+    private String dataAsString;
+    private String lastWaitStackTrace;
+    private ErrorData errorData;
 
     public WorkflowInfo() {
     }
 
-    @ConstructorProperties({ "id", "state", "priority", "processorPoolId", "timeout", "workflowClassInfo" })
-    public WorkflowInfo(String id, String state, int priority, String processorPoolId, Date timeout, WorkflowClassInfo workflowClassInfo) {
-        super();
+    @ConstructorProperties({"id","state","priority","processorPoolId","timeout","workflowClassInfo","dataAsString","lastWaitStackTrace","errorData"})
+    public WorkflowInfo(String id, String state, int priority, String processorPoolId, Date timeout, WorkflowClassInfo workflowClassInfo, String dataAsString, String lastWaitStackTrace, ErrorData errorData) {
         this.id = id;
         this.state = state;
         this.priority = priority;
         this.processorPoolId = processorPoolId;
         this.timeout = timeout;
+        this.workflowClassInfo = workflowClassInfo;
+        this.dataAsString = dataAsString;
+        this.lastWaitStackTrace = lastWaitStackTrace;
+        this.errorData = errorData;
     }
 
     public String getId() {
@@ -91,9 +97,33 @@ public class WorkflowInfo implements Serializable {
         this.workflowClassInfo = workflowClassInfo;
     }
 
+    public String getDataAsString() {
+        return dataAsString;
+    }
+
+    public void setDataAsString(String dataAsString) {
+        this.dataAsString = dataAsString;
+    }
+
+    public String getLastWaitStackTrace() {
+        return lastWaitStackTrace;
+    }
+
+    public void setLastWaitStackTrace(String lastWaitStackTrace) {
+        this.lastWaitStackTrace = lastWaitStackTrace;
+    }
+
+    public ErrorData getErrorData() {
+        return errorData;
+    }
+
+    public void setErrorData(ErrorData errorData) {
+        this.errorData = errorData;
+    }
+
     @Override
     public String toString() {
-        return "WorkflowInfo [id=" + id + ", state=" + state + ", priority=" + priority + ", processorPoolId=" + processorPoolId + ", timeout=" + timeout + ", workflowClassInfo=" + workflowClassInfo + "]";
+        return "WorkflowInfo [id=" + id + ", state=" + state + ", priority=" + priority + ", processorPoolId=" + processorPoolId + ", timeout=" + timeout + ", workflowClassInfo=" + workflowClassInfo + ", dataAsString=" + dataAsString + ", lastWaitStackTrace=" + lastWaitStackTrace + ", errorData=" + errorData + "]";
     }
 
 }

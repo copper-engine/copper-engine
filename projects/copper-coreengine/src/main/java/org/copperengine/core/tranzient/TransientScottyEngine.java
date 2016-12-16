@@ -46,6 +46,7 @@ import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.ProcessorPoolMXBean;
 import org.copperengine.management.model.EngineType;
 import org.copperengine.management.model.WorkflowInfo;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,7 +244,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
             logger.debug("registerCallbacks(" + w + ", " + mode + ", " + timeoutMsec + ", " + Arrays.asList(correlationIds) + ")");
         if (correlationIds.length == 0)
             throw new IllegalArgumentException("No correlationids given");
-
+        
         boolean doEnqueue = false;
         CorrelationSet cs = new CorrelationSet(w, correlationIds, mode, timeoutMsec > 0 ? System.currentTimeMillis() + timeoutMsec : null);
         synchronized (correlationMap) {
@@ -363,6 +364,18 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     public WorkflowInfo queryActiveWorkflowInstance(final String id) {
         // Same as this one for transient engine
         return queryWorkflowInstance(id);
+    }
+
+    @Override
+    public List<String> getWorkflowinstanceStates() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<WorkflowInfo> queryWorkflowInstances(WorkflowInstanceFilter filter) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
