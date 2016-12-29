@@ -17,6 +17,7 @@ package org.copperengine.core.persistent.hybrid;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -205,6 +206,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         wf.setProcessorPoolId(cw.ppoolId);
         wf.setPriority(cw.prio);
         WorkflowAccessor.setCreationTS(wf, cw.creationTS);
+        // WorkflowAccessor.setLastModTS(wf, ??); TODO
 
         if (cw.cid2ResponseMap != null) {
             for (Entry<String, String> e : cw.cid2ResponseMap.entrySet()) {
@@ -568,8 +570,8 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
 
     @Override
     public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO implement this method
+        return Collections.emptyList();
     }
 
 }

@@ -56,7 +56,7 @@ public class MySqlDialect extends AbstractSqlDialect {
 
     @Override
     protected PreparedStatement createDequeueStmt(final Connection c, final String ppoolId, final int max) throws SQLException {
-        PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from COP_QUEUE where ppool_id = ?  and engine_id is NULL order by priority, last_mod_ts) LIMIT 0," + max);
+        PreparedStatement dequeueStmt = c.prepareStatement("select id,priority,data,object_state,creation_ts,last_mod_ts from COP_WORKFLOW_INSTANCE where id in (select WORKFLOW_INSTANCE_ID from COP_QUEUE where ppool_id = ?  and engine_id is NULL order by priority, last_mod_ts) LIMIT 0," + max);
         dequeueStmt.setString(1, ppoolId);
         return dequeueStmt;
     }
@@ -101,10 +101,10 @@ public class MySqlDialect extends AbstractSqlDialect {
     protected PreparedStatement createQueryAllActiveStmt(Connection c, String className, int max) throws SQLException {
         PreparedStatement queryStmt;
         if (className != null) {
-            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=? LIMIT 0," + max);
+            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts,last_mod_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=? LIMIT 0," + max);
             queryStmt.setString(1, className);
         } else {
-            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) LIMIT 0," + max);
+            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts,last_mod_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) LIMIT 0," + max);
         }
         return queryStmt;
     }

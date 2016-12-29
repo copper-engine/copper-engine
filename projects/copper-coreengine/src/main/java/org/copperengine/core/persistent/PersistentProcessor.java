@@ -15,6 +15,7 @@
  */
 package org.copperengine.core.persistent;
 
+import java.util.Date;
 import java.util.Queue;
 
 import org.copperengine.core.Acknowledge;
@@ -52,6 +53,7 @@ public class PersistentProcessor extends Processor {
                     synchronized (pw) {
                         try {
                             WorkflowAccessor.setProcessingState(pw, ProcessingState.RUNNING);
+                            WorkflowAccessor.setLastActivityTS(wf, new Date());
                             engine.injectDependencies(pw);
                             pw.__beforeProcess();
                             pw.main();
@@ -61,6 +63,7 @@ public class PersistentProcessor extends Processor {
                         } catch (Interrupt e) {
                             assert pw.get__stack().size() > 0;
                         } finally {
+                            WorkflowAccessor.setLastActivityTS(wf, new Date());
                             engine.unregister(pw);
                         }
                         if (pw.registerCall != null) {

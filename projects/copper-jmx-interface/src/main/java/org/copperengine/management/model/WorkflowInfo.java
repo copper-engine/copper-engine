@@ -32,12 +32,15 @@ public class WorkflowInfo implements Serializable {
     private String dataAsString;
     private String lastWaitStackTrace;
     private ErrorData errorData;
+    private Date lastModTS;
+    private Date creationTS;
 
     public WorkflowInfo() {
     }
 
-    @ConstructorProperties({"id","state","priority","processorPoolId","timeout","workflowClassInfo","dataAsString","lastWaitStackTrace","errorData"})
-    public WorkflowInfo(String id, String state, int priority, String processorPoolId, Date timeout, WorkflowClassInfo workflowClassInfo, String dataAsString, String lastWaitStackTrace, ErrorData errorData) {
+    @ConstructorProperties({"id","state","priority","processorPoolId","timeout","workflowClassInfo","dataAsString","lastWaitStackTrace","errorData", "lastModTS","creationTS"})
+    public WorkflowInfo(String id, String state, int priority, String processorPoolId, Date timeout, WorkflowClassInfo workflowClassInfo, String dataAsString, String lastWaitStackTrace, ErrorData errorData, Date lastModTS, Date creationTS) {
+        super();
         this.id = id;
         this.state = state;
         this.priority = priority;
@@ -47,6 +50,24 @@ public class WorkflowInfo implements Serializable {
         this.dataAsString = dataAsString;
         this.lastWaitStackTrace = lastWaitStackTrace;
         this.errorData = errorData;
+        this.lastModTS = lastModTS;
+        this.creationTS = creationTS;
+    }
+
+    public Date getCreationTS() {
+        return creationTS;
+    }
+    
+    public void setCreationTS(Date creationTS) {
+        this.creationTS = creationTS;
+    }
+    
+    public Date getLastModTS() {
+        return lastModTS;
+    }
+    
+    public void setLastModTS(Date lastModTS) {
+        this.lastModTS = lastModTS;
     }
 
     public String getId() {
@@ -123,7 +144,7 @@ public class WorkflowInfo implements Serializable {
 
     @Override
     public String toString() {
-        return "WorkflowInfo [id=" + id + ", state=" + state + ", priority=" + priority + ", processorPoolId=" + processorPoolId + ", timeout=" + timeout + ", workflowClassInfo=" + workflowClassInfo + ", dataAsString=" + dataAsString + ", lastWaitStackTrace=" + lastWaitStackTrace + ", errorData=" + errorData + "]";
+        return "WorkflowInfo [id=" + id + ", state=" + state + ", priority=" + priority + ", processorPoolId=" + processorPoolId + ", timeout=" + timeout + ", workflowClassInfo=" + workflowClassInfo + ", dataAsString=" + dataAsString + ", lastWaitStackTrace=" + lastWaitStackTrace + ", errorData=" + errorData + ", lastModTS=" + lastModTS + ", creationTS=" + creationTS + "]";
     }
 
 }

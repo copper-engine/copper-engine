@@ -172,6 +172,8 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         wfi.setDataAsString(wf.prettyPrintData());
         //wfi.setErrorData(errorData); // TODO
         wfi.setLastWaitStackTrace(wf.getLastWaitStackTrace());
+        wfi.setCreationTS(wf.getCreationTS());
+        wfi.setLastModTS(wf.getLastActivityTS());
         return wfi;
     }
 
@@ -284,14 +286,17 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
                 continue;
             if (filter.getCreationTS() != null && !isWithin(filter.getCreationTS(), wf.getCreationTS()))
                 continue;
-            
-            // TODO filter lastModTS
-            
+            if (filter.getLastModTS() != null && !isWithin(filter.getLastModTS(), wf.getLastActivityTS()))
+                continue;
+
             final WorkflowInfo x = convert2Wfi(wf);
 
+            // data may has changed during conversion - so we filter it again
             if (filter.getProcessorPoolId() != null && !filter.getProcessorPoolId().equals(x.getProcessorPoolId()))
                 continue;
             if (filter.getState() != null && !filter.getState().equals(x.getState()))
+                continue;
+            if (filter.getLastModTS() != null && !isWithin(filter.getLastModTS(), x.getLastModTS()))
                 continue;
 
             resultList.add(x);

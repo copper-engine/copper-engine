@@ -207,7 +207,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         responseLoader.beginTxn();
 
         final List<OracleSetToError.Command> invalidWorkflowInstances = new ArrayList<OracleSetToError.Command>();
-        final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from COP_QUEUE where ppool_id=? and engine_id is null order by ppool_id, priority, last_mod_ts) where rownum <= ?)");
+        final PreparedStatement dequeueStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state,last_mod_ts from COP_WORKFLOW_INSTANCE where rowid in (select * from (select WFI_ROWID from COP_QUEUE where ppool_id=? and engine_id is null order by ppool_id, priority, last_mod_ts) where rownum <= ?)");
         final Map<String, Workflow<?>> map = new HashMap<String, Workflow<?>>(max * 3);
         try {
             dequeueStmt.setString(1, ppoolId);
@@ -224,6 +224,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
                 final int prio = rs.getInt(2);
                 final String rowid = rs.getString(4);
                 final Timestamp creationTS = rs.getTimestamp(6);
+                final Timestamp lastModTS = rs.getTimestamp(9);
                 try {
                     String objectState = rs.getString(7);
                     if (objectState == null)
@@ -242,6 +243,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
                     wf.oldPrio = prio;
                     wf.oldProcessorPoolId = ppoolId;
                     WorkflowAccessor.setCreationTS(wf, new Date(creationTS.getTime()));
+                    WorkflowAccessor.setLastActivityTS(wf, new Date(lastModTS.getTime()));
                     map.put(wf.getId(), wf);
                     responseLoader.enqueue(wf);
                 } catch (Exception e) {
@@ -613,7 +615,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         PreparedStatement readStmt = null;
         PreparedStatement selectResponsesStmt = null;
         try {
-            readStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state,ppool_id,state from COP_WORKFLOW_INSTANCE where id = ?");
+            readStmt = con.prepareStatement("select id,priority,data,rowid,long_data,creation_ts,object_state,long_object_state,ppool_id,state,last_mod_ts from COP_WORKFLOW_INSTANCE where id = ?");
             readStmt.setString(1, workflowInstanceId);
 
             final ResultSet rs = readStmt.executeQuery();
@@ -626,6 +628,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             final int prio = rs.getInt(2);
             final String rowid = rs.getString(4);
             final Timestamp creationTS = rs.getTimestamp(6);
+            final Timestamp lastModTS = rs.getTimestamp(11);
             String objectState = rs.getString(7);
             if (objectState == null)
                 objectState = rs.getString(8);
@@ -643,6 +646,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             wf.oldPrio = prio;
             wf.oldProcessorPoolId = rs.getString(9);
             WorkflowAccessor.setCreationTS(wf, new Date(creationTS.getTime()));
+            WorkflowAccessor.setLastActivityTS(wf, new Date(lastModTS.getTime()));
             DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt(10));
             ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
             WorkflowAccessor.setProcessingState(wf, state);
@@ -691,11 +695,11 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         PreparedStatement queryStmt = null;
         try {
             if (className != null) {
-                queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=? and rownum <=?");
+                queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts,last_mod_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=? and rownum <=?");
                 queryStmt.setString(1, className);
                 queryStmt.setInt(2, max);
             } else {
-                queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and rownum <=?");
+                queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts,last_mod_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and rownum <=?");
                 queryStmt.setInt(1, max);
             }
             final ResultSet rs = queryStmt.executeQuery();
@@ -716,6 +720,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
                     ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
                     WorkflowAccessor.setProcessingState(wf, state);
                     WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(7).getTime()));
+                    WorkflowAccessor.setLastActivityTS(wf, new Date(rs.getTimestamp(8).getTime()));
                     result.add(wf);
                 } catch (Exception e) {
                     logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
@@ -849,6 +854,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         final ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
         WorkflowAccessor.setProcessingState(wf, state);
         WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp("CREATION_TS").getTime()));
+        WorkflowAccessor.setLastActivityTS(wf, new Date(rs.getTimestamp("LAST_MOD_TS").getTime()));
         return wf;
     }
     

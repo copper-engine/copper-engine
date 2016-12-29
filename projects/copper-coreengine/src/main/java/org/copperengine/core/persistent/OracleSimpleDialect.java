@@ -52,7 +52,7 @@ public class OracleSimpleDialect extends AbstractSqlDialect {
 
     @Override
     protected PreparedStatement createDequeueStmt(final Connection c, final String ppoolId, final int max) throws SQLException {
-        String sql = "select id,priority,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where id in (select * from (select WORKFLOW_INSTANCE_ID from COP_QUEUE where ppool_id = ? and engine_id is NULL order by priority, last_mod_ts) where rownum <= " + max + ")";
+        String sql = "select id,priority,data,object_state,creation_ts,last_mod_ts from COP_WORKFLOW_INSTANCE where id in (select * from (select WORKFLOW_INSTANCE_ID from COP_QUEUE where ppool_id = ? and engine_id is NULL order by priority, last_mod_ts) where rownum <= " + max + ")";
         PreparedStatement dequeueStmt = c.prepareStatement(sql);
         dequeueStmt.setString(1, ppoolId);
         return dequeueStmt;
@@ -86,10 +86,10 @@ public class OracleSimpleDialect extends AbstractSqlDialect {
     protected PreparedStatement createQueryAllActiveStmt(Connection c, String className, int max) throws SQLException {
         PreparedStatement queryStmt;
         if (className != null) {
-            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=? AND ROWNUM <= " + max);
+            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts,last_mod_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) and classname=? AND ROWNUM <= " + max);
             queryStmt.setString(1, className);
         } else {
-            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) AND ROWNUM <= " + max);
+            queryStmt = c.prepareStatement("select id,state,priority,ppool_id,data,object_state,creation_ts,last_mod_ts from COP_WORKFLOW_INSTANCE where state in (0,1,2) AND ROWNUM <= " + max);
         }
         return queryStmt;
     }

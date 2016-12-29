@@ -68,6 +68,7 @@ public abstract class Workflow<D> implements Serializable {
     private transient ProcessingState processingState = ProcessingState.RAW;
     private transient D Data;
     private transient Date creationTS = new Date();
+    private transient Date lastActivityTS = new Date();
     
     private String lastWaitStackTrace;
 
@@ -433,5 +434,13 @@ public abstract class Workflow<D> implements Serializable {
     
     public String getLastWaitStackTrace() {
         return lastWaitStackTrace;
+    }
+    
+    public Date getLastActivityTS() {
+        return lastActivityTS;
+    }
+    
+    void setLastActivityTS(Date lastModTS) {
+        this.lastActivityTS = lastModTS;
     }
 }
