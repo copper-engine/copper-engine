@@ -43,6 +43,7 @@ import org.copperengine.core.persistent.RegisterCall;
 import org.copperengine.core.persistent.ScottyDBStorageInterface;
 import org.copperengine.core.persistent.Serializer;
 import org.copperengine.core.util.Blocker;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -563,6 +564,12 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     public int queryQueueSize(String processorPoolId) throws Exception {
         final ConcurrentSkipListSet<QueueElement> queue = ppoolId2queueMap.get(Objects.requireNonNull(processorPoolId));
         return queue == null ? 0 : queue.size();
+    }
+
+    @Override
+    public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
