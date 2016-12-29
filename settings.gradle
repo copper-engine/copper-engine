@@ -5,9 +5,4 @@ include ":projects:copper-coreengine",
 ":projects:copper-jmx-interface", 
 ":projects:copper-spring",
 ":projects:copper-regtest",
-":projects:copper-performance-test",
-":projects:copper-monitoring:copper-monitoring-server",
-":projects:copper-monitoring:copper-monitoring-client",
-":projects:copper-monitoring:copper-monitoring-client-java8",
-":projects:copper-monitoring:copper-monitoring-core",
-":projects:copper-monitoring:copper-monitoring-example"
+":projects:copper-performance-test"
