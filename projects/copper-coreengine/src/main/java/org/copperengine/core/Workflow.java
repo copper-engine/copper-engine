@@ -68,6 +68,8 @@ public abstract class Workflow<D> implements Serializable {
     private transient ProcessingState processingState = ProcessingState.RAW;
     private transient D Data;
     private transient Date creationTS = new Date();
+    
+    private String lastWaitStackTrace;
 
     /**
      * Creates a new instance
@@ -183,6 +185,7 @@ public abstract class Workflow<D> implements Serializable {
     protected final void wait(WaitMode mode, int timeoutMsec, String... correlationIds) throws Interrupt {
         if (correlationIds.length == 0)
             throw new IllegalArgumentException();
+        updateLastWaitStackTrace();
         for (int i = 0; i < correlationIds.length; i++) {
             if (correlationIds[i] == null)
                 throw new NullPointerException();
@@ -191,6 +194,7 @@ public abstract class Workflow<D> implements Serializable {
     }
 
     protected final void wait(final WaitMode mode, final int timeoutMsec, final Callback<?>... callbacks) throws Interrupt {
+        updateLastWaitStackTrace();
         String[] correlationIds = new String[callbacks.length];
         for (int i = 0; i < correlationIds.length; i++) {
             correlationIds[i] = callbacks[i].getCorrelationId();
@@ -215,6 +219,7 @@ public abstract class Workflow<D> implements Serializable {
     protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final String... correlationIds) throws Interrupt {
         if (correlationIds.length == 0)
             throw new IllegalArgumentException();
+        updateLastWaitStackTrace();
         for (int i = 0; i < correlationIds.length; i++) {
             if (correlationIds[i] == null)
                 throw new NullPointerException();
@@ -237,6 +242,7 @@ public abstract class Workflow<D> implements Serializable {
      *        one ore more callbacks
      */
     protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final Callback<?>... callbacks) throws Interrupt {
+        updateLastWaitStackTrace();
         String[] correlationIds = new String[callbacks.length];
         for (int i = 0; i < correlationIds.length; i++) {
             correlationIds[i] = callbacks[i].getCorrelationId();
@@ -321,6 +327,12 @@ public abstract class Workflow<D> implements Serializable {
         Acknowledge ack = createCheckpointAcknowledge();
         engine.notify(new Response<Object>(cid, null, null), ack);
         registerCheckpointAcknowledge(ack);
+        updateLastWaitStackTrace();
+        
+    }
+    
+    private void updateLastWaitStackTrace() {
+        lastWaitStackTrace = StackTraceCreator.createStackTrace();
     }
 
     /**
@@ -415,4 +427,11 @@ public abstract class Workflow<D> implements Serializable {
     protected void registerSavepointAware(SavepointAware sa) {
     }
 
+    public String prettyPrintData() {
+        return getData().toString();
+    }
+    
+    public String getLastWaitStackTrace() {
+        return lastWaitStackTrace;
+    }
 }

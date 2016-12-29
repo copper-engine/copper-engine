@@ -462,15 +462,31 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     }
 
     @Override
-    public List<String> getWorkflowinstanceStates() {
-        // TODO Auto-generated method stub
-        return null;
+    public List<String> getWorkflowInstanceStates() {
+        return Arrays.asList(ProcessingState.ENQUEUED.name(), ProcessingState.DEQUEUED.name(), ProcessingState.RUNNING.name(), ProcessingState.WAITING.name(), ProcessingState.FINISHED.name(), ProcessingState.ERROR.name(), ProcessingState.INVALID.name());
     }
 
     @Override
     public List<WorkflowInfo> queryWorkflowInstances(WorkflowInstanceFilter filter) {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
+            if (filter.getState() != null && (filter.getState().equals(ProcessingState.RUNNING.name()) || filter.getState().equals(ProcessingState.DEQUEUED.name()))) {
+                rv.addAll(filter(filter, workflowMap.values()));
+            }
+            else {
+                List<Workflow<?>> wfs = dbStorage.queryWorkflowInstances(filter);
+                for (Workflow<?> wf : wfs) {
+                    WorkflowInfo wfi = convert2Wfi(wf);
+                    rv.add(wfi);
+                }
+            }
+            logger.info("queryWorkflowInstances returned " + rv.size() + " instance(s)");
+            return rv;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

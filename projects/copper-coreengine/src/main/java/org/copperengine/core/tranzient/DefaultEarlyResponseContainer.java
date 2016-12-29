@@ -75,9 +75,9 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
             list.add(new EarlyResponse(response, response.getInternalProcessingTimeout() == null ? minHoldBackTime : response.getInternalProcessingTimeout()));
 
             if (responseMap.size() > upperBorderResponseMapSize) {
-                // TODO Hier wird die Größe der Map berücksichtigt, jedoch nicht die Anzahl EarlyResponses (pro
-                // Eintrag in der Map können das mehrere sein)
-                // Könnte man noch verbessern
+                // TODO Hier wird die Groesse der Map beruecksichtigt, jedoch nicht die Anzahl EarlyResponses (pro
+                // Eintrag in der Map koennen das mehrere sein)
+                // Koennte man noch verbessern
                 Iterator<String> iterator = responseMap.keySet().iterator();
                 while (responseMap.size() > lowerBorderResponseMapSize) {
                     iterator.next();
@@ -169,9 +169,9 @@ public class DefaultEarlyResponseContainer implements EarlyResponseContainer {
         return checkInterval;
     }
 
-    // TODO Früher (vor den ResponseListen) konnte man die Überprüfung abbrechen, sobald man kein weiteres element in
+    // TODO Frueher (vor den ResponseListen) konnte man die Ueberpruefung abbrechen, sobald man kein weiteres element in
     // der Liste gefunden hat.
-    // Jetzt gibt es eine Map von Listen und man muss immer alles komplett überprüfen - ggf. optimieren
+    // Jetzt gibt es eine Map von Listen und man muss immer alles komplett Ueberpruefen - ggf. optimieren
     private void doHousekeeping() {
         logger.info("started");
         while (!shutdown) {

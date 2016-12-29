@@ -7,21 +7,19 @@ public class WorkflowInstanceFilter implements Serializable {
     
     private static final long serialVersionUID = 3695017848783764269L;
     
-    private String id;
     private String state;
     private HalfOpenTimeInterval lastModTS;
     private HalfOpenTimeInterval creationTS;
     private String processorPoolId;
     private String workflowClassname;
-    private boolean details;
+    private boolean details; // TODO remove
     private int max;
     
     public WorkflowInstanceFilter() {
     }
 
-    @ConstructorProperties({"id","state","lastModTS","creationTS","processorPoolId","workflowClassname","details","max"})
-    public WorkflowInstanceFilter(String id, String state, HalfOpenTimeInterval lastModTS, HalfOpenTimeInterval creationTS, String processorPoolId, String workflowClassname, boolean details, int max) {
-        this.id = id;
+    @ConstructorProperties({"state","lastModTS","creationTS","processorPoolId","workflowClassname","details","max"})
+    public WorkflowInstanceFilter(String state, HalfOpenTimeInterval lastModTS, HalfOpenTimeInterval creationTS, String processorPoolId, String workflowClassname, boolean details, int max) {
         this.state = state;
         this.lastModTS = lastModTS;
         this.creationTS = creationTS;
@@ -37,14 +35,6 @@ public class WorkflowInstanceFilter implements Serializable {
     
     public void setDetails(boolean details) {
         this.details = details;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getState() {
@@ -97,7 +87,7 @@ public class WorkflowInstanceFilter implements Serializable {
 
     @Override
     public String toString() {
-        return "WorkflowInstanceFilter [id=" + id + ", state=" + state + ", lastModTS=" + lastModTS + ", creationTS=" + creationTS + ", processorPoolId=" + processorPoolId + ", workflowClassname=" + workflowClassname + ", details=" + details + ", max=" + max + "]";
+        return "WorkflowInstanceFilter [state=" + state + ", lastModTS=" + lastModTS + ", creationTS=" + creationTS + ", processorPoolId=" + processorPoolId + ", workflowClassname=" + workflowClassname + ", details=" + details + ", max=" + max + "]";
     }
     
 }

@@ -17,6 +17,7 @@ package org.copperengine.core.tranzient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.ProcessorPoolMXBean;
 import org.copperengine.management.model.EngineType;
+import org.copperengine.management.model.HalfOpenTimeInterval;
 import org.copperengine.management.model.WorkflowInfo;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
@@ -367,15 +369,14 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     }
 
     @Override
-    public List<String> getWorkflowinstanceStates() {
-        // TODO Auto-generated method stub
-        return null;
+    public List<String> getWorkflowInstanceStates() {
+        return Arrays.asList(ProcessingState.ENQUEUED.name(), ProcessingState.RUNNING.name(), ProcessingState.WAITING.name());
     }
 
     @Override
-    public List<WorkflowInfo> queryWorkflowInstances(WorkflowInstanceFilter filter) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<WorkflowInfo> queryWorkflowInstances(final WorkflowInstanceFilter filter) {
+        return filter(filter, workflowMap.values());
     }
+
 
 }

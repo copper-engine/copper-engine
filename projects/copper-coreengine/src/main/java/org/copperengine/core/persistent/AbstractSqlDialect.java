@@ -46,6 +46,7 @@ import org.copperengine.core.monitoring.NullRuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.StmtStatistic;
 import org.copperengine.management.DatabaseDialectMXBean;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -828,5 +829,100 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         }
         selectQueueSizeStmtStatistic.stop(queueSize);
         return queueSize;
-    }    
+    }
+    
+    @Override
+    public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
+        final List<Workflow<?>> result = new ArrayList<>();
+        final StringBuilder sql = new StringBuilder();
+        final boolean filterEnqueued = filter.getState() != null && filter.getState().equals(ProcessingState.ENQUEUED.name());
+        if (filterEnqueued)
+            sql.append("SELECT w.* FROM COP_WORKFLOW_INSTANCE w, COP_QUEUE q WHERE w.id = q.WORKFLOW_INSTANCE_ID");
+        else
+            sql.append("SELECT * FROM COP_WORKFLOW_INSTANCE WHERE 1=1");
+        
+        final List<Object> params = new ArrayList<>();
+        if (filter.getWorkflowClassname() != null) {
+            sql.append(" AND CLASSNAME=?");
+            params.add(filter.getWorkflowClassname());
+        }
+        if (filter.getProcessorPoolId() != null) {
+            sql.append(" AND PPOOL_ID=?");
+            params.add(filter.getProcessorPoolId());
+        }
+        if (filter.getCreationTS() != null) {
+            if (filter.getCreationTS().getFrom() != null) {
+                sql.append(" AND CREATION_TS >= ?");
+                params.add(filter.getCreationTS().getFrom());
+            }
+            if (filter.getCreationTS().getTo() != null) {
+                sql.append(" AND CREATION_TS < ?");
+                params.add(filter.getCreationTS().getTo());
+            }
+        }
+        if (filter.getLastModTS() != null) {
+            if (filter.getLastModTS().getFrom() != null) {
+                sql.append(" AND LAST_MOD_TS >= ?");
+                params.add(filter.getLastModTS().getFrom());
+            }
+            if (filter.getLastModTS().getTo() != null) {
+                sql.append(" AND LAST_MOD_TS < ?");
+                params.add(filter.getLastModTS().getTo());
+            }
+        }
+        if (filter.getState() != null && !filterEnqueued) {
+            int filterState = -1;
+            if (filter.getState().equals(ProcessingState.ERROR)) 
+                filterState = DBProcessingState.ERROR.ordinal();
+            else if (filter.getState().equals(ProcessingState.WAITING)) 
+                filterState = DBProcessingState.WAITING.ordinal();
+            else if (filter.getState().equals(ProcessingState.INVALID)) 
+                filterState = DBProcessingState.INVALID.ordinal();
+            else if (filter.getState().equals(ProcessingState.FINISHED)) 
+                filterState = DBProcessingState.FINISHED.ordinal();
+            sql.append(" AND STATE=?");
+            params.add(filterState);
+        }
+        addLimitation(sql, params, filter.getMax());
+        
+        logger.info("queryWorkflowInstances: sql={}, params={}", sql, params);
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+            for (int i=1; i<=params.size(); i++) {
+                stmt.setObject(i, params.get(i));
+            }
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                try {
+                    final PersistentWorkflow<?> wf = decode(rs);
+                    if (filterEnqueued)
+                        WorkflowAccessor.setProcessingState(wf, ProcessingState.ENQUEUED);
+                    result.add(wf);
+                } catch (Exception e) {
+                    logger.error("decoding of '" + rs.getString("ID") + "' failed: " + e.toString(), e);
+                }
+            }
+        }
+        return result;
+    }
+
+    protected PersistentWorkflow<?> decode(ResultSet rs) throws SQLException, Exception {
+        final String id = rs.getString("ID");
+        final int prio = rs.getInt("PRIORITY");
+        final String ppoolId = rs.getString("PPOOL_ID");
+        final SerializedWorkflow sw = new SerializedWorkflow();
+        sw.setData(rs.getString("DATA"));
+        sw.setObjectState(rs.getString("OBJECT_STATE"));
+        final PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
+        wf.setId(id);
+        wf.setProcessorPoolId(ppoolId);
+        wf.setPriority(prio);
+        final DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt("STATE"));
+        final ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
+        WorkflowAccessor.setProcessingState(wf, state);
+        WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp("CREATION_TS").getTime()));
+        return wf;
+    }
+    
+    protected abstract void addLimitation(StringBuilder sql, List<Object> params, int max);
 }

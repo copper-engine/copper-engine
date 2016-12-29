@@ -180,6 +180,11 @@ public class MySqlDialect extends AbstractSqlDialect {
                 JdbcUtils.closeStatement(stmt);
             }
         }
-
     }
+    
+
+    @Override
+    protected void addLimitation(StringBuilder sql, List<Object> params, int max) {
+        sql.append(" LIMIT 0,").append(max);
+    }       
 }

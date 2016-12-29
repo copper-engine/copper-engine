@@ -75,7 +75,7 @@ public interface ProcessingEngineMXBean {
     /**
      * Returns a list of all possible workflow instance states
      */
-    public List<String> getWorkflowinstanceStates();
+    public List<String> getWorkflowInstanceStates();
     
     public List<WorkflowInfo> queryWorkflowInstances(WorkflowInstanceFilter filter);
 }

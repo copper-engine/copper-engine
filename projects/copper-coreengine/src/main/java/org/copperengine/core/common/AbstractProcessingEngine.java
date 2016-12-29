@@ -16,6 +16,7 @@
 package org.copperengine.core.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -38,8 +39,10 @@ import org.copperengine.core.util.Blocker;
 import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.WorkflowRepositoryMXBean;
 import org.copperengine.management.model.EngineActivity;
+import org.copperengine.management.model.HalfOpenTimeInterval;
 import org.copperengine.management.model.WorkflowClassInfo;
 import org.copperengine.management.model.WorkflowInfo;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 
 /**
  * Abstract base implementation of the COPPER {@link ProcessingEngine} interface.
@@ -166,6 +169,9 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
             wfi.setState(wf.getProcessingState().name());
         }
         wfi.setTimeout(null); // TODO
+        wfi.setDataAsString(wf.prettyPrintData());
+        //wfi.setErrorData(errorData); // TODO
+        wfi.setLastWaitStackTrace(wf.getLastWaitStackTrace());
         return wfi;
     }
 
@@ -265,5 +271,38 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     public EngineActivity queryEngineActivity(int minutesInHistory) {
         long countWfiLastNMinutes = startedWorkflowInstances.getNumberOfEvents(minutesInHistory);
         return new EngineActivity(new Date(this.lastActivityTS.get()), startupTS, countWfiLastNMinutes);
+    }    
+    
+    protected List<WorkflowInfo> filter(final WorkflowInstanceFilter filter, Collection<Workflow<?>> workflowInstances) {
+        final List<WorkflowInfo> resultList = new ArrayList<>();
+        for (Workflow<?> wf : workflowInstances) {
+            if (filter.getProcessorPoolId() != null && !filter.getProcessorPoolId().equals(wf.getProcessorPoolId()))
+                continue;
+            if (filter.getState() != null && !filter.getState().equals(wf.getProcessingState().name()))
+                continue;
+            if (filter.getWorkflowClassname() != null && !filter.getWorkflowClassname().equals(wf.getClass().getName()))
+                continue;
+            if (filter.getCreationTS() != null && !isWithin(filter.getCreationTS(), wf.getCreationTS()))
+                continue;
+            
+            // TODO filter lastModTS
+            
+            final WorkflowInfo x = convert2Wfi(wf);
+
+            if (filter.getProcessorPoolId() != null && !filter.getProcessorPoolId().equals(x.getProcessorPoolId()))
+                continue;
+            if (filter.getState() != null && !filter.getState().equals(x.getState()))
+                continue;
+
+            resultList.add(x);
+            
+            if (resultList.size() >= filter.getMax()) 
+                break;
+        }
+        return resultList;
+    }    
+    
+    private boolean isWithin(HalfOpenTimeInterval interval, Date ts) {
+        return interval.getFrom().getTime() <= ts.getTime() && ts.getTime() < interval.getTo().getTime();
     }    
 }

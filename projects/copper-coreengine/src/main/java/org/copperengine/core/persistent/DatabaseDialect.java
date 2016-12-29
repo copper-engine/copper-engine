@@ -25,6 +25,7 @@ import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 
 public interface DatabaseDialect {
 
@@ -100,5 +101,7 @@ public interface DatabaseDialect {
     public Date readDatabaseClock(Connection con) throws SQLException;
 
     public int queryQueueSize(String processorPoolId, int max, Connection con) throws SQLException;
+
+    public abstract List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException;
 
 }

@@ -22,6 +22,7 @@ import org.copperengine.core.Acknowledge;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 
 /**
  * Interface for the storage of a {@link PersistentScottyEngine}.
@@ -146,5 +147,7 @@ public interface ScottyDBStorageInterface {
     public List<Workflow<?>> queryAllActive(final String className, final int max) throws Exception;
     
     public int queryQueueSize(String processorPoolId) throws Exception;
+
+    public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception;
 
 }

@@ -35,6 +35,7 @@ import org.copperengine.core.persistent.txn.TransactionController;
 import org.copperengine.management.BatcherMXBean;
 import org.copperengine.management.DatabaseDialectMXBean;
 import org.copperengine.management.ScottyDBStorageMXBean;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -601,6 +602,16 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             @Override
             public Integer run(Connection con) throws Exception {
                 return dialect.queryQueueSize(processorPoolId, 50000, con);
+            }
+        });
+    }
+
+    @Override
+    public List<Workflow<?>> queryWorkflowInstances(final WorkflowInstanceFilter filter) throws Exception {
+        return run(new DatabaseTransaction<List<Workflow<?>>>() {
+            @Override
+            public List<Workflow<?>> run(Connection con) throws Exception {
+                return dialect.queryWorkflowInstances(filter,con);
             }
         });
     }    

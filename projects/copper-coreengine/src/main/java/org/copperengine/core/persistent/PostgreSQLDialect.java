@@ -133,4 +133,10 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
     protected void doReleaseLock(Connection con, final String lockContext) {
         // pg_advisory_xact_lock automatically releases the lock at the end of the transaction
     }
+    
+
+    @Override
+    protected void addLimitation(StringBuilder sql, List<Object> params, int max) {
+        sql.append(" LIMIT ").append(max);
+    }       
 }
