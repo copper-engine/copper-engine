@@ -881,6 +881,7 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(0, engineRed.getNumberOfWorkflowInstances());
         assertEquals(0, engineBlue.getNumberOfWorkflowInstances());
     }
+        
     
     public void testJmxQueryWorkflowInstances(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
@@ -1007,5 +1008,39 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(NUMB_OF_WFI, engine.queryWorkflowInstances(filter).size());
     }
     
+    public void testJmxQueryWorkflowInstancesERROR(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+            final int NUMB_OF_WFI = 4;
+            final WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            assertEquals(0, engine.queryWorkflowInstances(filter).size());
+
+            for (int i=0; i<NUMB_OF_WFI; i++) {
+                engine.run(JmxTestWF_NAME, "ERROR");
+            }
+
+            logger.info("query RUNNING...");
+            filter.setState(ProcessingState.ERROR.name());
+            assertEqualsX(engine, NUMB_OF_WFI, filter);
+            for (WorkflowInfo w : engine.queryWorkflowInstances(filter)) {
+                assertNotNull(w.getDataAsString());
+                assertNotNull(w.getCreationTS());
+                assertNotNull(w.getErrorData());
+                assertNotNull(w.getLastModTS());
+                assertNull(w.getLastWaitStackTrace());
+                assertNotNull(w.getProcessorPoolId());
+                assertEquals(ProcessingState.ERROR.name(), w.getState());
+                assertNull(w.getTimeout());
+                assertTrue(w.getErrorData().getExceptionStackTrace().contains("Test!!!"));
+            }
+        } 
+        finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
     
 }

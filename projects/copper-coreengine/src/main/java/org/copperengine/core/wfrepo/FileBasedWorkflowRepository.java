@@ -549,23 +549,30 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     private void findFiles(final File rootDir, final String fileExtension, final Map<String, File> files, final String pathPrefix) {
-        for (File f : rootDir.listFiles(new FileFilter() {
+        final File[] result = rootDir.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
                 return pathname.getName().endsWith(fileExtension);
             }
-        })) {
-            files.put(pathPrefix + f.getName(), f);
-        }
+        });
 
-        File[] subdirs = rootDir.listFiles(new FileFilter() {
+        if (result != null) {
+            for (File f : result) {
+                files.put(pathPrefix + f.getName(), f);
+            }
+        }
+        
+
+        final File[] subdirs = rootDir.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
                 return pathname.isDirectory();
             }
         });
-        for (File subdir : subdirs) {
-            findFiles(subdir, fileExtension, files, pathPrefix + subdir.getName() + "/");
+        if (subdirs != null) {
+            for (File subdir : subdirs) {
+                findFiles(subdir, fileExtension, files, pathPrefix + subdir.getName() + "/");
+            }
         }
     }
 

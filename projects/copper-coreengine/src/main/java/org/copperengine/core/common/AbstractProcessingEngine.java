@@ -170,7 +170,6 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         }
         wfi.setTimeout(wf.getTimeoutTS());
         wfi.setDataAsString(wf.prettyPrintData());
-        //wfi.setErrorData(errorData); // TODO
         wfi.setLastWaitStackTrace(wf.getLastWaitStackTrace());
         wfi.setCreationTS(wf.getCreationTS());
         wfi.setLastModTS(wf.getLastActivityTS());

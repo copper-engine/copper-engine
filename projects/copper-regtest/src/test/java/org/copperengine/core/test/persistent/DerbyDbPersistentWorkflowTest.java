@@ -121,4 +121,9 @@ public class DerbyDbPersistentWorkflowTest extends SpringlessBasePersistentWorkf
         super.testJmxQueryWorkflowInstances(DS_CONTEXT);
     }
     
+    @Test
+    public void testJmxQueryWorkflowInstancesERROR() throws Exception {
+        super.testJmxQueryWorkflowInstancesERROR(DS_CONTEXT);
+    }
+    
 }

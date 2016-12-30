@@ -22,7 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.DuplicateIdException;
@@ -150,7 +149,7 @@ public class OracleSimpleDialect extends AbstractSqlDialect {
     
 
     @Override
-    protected void addLimitation(StringBuilder sql, List<Object> params, int max) {
+    protected void addLimitation(StringBuilder sql, int max) {
         sql.append(" AND ROWNUM <= ").append(max);
     }       
 }

@@ -766,6 +766,8 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     
     @Override
     public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
+        final StringBuilder sqlQueryErrorData = new StringBuilder("select x.* from (select * from COP_WORKFLOW_INSTANCE_ERROR where WORKFLOW_INSTANCE_ID=? order by ERROR_TS desc) x where 1=1");
+        addLimitation(sqlQueryErrorData, 1);
         final List<Workflow<?>> result = new ArrayList<>();
         final StringBuilder sql = new StringBuilder();
         sql.append("SELECT x.* FROM (SELECT w.timeout, w.classname, (CASE WHEN q.wfi_rowid IS NOT NULL AND w.STATE=2 THEN 0 ELSE w.STATE END) STATE, w.ID, w.PRIORITY, w.PPOOL_ID, w.DATA, w.OBJECT_STATE, w.CREATION_TS, w.LAST_MOD_TS FROM COP_WORKFLOW_INSTANCE w LEFT OUTER JOIN COP_QUEUE q on w.rowid = q.wfi_rowid) x WHERE 1=1");
@@ -813,11 +815,11 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             sql.append(" AND x.STATE=?");
             params.add(filterState);
         }
-        addLimitation(sql, params, filter.getMax());
+        addLimitation(sql, filter.getMax());
         
         logger.info("queryWorkflowInstances: sql={}, params={}", sql, params);
         
-        try (PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+        try (PreparedStatement stmt = con.prepareStatement(sql.toString()); PreparedStatement pStmtQueryErrorData = con.prepareStatement(sqlQueryErrorData.toString())) {
             for (int i=1; i<=params.size(); i++) {
                 stmt.setObject(i, params.get(i-1));
             }
@@ -825,6 +827,17 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             while (rs.next()) {
                 try {
                     final PersistentWorkflow<?> wf = decode(rs);
+                    if (wf.getProcessingState() == ProcessingState.ERROR) {
+                        pStmtQueryErrorData.setString(1, wf.getId());
+                        try (ResultSet rsErrorData = pStmtQueryErrorData.executeQuery()) {
+                            if (rsErrorData.next()) {
+                                final org.copperengine.core.persistent.ErrorData errorData = new org.copperengine.core.persistent.ErrorData();
+                                errorData.setExceptionStackTrace(rsErrorData.getString("EXCEPTION"));
+                                errorData.setErrorTS(rsErrorData.getTimestamp("ERROR_TS"));
+                                WorkflowAccessor.setErrorData(wf, errorData);
+                            }
+                        }
+                    }
                     result.add(wf);
                 } catch (Exception e) {
                     logger.error("decoding of '" + rs.getString("ID") + "' failed: " + e.toString(), e);
@@ -854,7 +867,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         return wf;
     }
     
-    protected void addLimitation(StringBuilder sql, List<Object> params, int max) {
+    protected void addLimitation(StringBuilder sql, int max) {
         sql.append(" AND ROWNUM <= ").append(max);
     };
     

@@ -47,6 +47,7 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
     transient int oldPrio;
     transient ArrayList<Acknowledge.DefaultAcknowledge> checkpointAcknowledges = null;
     transient ArrayList<SavepointAware> savepointAwares = null;
+    transient ErrorData errorData;
 
     void addWaitCorrelationId(final String cid) {
         if (waitCidList == null)
@@ -115,6 +116,14 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
             }
         }
         return true;
+    }
+    
+    public ErrorData getErrorData() {
+        return errorData;
+    }
+    
+    void setErrorData(ErrorData errorData) {
+        this.errorData = errorData;
     }
 
 }

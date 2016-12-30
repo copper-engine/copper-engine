@@ -44,13 +44,15 @@ public class FileUtil {
 
     private static void processChecksum(File dir, CRC32 crc32, String fileSuffix) {
         File[] files = dir.listFiles();
-        for (File f : files) {
-            if (f.isDirectory()) {
-                processChecksum(f, crc32, fileSuffix);
-            } else {
-                if (fileSuffix == null || f.getName().endsWith(fileSuffix)) {
-                    crc32.update(Long.toString(f.lastModified()).getBytes());
-                    crc32.update(f.getAbsolutePath().getBytes());
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    processChecksum(f, crc32, fileSuffix);
+                } else {
+                    if (fileSuffix == null || f.getName().endsWith(fileSuffix)) {
+                        crc32.update(Long.toString(f.lastModified()).getBytes());
+                        crc32.update(f.getAbsolutePath().getBytes());
+                    }
                 }
             }
         }
@@ -63,31 +65,39 @@ public class FileUtil {
     }
 
     private static void findFiles(final File rootDir, final String fileSuffix, final List<File> files) {
-        files.addAll(Arrays.asList(rootDir.listFiles(new FileFilter() {
+        final File[] result = rootDir.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
                 return pathname.getName().endsWith(fileSuffix);
             }
-        })));
-        File[] subdirs = rootDir.listFiles(new FileFilter() {
+        });
+        if (result != null) {
+            files.addAll(Arrays.asList(result));
+        }
+        
+        final File[] subdirs = rootDir.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
                 return pathname.isDirectory();
             }
         });
-        for (File subdir : subdirs) {
-            findFiles(subdir, fileSuffix, files);
+        if (subdirs != null) {
+            for (File subdir : subdirs) {
+                findFiles(subdir, fileSuffix, files);
+            }
         }
     }
 
     public static boolean deleteDirectory(File path) {
         if (path.exists()) {
             File[] files = path.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    deleteDirectory(files[i]);
-                } else {
-                    files[i].delete();
+            if (files != null) {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].isDirectory()) {
+                        deleteDirectory(files[i]);
+                    } else {
+                        files[i].delete();
+                    }
                 }
             }
         }

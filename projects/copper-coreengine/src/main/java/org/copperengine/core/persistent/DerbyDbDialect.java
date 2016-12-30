@@ -207,7 +207,7 @@ public class DerbyDbDialect extends AbstractSqlDialect {
     }
 
     @Override
-    protected void addLimitation(StringBuilder sql, List<Object> params, int max) {
+    protected void addLimitation(StringBuilder sql, int max) {
         sql.append(" FETCH FIRST " + max + " ROWS ONLY");
     }
 

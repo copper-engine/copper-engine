@@ -185,7 +185,7 @@ public class H2Dialect extends AbstractSqlDialect {
     }
 
     @Override
-    protected void addLimitation(StringBuilder sql, List<Object> params, int max) {
+    protected void addLimitation(StringBuilder sql, int max) {
         sql.append(" LIMIT ").append(max);
     }    
 }

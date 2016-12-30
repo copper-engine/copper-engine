@@ -20,6 +20,8 @@ import java.util.Date;
 
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
+import org.copperengine.core.persistent.ErrorData;
+import org.copperengine.core.persistent.PersistentWorkflow;
 
 public class WorkflowAccessor {
 
@@ -27,6 +29,7 @@ public class WorkflowAccessor {
     private static final Method methodSetCreationTS;
     private static final Method methodSetLastActivityTS;
     private static final Method methodSetTimeoutTS;
+    private static final Method methodSetErrorData;
 
     static {
         try {
@@ -41,6 +44,9 @@ public class WorkflowAccessor {
 
             methodSetTimeoutTS = Workflow.class.getDeclaredMethod("setTimeoutTS", Date.class);
             methodSetTimeoutTS.setAccessible(true);
+            
+            methodSetErrorData = PersistentWorkflow.class.getDeclaredMethod("setErrorData", ErrorData.class);
+            methodSetErrorData.setAccessible(true);
 
         } catch (Exception e) {
             throw new Error(e);
@@ -87,4 +93,14 @@ public class WorkflowAccessor {
         }
     }
 
+    public static void setErrorData(PersistentWorkflow<?> w, ErrorData errorData) {
+        try {
+            methodSetErrorData.invoke(w, errorData);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
 }

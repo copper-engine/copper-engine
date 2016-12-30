@@ -13,32 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.copperengine.management.model;
+package org.copperengine.core.persistent;
 
 import java.io.Serializable;
 import java.util.Date;
 
 public class ErrorData implements Serializable {
-
+    
     private static final long serialVersionUID = 1L;
     
-    private Date errorTS;
     private String exceptionStackTrace;
+    private Date errorTS;
     
     public ErrorData() {
     }
-
-    public ErrorData(Date errorTS, String exceptionStackTrace) {
-        this.errorTS = errorTS;
+    
+    public ErrorData(String exceptionStackTrace, Date errorTS) {
         this.exceptionStackTrace = exceptionStackTrace;
-    }
-
-    public Date getErrorTS() {
-        return errorTS;
-    }
-
-    public void setErrorTS(Date errorTS) {
         this.errorTS = errorTS;
     }
 
@@ -50,9 +41,17 @@ public class ErrorData implements Serializable {
         this.exceptionStackTrace = exceptionStackTrace;
     }
 
+    public Date getErrorTS() {
+        return errorTS;
+    }
+
+    public void setErrorTS(Date errorTS) {
+        this.errorTS = errorTS;
+    }
+
     @Override
     public String toString() {
-        return "ErrorData [errorTS=" + errorTS + ", exceptionStackTrace=" + exceptionStackTrace + "]";
+        return "ErrorData [exceptionStackTrace=" + exceptionStackTrace + ", errorTS=" + errorTS + "]";
     }
-    
+
 }

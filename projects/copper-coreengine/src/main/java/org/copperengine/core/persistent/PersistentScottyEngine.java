@@ -469,17 +469,17 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     }
 
     @Override
-    public List<WorkflowInfo> queryWorkflowInstances(WorkflowInstanceFilter filter) {
+    public List<WorkflowInfo> queryWorkflowInstances(final WorkflowInstanceFilter filter) {
         try {
-            List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
+            final List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
             if (filter.getState() != null && (filter.getState().equals(ProcessingState.RUNNING.name()) || filter.getState().equals(ProcessingState.DEQUEUED.name()))) {
                 rv.addAll(filter(filter, workflowMap.values()));
             }
             else {
-                List<Workflow<?>> wfs = dbStorage.queryWorkflowInstances(filter);
+                final List<Workflow<?>> wfs = dbStorage.queryWorkflowInstances(filter);
                 for (Workflow<?> wf : wfs) {
-                    Workflow<?> inMemoryWF = workflowMap.get(wf.getId());
-                    WorkflowInfo wfi = convert2Wfi(inMemoryWF == null ? wf : inMemoryWF);
+                    final Workflow<?> inMemoryWF = workflowMap.get(wf.getId());
+                    final WorkflowInfo wfi = convert2Wfi(inMemoryWF == null ? wf : inMemoryWF);
                     rv.add(wfi);
                 }
             }
@@ -490,6 +490,19 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    @Override
+    protected WorkflowInfo convert2Wfi(Workflow<?> wf) {
+        WorkflowInfo wfi = super.convert2Wfi(wf);
+        ErrorData errorData = ((PersistentWorkflow<?>)wf).getErrorData();
+        if (errorData != null) {
+            org.copperengine.management.model.ErrorData x = new org.copperengine.management.model.ErrorData();
+            x.setErrorTS(errorData.getErrorTS());
+            x.setExceptionStackTrace(errorData.getExceptionStackTrace());
+            wfi.setErrorData(x);
+        }
+        return wfi;
     }
 
 }

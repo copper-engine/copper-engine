@@ -1,3 +1,19 @@
+/*
+ * Copyright 2002-2017 SCOOP Software GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.copperengine.management.model;
 
 import java.beans.ConstructorProperties;
@@ -12,31 +28,21 @@ public class WorkflowInstanceFilter implements Serializable {
     private HalfOpenTimeInterval creationTS;
     private String processorPoolId;
     private String workflowClassname;
-    private boolean details; // TODO remove
     private int max = 50;
     
     public WorkflowInstanceFilter() {
     }
 
-    @ConstructorProperties({"state","lastModTS","creationTS","processorPoolId","workflowClassname","details","max"})
-    public WorkflowInstanceFilter(String state, HalfOpenTimeInterval lastModTS, HalfOpenTimeInterval creationTS, String processorPoolId, String workflowClassname, boolean details, int max) {
+    @ConstructorProperties({"state","lastModTS","creationTS","processorPoolId","workflowClassname","max"})
+    public WorkflowInstanceFilter(String state, HalfOpenTimeInterval lastModTS, HalfOpenTimeInterval creationTS, String processorPoolId, String workflowClassname, int max) {
         this.state = state;
         this.lastModTS = lastModTS;
         this.creationTS = creationTS;
         this.processorPoolId = processorPoolId;
         this.workflowClassname = workflowClassname;
         this.max = max;
-        this.details = details;
     }
     
-    public boolean isDetails() {
-        return details;
-    }
-    
-    public void setDetails(boolean details) {
-        this.details = details;
-    }
-
     public String getState() {
         return state;
     }
@@ -87,7 +93,7 @@ public class WorkflowInstanceFilter implements Serializable {
 
     @Override
     public String toString() {
-        return "WorkflowInstanceFilter [state=" + state + ", lastModTS=" + lastModTS + ", creationTS=" + creationTS + ", processorPoolId=" + processorPoolId + ", workflowClassname=" + workflowClassname + ", details=" + details + ", max=" + max + "]";
+        return "WorkflowInstanceFilter [state=" + state + ", lastModTS=" + lastModTS + ", creationTS=" + creationTS + ", processorPoolId=" + processorPoolId + ", workflowClassname=" + workflowClassname +", max=" + max + "]";
     }
     
 }

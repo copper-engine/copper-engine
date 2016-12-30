@@ -132,5 +132,10 @@ public class OracleSimplePersistentWorkflowTest extends SpringlessBasePersistent
     public void testJmxQueryWorkflowInstances() throws Exception {
         super.testJmxQueryWorkflowInstances(DS_CONTEXT);
     }
+
+    @Test
+    public void testJmxQueryWorkflowInstancesERROR() throws Exception {
+        super.testJmxQueryWorkflowInstancesERROR(DS_CONTEXT);
+    }
     
 }
