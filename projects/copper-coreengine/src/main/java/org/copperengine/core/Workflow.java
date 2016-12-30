@@ -69,6 +69,7 @@ public abstract class Workflow<D> implements Serializable {
     private transient D Data;
     private transient Date creationTS = new Date();
     private transient Date lastActivityTS = new Date();
+    private transient Date timeoutTS;
     
     private String lastWaitStackTrace;
 
@@ -97,6 +98,9 @@ public abstract class Workflow<D> implements Serializable {
 
     void setProcessingState(ProcessingState processingState) {
         this.processingState = processingState;
+        if (processingState != ProcessingState.WAITING) {
+            this.timeoutTS = null;
+        }
     }
 
     /**
@@ -442,5 +446,13 @@ public abstract class Workflow<D> implements Serializable {
     
     void setLastActivityTS(Date lastModTS) {
         this.lastActivityTS = lastModTS;
+    }
+    
+    public Date getTimeoutTS() {
+        return timeoutTS;
+    }
+    
+    void setTimeoutTS(Date timeoutTS) {
+        this.timeoutTS = timeoutTS;
     }
 }

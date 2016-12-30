@@ -11,12 +11,10 @@ import java.util.concurrent.TimeUnit;
 class IdCache {
 
     private static final class ResponseEntry {
-        String responseId;
         String correlationId;
         long ttlTS;
 
         public ResponseEntry(String responseId, String correlationId, long ttlTS) {
-            this.responseId = responseId;
             this.correlationId = correlationId;
             this.ttlTS = ttlTS;
         }

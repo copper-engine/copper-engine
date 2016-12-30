@@ -42,6 +42,7 @@ import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.common.AbstractProcessingEngine;
 import org.copperengine.core.common.ProcessorPool;
 import org.copperengine.core.common.ProcessorPoolManager;
+import org.copperengine.core.internal.WorkflowAccessor;
 import org.copperengine.management.DBStorageMXBean;
 import org.copperengine.management.PersistentProcessingEngineMXBean;
 import org.copperengine.management.ProcessorPoolMXBean;
@@ -156,6 +157,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             pw.setProcessorPoolId(PersistentProcessorPool.DEFAULT_POOL_ID);
         }
         pw.registerCall = new RegisterCall(w, mode, timeoutMsec > 0 ? timeoutMsec : null, correlationIds, getAndRemoveWaitHooks(pw));
+        WorkflowAccessor.setTimeoutTS(pw, pw.registerCall.timeoutTS);
     }
 
     @Override

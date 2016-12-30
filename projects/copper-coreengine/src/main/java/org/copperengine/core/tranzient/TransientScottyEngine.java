@@ -46,7 +46,6 @@ import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.ProcessorPoolMXBean;
 import org.copperengine.management.model.EngineType;
-import org.copperengine.management.model.HalfOpenTimeInterval;
 import org.copperengine.management.model.WorkflowInfo;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
@@ -277,6 +276,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
             enqueue(w);
         } else {
             WorkflowAccessor.setProcessingState(w, ProcessingState.WAITING);
+            WorkflowAccessor.setTimeoutTS(w, cs.getTimeoutTS() != null ? new Date(cs.getTimeoutTS()) : null);
         }
     }
 

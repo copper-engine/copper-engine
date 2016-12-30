@@ -795,8 +795,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                     DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt(2));
                     ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
                     WorkflowAccessor.setProcessingState(wf, state);
-                    WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp(7).getTime()));
-                    WorkflowAccessor.setLastActivityTS(wf, new Date(rs.getTimestamp(8).getTime()));
+                    WorkflowAccessor.setCreationTS(wf, rs.getTimestamp(7));
+                    WorkflowAccessor.setLastActivityTS(wf, rs.getTimestamp(8));
+                    WorkflowAccessor.setTimeoutTS(wf,  rs.getTimestamp(9));
                     result.add(wf);
                 } catch (Exception e) {
                     logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
@@ -918,8 +919,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         final DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt("STATE"));
         final ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
         WorkflowAccessor.setProcessingState(wf, state);
-        WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp("CREATION_TS").getTime()));
-        WorkflowAccessor.setLastActivityTS(wf, new Date(rs.getTimestamp("LAST_MOD_TS").getTime()));
+        WorkflowAccessor.setCreationTS(wf, rs.getTimestamp("CREATION_TS"));
+        WorkflowAccessor.setLastActivityTS(wf, rs.getTimestamp("LAST_MOD_TS"));
+        WorkflowAccessor.setTimeoutTS(wf, rs.getTimestamp("TIMEOUT"));
         return wf;
     }
     

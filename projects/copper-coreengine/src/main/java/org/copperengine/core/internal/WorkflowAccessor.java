@@ -26,6 +26,7 @@ public class WorkflowAccessor {
     private static final Method methodSetProcessingState;
     private static final Method methodSetCreationTS;
     private static final Method methodSetLastActivityTS;
+    private static final Method methodSetTimeoutTS;
 
     static {
         try {
@@ -37,6 +38,9 @@ public class WorkflowAccessor {
 
             methodSetLastActivityTS = Workflow.class.getDeclaredMethod("setLastActivityTS", Date.class);
             methodSetLastActivityTS.setAccessible(true);
+
+            methodSetTimeoutTS = Workflow.class.getDeclaredMethod("setTimeoutTS", Date.class);
+            methodSetTimeoutTS.setAccessible(true);
 
         } catch (Exception e) {
             throw new Error(e);
@@ -63,9 +67,19 @@ public class WorkflowAccessor {
         }
     }
 
-    public static void setLastActivityTS(Workflow<?> w, Date lastModTS) {
+    public static void setLastActivityTS(Workflow<?> w, Date lastActivityTS) {
         try {
-            methodSetLastActivityTS.invoke(w, lastModTS);
+            methodSetLastActivityTS.invoke(w, lastActivityTS);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void setTimeoutTS(Workflow<?> w, Date timeoutTS) {
+        try {
+            methodSetTimeoutTS.invoke(w, timeoutTS);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

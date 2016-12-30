@@ -61,8 +61,6 @@ import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import junit.framework.Assert;
-
 public class SpringlessBasePersistentWorkflowTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringlessBasePersistentWorkflowTest.class);
@@ -911,6 +909,7 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNull(w.getLastWaitStackTrace());
                 assertNotNull(w.getProcessorPoolId());
                 assertEquals(ProcessingState.RUNNING.name(), w.getState());
+                assertNull(w.getTimeout());
             }
 
             assertEquals(NUMB_OF_WFI, engine.queryWorkflowInstances(EMPTY_FILTER).size());
@@ -922,6 +921,7 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNull(w.getLastWaitStackTrace());
                 assertNotNull(w.getProcessorPoolId());
                 assertEquals(ProcessingState.RUNNING.name(), w.getState());
+                assertNull(w.getTimeout());
             }
             
             context.jmxTestAdapter.get().unblockFoo();
@@ -937,6 +937,7 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNotNull(w.getLastWaitStackTrace());
                 assertNotNull(w.getProcessorPoolId());
                 assertEquals(ProcessingState.WAITING.name(), w.getState());
+                assertNotNull(w.getTimeout());
             }
             
             context.jmxTestAdapter.get().blockFoo();
@@ -963,6 +964,7 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNotNull(w.getLastWaitStackTrace());
                 assertNotNull(w.getProcessorPoolId());
                 assertEquals(ProcessingState.RUNNING.name(), w.getState());
+                assertNull(w.getTimeout());
             }
             
             context.jmxTestAdapter.get().unblockFoo();
@@ -978,6 +980,7 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNotNull(w.getLastWaitStackTrace());
                 assertNotNull(w.getProcessorPoolId());
                 assertEquals(ProcessingState.WAITING.name(), w.getState());
+                assertNotNull(w.getTimeout());
             }
             
             context.jmxTestAdapter.get().createResponses();

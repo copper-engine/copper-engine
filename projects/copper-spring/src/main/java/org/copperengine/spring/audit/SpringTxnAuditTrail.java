@@ -53,7 +53,6 @@ public class SpringTxnAuditTrail extends BatchingAuditTrail {
                     protected void execute(Connection con) throws Exception {
                         @SuppressWarnings("unchecked")
                         BatchCommand<Executor, Command> cmd = createBatchCommand(e, true, NullCallback.instance);
-                        @SuppressWarnings("unchecked")
                         Collection<BatchCommand<Executor, Command>> cmdList = Arrays.<BatchCommand<Executor, Command>>asList(cmd);
                         cmd.executor().doExec(cmdList, con);
                     }

@@ -850,6 +850,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         WorkflowAccessor.setProcessingState(wf, state);
         WorkflowAccessor.setCreationTS(wf, new Date(rs.getTimestamp("CREATION_TS").getTime()));
         WorkflowAccessor.setLastActivityTS(wf, new Date(rs.getTimestamp("LAST_MOD_TS").getTime()));
+        WorkflowAccessor.setTimeoutTS(wf, rs.getTimestamp("TIMEOUT"));
         return wf;
     }
     
