@@ -476,7 +476,8 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             else {
                 List<Workflow<?>> wfs = dbStorage.queryWorkflowInstances(filter);
                 for (Workflow<?> wf : wfs) {
-                    WorkflowInfo wfi = convert2Wfi(wf);
+                    Workflow<?> inMemoryWF = workflowMap.get(wf.getId());
+                    WorkflowInfo wfi = convert2Wfi(inMemoryWF == null ? wf : inMemoryWF);
                     rv.add(wfi);
                 }
             }

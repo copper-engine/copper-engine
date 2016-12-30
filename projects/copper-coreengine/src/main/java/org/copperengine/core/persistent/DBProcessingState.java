@@ -33,6 +33,8 @@ public enum DBProcessingState {
         ProcessingState processingState;
         switch (state) {
             case ENQUEUED:
+                processingState = ProcessingState.ENQUEUED;
+                break;
             case PROCESSING:
                 processingState = ProcessingState.RUNNING;
                 break;

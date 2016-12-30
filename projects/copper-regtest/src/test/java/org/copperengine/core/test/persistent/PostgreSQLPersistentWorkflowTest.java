@@ -127,4 +127,9 @@ public class PostgreSQLPersistentWorkflowTest extends SpringlessBasePersistentWo
     public void testMultipleEngines() throws Exception {
         super.testMultipleEngines(DS_CONTEXT);
     }
+    
+    @Test
+    public void testJmxQueryWorkflowInstances() throws Exception {
+        super.testJmxQueryWorkflowInstances(DS_CONTEXT);
+    }
 }

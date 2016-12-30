@@ -42,6 +42,7 @@ import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.PersistentProcessingEngine;
 import org.copperengine.core.ProcessingEngine;
+import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowFactory;
@@ -55,8 +56,12 @@ import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.test.DataHolder;
 import org.copperengine.core.test.backchannel.BackChannelQueue;
 import org.copperengine.core.test.backchannel.WorkflowResult;
+import org.copperengine.management.model.WorkflowInfo;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import junit.framework.Assert;
 
 public class SpringlessBasePersistentWorkflowTest {
 
@@ -66,6 +71,7 @@ public class SpringlessBasePersistentWorkflowTest {
 
     static final String PersistentUnitTestWorkflow_NAME = "org.copperengine.core.test.persistent.PersistentUnitTestWorkflow";
     static final String WaitForEverTestWF_NAME = "org.copperengine.core.test.WaitForEverTestWF";
+    static final String JmxTestWF_NAME = "org.copperengine.core.test.persistent.jmx.JmxTestWorkflow";
 
     public final void testDummy() {
         // for junit only
@@ -876,6 +882,127 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(EngineState.STOPPED, engineBlue.getEngineState());
         assertEquals(0, engineRed.getNumberOfWorkflowInstances());
         assertEquals(0, engineBlue.getNumberOfWorkflowInstances());
-
     }
+    
+    public void testJmxQueryWorkflowInstances(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        final int NUMB_OF_WFI = Runtime.getRuntime().availableProcessors();
+        try {
+            final WorkflowInstanceFilter EMPTY_FILTER = new WorkflowInstanceFilter();
+            WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            filter.setWorkflowClassname(JmxTestWF_NAME);
+            assertEquals(0, engine.queryWorkflowInstances(filter).size());
+
+            context.jmxTestAdapter.get().blockFoo();
+            for (int i=0; i<NUMB_OF_WFI; i++) {
+                engine.run(JmxTestWF_NAME, "Foo");
+            }
+
+            logger.info("query RUNNING...");
+            filter.setState(ProcessingState.RUNNING.name());
+            assertEqualsX(engine, NUMB_OF_WFI, filter);
+            for (WorkflowInfo w : engine.queryWorkflowInstances(filter)) {
+                assertNotNull(w.getDataAsString());
+                assertNotNull(w.getCreationTS());
+                assertNull(w.getErrorData());
+                assertNotNull(w.getLastModTS());
+                assertNull(w.getLastWaitStackTrace());
+                assertNotNull(w.getProcessorPoolId());
+                assertEquals(ProcessingState.RUNNING.name(), w.getState());
+            }
+
+            assertEquals(NUMB_OF_WFI, engine.queryWorkflowInstances(EMPTY_FILTER).size());
+            for (WorkflowInfo w : engine.queryWorkflowInstances(EMPTY_FILTER)) {
+                assertNotNull(w.getDataAsString());
+                assertNotNull(w.getCreationTS());
+                assertNull(w.getErrorData());
+                assertNotNull(w.getLastModTS());
+                assertNull(w.getLastWaitStackTrace());
+                assertNotNull(w.getProcessorPoolId());
+                assertEquals(ProcessingState.RUNNING.name(), w.getState());
+            }
+            
+            context.jmxTestAdapter.get().unblockFoo();
+
+            filter.setState(ProcessingState.WAITING.name());
+            assertEqualsX(engine, NUMB_OF_WFI, filter);
+            assertEqualsX(engine, NUMB_OF_WFI, EMPTY_FILTER); // should be the same with a completely empty filter
+            for (WorkflowInfo w : engine.queryWorkflowInstances(EMPTY_FILTER)) {
+                assertNotNull(w.getDataAsString());
+                assertNotNull(w.getCreationTS());
+                assertNull(w.getErrorData());
+                assertNotNull(w.getLastModTS());
+                assertNotNull(w.getLastWaitStackTrace());
+                assertNotNull(w.getProcessorPoolId());
+                assertEquals(ProcessingState.WAITING.name(), w.getState());
+            }
+            
+            context.jmxTestAdapter.get().blockFoo();
+            context.jmxTestAdapter.get().createResponses();
+            
+            filter.setState(ProcessingState.RUNNING.name());
+            assertEqualsX(engine, NUMB_OF_WFI, filter);
+            for (WorkflowInfo w : engine.queryWorkflowInstances(filter)) {
+                assertNotNull(w.getDataAsString());
+                assertNotNull(w.getCreationTS());
+                assertNull(w.getErrorData());
+                assertNotNull(w.getLastModTS());
+                assertNotNull(w.getLastWaitStackTrace());
+                assertNotNull(w.getProcessorPoolId());
+                assertEquals(ProcessingState.RUNNING.name(), w.getState());
+            }
+
+            assertEquals(NUMB_OF_WFI, engine.queryWorkflowInstances(EMPTY_FILTER).size());
+            for (WorkflowInfo w : engine.queryWorkflowInstances(EMPTY_FILTER)) {
+                assertNotNull(w.getDataAsString());
+                assertNotNull(w.getCreationTS());
+                assertNull(w.getErrorData());
+                assertNotNull(w.getLastModTS());
+                assertNotNull(w.getLastWaitStackTrace());
+                assertNotNull(w.getProcessorPoolId());
+                assertEquals(ProcessingState.RUNNING.name(), w.getState());
+            }
+            
+            context.jmxTestAdapter.get().unblockFoo();
+            
+            filter.setState(ProcessingState.WAITING.name());
+            assertEqualsX(engine, NUMB_OF_WFI, filter);
+            assertEqualsX(engine, NUMB_OF_WFI, EMPTY_FILTER); // should be the same with a completely empty filter
+            for (WorkflowInfo w : engine.queryWorkflowInstances(EMPTY_FILTER)) {
+                assertNotNull(w.getDataAsString());
+                assertNotNull(w.getCreationTS());
+                assertNull(w.getErrorData());
+                assertNotNull(w.getLastModTS());
+                assertNotNull(w.getLastWaitStackTrace());
+                assertNotNull(w.getProcessorPoolId());
+                assertEquals(ProcessingState.WAITING.name(), w.getState());
+            }
+            
+            context.jmxTestAdapter.get().createResponses();
+            
+
+            filter.setState(null);
+            assertEqualsX(engine, 0, filter);
+            
+            
+            
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    private void assertEqualsX(final PersistentScottyEngine engine, final int NUMB_OF_WFI, WorkflowInstanceFilter filter) throws InterruptedException {
+        for (int i=0; i<50; i++) {
+            Thread.sleep(100);
+            if (engine.queryWorkflowInstances(filter).size() == NUMB_OF_WFI)
+                break;
+        }
+        assertEquals(NUMB_OF_WFI, engine.queryWorkflowInstances(filter).size());
+    }
+    
+    
 }

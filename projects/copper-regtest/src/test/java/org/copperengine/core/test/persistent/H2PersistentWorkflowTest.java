@@ -125,4 +125,9 @@ public class H2PersistentWorkflowTest extends SpringlessBasePersistentWorkflowTe
         super.testMulipleResponsesForSameCidPersistentTestWorkflow(DS_CONTEXT);
     }
 
+    @Test
+    public void testJmxQueryWorkflowInstances() throws Exception {
+        super.testJmxQueryWorkflowInstances(DS_CONTEXT);
+    }
+
 }

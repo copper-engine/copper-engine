@@ -28,6 +28,7 @@ import org.copperengine.core.test.DataHolder;
 import org.copperengine.core.test.MockAdapter;
 import org.copperengine.core.test.TestContext;
 import org.copperengine.core.test.backchannel.BackChannelQueue;
+import org.copperengine.core.test.persistent.jmx.JmxTestAdapter;
 import org.copperengine.core.util.Backchannel;
 import org.copperengine.core.util.BackchannelDefaultImpl;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
@@ -46,12 +47,21 @@ public class PersistentEngineTestContext extends TestContext {
     protected final Supplier<DBMockAdapter> dbMockAdapter;
     protected final Supplier<PersistentLockManager> lockManager;
     protected final Supplier<Backchannel> backchannel;
+    protected final Supplier<JmxTestAdapter> jmxTestAdapter;
 
     public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB) {
         this(dataSourceType, cleanDB, "default", false);
     }
 
     public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB, final String engineId, final boolean multiEngineMode) {
+        jmxTestAdapter = Suppliers.memoize(new Supplier<JmxTestAdapter>() {
+            @Override
+            public JmxTestAdapter get() {
+                return createJmxTestAdapter();
+            }
+        });
+        suppliers.put("jmxTestAdapter", jmxTestAdapter);
+        
         backchannel = Suppliers.memoize(new Supplier<Backchannel>() {
             @Override
             public Backchannel get() {
@@ -111,6 +121,10 @@ public class PersistentEngineTestContext extends TestContext {
             }
         });
         suppliers.put("engineFactoryRed", engineFactoryRed);
+    }
+
+    protected JmxTestAdapter createJmxTestAdapter() {
+        return new JmxTestAdapter(engineFactoryRed.get().getEngine());
     }
 
     protected Backchannel createBackchannel() {

@@ -768,52 +768,49 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
         final List<Workflow<?>> result = new ArrayList<>();
         final StringBuilder sql = new StringBuilder();
-        final boolean filterEnqueued = filter.getState() != null && filter.getState().equals(ProcessingState.ENQUEUED.name());
-        if (filterEnqueued)
-            sql.append("SELECT w.* FROM COP_WORKFLOW_INSTANCE w, COP_QUEUE q WHERE w.id = q.WORKFLOW_INSTANCE_ID");
-        else
-            sql.append("SELECT * FROM COP_WORKFLOW_INSTANCE WHERE 1=1");
-        
+        sql.append("SELECT x.* FROM (SELECT w.timeout, w.classname, (CASE WHEN q.wfi_rowid IS NOT NULL AND w.STATE=2 THEN 0 ELSE w.STATE END) STATE, w.ID, w.PRIORITY, w.PPOOL_ID, w.DATA, w.OBJECT_STATE, w.CREATION_TS, w.LAST_MOD_TS FROM COP_WORKFLOW_INSTANCE w LEFT OUTER JOIN COP_QUEUE q on w.rowid = q.wfi_rowid) x WHERE 1=1");
         final List<Object> params = new ArrayList<>();
         if (filter.getWorkflowClassname() != null) {
-            sql.append(" AND CLASSNAME=?");
+            sql.append(" AND x.CLASSNAME=?");
             params.add(filter.getWorkflowClassname());
         }
         if (filter.getProcessorPoolId() != null) {
-            sql.append(" AND PPOOL_ID=?");
+            sql.append(" AND x.PPOOL_ID=?");
             params.add(filter.getProcessorPoolId());
         }
         if (filter.getCreationTS() != null) {
             if (filter.getCreationTS().getFrom() != null) {
-                sql.append(" AND CREATION_TS >= ?");
+                sql.append(" AND x.CREATION_TS >= ?");
                 params.add(filter.getCreationTS().getFrom());
             }
             if (filter.getCreationTS().getTo() != null) {
-                sql.append(" AND CREATION_TS < ?");
+                sql.append(" AND x.CREATION_TS < ?");
                 params.add(filter.getCreationTS().getTo());
             }
         }
         if (filter.getLastModTS() != null) {
             if (filter.getLastModTS().getFrom() != null) {
-                sql.append(" AND LAST_MOD_TS >= ?");
+                sql.append(" AND x.LAST_MOD_TS >= ?");
                 params.add(filter.getLastModTS().getFrom());
             }
             if (filter.getLastModTS().getTo() != null) {
-                sql.append(" AND LAST_MOD_TS < ?");
+                sql.append(" AND x.LAST_MOD_TS < ?");
                 params.add(filter.getLastModTS().getTo());
             }
         }
-        if (filter.getState() != null && !filterEnqueued) {
+        if (filter.getState() != null) {
             int filterState = -1;
-            if (filter.getState().equals(ProcessingState.ERROR)) 
+            if (filter.getState().equals(ProcessingState.ENQUEUED.name())) 
+                filterState = DBProcessingState.ENQUEUED.ordinal();
+            if (filter.getState().equals(ProcessingState.ERROR.name())) 
                 filterState = DBProcessingState.ERROR.ordinal();
-            else if (filter.getState().equals(ProcessingState.WAITING)) 
+            else if (filter.getState().equals(ProcessingState.WAITING.name())) 
                 filterState = DBProcessingState.WAITING.ordinal();
-            else if (filter.getState().equals(ProcessingState.INVALID)) 
+            else if (filter.getState().equals(ProcessingState.INVALID.name())) 
                 filterState = DBProcessingState.INVALID.ordinal();
-            else if (filter.getState().equals(ProcessingState.FINISHED)) 
+            else if (filter.getState().equals(ProcessingState.FINISHED.name())) 
                 filterState = DBProcessingState.FINISHED.ordinal();
-            sql.append(" AND STATE=?");
+            sql.append(" AND x.STATE=?");
             params.add(filterState);
         }
         addLimitation(sql, params, filter.getMax());
@@ -822,14 +819,12 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         
         try (PreparedStatement stmt = con.prepareStatement(sql.toString())) {
             for (int i=1; i<=params.size(); i++) {
-                stmt.setObject(i, params.get(i));
+                stmt.setObject(i, params.get(i-1));
             }
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 try {
                     final PersistentWorkflow<?> wf = decode(rs);
-                    if (filterEnqueued)
-                        WorkflowAccessor.setProcessingState(wf, ProcessingState.ENQUEUED);
                     result.add(wf);
                 } catch (Exception e) {
                     logger.error("decoding of '" + rs.getString("ID") + "' failed: " + e.toString(), e);

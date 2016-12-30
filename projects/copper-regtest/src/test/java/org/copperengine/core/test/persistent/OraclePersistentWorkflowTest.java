@@ -137,5 +137,10 @@ public class OraclePersistentWorkflowTest extends SpringlessBasePersistentWorkfl
     public void testMulipleResponsesForSameCidPersistentTestWorkflow() throws Exception {
         super.testMulipleResponsesForSameCidPersistentTestWorkflow(DS_CONTEXT);
     }
+    
+    @Test
+    public void testJmxQueryWorkflowInstances() throws Exception {
+        super.testJmxQueryWorkflowInstances(DS_CONTEXT);
+    }
 
 }

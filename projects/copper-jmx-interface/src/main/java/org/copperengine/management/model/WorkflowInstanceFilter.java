@@ -13,7 +13,7 @@ public class WorkflowInstanceFilter implements Serializable {
     private String processorPoolId;
     private String workflowClassname;
     private boolean details; // TODO remove
-    private int max;
+    private int max = 50;
     
     public WorkflowInstanceFilter() {
     }
