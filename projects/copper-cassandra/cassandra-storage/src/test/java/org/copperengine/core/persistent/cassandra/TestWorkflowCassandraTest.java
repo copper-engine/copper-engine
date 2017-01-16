@@ -15,11 +15,15 @@
  */
 package org.copperengine.core.persistent.cassandra;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.WorkflowInstanceDescr;
+import org.copperengine.management.model.WorkflowInfo;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.junit.Test;
 
 public class TestWorkflowCassandraTest extends CassandraTest {
@@ -39,6 +43,10 @@ public class TestWorkflowCassandraTest extends CassandraTest {
             org.junit.Assert.assertNotNull("no response for workflow instance " + cid, response);
             org.junit.Assert.assertEquals("OK", response);
         }
+        Thread.sleep(250);
+        WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+        List<WorkflowInfo> result = factory.getEngine().queryWorkflowInstances(filter);
+        assertEquals(0, result.size());
     }
 
     @Test

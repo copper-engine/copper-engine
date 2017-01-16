@@ -442,41 +442,57 @@ public class CassandraStorage implements Storage {
     public List<WorkflowInstance> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
         final List<WorkflowInstance> resultList = new ArrayList<>();
         final StringBuilder query = new StringBuilder();
+        final List<Object> values = new ArrayList<>();
         query.append("SELECT * FROM COP_WORKFLOW_INSTANCE");
         
         boolean first = true;
         if (filter.getWorkflowClassname() != null) {
-            query.append(first ? "WHERE " : " AND ");
-            query.append("CLASSNAME='");
-            query.append(filter.getWorkflowClassname());
-            query.append("'");
+            query.append(first ? " WHERE " : " AND ");
             first=false;
+            query.append("CLASSNAME=?");
+            values.add(filter.getWorkflowClassname());
         }
         if (filter.getProcessorPoolId() != null) {
-            query.append(first ? "WHERE " : " AND ");
-            query.append("PPOOL_ID='");
-            query.append(filter.getProcessorPoolId());
-            query.append("'");
+            query.append(first ? " WHERE " : " AND ");
             first=false;
+            query.append("PPOOL_ID=?");
+            values.add(filter.getProcessorPoolId());
         }
         if (filter.getState() != null) {
-            query.append(first ? "WHERE " : " AND ");
-            query.append("STATE='");
-            query.append(filter.getState());
-            query.append("'");
+            query.append(first ? " WHERE " : " AND ");
             first=false;
+            query.append("STATE=?");
+            values.add(filter.getState());
         }
-        if (filter.getCreationTS() != null) {
-            // TODO implement filter
+        if (filter.getCreationTS() != null && filter.getCreationTS().getFrom() != null) {
+            query.append(first ? " WHERE " : " AND ");
+            first=false;
+            query.append("CREATION_TS>=?");
+            values.add(filter.getCreationTS().getFrom());
         }
-        if (filter.getLastModTS() != null) {
-            // TODO implement filter
+        if (filter.getCreationTS() != null && filter.getCreationTS().getTo() != null) {
+            query.append(first ? " WHERE " : " AND ");
+            first=false;
+            query.append("CREATION_TS<?");
+            values.add(filter.getCreationTS().getTo());
+        }
+        if (filter.getLastModTS() != null && filter.getLastModTS().getFrom() != null) {
+            query.append(first ? " WHERE " : " AND ");
+            first=false;
+            query.append("LAST_MOD_TS>=?");
+            values.add(filter.getLastModTS().getFrom());
+        }
+        if (filter.getLastModTS() != null && filter.getLastModTS().getTo() != null) {
+            query.append(first ? " WHERE " : " AND ");
+            first=false;
+            query.append("LAST_MOD_TS<?");
+            values.add(filter.getLastModTS().getTo());
         }
         query.append(" LIMIT ").append(filter.getMax());
         query.append(" ALLOW FILTERING");
         final String cqlQuery = query.toString();
         logger.info("queryWorkflowInstances - cqlQuery = {}", cqlQuery);
-        final ResultSet resultSet = session.execute(cqlQuery);
+        final ResultSet resultSet = session.execute(cqlQuery, values.toArray());
         Row row;
         while ((row = resultSet.one()) != null) {
             final WorkflowInstance cw = row2WorkflowInstance(row);
