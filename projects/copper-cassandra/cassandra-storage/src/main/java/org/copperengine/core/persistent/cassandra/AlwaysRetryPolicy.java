@@ -15,9 +15,11 @@
  */
 package org.copperengine.core.persistent.cassandra;
 
+import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.WriteType;
+import com.datastax.driver.core.exceptions.DriverException;
 import com.datastax.driver.core.policies.RetryPolicy;
 
 /**
@@ -41,6 +43,21 @@ class AlwaysRetryPolicy implements RetryPolicy {
     @Override
     public RetryDecision onUnavailable(Statement statement, ConsistencyLevel cl, int requiredReplica, int aliveReplica, int nbRetry) {
         return RetryDecision.retry(cl);
+    }
+
+    @Override
+    public RetryDecision onRequestError(Statement statement, ConsistencyLevel cl, DriverException e, int nbRetry) {
+        return RetryDecision.retry(cl);
+    }
+
+    @Override
+    public void init(Cluster cluster) {
+        
+    }
+
+    @Override
+    public void close() {
+        
     }
 
 }

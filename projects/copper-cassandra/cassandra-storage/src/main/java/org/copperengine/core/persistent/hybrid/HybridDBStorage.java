@@ -17,7 +17,6 @@ package org.copperengine.core.persistent.hybrid;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,6 +94,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         cw.prio = wf.getPriority();
         cw.creationTS = wf.getCreationTS();
         cw.state = ProcessingState.ENQUEUED;
+        cw.classname = wf.getClass().getName();
 
         storage.safeWorkflowInstance(cw, true);
 
@@ -206,7 +206,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         wf.setProcessorPoolId(cw.ppoolId);
         wf.setPriority(cw.prio);
         WorkflowAccessor.setCreationTS(wf, cw.creationTS);
-        // WorkflowAccessor.setLastModTS(wf, ??); TODO
+        WorkflowAccessor.setLastActivityTS(wf, cw.lastModTS);
 
         if (cw.cid2ResponseMap != null) {
             for (Entry<String, String> e : cw.cid2ResponseMap.entrySet()) {
@@ -242,6 +242,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         for (String cid : rc.correlationIds) {
             cw.cid2ResponseMap.put(cid, null);
         }
+        cw.classname = rc.workflow.getClass().getName();
 
         storage.safeWorkflowInstance(cw, false);
 
@@ -570,8 +571,17 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
 
     @Override
     public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
-        // TODO implement this method
-        return Collections.emptyList();
+        List<Workflow<?>> resultList = new ArrayList<>();
+        List<WorkflowInstance> list = storage.queryWorkflowInstances(filter);
+        for (WorkflowInstance wi : list) {
+            try {
+                resultList.add(convert2workflow(wi));
+            }
+            catch(Exception e) {
+                logger.error("Failed to convert workflow instance "+wi.id, e);
+            }
+        }
+        return resultList;
     }
 
 }

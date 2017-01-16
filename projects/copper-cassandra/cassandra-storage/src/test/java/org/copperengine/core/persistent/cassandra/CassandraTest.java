@@ -44,21 +44,21 @@ public class CassandraTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CassandraTest.class);
 
-    public static final int CASSANDRA_PORT = 9142;
+    public static final int CASSANDRA_PORT = 9042;
 
     protected static UnitTestCassandraEngineFactory factory;
 
     @BeforeClass
     public synchronized static void setUpBeforeClass() throws Exception {
         if (factory == null) {
-            logger.info("Starting embedded cassandra...");
-            EmbeddedCassandraServerHelper.startEmbeddedCassandra("unittest-cassandra.yaml", "./build/cassandra");
-            Thread.sleep(100);
-            logger.info("Successfully started embedded cassandra.");
+//            logger.info("Starting embedded cassandra...");
+//            EmbeddedCassandraServerHelper.startEmbeddedCassandra("unittest-cassandra.yaml", "./build/cassandra");
+//            Thread.sleep(100);
+//            logger.info("Successfully started embedded cassandra.");
 
             final Cluster cluster = new Builder().addContactPoint("localhost").withPort(CASSANDRA_PORT).build();
-            final Session session = cluster.newSession();
-            session.execute("CREATE KEYSPACE copper WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };");
+//            final Session session = cluster.newSession();
+//            session.execute("CREATE KEYSPACE copper WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };");
 
             factory = new UnitTestCassandraEngineFactory(false);
             factory.setCassandraPort(CASSANDRA_PORT);

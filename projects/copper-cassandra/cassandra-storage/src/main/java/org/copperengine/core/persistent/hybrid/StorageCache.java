@@ -17,11 +17,14 @@
 package org.copperengine.core.persistent.hybrid;
 
 import java.lang.ref.SoftReference;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.NullArgumentException;
 import org.copperengine.core.ProcessingState;
+import org.copperengine.core.Workflow;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -115,6 +118,11 @@ public class StorageCache implements Storage {
     public ListenableFuture<Void> updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception {
         wfCache.remove(wfId);
         return delegate.updateWorkflowInstanceState(wfId, state);
+    }
+
+    @Override
+    public List<WorkflowInstance> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
+        return delegate.queryWorkflowInstances(filter);
     }
 
 }

@@ -42,10 +42,12 @@ public class WorkflowInstance {
     public WaitMode waitMode;
     public Date timeout;
     public ProcessingState state;
+    public Date lastModTS;
+    public String classname;
 
     @Override
     public String toString() {
-        return "WorkflowInstance [id=" + id + ", state=" + state + ", ppoolId=" + ppoolId + ", prio=" + prio + ", creationTS=" + creationTS + ", waitMode=" + waitMode + ", timeout=" + timeout + ", cid2ResponseMap.size=" + (cid2ResponseMap != null ? cid2ResponseMap.size() : 0) + "]";
+        return "WorkflowInstance [id=" + id + ", ppoolId=" + ppoolId + ", prio=" + prio + ", creationTS=" + creationTS + ", serializedWorkflow=" + serializedWorkflow + ", cid2ResponseMap=" + cid2ResponseMap + ", waitMode=" + waitMode + ", timeout=" + timeout + ", state=" + state + ", lastModTS=" + lastModTS + ", classname=" + classname + "]";
     }
 
 }

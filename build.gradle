@@ -11,9 +11,9 @@ ext {
 	springVersion = '3.1.4.RELEASE'
 	c3p0Version = '0.9.5.2'
 	asmVersion = '5.0.4'
-	guavaVersion = '20.0'
+	guavaVersion = '19.0'
 	jacksonVersion = '2.8.4'
-	cassandraDriverVersion = '2.1.10.3'
+	cassandraDriverVersion = '3.1.2'
 	snakeyamlVersion = '1.17'
 	commonsIoVersion = '2.5'
 }
@@ -325,8 +325,8 @@ project(':projects:copper-cassandra:cassandra-storage') {
        	compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         
         testCompile "org.slf4j:slf4j-log4j12:$slf4jVersion"
-        testCompile 'org.cassandraunit:cassandra-unit:2.1.9.2'
-        testCompile 'io.netty:netty-all:4.0.27.Final'
+        testCompile 'org.cassandraunit:cassandra-unit:3.1.1.0'
+//        testCompile 'io.netty:netty-all:4.0.27.Final'
     }
     
     test {

@@ -38,6 +38,7 @@ import org.copperengine.core.persistent.SerializedWorkflow;
 import org.copperengine.core.persistent.hybrid.HybridDBStorageAccessor;
 import org.copperengine.core.persistent.hybrid.Storage;
 import org.copperengine.core.persistent.hybrid.WorkflowInstance;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,10 +66,10 @@ public class CassandraStorage implements Storage {
 
     private static final Logger logger = LoggerFactory.getLogger(CassandraStorage.class);
 
-    private static final String CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING = "UPDATE COP_WORKFLOW_INSTANCE SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, STATE=? WHERE ID=?";
-    private static final String CQL_UPD_WORKFLOW_INSTANCE_WAITING = "UPDATE COP_WORKFLOW_INSTANCE SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, WAIT_MODE=?, TIMEOUT=?, RESPONSE_MAP_JSON=?, STATE=? WHERE ID=?";
-    private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE = "UPDATE COP_WORKFLOW_INSTANCE SET STATE=? WHERE ID=?";
-    private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP = "UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, RESPONSE_MAP_JSON=?  WHERE ID=?";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING = "UPDATE COP_WORKFLOW_INSTANCE SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, STATE=?, LAST_MOD_TS=toTimestamp(now()), CLASSNAME=? WHERE ID=?";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_WAITING = "UPDATE COP_WORKFLOW_INSTANCE SET PPOOL_ID=?, PRIO=?, CREATION_TS=?, DATA=?, OBJECT_STATE=?, WAIT_MODE=?, TIMEOUT=?, RESPONSE_MAP_JSON=?, STATE=?, LAST_MOD_TS=toTimestamp(now()), CLASSNAME=? WHERE ID=?";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE = "UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=toTimestamp(now()) WHERE ID=?";
+    private static final String CQL_UPD_WORKFLOW_INSTANCE_STATE_AND_RESPONSE_MAP = "UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, RESPONSE_MAP_JSON=?, LAST_MOD_TS=toTimestamp(now()) WHERE ID=?";
     private static final String CQL_DEL_WORKFLOW_INSTANCE_WAITING = "DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?";
     private static final String CQL_SEL_WORKFLOW_INSTANCE = "SELECT * FROM COP_WORKFLOW_INSTANCE WHERE ID=?";
     private static final String CQL_INS_EARLY_RESPONSE = "INSERT INTO COP_EARLY_RESPONSE (CORRELATION_ID, RESPONSE) VALUES (?,?) USING TTL ?";
@@ -198,14 +199,14 @@ public class CassandraStorage implements Storage {
                 if (cw.cid2ResponseMap == null || cw.cid2ResponseMap.isEmpty()) {
                     final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_NOT_WAITING);
                     final long startTS = System.nanoTime();
-                    session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.state.name(), cw.id));
+                    session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.state.name(), cw.classname, cw.id));
                     runtimeStatisticsCollector.submit("wfi.update.nowait", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
                 }
                 else {
                     final PreparedStatement pstmt = preparedStatements.get(CQL_UPD_WORKFLOW_INSTANCE_WAITING);
                     final String responseMapJson = jsonMapper.toJSON(cw.cid2ResponseMap);
                     final long startTS = System.nanoTime();
-                    session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.waitMode.name(), cw.timeout, responseMapJson, cw.state.name(), cw.id));
+                    session.execute(pstmt.bind(cw.ppoolId, cw.prio, cw.creationTS, cw.serializedWorkflow.getData(), cw.serializedWorkflow.getObjectState(), cw.waitMode.name(), cw.timeout, responseMapJson, cw.state.name(), cw.classname, cw.id));
                     runtimeStatisticsCollector.submit("wfi.update.wait", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
                 }
                 return null;
@@ -256,18 +257,7 @@ public class CassandraStorage implements Storage {
                 if (row == null) {
                     return null;
                 }
-                final WorkflowInstance cw = new WorkflowInstance();
-                cw.id = wfId;
-                cw.ppoolId = row.getString("PPOOL_ID");
-                cw.prio = row.getInt("PRIO");
-                cw.creationTS = row.getDate("CREATION_TS");
-                cw.timeout = row.getDate("TIMEOUT");
-                cw.waitMode = toWaitMode(row.getString("WAIT_MODE"));
-                cw.serializedWorkflow = new SerializedWorkflow();
-                cw.serializedWorkflow.setData(row.getString("DATA"));
-                cw.serializedWorkflow.setObjectState(row.getString("OBJECT_STATE"));
-                cw.cid2ResponseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
-                cw.state = ProcessingState.valueOf(row.getString("STATE"));
+                final WorkflowInstance cw = row2WorkflowInstance(row);
                 runtimeStatisticsCollector.submit("wfi.read", 1, System.nanoTime() - startTS, TimeUnit.NANOSECONDS);
                 return cw;
             }
@@ -368,7 +358,7 @@ public class CassandraStorage implements Storage {
         final WaitMode waitMode = toWaitMode(row.getString("WAIT_MODE"));
         final Map<String, String> responseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
         final ProcessingState state = ProcessingState.valueOf(row.getString("STATE"));
-        final Date timeout = row.getDate("TIMEOUT");
+        final Date timeout = row.getTimestamp("TIMEOUT");
         final boolean timeoutOccured = timeout != null && timeout.getTime() <= System.currentTimeMillis();
 
         if (state == ProcessingState.ERROR || state == ProcessingState.INVALID) {
@@ -444,7 +434,73 @@ public class CassandraStorage implements Storage {
         PreparedStatement pstmt = session.prepare(cql);
         pstmt.setConsistencyLevel(consistencyLevel);
         pstmt.setRetryPolicy(petryPolicy);
+        pstmt.setIdempotent(true);
         preparedStatements.put(cql, pstmt);
+    }
+
+    @Override
+    public List<WorkflowInstance> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
+        final List<WorkflowInstance> resultList = new ArrayList<>();
+        final StringBuilder query = new StringBuilder();
+        query.append("SELECT * FROM COP_WORKFLOW_INSTANCE");
+        
+        boolean first = true;
+        if (filter.getWorkflowClassname() != null) {
+            query.append(first ? "WHERE " : " AND ");
+            query.append("CLASSNAME='");
+            query.append(filter.getWorkflowClassname());
+            query.append("'");
+            first=false;
+        }
+        if (filter.getProcessorPoolId() != null) {
+            query.append(first ? "WHERE " : " AND ");
+            query.append("PPOOL_ID='");
+            query.append(filter.getProcessorPoolId());
+            query.append("'");
+            first=false;
+        }
+        if (filter.getState() != null) {
+            query.append(first ? "WHERE " : " AND ");
+            query.append("STATE='");
+            query.append(filter.getState());
+            query.append("'");
+            first=false;
+        }
+        if (filter.getCreationTS() != null) {
+            // TODO implement filter
+        }
+        if (filter.getLastModTS() != null) {
+            // TODO implement filter
+        }
+        query.append(" LIMIT ").append(filter.getMax());
+        query.append(" ALLOW FILTERING");
+        final String cqlQuery = query.toString();
+        logger.info("queryWorkflowInstances - cqlQuery = {}", cqlQuery);
+        final ResultSet resultSet = session.execute(cqlQuery);
+        Row row;
+        while ((row = resultSet.one()) != null) {
+            final WorkflowInstance cw = row2WorkflowInstance(row);
+            resultList.add(cw);
+        }
+        return resultList;
+    }
+
+    private WorkflowInstance row2WorkflowInstance(Row row) {
+        final WorkflowInstance cw = new WorkflowInstance();
+        cw.id = row.getString("ID");
+        cw.ppoolId = row.getString("PPOOL_ID");
+        cw.prio = row.getInt("PRIO");
+        cw.creationTS = row.getTimestamp("CREATION_TS");
+        cw.timeout = row.getTimestamp("TIMEOUT");
+        cw.waitMode = toWaitMode(row.getString("WAIT_MODE"));
+        cw.serializedWorkflow = new SerializedWorkflow();
+        cw.serializedWorkflow.setData(row.getString("DATA"));
+        cw.serializedWorkflow.setObjectState(row.getString("OBJECT_STATE"));
+        cw.cid2ResponseMap = toResponseMap(row.getString("RESPONSE_MAP_JSON"));
+        cw.state = ProcessingState.valueOf(row.getString("STATE"));
+        cw.lastModTS = row.getTimestamp("LAST_MOD_TS");
+        cw.classname = row.getString("CLASSNAME");
+        return cw;
     }
 
 }

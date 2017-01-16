@@ -33,6 +33,8 @@ CREATE TABLE COP_WORKFLOW_INSTANCE  (
     RESPONSE_MAP_JSON varchar,
     DATA varchar,
     OBJECT_STATE varchar,
+    LAST_MOD_TS timestamp,
+    CLASSNAME varchar,
     primary key (ID)
 );
 
