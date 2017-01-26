@@ -1,10 +1,15 @@
+COPPER 4.3.0
+============
+- New feature: #65 Extend JMX Interface
+- Refactoring: removed old Java FX Monitoring GUI - will be replaced by a new web GUI see https://github.com/copper-engine/copper-monitoring
+
 COPPER 4.2.0
 ============
--New feature:  Multi-engine support for MySQL and Postgres (Attention! DB schema of MySQL, Postgres, DerbyDB and H2 has changed!)
--Maintenance:  Removed various deprecated methods
--New feature:  YamlSerializer - using the YAML format for storing workflow data in the database
--New feature:  #64 Monitor application- and db-server clocks (Oracle only)
--New feature:  Upgrade of various dependencies, e.g. gradle, c3p0, derby, h2, etc.
+- New feature: Multi-engine support for MySQL and Postgres (Attention! DB schema of MySQL, Postgres, DerbyDB and H2 has changed!)
+- Maintenance: Removed various deprecated methods
+- New feature: YamlSerializer - using the YAML format for storing workflow data in the database
+- New feature: #64 Monitor application- and db-server clocks (Oracle only)
+- New feature: Upgrade of various dependencies, e.g. gradle, c3p0, derby, h2, etc.
 
 COPPER 4.1.2
 ============
