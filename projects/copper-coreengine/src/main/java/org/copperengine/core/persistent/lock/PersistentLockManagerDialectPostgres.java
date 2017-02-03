@@ -41,7 +41,7 @@ public class PersistentLockManagerDialectPostgres extends PersistentLockManagerD
             synchronized ((LOCK_PREFIX + _lockId).intern()) {
                 Savepoint sp = con.setSavepoint();
                 try {
-                    insertOrUpdate(_lockId, _workflowInstanceId, _correlationId, _insertTS, con);
+                    insertLock(_lockId, _workflowInstanceId, _correlationId, _insertTS, con);
                 } catch (SQLException e) {
                     if (e.getMessage().toUpperCase().contains("COP_LOCK_PKEY")) {
                         con.rollback(sp);

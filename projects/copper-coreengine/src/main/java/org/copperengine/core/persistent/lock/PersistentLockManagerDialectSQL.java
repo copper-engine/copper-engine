@@ -57,7 +57,7 @@ public class PersistentLockManagerDialectSQL implements PersistentLockManagerDia
         rwl.readLock().lock();
         try {
             synchronized ((LOCK_PREFIX + _lockId).intern()) {
-                insertOrUpdate(_lockId, _workflowInstanceId, _correlationId, _insertTS, con);
+                insertLock(_lockId, _workflowInstanceId, _correlationId, _insertTS, con);
                 return findNewLockOwnerAfterAquire(_lockId, _workflowInstanceId, con);
             }
         } finally {
@@ -93,7 +93,7 @@ public class PersistentLockManagerDialectSQL implements PersistentLockManagerDia
         return false;
     }
 
-    void insertOrUpdate(String _lockId, String _workflowInstanceId, String _correlationId, Date _insertTS, Connection con) throws SQLException, Exception {
+    void insertLock(String _lockId, String _workflowInstanceId, String _correlationId, Date _insertTS, Connection con) throws SQLException, Exception {
         PreparedStatement pstmtInsertLock = null;
         try {
             pstmtInsertLock = con.prepareStatement("INSERT INTO COP_LOCK (LOCK_ID, CORRELATION_ID, WORKFLOW_INSTANCE_ID, INSERT_TS, REPLY_SENT) VALUES (?,?,?,?,?)");
@@ -119,7 +119,6 @@ public class PersistentLockManagerDialectSQL implements PersistentLockManagerDia
 
     String findNewLockOwnerAfterAquire(String _lockId, String _workflowInstanceId, Connection con) throws SQLException {
         PreparedStatement pstmtSelectLock = null;
-        PreparedStatement pstmtUpdateLock = null;
         try {
             pstmtSelectLock = con.prepareStatement("select l.* from COP_LOCK l where lock_id = ? order by l.insert_ts, l.workflow_instance_id");
             pstmtSelectLock.setString(1, _lockId);
@@ -137,13 +136,11 @@ public class PersistentLockManagerDialectSQL implements PersistentLockManagerDia
             return null;
         } finally {
             JdbcUtils.closeStatement(pstmtSelectLock);
-            JdbcUtils.closeStatement(pstmtUpdateLock);
         }
     }
 
     String findNewLockOwnerAfterRelease(String _lockId, Connection con) throws SQLException {
         PreparedStatement pstmtSelectLock = null;
-        PreparedStatement pstmtUpdateLock = null;
         try {
             pstmtSelectLock = con.prepareStatement("select l.* from COP_LOCK l where lock_id = ? order by l.insert_ts, l.workflow_instance_id");
             pstmtSelectLock.setString(1, _lockId);
@@ -155,7 +152,6 @@ public class PersistentLockManagerDialectSQL implements PersistentLockManagerDia
             return null;
         } finally {
             JdbcUtils.closeStatement(pstmtSelectLock);
-            JdbcUtils.closeStatement(pstmtUpdateLock);
         }
     }
 

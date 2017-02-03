@@ -24,6 +24,12 @@ public interface PersistentLockManagerDialect {
 
     public String releaseLock(String lockId, String workflowInstanceId, Connection con) throws Exception;
 
+    /**
+     * If the implementation is designed for usage in a copper cluster with several copper engines sharing their
+     * database, then the result is "true", otherwise "false".
+     * 
+     * @return see above
+     */
     public boolean supportsMultipleInstances();
 
 }
