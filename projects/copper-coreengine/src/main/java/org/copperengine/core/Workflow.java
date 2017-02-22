@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
@@ -315,6 +316,56 @@ public abstract class Workflow<D> implements Serializable {
         }
     }
 
+
+    /**
+     * This method is similar to getAndRemoveResponse but a convenient extension for some usage scenarios.
+     * Sometimes, we don't bother which correlation ID is notificated upon but just want one of the
+     * notifications. (e.g. we send the same request to multiple services and are happy if one of those answers.)
+     * We could also run wait in a timed out loop and handle always those responses only which already got answered (for the next
+     * loop iteration we could remove the to be waited correlation ids from the wait list by querying the correlation id via response.getCorrelationID).)
+     * In the method, we look up the list of responses and return any of those which didn't run into a timeout (and with the per parameter given type).
+     * If multiple correlations didn't run into a timeout, a random one of those is returned and removed.
+     * If all given correlation IDs with the given type ran into the timeout, null is returned! This is due to the
+     * fact, that we can't find the type of an empty response on runtime and thus not filter accordingly.
+     * So if null is returned, you know that the workflow was waken up by timeout. (If all correlation IDs were of the given type)
+     * Responses with different types than the specified one are just ignored.
+     * Call it like
+     * <pre>
+     *     Response&lt;MyResponseType&gt; resp = getAnyNonTimedOutAndRemoveResponse(MyResponseType.class);
+     * </pre>
+     * To get any non timed out response, you can just call the method with Object.class as parameter.
+     * @param <T>
+     * @return
+     */
+    protected <T> Response<T> getAnyNonTimedOutAndRemoveResponse(Class<? extends T> type) {
+        synchronized (responseMap) {
+            for(Map.Entry<String, List<Response<?> > > correlationResponse : responseMap.entrySet()) {
+                assert(correlationResponse.getValue() != null);
+                ListIterator<Response<?> > li = correlationResponse.getValue().listIterator(correlationResponse.getValue().size());
+                while(li.hasPrevious()) {
+                    Response<?> prev = li.previous();
+                    if (prev.getResponse() == null)
+                        continue;
+                    // Runtime check type
+                    try {
+                        type.cast(prev.getResponse());
+                        li.remove();
+                        if (correlationResponse.getValue().isEmpty()) {
+                            responseMap.remove(correlationResponse.getKey());
+                        }
+                        return (Response<T>) prev;
+                    } catch (Exception e) {
+                        //Do nothing, just wrong type so we skip.
+                    }
+                }
+            }
+            // No valid response found, only timed out ones (or none at all).
+            return null;
+        }
+    }
+
+
+
     /**
      * Entry point for this workflow
      */
@@ -322,7 +373,7 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * Causes the engine to stop processing of this workflow instance and to enqueue it again.
-     * May be used in case of processor pool change or the create a 'savepoint'.
+     * May be used in case of processor pool change or to create a 'savepoint'.
      *
      * @throws Interrupt
      */
@@ -422,6 +473,10 @@ public abstract class Workflow<D> implements Serializable {
         this.creationTS = creationTS;
     }
 
+    /**
+     * We create a quasi empty acknowledge here. It doesn't block at all and has empty callbacks for success and errors.
+     * @return a BestEffortAcknowledge
+     */
     protected Acknowledge createCheckpointAcknowledge() {
         return new Acknowledge.BestEffortAcknowledge();
     }
