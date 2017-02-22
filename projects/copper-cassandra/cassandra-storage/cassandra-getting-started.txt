@@ -22,7 +22,7 @@ In the cqlsh, switch to keyspace copper:
 > use copper;
 
 Create the schema:
-copy the content of file /cassandra-storage/database/create-schema-copper.cql into the cqlsh shell
+copy the content of file /cassandra-storage/src/main/resources/org/copperengine/core/persistent/cassandra/copper-schema.sql into the cqlsh shell
 
 Quit the cqlsh
 > quit;

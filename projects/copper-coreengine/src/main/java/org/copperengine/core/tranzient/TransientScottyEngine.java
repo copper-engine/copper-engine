@@ -171,7 +171,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
                 w.setId(createUUID());
                 newId = true;
             }
-            ;
+
             if (w.getProcessorPoolId() == null) {
                 w.setProcessorPoolId(TransientProcessorPool.DEFAULT_POOL_ID);
             }

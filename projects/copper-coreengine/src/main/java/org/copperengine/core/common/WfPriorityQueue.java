@@ -47,7 +47,7 @@ public class WfPriorityQueue implements Queue<Workflow<?>> {
     }
 
     public WfPriorityQueue(final int initialSize) {
-        queue = new PriorityQueue<QueueEntry>(10000, new Comparator<QueueEntry>() {
+        queue = new PriorityQueue<QueueEntry>(initialSize, new Comparator<QueueEntry>() {
             public int compare(QueueEntry o1, QueueEntry o2) {
                 if (o1.workflow.getPriority() != o2.workflow.getPriority()) {
                     return o1.workflow.getPriority() - o2.workflow.getPriority();

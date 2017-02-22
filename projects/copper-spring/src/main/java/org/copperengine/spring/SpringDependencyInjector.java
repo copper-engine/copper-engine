@@ -52,8 +52,8 @@ public class SpringDependencyInjector extends AbstractDependencyInjector impleme
     protected Object getBean(String beanId) {
         Object firsttry = context.getBean(beanId);
         if (firsttry instanceof SavepointAware) {
-            Object secoundtry = context.getBean(beanId);
-            if (firsttry == secoundtry) {
+            Object secondtry = context.getBean(beanId);
+            if (firsttry == secondtry) {
                 throw new IllegalStateException(beanId + " scope is not prototype");
             }
         }

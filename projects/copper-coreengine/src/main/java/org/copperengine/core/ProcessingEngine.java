@@ -76,7 +76,8 @@ public interface ProcessingEngine {
      * @param response
      *        the reponse
      * @param ack
-     *        the object to notify upon processing of the message.
+     *        the object to notify upon processing of the message. Note: The ack.waitForAcknowledge returns when the response
+     *        is processed by the COPPER engine, not when the workflow was waked up with this response.
      * @throws CopperRuntimeException
      */
     public void notify(Response<?> response, Acknowledge ack) throws CopperRuntimeException;
@@ -94,9 +95,9 @@ public interface ProcessingEngine {
      * @param data
      *        the data to pass to the workflow
      * @throws CopperException
-     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id.
+     *         if the engine can not run the workflow for some reason, e.g. in case of an unkown processor pool id.
      * @throws DuplicateIdException
-     *         if a workflow instance with the same id already exists
+     *         if a workflow instance with the same id already exists [Collision in unique-id-creator]
      * @return workflow instance Id
      */
     public String run(String wfname, Object data) throws CopperException, DuplicateIdException;
@@ -105,7 +106,7 @@ public interface ProcessingEngine {
      * Enqueues the specified workflow instance description into the engine for execution.
      * 
      * @throws CopperException
-     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id.
+     *         if the engine can not run the workflow for some reason, e.g. in case of an unkown processor pool id.
      * @throws DuplicateIdException
      *         if a workflow instance with the same id already exists
      * @return workflow instance Id
@@ -113,10 +114,10 @@ public interface ProcessingEngine {
     public String run(WorkflowInstanceDescr<?> wfInstanceDescr) throws CopperException, DuplicateIdException;
 
     /**
-     * Enqueues the specified batch of workflow instance description into the engine for execution.
+     * Enqueues the specified batch of workflow instance descriptions into the engine for execution.
      * 
      * @throws CopperException
-     *         if the engine can not run the workflows, e.g. in case of a unkown processor pool id.
+     *         if the engine can not run the workflows for some reason, e.g. in case of an unkown processor pool id.
      * @throws DuplicateIdException
      *         if a workflow instance with the same id already exists
      */

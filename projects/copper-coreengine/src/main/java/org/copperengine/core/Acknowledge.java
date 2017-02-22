@@ -65,7 +65,6 @@ public interface Acknowledge {
                 throw new CopperRuntimeException(((InvocationTargetException) responseHolder[0]).getCause());
             }
         }
-
     }
 
     public static class BestEffortAcknowledge implements Acknowledge {
