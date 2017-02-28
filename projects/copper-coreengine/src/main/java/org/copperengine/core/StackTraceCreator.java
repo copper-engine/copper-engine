@@ -25,11 +25,15 @@ public class StackTraceCreator {
 
     public static String createStackTrace() {
         try {
+            int state = 0;
             final StringBuilder stackTrace = new StringBuilder(128);
             final StackTraceElement[] excStackTrace = new Exception().getStackTrace();
             for (int i=0; i<excStackTrace.length-2; i++) {
                 StackTraceElement ste = excStackTrace[i];
-                if ("org.copperengine.core.Workflow".equals(ste.getClassName()) && (ste.getMethodName().equals("wait") || ste.getMethodName().equals("resubmit"))) {
+                if (state == 0 && "org.copperengine.core.Workflow".equals(ste.getClassName()) && (ste.getMethodName().equals("wait") || ste.getMethodName().equals("resubmit"))) {
+                    state = 1;
+                }
+                else if (state == 1) {
                     if (stackTrace.length() != 0)
                         stackTrace.append(NEWLINE);
                     stackTrace.append(ste.toString());

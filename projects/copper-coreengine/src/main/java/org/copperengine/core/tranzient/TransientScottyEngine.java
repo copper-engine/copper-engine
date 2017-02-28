@@ -40,8 +40,6 @@ import org.copperengine.core.common.ProcessorPool;
 import org.copperengine.core.common.ProcessorPoolManager;
 import org.copperengine.core.common.TicketPoolManager;
 import org.copperengine.core.internal.WorkflowAccessor;
-import org.copperengine.core.monitoring.NullRuntimeStatisticsCollector;
-import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.ProcessorPoolMXBean;
@@ -68,13 +66,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     private TimeoutManager timeoutManager;
     private EarlyResponseContainer earlyResponseContainer;
     private TicketPoolManager ticketPoolManager;
-    private RuntimeStatisticsCollector statisticsCollector = new NullRuntimeStatisticsCollector();
     private final AtomicLong sequenceIdFactory = new AtomicLong(System.currentTimeMillis() * 10000L);
-
-    @Override
-    public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
-        this.statisticsCollector = statisticsCollector;
-    }
 
     public void setTicketPoolManager(TicketPoolManager ticketPoolManager) {
         if (ticketPoolManager == null)
