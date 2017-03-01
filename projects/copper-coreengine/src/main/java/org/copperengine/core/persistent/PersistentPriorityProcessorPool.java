@@ -255,7 +255,7 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
         }
         oldDequeueBulkSize = _dequeueBulkSize;
         _dequeueBulkSize = 0;
-        logger.info("dequeue suspendet");
+        logger.info("dequeue suspended");
     }
 
     @Override

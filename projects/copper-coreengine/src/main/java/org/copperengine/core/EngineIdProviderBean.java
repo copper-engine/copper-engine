@@ -16,7 +16,7 @@
 package org.copperengine.core;
 
 /**
- * Simple java bean implementation if the {@link EngineIdProvider} interface.
+ * Simple java bean implementation of the {@link EngineIdProvider} interface.
  *
  * @author austermann
  */
@@ -25,7 +25,6 @@ public class EngineIdProviderBean implements EngineIdProvider {
     private String engineId;
 
     public EngineIdProviderBean() {
-
     }
 
     public EngineIdProviderBean(String engineId) {

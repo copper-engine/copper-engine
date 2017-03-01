@@ -16,5 +16,12 @@
 package org.copperengine.core;
 
 public enum ProcessingState {
-    RAW, ENQUEUED, DEQUEUED, RUNNING, WAITING, FINISHED, ERROR, INVALID
+    RAW,        // Workflow was just initialized, nothing happened with it so far
+    ENQUEUED,   // Workflow is in queue and waits for execution (Used by transient engines) / waits for engine to take ownership and grep it from database (persistent)
+    DEQUEUED,   // Workflow is pulled from database (dequeued) and put to the Processing pool queue. Dequeue is marked on the processing state within the database.
+    RUNNING,    // Workflow is currently running (This state is set in RAM only. A persistent engine will not update the database whether a workflow is running (it keeps on dequeud)
+    WAITING,    // Workflow is in wait state. The awake-conditions from wait are not yet (fully) fulfilled.
+    FINISHED,   // Workflow finished execution normally.
+    ERROR,      // Workflow stopped execution due to an exception. Might be resubmitted later on.
+    INVALID     // Something illegal happened to the workflow. Cannot work with it anymore. In persistent mode, this might be caused by a deserialization error or something similar.
 }

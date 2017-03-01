@@ -82,7 +82,7 @@ public interface DatabaseDialect {
     public abstract Workflow<?> read(String workflowInstanceId, Connection con) throws Exception;
 
     /**
-     * Query workflows that were active at the moment (in ENQUEU, RUNNING OR WAITING state)
+     * Query workflows that were active at the moment in (ENQUEUE, RUNNING or WAITING) state
      * 
      * @param className
      *        - optional, specify which className it want to return
