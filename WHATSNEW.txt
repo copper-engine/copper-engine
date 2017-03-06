@@ -3,6 +3,7 @@ COPPER 4.3.0
 - Maintenance: Renamed PersistentLockManagerDialectSQL.insertOrUpdate() into insertLock()
 - New feature: #65 Extend JMX Interface
 - Refactoring: removed old Java FX Monitoring GUI - will be replaced by a new web GUI see https://github.com/copper-engine/copper-monitoring
+- New feature: ScottyDBStorage.startup is now idempotent, i.e. multipe invokations do not start multiple ENQUEUE threads (which would cause problems)
 
 COPPER 4.2.0
 ============

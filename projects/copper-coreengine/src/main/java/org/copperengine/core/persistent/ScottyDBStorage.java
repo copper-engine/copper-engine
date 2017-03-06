@@ -218,6 +218,9 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     @Override
     public synchronized void startup() {
         try {
+            if (enqueueThread != null)
+                return;
+            
             dialect.startup();
 
             checkDbConsistencyAtStartup();
