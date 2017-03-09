@@ -77,7 +77,6 @@ public class PersistentLockManagerDialectSQL implements PersistentLockManagerDia
                     pstmtDeleteLock.setString(1, _lockId);
                     pstmtDeleteLock.setString(2, _workflowInstanceId);
                     pstmtDeleteLock.execute();
-                    JdbcUtils.closeStatement(pstmtDeleteLock);
                     return findNewLockOwnerAfterRelease(_lockId, con);
                 } finally {
                     JdbcUtils.closeStatement(pstmtDeleteLock);
