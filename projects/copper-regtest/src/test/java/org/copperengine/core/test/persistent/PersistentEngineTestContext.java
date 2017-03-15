@@ -34,6 +34,7 @@ import org.copperengine.core.persistent.DatabaseDialect;
 import org.copperengine.core.persistent.OracleDialect;
 import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.persistent.lock.PersistentLockManager;
+import org.copperengine.core.persistent.lock.PersistentLockManagerDialectPostgres;
 import org.copperengine.core.persistent.lock.PersistentLockManagerDialectSQL;
 import org.copperengine.core.persistent.lock.PersistentLockManagerImpl;
 import org.copperengine.core.persistent.txn.CopperTransactionController;
@@ -88,7 +89,7 @@ public class PersistentEngineTestContext extends TestContext {
         lockManager = Suppliers.memoize(new Supplier<PersistentLockManager>() {
             @Override
             public PersistentLockManager get() {
-                return createPersistentLockManager();
+                return createPersistentLockManager(dataSourceType);
             }
         });
         suppliers.put("persistentLockManager", lockManager);
@@ -146,9 +147,12 @@ public class PersistentEngineTestContext extends TestContext {
         return new BackchannelDefaultImpl();
     }
 
-    protected PersistentLockManager createPersistentLockManager() {
-        PersistentLockManagerImpl x = new PersistentLockManagerImpl(engineFactoryRed.get().getEngine(), new PersistentLockManagerDialectSQL(), new CopperTransactionController(dataSource.get()));
-        return x;
+    protected PersistentLockManager createPersistentLockManager(final DataSourceType dataSourceType) {
+        if (dataSourceType == DataSourceType.Postgres) {
+            return new PersistentLockManagerImpl(engineFactoryRed.get().getEngine(), new PersistentLockManagerDialectPostgres(), new CopperTransactionController(dataSource.get()));
+        } else {
+            return new PersistentLockManagerImpl(engineFactoryRed.get().getEngine(), new PersistentLockManagerDialectSQL(), new CopperTransactionController(dataSource.get()));
+        }
     }
 
     protected DBMockAdapter createDBMockAdapter() {
