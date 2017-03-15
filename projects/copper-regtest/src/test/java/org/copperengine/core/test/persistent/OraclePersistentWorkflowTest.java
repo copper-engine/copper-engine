@@ -148,4 +148,9 @@ public class OraclePersistentWorkflowTest extends SpringlessBasePersistentWorkfl
         super.testJmxQueryWorkflowInstancesERROR(DS_CONTEXT);
     }
 
+    @Test
+    public void testDeleteBrokenWorkflowInstance() throws Exception {
+        super.testDeleteBrokenWorkflowInstance(DS_CONTEXT);
+    }
+
 }

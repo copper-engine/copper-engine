@@ -45,6 +45,8 @@ public interface DatabaseDialect {
 
     public abstract void restartAll(Connection c) throws Exception;
 
+    public abstract void deleteBroken(String workflowInstanceId, Connection c) throws Exception;
+
     public abstract void notify(List<Response<?>> responses, Connection c) throws Exception;
 
     @SuppressWarnings({ "rawtypes" })

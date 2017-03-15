@@ -1,3 +1,7 @@
+COPPER 4.4.0
+============
+- New feature: Delete a broken workflow from the database (Can be called via JMX): PersistentProcessingEngineMXBean.deleteBroken(id)
+
 COPPER 4.3.0
 ============
 - Maintenance: Renamed PersistentLockManagerDialectSQL.insertOrUpdate() into insertLock()

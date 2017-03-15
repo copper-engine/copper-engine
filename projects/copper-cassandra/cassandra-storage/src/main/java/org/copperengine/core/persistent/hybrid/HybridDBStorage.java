@@ -486,6 +486,12 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     }
 
     @Override
+    public void deleteBroken(String workflowInstanceId) throws Exception {
+        throw new UnsupportedOperationException();
+        // TODO: Implement this here...
+    }
+
+    @Override
     public Workflow<?> read(String workflowInstanceId) throws Exception {
         return convert2workflow(storage.readWorkflowInstance(workflowInstanceId));
     }

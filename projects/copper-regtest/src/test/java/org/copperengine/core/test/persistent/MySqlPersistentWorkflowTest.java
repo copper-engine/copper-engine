@@ -137,5 +137,10 @@ public class MySqlPersistentWorkflowTest extends SpringlessBasePersistentWorkflo
     public void testJmxQueryWorkflowInstancesERROR() throws Exception {
         super.testJmxQueryWorkflowInstancesERROR(DS_CONTEXT);
     }
+
+    @Test
+    public void testDeleteBrokenWorkflowInstance() throws Exception {
+        super.testDeleteBrokenWorkflowInstance(DS_CONTEXT);
+    }
     
 }

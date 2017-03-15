@@ -327,6 +327,12 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
         dbStorage.restartAll();
     }
 
+
+    @Override
+    public void deleteBroken(String workflowInstanceId) throws Exception {
+        dbStorage.deleteBroken(workflowInstanceId);
+    }
+
     @Override
     public String run(WorkflowInstanceDescr<?> wfInstanceDescr, Connection con) throws CopperException {
         try {

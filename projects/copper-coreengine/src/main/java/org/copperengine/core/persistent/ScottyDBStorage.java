@@ -408,6 +408,17 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     }
 
     @Override
+    public void deleteBroken(final String workflowInstanceId) throws Exception {
+        run(new DatabaseTransaction<Void>() {
+            @Override
+            public Void run(Connection con) throws Exception {
+                dialect.deleteBroken(workflowInstanceId, con);
+                return null;
+            }
+        });
+    }
+
+    @Override
     public void setRemoveWhenFinished(boolean removeWhenFinished) {
         dialect.setRemoveWhenFinished(removeWhenFinished);
     }

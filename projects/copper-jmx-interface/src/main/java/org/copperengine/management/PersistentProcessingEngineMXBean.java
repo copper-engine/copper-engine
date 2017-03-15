@@ -32,6 +32,15 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
      */
     public void restartAll() throws Exception;
 
+
+    /**
+     * Entirely deletes the provided worklow instance if it is in the error state. If it currently holds a lock, the lock is
+     * released.
+     * @param workflowInstanceId
+     * @throws Exception
+     */
+    public void deleteBroken(String workflowInstanceId) throws Exception;
+
     public DBStorageMXBean getDBStorage();
 
 }
