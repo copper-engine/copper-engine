@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.copperengine.core;
+package org.copperengine.core.lockmgr;
 
 public enum LockResult {
     OK, INTERNAL_ERROR

@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package org.copperengine.core;
+package org.copperengine.core.lockmgr;
 
+
+import org.copperengine.core.Response;
 
 /**
  * A service to obtain/manage locks, e.g. to functionally synchronize workflow instances.

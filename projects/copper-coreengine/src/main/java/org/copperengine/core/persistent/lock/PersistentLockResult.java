@@ -15,6 +15,12 @@
  */
 package org.copperengine.core.persistent.lock;
 
+/**
+ * @see org.copperengine.core.lockmgr.LockResult
+ * This enum exists for compatibility reasons with old versions only.
+ * @deprecated
+ * Might be removed in COPPER 5.0 or later. LockResult shall then be used directly.
+*/
 public enum PersistentLockResult {
     OK, INTERNAL_ERROR
 }

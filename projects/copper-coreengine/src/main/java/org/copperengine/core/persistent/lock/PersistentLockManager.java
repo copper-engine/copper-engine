@@ -15,10 +15,10 @@
  */
 package org.copperengine.core.persistent.lock;
 
-import org.copperengine.core.LockManager;
+import org.copperengine.core.lockmgr.LockManager;
 
 /**
- * @see org.copperengine.core.LockManager
+ * @see LockManager
  * This interface exists for compatibility reasons with old versions only.
  * @deprecated
  * Might be removed in COPPER 5.0 or later. LockManager shall then be used directly.
