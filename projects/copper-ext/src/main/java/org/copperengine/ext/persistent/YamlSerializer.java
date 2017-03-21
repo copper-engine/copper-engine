@@ -22,7 +22,9 @@ import org.copperengine.core.Workflow;
 import org.copperengine.core.persistent.SerializedWorkflow;
 import org.copperengine.core.persistent.Serializer;
 import org.copperengine.core.persistent.StandardJavaSerializer;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 
 /**
  * COPPER {@link Serializer} using YAML for data serialization. For some applications using YAML instead of Java
@@ -46,7 +48,11 @@ public class YamlSerializer extends StandardJavaSerializer implements Serializer
     };
 
     protected Yaml initialYaml() {
-        return new Yaml();
+        DumperOptions dO = new DumperOptions();
+        dO.setAllowReadOnlyProperties(true);
+        Yaml yaml = new Yaml(dO);
+        yaml.setBeanAccess(BeanAccess.FIELD);
+        return yaml;
     }
 
     @Override
