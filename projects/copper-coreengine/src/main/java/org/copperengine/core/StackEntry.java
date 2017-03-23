@@ -27,9 +27,9 @@ public class StackEntry implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public transient int jumpNo;
-    public transient Object[] locals;
-    public transient Object[] stack;
+    public int jumpNo;
+    public Object[] locals;
+    public Object[] stack;
 
     public StackEntry(Object[] stack, int jumpNo, Object[] locals) {
         this.jumpNo = jumpNo;
