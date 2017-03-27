@@ -23,7 +23,7 @@ import org.copperengine.core.ProcessingEngine;
 /**
  * Interface for managing {@link ProcessorPool}s in one COPPER {@link ProcessingEngine}.
  *
- * @param <T>
+ * @param <T> type of ProcessorPool hold by the manager
  * @author austermann
  */
 public interface ProcessorPoolManager<T extends ProcessorPool> {

@@ -98,6 +98,7 @@ public class TicketPool {
      * @param count
      *        number of tickets to obtain. must be 0 &gt; count &lt; maxTickets
      * @throws IllegalArgumentException
+     *        Thrown if, count is &lt; 0 or count &gt; maxTickets when forcing is disabled.
      */
     public void obtain(int count) throws IllegalArgumentException {
         obtain(count, false);
@@ -167,6 +168,7 @@ public class TicketPool {
      * threads, that new tickets are in the pool.
      * 
      * @param count
+     *        number of tickets to be released
      */
     public synchronized void release(int count) {
         used -= count;
@@ -210,7 +212,7 @@ public class TicketPool {
      * monitoring wait times via
      * JMX {@link Notification}s
      * 
-     * @param traceEnabled
+     * @param traceEnabled boolean to be set if tracing via JMX is desired
      * @see #setNotificationBroadcasterSupport(NotificationBroadcasterSupport)
      */
     public synchronized void setTraceEnabled(boolean traceEnabled) {
@@ -222,7 +224,7 @@ public class TicketPool {
      * allow monitoring wait
      * times via JMX {@link Notification}s
      * 
-     * @param nbs
+     * @param nbs NotificationBroadcasterSupport to be set if monitoring wait via JMX is desired
      * @see #setTraceEnabled(boolean)
      */
     public void setNotificationBroadcasterSupport(NotificationBroadcasterSupport nbs) {

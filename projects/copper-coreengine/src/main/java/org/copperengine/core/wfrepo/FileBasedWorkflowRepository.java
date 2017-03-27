@@ -87,6 +87,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     /**
      * Sets the list of source archive URLs. The source archives must be ZIP compressed archives, containing COPPER
      * workflows as .java files.
+     * @param sourceArchiveUrls
+     *        urls where workflow class sources reside in
      */
     public void setSourceArchiveUrls(List<String> sourceArchiveUrls) {
         if (sourceArchiveUrls == null)
@@ -96,6 +98,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 
     /**
      * Adds a source archive URL.
+     * @param url
+     *        url to be added
      */
     public void addSourceArchiveUrl(String url) {
         if (url == null)
@@ -104,7 +108,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     /**
-     * Returns the configured source archive URL(s).
+     * @return the configured source archive URL(s).
      */
     public List<String> getSourceArchiveUrls() {
         return Collections.unmodifiableList(sourceArchiveUrls);
@@ -113,6 +117,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     /**
      * Sets the list of CompilerOptionsProviders. They are called before compiling the workflow files to append compiler
      * options.
+     * @param compilerOptionsProviders
+     *        Options from those providers are used for compilation.
      */
     public void setCompilerOptionsProviders(List<CompilerOptionsProvider> compilerOptionsProviders) {
         if (compilerOptionsProviders == null)
@@ -122,13 +128,15 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 
     /**
      * Add a CompilerOptionsProvider. They are called before compiling the workflow files to append compiler options.
+     * @param cop
+     *        Options from this provider are used for compilation.
      */
     public void addCompilerOptionsProvider(CompilerOptionsProvider cop) {
         this.compilerOptionsProviders.add(cop);
     }
 
     /**
-     * Returns the currently configured compiler options providers.
+     * @return the currently configured compiler options providers.
      */
     public List<CompilerOptionsProvider> getCompilerOptionsProviders() {
         return Collections.unmodifiableList(compilerOptionsProviders);
@@ -147,6 +155,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 
     /**
      * Configures the local directory/directories that contain the COPPER workflows as <code>.java</code> files.
+     * @param sourceDirs
+     *         List of those source directories
      */
     public void setSourceDirs(List<String> sourceDirs) {
         if (sourceDirs == null)
@@ -156,6 +166,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
 
     /**
      * Configures the local directory/directories that contain the COPPER workflows as <code>.java</code> files.
+     * @param sourceDirs
+     *         List of those source directories
      */
     public void setSourceDirs(String... sourceDirs) {
         if (sourceDirs == null)
@@ -164,16 +176,17 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     /**
-     * Returns the configured local directory/directories
+     * @return the configured local directory/directories
      */
     public List<String> getSourceDirs() {
         return Collections.unmodifiableList(sourceDirs);
     }
 
     /**
-     * If true (which is the default), this workflow repository's class loader will also load non-workflow classes, e.g.
-     * inner classes or helper classes. As this is maybe not always useful, use this property to enable or disable this
-     * feature.
+     * @param loadNonWorkflowClasses
+     *        If true (which is the default), this workflow repository's class loader will also load non-workflow classes, e.g.
+     *        inner classes or helper classes. As this is maybe not always useful, use this property to enable or disable this
+     *        feature.
      */
     public void setLoadNonWorkflowClasses(boolean loadNonWorkflowClasses) {
         this.loadNonWorkflowClasses = loadNonWorkflowClasses;
@@ -182,6 +195,10 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     /**
      * The target directory where COPPER will store the compiled workflow classes (mandatory). Must point to a local
      * directory with read/write privileges.
+     * <b>Note:</b> On repository startup, this directory will be deleted and created freshly. So make sure, there are
+     * no other files in there but only compilation results from COPPER.
+     * @param targetDir
+     *        the target dir.
      */
     public void setTargetDir(String targetDir) {
         this.targetDir = targetDir;
@@ -617,6 +634,8 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     /**
      * Sets the list of compiler options. They are called before compiling the workflow files to append compiler
      * options (internally invokes {@link FileBasedWorkflowRepository#setCompilerOptionsProviders(List)}.
+     * @param options
+     *        list of options to be set for the compiler.
      */
     public void setCompilerOptions(String... options) {
         List<CompilerOptionsProvider> compilerOptionsProviders = new ArrayList<>();

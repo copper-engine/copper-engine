@@ -73,7 +73,8 @@ public class LoggingStatisticCollector implements RuntimeStatisticsCollector, St
     }
 
     /**
-     * If set to true, the internal statistics are reseted after a each periodical logging.
+     * @param resetAfterLogging
+     *        If set to true, the internal statistics are reseted after a each periodical logging.
      */
     public void setResetAfterLogging(boolean resetAfterLogging) {
         this.resetAfterLogging = resetAfterLogging;

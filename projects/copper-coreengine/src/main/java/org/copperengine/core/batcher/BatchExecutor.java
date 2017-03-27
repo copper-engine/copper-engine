@@ -21,8 +21,8 @@ import java.util.Collection;
 /**
  * Abstract base implementation of the {@link BatchExecutorBase} interface.
  *
- * @param <E>
- * @param <T>
+ * @param <E> type of the BatchExecutor
+ * @param <T> type of the BatchCommand to be executed by the executor implementation
  * @author austermann
  */
 public abstract class BatchExecutor<E extends BatchExecutor<E, T>, T extends BatchCommand<E, T>> implements BatchExecutorBase<E, T> {

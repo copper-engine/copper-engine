@@ -19,7 +19,7 @@ package org.copperengine.core.batcher;
  * Callback interface for notifying a caller about the result of a batch command.
  * 
  * @author austermann
- * @param <T>
+ * @param <T> type of the BatchCommand to be executed by the executor implementation
  */
 public interface CommandCallback<T extends BatchCommand<?, T>> {
 

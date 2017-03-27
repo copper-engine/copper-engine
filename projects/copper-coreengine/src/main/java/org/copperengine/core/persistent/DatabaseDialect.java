@@ -60,7 +60,8 @@ public interface DatabaseDialect {
     public abstract BatchCommand createBatchCommand4error(Workflow<?> w, Throwable t, DBProcessingState dbProcessingState, final Acknowledge callback);
 
     /**
-     * If true (default), finished workflow instances are removed from the database.
+     * @param removeWhenFinished
+     *        If true (default), finished workflow instances are removed from the database.
      */
     public void setRemoveWhenFinished(boolean removeWhenFinished);
 
@@ -72,6 +73,7 @@ public interface DatabaseDialect {
      *        database connection
      * @return list of ids of bad workflows which could not be deserialized
      * @throws Exception
+     *         For any SQL error like losing connection or such.
      */
     public List<String> checkDbConsistency(Connection con) throws Exception;
 
@@ -85,18 +87,29 @@ public interface DatabaseDialect {
      * Query workflows that were active at the moment in (ENQUEUE, RUNNING or WAITING) state
      * 
      * @param className
-     *        - optional, specify which className it want to return
+     *        - optional, specify which className it want to return. May be null. (No filtering for class name done in this case)
+     *        If specified, the className must fully match the class name, so no regexp or similar is allowed.
+     *        className must be given as fully qualified name (i.e. with package names prepending).
+     *        Example is {@code org.copperengine.examples.workflows.MyWorkflow}
      * @param con
      *        - database connection
+     * @param max
+     *        maximum number to be queried (Translates to LIMIT max or FETCH ,max or similar on SQL queries SELECT)
      * @return
+     *        List of active workflows.
      * @throws SQLException
+     *         If anything goes wrong regarding SQL.
      */
     public List<Workflow<?>> queryAllActive(String className, Connection con, int max) throws SQLException;
     
     /**
      * Read the current system time from the underlying database system
+     * @param con
+     *        database connection
      * @return
+     *         Current database clock time
      * @throws SQLException
+     *         Any sql error happening in here.
      */
     public Date readDatabaseClock(Connection con) throws SQLException;
 

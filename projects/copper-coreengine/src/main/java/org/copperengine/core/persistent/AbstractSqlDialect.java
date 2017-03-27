@@ -158,7 +158,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     }
 
     /**
-     * returns an int value between 0 and 1073741823 (exclusive)
+     * @param s
+     *        a given lock id string from which a integer id shall be generated (Using s.hashCode())
+     * @return an int value between 0 and 1073741823 (exclusive)
      */
     protected static int computeLockId(String s) {
         // This method handles the following fact: Math.abs(Integer.MIN_VALUE) == Integer.MIN_VALUE
@@ -430,8 +432,11 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
      * It will block wait until the lock was successfully hold, must be used together with {@link #releaseLock}
      * 
      * @param con
+     *        connection object on which the lock will be acquired on
      * @param lockContext
+     *        String for the lock name (Will be transformed to an int by {@link #computeLockId(String)}.
      * @throws SQLException
+     *        If anything goes wrong in acquiring the lock on the database
      */
     protected void doLock(Connection con, String lockContext) throws SQLException {
         throw new UnsupportedOperationException();
@@ -441,7 +446,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
      * Releases the lock on the lockContext, use together with {@link #lock(Connection, String)}
      * 
      * @param con
+     *        connection object on which the lock will be released on
      * @param lockContext
+     *        String for the lock name
      */
     protected void doReleaseLock(Connection con, String lockContext) {
         throw new UnsupportedOperationException();

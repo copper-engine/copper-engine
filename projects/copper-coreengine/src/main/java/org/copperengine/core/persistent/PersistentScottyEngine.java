@@ -68,6 +68,8 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     private final AtomicLong sequenceIdFactory = new AtomicLong(System.currentTimeMillis() * 10000L);
 
     /**
+     * @param notifyProcessorPoolsOnResponse
+     *        specify if processor pools shall be notified on response
      * @deprecated without effect - will be removed in future release
      */
     public void setNotifyProcessorPoolsOnResponse(boolean notifyProcessorPoolsOnResponse) {
@@ -239,7 +241,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
      * @param con
      *        connection used for the inserting the workflow to the database
      * @throws CopperException
-     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     *         if the engine can not run the workflow, e.g. in case of a unknown processor pool id
+     * @return
+     *         workflow id
      */
     public String run(Workflow<?> wf, Connection con) throws CopperException {
         if (logger.isTraceEnabled())
@@ -495,6 +499,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     @Override
     protected WorkflowInfo convert2Wfi(Workflow<?> wf) {
         WorkflowInfo wfi = super.convert2Wfi(wf);
+        if (wfi == null) {
+            return null;
+        }
         ErrorData errorData = ((PersistentWorkflow<?>)wf).getErrorData();
         if (errorData != null) {
             org.copperengine.management.model.ErrorData x = new org.copperengine.management.model.ErrorData();

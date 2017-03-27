@@ -39,6 +39,10 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
     /**
      * Creates a new {@link TransientPriorityProcessorPool} with as many worker threads as processors available on the
      * corresponding environment.
+     * @param id
+     *        Unique id of the transient processor pool. Might be specified when creating a workflow or within a workflow
+     *        from {@link Workflow#setProcessorPoolId} to let the workflow be run on this processor pool. (After reaching
+     *        the next checkpoint when already running)
      */
     public TransientPriorityProcessorPool(String id) {
         super(id);

@@ -60,6 +60,9 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
     /**
      * Creates a new {@link PriorityProcessorPool} with as many worker threads as processors available on the
      * corresponding environment.
+     * @param id
+     *        id for the new created pool. Must be unique and shall not be longer than 32 characters which is the limit
+     *        to be stored for the processor pool ids when using persistent engines.
      */
     public PriorityProcessorPool(String id) {
         super();
@@ -74,6 +77,8 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 
     /**
      * Creates a new instance of {@link WfPriorityQueue}
+     * @return
+     *        the new created instance.
      */
     protected Queue<Workflow<?>> createQueue() {
         return new WfPriorityQueue();

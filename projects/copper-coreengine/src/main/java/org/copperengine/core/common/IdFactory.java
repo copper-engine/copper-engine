@@ -23,6 +23,8 @@ package org.copperengine.core.common;
 public interface IdFactory {
     /**
      * creates a new id
+     * @return
+     *        A new id
      */
     public String createId();
 

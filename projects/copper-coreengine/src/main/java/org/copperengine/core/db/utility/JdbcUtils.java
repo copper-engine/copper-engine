@@ -29,6 +29,8 @@ public abstract class JdbcUtils {
     /**
      * Close the given JDBC Connection and ignore any thrown exception.
      * This is useful for typical finally blocks in manual JDBC code.
+     * @param con
+     *        Connection which shall be closed
      */
     public static void closeConnection(Connection con) {
         if (con != null) {

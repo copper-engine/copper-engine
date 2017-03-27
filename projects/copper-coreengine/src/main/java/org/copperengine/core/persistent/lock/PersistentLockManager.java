@@ -34,7 +34,6 @@ public interface PersistentLockManager {
      * {@link Response} for this specified correlationId, containing the {@link PersistentLockResult}.
      * <p>
      * Example:
-     * <p>
      * 
      * <pre>
      * private void acquireLock(final String lockId) throws Interrupt {

@@ -67,6 +67,12 @@ public class PersistentPriorityProcessorPool extends PriorityProcessorPool imple
     /**
      * Creates a new {@link PersistentPriorityProcessorPool} with as many worker threads as processors available on the
      * corresponding environment.
+     * @param id
+     *        unique id of the newly created processor pool. (Must not be longer than 32 chars to be stored in database)
+     * @param transactionController
+     *        transaction controller which shall handle the transactions for workflows in between two checkpoints (i.e. between
+     *        two calls to wait/resubmit/savepoint or from start to first occurence of those, or from last occurence to end).
+     *        The transaction controller is only held in this class but used by the {@link PersistentProcessor}s.
      */
     public PersistentPriorityProcessorPool(String id, TransactionController transactionController) {
         super(id);

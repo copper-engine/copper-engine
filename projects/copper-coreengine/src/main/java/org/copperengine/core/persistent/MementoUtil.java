@@ -52,6 +52,7 @@ public class MementoUtil {
      * Remember this entity after loading
      *
      * @param entity
+     *        The entity to be remembered
      */
     public void addMementoEntity(Object entity) {
         memento.put(identifier(entity), new Object[] { entity });
@@ -61,6 +62,7 @@ public class MementoUtil {
      * Use this entity as the new
      *
      * @param entity
+     *        the entity to be used as the new
      */
     public void addCurrentEntity(Object entity) {
         Object identifier = identifier(entity);

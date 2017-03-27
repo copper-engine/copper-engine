@@ -88,6 +88,10 @@ public abstract class RetryingTransaction<R> implements Transaction<R> {
      *       }
      *    }.run();
      *    </code>
+     * @return
+     *         any type which shall be passed back after execution succeeded.
+     * @throws Exception
+     *         Any exception which could happen in an implementation of this method
      */
     protected abstract R execute() throws Exception;
 

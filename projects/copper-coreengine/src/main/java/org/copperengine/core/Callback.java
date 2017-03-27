@@ -23,6 +23,7 @@ package org.copperengine.core;
  * Callback objects are created using the <code>Workflow.createCallback()</code>.
  *
  * @param <E>
+ *        type of data held in the response.
  * @author austermann
  */
 public interface Callback<E> {

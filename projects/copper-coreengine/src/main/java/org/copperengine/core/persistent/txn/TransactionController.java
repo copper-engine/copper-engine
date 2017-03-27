@@ -27,8 +27,12 @@ public interface TransactionController {
 
     /**
      * Runs a database transaction, i.e. a database connection is aquired and the provided DatabaseTransaction object is
-     * executed
-     * in the scope of a transaction.
+     * executed in the scope of a transaction.
+     * @param <T> return type which is passed back by the succeeded transaction. Might be null if transaction runs without giving a result.
+     * @param txn a database transaction object which will be run by the transaction controller.
+     * @return the result of the transaction if any.
+     * @throws Exception if something goes wrong within the given transaction which is not caught by itself or if something
+     *    goes wrong with the transaction management like getConnection throws an SQLException.
      */
     public <T> T run(final DatabaseTransaction<T> txn) throws Exception;
 
@@ -37,6 +41,11 @@ public interface TransactionController {
      * A database, JMS, or any other connection may be aquired later on in this transaction, but to do so is in the
      * scope of the
      * Transaction object. The TransactionController is just defining the start and end of the transaction.
+     * @param <T> return type which is passed back by the succeeded transaction. Might be null if transaction runs without giving a result.
+     * @param txn a database transaction object which will be run by the transaction controller
+     * @return the result of the transaction if any.
+     * @throws Exception if something goes wrong within the given transaction which is not caught by itself or if something
+     *    goes wrong with the transaction management like getConnection throws an SQLException.
      */
     public <T> T run(final Transaction<T> txn) throws Exception;
 
