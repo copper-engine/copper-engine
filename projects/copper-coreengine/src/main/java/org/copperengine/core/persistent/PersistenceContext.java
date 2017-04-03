@@ -26,7 +26,9 @@ public interface PersistenceContext {
     /**
      * retrieves the persister assigned to this entity class. Throws a runtime exception when no persister can be
      * returned
-     * 
+     *
+     * @param <T>
+     *            type of entity
      * @param entityClass
      *            The entity class to look up the persister for
      * @return the persister

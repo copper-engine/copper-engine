@@ -37,6 +37,7 @@ public interface WaitHook {
      * @param con
      *            DB connection or null, in case there is no DB connection in the scope
      * @throws Exception
+     *            Any exception which can happen inside of the code of this WaitHook.
      */
     public void onWait(Workflow<?> wf, Connection con) throws Exception;
 }

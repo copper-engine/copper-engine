@@ -91,7 +91,7 @@ public abstract class Workflow<D> implements Serializable {
     }
 
     /**
-     * returns the processing state
+     * @return the processing state
      */
     public ProcessingState getProcessingState() {
         return processingState;
@@ -105,7 +105,7 @@ public abstract class Workflow<D> implements Serializable {
     }
 
     /**
-     * Returns the workflow instance priority
+     * @return the workflow instance priority
      */
     public int getPriority() {
         return priority;
@@ -114,6 +114,8 @@ public abstract class Workflow<D> implements Serializable {
     /**
      * Sets the priority for this workflow instance. A smaller value is a higher priority, e.g. a priority of 1 is
      * higher than 2.
+     * @param priority
+     *        new priority (Takes effect after next checkpoint (wait/resubmit/savepoint) for prioritizing waiting..
      */
     public void setPriority(int priority) {
         this.priority = priority;
@@ -122,7 +124,9 @@ public abstract class Workflow<D> implements Serializable {
     /**
      * For internal use only
      *
-     * @param engine
+     * @param engine engine which (currently) owns this workflow. [For a distributed setup it might happen that
+     *               another engine takes over the workflow for computation. But the workflow can always call
+     *               {@link #getEngine} and receives the current owning engine.]
      */
     public void setEngine(ProcessingEngine engine) {
         this.engine = engine;
@@ -135,14 +139,14 @@ public abstract class Workflow<D> implements Serializable {
     }
 
     /**
-     * Returns the processing engine currently executing this workflow instance
+     * @return the processing engine currently executing this workflow instance
      */
     public ProcessingEngine getEngine() {
         return engine;
     }
 
     /**
-     * returns the id of this workflow instance. The id of a workflow instance is at least unique within one processing
+     * @return the id of this workflow instance. The id of a workflow instance is at least unique within one processing
      * engine.
      */
     public String getId() {
@@ -151,6 +155,9 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * Creates a {@link Callback} object used for the asynchronous wait for some reponse.
+     * @param <E>
+     *         type of response for the new callback
+     * @return the created callback
      */
     protected <E> Callback<E> createCallback() {
         return new DefaultCallback<E>(engine);
@@ -161,6 +168,9 @@ public abstract class Workflow<D> implements Serializable {
      *
      * @param correlationIds
      *        one or more correlation ids
+     * @throws Interrupt
+     *        for internal use of COPPER. When wait is called, an Interrupt is thrown, caught by COPPER itself for
+     *        taking back control over the executed workflow.
      */
     protected final void waitForAll(String... correlationIds) throws Interrupt {
         this.wait(WaitMode.ALL, 0, correlationIds);
@@ -171,6 +181,9 @@ public abstract class Workflow<D> implements Serializable {
      *
      * @param callbacks
      *        one or more callback objects
+     * @throws Interrupt
+     *        for internal use of COPPER. When wait is called, an Interrupt is thrown, caught by COPPER itself for
+     *        taking back control over the executed workflow.
      */
     protected final void waitForAll(Callback<?>... callbacks) throws Interrupt {
         this.wait(WaitMode.ALL, 0, callbacks);
@@ -187,6 +200,9 @@ public abstract class Workflow<D> implements Serializable {
      *        timeout in milliseconds or {@link Workflow#NO_TIMEOUT} (or any value &le; 0) to wait for ever
      * @param correlationIds
      *        one ore more correlation ids
+     * @throws Interrupt
+     *        for internal use of COPPER. When wait is called, an Interrupt is thrown, caught by COPPER itself for
+     *        taking back control over the executed workflow.
      */
     protected final void wait(WaitMode mode, int timeoutMsec, String... correlationIds) throws Interrupt {
         if (correlationIds.length == 0)
@@ -221,6 +237,9 @@ public abstract class Workflow<D> implements Serializable {
      *        unit of the timeout; ignored, if a negative timeout is specified
      * @param correlationIds
      *        one ore more correlation ids
+     * @throws Interrupt
+     *        for internal use of COPPER. When wait is called, an Interrupt is thrown, caught by COPPER itself for
+     *        taking back control over the executed workflow.
      */
     protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final String... correlationIds) throws Interrupt {
         if (correlationIds.length == 0)
@@ -246,6 +265,9 @@ public abstract class Workflow<D> implements Serializable {
      *        unit of the timeout; ignored, if a negative timeout is specified
      * @param callbacks
      *        one ore more callbacks
+     * @throws Interrupt
+     *        for internal use of COPPER. When wait is called, an Interrupt is thrown, caught by COPPER itself for
+     *        taking back control over the executed workflow.
      */
     protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final Callback<?>... callbacks) throws Interrupt {
         updateLastWaitStackTrace();
@@ -260,6 +282,7 @@ public abstract class Workflow<D> implements Serializable {
      * Internal use only - called by the processing engine
      *
      * @param r
+     *        response to be put into the response map.
      */
     public void putResponse(Response<?> r) {
         synchronized (responseMap) {
@@ -281,6 +304,9 @@ public abstract class Workflow<D> implements Serializable {
      * discarded when calling the next <code>Workflow.wait</code>
      *
      * @param correlationId
+     *        correlation id for which response shall be get
+     * @param <T>
+     *         type of data holt in the response
      * @return the response or null, if no response for the specified correlation id is found
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -306,6 +332,9 @@ public abstract class Workflow<D> implements Serializable {
      * discarded when calling the next <code>Workflow.wait</code>
      *
      * @param correlationId
+     *        correlation id for which responses shall be get
+     * @param <T>
+     *         type of data holt in the response
      * @return the list of responses or an empty list, if no response for the specified correlation id is found
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -334,9 +363,14 @@ public abstract class Workflow<D> implements Serializable {
      *     Response&lt;MyResponseType&gt; resp = getAnyNonTimedOutAndRemoveResponse(MyResponseType.class);
      * </pre>
      * To get any non timed out response, you can just call the method with Object.class as parameter.
+     * @param type
+     *         type class for which responses shall be get. (e.g. for getting only Response&lt;String&gt;). Might as well
+     *         be {@code Object.class} to get valid Responses with all types of data.
+     * @return the response or null, if no fitting response is found
      * @param <T>
-     * @return
+     *         type of data holt in the response
      */
+    @SuppressWarnings({ "unchecked" })
     protected <T> Response<T> getAnyNonTimedOutAndRemoveResponse(Class<? extends T> type) {
         synchronized (responseMap) {
             for(Map.Entry<String, List<Response<?> > > correlationResponse : responseMap.entrySet()) {
@@ -368,6 +402,9 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * Entry point for this workflow
+     * @throws Interrupt
+     *        for internal use of COPPER. When main is called, an Interrupt may be thrown, caught by COPPER itself for
+     *        taking back control over the executed workflow.
      */
     public abstract void main() throws Interrupt;
 
@@ -376,6 +413,8 @@ public abstract class Workflow<D> implements Serializable {
      * May be used in case of processor pool change or to create a 'savepoint'.
      *
      * @throws Interrupt
+     *        for internal use of COPPER. After resubmit is called, an Interrupt is thrown, caught by COPPER itself for
+     *        taking back control over the executed workflow.
      */
     protected final void resubmit() throws Interrupt {
         final String cid = engine.createUUID();
@@ -398,6 +437,8 @@ public abstract class Workflow<D> implements Serializable {
      * Same as {@link Workflow#resubmit()}
      *
      * @throws Interrupt
+     *        for internal use of COPPER. After savepoint is called, an Interrupt is thrown, caught by COPPER itself for
+     *        taking back control over the executed workflow.
      */
     protected final void savepoint() throws Interrupt {
         resubmit();
@@ -424,7 +465,7 @@ public abstract class Workflow<D> implements Serializable {
     }
 
     /**
-     * Returns the processor pool id
+     * @return the processor pool id
      */
     public String getProcessorPoolId() {
         return processorPoolId;
@@ -432,13 +473,14 @@ public abstract class Workflow<D> implements Serializable {
 
     /**
      * For internal usage only
+     * @return the internally used stack representing the call stack altogether with used local variables.
      */
     public List<StackEntry> get__stack() {
         return __stack;
     }
 
     /**
-     * Returns the data attached to this workflow instance
+     * @return the data attached to this workflow instance
      */
     public D getData() {
         return this.Data;
@@ -447,7 +489,7 @@ public abstract class Workflow<D> implements Serializable {
     /**
      * Sets the data for this workflow instance. Typically invoked at construction time of a workflow instance
      *
-     * @param data
+     * @param data the new data object for this workflow
      */
     public void setData(D data) {
         this.Data = data;
@@ -463,7 +505,7 @@ public abstract class Workflow<D> implements Serializable {
     }
 
     /**
-     * Returns the creation timestamp for this workflow instance.
+     * @return the creation timestamp for this workflow instance.
      */
     public Date getCreationTS() {
         return creationTS;

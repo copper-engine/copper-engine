@@ -25,6 +25,7 @@ import java.sql.SQLException;
  * 
  * @author Roland Scheel
  * @param <T>
+ *         subtype of PersistenceContext
  */
 public interface PersistenceContextFactory<T extends PersistenceContext> {
 
@@ -32,6 +33,7 @@ public interface PersistenceContextFactory<T extends PersistenceContext> {
      * Creates a persistence context for use during loading of workflows.
      * 
      * @param workflow
+     *        the workflow for which the context is created
      * @return the created context
      */
     T createPersistenceContextForLoading(PersistentWorkflow<?> workflow);
@@ -40,6 +42,7 @@ public interface PersistenceContextFactory<T extends PersistenceContext> {
      * Creates a persistence context for use during saving of workflows.
      * 
      * @param workflow
+     *        the workflow for which the context is created
      * @return the created context
      */
     T createPersistenceContextForSaving(PersistentWorkflow<?> workflow);
@@ -48,6 +51,7 @@ public interface PersistenceContextFactory<T extends PersistenceContext> {
      * Creates a persistence context for use during deletion of workflows.
      * 
      * @param workflow
+     *        the workflow for which the context is created
      * @return the created context
      */
     T createPersistenceContextForDeletion(PersistentWorkflow<?> workflow);
@@ -56,6 +60,7 @@ public interface PersistenceContextFactory<T extends PersistenceContext> {
      * Flushes all operations that were passed to the created {@link PersistenceContext}s.
      * 
      * @throws SQLException
+     *         for any SQL exception happening during this operation
      */
     void flush() throws SQLException;
 

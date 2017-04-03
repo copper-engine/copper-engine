@@ -22,7 +22,7 @@ public interface DatabaseDialectMXBean {
      * when
      * there is no workflow instance waiting for it within the specified amount of time.
      *
-     * @param defaultStaleResponseRemovalTimeout
+     * @param defaultStaleResponseRemovalTimeout Timeout interval in Milliseconds.
      */
     public void setDefaultStaleResponseRemovalTimeout(long defaultStaleResponseRemovalTimeout);
 

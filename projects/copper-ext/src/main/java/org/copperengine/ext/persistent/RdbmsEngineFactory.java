@@ -69,6 +69,7 @@ import com.google.common.base.Suppliers;
  * @author austermann
  *
  * @param <T>
+ *        type of DependencyInjector which shall be used from the created engine
  */
 public abstract class RdbmsEngineFactory<T extends DependencyInjector> extends AbstractPersistentEngineFactory<T> {
 

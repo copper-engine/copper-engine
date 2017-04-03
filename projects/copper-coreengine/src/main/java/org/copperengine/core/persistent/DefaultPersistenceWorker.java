@@ -28,7 +28,9 @@ import org.copperengine.core.persistent.EntityPersister.PostSelectedCallback;
  * {@link DefaultEntityPersisterFactory}.
  *
  * @param <E>
+ *        type of entity
  * @param <P>
+ *        subtype of EntitityPersister
  * @author Roland Scheel
  */
 public abstract class DefaultPersistenceWorker<E, P extends EntityPersister<E>> {

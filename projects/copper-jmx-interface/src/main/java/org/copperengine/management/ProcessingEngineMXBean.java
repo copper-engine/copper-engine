@@ -32,7 +32,7 @@ public interface ProcessingEngineMXBean {
     /**
      * Query all <b>currently Running</b> instances from memory only, <b>Note it WON'T return instances in WAITING
      * state</b>
-     * 
+     * @return List of workflow information
      */
     public List<WorkflowInfo> queryWorkflowInstances();
 
@@ -43,20 +43,23 @@ public interface ProcessingEngineMXBean {
      *        - optional, returns workflow instances
      * @param max
      *        - to limit of number of workflows returned
+     * @return List of workflow information
      */
     public List<WorkflowInfo> queryActiveWorkflowInstances(String className, int max);
 
     /**
      * query one workflow instance from memory, <b>Note it WON'T return instances in WAITING state</b>
      * 
-     * @param id
+     * @param id workflow id
+     * @return info about this single workflow (Not if workflow is waiting). null if workflow not found.
      */
     public WorkflowInfo queryWorkflowInstance(String id);
 
     /**
      * query one workflow instance from memory or db regardless of its state
      * 
-     * @param id
+     * @param id workflow id
+     * @return info about this single workflow. null if workflow not found.
      */
     public WorkflowInfo queryActiveWorkflowInstance(String id);
 
@@ -73,7 +76,7 @@ public interface ProcessingEngineMXBean {
     public EngineActivity queryEngineActivity(int minutesInHistory);
     
     /**
-     * Returns a list of all possible workflow instance states
+     * @return a list of all possible workflow instance states
      */
     public List<String> getWorkflowInstanceStates();
     

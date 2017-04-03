@@ -49,6 +49,7 @@ import com.google.common.base.Suppliers;
  * @author austermann
  *
  * @param <T>
+ *        type of DependencyInjector to be used from the created engine
  */
 public abstract class CassandraEngineFactory<T extends DependencyInjector> extends HybridEngineFactory<T> {
 

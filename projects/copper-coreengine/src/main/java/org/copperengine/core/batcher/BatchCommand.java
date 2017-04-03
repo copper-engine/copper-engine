@@ -17,27 +17,29 @@ package org.copperengine.core.batcher;
 
 /**
  * A BatchCommand is one task executed in a Batch.
- * BatchCommands with the same executor are batched by the {@link Batcher}
+ * BatchCommands with the same executor are batched by the {@link Batcher}.
+ * Usually, a BatchCommand should hold the data unique to each command, where the executor holds the sql-queries and
+ * puts the data from all commands into the queries.
  *
- * @param <E>
- * @param <T>
+ * @param <E> type of the BatchExecutor
+ * @param <T> type of the BatchCommand to be executed
  * @author austermann
  */
 public interface BatchCommand<E extends BatchExecutorBase<E, T>, T extends BatchCommand<E, T>> {
 
     /**
-     * returns the executor for this BatchCommand.
+     * @return the executor for this BatchCommand.
      */
     E executor();
 
     /**
-     * returns the callback called by the batcher, after this command has been processed. Used for asynchronously
+     * @return the callback called by the batcher, after this command has been processed. Used for asynchronously
      * notifying the caller.
      */
     CommandCallback<T> callback();
 
     /**
-     * returns the targetTime timestamp in java milliseconds until which this batch command shall be executed.
+     * @return the targetTime timestamp in java milliseconds until which this batch command shall be executed.
      * This value influences how long the used batcher is collecting BatchCommands with the same executor.
      */
     long targetTime();

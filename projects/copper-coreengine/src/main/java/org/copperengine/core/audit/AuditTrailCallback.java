@@ -29,6 +29,8 @@ public interface AuditTrailCallback {
 
     /**
      * called by the audit trail, when an asynchronous logging has been failed
+     * @param e
+     *        The Exception which kept the logging from succeeding and which lead to the failure.
      */
     public void error(Exception e);
 }

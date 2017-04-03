@@ -59,7 +59,6 @@ import com.google.common.reflect.ClassPath;
  * deployed workflows. Anyhow, this workflow repo is probably suitable for most simple COPPER applications.
  * <p>
  * See ClasspathWorkflowRepositoryTest.java testExec() for sample usage.
- * <p>
  * 
  * <pre>
  * {

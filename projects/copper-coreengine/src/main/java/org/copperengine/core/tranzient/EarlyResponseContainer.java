@@ -38,6 +38,7 @@ public interface EarlyResponseContainer {
      * Puts an early reponse into the container
      *
      * @param response
+     *        the response to be put into the container
      */
     public void put(final Response<?> response);
 
@@ -45,6 +46,7 @@ public interface EarlyResponseContainer {
      * Gets and removes the responses for the provided correlationId if they exists.
      *
      * @param correlationId
+     *        correlationId for which responses shall be get and removed.
      * @return the responses or an empty list if there is no response for the provided correlationId.
      */
     public List<Response<?>> get(final String correlationId);

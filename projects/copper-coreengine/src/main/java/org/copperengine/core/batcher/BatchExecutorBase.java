@@ -22,18 +22,23 @@ import java.util.Collection;
  * Base interface of a BatchExecutor. A batch executor is responsible to process a batch of {@link BatchCommand}s.
  * A batcher is responsible to collect a batch of commands and call their executor to execute the batch.
  *
- * @param <T>
+ * @param <E> type of the BatchExecutorBase
+ * @param <T> type of the BatchCommand to be executed by the executor implementation
  * @author austermann
  */
 public interface BatchExecutorBase<E extends BatchExecutorBase<E, T>, T extends BatchCommand<E, T>> {
 
     /**
      * Executes a batch of commands
+     * @param commands  the batch of commands is collected by the batcher and passed in to this method which can then
+     *                  execute them all in one batch.
+     * @param connection the connection to work on
+     * @throws Exception any kind of uncaught exception with the implementation of the executor
      */
     void doExec(Collection<BatchCommand<E, T>> commands, Connection connection) throws Exception;
 
     /**
-     * Preferred batch size of this executor
+     * @return Preferred batch size of this executor
      */
     int preferredBatchSize();
 
@@ -45,7 +50,7 @@ public interface BatchExecutorBase<E extends BatchExecutorBase<E, T>, T extends 
     boolean prioritize();
 
     /**
-     * Unique ID of this batcher.
+     * @return unique ID of this batcher.
      */
     String id();
 

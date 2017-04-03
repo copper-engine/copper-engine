@@ -23,6 +23,7 @@ import org.copperengine.core.lockmgr.LockManager;
  * @deprecated
  * Might be removed in COPPER 5.0 or later. LockManager shall then be used directly.
  */
+
 public interface PersistentLockManager extends LockManager {
 
 }
