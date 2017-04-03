@@ -16,7 +16,8 @@
 package org.copperengine.core.persistent.lock;
 
 import org.copperengine.core.persistent.DataSourceFactory;
-import org.copperengine.core.test.persistent.Constants;
+import org.copperengine.core.test.persistent.DataSourceType;
+import org.copperengine.core.test.persistent.PersistentEngineTestContext;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
@@ -24,6 +25,16 @@ import org.junit.Test;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class PersistentLockManagerDialectPostgresTest extends AbstractPersistentLockManagerDialectTest {
+
+    private static boolean dbmsAvailable = false;
+    static {
+        dbmsAvailable = new PersistentEngineTestContext(DataSourceType.Postgres, false).isDbmsAvailable();
+    }
+
+    @Override
+    protected boolean skipTests() {
+        return !dbmsAvailable;
+    }
 
     @Override
     protected ComboPooledDataSource createDatasource() {
@@ -33,11 +44,6 @@ public class PersistentLockManagerDialectPostgresTest extends AbstractPersistent
     @Override
     protected PersistentLockManagerDialect createImplementation() {
         return new PersistentLockManagerDialectPostgres();
-    }
-
-    @Override
-    protected boolean skipTests() {
-        return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
     }
 
     @Test

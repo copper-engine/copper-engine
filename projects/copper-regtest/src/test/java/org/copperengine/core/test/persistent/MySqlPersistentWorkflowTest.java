@@ -24,18 +24,12 @@ public class MySqlPersistentWorkflowTest extends SpringlessBasePersistentWorkflo
     private static boolean dbmsAvailable = false;
 
     static {
-        if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
-            dbmsAvailable = true;
-        } else {
-            try (PersistentEngineTestContext context = new PersistentEngineTestContext(DS_CONTEXT, false)) {
-                dbmsAvailable = context.isDbmsAvailable();
-            }
-        }
+        dbmsAvailable = new PersistentEngineTestContext(DS_CONTEXT, false).isDbmsAvailable();
     }
 
     @Override
     protected boolean skipTests() {
-        return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY) || !dbmsAvailable;
+        return !dbmsAvailable;
     }
 
     @Test

@@ -15,12 +15,9 @@
  */
 package org.copperengine.core.test.persistent;
 
-import javax.sql.DataSource;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 
 public class OracleSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersistentWorkflowTest {
 
@@ -28,36 +25,13 @@ public class OracleSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersiste
     private static final Logger logger = LoggerFactory.getLogger(OracleSpringTxnPersistentWorkflowTest.class);
 
     private static boolean dbmsAvailable = false;
-
     static {
-        if (Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY)) {
-            dbmsAvailable = true;
-        } else {
-            ConfigurableApplicationContext context = null;
-            try {
-                context = new OracleSpringTxnPersistentWorkflowTest().createContext(DS_CONTEXT);
-                DataSource ds = context.getBean(DataSource.class);
-                ds.setLoginTimeout(10);
-                ds.getConnection();
-                dbmsAvailable = true;
-            } catch (Exception e) {
-                logger.error("Oracle DBMS not available! Skipping Oracle unit tests.", e);
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (context != null)
-                        context.close();
-                }
-                catch(Exception e) {
-                    // ignore
-                }
-            }
-        }
+        dbmsAvailable = new PersistentEngineTestContext(DataSourceType.Oracle, false).isDbmsAvailable();
     }
 
     @Override
     protected boolean skipTests() {
-        return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY) || !dbmsAvailable;
+        return !dbmsAvailable;
     }
 
     @Test

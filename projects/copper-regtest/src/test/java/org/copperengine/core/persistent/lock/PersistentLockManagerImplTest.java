@@ -26,7 +26,8 @@ import org.copperengine.core.PersistentProcessingEngine;
 import org.copperengine.core.db.utility.JdbcUtils;
 import org.copperengine.core.persistent.DataSourceFactory;
 import org.copperengine.core.persistent.txn.CopperTransactionController;
-import org.copperengine.core.test.persistent.Constants;
+import org.copperengine.core.test.persistent.DataSourceType;
+import org.copperengine.core.test.persistent.PersistentEngineTestContext;
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
@@ -36,6 +37,15 @@ import org.mockito.Mockito;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class PersistentLockManagerImplTest {
+
+    private static boolean dbmsAvailable = false;
+    static {
+        dbmsAvailable = new PersistentEngineTestContext(DataSourceType.Oracle, false).isDbmsAvailable();
+    }
+
+    protected boolean skipTests() {
+        return !dbmsAvailable;
+    }
 
     private static ComboPooledDataSource dataSource;
 
@@ -111,9 +121,5 @@ public class PersistentLockManagerImplTest {
         for (Thread t : threads) {
             t.join();
         }
-    }
-
-    protected boolean skipTests() {
-        return Boolean.getBoolean(Constants.SKIP_EXTERNAL_DB_TESTS_KEY);
     }
 }
