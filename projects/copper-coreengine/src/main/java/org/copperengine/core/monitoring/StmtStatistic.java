@@ -38,7 +38,9 @@ public class StmtStatistic {
      * creates a new StmtStatistic with a name only.
      *
      * @param measurePointId
+     *        new name of the StmtStatistic. Must not be null.
      * @param runtimeStatisticsCollector
+     *        statistics collector for this StmtStatistic. Must not be null.
      */
     public StmtStatistic(final String measurePointId, final RuntimeStatisticsCollector runtimeStatisticsCollector) {
         if (measurePointId == null)

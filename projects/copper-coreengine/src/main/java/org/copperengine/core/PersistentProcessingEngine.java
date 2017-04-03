@@ -33,7 +33,7 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      * @param con
      *        connection used for the inserting the workflow to the database
      * @throws CopperException
-     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     *         if the engine can not run the workflow, e.g. in case of a unknown processor pool id
      * @throws DuplicateIdException
      *         if a workflow instance with the same id already exists
      * @return workflow instance ID
@@ -48,7 +48,7 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      * @param con
      *        connection used for the inserting the workflow to the database
      * @throws CopperException
-     *         if the engine can not run the workflow, e.g. in case of a unkown processor pool id
+     *         if the engine can not run the workflow, e.g. in case of a unknown processor pool id
      * @throws DuplicateIdException
      *         if a workflow instance with the same id already exists
      */
@@ -58,7 +58,11 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      * Trigger restart a workflow instance that is in the error state.
      * 
      * @param workflowInstanceId
+     *        id of workflow which shall be restarted
      * @throws Exception
+     *        any exception happening on this request, like sql connection lost.
+     *        Note: If id doesn't exist or the workflow with this id is not in error/invalid-state, this method just
+     *        returns with doing nothing.
      */
     public void restart(final String workflowInstanceId) throws Exception;
 
@@ -66,6 +70,7 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      * Trigger restart of all workflow instances that are in error state.
      * 
      * @throws Exception
+     *         {@link #restart(String)}.
      */
     public void restartAll() throws Exception;
 
@@ -80,6 +85,7 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      * @param c
      *        jdbc connection to use
      * @throws CopperRuntimeException
+     *         any exception occuring in this operation (Like SQL connection lost) will be wrapped into this exception.
      */
     public void notify(Response<?> response, Connection c) throws CopperRuntimeException;
 
@@ -95,6 +101,7 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      * @param c
      *        jdbc connection to use
      * @throws CopperRuntimeException
+     *         any exception occuring in this operation (Like SQL connection lost) will be wrapped into this exception.
      */
     public void notify(List<Response<?>> responses, Connection c) throws CopperRuntimeException;
 

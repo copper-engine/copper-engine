@@ -20,8 +20,20 @@ package org.copperengine.core;
  * A WorkflowFactory is requested a the corresponding engine.
  *
  * @param <D>
+ *        type of data passed in to the workflow on creation.
  * @author austermann
  */
 public interface WorkflowFactory<D> {
+    /**
+     * @return
+     *         new instance of the workflow
+     * @throws InstantiationException
+     *         {@link Class#newInstance()}
+     *         "if this Class represents an abstract class, an interface, an array class, a primitive type, or void;
+     *         or if the class has no nullary constructor; or if the instantiation fails for some other reason."
+     * @throws IllegalAccessException
+     *         {@link Class#newInstance()}
+     *         "if the class or its nullary constructor is not accessible."
+     */
     public Workflow<D> newInstance() throws InstantiationException, IllegalAccessException;
 }

@@ -34,6 +34,8 @@ public interface DefaultEntityPersisterFactory<E, P extends DefaultEntityPersist
 
     /**
      * Needed to be able to return the created persister as a mapper (see {@link PersistenceContext#getMapper(Class)}).
+     * @return
+     *        the persister class
      */
     Class<?> getPersisterClass();
 
@@ -47,6 +49,8 @@ public interface DefaultEntityPersisterFactory<E, P extends DefaultEntityPersist
      *            {@link PersistentWorkflow#onSave(PersistenceContext)} methods.
      * @param sharedRessources
      *            shared ressources; should come from a preceeding call to {@link #createSharedRessources()}
+     * @return
+     *        the newly created persister as subclass of a DefaultEntityPersister
      */
     P createPersister(PersistentWorkflow<?> workflow, DefaultPersisterSharedRessources<E, P> sharedRessources);
 

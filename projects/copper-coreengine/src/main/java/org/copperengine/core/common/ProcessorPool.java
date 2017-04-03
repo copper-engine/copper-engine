@@ -26,11 +26,13 @@ public interface ProcessorPool {
 
     /**
      * Called internally by COPPER during initialization
+     * @param engine
+     *        engine which holds the ProcessorPool
      */
     public void setEngine(ProcessingEngine engine);
 
     /**
-     * returns the processor pools identifier
+     * @return the processor pools identifier
      */
     public String getId();
 

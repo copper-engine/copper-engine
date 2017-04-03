@@ -54,6 +54,8 @@ public interface WorkflowPersistencePlugin {
      * 
      * @param con
      *            The database connection the load operation is bound to.
+     * @param workflows
+     *            list of workflows specified by any Iterable.
      * @throws SQLException
      *             Implementations may pass SQL Exception to be handled by the database dialect
      */

@@ -40,6 +40,8 @@ public class EngineActivity implements Serializable {
 
     /**
      * Timestamp of the last activity in this engine, e.g. starting a new workflow instance, processing or finishing an existing one.
+     * @return last engine activity timestamp which currently either marks point of last new workflow started or last dependency injection
+     * (Transient: Almost the same as workflow start. Persistent: Equal to continue workflow after checkpoint (Or start workflow))
      */
     public Date getLastActivityTS() {
         return lastActivityTS;
@@ -51,7 +53,7 @@ public class EngineActivity implements Serializable {
 
     /**
      * StartUp TS of this engine or null if the engine is not yet started or down.
-     * @return
+     * @return System time when .startup() was called on the engine.
      */
     public Date getStartupTS() {
         return startupTS;
@@ -62,7 +64,7 @@ public class EngineActivity implements Serializable {
     }
     
     /**
-     * Number of finished Workflow instances within the last N minutes.
+     * @return Number of finished Workflow instances within the last N minutes.
      */
     public long getCountWfiLastNMinutes() {
         return countWfiLastNMinutes;

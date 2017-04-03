@@ -28,8 +28,14 @@ public interface ProcessingEngine {
 
     /**
      * Starts up the engine. The invocation of this method blocks until the startup procedure is finished.
+     *
+     * This method might even throw an Error, if something fundamentally wents wrong like starting up the workflow repository
+     * or database storage.
      * 
-     * @throws CopperRuntimeException
+     * @throws CopperRuntimeException Depending on the configured engine (Type of engine, processor pool manager, (Storage),
+     * workflow repository, ...) a lot of things can go wrong. If any Exception is thrown in the startup process, this
+     * will be transformed to a CopperRuntimeException. All other RuntimeExceptions (like NullPointerException) are just
+     * rethrown. Fundamental startup problems might even throw an Error.
      */
     public void startup() throws CopperRuntimeException;
 
@@ -37,7 +43,8 @@ public interface ProcessingEngine {
      * Triggers the shutdown of the engine. The engine tries to end running workflow instances gracefully.
      * The invocation of this method returns immediately.
      * 
-     * @throws CopperRuntimeException
+     * @throws CopperRuntimeException - wraps Exceptions which could happen in different types of configured engines
+     * into RuntimeExceptions. Further RuntimeExceptions like IllegalStateException might also be thrown.
      */
     public void shutdown() throws CopperRuntimeException;
 
@@ -62,7 +69,7 @@ public interface ProcessingEngine {
      *        the relative timeout in milliseconds or <code>0</code> for no an infinite timeout
      * @param correlationIds
      *        the correlation ids of the expected responses
-     * @throws CopperRuntimeException
+     * @throws CopperRuntimeException - Should not be thrown at the moment but might happen in future engine implementations.
      */
     public void registerCallbacks(Workflow<?> w, WaitMode mode, long timeoutMsec, String... correlationIds) throws CopperRuntimeException;
 
@@ -79,11 +86,13 @@ public interface ProcessingEngine {
      *        the object to notify upon processing of the message. Note: The ack.waitForAcknowledge returns when the response
      *        is processed by the COPPER engine, not when the workflow was waked up with this response.
      * @throws CopperRuntimeException
+     *        All exceptions thrown in the attempt of notification (e.g. for persistent engine storing in database)
+     *        are wrapped into CopperRuntimeException and rethrown.
      */
     public void notify(Response<?> response, Acknowledge ack) throws CopperRuntimeException;
 
     /**
-     * Creates a Universally Unique Identifier (UUID). The UUID may be used for workflow ids or correlation ids.
+     * @return Creates and returns a Universally Unique Identifier (UUID). The UUID may be used for workflow ids or correlation ids.
      */
     public String createUUID();
 
@@ -95,7 +104,7 @@ public interface ProcessingEngine {
      * @param data
      *        the data to pass to the workflow
      * @throws CopperException
-     *         if the engine can not run the workflow for some reason, e.g. in case of an unkown processor pool id.
+     *         if the engine can not run the workflow for some reason, e.g. in case of an unknown processor pool id.
      * @throws DuplicateIdException
      *         if a workflow instance with the same id already exists [Collision in unique-id-creator]
      * @return workflow instance Id
@@ -105,8 +114,10 @@ public interface ProcessingEngine {
     /**
      * Enqueues the specified workflow instance description into the engine for execution.
      * 
+     * @param wfInstanceDescr
+     *        the workflow instance description out of which a workflow is generated and put into the engine for execution
      * @throws CopperException
-     *         if the engine can not run the workflow for some reason, e.g. in case of an unkown processor pool id.
+     *         if the engine can not run the workflow for some reason, e.g. in case of an unknown processor pool id.
      * @throws DuplicateIdException
      *         if a workflow instance with the same id already exists
      * @return workflow instance Id
@@ -116,8 +127,10 @@ public interface ProcessingEngine {
     /**
      * Enqueues the specified batch of workflow instance descriptions into the engine for execution.
      * 
+     * @param wfInstanceDescr
+     *        batch or workflow instance descriptions to be put into the engine for execution
      * @throws CopperException
-     *         if the engine can not run the workflows for some reason, e.g. in case of an unkown processor pool id.
+     *         if the engine can not run the workflows for some reason, e.g. in case of an unknown processor pool id.
      * @throws DuplicateIdException
      *         if a workflow instance with the same id already exists
      */
@@ -140,6 +153,11 @@ public interface ProcessingEngine {
     /**
      * Adds the specified WaitHook for the workflow instance with the specified id.
      * The WaitHook is called once at the next wait invocation of the specified workflow instance.
+     *
+     * @param wfInstanceId
+     *        workflow instance id
+     * @param waitHook
+     *        wait hook
      */
     public void addWaitHook(String wfInstanceId, WaitHook waitHook);
 

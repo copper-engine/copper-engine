@@ -28,9 +28,6 @@ public class SpringEngineStarter {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringEngineStarter.class);
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("Usage: " + SpringEngineStarter.class.getName() + " <configLocations>");

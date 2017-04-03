@@ -19,16 +19,17 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
 
     /**
      * Trigger restart a workflow instance that is in the error state.
+     * If workflow id is unknown or the workflow is not in broken state, nothing happens.
      *
-     * @param workflowInstanceId
-     * @throws Exception
+     * @param workflowInstanceId workflow instance id as string
+     * @throws Exception When some database operations fail, i.e. connection lost, transaction problems, ..
      */
     public void restart(String workflowInstanceId) throws Exception;
 
     /**
      * Trigger restart all workflow instances that are in error state.
      *
-     * @throws Exception
+     * @throws Exception When some database operations fail, i.e. connection lost, transaction problems, ..
      */
     public void restartAll() throws Exception;
 

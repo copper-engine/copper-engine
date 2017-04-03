@@ -34,7 +34,10 @@ public class RetryingTxnBatchRunner<E extends BatchExecutorBase<E, T>, T extends
     public RetryingTxnBatchRunner() {
     }
 
-    /** @since 3.1 */
+    /**
+     * @param dataSource on which the RetryingTxnBatchRunner operates on.
+     * @since 3.1
+     * */
     public RetryingTxnBatchRunner(DataSource dataSource) {
         this.dataSource = dataSource;
     }

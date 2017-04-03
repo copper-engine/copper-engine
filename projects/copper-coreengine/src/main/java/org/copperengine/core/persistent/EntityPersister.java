@@ -20,6 +20,7 @@ package org.copperengine.core.persistent;
  * 
  * @author Roland Scheel
  * @param <E>
+ *        type of entity
  */
 public interface EntityPersister<E> {
 

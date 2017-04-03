@@ -267,6 +267,8 @@ public class Queue {
      *            object to add to the queue
      * @throws OverflowException
      *             if maximum capacity of queue is reached
+     * @throws ClosedException
+     *             if queue is already closed
      */
     public void enqueue(final Object o) throws OverflowException, ClosedException {
         list.addLastElement(o);
@@ -280,8 +282,11 @@ public class Queue {
      *            0 to disable timeout
      * @return the first queue element
      * @throws TimeoutException
+     *         Thrown if timeout is reached while waiting for data in queue
      * @throws ClosedException
+     *         Thrown if queue is already closed
      * @throws InterruptedException
+     *         Might be thrown by the internally used Java-wait method.
      */
     public Object dequeue(final long timeout) throws TimeoutException, ClosedException, InterruptedException {
         return list.remove(timeout == 0 ? this.timeout : timeout);
@@ -293,8 +298,11 @@ public class Queue {
      * 
      * @return the first queue element
      * @throws TimeoutException
+     *         Thrown if timeout is reached while waiting for data in queue
      * @throws ClosedException
+     *         Thrown if queue is already closed
      * @throws InterruptedException
+     *         Might be thrown by the internally used Java-wait method.
      */
     public Object dequeue() throws TimeoutException, ClosedException, InterruptedException {
         return dequeue(0);
@@ -303,8 +311,11 @@ public class Queue {
     /**
      * @return Return first element of the underlying list or null, if queue is empty.
      * @throws TimeoutException
+     *         Thrown if timeout is reached while waiting for data in queue
      * @throws ClosedException
+     *         Thrown if queue is already closed
      * @throws InterruptedException
+     *         Might be thrown by the internally used Java-wait method.
      */
     public Object dequeueOrNull() throws TimeoutException, ClosedException, InterruptedException {
         return list.removeOrNull();
@@ -313,6 +324,7 @@ public class Queue {
     /**
      * @return First element in the queue
      * @throws EmptyQueueException
+     *         Thrown if queue is empty. Then there is no first element...
      */
     public Object front() throws EmptyQueueException {
         return list.getFirstElement();
@@ -348,6 +360,12 @@ public class Queue {
 
     /**
      * Create the internal list (allow derived classes to supply their own list implementation)
+     * @param capacity
+     *        Capacity of the newly created list
+     * @param verbose
+     *        specify if verbose logging shall be enabled for the new list
+     * @return
+     *        the created new internal list
      */
     protected List createList(int capacity, boolean verbose) {
         return new List(capacity, verbose);

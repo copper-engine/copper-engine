@@ -108,6 +108,9 @@ public class DefaultTicketPoolManager implements TicketPoolManager {
      * For testing..
      *
      * @param wf
+     *        For this workflow, the corresponding ticketPool is searched and then a ticket is obtained from this pool.
+     * @return
+     *        id of the ticket pool.
      */
     public String obtainAndReturnTicketPoolId(Workflow<?> wf) {
         TicketPool tp = findPool(wf.getClass().getName());

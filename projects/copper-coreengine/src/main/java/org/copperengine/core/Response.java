@@ -22,6 +22,7 @@ import java.io.Serializable;
  * 
  * @author austermann
  * @param <E>
+ *        type of data held by the response for the user/workflow.
  */
 public class Response<E> implements Serializable {
 
@@ -39,8 +40,23 @@ public class Response<E> implements Serializable {
     /**
      * Constructor.
      * 
+     * @param correlationId
+     *        the correlation ID on which a workflow is or will hopefully be waiting. This is kind of the mapping between
+     *        notification from outside and the workflow inside COPPER.
+     * @param response
+     *        data which shall be passed to the workflow with the response when the workflow continues execution.
+     * @param exception
+     *        Might be set if an exception occurred. So the workflow can query the Response and will know if an error
+     *        somewhere happened.
+     * @param isTimeout
+     *        holds information whether this response was automatically generated from COPPER as a dummy holder to
+     *        notify the workflow that there was no "real" response but the specified timeout was reached
+     * @param metaData
+     *        Might hold some more arbitrary meta data. Usually is just null.
      * @param internalProcessingTimeout
      *        timeout in msec
+     * @param responseId
+     *        unique id of the response. Each response must be unique of course.
      */
     public Response(String correlationId, E response, Exception exception, boolean isTimeout, String metaData, Long internalProcessingTimeout, final String responseId) {
         super();
@@ -58,6 +74,12 @@ public class Response<E> implements Serializable {
 
     /**
      * Creates a new instance.
+     * @param correlationId
+     *        {@link Response#Response(String, Object, Exception, boolean, String, Long, String)}
+     * @param response
+     *        {@link Response#Response(String, Object, Exception, boolean, String, Long, String)}
+     * @param exception
+     *        {@link Response#Response(String, Object, Exception, boolean, String, Long, String)}
      */
     public Response(String correlationId, E response, Exception exception) {
         this(correlationId, response, exception, false, null, null, null);
@@ -65,6 +87,8 @@ public class Response<E> implements Serializable {
 
     /**
      * Creates a new instance with timeout set to true.
+     * @param correlationId
+     *        {@link Response#Response(String, Object, Exception, boolean, String, Long, String)}
      */
     public Response(String correlationId) {
         this(correlationId, null, null, true, null, null, null);
@@ -108,7 +132,7 @@ public class Response<E> implements Serializable {
     }
 
     /**
-     * returns the meta data of this response. Not used by the copper core itself. Applications may use this data
+     * @return the meta data of this response. Not used by the copper core itself. Applications may use this data
      * for monitoring or some custom response handling.
      */
     public String getMetaData() {
@@ -120,9 +144,10 @@ public class Response<E> implements Serializable {
     }
 
     /**
-     * If true, a response is queued temporarily in the 'early response container' if currently no workflow instance is
-     * (yet) waiting
-     * for the responses' correlationId.
+     * @return
+     *         if response is held in early response handling.
+     *         If true, a response is queued temporarily in the 'early response container' if currently no workflow
+     *         instance is (yet) waiting for the responses' correlationId.
      */
     public boolean isEarlyResponseHandling() {
         return earlyResponseHandling;

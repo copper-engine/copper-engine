@@ -33,6 +33,7 @@ import org.copperengine.core.Workflow;
  * workflow needs persistence or not, it is OK to inherit from PersistentWorkflow.
  * 
  * @param <E>
+ *        type of data object holt by the workflow (Passed in when calling {@link org.copperengine.core.ProcessingEngine#run}
  * @author austermann
  */
 public abstract class PersistentWorkflow<E extends Serializable> extends Workflow<E> implements Serializable, SavepointAware {
@@ -63,6 +64,8 @@ public abstract class PersistentWorkflow<E extends Serializable> extends Workflo
 
     /**
      * Used internally
+     * @param data
+     *        Just hard cast data to (E). On internal call, we know that data is of correct type, even when handling as object.
      */
     @SuppressWarnings("unchecked")
     public void setDataAsObject(Object data) {

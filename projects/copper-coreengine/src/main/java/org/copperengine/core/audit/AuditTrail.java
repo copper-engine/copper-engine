@@ -115,21 +115,30 @@ public interface AuditTrail {
      * @param messageType
      *            type of the message, e.g. XML, used for message rendering in the COPPER monitor
      * @param cb
+     *            callback called when logging succeeded or failed.
      */
     public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType, AuditTrailCallback cb);
 
     /**
      * returns immediately after queueing the log message
+     * @param e
+     *            the AuditTrailEvent to be logged
      */
     public void asynchLog(AuditTrailEvent e);
 
     /**
      * returns immediately after queueing the log message
+     * @param e
+     *            the AuditTrailEvent to be logged
+     * @param cb
+     *            callback called when logging succeeded or failed.
      */
     public void asynchLog(AuditTrailEvent e, AuditTrailCallback cb);
 
     /**
      * writes an event to the audit trail log and returns after the log message is written to the underlying storage.
+     * @param e
+     *            the AuditTrailEvent to be logged
      */
     public void synchLog(AuditTrailEvent e);
 

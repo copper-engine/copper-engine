@@ -43,6 +43,7 @@ public interface Backchannel {
      *        timeunit of timeout
      * @return the response or <code>null</code> in case of a timeout.
      * @throws InterruptedException
+     *         Might be thrown from the internally used CountDownLatch await method.
      */
     public Object wait(String correlationId, long timeout, TimeUnit timeunit) throws InterruptedException;
 
