@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.CopperException;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.PersistentProcessingEngine;
@@ -70,6 +71,7 @@ public class SpringlessBasePersistentWorkflowTest {
     static final String PersistentUnitTestWorkflow_NAME = "org.copperengine.core.test.persistent.PersistentUnitTestWorkflow";
     static final String WaitForEverTestWF_NAME = "org.copperengine.core.test.WaitForEverTestWF";
     static final String JmxTestWF_NAME = "org.copperengine.core.test.persistent.jmx.JmxTestWorkflow";
+    static final String DeleteBrokenTestWF_NAME = "org.copperengine.core.test.persistent.DeleteBrokenTestWorkflow";
 
     public final void testDummy() {
         // for junit only
@@ -898,6 +900,7 @@ public class SpringlessBasePersistentWorkflowTest {
             for (int i=0; i<NUMB_OF_WFI; i++) {
                 engine.run(JmxTestWF_NAME, "Foo");
             }
+            Thread.sleep(200); // wait for it to start up
 
             logger.info("query RUNNING...");
             filter.setState(ProcessingState.RUNNING.name());
@@ -1020,6 +1023,7 @@ public class SpringlessBasePersistentWorkflowTest {
             for (int i=0; i<NUMB_OF_WFI; i++) {
                 engine.run(JmxTestWF_NAME, "ERROR");
             }
+            Thread.sleep(200); // wait for it to start up / bring workflows to error state
 
             logger.info("query RUNNING...");
             filter.setState(ProcessingState.ERROR.name());
@@ -1037,6 +1041,137 @@ public class SpringlessBasePersistentWorkflowTest {
             }
         } 
         finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+
+    public void testDeleteBrokenWorkflowInstance(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        // Start 5 workflows, let one be broken. Delete the broken one, check database correctness.
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+            final int NUMB_OF_GOOD_CONCURRENT_WFI = 5;
+            final WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            assertEquals(0, engine.queryWorkflowInstances(filter).size());
+
+            final WorkflowInstanceDescr<Integer> brokenWorkflow = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
+            brokenWorkflow.setId(engine.createUUID());
+            engine.run(brokenWorkflow);
+
+            // Wait for engine to launch workflow and then query results until all are done.
+            do {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    // Retry..
+                }
+            } while (engine.queryActiveWorkflowInstances(null, 1).size() > 0);
+
+            // Now check database structure reflects broken workflow.
+            new RetryingTransaction<Void>(context.getDataSource()) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmt = createStatement(getConnection());
+                    ResultSet rs = stmt.executeQuery("select * from COP_WORKFLOW_INSTANCE_ERROR");
+                    assertTrue(rs.next());
+                    assertEquals(brokenWorkflow.getId(), rs.getString("WORKFLOW_INSTANCE_ID"));
+                    assertNotNull(rs.getString("EXCEPTION"));
+                    assertFalse(rs.next());
+                    rs.close();
+                    stmt.close();
+                    Statement stmtCount = createStatement(getConnection());
+                    ResultSet rsCount = stmtCount.executeQuery("SELECT COUNT(*) AS total FROM COP_WORKFLOW_INSTANCE_ERROR");
+                    assertTrue(rsCount.next());
+                    assertEquals(1, rsCount.getInt("total"));
+                    rsCount.close();
+                    stmtCount.close();
+                    Statement stmtCountResponses = createStatement(getConnection());
+                    ResultSet rsCountResponses = stmtCountResponses.executeQuery("SELECT COUNT(*) AS total FROM COP_RESPONSE");
+                    assertTrue(rsCountResponses.next());
+                    // Workflow waits for 2 responses, but one is imaginary and not responded to, thus not in response table. One should have a response. So COP_RESPONSE count is 1, COP_WAIT 2  (as waiting for 2).
+                    assertEquals(1, rsCountResponses.getInt("total"));
+                    rsCountResponses.close();
+                    stmtCountResponses.close();
+                    Statement stmtCountWait = createStatement(getConnection());
+                    ResultSet rsCountWait = stmtCountWait.executeQuery("SELECT COUNT(*) AS total FROM COP_WAIT");
+                    assertTrue(rsCountWait.next());
+                    assertEquals(2, rsCountWait.getInt("total"));
+                    rsCountWait.close();
+                    stmtCountWait.close();
+                    return null;
+                }
+            }.run();
+
+
+            // Run some non-breaking workflows concurrently and delete broken workflow at the same time
+            for (int i=0; i<NUMB_OF_GOOD_CONCURRENT_WFI; i++) {
+                engine.run(DeleteBrokenTestWF_NAME, 0);
+            }
+            engine.deleteBroken(brokenWorkflow.getId());
+
+            // And try to delete one which doesn't exist
+            boolean caughtException = false;
+            try {
+                engine.deleteBroken(engine.createUUID());
+            } catch (CopperException e) {
+                caughtException = true;
+                assertTrue(e.getMessage().contains("can't be deleted"));
+            } finally {
+                assertTrue(caughtException);
+            }
+
+            do {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    // Retry..
+                }
+            } while (engine.queryActiveWorkflowInstances(null, 1).size() > 0);
+
+            // Make sure, it is removed accordingly...
+            new RetryingTransaction<Void>(context.getDataSource()) {
+                @Override
+                protected Void execute() throws Exception {
+                    Statement stmtCount = createStatement(getConnection());
+                    ResultSet rsCount = stmtCount.executeQuery("SELECT COUNT(*) AS total FROM COP_WORKFLOW_INSTANCE_ERROR");
+                    assertTrue(rsCount.next());
+                    assertEquals(0, rsCount.getInt("total"));
+                    rsCount.close();
+                    stmtCount.close();
+                    Statement stmtCountResponses = createStatement(getConnection());
+                    ResultSet rsCountResponses = stmtCountResponses.executeQuery("SELECT COUNT(*) AS total FROM COP_RESPONSE");
+                    assertTrue(rsCountResponses.next());
+                    assertEquals(0, rsCountResponses.getInt("total"));
+                    rsCountResponses.close();
+                    stmtCountResponses.close();
+                    Statement stmtCountWait = createStatement(getConnection());
+                    ResultSet rsCountWait = stmtCountWait.executeQuery("SELECT COUNT(*) AS total FROM COP_WAIT");
+                    assertTrue(rsCountWait.next());
+                    assertEquals(0, rsCountWait.getInt("total"));
+                    rsCountWait.close();
+                    stmtCountWait.close();
+                    return null;
+                }
+            }.run();
+
+            // And now, as all workflows finished execution, test if they all wrote their data back to backchannel and just the single one was deleted.
+            BackChannelQueue bcQueue = context.getBackChannelQueue();
+            int numWFsDequeud = 0;
+            try {
+                while (bcQueue.dequeue(10, TimeUnit.MILLISECONDS) != null) {
+                    numWFsDequeud++;
+                }
+            } catch (Exception e) {
+                // Don't care..
+            }
+            assertEquals(NUMB_OF_GOOD_CONCURRENT_WFI, numWFsDequeud);
+
+
+        } finally {
             closeContext(context);
         }
         assertEquals(EngineState.STOPPED, engine.getEngineState());

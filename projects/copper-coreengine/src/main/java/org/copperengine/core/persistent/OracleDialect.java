@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.CopperException;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineIdProvider;
 import org.copperengine.core.ProcessingState;
@@ -455,6 +456,25 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             JdbcUtils.closeStatement(stmt);
         }
         logger.info("All error/invalid workflow instances successfully queued for restart.");
+    }
+
+    @Override
+    public void deleteBroken(String workflowInstanceId, Connection c) throws Exception {
+        logger.trace("deleteBroken()");
+
+        CallableStatement stmt = c.prepareCall("begin COP_COREENGINE.deleteBrokenWorkflow(?, ?); end;");
+        try {
+            stmt.setString(1, workflowInstanceId);
+            stmt.registerOutParameter(2, Types.INTEGER);
+            stmt.execute();
+            int delCount = stmt.getInt(2);
+            if (delCount != 1) {
+                throw new CopperException("Workflow \"" + workflowInstanceId + "\" can't be deleted. Is it a valid id and really in broken state? (Invalid or error?)");
+            }
+        } finally {
+            JdbcUtils.closeStatement(stmt);
+        }
+        logger.info("error/invalid workflow instance successfully deleted.");
     }
 
     @Override

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.CopperException;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineIdProvider;
 import org.copperengine.core.ProcessingState;
@@ -497,6 +498,60 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         } finally {
             JdbcUtils.closeStatement(stmtInstance);
             JdbcUtils.closeStatement(insertStmt);
+        }
+    }
+
+    @Override
+    public void deleteBroken(String workflowInstanceId, Connection c) throws Exception {
+        // The workflow instance is not residing in any engine memory when broken.
+        // We thus cannot work with SqlRemove command here (Which uses some in memory workflow information) but need to
+        // work on the database directly.
+        assert(c.getAutoCommit() == false); // Should be set by the transaction manager.
+
+        PreparedStatement stmtReadAndLockWorkflowInstance = null;
+        PreparedStatement stmtDelResponses = null;
+        PreparedStatement stmtDelWait = null;
+        PreparedStatement stmtDelError = null;
+        PreparedStatement stmtDelInstance = null;
+
+        try {
+            stmtReadAndLockWorkflowInstance = c.prepareStatement("SELECT 1 FROM COP_WORKFLOW_INSTANCE WHERE ID=? AND (STATE=? OR STATE=?) FOR UPDATE");
+            stmtReadAndLockWorkflowInstance.setString(1, workflowInstanceId);
+            stmtReadAndLockWorkflowInstance.setInt(2, DBProcessingState.ERROR.ordinal());
+            stmtReadAndLockWorkflowInstance.setInt(3, DBProcessingState.INVALID.ordinal());
+            ResultSet res = stmtReadAndLockWorkflowInstance.executeQuery();
+            if (res.next()) {
+                // There is an entry for the given workflowInstanceID in the table with a workflow in error level and
+                // now table COP_WORKFLOW_INSTANCE is locked for the given workflow instance in order to no one else making
+                // changes on the workflow while we are going to delete it.
+
+                // No delete from COP_QUEUE as a broken workflow should never be in the queue..
+                stmtDelResponses = c.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID IN (SELECT CORRELATION_ID FROM COP_WAIT WHERE WORKFLOW_INSTANCE_ID=?)");
+                stmtDelWait = c.prepareStatement("DELETE FROM COP_WAIT WHERE WORKFLOW_INSTANCE_ID=?");
+                stmtDelError = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
+                stmtDelInstance = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?");
+
+                stmtDelResponses.setString(1, workflowInstanceId);
+                stmtDelResponses.execute();
+
+                stmtDelWait.setString(1, workflowInstanceId);
+                stmtDelWait.execute();
+
+                stmtDelError.setString(1, workflowInstanceId);
+                stmtDelError.execute();
+
+                stmtDelInstance.setString(1, workflowInstanceId);
+                int deletedInstances = stmtDelInstance.executeUpdate();
+                assert(deletedInstances == 1);
+
+            } else {
+                throw new CopperException("Workflow \"" + workflowInstanceId + "\" can't be deleted. Is it a valid id and really in broken state? (Invalid or error?)");
+            }
+        } finally {
+            JdbcUtils.closeStatement(stmtDelResponses);
+            JdbcUtils.closeStatement(stmtDelWait);
+            JdbcUtils.closeStatement(stmtDelError);
+            JdbcUtils.closeStatement(stmtDelInstance);
         }
     }
 
