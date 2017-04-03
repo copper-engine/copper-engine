@@ -639,7 +639,7 @@ public class BasePersistentWorkflowTest {
             final WorkflowInstanceDescr<Serializable> wfInstanceDescr = new WorkflowInstanceDescr<Serializable>("org.copperengine.core.test.persistent.ErrorWaitHookUnitTestWorkflow");
             wfInstanceDescr.setId(engine.createUUID());
             engine.run(wfInstanceDescr, null);
-            Thread.sleep(2500);
+            Thread.sleep(3500);
             // check
             new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
                 @Override
