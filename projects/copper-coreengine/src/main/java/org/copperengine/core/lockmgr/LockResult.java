@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 SCOOP Software GmbH
+ * Copyright 2002-2017 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.persistent.lock;
 
-/**
- * @see org.copperengine.core.lockmgr.LockResult
- * This enum exists for compatibility reasons with old versions only.
- * @deprecated
- * Might be removed in COPPER 5.0 or later. LockResult shall then be used directly.
-*/
-public enum PersistentLockResult {
+package org.copperengine.core.lockmgr;
+
+public enum LockResult {
     OK, INTERNAL_ERROR
 }

@@ -15,78 +15,14 @@
  */
 package org.copperengine.core.persistent.lock;
 
-import org.copperengine.core.Response;
+import org.copperengine.core.lockmgr.LockManager;
 
 /**
- * A service to obtain/manager persistent locks, e.g. to functionally synchronize workflow instances.
- * 
- * @author austermann
- * 
+ * @see LockManager
+ * This interface exists for compatibility reasons with old versions only.
+ * @deprecated
+ * Might be removed in COPPER 5.0 or later. LockManager shall then be used directly.
  */
-public interface PersistentLockManager {
-
-    /**
-     * Acquires a lock with the specified id. If the lock is free, then the lock is assigned to the caller and the
-     * methods return <code>null</code>.
-     * <p>
-     * Otherwise, if the lock is currently held by another entity, then the method returns a correlationId that the
-     * caller has to use to wait for. As soon as this lock is assigned to the caller, the lock manager creates a
-     * {@link Response} for this specified correlationId, containing the {@link PersistentLockResult}.
-     * <p>
-     * Example:
-     * <p>
-     * 
-     * <pre>
-     * private void acquireLock(final String lockId) throws Interrupt {
-     *     for (;;) {
-     *         logger.info(&quot;Going to acquire lock '{}'&quot;, lockId);
-     *         final String cid = persistentLockManager.acquireLock(lockId, this.getId());
-     *         if (cid == null) {
-     *             logger.info(&quot;Successfully acquired lock '{}'&quot;, lockId);
-     *             return;
-     *         }
-     *         else {
-     *             logger.info(&quot;Lock '{}' is currently not free - calling wait...&quot;, lockId);
-     *             wait(WaitMode.ALL, 10000, cid);
-     *             final Response&lt;PersistentLockResult&gt; result = getAndRemoveResponse(cid);
-     *             logger.info(&quot;lock result={}&quot;, result);
-     *             if (result.isTimeout()) {
-     *                 logger.info(&quot;Failed to acquire lock: Timeout - trying again...&quot;);
-     *             }
-     *             else if (result.getResponse() != PersistentLockResult.OK) {
-     *                 logger.error(&quot;Failed to acquire lock: {} - trying again...&quot;, result.getResponse());
-     *             }
-     *             else {
-     *                 logger.info(&quot;Successfully acquired lock '{}'&quot;, lockId);
-     *                 return;
-     *             }
-     *         }
-     *     }
-     * }
-     * </pre>
-     * 
-     * @param lockId
-     *        symbolic lock id
-     * @param workflowInstanceId
-     *        requestor/owner of this lock
-     * @throws RuntimeException
-     *         in case of technical problems
-     * @return <code>null</code> if the lock was free and was assigned to the caller (workflowInstanceId) otherwise a
-     *         correlationId to wait for.
-     */
-    String acquireLock(String lockId, String workflowInstanceId);
-
-    /**
-     * Releases the specified lock. If the workflow with the specified workflowId is not yet the owner of the lock (i.e.
-     * it is still waiting to retrieve the lock), the acquireLock request is removed from the queue.
-     * 
-     * @param lockId
-     *        symbolic lock id
-     * @param workflowInstanceId
-     *        requestor/owner of this lock
-     * @throws RuntimeException
-     *         in case of technical problems
-     */
-    void releaseLock(String lockId, String workflowInstanceId);
+public interface PersistentLockManager extends LockManager {
 
 }
