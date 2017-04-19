@@ -10,6 +10,7 @@ How to build
 ------------
 
 COPPER is built using [Gradle](http://www.gradle.org). However, you don't need to install Gradle, because COPPER is using the [Gradle wrapper](http://www.gradle.org/docs/current/userguide/gradle_wrapper.html).
+Note: If you are behind an internet proxy, you have to configure the corresponding system properties in gradle. See [Accessing the web via a proxy](https://docs.gradle.org/current/userguide/build_environment.html#sec:accessing_the_web_via_a_proxy).
 
 To build all COPPER projects, just execute the following in the projects root directory:
 
