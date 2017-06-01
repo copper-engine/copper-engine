@@ -309,37 +309,42 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     private boolean notifyInternal(Response<?> response, Acknowledge ack) throws Exception {
         logger.debug("notifyInternal({})", response);
 
-        final String cid = response.getCorrelationId();
-        final String wfId = correlationIdMap.getWorkflowId(cid);
+        try {
+            final String cid = response.getCorrelationId();
+            final String wfId = correlationIdMap.getWorkflowId(cid);
 
-        if (wfId != null) {
-            // we have to take care of concurrent notifies for the same workflow instance
-            // but we don't want to block everything - it's sufficient to block this workflows id (more or less...)
-            synchronized (findMutex(wfId)) {
-                // check if this workflow instance has just been dequeued - in this case we do not find the
-                // correlationId any more...
-                if (correlationIdMap.getWorkflowId(cid) != null) {
-                    WorkflowInstance cw = storage.readWorkflowInstance(wfId);
-                    if (cw.cid2ResponseMap.containsKey(cid)) {
-                        cw.cid2ResponseMap.put(cid, serializer.serializeResponse(response));
+            if (wfId != null) {
+                // we have to take care of concurrent notifies for the same workflow instance
+                // but we don't want to block everything - it's sufficient to block this workflows id (more or less...)
+                synchronized (findMutex(wfId)) {
+                    // check if this workflow instance has just been dequeued - in this case we do not find the
+                    // correlationId any more...
+                    if (correlationIdMap.getWorkflowId(cid) != null) {
+                        WorkflowInstance cw = storage.readWorkflowInstance(wfId);
+                        if (cw.cid2ResponseMap.containsKey(cid)) {
+                            cw.cid2ResponseMap.put(cid, serializer.serializeResponse(response));
+                        }
+                        final boolean timeoutOccured = cw.timeout != null && cw.timeout.getTime() <= System.currentTimeMillis();
+                        final boolean enqueue = cw.state == ProcessingState.WAITING && (timeoutOccured || cw.waitMode == WaitMode.FIRST || cw.waitMode == WaitMode.ALL && cw.cid2ResponseMap.size() == 1 || cw.waitMode == WaitMode.ALL && allResponsesAvailable(cw));
+
+                        if (enqueue) {
+                            cw.state = ProcessingState.ENQUEUED;
+                        }
+
+                        storage.safeWorkflowInstance(cw, false);
+
+                        if (enqueue) {
+                            _enqueue(cw.id, cw.ppoolId, cw.prio);
+                        }
+
+                        ack.onSuccess();
+                        return enqueue;
                     }
-                    final boolean timeoutOccured = cw.timeout != null && cw.timeout.getTime() <= System.currentTimeMillis();
-                    final boolean enqueue = cw.state == ProcessingState.WAITING && (timeoutOccured || cw.waitMode == WaitMode.FIRST || cw.waitMode == WaitMode.ALL && cw.cid2ResponseMap.size() == 1 || cw.waitMode == WaitMode.ALL && allResponsesAvailable(cw));
-
-                    if (enqueue) {
-                        cw.state = ProcessingState.ENQUEUED;
-                    }
-
-                    storage.safeWorkflowInstance(cw, false);
-
-                    if (enqueue) {
-                        _enqueue(cw.id, cw.ppoolId, cw.prio);
-                    }
-
-                    ack.onSuccess();
-                    return enqueue;
                 }
             }
+        } catch (Exception e) {
+            ack.onException(e);
+            throw e;
         }
 
         handleEarlyResponse(response, ack);
