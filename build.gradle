@@ -398,6 +398,12 @@ project(':projects:copper-coreengine') {
 }
 
 
+project(':projects:copper-monitoring') {
+    dependencies {
+    }
+}
+
+
 project(':projects:copper-monitoring:copper-monitoring-server') {
     dependencies {
         compile project(':projects:copper-jmx-interface')
