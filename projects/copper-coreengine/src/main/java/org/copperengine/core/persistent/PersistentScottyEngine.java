@@ -97,7 +97,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             startupBlocker.pass();
             dbStorage.notify(response, ack);
         } catch (Exception e) {
-            throw new CopperRuntimeException("notify failed", e);
+            CopperRuntimeException error = new CopperRuntimeException("notify failed", e);
+            ack.onException(error);
+            throw error;
         }
 
     }

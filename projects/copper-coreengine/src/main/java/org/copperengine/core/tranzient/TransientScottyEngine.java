@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.CopperException;
 import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineState;
@@ -101,57 +102,64 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     @Override
     public void notify(Response<?> response, Acknowledge ack) {
         logger.debug("notify({})", response);
-        if (response == null)
-            throw new NullPointerException();
-
-        if (response.getSequenceId() == null) {
-            response.setSequenceId(sequenceIdFactory.incrementAndGet());
-        }
-
         try {
-            startupBlocker.pass();
-        } catch (InterruptedException e) {
-            // ignore
+            if (response == null)
+                throw new NullPointerException();
+
+            if (response.getSequenceId() == null) {
+                response.setSequenceId(sequenceIdFactory.incrementAndGet());
+            }
+
+            try {
+                startupBlocker.pass();
+            } catch (InterruptedException e) {
+                // ignore
+            }
+
+            synchronized (correlationMap) {
+                final CorrelationSet cs = correlationMap.get(response.getCorrelationId());
+                if (cs == null) {
+                    if (response.isEarlyResponseHandling()) {
+                        earlyResponseContainer.put(response);
+                    }
+                    ack.onSuccess();
+                    return;
+                }
+                final Workflow<?> wf = workflowMap.get(cs.getWorkflowId());
+                if (wf == null) {
+                    logger.error("Workflow with id " + cs.getWorkflowId() + " not found");
+                    ack.onException(new CopperException("Workflow with id " + cs.getWorkflowId() + " not found"));
+                    return;
+                }
+                cs.getMissingCorrelationIds().remove(response.getCorrelationId());
+                if (cs.getTimeoutTS() != null && !response.isTimeout())
+                    timeoutManager.unregisterTimeout(cs.getTimeoutTS(), response.getCorrelationId());
+                wf.putResponse(response);
+
+                boolean doEnqueue = false;
+                if (cs.getMode() == WaitMode.FIRST) {
+                    if (!cs.getMissingCorrelationIds().isEmpty() && cs.getTimeoutTS() != null && !response.isTimeout()) {
+                        timeoutManager.unregisterTimeout(cs.getTimeoutTS(), cs.getMissingCorrelationIds());
+                    }
+                    doEnqueue = true;
+                }
+
+                if (cs.getMissingCorrelationIds().isEmpty()) {
+                    doEnqueue = true;
+                }
+
+                if (doEnqueue) {
+                    for (String correlationId : cs.getCorrelationIds()) {
+                        correlationMap.remove(correlationId);
+                    }
+                    enqueue(wf);
+                }
+            }
+            ack.onSuccess();
+        } catch (RuntimeException e) {
+            ack.onException(e);
+            throw e;
         }
-
-        synchronized (correlationMap) {
-            final CorrelationSet cs = correlationMap.get(response.getCorrelationId());
-            if (cs == null) {
-                if (response.isEarlyResponseHandling()) {
-                    earlyResponseContainer.put(response);
-                }
-                return;
-            }
-            final Workflow<?> wf = workflowMap.get(cs.getWorkflowId());
-            if (wf == null) {
-                logger.error("Workflow with id " + cs.getWorkflowId() + " not found");
-                return;
-            }
-            cs.getMissingCorrelationIds().remove(response.getCorrelationId());
-            if (cs.getTimeoutTS() != null && !response.isTimeout())
-                timeoutManager.unregisterTimeout(cs.getTimeoutTS(), response.getCorrelationId());
-            wf.putResponse(response);
-
-            boolean doEnqueue = false;
-            if (cs.getMode() == WaitMode.FIRST) {
-                if (!cs.getMissingCorrelationIds().isEmpty() && cs.getTimeoutTS() != null && !response.isTimeout()) {
-                    timeoutManager.unregisterTimeout(cs.getTimeoutTS(), cs.getMissingCorrelationIds());
-                }
-                doEnqueue = true;
-            }
-
-            if (cs.getMissingCorrelationIds().isEmpty()) {
-                doEnqueue = true;
-            }
-
-            if (doEnqueue) {
-                for (String correlationId : cs.getCorrelationIds()) {
-                    correlationMap.remove(correlationId);
-                }
-                enqueue(wf);
-            }
-        }
-        ack.onSuccess();
     }
 
     @Override
