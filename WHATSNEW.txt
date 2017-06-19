@@ -1,3 +1,7 @@
+COPPER 4.2.1
+============
+- Bugfix:      Acknowledges from engine.notify were sometimes neither accepted nor rejected.
+
 COPPER 4.2.0
 ============
 -New feature:  Multi-engine support for MySQL and Postgres (Attention! DB schema of MySQL, Postgres, DerbyDB and H2 has changed!)
