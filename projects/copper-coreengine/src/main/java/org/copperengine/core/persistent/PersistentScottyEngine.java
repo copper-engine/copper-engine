@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -503,21 +504,30 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
             throw new RuntimeException(e);
         }
     }
-    
+
     @Override
     protected WorkflowInfo convert2Wfi(Workflow<?> wf) {
         WorkflowInfo wfi = super.convert2Wfi(wf);
         if (wfi == null) {
             return null;
         }
+        // JMX can't convert java.sql.Timestamp to OpenType. Only java.lang.Date is convertable,
+        // si we need to convert it
+        if (wfi.getCreationTS() != null) {
+            wfi.setCreationTS(new Date(wfi.getCreationTS().getTime()));
+        }
+        if (wfi.getLastModTS() != null) {
+            wfi.setLastModTS(new Date(wfi.getLastModTS().getTime()));
+        }
         ErrorData errorData = ((PersistentWorkflow<?>)wf).getErrorData();
         if (errorData != null) {
             org.copperengine.management.model.ErrorData x = new org.copperengine.management.model.ErrorData();
-            x.setErrorTS(errorData.getErrorTS());
+            if (errorData.getErrorTS() != null) {
+                x.setErrorTS(new Date(errorData.getErrorTS().getTime()));
+            }
             x.setExceptionStackTrace(errorData.getExceptionStackTrace());
             wfi.setErrorData(x);
         }
         return wfi;
     }
-
 }
