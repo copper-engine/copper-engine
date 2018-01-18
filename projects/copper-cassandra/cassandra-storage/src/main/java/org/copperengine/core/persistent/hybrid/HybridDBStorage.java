@@ -595,4 +595,8 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
         return resultList;
     }
 
+    @Override
+    public int countWorkflowInstances(final WorkflowInstanceFilter filter) throws Exception {
+        return storage.countWorkflowInstances(filter);
+    }
 }

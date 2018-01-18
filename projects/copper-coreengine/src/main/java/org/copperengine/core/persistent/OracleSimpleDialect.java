@@ -151,5 +151,11 @@ public class OracleSimpleDialect extends AbstractSqlDialect {
     @Override
     protected void addLimitation(StringBuilder sql, int max) {
         sql.append(" AND ROWNUM <= ").append(max);
-    }       
+    }
+
+    @Override
+    protected void addLimitationAndOffset(StringBuilder sql, int max, int offset) {
+        sql.append(" OFFSET " + offset + " ROWS");
+        addLimitation(sql, max);
+    }
 }

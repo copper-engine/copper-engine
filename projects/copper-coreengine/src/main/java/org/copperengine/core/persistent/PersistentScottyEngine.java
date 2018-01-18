@@ -478,26 +478,41 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
     @Override
     public List<String> getWorkflowInstanceStates() {
-        return Arrays.asList(ProcessingState.ENQUEUED.name(), ProcessingState.DEQUEUED.name(), ProcessingState.RUNNING.name(), ProcessingState.WAITING.name(), ProcessingState.FINISHED.name(), ProcessingState.ERROR.name(), ProcessingState.INVALID.name());
+        return Arrays.asList(ProcessingState.ENQUEUED.name(), ProcessingState.DEQUEUED.name(), ProcessingState.RUNNING.name(),
+                ProcessingState.WAITING.name(), ProcessingState.FINISHED.name(), ProcessingState.ERROR.name(), ProcessingState.INVALID.name());
     }
 
     @Override
     public List<WorkflowInfo> queryWorkflowInstances(final WorkflowInstanceFilter filter) {
         try {
+            logger.debug("queryWorkflowInstances with workflow filter= {}", filter);
+
             final List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
-            if (filter.getState() != null && (filter.getState().equals(ProcessingState.RUNNING.name()) || filter.getState().equals(ProcessingState.DEQUEUED.name()))) {
-                rv.addAll(filter(filter, workflowMap.values()));
+            final List<Workflow<?>> wfs = dbStorage.queryWorkflowInstances(filter);
+            for (Workflow<?> wf : wfs) {
+                final Workflow<?> inMemoryWF = workflowMap.get(wf.getId());
+                final WorkflowInfo wfi = convert2Wfi(inMemoryWF == null ? wf : inMemoryWF);
+                rv.add(wfi);
             }
-            else {
-                final List<Workflow<?>> wfs = dbStorage.queryWorkflowInstances(filter);
-                for (Workflow<?> wf : wfs) {
-                    final Workflow<?> inMemoryWF = workflowMap.get(wf.getId());
-                    final WorkflowInfo wfi = convert2Wfi(inMemoryWF == null ? wf : inMemoryWF);
-                    rv.add(wfi);
-                }
-            }
-            logger.info("queryWorkflowInstances returned " + rv.size() + " instance(s)");
+
+            logger.debug("queryWorkflowInstances found {} instance(s).", rv.size());
             return rv;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int countWorkflowInstances(final WorkflowInstanceFilter filter) {
+        try {
+            logger.debug("queryWorkflowInstances with workflow filter= {}", filter);
+
+            int workflowsNumber = dbStorage.countWorkflowInstances(filter);
+
+            logger.debug("countWorkflowInstances counted {} instance(s)", workflowsNumber);
+            return workflowsNumber;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -511,8 +526,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
         if (wfi == null) {
             return null;
         }
-        // JMX can't convert java.sql.Timestamp to OpenType. Only java.lang.Date is convertable,
-        // si we need to convert it
+        // JMX can't convert java.sql.Timestamp to OpenType. Only java.lang.Date is convertable, so we need to convert it...
         if (wfi.getCreationTS() != null) {
             wfi.setCreationTS(new Date(wfi.getCreationTS().getTime()));
         }

@@ -18,37 +18,44 @@ package org.copperengine.management.model;
 
 import java.beans.ConstructorProperties;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WorkflowInstanceFilter implements Serializable {
     
     private static final long serialVersionUID = 3695017848783764269L;
     
-    private String state;
+    private List<String> states = new ArrayList<>();
     private HalfOpenTimeInterval lastModTS;
     private HalfOpenTimeInterval creationTS;
     private String processorPoolId;
     private String workflowClassname;
     private int max = 50;
+    private int offset = 0;
     
     public WorkflowInstanceFilter() {
     }
 
-    @ConstructorProperties({"state","lastModTS","creationTS","processorPoolId","workflowClassname","max"})
-    public WorkflowInstanceFilter(String state, HalfOpenTimeInterval lastModTS, HalfOpenTimeInterval creationTS, String processorPoolId, String workflowClassname, int max) {
-        this.state = state;
+    @ConstructorProperties({"states","lastModTS","creationTS","processorPoolId","workflowClassname","max","offset"})
+    public WorkflowInstanceFilter(List<String> states, HalfOpenTimeInterval lastModTS, HalfOpenTimeInterval creationTS, String processorPoolId, String workflowClassname, int max, int offset) {
+        this.states = states;
         this.lastModTS = lastModTS;
         this.creationTS = creationTS;
         this.processorPoolId = processorPoolId;
         this.workflowClassname = workflowClassname;
         this.max = max;
+        this.offset = offset;
     }
     
-    public String getState() {
-        return state;
+    public List<String> getStates() {
+        return states;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setStates(List<String> state) {
+        this.states = state;
+    }
+    public void addState(String state) {
+        this.states.add(state);
     }
 
     public HalfOpenTimeInterval getLastModTS() {
@@ -91,9 +98,19 @@ public class WorkflowInstanceFilter implements Serializable {
         this.max = max;
     }
 
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
     @Override
     public String toString() {
-        return "WorkflowInstanceFilter [state=" + state + ", lastModTS=" + lastModTS + ", creationTS=" + creationTS + ", processorPoolId=" + processorPoolId + ", workflowClassname=" + workflowClassname +", max=" + max + "]";
+        return "WorkflowInstanceFilter [states=[" + String.join(", ", states) + "], lastModTS=" + lastModTS
+                    + ", creationTS=" + creationTS + ", processorPoolId=" + processorPoolId
+                    + ", workflowClassname=" + workflowClassname +", max=" + max + ", offset=" + offset + "]";
     }
-    
+
 }

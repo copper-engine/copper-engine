@@ -186,5 +186,10 @@ public class MySqlDialect extends AbstractSqlDialect {
     @Override
     protected void addLimitation(StringBuilder sql, int max) {
         sql.append(" LIMIT 0,").append(max);
-    }       
+    }
+
+    @Override
+    protected void addLimitationAndOffset(StringBuilder sql, int max, int offset) {
+        sql.append(" LIMIT " + offset + ",").append(max);
+    }
 }

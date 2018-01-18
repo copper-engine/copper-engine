@@ -17,6 +17,7 @@ package org.copperengine.core.persistent.cassandra;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -438,13 +439,7 @@ public class CassandraStorage implements Storage {
         preparedStatements.put(cql, pstmt);
     }
 
-    @Override
-    public List<WorkflowInstance> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
-        final List<WorkflowInstance> resultList = new ArrayList<>();
-        final StringBuilder query = new StringBuilder();
-        final List<Object> values = new ArrayList<>();
-        query.append("SELECT * FROM COP_WORKFLOW_INSTANCE");
-        
+    private void appendQueryBase(StringBuilder query, List<Object> values, WorkflowInstanceFilter filter){
         boolean first = true;
         if (filter.getWorkflowClassname() != null) {
             query.append(first ? " WHERE " : " AND ");
@@ -458,11 +453,11 @@ public class CassandraStorage implements Storage {
             query.append("PPOOL_ID=?");
             values.add(filter.getProcessorPoolId());
         }
-        if (filter.getState() != null) {
+        if (filter.getStates() != null && !filter.getStates().isEmpty()) {
             query.append(first ? " WHERE " : " AND ");
             first=false;
-            query.append("STATE=?");
-            values.add(filter.getState());
+            query.append("STATE IN in (?)");
+            values.add(String.join(",", filter.getStates()));
         }
         if (filter.getCreationTS() != null && filter.getCreationTS().getFrom() != null) {
             query.append(first ? " WHERE " : " AND ");
@@ -488,17 +483,46 @@ public class CassandraStorage implements Storage {
             query.append("LAST_MOD_TS<?");
             values.add(filter.getLastModTS().getTo());
         }
+    }
+
+
+    @Override
+    public List<WorkflowInstance> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
+        final StringBuilder query = new StringBuilder();
+        final List<Object> values = new ArrayList<>();
+        query.append("SELECT * FROM COP_WORKFLOW_INSTANCE");
+        appendQueryBase(query, values, filter);
         query.append(" LIMIT ").append(filter.getMax());
         query.append(" ALLOW FILTERING");
         final String cqlQuery = query.toString();
         logger.info("queryWorkflowInstances - cqlQuery = {}", cqlQuery);
         final ResultSet resultSet = session.execute(cqlQuery, values.toArray());
         Row row;
+        final List<WorkflowInstance> resultList = new ArrayList<>();
         while ((row = resultSet.one()) != null) {
             final WorkflowInstance cw = row2WorkflowInstance(row);
             resultList.add(cw);
         }
         return resultList;
+    }
+
+    // Probably it's gonna be slow. We can consider creating counting table for that sake.
+    @Override
+    public int countWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
+        final StringBuilder query = new StringBuilder();
+        final List<Object> values = new ArrayList<>();
+        query.append("SELECT COUNT(*) AS WF_NUMBER FROM COP_WORKFLOW_INSTANCE");
+        appendQueryBase(query, values, filter);
+        query.append(" ALLOW FILTERING");
+        final String cqlQuery = query.toString();
+        logger.info("queryWorkflowInstances - cqlQuery = {}", cqlQuery);
+        final ResultSet resultSet = session.execute(cqlQuery, values.toArray());
+        Row row;
+        final List<WorkflowInstance> resultList = new ArrayList<>();
+        while ((row = resultSet.one()) != null) {
+            return row.getInt("WF_NUMBER");
+        }
+        throw new SQLException("Failed to get result of CQL request for counting workflow instances");
     }
 
     private WorkflowInstance row2WorkflowInstance(Row row) {

@@ -17,7 +17,9 @@ package org.copperengine.core.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -276,10 +278,19 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     
     protected List<WorkflowInfo> filter(final WorkflowInstanceFilter filter, Collection<Workflow<?>> workflowInstances) {
         final List<WorkflowInfo> resultList = new ArrayList<>();
-        for (Workflow<?> wf : workflowInstances) {
+        Iterator<Workflow<?>> wfIterator = workflowInstances.iterator();
+        if (filter.getOffset() > 0) {
+            for(int i = 0; i < filter.getOffset() && wfIterator.hasNext(); i++) {
+                wfIterator.next();
+            }
+        }
+        Workflow<?> wf;
+        while (wfIterator.hasNext()) {
+            wf = wfIterator.next();
+//        for (Workflow<?> wf : workflowInstances) {
             if (filter.getProcessorPoolId() != null && !filter.getProcessorPoolId().equals(wf.getProcessorPoolId()))
                 continue;
-            if (filter.getState() != null && !filter.getState().equals(wf.getProcessingState().name()))
+            if (filter.getStates() != null && !filter.getStates().contains(wf.getProcessingState().name()))
                 continue;
             if (filter.getWorkflowClassname() != null && !filter.getWorkflowClassname().equals(wf.getClass().getName()))
                 continue;
@@ -293,7 +304,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
             // data may has changed during conversion - so we filter it again
             if (filter.getProcessorPoolId() != null && !filter.getProcessorPoolId().equals(x.getProcessorPoolId()))
                 continue;
-            if (filter.getState() != null && !filter.getState().equals(x.getState()))
+            if (filter.getStates() != null && !filter.getStates().contains(x.getState()))
                 continue;
             if (filter.getLastModTS() != null && !isWithin(filter.getLastModTS(), x.getLastModTS()))
                 continue;

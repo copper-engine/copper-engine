@@ -49,4 +49,6 @@ public interface Storage {
     
     public List<WorkflowInstance> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception;
 
+    public int countWorkflowInstances(WorkflowInstanceFilter filter) throws Exception;
+
 }
