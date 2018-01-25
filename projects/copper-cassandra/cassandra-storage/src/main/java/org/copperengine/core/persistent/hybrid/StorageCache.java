@@ -125,4 +125,9 @@ public class StorageCache implements Storage {
         return delegate.queryWorkflowInstances(filter);
     }
 
+    @Override
+    public int countWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
+        return delegate.countWorkflowInstances(filter);
+    }
+
 }

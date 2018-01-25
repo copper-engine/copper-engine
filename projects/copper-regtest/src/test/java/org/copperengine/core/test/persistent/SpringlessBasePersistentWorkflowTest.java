@@ -30,6 +30,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -903,7 +904,7 @@ public class SpringlessBasePersistentWorkflowTest {
             Thread.sleep(200); // wait for it to start up
 
             logger.info("query RUNNING...");
-            filter.setState(ProcessingState.RUNNING.name());
+            filter.setStates(Arrays.asList(ProcessingState.RUNNING.name()));
             assertEqualsX(engine, NUMB_OF_WFI, filter);
             for (WorkflowInfo w : engine.queryWorkflowInstances(filter)) {
                 assertNotNull(w.getDataAsString());
@@ -927,10 +928,10 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertEquals(ProcessingState.RUNNING.name(), w.getState());
                 assertNull(w.getTimeout());
             }
-            
+
             context.jmxTestAdapter.get().unblockFoo();
 
-            filter.setState(ProcessingState.WAITING.name());
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
             assertEqualsX(engine, NUMB_OF_WFI, filter);
             assertEqualsX(engine, NUMB_OF_WFI, EMPTY_FILTER); // should be the same with a completely empty filter
             for (WorkflowInfo w : engine.queryWorkflowInstances(EMPTY_FILTER)) {
@@ -943,11 +944,11 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertEquals(ProcessingState.WAITING.name(), w.getState());
                 assertNotNull(w.getTimeout());
             }
-            
+
             context.jmxTestAdapter.get().blockFoo();
             context.jmxTestAdapter.get().createResponses();
-            
-            filter.setState(ProcessingState.RUNNING.name());
+
+            filter.setStates(Arrays.asList(ProcessingState.RUNNING.name()));
             assertEqualsX(engine, NUMB_OF_WFI, filter);
             for (WorkflowInfo w : engine.queryWorkflowInstances(filter)) {
                 assertNotNull(w.getDataAsString());
@@ -970,10 +971,10 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertEquals(ProcessingState.RUNNING.name(), w.getState());
                 assertNull(w.getTimeout());
             }
-            
+
             context.jmxTestAdapter.get().unblockFoo();
-            
-            filter.setState(ProcessingState.WAITING.name());
+
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
             assertEqualsX(engine, NUMB_OF_WFI, filter);
             assertEqualsX(engine, NUMB_OF_WFI, EMPTY_FILTER); // should be the same with a completely empty filter
             for (WorkflowInfo w : engine.queryWorkflowInstances(EMPTY_FILTER)) {
@@ -986,15 +987,151 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertEquals(ProcessingState.WAITING.name(), w.getState());
                 assertNotNull(w.getTimeout());
             }
-            
-            context.jmxTestAdapter.get().createResponses();
-            
 
-            filter.setState(null);
+            context.jmxTestAdapter.get().createResponses();
+
+
+            filter.setStates(null);
             assertEqualsX(engine, 0, filter);
-            
-            
-            
+
+
+
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    public void testJmxQueryWithOffsetWorkflowInstances(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        final int NUMB_OF_WFI = Runtime.getRuntime().availableProcessors();
+        try {
+            final WorkflowInstanceFilter EMPTY_FILTER = new WorkflowInstanceFilter();
+            WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            filter.setWorkflowClassname(JmxTestWF_NAME);
+            assertEquals(0, engine.queryWorkflowInstances(filter).size());
+
+            context.jmxTestAdapter.get().blockFoo();
+            for (int i=0; i<NUMB_OF_WFI; i++) {
+                engine.run(JmxTestWF_NAME, "Foo");
+            }
+            Thread.sleep(200); // wait for it to start up
+
+            logger.info("query RUNNING...");
+            filter.setStates(Arrays.asList(ProcessingState.RUNNING.name()));
+            assertEqualsX(engine, NUMB_OF_WFI, filter);
+            for (WorkflowInfo w : engine.queryWorkflowInstances(filter)) {
+                assertNotNull(w.getDataAsString());
+                assertNotNull(w.getCreationTS());
+                assertNull(w.getErrorData());
+                assertNotNull(w.getLastModTS());
+                assertNull(w.getLastWaitStackTrace());
+                assertNotNull(w.getProcessorPoolId());
+                assertEquals(ProcessingState.RUNNING.name(), w.getState());
+                assertNull(w.getTimeout());
+            }
+
+            filter.setOffset(1);
+            assertEqualsX(engine, NUMB_OF_WFI - 1, filter);
+            filter.setOffset(NUMB_OF_WFI);
+            assertEqualsX(engine,  0, filter);
+
+            context.jmxTestAdapter.get().createResponses();
+
+            filter.setStates(null);
+            assertEqualsX(engine, 0, filter);
+
+
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    public void testJmxCountWorkflowInstances(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        final int NUMB_OF_WFI = Runtime.getRuntime().availableProcessors();
+        try {
+            final WorkflowInstanceFilter EMPTY_FILTER = new WorkflowInstanceFilter();
+            WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            filter.setWorkflowClassname(JmxTestWF_NAME);
+            assertEquals(0, engine.countWorkflowInstances(filter));
+
+            context.jmxTestAdapter.get().blockFoo();
+            for (int i=0; i<NUMB_OF_WFI; i++) {
+                engine.run(JmxTestWF_NAME, "Foo");
+            }
+            Thread.sleep(200); // wait for it to start up
+
+            logger.info("query RUNNING...");
+            filter.setStates(Arrays.asList(ProcessingState.RUNNING.name()));
+            assertEqualsCountX(engine, NUMB_OF_WFI, filter);
+
+            assertEquals(NUMB_OF_WFI, engine.countWorkflowInstances(EMPTY_FILTER));
+
+            context.jmxTestAdapter.get().unblockFoo();
+
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
+            assertEqualsCountX(engine, NUMB_OF_WFI, filter);
+            assertEqualsCountX(engine, NUMB_OF_WFI, EMPTY_FILTER); // should be the same with a completely empty filter
+
+            context.jmxTestAdapter.get().blockFoo();
+            context.jmxTestAdapter.get().createResponses();
+
+            filter.setStates(Arrays.asList(ProcessingState.RUNNING.name()));
+            assertEqualsCountX(engine, NUMB_OF_WFI, filter);
+
+            assertEquals(NUMB_OF_WFI, engine.queryWorkflowInstances(EMPTY_FILTER).size());
+
+            context.jmxTestAdapter.get().unblockFoo();
+
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
+            assertEqualsCountX(engine, NUMB_OF_WFI, filter);
+            assertEqualsCountX(engine, NUMB_OF_WFI, EMPTY_FILTER); // should be the same with a completely empty filter
+
+            context.jmxTestAdapter.get().createResponses();
+
+            filter.setStates(null);
+            assertEqualsCountX(engine, 0, filter);
+
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    public void testJmxRaisingExceptionQuery(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+
+            WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            filter.setStates(Arrays.asList(ProcessingState.RUNNING.name(), ProcessingState.ERROR.name()));
+            engine.queryWorkflowInstances(filter);
+
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    public void testJmxRaisingExceptionCount(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+            WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            filter.setStates(Arrays.asList(ProcessingState.RUNNING.name(), ProcessingState.ERROR.name()));
+            engine.countWorkflowInstances(filter);
         } finally {
             closeContext(context);
         }
@@ -1007,10 +1144,18 @@ public class SpringlessBasePersistentWorkflowTest {
             Thread.sleep(100);
             if (engine.queryWorkflowInstances(filter).size() == NUMB_OF_WFI)
                 break;
-        }
+            }
         assertEquals(NUMB_OF_WFI, engine.queryWorkflowInstances(filter).size());
     }
-    
+    private void assertEqualsCountX(final PersistentScottyEngine engine, final int NUMB_OF_WFI, WorkflowInstanceFilter filter) throws InterruptedException {
+        for (int i=0; i < 50; i++) {
+            Thread.sleep(100);
+            if (engine.countWorkflowInstances(filter) == NUMB_OF_WFI)
+                break;
+        }
+        assertEquals(NUMB_OF_WFI, engine.countWorkflowInstances(filter));
+    }
+
     public void testJmxQueryWorkflowInstancesERROR(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
         final PersistentEngineTestContext context = createContext(dsType);
@@ -1026,7 +1171,7 @@ public class SpringlessBasePersistentWorkflowTest {
             Thread.sleep(200); // wait for it to start up / bring workflows to error state
 
             logger.info("query RUNNING...");
-            filter.setState(ProcessingState.ERROR.name());
+            filter.setStates(Arrays.asList(ProcessingState.ERROR.name()));
             assertEqualsX(engine, NUMB_OF_WFI, filter);
             for (WorkflowInfo w : engine.queryWorkflowInstances(filter)) {
                 assertNotNull(w.getDataAsString());
@@ -1039,7 +1184,73 @@ public class SpringlessBasePersistentWorkflowTest {
                 assertNull(w.getTimeout());
                 assertTrue(w.getErrorData().getExceptionStackTrace().contains("Test!!!"));
             }
+
+            filter.setOffset(1);
+            assertEqualsX(engine, NUMB_OF_WFI - 1, filter);
+            filter.setOffset(NUMB_OF_WFI);
+            assertEqualsX(engine,  0, filter);
         } 
+        finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    public void testJmxQueryWithOffsetWorkflowInstancesERROR(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+            final int NUMB_OF_WFI = 4;
+            final WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            assertEquals(0, engine.queryWorkflowInstances(filter).size());
+
+            for (int i=0; i<NUMB_OF_WFI; i++) {
+                engine.run(JmxTestWF_NAME, "ERROR");
+            }
+            Thread.sleep(200); // wait for it to start up / bring workflows to error state
+
+            logger.info("query RUNNING...");
+            filter.setStates(Arrays.asList(ProcessingState.ERROR.name()));
+            assertEqualsX(engine, NUMB_OF_WFI, filter);
+            for (WorkflowInfo w : engine.queryWorkflowInstances(filter)) {
+                assertNotNull(w.getDataAsString());
+                assertNotNull(w.getCreationTS());
+                assertNotNull(w.getErrorData());
+                assertNotNull(w.getLastModTS());
+                assertNull(w.getLastWaitStackTrace());
+                assertNotNull(w.getProcessorPoolId());
+                assertEquals(ProcessingState.ERROR.name(), w.getState());
+                assertNull(w.getTimeout());
+                assertTrue(w.getErrorData().getExceptionStackTrace().contains("Test!!!"));
+            }
+        }
+        finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    public void testJmxCountWorkflowInstancesERROR(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+            final int NUMB_OF_WFI = 4;
+            final WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            assertEquals(0, engine.queryWorkflowInstances(filter).size());
+
+            for (int i=0; i<NUMB_OF_WFI; i++) {
+                engine.run(JmxTestWF_NAME, "ERROR");
+            }
+            Thread.sleep(200); // wait for it to start up / bring workflows to error state
+
+            logger.info("query RUNNING...");
+            filter.setStates(Arrays.asList(ProcessingState.ERROR.name()));
+            assertEqualsCountX(engine, NUMB_OF_WFI, filter);
+        }
         finally {
             closeContext(context);
         }

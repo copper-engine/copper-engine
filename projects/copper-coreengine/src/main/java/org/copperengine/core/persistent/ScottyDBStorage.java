@@ -628,6 +628,16 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
                 return dialect.queryWorkflowInstances(filter,con);
             }
         });
-    }    
+    }
+
+    @Override
+    public int countWorkflowInstances(final WorkflowInstanceFilter filter) throws Exception {
+        return run(new DatabaseTransaction<Integer>() {
+            @Override
+            public Integer run(Connection con) throws Exception {
+                return dialect.countWorkflowInstances(filter,con);
+            }
+        });
+    }
 
 }

@@ -211,4 +211,9 @@ public class DerbyDbDialect extends AbstractSqlDialect {
         sql.append(" FETCH FIRST " + max + " ROWS ONLY");
     }
 
+    @Override
+    protected void addLimitationAndOffset(StringBuilder sql,int max, int offset) {
+        sql.append(" OFFSET " + offset + " ROWS");
+        addLimitation(sql, max);
+    }
 }

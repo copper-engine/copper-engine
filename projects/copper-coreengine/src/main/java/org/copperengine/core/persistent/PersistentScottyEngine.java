@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Date;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -61,6 +62,10 @@ import org.slf4j.LoggerFactory;
 public class PersistentScottyEngine extends AbstractProcessingEngine implements PersistentProcessingEngine, PersistentProcessingEngineMXBean {
 
     private static final Logger logger = LoggerFactory.getLogger(PersistentScottyEngine.class);
+
+    private static List<String> memStates = Arrays.asList(ProcessingState.RUNNING.name(), ProcessingState.DEQUEUED.name());
+    private static List<String> dbStates = Arrays.asList(
+             ProcessingState.WAITING.name(), ProcessingState.FINISHED.name(), ProcessingState.ERROR.name(), ProcessingState.INVALID.name());
 
     private ScottyDBStorageInterface dbStorage;
     private ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager;
@@ -478,26 +483,66 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
 
     @Override
     public List<String> getWorkflowInstanceStates() {
-        return Arrays.asList(ProcessingState.ENQUEUED.name(), ProcessingState.DEQUEUED.name(), ProcessingState.RUNNING.name(), ProcessingState.WAITING.name(), ProcessingState.FINISHED.name(), ProcessingState.ERROR.name(), ProcessingState.INVALID.name());
+        return Arrays.asList(ProcessingState.ENQUEUED.name(), ProcessingState.DEQUEUED.name(), ProcessingState.RUNNING.name(),
+                ProcessingState.WAITING.name(), ProcessingState.FINISHED.name(), ProcessingState.ERROR.name(), ProcessingState.INVALID.name());
     }
 
     @Override
     public List<WorkflowInfo> queryWorkflowInstances(final WorkflowInstanceFilter filter) {
         try {
-            final List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
-            if (filter.getState() != null && (filter.getState().equals(ProcessingState.RUNNING.name()) || filter.getState().equals(ProcessingState.DEQUEUED.name()))) {
-                rv.addAll(filter(filter, workflowMap.values()));
-            }
-            else {
+            logger.debug("queryWorkflowInstances with workflow filter= {}", filter);
+
+            if (filter.getStates() == null || filter.getStates().isEmpty()) {
+                final List<WorkflowInfo> resultList = new ArrayList<>();
                 final List<Workflow<?>> wfs = dbStorage.queryWorkflowInstances(filter);
                 for (Workflow<?> wf : wfs) {
                     final Workflow<?> inMemoryWF = workflowMap.get(wf.getId());
                     final WorkflowInfo wfi = convert2Wfi(inMemoryWF == null ? wf : inMemoryWF);
-                    rv.add(wfi);
+                    resultList.add(wfi);
                 }
+                logger.debug("queryWorkflowInstances found {} instance(s).", resultList.size());
+                return resultList;
             }
-            logger.info("queryWorkflowInstances returned " + rv.size() + " instance(s)");
-            return rv;
+
+            if(dbStates.containsAll(filter.getStates())) {
+                final List<WorkflowInfo> resultList = new ArrayList<>();
+                for (Workflow<?> wf : dbStorage.queryWorkflowInstances(filter)) {
+                    resultList.add(convert2Wfi(wf));
+                }
+                logger.debug("queryWorkflowInstances found {} instance(s).", resultList.size());
+                return resultList;
+            }
+
+            if (memStates.containsAll(filter.getStates())) {
+                final List<WorkflowInfo> resultList = filter(filter, workflowMap.values());
+                logger.debug("queryWorkflowInstances found {} instance(s).", resultList.size());
+                return resultList;
+            }
+
+            throw new RuntimeException("WorkflowInstanceFilter contains invalid combination of states. Retrieved states=[" + filter.getStates()
+                    + "]. Expected subset of [" + String.join(", ", memStates) + "] or subset of [" + String.join(", ", dbStates) + "]");
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public long countWorkflowInstances(final WorkflowInstanceFilter filter) {
+        try {
+            logger.debug("queryWorkflowInstances with workflow filter= {}", filter);
+
+            if (filter.getStates() == null || filter.getStates().isEmpty() || dbStates.containsAll(filter.getStates())) {
+                return dbStorage.countWorkflowInstances(filter);
+            }
+
+            if (memStates.containsAll(filter.getStates())) {
+                return count(filter, workflowMap.values());
+            }
+
+            throw new RuntimeException("WorkflowInstanceFilter contains invalid combination of states. Retrieved states=[" + filter.getStates()
+                    + "]. Expected subset of [" + String.join(", ", memStates) + "] or subset of [" + String.join(", ", dbStates) + "]");
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -511,8 +556,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
         if (wfi == null) {
             return null;
         }
-        // JMX can't convert java.sql.Timestamp to OpenType. Only java.lang.Date is convertable,
-        // si we need to convert it
+        // JMX can't convert java.sql.Timestamp to OpenType. Only java.lang.Date is convertable, so we need to convert it...
         if (wfi.getCreationTS() != null) {
             wfi.setCreationTS(new Date(wfi.getCreationTS().getTime()));
         }

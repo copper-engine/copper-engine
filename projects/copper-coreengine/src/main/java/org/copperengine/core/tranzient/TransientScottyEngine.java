@@ -377,4 +377,10 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     public List<WorkflowInfo> queryWorkflowInstances(final WorkflowInstanceFilter filter) {
         return filter(filter, workflowMap.values());
     }
+
+    @Override
+    public long countWorkflowInstances(final WorkflowInstanceFilter filter) {
+        WorkflowInstanceFilter noLimitfilter = new WorkflowInstanceFilter(filter.getStates(), filter.getLastModTS(), filter.getCreationTS(), filter.getProcessorPoolId(), filter.getWorkflowClassname(), Integer.MAX_VALUE, 0);
+        return filter(noLimitfilter, workflowMap.values()).size();
+    }
 }

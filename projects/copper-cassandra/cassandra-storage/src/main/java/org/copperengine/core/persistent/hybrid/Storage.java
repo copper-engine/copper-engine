@@ -18,7 +18,6 @@ package org.copperengine.core.persistent.hybrid;
 import java.util.List;
 
 import org.copperengine.core.ProcessingState;
-import org.copperengine.core.Workflow;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -48,5 +47,7 @@ public interface Storage {
     public ListenableFuture<Void> updateWorkflowInstanceState(String wfId, ProcessingState state) throws Exception;
     
     public List<WorkflowInstance> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception;
+
+    public int countWorkflowInstances(WorkflowInstanceFilter filter) throws Exception;
 
 }

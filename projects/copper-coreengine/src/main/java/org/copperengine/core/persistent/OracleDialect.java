@@ -45,6 +45,7 @@ import org.copperengine.core.internal.WorkflowAccessor;
 import org.copperengine.core.monitoring.NullRuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.StmtStatistic;
+import org.copperengine.core.util.FunctionWithException;
 import org.copperengine.management.DatabaseDialectMXBean;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
@@ -783,15 +784,10 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         selectQueueSizeStmtStatistic.stop(queueSize);
         return queueSize;
     }
-    
-    @Override
-    public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
-        final StringBuilder sqlQueryErrorData = new StringBuilder("select x.* from (select * from COP_WORKFLOW_INSTANCE_ERROR where WORKFLOW_INSTANCE_ID=? order by ERROR_TS desc) x where 1=1");
-        addLimitation(sqlQueryErrorData, 1);
-        final List<Workflow<?>> result = new ArrayList<>();
-        final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT x.* FROM (SELECT w.timeout, w.classname, (CASE WHEN q.wfi_rowid IS NOT NULL AND w.STATE=2 THEN 0 ELSE w.STATE END) STATE, w.ID, w.PRIORITY, w.PPOOL_ID, w.DATA, w.OBJECT_STATE, w.CREATION_TS, w.LAST_MOD_TS FROM COP_WORKFLOW_INSTANCE w LEFT OUTER JOIN COP_QUEUE q on w.rowid = q.wfi_rowid) x WHERE 1=1");
-        final List<Object> params = new ArrayList<>();
+
+
+    private StringBuilder appendQueryBase(StringBuilder sql, List<Object> params, WorkflowInstanceFilter filter) {
+        sql.append(" FROM (SELECT w.timeout, w.classname, (CASE WHEN q.wfi_rowid IS NOT NULL AND w.STATE=2 THEN 0 ELSE w.STATE END) STATE, w.ID, w.PRIORITY, w.PPOOL_ID, w.DATA, w.OBJECT_STATE, w.CREATION_TS, w.LAST_MOD_TS FROM COP_WORKFLOW_INSTANCE w LEFT OUTER JOIN COP_QUEUE q on w.rowid = q.wfi_rowid) x WHERE 1=1");
         if (filter.getWorkflowClassname() != null) {
             sql.append(" AND x.CLASSNAME=?");
             params.add(filter.getWorkflowClassname());
@@ -800,71 +796,43 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             sql.append(" AND x.PPOOL_ID=?");
             params.add(filter.getProcessorPoolId());
         }
-        if (filter.getCreationTS() != null) {
-            if (filter.getCreationTS().getFrom() != null) {
-                sql.append(" AND x.CREATION_TS >= ?");
-                params.add(filter.getCreationTS().getFrom());
-            }
-            if (filter.getCreationTS().getTo() != null) {
-                sql.append(" AND x.CREATION_TS < ?");
-                params.add(filter.getCreationTS().getTo());
-            }
+
+        CommonSQLHelper.appendDates(sql, params, filter);
+        CommonSQLHelper.appendStates(sql, params, filter);
+        return sql;
+    }
+
+    @Override
+    public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT x.*");
+        final List<Object> params = new ArrayList<>();
+        appendQueryBase(sql, params, filter);
+
+        if (filter.getOffset() > 0) {
+            addLimitationAndOffset(sql, filter.getMax(), filter.getOffset());
+        } else {
+            addLimitation(sql, filter.getMax());
         }
-        if (filter.getLastModTS() != null) {
-            if (filter.getLastModTS().getFrom() != null) {
-                sql.append(" AND x.LAST_MOD_TS >= ?");
-                params.add(filter.getLastModTS().getFrom());
-            }
-            if (filter.getLastModTS().getTo() != null) {
-                sql.append(" AND x.LAST_MOD_TS < ?");
-                params.add(filter.getLastModTS().getTo());
-            }
-        }
-        if (filter.getState() != null) {
-            int filterState = -1;
-            if (filter.getState().equals(ProcessingState.ENQUEUED.name())) 
-                filterState = DBProcessingState.ENQUEUED.ordinal();
-            if (filter.getState().equals(ProcessingState.ERROR.name())) 
-                filterState = DBProcessingState.ERROR.ordinal();
-            else if (filter.getState().equals(ProcessingState.WAITING.name())) 
-                filterState = DBProcessingState.WAITING.ordinal();
-            else if (filter.getState().equals(ProcessingState.INVALID.name())) 
-                filterState = DBProcessingState.INVALID.ordinal();
-            else if (filter.getState().equals(ProcessingState.FINISHED.name())) 
-                filterState = DBProcessingState.FINISHED.ordinal();
-            sql.append(" AND x.STATE=?");
-            params.add(filterState);
-        }
-        addLimitation(sql, filter.getMax());
-        
+
         logger.info("queryWorkflowInstances: sql={}, params={}", sql, params);
-        
-        try (PreparedStatement stmt = con.prepareStatement(sql.toString()); PreparedStatement pStmtQueryErrorData = con.prepareStatement(sqlQueryErrorData.toString())) {
-            for (int i=1; i<=params.size(); i++) {
-                stmt.setObject(i, params.get(i-1));
-            }
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                try {
-                    final PersistentWorkflow<?> wf = decode(rs);
-                    if (wf.getProcessingState() == ProcessingState.ERROR) {
-                        pStmtQueryErrorData.setString(1, wf.getId());
-                        try (ResultSet rsErrorData = pStmtQueryErrorData.executeQuery()) {
-                            if (rsErrorData.next()) {
-                                final org.copperengine.core.persistent.ErrorData errorData = new org.copperengine.core.persistent.ErrorData();
-                                errorData.setExceptionStackTrace(rsErrorData.getString("EXCEPTION"));
-                                errorData.setErrorTS(rsErrorData.getTimestamp("ERROR_TS"));
-                                WorkflowAccessor.setErrorData(wf, errorData);
-                            }
-                        }
-                    }
-                    result.add(wf);
-                } catch (Exception e) {
-                    logger.error("decoding of '" + rs.getString("ID") + "' failed: " + e.toString(), e);
-                }
-            }
-        }
-        return result;
+
+        final StringBuilder sqlQueryErrorData = new StringBuilder("select x.* from (select * from COP_WORKFLOW_INSTANCE_ERROR where WORKFLOW_INSTANCE_ID=? order by ERROR_TS desc) x where 1=1");
+        addLimitation(sqlQueryErrorData, 1);
+        return CommonSQLHelper.processResult(sql.toString(), params,
+                    sqlQueryErrorData.toString(), con, (FunctionWithException<ResultSet,PersistentWorkflow<?>>) this::decode);
+    }
+
+    @Override
+    public int countWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) as WF_NUMBER");
+
+        final List<Object> params = new ArrayList<>();
+        appendQueryBase(sql, params, filter);
+        logger.info("queryWorkflowInstances: sql={}, params={}", sql, params);
+
+        return CommonSQLHelper.processCountResult(sql,params, con);
     }
 
     protected PersistentWorkflow<?> decode(ResultSet rs) throws SQLException, Exception {
@@ -889,6 +857,11 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     
     protected void addLimitation(StringBuilder sql, int max) {
         sql.append(" AND ROWNUM <= ").append(max);
-    };
-    
+    }
+
+    protected void addLimitationAndOffset(StringBuilder sql, int max, int offset) {
+        sql.append(" OFFSET " + offset + " ROWS");
+        sql.append(" AND ROWNUM <= ").append(max);
+    }
+
 }

@@ -120,7 +120,7 @@ public class DerbyDbPersistentWorkflowTest extends SpringlessBasePersistentWorkf
     public void testJmxQueryWorkflowInstances() throws Exception {
         super.testJmxQueryWorkflowInstances(DS_CONTEXT);
     }
-    
+
     @Test
     public void testJmxQueryWorkflowInstancesERROR() throws Exception {
         super.testJmxQueryWorkflowInstancesERROR(DS_CONTEXT);
@@ -130,5 +130,34 @@ public class DerbyDbPersistentWorkflowTest extends SpringlessBasePersistentWorkf
     public void testDeleteBrokenWorkflowInstance() throws Exception {
         super.testDeleteBrokenWorkflowInstance(DS_CONTEXT);
     }
-    
+
+    @Test
+    public void testJmxQueryWithOffsetWorkflowInstancesERROR() throws Exception {
+        super.testJmxQueryWithOffsetWorkflowInstancesERROR(DS_CONTEXT);
+    }
+
+    @Test
+    public void testJmxQueryWithOffsetWorkflowInstances() throws Exception {
+        super.testJmxQueryWithOffsetWorkflowInstances(DS_CONTEXT);
+    }
+
+    @Test
+    public void testJmxCountWorkflowInstances() throws Exception {
+        super.testJmxCountWorkflowInstances(DS_CONTEXT);
+    }
+
+    @Test
+    public void testJmxCountWorkflowInstancesERROR() throws Exception {
+        super.testJmxCountWorkflowInstancesERROR(DS_CONTEXT);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testJmxRaisingExceptionQuery() throws Exception {
+        super.testJmxRaisingExceptionQuery(DS_CONTEXT);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testJmxRaisingExceptionQueryCount() throws Exception {
+        super.testJmxRaisingExceptionCount(DS_CONTEXT);
+    }
 }

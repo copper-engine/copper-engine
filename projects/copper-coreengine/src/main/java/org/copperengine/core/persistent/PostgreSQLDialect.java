@@ -138,5 +138,11 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
     @Override
     protected void addLimitation(StringBuilder sql, int max) {
         sql.append(" LIMIT ").append(max);
-    }       
+    }
+
+    @Override
+    protected void addLimitationAndOffset(StringBuilder sql, int max, int offset) {
+        sql.append(" OFFSET " + offset);
+        addLimitation(sql, max);
+    }
 }

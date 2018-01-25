@@ -254,4 +254,6 @@ public interface ScottyDBStorageInterface {
 
     public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception;
 
+    public int countWorkflowInstances(WorkflowInstanceFilter filter) throws Exception;
+
 }

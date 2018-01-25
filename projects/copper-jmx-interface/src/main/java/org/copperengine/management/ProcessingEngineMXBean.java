@@ -81,4 +81,6 @@ public interface ProcessingEngineMXBean {
     public List<String> getWorkflowInstanceStates();
     
     public List<WorkflowInfo> queryWorkflowInstances(WorkflowInstanceFilter filter);
+
+    public long countWorkflowInstances(WorkflowInstanceFilter filter);
 }
