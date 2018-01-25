@@ -993,9 +993,9 @@ public class SpringlessBasePersistentWorkflowTest {
 
             filter.setStates(null);
             assertEqualsX(engine, 0, filter);
-            
-            
-            
+
+
+
         } finally {
             closeContext(context);
         }
@@ -1100,6 +1100,38 @@ public class SpringlessBasePersistentWorkflowTest {
             filter.setStates(null);
             assertEqualsCountX(engine, 0, filter);
 
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    public void testJmxRaisingExceptionQuery(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+
+            WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            filter.setStates(Arrays.asList(ProcessingState.RUNNING.name(), ProcessingState.ERROR.name()));
+            engine.queryWorkflowInstances(filter);
+
+        } finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    public void testJmxRaisingExceptionCount(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+            WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            filter.setStates(Arrays.asList(ProcessingState.RUNNING.name(), ProcessingState.ERROR.name()));
+            engine.countWorkflowInstances(filter);
         } finally {
             closeContext(context);
         }

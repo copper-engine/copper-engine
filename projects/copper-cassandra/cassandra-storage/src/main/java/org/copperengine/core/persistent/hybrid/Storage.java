@@ -18,7 +18,6 @@ package org.copperengine.core.persistent.hybrid;
 import java.util.List;
 
 import org.copperengine.core.ProcessingState;
-import org.copperengine.core.Workflow;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 
 import com.google.common.util.concurrent.ListenableFuture;

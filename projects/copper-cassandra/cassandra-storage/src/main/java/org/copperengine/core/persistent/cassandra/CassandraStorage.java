@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -456,8 +457,8 @@ public class CassandraStorage implements Storage {
         if (filter.getStates() != null && !filter.getStates().isEmpty()) {
             query.append(first ? " WHERE " : " AND ");
             first=false;
-            query.append("STATE IN in (?)");
-            values.add(String.join(",", filter.getStates()));
+            query.append("STATE IN (" + String.join(", ", Collections.nCopies( filter.getStates().size(), "?"))  + ")");
+            values.addAll(filter.getStates());
         }
         if (filter.getCreationTS() != null && filter.getCreationTS().getFrom() != null) {
             query.append(first ? " WHERE " : " AND ");

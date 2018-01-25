@@ -108,7 +108,7 @@ public class WorkflowInstanceFilter implements Serializable {
 
     @Override
     public String toString() {
-        return "WorkflowInstanceFilter [states=[" + String.join(", ", states) + "], lastModTS=" + lastModTS
+        return "WorkflowInstanceFilter [states=[" + (states != null ? String.join(", ", states) : "") + "], lastModTS=" + lastModTS
                     + ", creationTS=" + creationTS + ", processorPoolId=" + processorPoolId
                     + ", workflowClassname=" + workflowClassname +", max=" + max + ", offset=" + offset + "]";
     }

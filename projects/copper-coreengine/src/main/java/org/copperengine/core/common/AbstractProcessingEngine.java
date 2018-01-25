@@ -17,9 +17,7 @@ package org.copperengine.core.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -277,17 +275,9 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     }    
     
     protected List<WorkflowInfo> filter(final WorkflowInstanceFilter filter, Collection<Workflow<?>> workflowInstances) {
+        int offset = filter.getOffset();
         final List<WorkflowInfo> resultList = new ArrayList<>();
-        Iterator<Workflow<?>> wfIterator = workflowInstances.iterator();
-        if (filter.getOffset() > 0) {
-            for(int i = 0; i < filter.getOffset() && wfIterator.hasNext(); i++) {
-                wfIterator.next();
-            }
-        }
-        Workflow<?> wf;
-        while (wfIterator.hasNext()) {
-            wf = wfIterator.next();
-//        for (Workflow<?> wf : workflowInstances) {
+        for(Workflow<?> wf : workflowInstances) {
             if (filter.getProcessorPoolId() != null && !filter.getProcessorPoolId().equals(wf.getProcessorPoolId()))
                 continue;
             if (filter.getStates() != null && !filter.getStates().contains(wf.getProcessingState().name()))
@@ -309,14 +299,46 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
             if (filter.getLastModTS() != null && !isWithin(filter.getLastModTS(), x.getLastModTS()))
                 continue;
 
-            resultList.add(x);
-            
-            if (resultList.size() >= filter.getMax()) 
-                break;
+            if (offset > 0) {
+                offset--;
+            } else {
+                resultList.add(x);
+
+                if (resultList.size() >= filter.getMax())
+                    break;
+            }
         }
+
         return resultList;
-    }    
-    
+    }
+
+    protected long count(final WorkflowInstanceFilter filter, Collection<Workflow<?>> workflowInstances) {
+        return workflowInstances.stream().filter((wf) -> {
+            if (filter.getProcessorPoolId() != null && !filter.getProcessorPoolId().equals(wf.getProcessorPoolId()))
+                return false;
+            if (filter.getStates() != null && !filter.getStates().contains(wf.getProcessingState().name()))
+                return false;
+            if (filter.getWorkflowClassname() != null && !filter.getWorkflowClassname().equals(wf.getClass().getName()))
+                return false;
+            if (filter.getCreationTS() != null && !isWithin(filter.getCreationTS(), wf.getCreationTS()))
+                return false;
+            if (filter.getLastModTS() != null && !isWithin(filter.getLastModTS(), wf.getLastActivityTS()))
+                return false;
+
+            final WorkflowInfo x = convert2Wfi(wf);
+
+            // data may has changed during conversion - so we filter it again
+            if (filter.getProcessorPoolId() != null && !filter.getProcessorPoolId().equals(x.getProcessorPoolId()))
+                return false;
+            if (filter.getStates() != null && !filter.getStates().contains(x.getState()))
+                return false;
+            if (filter.getLastModTS() != null && !isWithin(filter.getLastModTS(), x.getLastModTS()))
+                return false;
+
+            return true;
+        }).count();
+    }
+
     private boolean isWithin(HalfOpenTimeInterval interval, Date ts) {
         return interval.getFrom().getTime() <= ts.getTime() && ts.getTime() < interval.getTo().getTime();
     }    

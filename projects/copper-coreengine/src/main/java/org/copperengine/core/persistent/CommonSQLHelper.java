@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.copperengine.core.ProcessingState;
@@ -46,20 +47,26 @@ public class CommonSQLHelper {
     static StringBuilder appendStates(StringBuilder sql, List<Object> params, WorkflowInstanceFilter filter) {
         if (filter.getStates() != null && !filter.getStates().isEmpty()) {
             List<String> filterStates = new ArrayList<>();
-            if (filter.getStates().contains(ProcessingState.ENQUEUED.name()))
+            if (filter.getStates().contains(ProcessingState.ENQUEUED.name())) {
                 filterStates.add("" + DBProcessingState.ENQUEUED.ordinal());
-            if (filter.getStates().contains(ProcessingState.ERROR.name()))
+            }
+            if (filter.getStates().contains(ProcessingState.ERROR.name())) {
                 filterStates.add("" + DBProcessingState.ERROR.ordinal());
-            else if (filter.getStates().contains(ProcessingState.WAITING.name()))
+            }
+            if (filter.getStates().contains(ProcessingState.WAITING.name())) {
                 filterStates.add("" + DBProcessingState.WAITING.ordinal());
-            else if (filter.getStates().contains(ProcessingState.INVALID.name()))
+            }
+            if (filter.getStates().contains(ProcessingState.INVALID.name())) {
                 filterStates.add("" + DBProcessingState.INVALID.ordinal());
-            else if (filter.getStates().contains(ProcessingState.FINISHED.name()))
+            }
+            if (filter.getStates().contains(ProcessingState.FINISHED.name())) {
                 filterStates.add("" + DBProcessingState.FINISHED.ordinal());
+            }
+
 
             if (!filterStates.isEmpty()) {
-                sql.append(" AND x.STATE in (?)");
-                params.add(String.join(",", filterStates));
+                sql.append(" AND x.STATE in (" + String.join(", ", Collections.nCopies(filterStates.size(), "?"))  + ")");
+                params.addAll(filterStates);
             }
         }
         return sql;
