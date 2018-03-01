@@ -563,6 +563,9 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
         if (wfi.getLastModTS() != null) {
             wfi.setLastModTS(new Date(wfi.getLastModTS().getTime()));
         }
+        if (wfi.getTimeout() != null) {
+            wfi.setTimeout(new Date(wfi.getTimeout().getTime()));
+        }
         ErrorData errorData = ((PersistentWorkflow<?>)wf).getErrorData();
         if (errorData != null) {
             org.copperengine.management.model.ErrorData x = new org.copperengine.management.model.ErrorData();
