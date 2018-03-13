@@ -15,6 +15,8 @@
  */
 package org.copperengine.management;
 
+import org.copperengine.management.model.WorkflowInstanceFilter;
+
 public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean {
 
     /**
@@ -31,6 +33,9 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
      *
      * @throws Exception When some database operations fail, i.e. connection lost, transaction problems, ..
      */
+
+    public void restartFiltered(WorkflowInstanceFilter filter) throws Exception;
+
     public void restartAll() throws Exception;
 
 
@@ -41,6 +46,8 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
      * @throws Exception
      */
     public void deleteBroken(String workflowInstanceId) throws Exception;
+
+    public void deleteFiltered(WorkflowInstanceFilter filter) throws Exception;
 
     public DBStorageMXBean getDBStorage();
 

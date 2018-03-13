@@ -397,6 +397,18 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     }
 
     @Override
+    public void restartFiltered(WorkflowInstanceFilter filter) throws Exception {
+        run(new DatabaseTransaction<Void>() {
+            @Override
+            public Void run(Connection con) throws Exception {
+                dialect.restartFiltered(filter, con);
+                return null;
+            }
+        });
+
+    }
+
+    @Override
     public void restartAll() throws Exception {
         run(new DatabaseTransaction<Void>() {
             @Override
@@ -413,6 +425,17 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             @Override
             public Void run(Connection con) throws Exception {
                 dialect.deleteBroken(workflowInstanceId, con);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void deleteFiltered(WorkflowInstanceFilter filter) throws Exception {
+        run(new DatabaseTransaction<Void>() {
+            @Override
+            public Void run(Connection con) throws Exception {
+                dialect.deleteFiltered(filter, con);
                 return null;
             }
         });

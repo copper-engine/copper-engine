@@ -484,6 +484,11 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     }
 
     @Override
+    public void restartFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
+        System.out.println("Restart Filtered is running");
+    }
+
+    @Override
     public void restartAll(Connection c) throws Exception {
         PreparedStatement insertStmt = null;
         PreparedStatement stmtInstance = null;
@@ -561,6 +566,12 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             JdbcUtils.closeStatement(stmtDelError);
             JdbcUtils.closeStatement(stmtDelInstance);
         }
+    }
+
+    @Override
+    public void deleteFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
+        System.out.println("Delete Filtered is running");
+        System.out.println(filter);
     }
 
     @Override

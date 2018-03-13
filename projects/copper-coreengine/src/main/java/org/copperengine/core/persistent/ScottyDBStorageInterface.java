@@ -216,6 +216,9 @@ public interface ScottyDBStorageInterface {
      * @throws Exception
      *         Any Exception like losing database connection.
      */
+
+    public void restartFiltered(WorkflowInstanceFilter filter) throws Exception;
+
     public void restartAll() throws Exception;
 
 
@@ -226,15 +229,8 @@ public interface ScottyDBStorageInterface {
      */
     public void deleteBroken(final String workflowInstanceId) throws Exception;
 
-    /**
-     * Read a workflow from the backing storage
-     * 
-     * @param workflowInstanceId
-     *        the id of the workflow
-     * @return a new deserialized workflow instance
-     * @throws Exception
-     *         Any Exception like losing database connection.
-     */
+    public void deleteFiltered(WorkflowInstanceFilter filter) throws Exception;
+
     public Workflow<?> read(final String workflowInstanceId) throws Exception;
 
     /**

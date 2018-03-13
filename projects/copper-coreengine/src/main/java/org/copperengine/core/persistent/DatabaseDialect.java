@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.DuplicateIdException;
@@ -43,9 +44,13 @@ public interface DatabaseDialect {
 
     public abstract void restart(final String workflowInstanceId, Connection c) throws Exception;
 
+    public abstract void restartFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception;
+
     public abstract void restartAll(Connection c) throws Exception;
 
     public abstract void deleteBroken(String workflowInstanceId, Connection c) throws Exception;
+
+    public abstract void deleteFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception;
 
     public abstract void notify(List<Response<?>> responses, Connection c) throws Exception;
 

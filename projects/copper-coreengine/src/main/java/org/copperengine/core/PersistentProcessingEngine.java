@@ -15,6 +15,8 @@
  */
 package org.copperengine.core;
 
+import org.copperengine.management.model.WorkflowInstanceFilter;
+
 import java.sql.Connection;
 import java.util.List;
 
@@ -73,6 +75,8 @@ public interface PersistentProcessingEngine extends ProcessingEngine {
      *         {@link #restart(String)}.
      */
     public void restartAll() throws Exception;
+
+    public void restartFiltered(WorkflowInstanceFilter filter) throws Exception;
 
     /**
      * Adds a response to the engine, using the provided jdbc connection. The engine will subsequently try to find the

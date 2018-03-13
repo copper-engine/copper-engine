@@ -339,10 +339,20 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
         dbStorage.restartAll();
     }
 
+    @Override
+    public void restartFiltered(WorkflowInstanceFilter filter) throws Exception {
+        dbStorage.restartFiltered(filter);
+    }
+
 
     @Override
     public void deleteBroken(String workflowInstanceId) throws Exception {
         dbStorage.deleteBroken(workflowInstanceId);
+    }
+
+    @Override
+    public void deleteFiltered(WorkflowInstanceFilter filter) throws Exception {
+        dbStorage.deleteFiltered(filter);
     }
 
     @Override

@@ -28,6 +28,7 @@ import org.copperengine.core.WaitHook;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowInstanceDescr;
+import org.copperengine.management.model.WorkflowInstanceFilter;
 
 public class TestEngine implements PersistentProcessingEngine {
 
@@ -98,6 +99,10 @@ public class TestEngine implements PersistentProcessingEngine {
 
     @Override
     public void restartAll() throws Exception {
+    }
+
+    @Override
+    public void restartFiltered(WorkflowInstanceFilter filter) throws Exception {
     }
 
     @Override

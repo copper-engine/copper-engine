@@ -54,7 +54,9 @@ import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.audit.CompressedBase64PostProcessor;
 import org.copperengine.core.audit.DummyPostProcessor;
 import org.copperengine.core.db.utility.RetryingTransaction;
+import org.copperengine.core.persistent.AbstractSqlDialect;
 import org.copperengine.core.persistent.PersistentScottyEngine;
+import org.copperengine.core.persistent.ScottyDBStorage;
 import org.copperengine.core.test.DataHolder;
 import org.copperengine.core.test.backchannel.BackChannelQueue;
 import org.copperengine.core.test.backchannel.WorkflowResult;
@@ -1050,6 +1052,16 @@ public class SpringlessBasePersistentWorkflowTest {
         }
         assertEquals(EngineState.STOPPED, engine.getEngineState());
         assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    public void testFilterFunctions(DataSourceType dsType) throws Exception {
+
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+        engine.restartFiltered(filter);
+        engine.deleteFiltered(filter);
+
     }
 
     public void testJmxCountWorkflowInstances(DataSourceType dsType) throws Exception {

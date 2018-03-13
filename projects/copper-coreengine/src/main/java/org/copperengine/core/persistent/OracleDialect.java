@@ -448,6 +448,11 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     }
 
     @Override
+    public void restartFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
+        System.out.println("Restart Filtered is running");
+    }
+
+    @Override
     public void restartAll(Connection c) throws Exception {
         logger.trace("restartAll()");
         CallableStatement stmt = c.prepareCall("begin COP_COREENGINE.restart_all; end;");
@@ -476,6 +481,11 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             JdbcUtils.closeStatement(stmt);
         }
         logger.info("error/invalid workflow instance successfully deleted.");
+    }
+
+    @Override
+    public void deleteFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
+        System.out.println("Delete Filtered is running");
     }
 
     @Override
