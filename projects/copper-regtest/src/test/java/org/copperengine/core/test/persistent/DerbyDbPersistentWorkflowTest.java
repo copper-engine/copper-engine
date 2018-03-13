@@ -160,4 +160,9 @@ public class DerbyDbPersistentWorkflowTest extends SpringlessBasePersistentWorkf
     public void testJmxRaisingExceptionQueryCount() throws Exception {
         super.testJmxRaisingExceptionCount(DS_CONTEXT);
     }
+
+    @Test
+    public void testFilterFunctions() throws Exception {
+        super.testFilterFunctions(DS_CONTEXT);
+    }
 }
