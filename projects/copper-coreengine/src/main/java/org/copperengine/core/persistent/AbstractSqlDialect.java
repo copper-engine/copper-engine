@@ -485,7 +485,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     @Override
     public void restartFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
-        System.out.println("Restart Filtered is running");
         List<Workflow<?>> list = this.queryWorkflowInstances(filter, con);
         for (Workflow wf : list) {
             this.restart(wf.getId(), con);
@@ -574,8 +573,10 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     @Override
     public void deleteFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
-        System.out.println("Delete Filtered is running");
-        System.out.println(filter);
+        List<Workflow<?>> list = this.queryWorkflowInstances(filter, con);
+        for (Workflow wf : list) {
+            this.deleteBroken(wf.getId(), con);
+        }
     }
 
     @Override
