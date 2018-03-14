@@ -937,9 +937,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         final List<Object> params = new ArrayList<>();
         appendQueryBase(sql, params, filter);
 
-        if (filter.getOffset() > 0) {
+        if (filter.getOffset() > 0 && filter.getMax() > 0) {
             addLimitationAndOffset(sql, filter.getMax(), filter.getOffset());
-        } else {
+        } else if (filter.getMax() > 0){
             addLimitation(sql, filter.getMax());
         }
 
