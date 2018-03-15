@@ -485,36 +485,101 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     @Override
     public void restartFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
-        List<Workflow<?>> list = this.queryWorkflowInstances(filter, con);
-        for (Workflow wf : list) {
-            this.restart(wf.getId(), con);
+
+        boolean validFilter = true;
+        for (String state : filter.getStates()) {
+            if (!state.equalsIgnoreCase("Error") && !state.equalsIgnoreCase("Invalid")) {
+                validFilter = false;
+            } else {
+                logger.info("Invalid Filter applied. Filter must not contain States other than ERROR or INVALID.");
+            }
         }
+
+        if (validFilter == true) {
+            PreparedStatement insertStmt = null;
+            PreparedStatement stmtInstance = null;
+            int parameterIndexCounter = 1;
+            String sql = "";
+            try {
+
+                sql = sql.concat("insert into COP_QUEUE (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) (SELECT ppool_id, priority, last_mod_ts, id FROM COP_WORKFLOW_INSTANCE WHERE 1=1");
+
+                if (filter.getStates() != null) {
+                    if (filter.getStates().size() > 1) {
+                        sql = sql.concat(" and (state=? or state=?)");
+                    } else {
+                        sql = sql.concat(" and state=?");
+                    }
+                }
+                if (filter.getWorkflowClassname() != null) {
+                    sql = sql.concat(" and classname=?");
+                }
+                sql = sql.concat(")");
+                insertStmt = con.prepareStatement(sql);
+
+                if (filter.getStates() != null) {
+                    if (filter.getStates().size() > 1) {
+                        insertStmt.setInt(parameterIndexCounter, DBProcessingState.ERROR.ordinal());
+                        insertStmt.setInt(parameterIndexCounter, DBProcessingState.INVALID.ordinal());
+                        parameterIndexCounter += 2;
+                    } else {
+                        if (filter.getStates().get(0).equalsIgnoreCase("Error")) {
+                            insertStmt.setInt(parameterIndexCounter, DBProcessingState.ERROR.ordinal());
+                        } else {
+                            insertStmt.setInt(parameterIndexCounter, DBProcessingState.INVALID.ordinal());
+                        }
+                        parameterIndexCounter++;
+                    }
+                }
+
+                if (filter.getWorkflowClassname() != null) {
+                    insertStmt.setString(parameterIndexCounter, filter.getWorkflowClassname());
+                    parameterIndexCounter++;
+                }
+                logger.info("Adding filtered WF's to queue...");
+                int rowCount = insertStmt.executeUpdate();
+                if (rowCount > 0) {
+                    final Timestamp NOW = new Timestamp(System.currentTimeMillis());
+                    stmtInstance = con.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE STATE=? OR STATE=?");
+                    stmtInstance.setInt(1, DBProcessingState.ENQUEUED.ordinal());
+                    stmtInstance.setTimestamp(2, NOW);
+                    stmtInstance.setInt(3, DBProcessingState.ERROR.ordinal());
+                    stmtInstance.setInt(4, DBProcessingState.INVALID.ordinal());
+                    stmtInstance.execute();
+                }
+                logger.info("done - restartFiltered invalid: " + rowCount + " BP(s).");
+            } finally {
+                JdbcUtils.closeStatement(stmtInstance);
+                JdbcUtils.closeStatement(insertStmt);
+            }
+        }
+
     }
 
     @Override
-    public void restartAll(Connection c) throws Exception {
-        PreparedStatement insertStmt = null;
-        PreparedStatement stmtInstance = null;
-        try {
-            insertStmt = c.prepareStatement("insert into COP_QUEUE (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) (select ppool_id, priority, last_mod_ts, id from COP_WORKFLOW_INSTANCE where state=? or state=?)");
-            insertStmt.setInt(1, DBProcessingState.ERROR.ordinal());
-            insertStmt.setInt(2, DBProcessingState.INVALID.ordinal());
-            logger.info("Adding all BPs in state INVALID & ERROR to queue...");
-            int rowCount = insertStmt.executeUpdate();
-            if (rowCount > 0) {
-                final Timestamp NOW = new Timestamp(System.currentTimeMillis());
-                stmtInstance = c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE STATE=? OR STATE=?");
-                stmtInstance.setInt(1, DBProcessingState.ENQUEUED.ordinal());
-                stmtInstance.setTimestamp(2, NOW);
-                stmtInstance.setInt(3, DBProcessingState.ERROR.ordinal());
-                stmtInstance.setInt(4, DBProcessingState.INVALID.ordinal());
-                stmtInstance.execute();
+        public void restartAll(Connection c) throws Exception {
+            PreparedStatement insertStmt = null;
+            PreparedStatement stmtInstance = null;
+            try {
+                insertStmt = c.prepareStatement("insert into COP_QUEUE (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) (select ppool_id, priority, last_mod_ts, id from COP_WORKFLOW_INSTANCE where state=? or state=?)");
+                insertStmt.setInt(1, DBProcessingState.ERROR.ordinal());
+                insertStmt.setInt(2, DBProcessingState.INVALID.ordinal());
+                logger.info("Adding all BPs in state INVALID & ERROR to queue...");
+                int rowCount = insertStmt.executeUpdate();
+                if (rowCount > 0) {
+                    final Timestamp NOW = new Timestamp(System.currentTimeMillis());
+                    stmtInstance = c.prepareStatement("UPDATE COP_WORKFLOW_INSTANCE SET STATE=?, LAST_MOD_TS=? WHERE STATE=? OR STATE=?");
+                    stmtInstance.setInt(1, DBProcessingState.ENQUEUED.ordinal());
+                    stmtInstance.setTimestamp(2, NOW);
+                    stmtInstance.setInt(3, DBProcessingState.ERROR.ordinal());
+                    stmtInstance.setInt(4, DBProcessingState.INVALID.ordinal());
+                    stmtInstance.execute();
+                }
+                logger.info("done - restartAll invalid: " + rowCount + " BP(s).");
+            } finally {
+                JdbcUtils.closeStatement(stmtInstance);
+                JdbcUtils.closeStatement(insertStmt);
             }
-            logger.info("done - restartAll invalid: " + rowCount + " BP(s).");
-        } finally {
-            JdbcUtils.closeStatement(stmtInstance);
-            JdbcUtils.closeStatement(insertStmt);
-        }
     }
 
     @Override
