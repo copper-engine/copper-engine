@@ -1,7 +1,10 @@
 import groovy.xml.QName
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.14.1'
+import java.nio.charset.StandardCharsets
+
+wrapper {
+    gradleVersion = '4.6'
+    distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
 }
 
 ext {
@@ -57,10 +60,10 @@ configure(subprojects.findAll {
 
     apply plugin: 'java'
     apply plugin: 'osgi'
-    compileJava.options.encoding = 'utf-8'
+    compileJava.options.encoding = StandardCharsets.UTF_8
     compileJava.sourceCompatibility = JavaVersion.VERSION_1_8
     compileJava.targetCompatibility = JavaVersion.VERSION_1_8
-    compileTestJava.options.encoding = 'utf-8'
+    compileTestJava.options.encoding = StandardCharsets.UTF_8
     compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_8
     compileTestJava.targetCompatibility = JavaVersion.VERSION_1_8
 
@@ -159,7 +162,7 @@ configure(subprojects.findAll {
     }
 
     javadoc {
-        options.encoding = "UTF-8"
+        options.encoding = StandardCharsets.UTF_8
     }
 
     if (project.hasProperty('secretKeyRingFileSourceURL')) {
@@ -363,7 +366,7 @@ project(':projects:copper-spring') {
 project(':projects:copper-coreengine') {
     dependencies {
         compile project(':projects:copper-jmx-interface')
-        
+
         // asm
         compile "org.ow2.asm:asm:$asmVersion"
         compile "org.ow2.asm:asm-commons:$asmVersion"
