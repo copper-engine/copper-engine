@@ -51,6 +51,7 @@ import org.copperengine.management.DatabaseDialectMXBean;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.security.krb5.internal.EncAPRepPart;
 
 /**
  * Abstract base implementation of the {@link DatabaseDialect} for SQL databases
@@ -483,8 +484,30 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         }
     }
 
+    private StringBuilder getSQLFilter(WorkflowInstanceFilter filter, List<Object> params) {
+        System.out.println("Getting SQL Filter...");
+        StringBuilder sqlFilter = new StringBuilder();
+        sqlFilter.append(" WHERE 1=1");
+
+        if (filter.getStates() != null) {
+            if (filter.getStates().size() > 1) {
+                sqlFilter.append(" and (x.state=? or x.state=?)");
+            } else {
+                sqlFilter.append(" and x.state=?");
+            }
+        }
+        if (filter.getWorkflowClassname() != null) {
+            sqlFilter.append(" and x.classname=?");
+        }
+
+        CommonSQLHelper.appendDates(sqlFilter, params, filter);
+
+        System.out.println("... Returning SQL Filter");
+        return sqlFilter;
+    }
+
     private PreparedStatement getSQLParams(PreparedStatement insertStmt, WorkflowInstanceFilter filter, List<Object> params, int parameterIndexCounter) throws Exception {
-        System.out.println("Getting params...");
+        System.out.println("Getting SQL Params...");
         if (filter.getStates() != null) {
             if (filter.getStates().size() > 1) {
                 insertStmt.setInt(parameterIndexCounter, DBProcessingState.ERROR.ordinal());
@@ -506,12 +529,11 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         }
 
         for (Object time :  params) {
-            System.out.println(time);
             Timestamp ts = new Timestamp(((Date)time).getTime());
-            System.out.println(ts);
             insertStmt.setTimestamp(parameterIndexCounter, ts);
             parameterIndexCounter++;
         }
+        System.out.println("...Returning SQL Params");
         return insertStmt;
     }
 
@@ -529,26 +551,26 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             PreparedStatement insertStmt = null;
             PreparedStatement stmtInstance = null;
             int parameterIndexCounter = 1;
-            StringBuilder sqlMain = new StringBuilder();
-            StringBuilder sqlFilter = new StringBuilder();
             List<Object> params = new ArrayList<>();
+            StringBuilder sqlMain = new StringBuilder();
+            StringBuilder sqlFilter = getSQLFilter(filter, params);
             try {
 
                 sqlMain.append("insert into COP_QUEUE (ppool_id, priority, last_mod_ts, WORKFLOW_INSTANCE_ID) (SELECT ppool_id, priority, last_mod_ts, id FROM COP_WORKFLOW_INSTANCE as x");
-                sqlFilter.append(" WHERE 1=1");
-
-                if (filter.getStates() != null) {
-                    if (filter.getStates().size() > 1) {
-                        sqlFilter.append(" and (x.state=? or x.state=?)");
-                    } else {
-                        sqlFilter.append(" and x.state=?");
-                    }
-                }
-                if (filter.getWorkflowClassname() != null) {
-                    sqlFilter.append(" and x.classname=?");
-                }
-
-                CommonSQLHelper.appendDates(sqlFilter, params, filter);
+//                sqlFilter.append(" WHERE 1=1");
+//
+//                if (filter.getStates() != null) {
+//                    if (filter.getStates().size() > 1) {
+//                        sqlFilter.append(" and (x.state=? or x.state=?)");
+//                    } else {
+//                        sqlFilter.append(" and x.state=?");
+//                    }
+//                }
+//                if (filter.getWorkflowClassname() != null) {
+//                    sqlFilter.append(" and x.classname=?");
+//                }
+//
+//                CommonSQLHelper.appendDates(sqlFilter, params, filter);
 
                 sqlMain.append(sqlFilter.toString());
                 sqlMain.append(")");
@@ -667,9 +689,110 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     @Override
     public void deleteFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
-        List<Workflow<?>> list = this.queryWorkflowInstances(filter, con);
-        for (Workflow wf : list) {
-            this.deleteBroken(wf.getId(), con);
+//        List<Workflow<?>> list = this.queryWorkflowInstances(filter, con);
+//        for (Workflow wf : list) {
+//            this.deleteBroken(wf.getId(), con);
+//        }
+        assert(con.getAutoCommit() == false); // Should be set by the transaction manager.
+
+        PreparedStatement stmtReadAndLockWorkflowInstance = null;
+        PreparedStatement stmtDelResponses = null;
+        PreparedStatement stmtDelWait = null;
+        PreparedStatement stmtDelError = null;
+        PreparedStatement stmtDelInstance = null;
+
+        try {
+            PreparedStatement sqlStmt = null;
+            List<Object> params = new ArrayList<>();
+            StringBuilder sqlMain = new StringBuilder();
+            StringBuilder sqlFilter = getSQLFilter(filter, params);
+
+            sqlMain.append("SELECT 1 FROM COP_WORKFLOW_INSTANCE as x");
+            sqlMain.append(sqlFilter.toString());
+            sqlMain.append("FOR UPDATE");
+            sqlStmt = con.prepareStatement(sqlMain.toString());
+            getSQLParams(sqlStmt, filter, params, 1);
+
+//            stmtReadAndLockWorkflowInstance = con.prepareStatement("SELECT 1 FROM COP_WORKFLOW_INSTANCE WHERE ID=? AND (STATE=? OR STATE=?) FOR UPDATE");
+//            stmtReadAndLockWorkflowInstance.setString(1, workflowInstanceId);
+//            stmtReadAndLockWorkflowInstance.setInt(2, DBProcessingState.ERROR.ordinal());
+//            stmtReadAndLockWorkflowInstance.setInt(3, DBProcessingState.INVALID.ordinal());
+//            ResultSet res = stmtReadAndLockWorkflowInstance.executeQuery();
+
+            ResultSet res = sqlStmt.executeQuery();
+            if (res.next()) {
+                // There is an entry for the given workflowInstanceID in the table with a workflow in error level and
+                // now table COP_WORKFLOW_INSTANCE is locked for the given workflow instance in order to no one else making
+                // changes on the workflow while we are going to delete it.
+
+                // No delete from COP_QUEUE as a broken workflow should never be in the queue..
+//                stmtDelResponses = con.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID IN (SELECT CORRELATION_ID FROM COP_WAIT WHERE WORKFLOW_INSTANCE_ID=?)");
+//                stmtDelWait = con.prepareStatement("DELETE FROM COP_WAIT WHERE WORKFLOW_INSTANCE_ID=?");
+//                stmtDelError = con.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
+//                stmtDelInstance = con.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?");
+//
+//                stmtDelResponses.setString(1, workflowInstanceId);
+//                stmtDelResponses.execute();
+//
+//                stmtDelWait.setString(1, workflowInstanceId);
+//                stmtDelWait.execute();
+//
+//                stmtDelError.setString(1, workflowInstanceId);
+//                stmtDelError.execute();
+//
+//                stmtDelInstance.setString(1, workflowInstanceId);
+                System.out.println("Building SQL DELETE queries...");
+
+                System.out.println("Building Query for Response Table");
+                sqlMain = new StringBuilder();
+                sqlMain.append("DELETE FROM COP_RESPONSE WHERE COP_RESPONSE.CORRELATION_ID IN (SELECT ID FROM COP_WORKFLOW_INSTANCE as x");
+                sqlMain.append(sqlFilter.toString());
+                sqlMain.append(")");
+                stmtDelResponses = con.prepareStatement(sqlMain.toString());
+
+                System.out.println("Building Query for Wait Table");
+                sqlMain = new StringBuilder();
+                sqlMain.append("DELETE FROM COP_WAIT WHERE COP_WAIT.WORKFLOW_INSTANCE_ID IN (SELECT ID FROM COP_WORKFLOW_INSTANCE as x");
+                sqlMain.append(sqlFilter.toString());
+                sqlMain.append(")");
+                stmtDelWait = con.prepareStatement(sqlMain.toString());
+
+                System.out.println("Building Query for Error Table");
+                sqlMain = new StringBuilder();
+                sqlMain.append("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE COP_WORKFLOW_INSTANCE_ERROR.WORKFLOW_INSTANCE_ID IN (SELECT ID FROM COP_WORKFLOW_INSTANCE as x");
+                sqlMain.append(sqlFilter.toString());
+                sqlMain.append(")");
+                stmtDelError = con.prepareStatement(sqlMain.toString());
+
+                System.out.println("Building Query for Instance Table");
+                sqlMain = new StringBuilder();
+                sqlMain.append("DELETE FROM COP_WORKFLOW_INSTANCE as x");
+                sqlMain.append(sqlFilter.toString());
+                stmtDelInstance = con.prepareStatement(sqlMain.toString());
+
+                System.out.println("Executing SQL DELETE queries...");
+
+                getSQLParams(stmtDelResponses, filter, params, 1);
+                stmtDelResponses.execute();
+
+                getSQLParams(stmtDelWait, filter, params, 1);
+                stmtDelWait.execute();
+
+                getSQLParams(stmtDelError, filter, params, 1);
+                stmtDelError.execute();
+
+                getSQLParams(stmtDelInstance, filter, params, 1);
+                int deletedInstances = stmtDelInstance.executeUpdate();
+                assert(deletedInstances == 1);
+
+            } else {
+                throw new CopperException("Error Deleting Filtered Workflows");
+            }
+        } finally {
+            JdbcUtils.closeStatement(stmtDelResponses);
+            JdbcUtils.closeStatement(stmtDelWait);
+            JdbcUtils.closeStatement(stmtDelError);
+            JdbcUtils.closeStatement(stmtDelInstance);
         }
     }
 
