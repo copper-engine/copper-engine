@@ -1,6 +1,7 @@
 package org.copperengine.core.persistent;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,7 +24,7 @@ public class CommonSQLHelper {
         if (filter.getCreationTS() != null) {
             if (filter.getCreationTS().getFrom() != null) {
                 sql.append(" AND x.CREATION_TS >= ?");
-                params.add(filter.getCreationTS().getFrom());
+                params.add(new Date(filter.getCreationTS().getFrom().getTime()));
             }
             if (filter.getCreationTS().getTo() != null) {
                 sql.append(" AND x.CREATION_TS < ?");
@@ -33,11 +34,11 @@ public class CommonSQLHelper {
         if (filter.getLastModTS() != null) {
             if (filter.getLastModTS().getFrom() != null) {
                 sql.append(" AND x.LAST_MOD_TS >= ?");
-                params.add(filter.getLastModTS().getFrom());
+                params.add(new Date(filter.getLastModTS().getFrom().getTime()));
             }
             if (filter.getLastModTS().getTo() != null) {
                 sql.append(" AND x.LAST_MOD_TS < ?");
-                params.add(filter.getLastModTS().getTo());
+                params.add(new Date(filter.getLastModTS().getTo().getTime()));
             }
         }
 
@@ -111,7 +112,7 @@ public class CommonSQLHelper {
             while (rs.next()) {
                 try {
                     int workflowCount = rs.getInt("WF_NUMBER");
-                    logger.info("Counted " + workflowCount + " workflows");
+                    logger.debug("Counted " + workflowCount + " workflows");
                     return workflowCount;
                 } catch (Exception e) {
                     logger.error("decoding of '" + rs + "' failed: " + e.toString(), e);
