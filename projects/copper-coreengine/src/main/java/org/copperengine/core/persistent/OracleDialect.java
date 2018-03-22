@@ -35,6 +35,7 @@ import org.copperengine.core.Acknowledge;
 import org.copperengine.core.CopperException;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineIdProvider;
+import org.copperengine.core.EngineIdProviderBean;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
@@ -797,7 +798,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
 
     private StringBuilder appendQueryBase(StringBuilder sql, List<Object> params, WorkflowInstanceFilter filter) {
-        sql.append(" FROM (SELECT w.timeout, w.classname, (CASE WHEN q.wfi_rowid IS NOT NULL AND w.STATE=2 THEN 0 ELSE w.STATE END) STATE, w.ID, w.PRIORITY, w.PPOOL_ID, w.DATA, w.OBJECT_STATE, w.CREATION_TS, w.LAST_MOD_TS FROM COP_WORKFLOW_INSTANCE w LEFT OUTER JOIN COP_QUEUE q on w.rowid = q.wfi_rowid) x WHERE 1=1");
+        sql.append(" FROM (SELECT w.timeout, w.classname, (CASE WHEN q.wfi_rowid IS NOT NULL AND w.STATE=2 THEN 0 ELSE w.STATE END) STATE, w.ID, w.PRIORITY, w.PPOOL_ID, w.DATA, w.OBJECT_STATE, w.CREATION_TS, w.LAST_MOD_TS, q.ENGINE_ID FROM COP_WORKFLOW_INSTANCE w LEFT OUTER JOIN COP_QUEUE q on w.rowid = q.wfi_rowid) x WHERE 1=1");
         if (filter.getWorkflowClassname() != null) {
             sql.append(" AND x.CLASSNAME=?");
             params.add(filter.getWorkflowClassname());
@@ -849,6 +850,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         final String id = rs.getString("ID");
         final int prio = rs.getInt("PRIORITY");
         final String ppoolId = rs.getString("PPOOL_ID");
+        final String engineId = rs.getString("ENGINE_ID");
         final SerializedWorkflow sw = new SerializedWorkflow();
         sw.setData(rs.getString("DATA"));
         sw.setObjectState(rs.getString("OBJECT_STATE"));
@@ -856,6 +858,12 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         wf.setId(id);
         wf.setProcessorPoolId(ppoolId);
         wf.setPriority(prio);
+
+        //??? How else can we get engine ID
+        PersistentScottyEngine engine = new PersistentScottyEngine();
+        engine.setEngineIdProvider(new EngineIdProviderBean(engineId));
+        wf.setEngine(engine);
+
         final DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt("STATE"));
         final ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
         WorkflowAccessor.setProcessingState(wf, state);
