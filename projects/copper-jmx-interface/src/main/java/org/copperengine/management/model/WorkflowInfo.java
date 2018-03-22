@@ -26,6 +26,7 @@ public class WorkflowInfo implements Serializable {
     private String id;
     private String state;
     private int priority;
+    private String engineId;
     private String processorPoolId;
     private Date timeout;
     private WorkflowClassInfo workflowClassInfo;
@@ -44,6 +45,7 @@ public class WorkflowInfo implements Serializable {
         this.id = id;
         this.state = state;
         this.priority = priority;
+        this.engineId = "";
         this.processorPoolId = processorPoolId;
         this.timeout = timeout;
         this.workflowClassInfo = workflowClassInfo;
@@ -53,6 +55,10 @@ public class WorkflowInfo implements Serializable {
         this.lastModTS = lastModTS;
         this.creationTS = creationTS;
     }
+
+    public String getEngineId() { return engineId; }
+
+    public void setEngineId(String id) { this.engineId = id; }
 
     public Date getCreationTS() {
         return creationTS;

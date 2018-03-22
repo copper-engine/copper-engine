@@ -173,6 +173,11 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         wfi.setLastWaitStackTrace(wf.getLastWaitStackTrace());
         wfi.setCreationTS(wf.getCreationTS());
         wfi.setLastModTS(wf.getLastActivityTS());
+        try {
+            wfi.setEngineId(wf.getEngine().getEngineId());
+        } catch(Exception e) {
+            wfi.setEngineId("unavailable");
+        }
         return wfi;
     }
 
