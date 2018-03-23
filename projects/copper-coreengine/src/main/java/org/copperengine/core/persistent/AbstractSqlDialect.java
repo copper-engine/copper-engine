@@ -1117,7 +1117,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             addLimitation(sql, filter.getMax());
         }
 
-        logger.info("queryWorkflowInstances: sql={}, params={}", sql, params);
+        logger.debug("queryWorkflowInstances: sql={}, params={}", sql, params);
 
         final StringBuilder sqlQueryErrorData = new StringBuilder("select x.* from (select * from COP_WORKFLOW_INSTANCE_ERROR where WORKFLOW_INSTANCE_ID=? order by ERROR_TS desc) x where 1=1");
         addLimitation(sqlQueryErrorData, 1);
@@ -1131,7 +1131,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         sql.append("SELECT COUNT(*) as WF_NUMBER");
         final List<Object> params = new ArrayList<>();
         appendQueryBase(sql, params, filter);
-        logger.info("queryWorkflowInstances: sql={}, params={}", sql, params);
+        logger.debug("queryWorkflowInstances: sql={}, params={}", sql, params);
 
         return CommonSQLHelper.processCountResult(sql,params, con);
     }

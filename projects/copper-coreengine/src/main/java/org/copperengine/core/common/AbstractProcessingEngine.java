@@ -345,6 +345,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     }
 
     private boolean isWithin(HalfOpenTimeInterval interval, Date ts) {
-        return interval.getFrom().getTime() <= ts.getTime() && ts.getTime() < interval.getTo().getTime();
+        return (interval.getFrom() == null || interval.getFrom().getTime() <= ts.getTime()) &&
+               (interval.getTo() == null || ts.getTime() < interval.getTo().getTime());
     }    
 }
