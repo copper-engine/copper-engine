@@ -21,6 +21,7 @@ import org.copperengine.core.common.AbstractJmxExporter;
 import org.copperengine.management.AuditTrailMXBean;
 import org.copperengine.management.AuditTrailQueryMXBean;
 import org.copperengine.management.BatcherMXBean;
+import org.copperengine.management.DBStorageMXBean;
 import org.copperengine.management.DatabaseDialectMXBean;
 import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.ProcessorPoolMXBean;
@@ -78,6 +79,11 @@ public class JmxExporter extends AbstractJmxExporter implements ApplicationConte
     @Override
     protected Map<String, DatabaseDialectMXBean> getDatabaseDialectMXBeans() {
         return applicationContext.getBeansOfType(DatabaseDialectMXBean.class);
+    }
+
+    @Override
+    protected Map<String, DBStorageMXBean> getDBStorageMXBeans() {
+        return applicationContext.getBeansOfType(DBStorageMXBean.class);
     }
 
     @Override

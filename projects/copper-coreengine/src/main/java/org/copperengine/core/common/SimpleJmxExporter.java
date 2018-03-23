@@ -16,11 +16,13 @@
 package org.copperengine.core.common;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.copperengine.management.AuditTrailMXBean;
 import org.copperengine.management.AuditTrailQueryMXBean;
 import org.copperengine.management.BatcherMXBean;
+import org.copperengine.management.DBStorageMXBean;
 import org.copperengine.management.DatabaseDialectMXBean;
 import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.ProcessorPoolMXBean;
@@ -36,85 +38,130 @@ import org.copperengine.management.WorkflowRepositoryMXBean;
  */
 public class SimpleJmxExporter extends AbstractJmxExporter {
 
-    private WorkflowRepositoryMXBean workflowRepositoryMXBean;
-    private ProcessingEngineMXBean processingEngineMXBean;
-    private ProcessorPoolMXBean processorPoolMXBean;
-    private StatisticsCollectorMXBean statisticsCollectorMXBean;
-    private AuditTrailMXBean auditTrailMXBean;
-    private BatcherMXBean batcherMXBean;
-    private DatabaseDialectMXBean databaseDialectMXBean;
-    private AuditTrailQueryMXBean auditTrailQueryMXBean;
+    private Map<String, WorkflowRepositoryMXBean> workflowRepositoryMXBeans = new HashMap<>();
+    private Map<String, ProcessingEngineMXBean> processingEngineMXBeans = new HashMap<>();
+    private Map<String, ProcessorPoolMXBean> processorPoolMXBeans = new HashMap<>();
+    private Map<String, StatisticsCollectorMXBean> statisticsCollectorMXBeans = new HashMap<>();
+    private Map<String, AuditTrailMXBean> auditTrailMXBeans = new HashMap<>();
+    private Map<String, BatcherMXBean> batcherMXBeans = new HashMap<>();
+    private Map<String, DatabaseDialectMXBean> databaseDialectMXBeans = new HashMap<>();
+    private Map<String, DBStorageMXBean> dbStorageMXBeans = new HashMap<>();
+    private Map<String, AuditTrailQueryMXBean> auditTrailQueryMXBeans = new HashMap<>();
 
-    public void setWorkflowRepositoryMXBean(WorkflowRepositoryMXBean workflowRepositoryMXBean) {
-        this.workflowRepositoryMXBean = workflowRepositoryMXBean;
+    public void addWorkflowRepositoryMXBean(String mxbeanName, WorkflowRepositoryMXBean workflowRepositoryMXBean) {
+        this.workflowRepositoryMXBeans.put(mxbeanName, workflowRepositoryMXBean);
     }
 
-    public void setProcessingEngineMXBean(ProcessingEngineMXBean processingEngineMXBean) {
-        this.processingEngineMXBean = processingEngineMXBean;
+    public void addProcessingEngineMXBean(String mxbeanName, ProcessingEngineMXBean processingEngineMXBean) {
+        this.processingEngineMXBeans.put(mxbeanName, processingEngineMXBean);
     }
 
-    public void setProcessorPoolMXBean(ProcessorPoolMXBean processorPoolMXBean) {
-        this.processorPoolMXBean = processorPoolMXBean;
+    public void addProcessorPoolMXBean(String mxbeanName, ProcessorPoolMXBean processorPoolMXBean) {
+        this.processorPoolMXBeans.put(mxbeanName, processorPoolMXBean);
     }
 
-    public void setStatisticsCollectorMXBean(StatisticsCollectorMXBean statisticsCollectorMXBean) {
-        this.statisticsCollectorMXBean = statisticsCollectorMXBean;
+    public void addStatisticsCollectorMXBean(String mxbeanName, StatisticsCollectorMXBean statisticsCollectorMXBean) {
+        this.statisticsCollectorMXBeans.put(mxbeanName, statisticsCollectorMXBean);
     }
 
-    public void setAuditTrailMXBean(AuditTrailMXBean auditTrailMXBean) {
-        this.auditTrailMXBean = auditTrailMXBean;
+    public void addAuditTrailMXBean(String mxbeanName, AuditTrailMXBean auditTrailMXBean) {
+        this.auditTrailMXBeans.put(mxbeanName, auditTrailMXBean);
     }
 
-    public void setBatcherMXBean(BatcherMXBean batcherMXBean) {
-        this.batcherMXBean = batcherMXBean;
+    public void addBatcherMXBean(String mxbeanName, BatcherMXBean batcherMXBean) {
+
+        this.batcherMXBeans.put(mxbeanName, batcherMXBean);
     }
 
-    public void setDatabaseDialectMXBean(DatabaseDialectMXBean databaseDialectMXBean) {
-        this.databaseDialectMXBean = databaseDialectMXBean;
+    public void addDatabaseDialectMXBean(String mxbeanName, DatabaseDialectMXBean databaseDialectMXBean) {
+        this.databaseDialectMXBeans.put(mxbeanName, databaseDialectMXBean);
+    }
+    public void addDBStorageMXBean(String mxbeanName, DBStorageMXBean dbStorageMXBean) {
+        this.dbStorageMXBeans.put(mxbeanName, dbStorageMXBean);
     }
 
-    public void setAuditTrailQueryMXBean(AuditTrailQueryMXBean auditTrailQueryMXBean) {
-        this.auditTrailQueryMXBean = auditTrailQueryMXBean;
-    }
-
-    @Override
-    protected Map<String, WorkflowRepositoryMXBean> getWorkflowRepositoryMXBeans() {
-        return createSingletonMap("workflowRepositoryMXBean", workflowRepositoryMXBean);
-    }
-
-    @Override
-    protected Map<String, ProcessingEngineMXBean> getProcessingEngineMXBeans() {
-        return createSingletonMap("processingEngineMXBean", processingEngineMXBean);
+    public void addAuditTrailQueryMXBean(String mxbeanName, AuditTrailQueryMXBean auditTrailQueryMXBean) {
+        this.auditTrailQueryMXBeans.put(mxbeanName, auditTrailQueryMXBean);
     }
 
     @Override
-    protected Map<String, ProcessorPoolMXBean> getProcessorPoolMXBeans() {
-        return createSingletonMap("processorPoolMXBean", processorPoolMXBean);
+    public Map<String, WorkflowRepositoryMXBean> getWorkflowRepositoryMXBeans() {
+        return workflowRepositoryMXBeans;
+    }
+
+    public void setWorkflowRepositoryMXBeans(Map<String, WorkflowRepositoryMXBean> workflowRepositoryMXBeans) {
+        this.workflowRepositoryMXBeans = workflowRepositoryMXBeans;
     }
 
     @Override
-    protected Map<String, StatisticsCollectorMXBean> getStatisticsCollectorMXBeans() {
-        return createSingletonMap("statisticsCollectorMXBean", statisticsCollectorMXBean);
+    public Map<String, ProcessingEngineMXBean> getProcessingEngineMXBeans() {
+        return processingEngineMXBeans;
+    }
+
+    public void setProcessingEngineMXBeans(Map<String, ProcessingEngineMXBean> processingEngineMXBeans) {
+        this.processingEngineMXBeans = processingEngineMXBeans;
     }
 
     @Override
-    protected Map<String, AuditTrailMXBean> getAuditTrailMXBeans() {
-        return createSingletonMap("auditTrailMXBean", auditTrailMXBean);
+    public Map<String, ProcessorPoolMXBean> getProcessorPoolMXBeans() {
+        return processorPoolMXBeans;
+    }
+
+    public void setProcessorPoolMXBeans(Map<String, ProcessorPoolMXBean> processorPoolMXBeans) {
+        this.processorPoolMXBeans = processorPoolMXBeans;
     }
 
     @Override
-    protected Map<String, BatcherMXBean> getBatcherMXBeans() {
-        return createSingletonMap("batcherMXBean", batcherMXBean);
+    public Map<String, StatisticsCollectorMXBean> getStatisticsCollectorMXBeans() {
+        return statisticsCollectorMXBeans;
+    }
+
+    public void setStatisticsCollectorMXBeans(Map<String, StatisticsCollectorMXBean> statisticsCollectorMXBeans) {
+        this.statisticsCollectorMXBeans = statisticsCollectorMXBeans;
     }
 
     @Override
-    protected Map<String, DatabaseDialectMXBean> getDatabaseDialectMXBeans() {
-        return createSingletonMap("databaseDialectMXBean", databaseDialectMXBean);
+    public Map<String, AuditTrailMXBean> getAuditTrailMXBeans() {
+        return auditTrailMXBeans;
+    }
+
+    public void setAuditTrailMXBeans(Map<String, AuditTrailMXBean> auditTrailMXBeans) {
+        this.auditTrailMXBeans = auditTrailMXBeans;
     }
 
     @Override
-    protected Map<String, AuditTrailQueryMXBean> getAuditTrailQueryMXBeans() {
-        return createSingletonMap("auditTrailQueryMXBean", auditTrailQueryMXBean);
+    public Map<String, BatcherMXBean> getBatcherMXBeans() {
+        return batcherMXBeans;
+    }
+
+    public void setBatcherMXBeans(Map<String, BatcherMXBean> batcherMXBeans) {
+        this.batcherMXBeans = batcherMXBeans;
+    }
+
+    @Override
+    public Map<String, DatabaseDialectMXBean> getDatabaseDialectMXBeans() {
+        return databaseDialectMXBeans;
+    }
+
+    public void setDatabaseDialectMXBeans(Map<String, DatabaseDialectMXBean> databaseDialectMXBeans) {
+        this.databaseDialectMXBeans = databaseDialectMXBeans;
+    }
+
+    public Map<String, DBStorageMXBean> getDBStorageMXBeans() {
+        return dbStorageMXBeans;
+    }
+
+    public void setDBStorageMXBeans(Map<String, DBStorageMXBean> dbStorageMXBeans) {
+        this.dbStorageMXBeans = dbStorageMXBeans;
+    }
+
+    @Override
+    public Map<String, AuditTrailQueryMXBean> getAuditTrailQueryMXBeans() {
+        return auditTrailQueryMXBeans;
+    }
+
+    public void setAuditTrailQueryMXBeans(Map<String, AuditTrailQueryMXBean> auditTrailQueryMXBeans) {
+        this.auditTrailQueryMXBeans = auditTrailQueryMXBeans;
     }
 
     private static <T> Map<String, T> createSingletonMap(String key, T object) {

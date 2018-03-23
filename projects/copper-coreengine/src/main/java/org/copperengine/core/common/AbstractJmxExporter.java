@@ -31,6 +31,7 @@ import javax.management.ObjectName;
 import org.copperengine.management.AuditTrailMXBean;
 import org.copperengine.management.AuditTrailQueryMXBean;
 import org.copperengine.management.BatcherMXBean;
+import org.copperengine.management.DBStorageMXBean;
 import org.copperengine.management.DatabaseDialectMXBean;
 import org.copperengine.management.ProcessingEngineMXBean;
 import org.copperengine.management.ProcessorPoolMXBean;
@@ -60,6 +61,7 @@ public abstract class AbstractJmxExporter {
         register(mBeanServer, getStatisticsCollectorMXBeans(), "copper.monitoring.statistics");
         register(mBeanServer, getAuditTrailMXBeans(), "copper.db");
         register(mBeanServer, getBatcherMXBeans(), "copper.db");
+        register(mBeanServer, getDBStorageMXBeans(), "copper.db");
         register(mBeanServer, getDatabaseDialectMXBeans(), "copper.db");
         register(mBeanServer, getAuditTrailQueryMXBeans(), "copper.audittrail");
     }
@@ -105,6 +107,11 @@ public abstract class AbstractJmxExporter {
      * @return a map with entries { "name" -&gt; DatabaseDialectMXBean }. The map may be empty.
      */
     protected abstract Map<String, DatabaseDialectMXBean> getDatabaseDialectMXBeans();
+
+    /**
+     * @return a map with entries { "name" -&gt; getDBStorageMXBeans }. The map may be empty.
+     */
+    protected abstract Map<String, DBStorageMXBean> getDBStorageMXBeans();
 
     /**
      * @return a map with entries { "name" -&gt; AuditTrailQueryMXBean }. The map may be empty.
