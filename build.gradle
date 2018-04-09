@@ -38,12 +38,15 @@ buildscript {
         classpath 'com.adaptc.gradle:nexus-workflow:0.6'
         // the license plugin, see https://github.com/hierynomus/license-gradle-plugin
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.0'
+        // the spotbugs plugin, see https://plugins.gradle.org/plugin/com.github.spotbugs
+        classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.1"
     }
 }
 
 
 allprojects {
     apply plugin: 'project-report'
+    apply plugin: "com.github.spotbugs"
 
     group = "org.copper-engine"
 
@@ -83,15 +86,15 @@ configure(subprojects.findAll {
         archives createJavadocJar
     }
 
-    apply plugin: 'findbugs'
-    findbugs {
+    spotbugs {
+        toolVersion = '3.1.0'
         sourceSets = [project.sourceSets.main] // check only main classes, neither tests nor example workflow classes
         excludeFilter = file("$rootDir/common/findbugs-exclude-filter.xml")
         effort = "max"
         ignoreFailures = true
     }
 
-    tasks.withType(FindBugs) {
+    spotbugsMain {
         reports {
             // Unfortunately FindBugs cannot emit both XML and HTML report simultanously, so by default we emit HTML only.
             // We emit XML only when -PfindbugsXmlReportEnabled=true, e.g. during Jenkins build
@@ -100,6 +103,9 @@ configure(subprojects.findAll {
             html.enabled = !findbugsXmlReportEnabled
         }
     }
+
+    spotbugsTest.enabled = false
+
 
     if (!project.getName().contains('orch-interfaces')) {
         apply plugin: 'com.github.hierynomus.license'
@@ -155,6 +161,9 @@ configure(subprojects.findAll {
         testCompile 'junit:junit:4.11'
         testCompile 'org.mockito:mockito-all:1.9.5'
         compile	"org.slf4j:slf4j-api:$slf4jVersion"
+
+//        compileClasspath "com.github.spotbugs:spotbugs:$spotbugs.toolVersion"
+        spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
     }
 
     jar {
