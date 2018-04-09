@@ -61,11 +61,11 @@ configure(subprojects.findAll {
     apply plugin: 'java'
     apply plugin: 'osgi'
     compileJava.options.encoding = StandardCharsets.UTF_8
-    compileJava.sourceCompatibility = JavaVersion.VERSION_1_8
-    compileJava.targetCompatibility = JavaVersion.VERSION_1_8
+    compileJava.sourceCompatibility = JavaVersion.VERSION_1_9
+    compileJava.targetCompatibility = JavaVersion.VERSION_1_9
     compileTestJava.options.encoding = StandardCharsets.UTF_8
-    compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_8
-    compileTestJava.targetCompatibility = JavaVersion.VERSION_1_8
+    compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_9
+    compileTestJava.targetCompatibility = JavaVersion.VERSION_1_9
 
     apply plugin: 'maven'
     task createSourcesJar(type: Jar, dependsOn: classes) {
@@ -373,7 +373,8 @@ project(':projects:copper-coreengine') {
         compile "org.ow2.asm:asm-tree:$asmVersion"
         compile "org.ow2.asm:asm-util:$asmVersion"
         compile "org.ow2.asm:asm-analysis:$asmVersion"
-        
+
+        compile 'javax.xml.bind:jaxb-api:2.3.0'
     }
 
     task scriptsZip(type: Zip) {
