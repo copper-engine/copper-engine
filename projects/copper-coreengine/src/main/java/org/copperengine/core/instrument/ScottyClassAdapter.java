@@ -55,7 +55,10 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        if (interruptableMethods.contains(name + desc) && ((access & ACC_ABSTRACT) == 0)) {
+        // Workaround for https://github.com/spotbugs/spotbugs/issues/500:
+        if (interruptableMethods.contains(new StringBuilder(name).append(desc).toString()) && ((access & ACC_ABSTRACT) == 0)) {
+        // TODO: replace the above workaround with the following line when the spotbug issue has been solved
+        // if (interruptableMethods.contains(name + desc) && ((access & ACC_ABSTRACT) == 0)) {
             logger.debug("Transforming {}.{}{}", new Object[] { currentClassName, name, desc });
             MethodVisitor mv = cv.visitMethod(access,
                     name,

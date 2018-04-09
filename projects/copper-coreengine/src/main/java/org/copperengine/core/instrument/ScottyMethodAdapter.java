@@ -267,7 +267,10 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-        final String signature = name + desc;
+        // Workaround for https://github.com/spotbugs/spotbugs/issues/500:
+        final String signature = new StringBuilder(name).append(desc).toString();
+        // TODO: replace the above workaround with the following line when the spotbug issue has been solved
+        // final String signature = name + desc;
         if (waitMethods.contains(signature)) {
             super.visitMethodInsn(opcode, owner, name, desc);
 
