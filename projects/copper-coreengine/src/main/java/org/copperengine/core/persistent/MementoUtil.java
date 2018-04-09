@@ -95,6 +95,7 @@ public class MementoUtil {
         store(pc);
     }
 
+    @SuppressWarnings("unchecked")
     public void load(PersistenceContext pc) {
         final Iterator<Entry<Object, Object[]>> i = memento.entrySet().iterator();
         while (i.hasNext()) {
@@ -116,6 +117,7 @@ public class MementoUtil {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void store(PersistenceContext pc) {
         try {
             for (Map.Entry<Object, Object[]> mementoEntry : memento.entrySet()) {

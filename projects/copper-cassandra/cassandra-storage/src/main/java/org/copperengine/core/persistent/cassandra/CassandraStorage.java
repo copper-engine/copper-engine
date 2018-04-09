@@ -519,7 +519,6 @@ public class CassandraStorage implements Storage {
         logger.info("queryWorkflowInstances - cqlQuery = {}", cqlQuery);
         final ResultSet resultSet = session.execute(cqlQuery, values.toArray());
         Row row;
-        final List<WorkflowInstance> resultList = new ArrayList<>();
         while ((row = resultSet.one()) != null) {
             return row.getInt("WF_NUMBER");
         }
