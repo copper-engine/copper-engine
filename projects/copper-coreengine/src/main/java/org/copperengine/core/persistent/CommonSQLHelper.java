@@ -24,7 +24,7 @@ public class CommonSQLHelper {
         if (filter.getCreationTS() != null) {
             if (filter.getCreationTS().getFrom() != null) {
                 sql.append(" AND x.CREATION_TS >= ?");
-                params.add(new Date(filter.getCreationTS().getFrom().getTime()));
+                params.add(filter.getCreationTS().getFrom());
             }
             if (filter.getCreationTS().getTo() != null) {
                 sql.append(" AND x.CREATION_TS < ?");
@@ -34,11 +34,11 @@ public class CommonSQLHelper {
         if (filter.getLastModTS() != null) {
             if (filter.getLastModTS().getFrom() != null) {
                 sql.append(" AND x.LAST_MOD_TS >= ?");
-                params.add(new Date(filter.getLastModTS().getFrom().getTime()));
+                params.add(filter.getLastModTS().getFrom());
             }
             if (filter.getLastModTS().getTo() != null) {
                 sql.append(" AND x.LAST_MOD_TS < ?");
-                params.add(new Date(filter.getLastModTS().getTo().getTime()));
+                params.add(filter.getLastModTS().getTo());
             }
         }
 

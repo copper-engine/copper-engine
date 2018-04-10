@@ -808,10 +808,36 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
             params.add(filter.getProcessorPoolId());
         }
 
-        CommonSQLHelper.appendDates(sql, params, filter);
+        this.appendSqlDates(sql, params, filter);
         CommonSQLHelper.appendStates(sql, params, filter);
         return sql;
     }
+
+    private static StringBuilder appendSqlDates(StringBuilder sql, List<Object> params, WorkflowInstanceFilter filter) {
+        if (filter.getCreationTS() != null) {
+            if (filter.getCreationTS().getFrom() != null) {
+                sql.append(" AND x.CREATION_TS >= ?");
+                params.add(new java.sql.Date(filter.getCreationTS().getFrom().getTime()));
+            }
+            if (filter.getCreationTS().getTo() != null) {
+                sql.append(" AND x.CREATION_TS < ?");
+                params.add(new java.sql.Date(filter.getCreationTS().getTo().getTime()));
+            }
+        }
+        if (filter.getLastModTS() != null) {
+            if (filter.getLastModTS().getFrom() != null) {
+                sql.append(" AND x.LAST_MOD_TS >= ?");
+                params.add(new java.sql.Date(filter.getLastModTS().getFrom().getTime()));
+            }
+            if (filter.getLastModTS().getTo() != null) {
+                sql.append(" AND x.LAST_MOD_TS < ?");
+                params.add(new java.sql.Date(filter.getLastModTS().getTo().getTime()));
+            }
+        }
+
+        return sql;
+    }
+
 
     @Override
     public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
