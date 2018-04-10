@@ -11,8 +11,8 @@ ext {
 	slf4jVersion = "1.7.21"
 	springVersion = '3.1.4.RELEASE'
 	c3p0Version = '0.9.5.2'
-	asmVersion = '5.0.4'
-	guavaVersion = '19.0'
+	asmVersion = '6.1.1'
+	guavaVersion = '24.1-jre'
 	jacksonVersion = '2.8.4'
 	cassandraDriverVersion = '3.1.2'
 	snakeyamlVersion = '1.17'
