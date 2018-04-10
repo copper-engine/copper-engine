@@ -9,6 +9,7 @@
 .settings
 build
 classes/
+out/
 
 # Copper specific user setting files
 projects/copper-regtest/src/test/resources/regtest.*.properties
