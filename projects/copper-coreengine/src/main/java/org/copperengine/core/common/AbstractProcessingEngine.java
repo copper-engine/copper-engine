@@ -62,6 +62,7 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     protected Date startupTS;
     private final AtomicLong lastActivityTS = new AtomicLong(System.currentTimeMillis());
     private final EventCounter startedWorkflowInstances = new EventCounter(24*60);
+    private String appClusterId;
 
     public void setStatisticsCollector(RuntimeStatisticsCollector statisticsCollector) {
         this.statisticsCollector = statisticsCollector;
@@ -342,5 +343,13 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
     private boolean isWithin(HalfOpenTimeInterval interval, Date ts) {
         return (interval.getFrom() == null || interval.getFrom().getTime() <= ts.getTime()) &&
                (interval.getTo() == null || ts.getTime() < interval.getTo().getTime());
-    }    
+    }
+
+    public String getAppClusterId() {
+        return appClusterId;
+    }
+
+    public void setAppClusterId(String appClusterId) {
+        this.appClusterId = appClusterId;
+    }
 }
