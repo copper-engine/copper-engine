@@ -365,7 +365,7 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
             case AALOAD:
                 currentFrame.popStackChecked(Type.INT_TYPE);
                 Type arrayType = currentFrame.popStack();
-                currentFrame.pushStack(arrayType.getElementType());
+                currentFrame.pushStack(getArrayElementType(arrayType));
                 break;
             case BALOAD:
                 arrayLoad(Type.BYTE_TYPE);
@@ -426,6 +426,16 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
         if (logger.isDebugEnabled())
             logger.debug("insn " + getOpCode(arg0));
         delegate.visitInsn(arg0);
+    }
+
+    private static Type getArrayElementType(Type arrayType) {
+        int dim = arrayType.getDimensions();
+        if(dim < 1) throw new IllegalArgumentException("Not an array type: " + arrayType);
+        if(dim > 1) {
+            String descr = arrayType.getDescriptor();
+            return Type.getType(descr.substring(1));
+        }
+        return arrayType.getElementType();
     }
 
     @Override
