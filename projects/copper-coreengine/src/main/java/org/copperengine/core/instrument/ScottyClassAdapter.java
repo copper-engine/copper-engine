@@ -35,7 +35,7 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
     private final List<MethodInfo> methodInfos = new ArrayList<MethodInfo>();
 
     public ScottyClassAdapter(ClassVisitor cv, Set<String> interruptableMethods) {
-        super(ASM4, cv);
+        super(ASM6, cv);
         this.interruptableMethods = interruptableMethods;
     }
 
@@ -69,7 +69,7 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
             String classDesc = Type.getObjectType(currentClassName).getDescriptor();
             BuildStackInfoAdapter stackInfo = new BuildStackInfoAdapter(classDesc, (access & ACC_STATIC) > 0, name, desc, signature);
             final ScottyMethodAdapter scotty = new ScottyMethodAdapter(mv, currentClassName, interruptableMethods, stackInfo, name, access, desc);
-            MethodVisitor collectMethodInfo = new MethodVisitor(Opcodes.ASM4, stackInfo) {
+            MethodVisitor collectMethodInfo = new MethodVisitor(Opcodes.ASM6, stackInfo) {
                 @Override
                 public void visitEnd() {
                     super.visitEnd();

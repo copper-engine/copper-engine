@@ -25,6 +25,7 @@ import java.util.Map;
 import org.copperengine.core.instrument.StackInfo.ComputationalCategory;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -47,7 +48,7 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
     MethodVisitor delegate;
 
     public BuildStackInfoAdapter(String classType, boolean isStatic, String methodName, String arguments, String extendedArguments) {
-        super(ASM4);
+        super(ASM6);
         int i = 0;
         Type[] argumentTypes = Type.getArgumentTypes(arguments);
         currentFrame = new StackInfo();
@@ -546,29 +547,48 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
     }
 
     @Override
-    public void visitMethodInsn(int arg0, String arg1, String arg2, String arg3) {
+    public void visitMethodInsn(int opcode, String owner, String name, String descriptor) {
+        visitMethodInsn(opcode, owner, name, descriptor, false);
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
         savePreviousFrame();
-        Type deferredReturnType = deferReturnType(arg3);
-        switch (arg0) {
+        Type deferredReturnType = deferReturnType(descriptor);
+        switch (opcode) {
             case INVOKESTATIC:
-                currentFrame.popStackBySignature(arg3);
+                currentFrame.popStackBySignature(descriptor);
                 if (deferredReturnType != Type.VOID_TYPE)
                     currentFrame.pushStack(deferredReturnType);
                 break;
             case INVOKESPECIAL:
             case INVOKEINTERFACE:
             case INVOKEVIRTUAL:
-                currentFrame.popStackBySignature(arg3);
+                currentFrame.popStackBySignature(descriptor);
                 currentFrame.popStack();
                 if (deferredReturnType != Type.VOID_TYPE)
                     currentFrame.pushStack(deferredReturnType);
                 break;
             default:
-                logger.debug("Unhandled: ");
+                logger.debug("Unhandled opcode: " + opcode);
         }
         if (logger.isDebugEnabled())
-            logger.debug("methodInsn " + getOpCode(arg0) + " " + arg1 + " " + arg2 + " " + arg3);
-        delegate.visitMethodInsn(arg0, arg1, arg2, arg3);
+            logger.debug("methodInsn " + getOpCode(opcode) + " " + owner + " " + name + " " + descriptor + " " + isInterface);
+        delegate.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+    }
+
+    @Override
+    public void visitInvokeDynamicInsn(String name, String descriptor, Handle bootstrapMethodHandle, Object... bootstrapMethodArguments) {
+        savePreviousFrame();
+        Type deferredReturnType = deferReturnType(descriptor);
+
+        currentFrame.popStackBySignature(descriptor);
+        if (deferredReturnType != Type.VOID_TYPE)
+            currentFrame.pushStack(deferredReturnType);
+
+        if (logger.isDebugEnabled())
+            logger.debug("invokeDynamic " + name + " " + descriptor + " " + bootstrapMethodHandle.getName());
+        delegate.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
     }
 
     @Override
@@ -678,7 +698,7 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
                 currentFrame.setLocal(arg1, Type.LONG_TYPE);
                 break;
             default:
-                logger.debug("Unhandled:");
+                logger.debug("Unhandled: " + arg0);
         }
         if (logger.isDebugEnabled())
             logger.debug("varInsn: " + getOpCode(arg0) + " " + arg1);
@@ -691,7 +711,8 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
                 if (f.getName().startsWith("F_")
                         || f.getName().startsWith("T_")
                         || f.getName().startsWith("ACC_")
-                        || f.getName().startsWith("V1_"))
+                        || f.getName().startsWith("V9")
+                        || f.getName().startsWith("V1"))
                     continue;
                 if (f.getInt(null) == opCode) {
                     return f.getName();
