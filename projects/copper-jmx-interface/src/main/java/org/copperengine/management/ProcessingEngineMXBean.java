@@ -27,8 +27,6 @@ public interface ProcessingEngineMXBean {
 
     public String getEngineId();
 
-    public String getAppClusterId();
-
     public EngineType getEngineType();
 
     /**
