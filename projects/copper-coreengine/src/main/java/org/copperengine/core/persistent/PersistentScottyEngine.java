@@ -67,6 +67,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     private static List<String> dbStates = Arrays.asList(
              ProcessingState.WAITING.name(), ProcessingState.FINISHED.name(), ProcessingState.ERROR.name(), ProcessingState.INVALID.name());
 
+    private String engineClusterId;
     private ScottyDBStorageInterface dbStorage;
     private ProcessorPoolManager<? extends PersistentProcessorPool> processorPoolManager;
     private final Map<String, Workflow<?>> workflowMap = new ConcurrentHashMap<String, Workflow<?>>();
@@ -457,6 +458,22 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     @Override
     public DBStorageMXBean getDBStorage() {
         return (DBStorageMXBean) (dbStorage instanceof DBStorageMXBean ? dbStorage : null);
+    }
+
+    public String getEngineClusterId() {
+        return engineClusterId;
+    }
+
+    /**
+     *  Sets engineClusterId for make it possible to group engines into engine cluster.
+     *      Engines in one engines cluster should use same Database, in other case grouping will show incorrect data in copper monitoring.
+     *      Not used internally by copper engine, but by copper monitoring.
+     *
+     *  @param engineClusterId
+     *        ID of engine cluster
+     */
+    public void setEngineClusterId(String engineClusterId) {
+        this.engineClusterId = engineClusterId;
     }
 
     @Override

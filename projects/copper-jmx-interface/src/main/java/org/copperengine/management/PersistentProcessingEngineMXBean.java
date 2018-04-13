@@ -51,4 +51,11 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
 
     public DBStorageMXBean getDBStorage();
 
+    /**
+     *  Gets EngineClusterId to make it possible grouping engines into engine cluster.
+     *  Engines in one engine cluster should use same Database, in other case grouping will show incorrect data in copper monitoring
+     *
+     */
+    public String getEngineClusterId();
+
 }
