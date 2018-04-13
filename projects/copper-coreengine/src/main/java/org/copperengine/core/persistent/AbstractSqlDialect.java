@@ -565,10 +565,8 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 if (rowCount > 0) {
                     StringBuilder sql = new StringBuilder();
                     sql.append("UPDATE COP_WORKFLOW_INSTANCE as x SET x.STATE=?, x.LAST_MOD_TS=?");
-                    System.out.println("About to compile second SQL statement...");
                     sql.append(sqlFilter.toString());
                     stmtInstance = con.prepareStatement(sql.toString());
-                    System.out.println("... finished");
 
                     final Timestamp NOW = new Timestamp(System.currentTimeMillis());
                     stmtInstance.setInt(1, DBProcessingState.ENQUEUED.ordinal());
@@ -698,36 +696,29 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
                 // No delete from COP_QUEUE as a broken workflow should never be in the queue..
 
-                System.out.println("Building SQL DELETE queries...");
-
-                System.out.println("Building Query for Response Table");
                 sqlMain = new StringBuilder();
                 sqlMain.append("DELETE FROM COP_RESPONSE WHERE COP_RESPONSE.CORRELATION_ID IN (SELECT ID FROM COP_WORKFLOW_INSTANCE as x");
                 sqlMain.append(sqlFilter.toString());
                 sqlMain.append(")");
                 stmtDelResponses = con.prepareStatement(sqlMain.toString());
 
-                System.out.println("Building Query for Wait Table");
                 sqlMain = new StringBuilder();
                 sqlMain.append("DELETE FROM COP_WAIT WHERE COP_WAIT.WORKFLOW_INSTANCE_ID IN (SELECT ID FROM COP_WORKFLOW_INSTANCE as x");
                 sqlMain.append(sqlFilter.toString());
                 sqlMain.append(")");
                 stmtDelWait = con.prepareStatement(sqlMain.toString());
 
-                System.out.println("Building Query for Error Table");
                 sqlMain = new StringBuilder();
                 sqlMain.append("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE COP_WORKFLOW_INSTANCE_ERROR.WORKFLOW_INSTANCE_ID IN (SELECT ID FROM COP_WORKFLOW_INSTANCE as x");
                 sqlMain.append(sqlFilter.toString());
                 sqlMain.append(")");
                 stmtDelError = con.prepareStatement(sqlMain.toString());
 
-                System.out.println("Building Query for Instance Table");
                 sqlMain = new StringBuilder();
                 sqlMain.append("DELETE FROM COP_WORKFLOW_INSTANCE as x");
                 sqlMain.append(sqlFilter.toString());
                 stmtDelInstance = con.prepareStatement(sqlMain.toString());
 
-                System.out.println("Executing SQL DELETE queries...");
 
                 getSQLParams(stmtDelResponses, filter, params, 1);
                 stmtDelResponses.execute();
@@ -1150,9 +1141,9 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         wf.setPriority(prio);
 
         //??? How else can we get engine ID
-        PersistentScottyEngine engine = new PersistentScottyEngine();
-        engine.setEngineIdProvider(new EngineIdProviderBean(engineId));
-        wf.setEngine(engine);
+//        PersistentScottyEngine engine = new PersistentScottyEngine();
+//        engine.setEngineIdProvider(new EngineIdProviderBean(engineId));
+//        wf.setEngine(engine);
         final DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt("STATE"));
         final ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
         WorkflowAccessor.setProcessingState(wf, state);
