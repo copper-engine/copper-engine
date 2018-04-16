@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -195,6 +196,7 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
                 ClassReader cr2 = new ClassReader(is);
                 ClassNode cn = new ClassNode();
                 cr2.accept(cn, flags);
+                traceClassNode(clazz.classname + " - original", cn);
 
                 // Now content of ClassNode can be modified and then serialized back into bytecode:
                 new TryCatchBlockHandler().instrument(cn);
@@ -202,12 +204,7 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
                 ClassWriter cw2 = new ClassWriter(0);
                 cn.accept(cw2);
                 bytes = cw2.toByteArray();
-
-                if (logger.isTraceEnabled()) {
-                    StringWriter sw = new StringWriter();
-                    new ClassReader(bytes).accept(new TraceClassVisitor(new PrintWriter(sw)), 0);
-                    logger.trace(sw.toString());
-                }
+                traceBytes(clazz.classname + " - after TryCatchBlockHandler", bytes);
 
                 ClassReader cr = new ClassReader(bytes);
                 ClassWriter cw = new ClassWriter(0);
@@ -216,12 +213,14 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
                 cr.accept(cv, flags);
                 classInfos.put(clazz.classname, cv.getClassInfo());
                 bytes = cw.toByteArray();
+                traceBytes(clazz.classname + " - after ScottyClassAdapter", bytes);
 
                 // Recompute frames, etc.
                 ClassReader cr3 = new ClassReader(bytes);
                 ClassWriter cw3 = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
                 cr3.accept(cw3, ClassReader.SKIP_FRAMES);
                 bytes = cw3.toByteArray();
+                traceBytes(clazz.classname + " - after COMPUTE_FRAMES", bytes);
 
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
@@ -244,6 +243,22 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
             } finally {
                 fos.close();
             }
+        }
+    }
+
+    private static void traceClassNode(String message, ClassNode cn) {
+        if (logger.isTraceEnabled()) {
+            ClassWriter cw = new ClassWriter(0);
+            cn.accept(cw);
+            traceBytes(message, cw.toByteArray());
+        }
+    }
+
+    private static void traceBytes(String message, byte[] bytes) {
+        if (logger.isTraceEnabled()) {
+            StringWriter sw = new StringWriter();
+            new ClassReader(bytes).accept(new TraceClassVisitor(new PrintWriter(sw)), 0);
+            logger.trace(message + ":\n{}", sw.toString());
         }
     }
 
