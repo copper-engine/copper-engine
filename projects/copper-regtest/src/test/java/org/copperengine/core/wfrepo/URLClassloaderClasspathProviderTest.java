@@ -15,12 +15,22 @@
  */
 package org.copperengine.core.wfrepo;
 
+import org.junit.Assume;
 import org.junit.Test;
 
 public class URLClassloaderClasspathProviderTest {
 
+    protected static double getJavaVersion() {
+        try {
+            return Double.parseDouble(System.getProperty("java.specification.version"));
+        } catch (Exception e) {
+            return 1.0;
+        }
+    }
+
     @Test
     public void testGetOptions() {
+        Assume.assumeTrue(getJavaVersion() < 9);
         FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
         try {
             repo.addSourceDir("src/workflow/java");
