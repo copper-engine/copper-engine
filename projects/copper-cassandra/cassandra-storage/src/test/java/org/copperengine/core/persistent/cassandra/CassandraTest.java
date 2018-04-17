@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Cluster.Builder;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.exceptions.NoHostAvailableException;
 
 public class CassandraTest {
 
@@ -62,7 +63,11 @@ public class CassandraTest {
 
             factory = new UnitTestCassandraEngineFactory(false);
             factory.setCassandraPort(CASSANDRA_PORT);
-            factory.getEngine().startup();
+            try {
+                factory.getEngine().startup();
+            } catch (NoHostAvailableException e) {
+                factory = null;
+            }
         }
     }
 
