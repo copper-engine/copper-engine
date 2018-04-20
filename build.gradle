@@ -8,6 +8,7 @@ wrapper {
 }
 
 ext {
+    javaVersion = (System.properties['java.specification.version'] ?: 1.0) as double
 	slf4jVersion = "1.7.21"
 	springVersion = '5.0.5.RELEASE'
 	c3p0Version = '0.9.5.2'
@@ -88,7 +89,7 @@ configure(subprojects.findAll {
 
     spotbugs {
         toolVersion = '3.1.0'
-        sourceSets = [project.sourceSets.main] // check only main classes, neither tests nor example workflow classes
+        sourceSets = (javaVersion >= 10) ? [] : [project.sourceSets.main]// check only main classes, neither tests nor example workflow classes
         excludeFilter = file("$rootDir/common/findbugs-exclude-filter.xml")
         effort = "max"
         ignoreFailures = true
