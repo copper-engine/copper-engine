@@ -3,7 +3,7 @@ import groovy.xml.QName
 import java.nio.charset.StandardCharsets
 
 wrapper {
-    gradleVersion = '4.6'
+    gradleVersion = '4.7'
     distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
 }
 
