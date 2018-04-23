@@ -24,12 +24,14 @@ import java.util.concurrent.TimeUnit;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.management.model.WorkflowInfo;
 import org.copperengine.management.model.WorkflowInstanceFilter;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class TestWorkflowCassandraTest extends CassandraTest {
 
     @Test
     public void testParallel() throws Exception {
+        Assume.assumeTrue(factory != null);
         List<String> cids = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             final String cid = factory.getEngine().createUUID();
@@ -51,6 +53,7 @@ public class TestWorkflowCassandraTest extends CassandraTest {
 
     @Test
     public void testSerial() throws Exception {
+        Assume.assumeTrue(factory != null);
         for (int i = 0; i < 3; i++) {
             final String cid = factory.getEngine().createUUID();
             final TestData data = new TestData(cid, "foo");

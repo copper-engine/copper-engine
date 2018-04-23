@@ -330,7 +330,10 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         final Map<String, ClassInfo> clazzInfoMap = new HashMap<String, ClassInfo>();
         instrumentWorkflows(adaptedTargetDir, clazzMap, clazzInfoMap, new URLClassLoader(new URL[] { compileTargetDir.toURI().toURL() }, Thread.currentThread().getContextClassLoader()));
         for (Clazz clazz : clazzMap.values()) {
-            File f = sourceFiles.get(clazz.classname + ".java");
+            // Workaround for https://github.com/spotbugs/spotbugs/issues/500:
+            File f = sourceFiles.get(new StringBuilder(clazz.classname).append(".java").toString());
+            // TODO: replace the above workaround with the following line when the spotbug issue has been solved
+            // File f = sourceFiles.get(clazz.classname + ".java");
             ClassInfo info = clazzInfoMap.get(clazz.classname);
             if (info != null) {
                 if (f != null) {

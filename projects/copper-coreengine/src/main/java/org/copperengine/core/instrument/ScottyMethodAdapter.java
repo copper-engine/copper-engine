@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.copperengine.core.StackEntry;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -56,7 +57,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
     private final MethodInfo info;
 
     public ScottyMethodAdapter(MethodVisitor mv, String currentClassName, Set<String> interruptableMethods, ByteCodeStackInfo stackInfo, String name, int access, String descriptor) {
-        super(ASM4, mv);
+        super(ASM6, mv);
         info = new MethodInfo(currentClassName, name, access, descriptor);
         this.currentClassName = currentClassName;
         this.interruptableMethods = interruptableMethods;
@@ -84,16 +85,16 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
                 super.visitIntInsn(SIPUSH, i);
                 if (t == Type.BOOLEAN_TYPE || t == Type.BYTE_TYPE || t == Type.SHORT_TYPE || t == Type.INT_TYPE || t == Type.CHAR_TYPE) {
                     super.visitVarInsn(ILOAD, i);
-                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
                 } else if (t == Type.FLOAT_TYPE) {
                     super.visitVarInsn(FLOAD, i);
-                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
+                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
                 } else if (t == Type.LONG_TYPE) {
                     super.visitVarInsn(LLOAD, i);
-                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
+                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
                 } else if (t == Type.DOUBLE_TYPE) {
                     super.visitVarInsn(DLOAD, i);
-                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
                 } else if (t == StackInfo.AconstNullType) {
                     super.visitInsn(ACONST_NULL);
                 } else {
@@ -126,19 +127,19 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
                 }
                 if (t == Type.BOOLEAN_TYPE || t == Type.BYTE_TYPE || t == Type.SHORT_TYPE || t == Type.INT_TYPE || t == Type.CHAR_TYPE) {
                     super.visitTypeInsn(CHECKCAST, Type.getInternalName(Integer.class));
-                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
+                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
                     super.visitVarInsn(ISTORE, i);
                 } else if (t == Type.FLOAT_TYPE) {
                     super.visitTypeInsn(CHECKCAST, Type.getInternalName(Float.class));
-                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F");
+                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F", false);
                     super.visitVarInsn(FSTORE, i);
                 } else if (t == Type.LONG_TYPE) {
                     super.visitTypeInsn(CHECKCAST, Type.getInternalName(Long.class));
-                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J");
+                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J", false);
                     super.visitVarInsn(LSTORE, i);
                 } else if (t == Type.DOUBLE_TYPE) {
                     super.visitTypeInsn(CHECKCAST, Type.getInternalName(Double.class));
-                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D");
+                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D", false);
                     super.visitVarInsn(DSTORE, i);
                 } else {
                     if (!t.getInternalName().equals(Type.getInternalName(Object.class)) && t != StackInfo.AconstNullType)
@@ -159,27 +160,27 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
                 if (t == Type.BOOLEAN_TYPE || t == Type.BYTE_TYPE || t == Type.SHORT_TYPE || t == Type.INT_TYPE || t == Type.CHAR_TYPE) {
                     super.visitInsn(DUP_X1);
                     super.visitInsn(SWAP);
-                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
                     super.visitIntInsn(SIPUSH, i);
                     super.visitInsn(SWAP);
                 } else if (t == Type.FLOAT_TYPE) {
                     super.visitInsn(DUP_X1);
                     super.visitInsn(SWAP);
-                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
+                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
                     super.visitIntInsn(SIPUSH, i);
                     super.visitInsn(SWAP);
                 } else if (t == Type.LONG_TYPE) {
                     super.visitInsn(DUP_X2);
                     super.visitInsn(DUP_X2);
                     super.visitInsn(POP);
-                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
+                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
                     super.visitIntInsn(SIPUSH, i);
                     super.visitInsn(SWAP);
                 } else if (t == Type.DOUBLE_TYPE) {
                     super.visitInsn(DUP_X2);
                     super.visitInsn(DUP_X2);
                     super.visitInsn(POP);
-                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+                    super.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
                     super.visitIntInsn(SIPUSH, i);
                     super.visitInsn(SWAP);
                 } else {
@@ -231,20 +232,20 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
                 }
                 if (t == Type.BOOLEAN_TYPE || t == Type.BYTE_TYPE || t == Type.SHORT_TYPE || t == Type.INT_TYPE || t == Type.CHAR_TYPE) {
                     super.visitTypeInsn(CHECKCAST, Type.getInternalName(Integer.class));
-                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
+                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
                     super.visitInsn(SWAP);
                 } else if (t == Type.FLOAT_TYPE) {
                     super.visitTypeInsn(CHECKCAST, Type.getInternalName(Float.class));
-                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F");
+                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F", false);
                     super.visitInsn(SWAP);
                 } else if (t == Type.LONG_TYPE) {
                     super.visitTypeInsn(CHECKCAST, Type.getInternalName(Long.class));
-                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J");
+                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J", false);
                     super.visitInsn(DUP2_X1);
                     super.visitInsn(POP2);
                 } else if (t == Type.DOUBLE_TYPE) {
                     super.visitTypeInsn(CHECKCAST, Type.getInternalName(Double.class));
-                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D");
+                    super.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D", false);
                     super.visitInsn(DUP2_X1);
                     super.visitInsn(POP2);
                 } else {
@@ -267,9 +268,17 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-        final String signature = name + desc;
+        visitMethodInsn(opcode, owner, name, desc, false);
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean isInterface) {
+        // Workaround for https://github.com/spotbugs/spotbugs/issues/500:
+        final String signature = new StringBuilder(name).append(desc).toString();
+        // TODO: replace the above workaround with the following line when the spotbug issue has been solved
+        // final String signature = name + desc;
         if (waitMethods.contains(signature)) {
-            super.visitMethodInsn(opcode, owner, name, desc);
+            super.visitMethodInsn(opcode, owner, name, desc, isInterface);
 
             int idx = interuptibleCalls.size();
             StackInfo currentStackInfo = stackInfo.getCurrentStackInfo();
@@ -287,7 +296,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             } else {
                 visitTypeInsn(NEW, "org/copperengine/core/Interrupt");
                 visitInsn(DUP);
-                visitMethodInsn(INVOKESPECIAL, "org/copperengine/core/Interrupt", "<init>", "()V");
+                visitMethodInsn(INVOKESPECIAL, "org/copperengine/core/Interrupt", "<init>", "()V", false);
                 visitInsn(ATHROW);
             }
             visitLabel(label);
@@ -310,7 +319,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             recreateStack(info);
             incStackPos();
             visitLabel(invokeLabel);
-            super.visitMethodInsn(opcode, owner, name, desc);
+            super.visitMethodInsn(opcode, owner, name, desc, isInterface);
             visitLabel(afterInvokeLabel);
             visitJumpInsn(GOTO, nopLabel);
 
@@ -329,8 +338,13 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             super.visitTryCatchBlock(invokeLabel, afterInvokeLabel, interruptLabel, "org/copperengine/core/Interrupt");
             super.visitTryCatchBlock(invokeLabel, afterInvokeLabel, throwableHandler, "java/lang/Throwable");
         } else {
-            super.visitMethodInsn(opcode, owner, name, desc);
+            super.visitMethodInsn(opcode, owner, name, desc, isInterface);
         }
+    }
+
+    @Override
+    public void visitInvokeDynamicInsn(String name, String descriptor, Handle bootstrapMethodHandle, Object... bootstrapMethodArguments) {
+        super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
     }
 
     private static final class Bundle {

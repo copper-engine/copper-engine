@@ -41,5 +41,15 @@
         <Method name="main"/>
         <Bug pattern="RpC_REPEATED_CONDITIONAL_TEST"/>
     </Match>
+    <Match>
+        <Class name="org.copperengine.core.persistent.hybrid.HybridDBStorage"/>
+        <Method name="_enqueue"/>
+        <Bug code="JLM"/>
+    </Match>
+    <Match>
+        <Class name="org.copperengine.core.persistent.hybrid.HybridDBStorage"/>
+        <Method name="_take"/>
+        <Bug code="JLM"/>
+    </Match>
 
 </FindBugsFilter>
