@@ -78,6 +78,7 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
      *        specify if processor pools shall be notified on response
      * @deprecated without effect - will be removed in future release
      */
+    @Deprecated
     public void setNotifyProcessorPoolsOnResponse(boolean notifyProcessorPoolsOnResponse) {
     }
 

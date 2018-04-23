@@ -3,18 +3,19 @@ import groovy.xml.QName
 import java.nio.charset.StandardCharsets
 
 wrapper {
-    gradleVersion = '4.6'
+    gradleVersion = '4.7'
     distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
 }
 
 ext {
+    javaVersion = (System.properties['java.specification.version'] ?: 1.0) as double
 	slf4jVersion = "1.7.21"
-	springVersion = '3.1.4.RELEASE'
+	springVersion = '5.0.5.RELEASE'
 	c3p0Version = '0.9.5.2'
-	asmVersion = '5.0.4'
-	guavaVersion = '19.0'
+	asmVersion = '6.1.1'
+	guavaVersion = '24.1-jre'
 	jacksonVersion = '2.8.4'
-	cassandraDriverVersion = '3.1.2'
+	cassandraDriverVersion = '3.4.0'
 	snakeyamlVersion = '1.17'
 	commonsIoVersion = '2.5'
 }
@@ -38,12 +39,15 @@ buildscript {
         classpath 'com.adaptc.gradle:nexus-workflow:0.6'
         // the license plugin, see https://github.com/hierynomus/license-gradle-plugin
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.0'
+        // the spotbugs plugin, see https://plugins.gradle.org/plugin/com.github.spotbugs
+        classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.1"
     }
 }
 
 
 allprojects {
     apply plugin: 'project-report'
+    apply plugin: "com.github.spotbugs"
 
     group = "org.copper-engine"
 
@@ -83,15 +87,15 @@ configure(subprojects.findAll {
         archives createJavadocJar
     }
 
-    apply plugin: 'findbugs'
-    findbugs {
-        sourceSets = [project.sourceSets.main] // check only main classes, neither tests nor example workflow classes
+    spotbugs {
+        toolVersion = '3.1.0'
+        sourceSets = (javaVersion >= 10) ? [] : [project.sourceSets.main]// check only main classes, neither tests nor example workflow classes
         excludeFilter = file("$rootDir/common/findbugs-exclude-filter.xml")
         effort = "max"
         ignoreFailures = true
     }
 
-    tasks.withType(FindBugs) {
+    spotbugsMain {
         reports {
             // Unfortunately FindBugs cannot emit both XML and HTML report simultanously, so by default we emit HTML only.
             // We emit XML only when -PfindbugsXmlReportEnabled=true, e.g. during Jenkins build
@@ -100,6 +104,9 @@ configure(subprojects.findAll {
             html.enabled = !findbugsXmlReportEnabled
         }
     }
+
+    spotbugsTest.enabled = false
+
 
     if (!project.getName().contains('orch-interfaces')) {
         apply plugin: 'com.github.hierynomus.license'
@@ -155,6 +162,9 @@ configure(subprojects.findAll {
         testCompile 'junit:junit:4.11'
         testCompile 'org.mockito:mockito-all:1.9.5'
         compile	"org.slf4j:slf4j-api:$slf4jVersion"
+
+//        compileClasspath "com.github.spotbugs:spotbugs:$spotbugs.toolVersion"
+        spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
     }
 
     jar {
@@ -350,7 +360,6 @@ project(':projects:copper-spring') {
 
         // Spring
         compile "org.springframework:spring-aop:$springVersion"
-        compile "org.springframework:spring-asm:$springVersion"
         compile "org.springframework:spring-beans:$springVersion"
         compile "org.springframework:spring-context:$springVersion"
         compile "org.springframework:spring-core:$springVersion"
@@ -373,7 +382,8 @@ project(':projects:copper-coreengine') {
         compile "org.ow2.asm:asm-tree:$asmVersion"
         compile "org.ow2.asm:asm-util:$asmVersion"
         compile "org.ow2.asm:asm-analysis:$asmVersion"
-        
+
+        compile 'javax.xml.bind:jaxb-api:2.3.0'
     }
 
     task scriptsZip(type: Zip) {

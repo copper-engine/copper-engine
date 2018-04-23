@@ -21,6 +21,7 @@ package org.copperengine.core.persistent.lock;
  * @deprecated
  * Might be removed in COPPER 5.0 or later. LockResult shall then be used directly.
 */
+@Deprecated
 public enum PersistentLockResult {
     OK, INTERNAL_ERROR
 }

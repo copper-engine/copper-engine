@@ -95,13 +95,14 @@ public class MementoUtil {
         store(pc);
     }
 
+    @SuppressWarnings("unchecked")
     public void load(PersistenceContext pc) {
         final Iterator<Entry<Object, Object[]>> i = memento.entrySet().iterator();
         while (i.hasNext()) {
             Entry<Object, Object[]> en = i.next();
             final Object[] mementoSlot = en.getValue();
             Object mementoObject = mementoSlot[0];
-            pc.getPersister(mementoObject.getClass()).select(mementoObject, new PostSelectedCallback<Object>() {
+            ((EntityPersister)pc.getPersister(mementoObject.getClass())).select(mementoObject, new PostSelectedCallback<Object>() {
                 @Override
                 public void entitySelected(Object e) {
                     mementoSlot[0] = MementoUtil.this.clone(e);
@@ -116,22 +117,23 @@ public class MementoUtil {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void store(PersistenceContext pc) {
         try {
             for (Map.Entry<Object, Object[]> mementoEntry : memento.entrySet()) {
                 Object currentObject = potentiallyChanged.get(mementoEntry.getKey());
                 Object mementoObject = mementoEntry.getValue()[0];
                 if (currentObject == null) {
-                    pc.getPersister(mementoObject.getClass()).delete(mementoObject);
+                    ((EntityPersister)pc.getPersister(mementoObject.getClass())).delete(mementoObject);
                 } else {
                     if (!equals(currentObject, mementoObject)) {
-                        pc.getPersister(mementoObject.getClass()).update(currentObject);
+                        ((EntityPersister)pc.getPersister(mementoObject.getClass())).update(currentObject);
                     }
                 }
             }
             for (Object inserted : this.inserted) {
                 ensureId(null, inserted);
-                pc.getPersister(inserted.getClass()).insert(inserted);
+                ((EntityPersister)pc.getPersister(inserted.getClass())).insert(inserted);
             }
         } finally {
             inserted.clear();
