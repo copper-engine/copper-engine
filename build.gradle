@@ -88,7 +88,7 @@ configure(subprojects.findAll {
     }
 
     spotbugs {
-        toolVersion = '3.1.0'
+        toolVersion = '3.1.3'
         sourceSets = (javaVersion >= 10) ? [] : [project.sourceSets.main]// check only main classes, neither tests nor example workflow classes
         excludeFilter = file("$rootDir/common/findbugs-exclude-filter.xml")
         effort = "max"
