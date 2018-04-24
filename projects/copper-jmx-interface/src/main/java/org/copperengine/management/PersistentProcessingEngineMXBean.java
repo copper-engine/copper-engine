@@ -30,10 +30,9 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
 
     /**
      * Trigger restart all workflow instances that are in error state.
-     *
+     * @param filter the WorkflowInstanceFilter
      * @throws Exception When some database operations fail, i.e. connection lost, transaction problems, ..
      */
-
     public void restartFiltered(WorkflowInstanceFilter filter) throws Exception;
 
     public void restartAll() throws Exception;
@@ -42,8 +41,8 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
     /**
      * Entirely deletes the provided worklow instance if it is in the error state. If it currently holds a lock, the lock is
      * released.
-     * @param workflowInstanceId
-     * @throws Exception
+     * @param workflowInstanceId workflow instance id as string
+     * @throws Exception when the delete operation fails
      */
     public void deleteBroken(String workflowInstanceId) throws Exception;
 
@@ -54,7 +53,7 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
     /**
      *  Gets EngineClusterId to make it possible grouping engines into engine cluster.
      *  Engines in one engine cluster should use same Database, in other case grouping will show incorrect data in copper monitoring
-     *
+     * @return the engineClusterId
      */
     public String getEngineClusterId();
 

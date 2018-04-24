@@ -41,7 +41,6 @@ public interface LockManager {
      * {@link Response} for this specified correlationId, containing the {@link LockResult}.
      * <p>
      * Example:
-     * <p>
      *
      * <pre>
      * private void acquireLock(final String lockId) throws Interrupt {

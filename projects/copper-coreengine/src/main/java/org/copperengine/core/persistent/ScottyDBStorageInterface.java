@@ -212,11 +212,10 @@ public interface ScottyDBStorageInterface {
 
     /**
      * Triggers the restart of all failed workflow instances. See also {@link #restart(String)}
-     * 
+     * @param filter the WorkflowInstanceFilter
      * @throws Exception
      *         Any Exception like losing database connection.
      */
-
     public void restartFiltered(WorkflowInstanceFilter filter) throws Exception;
 
     public void restartAll() throws Exception;
@@ -224,8 +223,8 @@ public interface ScottyDBStorageInterface {
 
     /**
      * Deletes a broken workflow from the system (i.e. from all tables)
-     * @param workflowInstanceId
-     * @throws Exception
+     * @param workflowInstanceId workflow id of broken workflow
+     * @throws Exception when the delete operation fails
      */
     public void deleteBroken(final String workflowInstanceId) throws Exception;
 
