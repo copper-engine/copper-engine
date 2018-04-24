@@ -52,7 +52,6 @@ import org.copperengine.management.DatabaseDialectMXBean;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.krb5.internal.EncAPRepPart;
 
 /**
  * Abstract base implementation of the {@link DatabaseDialect} for SQL databases
