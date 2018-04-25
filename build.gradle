@@ -62,7 +62,7 @@ configure(subprojects.findAll {
 }) {
     println "configuring java module " + project.path
 
-    apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'osgi'
     compileJava.options.encoding = StandardCharsets.UTF_8
     compileJava.sourceCompatibility = JavaVersion.VERSION_1_8
@@ -159,11 +159,10 @@ configure(subprojects.findAll {
     eclipse.classpath.defaultOutputDir = new File("$buildDir/classes/main")
 
     dependencies {
-        testCompile 'junit:junit:4.11'
-        testCompile 'org.mockito:mockito-all:1.9.5'
-        compile	"org.slf4j:slf4j-api:$slf4jVersion"
+        implementation	"org.slf4j:slf4j-api:$slf4jVersion"
+        testImplementation 'junit:junit:4.11'
+        testImplementation 'org.mockito:mockito-all:1.9.5'
 
-//        compileClasspath "com.github.spotbugs:spotbugs:$spotbugs.toolVersion"
         spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
     }
 
@@ -229,6 +228,12 @@ configure(subprojects.findAll {
             }
         }
     }
+
+    test {
+        testLogging {
+            exceptionFormat = 'full'
+        }
+    }
 }
 
 
@@ -283,107 +288,104 @@ project(':projects:copper-regtest') {
     sourceSets.test.resources.srcDirs += sourceSets.workflow.srcDir
 
     dependencies {
-        compile project(':projects:copper-jmx-interface')
-        compile project(':projects:copper-coreengine')
-        compile project(':projects:copper-spring')
-        compile project(':projects:copper-ext')
+        testImplementation project(':projects:copper-coreengine')
+        testImplementation project(':projects:copper-spring')
+        testImplementation project(':projects:copper-ext')
 
-	compile "com.google.guava:guava:$guavaVersion"
-        compile fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
+        testImplementation "org.springframework:spring-context:$springVersion"
+        testImplementation "com.google.guava:guava:$guavaVersion"
+        testRuntimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
 
-        testCompile 'mysql:mysql-connector-java:5.1.25'
-        testCompile 'org.apache.derby:derby:10.13.1.1'
-        testCompile 'postgresql:postgresql:9.1-901.jdbc4'
-        testCompile 'com.h2database:h2:1.4.193'
-        testCompile "com.mchange:c3p0:$c3p0Version"
+        testImplementation 'mysql:mysql-connector-java:5.1.25'
+        testImplementation 'org.apache.derby:derby:10.13.1.1'
+        testImplementation 'postgresql:postgresql:9.1-901.jdbc4'
+        testImplementation 'com.h2database:h2:1.4.193'
+        testImplementation "com.mchange:c3p0:$c3p0Version"
 
-        testCompile "org.slf4j:slf4j-log4j12:$slf4jVersion"
-        testCompile "org.slf4j:slf4j-api:$slf4jVersion"
+        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
+        testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
 
     }
 }
 
 project(':projects:copper-ext') {
     dependencies {
-        compile project(':projects:copper-jmx-interface')
-        compile project(':projects:copper-coreengine')
-        
-	compile "commons-io:commons-io:$commonsIoVersion"
-	compile "com.google.guava:guava:$guavaVersion"
-    	compile "org.yaml:snakeyaml:$snakeyamlVersion"
+        implementation project(':projects:copper-coreengine')
+
+        implementation "org.ow2.asm:asm:$asmVersion"
+        implementation "commons-io:commons-io:$commonsIoVersion"
+        implementation "com.google.guava:guava:$guavaVersion"
+        implementation "org.yaml:snakeyaml:$snakeyamlVersion"
     	
-        testCompile "org.slf4j:slf4j-log4j12:$slf4jVersion"
-        testCompile "org.slf4j:slf4j-api:$slf4jVersion"
+        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
+        testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
     }
 }
 
 project(':projects:copper-cassandra:cassandra-storage') {
     dependencies {
-        compile project(':projects:copper-jmx-interface')
-        compile project(':projects:copper-coreengine')
-        compile project(':projects:copper-ext')
-        compile "org.slf4j:slf4j-api:$slf4jVersion"
-	compile "commons-io:commons-io:$commonsIoVersion"
-	compile "com.google.guava:guava:$guavaVersion"
-	compile "com.datastax.cassandra:cassandra-driver-core:$cassandraDriverVersion"
-	compile 'commons-lang:commons-lang:2.6'
-       	compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
-       	compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        implementation project(':projects:copper-coreengine')
+        implementation project(':projects:copper-ext')
+
+        api "com.datastax.cassandra:cassandra-driver-core:$cassandraDriverVersion"
+        implementation "org.slf4j:slf4j-api:$slf4jVersion"
+        implementation "commons-io:commons-io:$commonsIoVersion"
+        implementation "com.google.guava:guava:$guavaVersion"
+        implementation 'commons-lang:commons-lang:2.6'
+        implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+        implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         
-        testCompile "org.slf4j:slf4j-log4j12:$slf4jVersion"
-        testCompile 'org.cassandraunit:cassandra-unit:3.1.1.0'
-//        testCompile 'io.netty:netty-all:4.0.27.Final'
-    } 
+        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
+        testImplementation 'org.cassandraunit:cassandra-unit:3.1.1.0'
+    }
 }
 
 project(':projects:copper-cassandra:cassandra-loadtest') {
     apply plugin:'application'
-    
+
     mainClassName = "org.copperengine.core.persistent.cassandra.loadtest.PermanentLoadCreator"
 
     dependencies {
-        compile project(':projects:copper-jmx-interface')
-        compile project(':projects:copper-coreengine')
-        compile project(':projects:copper-ext')
-        compile project(':projects:copper-cassandra:cassandra-storage')
+        implementation project(':projects:copper-coreengine')
+        implementation project(':projects:copper-ext')
+        implementation project(':projects:copper-cassandra:cassandra-storage')
 
-        compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
-        compile "org.slf4j:slf4j-api:$slf4jVersion"
+        implementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
+        implementation "org.slf4j:slf4j-api:$slf4jVersion"
     }
 }
 
 
 project(':projects:copper-spring') {
     dependencies {
-        compile project(':projects:copper-jmx-interface')
-        compile project(':projects:copper-coreengine')
+        implementation project(':projects:copper-coreengine')
 
         // Spring
-        compile "org.springframework:spring-aop:$springVersion"
-        compile "org.springframework:spring-beans:$springVersion"
-        compile "org.springframework:spring-context:$springVersion"
-        compile "org.springframework:spring-core:$springVersion"
-        compile "org.springframework:spring-expression:$springVersion"
-        compile "org.springframework:spring-jdbc:$springVersion"
-        compile "org.springframework:spring-tx:$springVersion"
+        implementation "org.springframework:spring-aop:$springVersion"
+        implementation "org.springframework:spring-beans:$springVersion"
+        implementation "org.springframework:spring-context:$springVersion"
+        implementation "org.springframework:spring-core:$springVersion"
+        implementation "org.springframework:spring-expression:$springVersion"
+        implementation "org.springframework:spring-jdbc:$springVersion"
+        implementation "org.springframework:spring-tx:$springVersion"
 
-        compile 'org.springframework.batch:spring-batch-infrastructure:2.1.8.RELEASE'
+        implementation 'org.springframework.batch:spring-batch-infrastructure:2.1.8.RELEASE'
     }
 }
 
 
 project(':projects:copper-coreengine') {
     dependencies {
-        compile project(':projects:copper-jmx-interface')
+        api project(':projects:copper-jmx-interface')
 
         // asm
-        compile "org.ow2.asm:asm:$asmVersion"
-        compile "org.ow2.asm:asm-commons:$asmVersion"
-        compile "org.ow2.asm:asm-tree:$asmVersion"
-        compile "org.ow2.asm:asm-util:$asmVersion"
-        compile "org.ow2.asm:asm-analysis:$asmVersion"
+        implementation "org.ow2.asm:asm:$asmVersion"
+        implementation "org.ow2.asm:asm-commons:$asmVersion"
+        implementation "org.ow2.asm:asm-tree:$asmVersion"
+        implementation "org.ow2.asm:asm-util:$asmVersion"
+        implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
-        compile 'javax.xml.bind:jaxb-api:2.3.0'
+        implementation 'javax.xml.bind:jaxb-api:2.3.0'
     }
 
     task scriptsZip(type: Zip) {
@@ -404,40 +406,38 @@ subprojects {
 
 project(':projects:copper-performance-test') {
     dependencies {
-        compile project(':projects:copper-coreengine')
-        compile project(':projects:copper-ext')
-        compile project(':projects:copper-cassandra:cassandra-storage')
-        
-	compile "com.google.guava:guava:$guavaVersion"
-    	compile 'mysql:mysql-connector-java:5.1.39'
-    	compile 'org.apache.derby:derby:10.13.1.1'
-    	compile 'postgresql:postgresql:9.1-901.jdbc4'
-    	compile 'com.h2database:h2:1.4.193'
-    	compile "com.mchange:c3p0:$c3p0Version"
-    	compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
-    	compile "org.slf4j:slf4j-api:$slf4jVersion"
-    	compile fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
-        
+        implementation project(':projects:copper-coreengine')
+        implementation project(':projects:copper-ext')
+        implementation project(':projects:copper-cassandra:cassandra-storage')
+
+        implementation "com.google.guava:guava:$guavaVersion"
+        implementation 'mysql:mysql-connector-java:5.1.39'
+        implementation 'org.apache.derby:derby:10.13.1.1'
+        implementation 'postgresql:postgresql:9.1-901.jdbc4'
+        implementation 'com.h2database:h2:1.4.193'
+        implementation "com.mchange:c3p0:$c3p0Version"
+        implementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
+        implementation "org.slf4j:slf4j-api:$slf4jVersion"
+        runtimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
     }
     
 	jar {
+        dependsOn ':projects:copper-coreengine:jar', ':projects:copper-ext:jar', ':projects:copper-cassandra:cassandra-storage:jar'
 	    manifest.attributes provider: 'gradle'
 
 	    archiveName = "copper-performance-test.jar"
 
 	    from {
-
-		configurations.runtime.collect {
-		    it.isDirectory() ? it : zipTree(it)
-		}
-
-		configurations.compile.collect {
-		    it.isDirectory() ? it : zipTree(it)
-		}
+            configurations.runtime.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+            configurations.compile.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
 	    }
 
 	    manifest {
-		attributes 'Main-Class': 'org.copperengine.performancetest.main.Main'
+		    attributes 'Main-Class': 'org.copperengine.performancetest.main.Main'
 	    }
 
 	}    
