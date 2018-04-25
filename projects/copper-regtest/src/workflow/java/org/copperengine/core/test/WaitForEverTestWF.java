@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.test;
+package org.copperengine.regtest.test;
 
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.persistent.PersistentWorkflow;
-import org.copperengine.core.test.backchannel.BackChannelQueue;
-import org.copperengine.core.test.backchannel.WorkflowResult;
+import org.copperengine.regtest.test.backchannel.BackChannelQueue;
+import org.copperengine.regtest.test.backchannel.WorkflowResult;
 
 public class WaitForEverTestWF extends PersistentWorkflow<String> {
 

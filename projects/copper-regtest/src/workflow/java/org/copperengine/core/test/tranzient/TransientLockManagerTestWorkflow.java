@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.test.tranzient;
+package org.copperengine.regtest.test.tranzient;
 
 import org.copperengine.core.*;
 import org.copperengine.core.lockmgr.LockResult;
 import org.copperengine.core.lockmgr.tranzient.TransientLockManager;
-import org.copperengine.core.test.tranzient.lockManager.TransientLockEvaluationData;
+import org.copperengine.regtest.test.tranzient.lockManager.TransientLockEvaluationData;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;

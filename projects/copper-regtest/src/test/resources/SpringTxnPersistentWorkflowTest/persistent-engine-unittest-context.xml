@@ -99,7 +99,7 @@
 		<property name="transactionManager" ref="txManager"/>
 	</bean>
 	
-	<bean id="dbMockAdapter" class="org.copperengine.core.test.DBMockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
+	<bean id="dbMockAdapter" class="org.copperengine.regtest.test.DBMockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
 		<property name="engine" ref="persistent.engine"/>
 		<property name="dataSource" ref="datasource_default"/>
 	</bean>

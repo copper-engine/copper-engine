@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.test.persistent;
+package org.copperengine.regtest.test.persistent;
 
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.PersistentWorkflow;
-import org.copperengine.core.test.MockAdapter;
+import org.copperengine.regtest.test.MockAdapter;
 import org.copperengine.core.util.Backchannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

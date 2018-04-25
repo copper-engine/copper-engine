@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.copperengine.core.test.persistent.jmx;
+package org.copperengine.regtest.test.persistent.jmx;
 
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Interrupt;

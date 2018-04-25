@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.test.persistent.subworkflow;
+package org.copperengine.regtest.test.persistent.subworkflow;
 
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
