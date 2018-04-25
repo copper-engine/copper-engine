@@ -274,12 +274,14 @@ configure(rootProject) {
 
 
 project(':projects:copper-jmx-interface') {
+    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.management'
     dependencies {
     }
 }
 
 
 project(':projects:copper-regtest') {
+    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.regtest'
     sourceSets {
         workflow {
             ext.srcDir = "$projectDir/src/workflow/java"
@@ -309,6 +311,7 @@ project(':projects:copper-regtest') {
 }
 
 project(':projects:copper-ext') {
+    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.ext'
     dependencies {
         implementation project(':projects:copper-coreengine')
 
@@ -323,6 +326,7 @@ project(':projects:copper-ext') {
 }
 
 project(':projects:copper-cassandra:cassandra-storage') {
+    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.cassandra.storage'
     dependencies {
         implementation project(':projects:copper-coreengine')
         implementation project(':projects:copper-ext')
@@ -342,6 +346,7 @@ project(':projects:copper-cassandra:cassandra-storage') {
 
 project(':projects:copper-cassandra:cassandra-loadtest') {
     apply plugin:'application'
+    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.cassandra.loadtest'
 
     mainClassName = "org.copperengine.core.persistent.cassandra.loadtest.PermanentLoadCreator"
 
@@ -357,6 +362,7 @@ project(':projects:copper-cassandra:cassandra-loadtest') {
 
 
 project(':projects:copper-spring') {
+    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.spring'
     dependencies {
         implementation project(':projects:copper-coreengine')
 
@@ -375,6 +381,7 @@ project(':projects:copper-spring') {
 
 
 project(':projects:copper-coreengine') {
+    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.core'
     dependencies {
         api project(':projects:copper-jmx-interface')
 
@@ -405,6 +412,7 @@ subprojects {
 }
 
 project(':projects:copper-performance-test') {
+    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.performancetest'
     dependencies {
         implementation project(':projects:copper-coreengine')
         implementation project(':projects:copper-ext')
