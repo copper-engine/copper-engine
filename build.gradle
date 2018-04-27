@@ -65,11 +65,11 @@ configure(subprojects.findAll {
     apply plugin: 'java-library'
     apply plugin: 'osgi'
     compileJava.options.encoding = StandardCharsets.UTF_8
-    compileJava.sourceCompatibility = JavaVersion.VERSION_1_8
-    compileJava.targetCompatibility = JavaVersion.VERSION_1_8
+    compileJava.sourceCompatibility = JavaVersion.VERSION_1_9
+    compileJava.targetCompatibility = JavaVersion.VERSION_1_9
     compileTestJava.options.encoding = StandardCharsets.UTF_8
-    compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_8
-    compileTestJava.targetCompatibility = JavaVersion.VERSION_1_8
+    compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_9
+    compileTestJava.targetCompatibility = JavaVersion.VERSION_1_9
 
     apply plugin: 'maven'
     task createSourcesJar(type: Jar, dependsOn: classes) {
@@ -160,7 +160,9 @@ configure(subprojects.findAll {
 
     dependencies {
         implementation	"org.slf4j:slf4j-api:$slf4jVersion"
-        testImplementation 'junit:junit:4.11'
+        testImplementation('junit:junit:4.11') {
+            exclude module: 'hamcrest-core'
+        }
         testImplementation 'org.mockito:mockito-all:1.9.5'
 
         spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
@@ -234,6 +236,53 @@ configure(subprojects.findAll {
             exceptionFormat = 'full'
         }
     }
+
+    afterEvaluate {
+        javadoc {
+            inputs.property("moduleName", moduleName)
+            doFirst {
+                options.addStringOption('-module-path', classpath.asPath)
+            }
+        }
+
+        compileJava {
+            inputs.property("moduleName", moduleName)
+            doFirst {
+                options.compilerArgs = [
+                        '--module-path', classpath.asPath,
+                ]
+                classpath = files()
+            }
+        }
+
+        compileTestJava {
+            inputs.property("moduleName", moduleName)
+            doFirst {
+                options.compilerArgs = [
+                        '--module-path', classpath.asPath,
+                        '--add-modules', 'junit,slf4j.log4j12',
+                        '--add-reads', "$moduleName=junit",
+                        '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
+                ]
+                classpath = files()
+            }
+        }
+
+        test {
+            inputs.property("moduleName", moduleName)
+            doFirst {
+                jvmArgs = [
+                        '--module-path', classpath.asPath,
+                        '--add-modules', 'ALL-MODULE-PATH',
+                        '--add-reads', "$moduleName=junit",
+                        '--patch-module', "$moduleName=" + files(sourceSets.test.java.outputDir).asPath,
+                ]
+                classpath = files()
+            }
+        }
+    }
+
+
 }
 
 
@@ -275,6 +324,8 @@ configure(rootProject) {
 
 project(':projects:copper-jmx-interface') {
     jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.management'
+    ext.moduleName = 'org.copperengine.management'
+
     dependencies {
     }
 }
@@ -282,6 +333,8 @@ project(':projects:copper-jmx-interface') {
 
 project(':projects:copper-regtest') {
     jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.regtest'
+    ext.moduleName = 'org.copperengine.regtest'
+
     sourceSets {
         workflow {
             ext.srcDir = "$projectDir/src/workflow/java"
@@ -312,6 +365,7 @@ project(':projects:copper-regtest') {
 
 project(':projects:copper-ext') {
     jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.ext'
+    ext.moduleName = 'org.copperengine.ext'
     dependencies {
         implementation project(':projects:copper-coreengine')
 
@@ -327,6 +381,7 @@ project(':projects:copper-ext') {
 
 project(':projects:copper-cassandra:cassandra-storage') {
     jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.cassandra.storage'
+    ext.moduleName = 'org.copperengine.cassandra.storage'
     dependencies {
         implementation project(':projects:copper-coreengine')
         implementation project(':projects:copper-ext')
@@ -347,6 +402,7 @@ project(':projects:copper-cassandra:cassandra-storage') {
 project(':projects:copper-cassandra:cassandra-loadtest') {
     apply plugin:'application'
     jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.cassandra.loadtest'
+    ext.moduleName = 'org.copperengine.cassandra.loadtest'
 
     mainClassName = "org.copperengine.core.persistent.cassandra.loadtest.PermanentLoadCreator"
 
@@ -363,6 +419,7 @@ project(':projects:copper-cassandra:cassandra-loadtest') {
 
 project(':projects:copper-spring') {
     jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.spring'
+    ext.moduleName = 'org.copperengine.spring'
     dependencies {
         implementation project(':projects:copper-coreengine')
 
@@ -382,6 +439,7 @@ project(':projects:copper-spring') {
 
 project(':projects:copper-coreengine') {
     jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.core'
+    ext.moduleName = 'org.copperengine.core'
     dependencies {
         api project(':projects:copper-jmx-interface')
 
@@ -393,6 +451,7 @@ project(':projects:copper-coreengine') {
         implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
         implementation 'javax.xml.bind:jaxb-api:2.3.0'
+        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
     }
 
     task scriptsZip(type: Zip) {
@@ -413,6 +472,7 @@ subprojects {
 
 project(':projects:copper-performance-test') {
     jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.performancetest'
+    ext.moduleName = 'org.copperengine.performancetest'
     dependencies {
         implementation project(':projects:copper-coreengine')
         implementation project(':projects:copper-ext')
