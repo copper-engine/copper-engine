@@ -28,6 +28,7 @@ import org.copperengine.core.EngineIdProvider;
 import org.copperengine.core.EngineIdProviderBean;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.ProcessingEngine;
+import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.WorkflowFactory;
@@ -315,6 +316,50 @@ public abstract class AbstractProcessingEngine implements ProcessingEngine, Proc
         }
 
         return resultList;
+    }
+
+    @Override
+    public long getInvalidCount() {
+        WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+        filter.addState(ProcessingState.INVALID.name());
+        return  countWorkflowInstances(filter);
+    }
+
+    @Override
+    public long getErrorCount() {
+        WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+        filter.addState(ProcessingState.ERROR.name());
+        return  countWorkflowInstances(filter);
+    }
+
+
+    @Override
+    public long getDequeuedCount() {
+        WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+        filter.addState(ProcessingState.DEQUEUED.name());
+        return  countWorkflowInstances(filter);
+    }
+
+
+    @Override
+    public long getRunningCount() {
+        WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+        filter.addState(ProcessingState.RUNNING.name());
+        return  countWorkflowInstances(filter);
+    }
+
+    @Override
+    public long getFinishedCount() {
+        WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+        filter.addState(ProcessingState.FINISHED.name());
+        return  countWorkflowInstances(filter);
+    }
+
+    @Override
+    public long getWaitingCount() {
+        WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+        filter.addState(ProcessingState.WAITING.name());
+        return  countWorkflowInstances(filter);
     }
 
     protected long count(final WorkflowInstanceFilter filter, Collection<Workflow<?>> workflowInstances) {
