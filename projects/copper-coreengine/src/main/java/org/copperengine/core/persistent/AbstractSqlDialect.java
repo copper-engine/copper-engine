@@ -52,7 +52,6 @@ import org.copperengine.management.DatabaseDialectMXBean;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.krb5.internal.EncAPRepPart;
 
 /**
  * Abstract base implementation of the {@link DatabaseDialect} for SQL databases
@@ -1131,7 +1130,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         final String id = rs.getString("ID");
         final int prio = rs.getInt("PRIORITY");
         final String ppoolId = rs.getString("PPOOL_ID");
-        final String engineId = rs.getString("ENGINE_ID");
+//        final String engineId = rs.getString("ENGINE_ID");
         final SerializedWorkflow sw = new SerializedWorkflow();
         sw.setData(rs.getString("DATA"));
         sw.setObjectState(rs.getString("OBJECT_STATE"));

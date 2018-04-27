@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.copperengine.management.AuditTrailQueryMXBean;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
@@ -89,14 +91,14 @@ public class AuditTrailQueryEngine extends JdbcDaoSupport implements AuditTrailQ
         factory.setWhereClause(whereClause);
         factory.setSortKey(sortClause);
 
-        PagingQueryProvider queryProvider = null;
+        PagingQueryProvider queryProvider;
         try {
             queryProvider = (PagingQueryProvider) factory.getObject();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return null;
         }
-
+        if(queryProvider == null) return null;
         String query = queryProvider.generateFirstPageQuery(maxResult);
 
         // this.getJdbcTemplate().setQueryTimeout(1000);
@@ -121,7 +123,10 @@ public class AuditTrailQueryEngine extends JdbcDaoSupport implements AuditTrailQ
             }
 
         };
-        List<AuditTrailInfo> res = this.getJdbcTemplate().query(query, rowMapper, args.toArray());
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        List<AuditTrailInfo> res = (jdbcTemplate != null)
+                ? jdbcTemplate.query(query, rowMapper, args.toArray())
+                : Collections.emptyList();
 
         long end = System.currentTimeMillis();
 
@@ -144,7 +149,8 @@ public class AuditTrailQueryEngine extends JdbcDaoSupport implements AuditTrailQ
 
         };
 
-        return this.getJdbcTemplate().query(customSelect, rse, new Object[] { id });
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        return (jdbcTemplate != null) ? jdbcTemplate.query(customSelect, rse, new Object[] { id }) : null;
     }
 
     private byte[] convertToArray(InputStream messageStream) {

@@ -300,17 +300,6 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     }
 
     @Override
-    public List<WorkflowInfo> queryWorkflowInstances() {
-        List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
-        for (Workflow<?> wf : workflowMap.values()) {
-            WorkflowInfo wfi = convert2Wfi(wf);
-            rv.add(wfi);
-        }
-        logger.info("queryWorkflowInstances returned " + rv.size() + " instance(s)");
-        return rv;
-    }
-
-    @Override
     public WorkflowInfo queryWorkflowInstance(String id) {
         return convert2Wfi(workflowMap.get(id));
     }
@@ -516,7 +505,15 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     }
 
     @Override
+    public List<WorkflowInfo> queryWorkflowInstances() {
+        WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+        filter.setMax(0);
+        return this.queryWorkflowInstances(filter);
+    }
+
+    @Override
     public List<WorkflowInfo> queryWorkflowInstances(final WorkflowInstanceFilter filter) {
+
         try {
             logger.debug("queryWorkflowInstances with workflow filter= {}", filter);
 
