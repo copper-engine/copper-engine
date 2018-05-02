@@ -7,8 +7,19 @@ wrapper {
     distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
 }
 
+if(!hasProperty('javaCompatibility')) {
+    ext.javaCompatibility = 8
+}
 ext {
     javaVersion = (System.properties['java.specification.version'] ?: 1.0) as double
+    if(1.2 <= javaVersion && javaVersion < 2) {
+        javaVersion = ((int)(10 * javaVersion)) % 10
+    } else {
+        javaVersion = (int)javaVersion
+    }
+    if(javaVersion < (javaCompatibility as int)) {
+        throw new GradleException("Cannot generate java-$javaCompatibility compatible code using a java-$javaVersion compiler")
+    }
 	slf4jVersion = "1.7.21"
 	springVersion = '5.0.5.RELEASE'
 	c3p0Version = '0.9.5.2'
@@ -56,20 +67,19 @@ allprojects {
     }
 }
 
+def getProperSubprojects() {
+    subprojects.findAll {
+        new File(it.projectDir, 'src/main/java').directory
+    }
+}
 
-configure(subprojects.findAll {
-    new File(it.projectDir, 'src/main/java').directory || new File(it.projectDir, 'src/main/schema').directory
-}) {
+configure(properSubprojects) {
     println "configuring java module " + project.path
 
     apply plugin: 'java-library'
     apply plugin: 'osgi'
     compileJava.options.encoding = StandardCharsets.UTF_8
-    compileJava.sourceCompatibility = JavaVersion.VERSION_1_9
-    compileJava.targetCompatibility = JavaVersion.VERSION_1_9
     compileTestJava.options.encoding = StandardCharsets.UTF_8
-    compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_9
-    compileTestJava.targetCompatibility = JavaVersion.VERSION_1_9
 
     apply plugin: 'maven'
     task createSourcesJar(type: Jar, dependsOn: classes) {
@@ -237,54 +247,147 @@ configure(subprojects.findAll {
         }
     }
 
+
     afterEvaluate {
         javadoc {
             inputs.property("moduleName", moduleName)
             doFirst {
-                options.addStringOption('-module-path', classpath.asPath)
+                if(javaCompatibility >= 9) {
+                    options.addStringOption('-module-path', classpath.asPath)
+                }
             }
         }
 
         compileJava {
             inputs.property("moduleName", moduleName)
             doFirst {
-                options.compilerArgs = [
-                        '--module-path', classpath.asPath,
-                ]
-                classpath = files()
+                def compat = (javaCompatibility <= 8) ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_1_9
+                sourceCompatibility = compat
+                targetCompatibility = compat
+                if(javaCompatibility <= 8) {
+                    sourceSets.main.java.exclude '**/module-info.java'
+                } else {
+                    options.compilerArgs = [
+                            '--module-path', classpath.asPath,
+                    ]
+                    classpath = files()
+                }
             }
         }
 
         compileTestJava {
             inputs.property("moduleName", moduleName)
             doFirst {
-                options.compilerArgs = [
-                        '--module-path', classpath.asPath,
-                        '--add-modules', 'junit,slf4j.log4j12',
-                        '--add-reads', "$moduleName=junit",
-                        '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
-                ]
-                classpath = files()
+                def compat = (javaCompatibility <= 8) ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_1_9
+                sourceCompatibility = compat
+                targetCompatibility = compat
+                if(javaCompatibility >= 9) {
+                    options.compilerArgs = [
+                            '--module-path', classpath.asPath,
+                            '--add-modules', 'junit,slf4j.log4j12',
+                            '--add-reads', "$moduleName=junit",
+                            '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
+                    ]
+                    classpath = files()
+                }
             }
         }
 
         test {
+            // Due to a Gradle bug we currently have to skip the tests if javaCompatibility >= 9.
+            // TODO: remove the line below when the Gradle bug https://github.com/gradle/gradle/issues/4981 gets fixed.
+            onlyIf {javaCompatibility <= 8}
+
             inputs.property("moduleName", moduleName)
             doFirst {
-                jvmArgs = [
-                        '--module-path', classpath.asPath,
-                        '--add-modules', 'ALL-MODULE-PATH',
-                        '--add-reads', "$moduleName=junit",
-                        '--patch-module', "$moduleName=" + files(sourceSets.test.java.outputDir).asPath,
-                ]
-                classpath = files()
+                if(javaCompatibility >= 9) {
+                    jvmArgs = [
+                            '--module-path', classpath.asPath,
+                            '--add-modules', 'ALL-MODULE-PATH',
+                            '--add-reads', "$moduleName=junit",
+                            '--patch-module', "$moduleName=" + files(sourceSets.test.java.outputDir).asPath,
+                    ]
+                    classpath = files()
+                }
             }
         }
     }
 
+    task extractModuleInfoClass {
+        doLast {
+            copy {
+                from zipTree(jar.archivePath)
+                include "module-info.class"
+                into "${buildDir}/mod-info-tmp"
+            }
+        }
+    }
 
+    task cleanClassesAndLibs {
+        doLast {
+            delete sourceSets.main.java.outputDir
+            delete jar.archivePath
+        }
+    }
+
+    task insertInfoClass() {
+        doLast {
+            jar {
+                from(file("$buildDir/mod-info-tmp/module-info.class"))
+            }.execute()
+        }
+    }
 }
 
+afterEvaluate {
+    ['extractModuleInfoClass', 'cleanClassesAndLibs', 'insertInfoClass'].each { taskName ->
+        task "${taskName}All"(dependsOn: properSubprojects*."$taskName") { }
+    }
+
+    task jarWithJava9(type: GradleBuild) {
+        startParameter = gradle.startParameter.newBuild()
+        startParameter.projectProperties.javaCompatibility = 9
+        buildFile = './build.gradle'
+        tasks = ['clean', 'jar']
+    }
+    task jarWithJava8(type: GradleBuild) {
+        startParameter = gradle.startParameter.newBuild()
+        startParameter.projectProperties.javaCompatibility = 8
+        buildFile = './build.gradle'
+        tasks = ['cleanClassesAndLibsAll', 'jar']
+    }
+    task modularJar(dependsOn: [jarWithJava9, extractModuleInfoClassAll,
+                                     jarWithJava8, insertInfoClassAll]) {
+        extractModuleInfoClassAll.mustRunAfter jarWithJava9
+        jarWithJava8.mustRunAfter extractModuleInfoClassAll
+        insertInfoClassAll.mustRunAfter jarWithJava8
+    }
+
+    task buildWithJava9(type: GradleBuild) {
+        startParameter = gradle.startParameter.newBuild()
+        startParameter.projectProperties.javaCompatibility = 9
+        buildFile = './build.gradle'
+        tasks = ['clean', 'build']
+    }
+    task buildWithJava8(type: GradleBuild) {
+        startParameter = gradle.startParameter.newBuild()
+        startParameter.projectProperties.javaCompatibility = 8
+        buildFile = './build.gradle'
+        tasks = ['cleanClassesAndLibsAll', 'build']
+    }
+    task modularBuild(dependsOn: [buildWithJava9, extractModuleInfoClassAll,
+                                buildWithJava8, insertInfoClassAll]) {
+        extractModuleInfoClassAll.mustRunAfter buildWithJava9
+        buildWithJava8.mustRunAfter extractModuleInfoClassAll
+        insertInfoClassAll.mustRunAfter buildWithJava8
+    }
+}
+
+gradle.taskGraph.whenReady {taskGraph ->
+    if (javaVersion < 9 && (taskGraph.hasTask(jarWithJava9) || taskGraph.hasTask(buildWithJava9))) {
+        throw new GradleException("You need a java-9 or newer compiler for this job.")
+    }
+}
 
 configure(rootProject) {
     // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
@@ -503,4 +606,3 @@ project(':projects:copper-performance-test') {
 	}    
 
 }
-
