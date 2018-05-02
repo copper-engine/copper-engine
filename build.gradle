@@ -361,6 +361,8 @@ afterEvaluate {
     }
     task modularJar(dependsOn: [jarWithJava9, extractModuleInfoClassAll,
                                      jarWithJava8, insertInfoClassAll]) {
+        group = 'build'
+        description = "Assembles a java-8 compatible archive containing the main classes and a java-9 module-info.class"
         extractModuleInfoClassAll.mustRunAfter jarWithJava9
         jarWithJava8.mustRunAfter extractModuleInfoClassAll
         insertInfoClassAll.mustRunAfter jarWithJava8
@@ -380,6 +382,8 @@ afterEvaluate {
     }
     task modularBuild(dependsOn: [buildWithJava9, extractModuleInfoClassAll,
                                 buildWithJava8, insertInfoClassAll]) {
+        group = 'build'
+        description = "Assembles and tests this project, creating a java-8 compatible jar that contains a java-9 module-info.class"
         extractModuleInfoClassAll.mustRunAfter buildWithJava9
         buildWithJava8.mustRunAfter extractModuleInfoClassAll
         insertInfoClassAll.mustRunAfter buildWithJava8
@@ -388,7 +392,7 @@ afterEvaluate {
 
 gradle.taskGraph.whenReady {taskGraph ->
     if (javaVersion < 9 && (taskGraph.hasTask(jarWithJava9) || taskGraph.hasTask(buildWithJava9))) {
-        throw new GradleException("You need a java-9 or newer compiler for this job.")
+        throw new GradleException("You need a java-9 or newer compiler to execute this task.")
     }
 }
 
