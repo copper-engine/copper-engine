@@ -187,6 +187,7 @@ configure(properSubprojects) {
 
     javadoc {
         options.encoding = StandardCharsets.UTF_8
+        exclude '**/module-info.java'
     }
 
     if (project.hasProperty('secretKeyRingFileSourceURL')) {
