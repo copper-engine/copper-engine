@@ -208,6 +208,11 @@ configure(properSubprojects) {
         afterEvaluate {
             // always fetch the GPG key before signing archives
             tasks.signArchives.dependsOn fetchSecretKeyRingFile
+
+            // copy module-info.class to the 'classes' dir after running 'classes' and before running 'jar'
+            tasks.signArchives.dependsOn copyInfoClass
+            copyInfoClass.mustRunAfter classes
+            jar.mustRunAfter copyInfoClass
         }
 
         modifyPom {
@@ -337,8 +342,17 @@ configure(properSubprojects) {
     task insertInfoClass() {
         doLast {
             jar {
-                from(file("$buildDir/mod-info-tmp/module-info.class"))
+                from file("$buildDir/mod-info-tmp/module-info.class")
             }.execute()
+        }
+    }
+
+    task copyInfoClass() {
+        doLast {
+            copy {
+                from "$buildDir/mod-info-tmp/module-info.class"
+                into "$buildDir/classes/java/main"
+            }
         }
     }
 }
@@ -389,11 +403,24 @@ afterEvaluate {
         buildWithJava8.mustRunAfter extractModuleInfoClassAll
         insertInfoClassAll.mustRunAfter buildWithJava8
     }
+
+    // Create and save the module-info.class files before runing uploadArchives
+    uploadArchives {
+        dependsOn jarWithJava9, extractModuleInfoClassAll, cleanClassesAndLibsAll
+        extractModuleInfoClassAll.mustRunAfter jarWithJava9
+        cleanClassesAndLibsAll.mustRunAfter extractModuleInfoClassAll
+    }
 }
 
 gradle.taskGraph.whenReady {taskGraph ->
     if (javaVersion < 9 && (taskGraph.hasTask(jarWithJava9) || taskGraph.hasTask(buildWithJava9))) {
         throw new GradleException("You need a java-9 or newer compiler to execute this task.")
+    }
+    // Skip the copyInfoClass task when using java-9 compatibility
+    if(javaCompatibility >= 9) {
+        taskGraph.allTasks.findAll{it.name == 'copyInfoClass'}.each {
+            it.onlyIf { false }
+        }
     }
 }
 
