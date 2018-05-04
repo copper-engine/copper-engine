@@ -876,7 +876,8 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         final String id = rs.getString("ID");
         final int prio = rs.getInt("PRIORITY");
         final String ppoolId = rs.getString("PPOOL_ID");
-        final String engineId = rs.getString("ENGINE_ID");
+        String engineId = rs.getString("ENGINE_ID");
+        if(engineId == null) engineId = "default";
         final SerializedWorkflow sw = new SerializedWorkflow();
         sw.setData(rs.getString("DATA"));
         sw.setObjectState(rs.getString("OBJECT_STATE"));
@@ -904,8 +905,8 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     }
 
     protected void addLimitationAndOffset(StringBuilder sql, int max, int offset) {
-        sql.append(" OFFSET " + offset + " ROWS");
         sql.append(" AND ROWNUM <= ").append(max);
+        sql.append(" OFFSET " + offset + " ROWS");
     }
 
 }
