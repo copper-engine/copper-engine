@@ -20,7 +20,7 @@ module org.copperengine.core {
     exports org.copperengine.core.db.utility;
     exports org.copperengine.core.db.utility.oracle;
     exports org.copperengine.core.instrument;
-    exports org.copperengine.core.internal;
+    exports org.copperengine.core.internal to org.copperengine.cassandra.storage;
     exports org.copperengine.core.lockmgr;
     exports org.copperengine.core.lockmgr.tranzient;
     exports org.copperengine.core.monitoring;
