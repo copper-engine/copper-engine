@@ -1,3 +1,9 @@
+COPPER 5.0.0
+============
+- New feature: compatible with Java 9 and 10 (in addition to Java 8)
+- New feature: added support for the Java Platform Module System
+- Info:        Java 7 and older versions no longer supported
+
 COPPER 4.4.0
 ============
 - New feature: Delete a broken workflow from the database (Can be called via JMX): PersistentProcessingEngineMXBean.deleteBroken(id)
