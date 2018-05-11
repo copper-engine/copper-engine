@@ -40,6 +40,11 @@ public class StandardJavaSerializer implements Serializer {
 
     public static final boolean DEFAULT_COMPRESS = true;
 
+    private static final String COPPER_3_PACKAGE_PREFIX = "org.copperengine.core.";
+    private static final String COPPER_2X_PACKAGE_PREFIX = "de.scoopgmbh.copper.";
+    private static final String COPPER_2X_INTERRUPT_NAME = "InterruptException";
+    private static final String COPPER_3_INTERRUPT_NAME = "Interrupt";
+
     private boolean compress = DEFAULT_COMPRESS;
     private int compressThresholdSize = 250;
     private int compressorMaxSize = 128 * 1024;
@@ -101,17 +106,35 @@ public class StandardJavaSerializer implements Serializer {
         ObjectInputStream ois = wfRepo != null ? new ObjectInputStream(bais) {
             @Override
             protected java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException {
-                return wfRepo.resolveClass(desc.getName());
+                return wfRepo.resolveClass(classnameReplacement(desc.getName()));
             }
         } : new ObjectInputStream(bais) {
             @Override
             protected java.lang.Class<?> resolveClass(java.io.ObjectStreamClass desc) throws java.io.IOException, ClassNotFoundException {
-                return Class.forName(desc.getName());
+                return Class.forName(classnameReplacement(desc.getName()));
             }
         };
         Serializable o = (Serializable) ois.readObject();
         ois.close();
         return o;
+    }
+
+    /**
+     * For downward compatibility, there is a package name replacement during
+     * deserialization of workflow instances and responses.
+     * The default implementation ensures downward compatibility to copper &lt;= 2.x.
+     * @param classname the workflow class name
+     * @return the adjusted workflow class name
+     */
+    protected String classnameReplacement(String classname) {
+        if (classname.startsWith(COPPER_2X_PACKAGE_PREFIX)) {
+            String className3x = classname.replace(COPPER_2X_PACKAGE_PREFIX, COPPER_3_PACKAGE_PREFIX);
+            if ((COPPER_3_PACKAGE_PREFIX + COPPER_2X_INTERRUPT_NAME).equals(className3x)) {
+                return COPPER_3_PACKAGE_PREFIX + COPPER_3_INTERRUPT_NAME;
+            }
+            return className3x;
+        }
+        return classname;
     }
 
     @Override
