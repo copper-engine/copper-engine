@@ -12,6 +12,8 @@ module org.copperengine.core {
     requires org.objectweb.asm.tree;
     requires org.objectweb.asm.util;
 
+    uses javax.tools.JavaCompiler;
+
     exports org.copperengine.core;
     exports org.copperengine.core.audit;
     exports org.copperengine.core.batcher;
