@@ -227,6 +227,7 @@ public interface ScottyDBStorageInterface {
      * @throws Exception when the delete operation fails
      */
     public void deleteBroken(final String workflowInstanceId) throws Exception;
+    public void deleteWaiting(final String workflowInstanceId) throws Exception;
 
     public void deleteFiltered(WorkflowInstanceFilter filter) throws Exception;
 

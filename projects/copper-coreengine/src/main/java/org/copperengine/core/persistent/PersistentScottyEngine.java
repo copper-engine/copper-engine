@@ -342,6 +342,11 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     }
 
     @Override
+    public void deleteWaiting(String workflowInstanceId) throws Exception {
+        dbStorage.deleteWaiting(workflowInstanceId);
+    }
+
+    @Override
     public void deleteFiltered(WorkflowInstanceFilter filter) throws Exception {
         dbStorage.deleteFiltered(filter);
     }

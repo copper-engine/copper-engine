@@ -485,6 +485,25 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     }
 
     @Override
+    public void deleteWaiting(String workflowInstanceId, Connection c) throws Exception {
+        logger.trace("deleteWaiting()");
+
+        CallableStatement stmt = c.prepareCall("begin COP_COREENGINE.deleteWaitingWorkflow(?, ?); end;");
+        try {
+            stmt.setString(1, workflowInstanceId);
+            stmt.registerOutParameter(2, Types.INTEGER);
+            stmt.execute();
+            int delCount = stmt.getInt(2);
+            if (delCount != 1) {
+                throw new CopperException("Workflow \"" + workflowInstanceId + "\" can't be deleted. Is it a valid id and really in Waiting state?");
+            }
+        } finally {
+            JdbcUtils.closeStatement(stmt);
+        }
+        logger.info("waiting workflow instance successfully deleted.");
+    }
+
+    @Override
     public void deleteFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
         throw new UnsupportedOperationException();
     }

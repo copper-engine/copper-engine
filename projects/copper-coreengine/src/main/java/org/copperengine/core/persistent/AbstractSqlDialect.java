@@ -488,11 +488,18 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         StringBuilder sqlFilter = new StringBuilder();
         sqlFilter.append(" WHERE 1=1");
 
-        if (filter.getStates() != null) {
-            if (filter.getStates().size() > 1) {
-                sqlFilter.append(" and (x.state=? or x.state=?)");
-            } else {
+        if (filter.getStates() != null && filter.getStates().size() != 0) {
+            if (filter.getStates().size() == 1) {
                 sqlFilter.append(" and x.state=?");
+            } else {
+                sqlFilter.append(" and (");
+                for (int i = 0; i < filter.getStates().size(); i++) {
+                    sqlFilter.append("x.state = ?");
+                    if (i < filter.getStates().size() - 1) {
+                        sqlFilter.append(" or ");
+                    }
+                }
+                sqlFilter.append(")");
             }
         }
         if (filter.getWorkflowClassname() != null) {
@@ -505,18 +512,18 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     private PreparedStatement getSQLParams(PreparedStatement insertStmt, WorkflowInstanceFilter filter, List<Object> params, int parameterIndexCounter) throws Exception {
         if (filter.getStates() != null) {
-            if (filter.getStates().size() > 1) {
-                insertStmt.setInt(parameterIndexCounter, DBProcessingState.ERROR.ordinal());
-                parameterIndexCounter++;
-                insertStmt.setInt(parameterIndexCounter, DBProcessingState.INVALID.ordinal());
-                parameterIndexCounter++;
-            } else {
-                if (filter.getStates().get(0).equalsIgnoreCase("Error")) {
+            for(int i = 0; i < filter.getStates().size(); i++) {
+                if (filter.getStates().get(i).equalsIgnoreCase("Error")) {
                     insertStmt.setInt(parameterIndexCounter, DBProcessingState.ERROR.ordinal());
-                } else {
+                }
+                else if (filter.getStates().get(i).equalsIgnoreCase("Invalid")) {
                     insertStmt.setInt(parameterIndexCounter, DBProcessingState.INVALID.ordinal());
                 }
+                else if (filter.getStates().get(i).equalsIgnoreCase("Waiting")) {
+                    insertStmt.setInt(parameterIndexCounter, DBProcessingState.WAITING.ordinal());
+                }
                 parameterIndexCounter++;
+
             }
         }
         if (filter.getWorkflowClassname() != null) {
@@ -603,6 +610,56 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             stmtReadAndLockWorkflowInstance.setString(1, workflowInstanceId);
             stmtReadAndLockWorkflowInstance.setInt(2, DBProcessingState.ERROR.ordinal());
             stmtReadAndLockWorkflowInstance.setInt(3, DBProcessingState.INVALID.ordinal());
+            ResultSet res = stmtReadAndLockWorkflowInstance.executeQuery();
+            if (res.next()) {
+                // There is an entry for the given workflowInstanceID in the table with a workflow in error level and
+                // now table COP_WORKFLOW_INSTANCE is locked for the given workflow instance in order to no one else making
+                // changes on the workflow while we are going to delete it.
+
+                // No delete from COP_QUEUE as a broken workflow should never be in the queue..
+                stmtDelResponses = c.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID IN (SELECT CORRELATION_ID FROM COP_WAIT WHERE WORKFLOW_INSTANCE_ID=?)");
+                stmtDelWait = c.prepareStatement("DELETE FROM COP_WAIT WHERE WORKFLOW_INSTANCE_ID=?");
+                stmtDelError = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
+                stmtDelInstance = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?");
+
+                stmtDelResponses.setString(1, workflowInstanceId);
+                stmtDelResponses.execute();
+
+                stmtDelWait.setString(1, workflowInstanceId);
+                stmtDelWait.execute();
+
+                stmtDelError.setString(1, workflowInstanceId);
+                stmtDelError.execute();
+
+                stmtDelInstance.setString(1, workflowInstanceId);
+                int deletedInstances = stmtDelInstance.executeUpdate();
+                assert(deletedInstances == 1);
+
+            } else {
+                throw new CopperException("Workflow \"" + workflowInstanceId + "\" can't be deleted. Is it a valid id and really in broken state? (Invalid or error?)");
+            }
+        } finally {
+            JdbcUtils.closeStatement(stmtDelResponses);
+            JdbcUtils.closeStatement(stmtDelWait);
+            JdbcUtils.closeStatement(stmtDelError);
+            JdbcUtils.closeStatement(stmtDelInstance);
+        }
+    }
+
+    @Override
+    public void deleteWaiting(String workflowInstanceId, Connection c) throws Exception {
+        assert(c.getAutoCommit() == false); // Should be set by the transaction manager.
+
+        PreparedStatement stmtReadAndLockWorkflowInstance = null;
+        PreparedStatement stmtDelResponses = null;
+        PreparedStatement stmtDelWait = null;
+        PreparedStatement stmtDelError = null;
+        PreparedStatement stmtDelInstance = null;
+
+        try {
+            stmtReadAndLockWorkflowInstance = c.prepareStatement("SELECT 1 FROM COP_WORKFLOW_INSTANCE WHERE ID=? AND STATE=? FOR UPDATE");
+            stmtReadAndLockWorkflowInstance.setString(1, workflowInstanceId);
+            stmtReadAndLockWorkflowInstance.setInt(2, DBProcessingState.WAITING.ordinal());
             ResultSet res = stmtReadAndLockWorkflowInstance.executeQuery();
             if (res.next()) {
                 // There is an entry for the given workflowInstanceID in the table with a workflow in error level and

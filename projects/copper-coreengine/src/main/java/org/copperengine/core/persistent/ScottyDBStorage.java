@@ -431,6 +431,17 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     }
 
     @Override
+    public void deleteWaiting(final String workflowInstanceId) throws Exception {
+        run(new DatabaseTransaction<Void>() {
+            @Override
+            public Void run(Connection con) throws Exception {
+                dialect.deleteWaiting(workflowInstanceId, con);
+                return null;
+            }
+        });
+    }
+
+    @Override
     public void deleteFiltered(WorkflowInstanceFilter filter) throws Exception {
         run(new DatabaseTransaction<Void>() {
             @Override

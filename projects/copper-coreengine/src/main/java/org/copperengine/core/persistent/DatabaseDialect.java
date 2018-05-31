@@ -50,6 +50,8 @@ public interface DatabaseDialect {
 
     public abstract void deleteBroken(String workflowInstanceId, Connection c) throws Exception;
 
+    public abstract void deleteWaiting(String workflowInstanceId, Connection c) throws Exception;
+
     public abstract void deleteFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception;
 
     public abstract void notify(List<Response<?>> responses, Connection c) throws Exception;

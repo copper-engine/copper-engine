@@ -45,6 +45,7 @@ public interface PersistentProcessingEngineMXBean extends ProcessingEngineMXBean
      * @throws Exception when the delete operation fails
      */
     public void deleteBroken(String workflowInstanceId) throws Exception;
+    public void deleteWaiting(String workflowInstanceId) throws Exception;
 
     public void deleteFiltered(WorkflowInstanceFilter filter) throws Exception;
 
