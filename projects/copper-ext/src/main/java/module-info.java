@@ -3,7 +3,7 @@ module org.copperengine.ext {
 
     requires java.sql;
 
-    requires slf4j.api;
+    requires org.slf4j;
     requires org.objectweb.asm;
     requires commons.io;
     requires com.google.common;

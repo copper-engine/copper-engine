@@ -3,7 +3,7 @@ module org.copperengine.spring {
 
     requires java.sql;
 
-    requires slf4j.api;
+    requires org.slf4j;
 
     requires spring.core;
     requires spring.jdbc;

@@ -20,7 +20,7 @@ ext {
     if(javaVersion < (javaCompatibility as int)) {
         throw new GradleException("Cannot generate java-$javaCompatibility compatible code using a java-$javaVersion compiler")
     }
-	slf4jVersion = "1.7.21"
+	slf4jVersion = "1.8.0-beta2"
 	springVersion = '5.0.5.RELEASE'
 	c3p0Version = '0.9.5.2'
 	asmVersion = '6.1.1'
