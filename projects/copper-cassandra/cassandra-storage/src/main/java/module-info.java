@@ -7,8 +7,8 @@ module org.copperengine.cassandra.storage {
 
     requires org.slf4j;
     requires commons.lang;
-    requires cassandra.driver.core;
-    requires com.google.common;
+    requires transitive cassandra.driver.core;
+    requires transitive com.google.common;
     requires jackson.core;
     requires jackson.databind;
 
