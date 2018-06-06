@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.test;
+package org.copperengine.regtest.test;
 
 import java.util.Date;
 
@@ -56,7 +56,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
         logger.debug("started");
 
         // store the workflow start in the database
-        auditTrail.asynchLog(1, new Date(), "conv1234", "org.copperengine.core.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "AUSTER TEST 12345", "TEXT");
+        auditTrail.asynchLog(1, new Date(), "conv1234", "org.copperengine.regtest.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "AUSTER TEST 12345", "TEXT");
 
         // do a call to a adapter e.g. a partner system
         {
@@ -112,7 +112,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
         Counter.inc();
 
         // report the end of this workflow
-        auditTrail.asynchLog(1, new Date(), "conv123", "org.copperengine.core.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "FINISHED!", "TEXT");
+        auditTrail.asynchLog(1, new Date(), "conv123", "org.copperengine.regtest.test.PersistentSpock2GTestWF.main", this.getId(), null, "txnId", "FINISHED!", "TEXT");
         logger.debug("finished");
     }
 

@@ -7,9 +7,20 @@ wrapper {
     distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
 }
 
+if(!hasProperty('javaCompatibility')) {
+    ext.javaCompatibility = 8
+}
 ext {
     javaVersion = (System.properties['java.specification.version'] ?: 1.0) as double
-	slf4jVersion = "1.7.21"
+    if(1.2 <= javaVersion && javaVersion < 2) {
+        javaVersion = ((int)(10 * javaVersion)) % 10
+    } else {
+        javaVersion = (int)javaVersion
+    }
+    if(javaVersion < (javaCompatibility as int)) {
+        throw new GradleException("Cannot generate java-$javaCompatibility compatible code using a java-$javaVersion compiler")
+    }
+	slf4jVersion = "1.8.0-beta2"
 	springVersion = '5.0.5.RELEASE'
 	c3p0Version = '0.9.5.2'
 	asmVersion = '6.1.1'
@@ -41,6 +52,8 @@ buildscript {
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.0'
         // the spotbugs plugin, see https://plugins.gradle.org/plugin/com.github.spotbugs
         classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.1"
+        // the task-tree plugin: https://github.com/dorongold/gradle-task-tree
+        classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.3"
     }
 }
 
@@ -48,6 +61,7 @@ buildscript {
 allprojects {
     apply plugin: 'project-report'
     apply plugin: "com.github.spotbugs"
+    apply plugin: com.dorongold.gradle.tasktree.TaskTreePlugin
 
     group = "org.copper-engine"
 
@@ -56,20 +70,19 @@ allprojects {
     }
 }
 
+def getProperSubprojects() {
+    subprojects.findAll {
+        new File(it.projectDir, 'src/main/java').directory
+    }
+}
 
-configure(subprojects.findAll {
-    new File(it.projectDir, 'src/main/java').directory || new File(it.projectDir, 'src/main/schema').directory
-}) {
+configure(properSubprojects) {
     println "configuring java module " + project.path
 
     apply plugin: 'java-library'
     apply plugin: 'osgi'
     compileJava.options.encoding = StandardCharsets.UTF_8
-    compileJava.sourceCompatibility = JavaVersion.VERSION_1_8
-    compileJava.targetCompatibility = JavaVersion.VERSION_1_8
     compileTestJava.options.encoding = StandardCharsets.UTF_8
-    compileTestJava.sourceCompatibility = JavaVersion.VERSION_1_8
-    compileTestJava.targetCompatibility = JavaVersion.VERSION_1_8
 
     apply plugin: 'maven'
     task createSourcesJar(type: Jar, dependsOn: classes) {
@@ -160,7 +173,9 @@ configure(subprojects.findAll {
 
     dependencies {
         implementation	"org.slf4j:slf4j-api:$slf4jVersion"
-        testImplementation 'junit:junit:4.11'
+        testImplementation('junit:junit:4.11') {
+            exclude module: 'hamcrest-core'
+        }
         testImplementation 'org.mockito:mockito-all:1.9.5'
 
         spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
@@ -172,6 +187,7 @@ configure(subprojects.findAll {
 
     javadoc {
         options.encoding = StandardCharsets.UTF_8
+        exclude '**/module-info.java'
     }
 
     if (project.hasProperty('secretKeyRingFileSourceURL')) {
@@ -192,6 +208,11 @@ configure(subprojects.findAll {
         afterEvaluate {
             // always fetch the GPG key before signing archives
             tasks.signArchives.dependsOn fetchSecretKeyRingFile
+
+            // copy module-info.class to the 'classes' dir after running 'classes' and before running 'jar'
+            tasks.signArchives.dependsOn copyInfoClass
+            copyInfoClass.mustRunAfter classes
+            jar.mustRunAfter copyInfoClass
         }
 
         modifyPom {
@@ -234,8 +255,174 @@ configure(subprojects.findAll {
             exceptionFormat = 'full'
         }
     }
+
+
+    afterEvaluate {
+        javadoc {
+            inputs.property("moduleName", moduleName)
+            doFirst {
+                if(javaCompatibility >= 9) {
+                    options.addStringOption('-module-path', classpath.asPath)
+                }
+            }
+        }
+
+        compileJava {
+            inputs.property("moduleName", moduleName)
+            doFirst {
+                def compat = (javaCompatibility <= 8) ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_1_9
+                sourceCompatibility = compat
+                targetCompatibility = compat
+                if(javaCompatibility <= 8) {
+                    sourceSets.main.java.exclude '**/module-info.java'
+                } else {
+                    options.compilerArgs = [
+                            '--module-path', classpath.asPath,
+                    ]
+                    classpath = files()
+                }
+            }
+        }
+
+        compileTestJava {
+            inputs.property("moduleName", moduleName)
+            doFirst {
+                def compat = (javaCompatibility <= 8) ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_1_9
+                sourceCompatibility = compat
+                targetCompatibility = compat
+                if(javaCompatibility >= 9) {
+                    options.compilerArgs = [
+                            '--module-path', classpath.asPath,
+                            '--add-modules', 'junit,slf4j.log4j12',
+                            '--add-reads', "$moduleName=junit",
+                            '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
+                    ]
+                    classpath = files()
+                }
+            }
+        }
+
+        test {
+            // Due to a Gradle bug we currently have to skip the tests if javaCompatibility >= 9.
+            // TODO: remove the line below when the Gradle bug https://github.com/gradle/gradle/issues/4981 gets fixed.
+            onlyIf {javaCompatibility <= 8}
+
+            inputs.property("moduleName", moduleName)
+            doFirst {
+                if(javaCompatibility >= 9) {
+                    jvmArgs = [
+                            '--module-path', classpath.asPath,
+                            '--add-modules', 'ALL-MODULE-PATH',
+                            '--add-reads', "$moduleName=junit",
+                            '--patch-module', "$moduleName=" + files(sourceSets.test.java.outputDir).asPath,
+                    ]
+                    classpath = files()
+                }
+            }
+        }
+    }
+
+    task extractModuleInfoClass {
+        doLast {
+            copy {
+                from zipTree(jar.archivePath)
+                include "module-info.class"
+                into "${buildDir}/mod-info-tmp"
+            }
+        }
+    }
+
+    task cleanClassesAndLibs {
+        doLast {
+            delete sourceSets.main.java.outputDir
+            delete jar.archivePath
+        }
+    }
+
+    task insertInfoClass() {
+        doLast {
+            jar {
+                from file("$buildDir/mod-info-tmp/module-info.class")
+            }.execute()
+        }
+    }
+
+    task copyInfoClass() {
+        doLast {
+            copy {
+                from "$buildDir/mod-info-tmp/module-info.class"
+                into "$buildDir/classes/java/main"
+            }
+        }
+    }
 }
 
+afterEvaluate {
+    ['extractModuleInfoClass', 'cleanClassesAndLibs', 'insertInfoClass'].each { taskName ->
+        task "${taskName}All"(dependsOn: properSubprojects*."$taskName") { }
+    }
+
+    task jarWithJava9(type: GradleBuild) {
+        startParameter = gradle.startParameter.newBuild()
+        startParameter.projectProperties.javaCompatibility = 9
+        buildFile = './build.gradle'
+        tasks = ['clean', 'jar']
+    }
+    task jarWithJava8(type: GradleBuild) {
+        startParameter = gradle.startParameter.newBuild()
+        startParameter.projectProperties.javaCompatibility = 8
+        buildFile = './build.gradle'
+        tasks = ['cleanClassesAndLibsAll', 'jar']
+    }
+    task modularJar(dependsOn: [jarWithJava9, extractModuleInfoClassAll,
+                                     jarWithJava8, insertInfoClassAll]) {
+        group = 'build'
+        description = "Assembles a java-8 compatible archive containing the main classes and a java-9 module-info.class"
+        extractModuleInfoClassAll.mustRunAfter jarWithJava9
+        jarWithJava8.mustRunAfter extractModuleInfoClassAll
+        insertInfoClassAll.mustRunAfter jarWithJava8
+    }
+
+    task buildWithJava9(type: GradleBuild) {
+        startParameter = gradle.startParameter.newBuild()
+        startParameter.projectProperties.javaCompatibility = 9
+        buildFile = './build.gradle'
+        tasks = ['clean', 'build']
+    }
+    task buildWithJava8(type: GradleBuild) {
+        startParameter = gradle.startParameter.newBuild()
+        startParameter.projectProperties.javaCompatibility = 8
+        buildFile = './build.gradle'
+        tasks = ['cleanClassesAndLibsAll', 'build']
+    }
+    task modularBuild(dependsOn: [buildWithJava9, extractModuleInfoClassAll,
+                                buildWithJava8, insertInfoClassAll]) {
+        group = 'build'
+        description = "Assembles and tests this project, creating a java-8 compatible jar that contains a java-9 module-info.class"
+        extractModuleInfoClassAll.mustRunAfter buildWithJava9
+        buildWithJava8.mustRunAfter extractModuleInfoClassAll
+        insertInfoClassAll.mustRunAfter buildWithJava8
+    }
+
+    // Create and save the module-info.class files before runing uploadArchives
+    uploadArchives {
+        dependsOn jarWithJava9, extractModuleInfoClassAll, cleanClassesAndLibsAll
+        extractModuleInfoClassAll.mustRunAfter jarWithJava9
+        cleanClassesAndLibsAll.mustRunAfter extractModuleInfoClassAll
+    }
+}
+
+gradle.taskGraph.whenReady {taskGraph ->
+    if (javaVersion < 9 && (taskGraph.hasTask(jarWithJava9) || taskGraph.hasTask(buildWithJava9))) {
+        throw new GradleException("You need a java-9 or newer compiler to execute this task.")
+    }
+    // Skip the copyInfoClass task when using java-9 compatibility
+    if(javaCompatibility >= 9) {
+        taskGraph.allTasks.findAll{it.name == 'copyInfoClass'}.each {
+            it.onlyIf { false }
+        }
+    }
+}
 
 configure(rootProject) {
     // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
@@ -274,14 +461,16 @@ configure(rootProject) {
 
 
 project(':projects:copper-jmx-interface') {
-    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.management'
+    ext.moduleName = 'org.copperengine.management'
+
     dependencies {
     }
 }
 
 
 project(':projects:copper-regtest') {
-    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.regtest'
+    ext.moduleName = 'org.copperengine.regtest'
+
     sourceSets {
         workflow {
             ext.srcDir = "$projectDir/src/workflow/java"
@@ -290,12 +479,13 @@ project(':projects:copper-regtest') {
     sourceSets.test.resources.srcDirs += sourceSets.workflow.srcDir
 
     dependencies {
-        testImplementation project(':projects:copper-coreengine')
-        testImplementation project(':projects:copper-spring')
-        testImplementation project(':projects:copper-ext')
+        implementation project(':projects:copper-coreengine')
+        implementation project(':projects:copper-spring')
+        implementation project(':projects:copper-ext')
 
-        testImplementation "org.springframework:spring-context:$springVersion"
-        testImplementation "com.google.guava:guava:$guavaVersion"
+        implementation "org.springframework:spring-context:$springVersion"
+        implementation "org.springframework:spring-tx:$springVersion"
+        implementation "com.google.guava:guava:$guavaVersion"
         testRuntimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
 
         testImplementation 'mysql:mysql-connector-java:5.1.25'
@@ -311,7 +501,7 @@ project(':projects:copper-regtest') {
 }
 
 project(':projects:copper-ext') {
-    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.ext'
+    ext.moduleName = 'org.copperengine.ext'
     dependencies {
         implementation project(':projects:copper-coreengine')
 
@@ -326,27 +516,32 @@ project(':projects:copper-ext') {
 }
 
 project(':projects:copper-cassandra:cassandra-storage') {
-    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.cassandra.storage'
+    ext.moduleName = 'org.copperengine.cassandra.storage'
     dependencies {
         implementation project(':projects:copper-coreengine')
         implementation project(':projects:copper-ext')
 
         api "com.datastax.cassandra:cassandra-driver-core:$cassandraDriverVersion"
+        api "com.google.guava:guava:$guavaVersion"
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
         implementation "commons-io:commons-io:$commonsIoVersion"
-        implementation "com.google.guava:guava:$guavaVersion"
         implementation 'commons-lang:commons-lang:2.6'
         implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
         implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         
         testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
-        testImplementation 'org.cassandraunit:cassandra-unit:3.1.1.0'
+        testImplementation('org.cassandraunit:cassandra-unit:3.1.1.0') {
+            exclude module: 'hamcrest-core'
+            exclude module: 'hamcrest-library'
+            exclude module: 'cassandra-thrift'
+            exclude module: 'high-scale-lib'
+        }
     }
 }
 
 project(':projects:copper-cassandra:cassandra-loadtest') {
     apply plugin:'application'
-    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.cassandra.loadtest'
+    ext.moduleName = 'org.copperengine.cassandra.loadtest'
 
     mainClassName = "org.copperengine.core.persistent.cassandra.loadtest.PermanentLoadCreator"
 
@@ -355,14 +550,13 @@ project(':projects:copper-cassandra:cassandra-loadtest') {
         implementation project(':projects:copper-ext')
         implementation project(':projects:copper-cassandra:cassandra-storage')
 
-        implementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
     }
 }
 
 
 project(':projects:copper-spring') {
-    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.spring'
+    ext.moduleName = 'org.copperengine.spring'
     dependencies {
         implementation project(':projects:copper-coreengine')
 
@@ -381,7 +575,7 @@ project(':projects:copper-spring') {
 
 
 project(':projects:copper-coreengine') {
-    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.core'
+    ext.moduleName = 'org.copperengine.core'
     dependencies {
         api project(':projects:copper-jmx-interface')
 
@@ -393,6 +587,7 @@ project(':projects:copper-coreengine') {
         implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
         implementation 'javax.xml.bind:jaxb-api:2.3.0'
+        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
     }
 
     task scriptsZip(type: Zip) {
@@ -412,7 +607,7 @@ subprojects {
 }
 
 project(':projects:copper-performance-test') {
-    jar.manifest.attributes 'Automatic-Module-Name': 'org.copperengine.performancetest'
+    ext.moduleName = 'org.copperengine.performancetest'
     dependencies {
         implementation project(':projects:copper-coreengine')
         implementation project(':projects:copper-ext')
@@ -424,7 +619,6 @@ project(':projects:copper-performance-test') {
         implementation 'postgresql:postgresql:9.1-901.jdbc4'
         implementation 'com.h2database:h2:1.4.193'
         implementation "com.mchange:c3p0:$c3p0Version"
-        implementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
         runtimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
     }
@@ -451,4 +645,3 @@ project(':projects:copper-performance-test') {
 	}    
 
 }
-

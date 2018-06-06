@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.test.tranzient.classhierarchy;
+package org.copperengine.regtest.test.tranzient.classhierarchy;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,7 +22,7 @@ import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
-import org.copperengine.core.test.MockAdapter;
+import org.copperengine.regtest.test.MockAdapter;
 import org.copperengine.core.util.BlockingResponseReceiver;
 
 public abstract class Base extends Workflow<BlockingResponseReceiver<Integer>> {

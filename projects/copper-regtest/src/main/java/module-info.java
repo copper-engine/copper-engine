@@ -1,0 +1,10 @@
+module org.copperengine.regtest {
+    requires java.sql;
+    requires java.naming;
+
+    requires org.copperengine.core;
+    requires org.copperengine.ext;
+    requires org.copperengine.spring;
+
+    requires spring.tx;
+}

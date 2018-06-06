@@ -27,17 +27,17 @@
         <Bug pattern="DE_MIGHT_IGNORE"/>
     </Match>
     <Match>
-        <Class name="org.copperengine.core.test.tranzient.lang.LocalVarTransientWorkflow1"/>
+        <Class name="org.copperengine.regtest.test.tranzient.lang.LocalVarTransientWorkflow1"/>
         <Method name="main"/>
         <Bug pattern="RpC_REPEATED_CONDITIONAL_TEST"/>
     </Match>
     <Match>
-        <Class name="org.copperengine.core.test.tranzient.lang.LocalVarTransientWorkflow1"/>
+        <Class name="org.copperengine.regtest.test.tranzient.lang.LocalVarTransientWorkflow1"/>
         <Method name="main"/>
         <Bug pattern="RpC_REPEATED_CONDITIONAL_TEST"/>
     </Match>
     <Match>
-        <Class name="org.copperengine.core.test.tranzient.lang.LocalVarTransientWorkflow2"/>
+        <Class name="org.copperengine.regtest.test.tranzient.lang.LocalVarTransientWorkflow2"/>
         <Method name="main"/>
         <Bug pattern="RpC_REPEATED_CONDITIONAL_TEST"/>
     </Match>

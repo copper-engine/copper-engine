@@ -120,11 +120,13 @@ public class StandardJavaSerializer implements Serializer {
     }
 
     /**
-     * For downward compatibility to copper <= 2.x, there is a package name replacement during
-     * deserialization of workflow instances and reponses.
-     * This can be removed in one of the future releases.
+     * For downward compatibility, there is a package name replacement during
+     * deserialization of workflow instances and responses.
+     * The default implementation ensures downward compatibility to copper &lt;= 2.x.
+     * @param classname the workflow class name
+     * @return the adjusted workflow class name
      */
-    String classnameReplacement(String classname) {
+    protected String classnameReplacement(String classname) {
         if (classname.startsWith(COPPER_2X_PACKAGE_PREFIX)) {
             String className3x = classname.replace(COPPER_2X_PACKAGE_PREFIX, COPPER_3_PACKAGE_PREFIX);
             if ((COPPER_3_PACKAGE_PREFIX + COPPER_2X_INTERRUPT_NAME).equals(className3x)) {

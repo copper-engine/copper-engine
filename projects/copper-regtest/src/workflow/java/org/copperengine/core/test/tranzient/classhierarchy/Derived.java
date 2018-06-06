@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.test.tranzient.classhierarchy;
+package org.copperengine.regtest.test.tranzient.classhierarchy;
 
 import org.copperengine.core.Interrupt;
 import org.slf4j.Logger;

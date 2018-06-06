@@ -487,6 +487,13 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         for (CompilerOptionsProvider cop : compilerOptionsProviders) {
             options.addAll(cop.getOptions());
         }
+        if(Collections.disjoint(options, Arrays.asList("--class-path", "-classpath", "-cp"))) {
+            String modulePath = System.getProperty("jdk.module.path", "");
+            if(!modulePath.isEmpty()) {
+                options.add("-cp");
+                options.add(modulePath);
+            }
+        }
         logger.info("Compiler options: " + options.toString());
         JavaCompiler compiler = getJavaCompiler();
         if (compiler == null)

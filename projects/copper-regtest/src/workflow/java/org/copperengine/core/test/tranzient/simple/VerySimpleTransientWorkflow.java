@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.test.tranzient.simple;
+package org.copperengine.regtest.test.tranzient.simple;
 
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
-import org.copperengine.core.test.MockAdapter;
+import org.copperengine.regtest.test.MockAdapter;
 import org.copperengine.core.util.AsyncResponseReceiver;
 
 public class VerySimpleTransientWorkflow extends Workflow<AsyncResponseReceiver<Integer>> {

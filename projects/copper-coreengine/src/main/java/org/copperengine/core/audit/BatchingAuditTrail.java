@@ -200,7 +200,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
         return sql.toString();
     }
 
-    String getSqlStmt() {
+    public String getSqlStmt() {
         return sqlStmt;
     }
 
@@ -260,7 +260,7 @@ public class BatchingAuditTrail implements AuditTrail, AuditTrailMXBean {
         return false;
     }
 
-    protected BatchInsertIntoAutoTrail.Command createBatchCommand(AuditTrailEvent e, boolean immediate,
+    public BatchInsertIntoAutoTrail.Command createBatchCommand(AuditTrailEvent e, boolean immediate,
             CommandCallback<BatchInsertIntoAutoTrail.Command> callback) {
         return new BatchInsertIntoAutoTrail.Command(e, isOracle, sqlStmt, propertyGetters, callback, immediate ? 0 : 250);
     }

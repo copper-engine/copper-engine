@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.test.persistent;
+package org.copperengine.regtest.test.persistent;
 
 import java.io.Serializable;
 import java.sql.Connection;

@@ -898,8 +898,8 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     }
 
     protected void addLimitationAndOffset(StringBuilder sql, int max, int offset) {
-        sql.append(" OFFSET " + offset + " ROWS");
         sql.append(" AND ROWNUM <= ").append(max);
+        sql.append(" OFFSET " + offset + " ROWS");
     }
 
 }

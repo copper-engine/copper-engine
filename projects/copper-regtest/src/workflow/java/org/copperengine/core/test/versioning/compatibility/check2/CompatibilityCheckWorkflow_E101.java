@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.test.versioning.compatibility.check2;
+package org.copperengine.regtest.test.versioning.compatibility.check2;
 
 import java.io.Serializable;
 
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Incompatible change example E101
  * This class is a incompatible version of
- * {@link org.copperengine.core.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_Base}. The following
+ * {@link org.copperengine.regtest.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_Base}. The following
  * change(s) are applied:
  * Replacing method calls of methods that directly or indirectly use COPPER wait
  *

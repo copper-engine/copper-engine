@@ -1,3 +1,15 @@
+COPPER 5.0.0
+============
+- New feature: compatible with Java 9 and 10 (in addition to Java 8)
+- New feature: added support for the Java Platform Module System
+- New feature: Query Workflow data with pagination (i.e. offset and max. number workflows in result). => For monitoring UI.
+- New feature: Delete or restart workflows based on a filter.
+- New feature: TransientLockManager as analogon to PersistentLockmanager but for transient engines. (Have a simple to use in memory lock for workflows with COPPER wait.)
+- New feature: You can assign your engine an appClusterId. All engines with the same appClusterId will be grouped together in Monitoring UI (and it is assumed that they work on the same database in cluster mode).
+- Bugfix:      Acknowledges from engine.notify were sometimes neither accepted nor rejected.
+- Info:        Java 7 and older versions no longer supported
+- Breaking:    Against COPPER 4.X: The PersistentLockManagerImpl now resides in another package, namingly org.copperengine.core.lockmgr.persistent and extends LockManager interface instead of PersistentLockManager interface. Further, the constructor expects an enum of the "spoken database language" instead of a PersistentLockManagerDialect. This provides a new abstraction layer as the user should just specify which kind of database is used for the persistent lock manager and shouldn't care if therefore a subclass needs to be constructed or not.
+
 COPPER 4.4.0
 ============
 - New feature: Delete a broken workflow from the database (Can be called via JMX): PersistentProcessingEngineMXBean.deleteBroken(id)
