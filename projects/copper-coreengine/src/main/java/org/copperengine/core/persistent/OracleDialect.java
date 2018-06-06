@@ -876,7 +876,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         final String id = rs.getString("ID");
         final int prio = rs.getInt("PRIORITY");
         final String ppoolId = rs.getString("PPOOL_ID");
-        final String engineId = rs.getString("ENGINE_ID");
         final SerializedWorkflow sw = new SerializedWorkflow();
         sw.setData(rs.getString("DATA"));
         sw.setObjectState(rs.getString("OBJECT_STATE"));
@@ -884,11 +883,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         wf.setId(id);
         wf.setProcessorPoolId(ppoolId);
         wf.setPriority(prio);
-
-        //??? How else can we get engine ID
-        PersistentScottyEngine engine = new PersistentScottyEngine();
-        engine.setEngineIdProvider(new EngineIdProviderBean(engineId));
-        wf.setEngine(engine);
 
         final DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt("STATE"));
         final ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
