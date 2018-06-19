@@ -34,6 +34,7 @@ import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.audit.AuditTrail;
+import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.regtest.test.DataHolder;
 import org.copperengine.regtest.test.MockAdapter;
@@ -50,7 +51,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
     private transient BackChannelQueue backChannelQueue;
     private transient MockAdapter mockAdapter;
-    private transient AuditTrail auditTrail;
+    private transient BatchingAuditTrail auditTrail;
     private transient DataHolder dataHolder;
 
     @AutoWire
@@ -69,7 +70,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
     }
 
     @AutoWire
-    public void setAuditTrail(AuditTrail auditTrail) {
+    public void setAuditTrail(BatchingAuditTrail auditTrail) {
         this.auditTrail = auditTrail;
     }
 

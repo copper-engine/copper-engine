@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
+import org.copperengine.core.audit.AuditTrail;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.batcher.Batcher;
 import org.copperengine.core.persistent.txn.DatabaseTransaction;
@@ -35,6 +36,8 @@ import org.copperengine.core.persistent.txn.TransactionController;
 import org.copperengine.management.BatcherMXBean;
 import org.copperengine.management.DatabaseDialectMXBean;
 import org.copperengine.management.ScottyDBStorageMXBean;
+import org.copperengine.management.model.AuditTrailInfo;
+import org.copperengine.management.model.AuditTrailInstanceFilter;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -659,6 +662,36 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
             @Override
             public Integer run(Connection con) throws Exception {
                 return dialect.countWorkflowInstances(filter,con);
+            }
+        });
+    }
+
+    @Override
+    public List<AuditTrailInfo> queryAuditTrailInstances(final AuditTrailInstanceFilter filter) throws Exception {
+        return run(new DatabaseTransaction<List<AuditTrailInfo>>() {
+            @Override
+            public List<AuditTrailInfo> run(Connection con) throws Exception {
+                return dialect.queryAuditTrailInstances(filter, con);
+            }
+        });
+    }
+
+    @Override
+    public String queryAuditTrailMessage(long id) throws Exception {
+        return run(new DatabaseTransaction<String>() {
+            @Override
+            public String run(Connection con) throws Exception {
+                return dialect.queryAuditTrailMessage(id, con);
+            }
+        });
+    }
+
+    @Override
+    public int countAuditTrailInstances(final AuditTrailInstanceFilter filter) throws Exception {
+        return run(new DatabaseTransaction<Integer>() {
+            @Override
+            public Integer run(Connection con) throws Exception {
+                return dialect.countAuditTrailInstances(filter, con);
             }
         });
     }

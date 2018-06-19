@@ -31,6 +31,7 @@ public class AuditTrailInfo implements Serializable {
     String correlationId;
     String transactionId;
     String messageType;
+    String message;
 
     public AuditTrailInfo(
             long id,
@@ -126,4 +127,11 @@ public class AuditTrailInfo implements Serializable {
         this.messageType = messageType;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }
