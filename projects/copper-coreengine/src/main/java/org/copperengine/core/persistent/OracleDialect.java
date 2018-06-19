@@ -48,6 +48,8 @@ import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.StmtStatistic;
 import org.copperengine.core.util.FunctionWithException;
 import org.copperengine.management.DatabaseDialectMXBean;
+import org.copperengine.management.model.AuditTrailInfo;
+import org.copperengine.management.model.AuditTrailInstanceFilter;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -863,13 +865,28 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     @Override
     public int countWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
         final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(*) as WF_NUMBER");
+        sql.append("SELECT COUNT(*) as COUNT_NUMBER");
 
         final List<Object> params = new ArrayList<>();
         appendQueryBase(sql, params, filter);
         logger.debug("queryWorkflowInstances: sql={}, params={}", sql, params);
 
         return CommonSQLHelper.processCountResult(sql,params, con);
+    }
+
+    @Override
+    public List<AuditTrailInfo> queryAuditTrailInstances(AuditTrailInstanceFilter filter, Connection con) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String queryAuditTrailMessage(long id, Connection con) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int countAuditTrailInstances(AuditTrailInstanceFilter filter, Connection con) throws SQLException {
+        throw new UnsupportedOperationException();
     }
 
     protected PersistentWorkflow<?> decode(ResultSet rs) throws SQLException, Exception {

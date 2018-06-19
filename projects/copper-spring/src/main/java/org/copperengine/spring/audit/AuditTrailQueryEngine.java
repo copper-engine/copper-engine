@@ -18,14 +18,17 @@ package org.copperengine.spring.audit;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.copperengine.core.audit.MessagePostProcessor;
 import org.copperengine.management.AuditTrailQueryMXBean;
 import org.copperengine.management.model.AuditTrailInfo;
+import org.copperengine.management.model.AuditTrailInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.database.PagingQueryProvider;
@@ -39,6 +42,8 @@ import org.springframework.util.StringUtils;
 
 public class AuditTrailQueryEngine extends JdbcDaoSupport implements AuditTrailQueryMXBean {
     private static final Logger logger = LoggerFactory.getLogger(AuditTrailQueryEngine.class);
+
+    private MessagePostProcessor messagePostProcessor;
 
     @Override
     public List<AuditTrailInfo> getAuditTrails(String transactionId, String conversationId, String correlationId, Integer level, int maxResult) {
@@ -135,6 +140,7 @@ public class AuditTrailQueryEngine extends JdbcDaoSupport implements AuditTrailQ
         return res;
     }
 
+    @Deprecated
     public byte[] getMessage(long id) {
         String customSelect = "select LONG_MESSAGE from COP_AUDIT_TRAIL_EVENT where SEQ_ID = ? ";
 
@@ -150,6 +156,43 @@ public class AuditTrailQueryEngine extends JdbcDaoSupport implements AuditTrailQ
         };
 
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        return (jdbcTemplate != null) ? jdbcTemplate.query(customSelect, rse, new Object[] { id }) : null;
+    }
+
+    @Override
+    public List<AuditTrailInfo> getAuditTrails(AuditTrailInstanceFilter filter) {
+        throw new UnsupportedOperationException("Not supported. Use org.copperengine.core.audit.ScottyAuditTrailQueryEngine instead");
+    }
+
+    @Override
+    public int countAuditTrails(AuditTrailInstanceFilter filter) {
+        throw new UnsupportedOperationException("Not supported. Use org.copperengine.core.audit.ScottyAuditTrailQueryEngine instead");
+    }
+
+    public String getMessageString(long id) {
+        if (messagePostProcessor == null) {
+            throw new NullPointerException("Message Post Processor is not set. use byte[] getMessage(long id) method or set Message Post Processor");
+        }
+
+        String customSelect = "select LONG_MESSAGE from COP_AUDIT_TRAIL_EVENT where SEQ_ID = ? ";
+        ResultSetExtractor<String> rse = new ResultSetExtractor<String>() {
+
+            @Override
+            public String extractData(ResultSet rs) throws SQLException,
+                    DataAccessException {
+                rs.next();
+                Clob message = rs.getClob("LONG_MESSAGE");
+
+                if ((int) message.length() == 0) {
+                    return null;
+                }
+
+                return messagePostProcessor.deserialize(message.getSubString(1, (int) message.length()));
+            }
+        };
+
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+
         return (jdbcTemplate != null) ? jdbcTemplate.query(customSelect, rse, new Object[] { id }) : null;
     }
 
@@ -174,4 +217,11 @@ public class AuditTrailQueryEngine extends JdbcDaoSupport implements AuditTrailQ
         return null;
     }
 
+    public MessagePostProcessor getMessagePostProcessor() {
+        return messagePostProcessor;
+    }
+
+    public void setMessagePostProcessor(MessagePostProcessor messagePostProcessor) {
+        this.messagePostProcessor = messagePostProcessor;
+    }
 }

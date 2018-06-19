@@ -22,6 +22,8 @@ import org.copperengine.core.Acknowledge;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
+import org.copperengine.management.model.AuditTrailInfo;
+import org.copperengine.management.model.AuditTrailInstanceFilter;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 
 /**
@@ -251,4 +253,9 @@ public interface ScottyDBStorageInterface {
 
     public int countWorkflowInstances(WorkflowInstanceFilter filter) throws Exception;
 
+    public List<AuditTrailInfo> queryAuditTrailInstances(final AuditTrailInstanceFilter filter) throws Exception;
+
+    public String queryAuditTrailMessage(final long id) throws Exception;
+
+    public int countAuditTrailInstances(final AuditTrailInstanceFilter filter) throws Exception;
 }

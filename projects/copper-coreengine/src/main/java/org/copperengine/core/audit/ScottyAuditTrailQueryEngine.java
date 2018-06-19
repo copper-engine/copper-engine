@@ -1,0 +1,94 @@
+package org.copperengine.core.audit;
+
+import org.copperengine.core.persistent.ScottyDBStorageInterface;
+import org.copperengine.management.AuditTrailQueryMXBean;
+import org.copperengine.management.model.AuditTrailInfo;
+import org.copperengine.management.model.AuditTrailInstanceFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+public class ScottyAuditTrailQueryEngine implements AuditTrailQueryMXBean {
+    private static final Logger logger = LoggerFactory.getLogger(ScottyAuditTrailQueryEngine.class);
+
+    private MessagePostProcessor messagePostProcessor;
+    private ScottyDBStorageInterface dbStorage;
+
+    @Override
+    public List<AuditTrailInfo> getAuditTrails(String transactionId, String conversationId, String correlationId, Integer level, int maxResult) {
+        return getAuditTrails(new AuditTrailInstanceFilter(transactionId, conversationId, correlationId, level, maxResult, 0, false));
+    }
+
+    @Override
+    public List<AuditTrailInfo> getAuditTrails(AuditTrailInstanceFilter filter) {
+        logger.info("getAuditTrails is called with filter: {}", filter);
+        if (filter.isIncludeMessages() && messagePostProcessor == null) {
+            throw new RuntimeException("Message Post Processor should be set to decode message");
+        }
+
+        try {
+            List<AuditTrailInfo> auditTrailInfoList = dbStorage.queryAuditTrailInstances(filter);
+            logger.info("getAuditTrails returned " + auditTrailInfoList.size() + " instance(s)");
+            if (filter.isIncludeMessages()) {
+                auditTrailInfoList.forEach(auditTrailInfo -> {
+                    auditTrailInfo.setMessage(messagePostProcessor.deserialize(auditTrailInfo.getMessage()));
+                });
+            }
+
+            return auditTrailInfoList;
+        } catch (Exception e) {
+            logger.error("getAuditTrails failed: " + e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int countAuditTrails(AuditTrailInstanceFilter filter) {
+        try {
+            int count = dbStorage.countAuditTrailInstances(filter);
+            logger.debug("countAuditTrails returned {}", count);
+
+            return count;
+        } catch (Exception e) {
+            logger.error("countAuditTrails failed: " + e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public byte[] getMessage(long id) {
+        return getMessageString(id).getBytes();
+    }
+
+    @Override
+    public String getMessageString(long id) {
+        if (messagePostProcessor == null) {
+            throw new RuntimeException("Message Post Processor should be set to decode message");
+        }
+
+        try {
+            String message = dbStorage.queryAuditTrailMessage(id);
+            return message == null ? null : messagePostProcessor.deserialize(message);
+        } catch (Exception e) {
+            logger.error("getMessageString for id: " + id + " failed: " + e.getMessage() , e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public MessagePostProcessor getMessagePostProcessor() {
+        return messagePostProcessor;
+    }
+
+    public void setMessagePostProcessor(MessagePostProcessor messagePostProcessor) {
+        this.messagePostProcessor = messagePostProcessor;
+    }
+
+    public ScottyDBStorageInterface getDbStorage() {
+        return dbStorage;
+    }
+
+    public void setDbStorage(ScottyDBStorageInterface dbStorage) {
+        this.dbStorage = dbStorage;
+    }
+}

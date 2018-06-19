@@ -46,13 +46,11 @@ public class MockAuditTrail implements AuditTrail {
             logger.info(createMessage(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType));
     }
 
-    @Override
     public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType) {
         if (isEnabled(logLevel))
             logger.info(createMessage(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType));
     }
 
-    @Override
     public void asynchLog(int logLevel, Date occurrence, String conversationId, String context, String instanceId, String correlationId, String transactionId, String message, String messageType, AuditTrailCallback cb) {
         if (isEnabled(logLevel))
             logger.info(createMessage(logLevel, occurrence, conversationId, context, instanceId, correlationId, transactionId, message, messageType));
@@ -78,12 +76,10 @@ public class MockAuditTrail implements AuditTrail {
         return level;
     }
 
-    @Override
     public void asynchLog(AuditTrailEvent e) {
         this.asynchLog(e.logLevel, e.occurrence, e.conversationId, e.context, e.instanceId, e.correlationId, e.transactionId, e.message, e.messageType);
     }
 
-    @Override
     public void asynchLog(AuditTrailEvent e, AuditTrailCallback cb) {
         this.asynchLog(e.logLevel, e.occurrence, e.conversationId, e.context, e.instanceId, e.correlationId, e.transactionId, e.message, e.messageType, cb);
     }

@@ -43,6 +43,8 @@ import org.copperengine.core.persistent.RegisterCall;
 import org.copperengine.core.persistent.ScottyDBStorageInterface;
 import org.copperengine.core.persistent.Serializer;
 import org.copperengine.core.util.Blocker;
+import org.copperengine.management.model.AuditTrailInfo;
+import org.copperengine.management.model.AuditTrailInstanceFilter;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -608,5 +610,22 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     @Override
     public int countWorkflowInstances(final WorkflowInstanceFilter filter) throws Exception {
         return storage.countWorkflowInstances(filter);
+    }
+
+    @Override
+    public List<AuditTrailInfo> queryAuditTrailInstances(AuditTrailInstanceFilter filter) throws Exception {
+        throw new UnsupportedOperationException();
+        // TODO: Implement this here...
+    }
+
+    @Override
+    public String queryAuditTrailMessage(long id) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int countAuditTrailInstances(AuditTrailInstanceFilter filter) throws Exception {
+        throw new UnsupportedOperationException();
+        // TODO: Implement this here...
     }
 }
