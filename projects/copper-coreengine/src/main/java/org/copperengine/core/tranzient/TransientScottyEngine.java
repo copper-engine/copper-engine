@@ -69,7 +69,6 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     private TicketPoolManager ticketPoolManager;
     private final AtomicLong sequenceIdFactory = new AtomicLong(System.currentTimeMillis() * 10000L);
     private final AtomicLong errorWFCounter = new AtomicLong(0);
-    private final AtomicLong invalidWFCounter = new AtomicLong(0);
 
     public void setTicketPoolManager(TicketPoolManager ticketPoolManager) {
         if (ticketPoolManager == null)
@@ -386,9 +385,6 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
         if (filter.getStates().contains(ProcessingState.ERROR.name())) {
             count += errorWFCounter.get();
         }
-        if (filter.getStates().contains(ProcessingState.INVALID.name())) {
-            count += invalidWFCounter.get();
-        }
 
         WorkflowInstanceFilter noLimitfilter = new WorkflowInstanceFilter(filter.getStates(), filter.getLastModTS(), filter.getCreationTS(), filter.getProcessorPoolId(), filter.getWorkflowClassname(), Integer.MAX_VALUE, 0);
         return count + filter(noLimitfilter, workflowMap.values()).size();
@@ -396,8 +392,5 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
 
     public void incErrorWFCounter() {
         errorWFCounter.incrementAndGet();
-    }
-    public void incInvalidWFCounter() {
-        invalidWFCounter.incrementAndGet();
     }
 }
