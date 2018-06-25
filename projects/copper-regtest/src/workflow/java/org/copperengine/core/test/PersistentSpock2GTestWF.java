@@ -23,6 +23,7 @@ import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.audit.AuditTrail;
+import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
     private int x = 0;
 
     private transient MockAdapter mockAdapter;
-    private transient AuditTrail auditTrail;
+    private transient BatchingAuditTrail auditTrail;
 
     @AutoWire
     public void setMockAdapter(MockAdapter mockAdapter) {
@@ -47,7 +48,7 @@ public class PersistentSpock2GTestWF extends PersistentWorkflow<String> {
     }
 
     @AutoWire
-    public void setAuditTrail(AuditTrail auditTrail) {
+    public void setAuditTrail(BatchingAuditTrail auditTrail) {
         this.auditTrail = auditTrail;
     }
 

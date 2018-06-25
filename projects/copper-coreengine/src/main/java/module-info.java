@@ -7,10 +7,12 @@ module org.copperengine.core {
     requires java.compiler;
     requires java.xml.bind;
 
-    requires slf4j.api;
+    requires org.slf4j;
     requires org.objectweb.asm;
     requires org.objectweb.asm.tree;
     requires org.objectweb.asm.util;
+
+    uses javax.tools.JavaCompiler;
 
     exports org.copperengine.core;
     exports org.copperengine.core.audit;

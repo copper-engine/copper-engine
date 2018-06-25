@@ -512,7 +512,7 @@ public class CassandraStorage implements Storage {
     public int countWorkflowInstances(WorkflowInstanceFilter filter) throws Exception {
         final StringBuilder query = new StringBuilder();
         final List<Object> values = new ArrayList<>();
-        query.append("SELECT COUNT(*) AS WF_NUMBER FROM COP_WORKFLOW_INSTANCE");
+        query.append("SELECT COUNT(*) AS COUNT_NUMBER FROM COP_WORKFLOW_INSTANCE");
         appendQueryBase(query, values, filter);
         query.append(" ALLOW FILTERING");
         final String cqlQuery = query.toString();
@@ -520,7 +520,7 @@ public class CassandraStorage implements Storage {
         final ResultSet resultSet = session.execute(cqlQuery, values.toArray());
         Row row;
         while ((row = resultSet.one()) != null) {
-            return row.getInt("WF_NUMBER");
+            return row.getInt("COUNT_NUMBER");
         }
         throw new SQLException("Failed to get result of CQL request for counting workflow instances");
     }

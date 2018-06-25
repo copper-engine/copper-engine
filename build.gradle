@@ -20,7 +20,7 @@ ext {
     if(javaVersion < (javaCompatibility as int)) {
         throw new GradleException("Cannot generate java-$javaCompatibility compatible code using a java-$javaVersion compiler")
     }
-	slf4jVersion = "1.7.21"
+	slf4jVersion = "1.8.0-beta2"
 	springVersion = '5.0.5.RELEASE'
 	c3p0Version = '0.9.5.2'
 	asmVersion = '6.1.1'
@@ -522,9 +522,9 @@ project(':projects:copper-cassandra:cassandra-storage') {
         implementation project(':projects:copper-ext')
 
         api "com.datastax.cassandra:cassandra-driver-core:$cassandraDriverVersion"
+        api "com.google.guava:guava:$guavaVersion"
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
         implementation "commons-io:commons-io:$commonsIoVersion"
-        implementation "com.google.guava:guava:$guavaVersion"
         implementation 'commons-lang:commons-lang:2.6'
         implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
         implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
@@ -550,7 +550,6 @@ project(':projects:copper-cassandra:cassandra-loadtest') {
         implementation project(':projects:copper-ext')
         implementation project(':projects:copper-cassandra:cassandra-storage')
 
-        implementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
     }
 }
@@ -570,7 +569,7 @@ project(':projects:copper-spring') {
         implementation "org.springframework:spring-jdbc:$springVersion"
         implementation "org.springframework:spring-tx:$springVersion"
 
-        implementation 'org.springframework.batch:spring-batch-infrastructure:2.1.8.RELEASE'
+        implementation 'org.springframework.batch:spring-batch-infrastructure:4.0.1.RELEASE'
     }
 }
 
@@ -620,7 +619,6 @@ project(':projects:copper-performance-test') {
         implementation 'postgresql:postgresql:9.1-901.jdbc4'
         implementation 'com.h2database:h2:1.4.193'
         implementation "com.mchange:c3p0:$c3p0Version"
-        implementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
         runtimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
     }

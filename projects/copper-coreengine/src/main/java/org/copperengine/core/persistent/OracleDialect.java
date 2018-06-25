@@ -48,6 +48,8 @@ import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.StmtStatistic;
 import org.copperengine.core.util.FunctionWithException;
 import org.copperengine.management.DatabaseDialectMXBean;
+import org.copperengine.management.model.AuditTrailInfo;
+import org.copperengine.management.model.AuditTrailInstanceFilter;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -882,7 +884,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     @Override
     public int countWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
         final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(*) as WF_NUMBER");
+        sql.append("SELECT COUNT(*) as COUNT_NUMBER");
 
         final List<Object> params = new ArrayList<>();
         appendQueryBase(sql, params, filter);
@@ -891,12 +893,25 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         return CommonSQLHelper.processCountResult(sql,params, con);
     }
 
+    @Override
+    public List<AuditTrailInfo> queryAuditTrailInstances(AuditTrailInstanceFilter filter, Connection con) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String queryAuditTrailMessage(long id, Connection con) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int countAuditTrailInstances(AuditTrailInstanceFilter filter, Connection con) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
     protected PersistentWorkflow<?> decode(ResultSet rs) throws SQLException, Exception {
         final String id = rs.getString("ID");
         final int prio = rs.getInt("PRIORITY");
         final String ppoolId = rs.getString("PPOOL_ID");
-        String engineId = rs.getString("ENGINE_ID");
-        if(engineId == null) engineId = "default";
         final SerializedWorkflow sw = new SerializedWorkflow();
         sw.setData(rs.getString("DATA"));
         sw.setObjectState(rs.getString("OBJECT_STATE"));
@@ -904,11 +919,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         wf.setId(id);
         wf.setProcessorPoolId(ppoolId);
         wf.setPriority(prio);
-
-        //??? How else can we get engine ID
-        PersistentScottyEngine engine = new PersistentScottyEngine();
-        engine.setEngineIdProvider(new EngineIdProviderBean(engineId));
-        wf.setEngine(engine);
 
         final DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt("STATE"));
         final ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);

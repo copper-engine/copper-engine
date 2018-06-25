@@ -28,6 +28,7 @@ import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.audit.AuditTrail;
+import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.regtest.test.DBMockAdapter;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
@@ -43,7 +44,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
 
     private transient BackChannelQueue backChannelQueue;
     private transient DBMockAdapter dbMockAdapter;
-    private transient AuditTrail auditTrail;
+    private transient BatchingAuditTrail auditTrail;
 
     @AutoWire
     public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
@@ -56,7 +57,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
     }
 
     @AutoWire
-    public void setAuditTrail(AuditTrail auditTrail) {
+    public void setAuditTrail(BatchingAuditTrail auditTrail) {
         this.auditTrail = auditTrail;
     }
 

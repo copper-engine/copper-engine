@@ -18,11 +18,7 @@ package org.copperengine.core.persistent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,7 +32,6 @@ import org.copperengine.core.Acknowledge;
 import org.copperengine.core.CopperException;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineIdProvider;
-import org.copperengine.core.EngineIdProviderBean;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
@@ -49,6 +44,8 @@ import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.StmtStatistic;
 import org.copperengine.core.util.FunctionWithException;
 import org.copperengine.management.DatabaseDialectMXBean;
+import org.copperengine.management.model.AuditTrailInfo;
+import org.copperengine.management.model.AuditTrailInstanceFilter;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1175,7 +1172,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     @Override
     public int countWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
         final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(*) as WF_NUMBER");
+        sql.append("SELECT COUNT(*) as COUNT_NUMBER");
         final List<Object> params = new ArrayList<>();
         appendQueryBase(sql, params, filter);
         logger.debug("queryWorkflowInstances: sql={}, params={}", sql, params);
@@ -1183,11 +1180,96 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         return CommonSQLHelper.processCountResult(sql,params, con);
     }
 
+    @Override
+    public List<AuditTrailInfo> queryAuditTrailInstances(AuditTrailInstanceFilter filter, Connection con) throws SQLException {
+        logger.debug("queryAuditTrailInstances started with filter={}", filter);
+
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT SEQ_ID, TRANSACTION_ID, CONVERSATION_ID, CORRELATION_ID, OCCURRENCE, LOGLEVEL, CONTEXT, INSTANCE_ID, MESSAGE_TYPE ");
+
+        if (filter.isIncludeMessages()) {
+            sql.append(", LONG_MESSAGE");
+        }
+
+        final List<Object> params = new ArrayList<>();
+        appendAuditTrailQueryBase(sql, params, filter);
+
+        if (filter.getOffset() > 0 && filter.getMax() > 0) {
+            addLimitationAndOffset(sql, filter.getMax(), filter.getOffset());
+        } else if (filter.getMax() > 0){
+            addLimitation(sql, filter.getMax());
+        }
+
+        logger.debug("queryAuditTrailInstances: sql={}, params={}", sql, params);
+
+        return CommonSQLHelper.processAuditResult(sql.toString(), params, con, filter.isIncludeMessages());
+    }
+
+    @Override
+    public int countAuditTrailInstances(AuditTrailInstanceFilter filter, Connection con) throws SQLException {
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) as COUNT_NUMBER");
+        final List<Object> params = new ArrayList<>();
+
+        appendAuditTrailQueryBase(sql, params, filter);
+        logger.debug("queryWorkflowInstances: sql={}, params={}", sql, params);
+
+        return CommonSQLHelper.processCountResult(sql,params, con);
+    }
+
+    @Override
+    public String queryAuditTrailMessage(long id, Connection con) throws SQLException  {
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT LONG_MESSAGE FROM COP_AUDIT_TRAIL_EVENT WHERE SEQ_ID = ?");
+
+        try (PreparedStatement pStmtQueryWFIs = con.prepareStatement(sql.toString())) {
+            pStmtQueryWFIs.setObject(1, id);
+            ResultSet rs = pStmtQueryWFIs.executeQuery();
+            while (rs.next()) {
+                try {
+                    Clob message = rs.getClob("LONG_MESSAGE");
+                    if ((int) message.length() > 0) {
+                        return message.getSubString(1, (int) message.length());
+                    }
+                    return null;
+                } catch (Exception e) {
+                    logger.error("decoding of '" + rs + "' failed: " + e.toString(), e);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private StringBuilder appendAuditTrailQueryBase(StringBuilder sql, List<Object> params, AuditTrailInstanceFilter filter) {
+        sql.append(" FROM COP_AUDIT_TRAIL_EVENT WHERE 1=1 ");
+
+        if (filter.getLevel() != null && filter.getLevel() > 0) {
+            sql.append(" AND LOGLEVEL <= ? ");
+            params.add(filter.getLevel());
+        }
+        if (!isBlank(filter.getCorrelationId())) {
+            sql.append(" AND CORRELATION_ID = ? ");
+            params.add(filter.getCorrelationId());
+        }
+
+        if (!isBlank(filter.getConversationId())) {
+            sql.append(" AND CONVERSATION_ID = ? ");
+            params.add(filter.getConversationId());
+        }
+
+        if (!isBlank(filter.getTransactionId())) {
+            sql.append(" AND TRANSACTION_ID = ? ");
+            params.add(filter.getTransactionId());
+        }
+
+        return sql;
+    }
+
     protected PersistentWorkflow<?> decode(ResultSet rs) throws SQLException, Exception {
         final String id = rs.getString("ID");
         final int prio = rs.getInt("PRIORITY");
         final String ppoolId = rs.getString("PPOOL_ID");
-//        final String engineId = rs.getString("ENGINE_ID");
         final SerializedWorkflow sw = new SerializedWorkflow();
         sw.setData(rs.getString("DATA"));
         sw.setObjectState(rs.getString("OBJECT_STATE"));
@@ -1196,10 +1278,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         wf.setProcessorPoolId(ppoolId);
         wf.setPriority(prio);
 
-        //??? How else can we get engine ID
-//        PersistentScottyEngine engine = new PersistentScottyEngine();
-//        engine.setEngineIdProvider(new EngineIdProviderBean(engineId));
-//        wf.setEngine(engine);
         final DBProcessingState dbProcessingState = DBProcessingState.getByOrdinal(rs.getInt("STATE"));
         final ProcessingState state = DBProcessingState.getProcessingStateByState(dbProcessingState);
         WorkflowAccessor.setProcessingState(wf, state);
@@ -1208,7 +1286,20 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         WorkflowAccessor.setTimeoutTS(wf, rs.getTimestamp("TIMEOUT"));
         return wf;
     }
-    
+
     protected abstract void addLimitation(StringBuilder sql, int max);
     protected abstract void addLimitationAndOffset(StringBuilder sql, int max, int offset);
+
+    protected boolean isBlank(String str) {
+        int strLen;
+        if (str == null || (strLen = str.length()) == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if ((Character.isWhitespace(str.charAt(i)) == false)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

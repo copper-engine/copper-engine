@@ -6,6 +6,6 @@ module org.copperengine.performancetest {
     requires java.naming;
     requires java.sql;
 
-    requires slf4j.api;
+    requires org.slf4j;
     requires c3p0;
 }

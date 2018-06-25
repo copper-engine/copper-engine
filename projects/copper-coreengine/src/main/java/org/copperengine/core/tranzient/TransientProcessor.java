@@ -59,6 +59,7 @@ class TransientProcessor extends Processor {
             } catch (Exception e) {
                 engine.removeWorkflow(wf.getId());
                 logger.error("Execution of wf " + wf.getId() + " failed", e);
+                engine.incErrorWFCounter();
                 WorkflowAccessor.setLastActivityTS(wf, new Date());
                 assert wf.get__stack().isEmpty() : "Stack must be empty \n" + wf.get__stack();
             }

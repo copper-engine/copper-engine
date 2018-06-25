@@ -19,13 +19,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.copperengine.core.Acknowledge;
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.batcher.BatchCommand;
+import org.copperengine.management.model.AuditTrailInfo;
+import org.copperengine.management.model.AuditTrailInstanceFilter;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 
 public interface DatabaseDialect {
@@ -126,5 +127,11 @@ public interface DatabaseDialect {
 
     public abstract List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException;
     public abstract int countWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException;
+
+    public List<AuditTrailInfo> queryAuditTrailInstances(AuditTrailInstanceFilter filter, Connection con) throws SQLException;
+
+    public String queryAuditTrailMessage(long id, Connection con) throws SQLException;
+
+    public int countAuditTrailInstances(AuditTrailInstanceFilter filter, Connection con) throws SQLException;
 
 }
