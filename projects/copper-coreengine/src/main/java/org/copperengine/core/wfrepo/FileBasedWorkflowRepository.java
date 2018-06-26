@@ -83,6 +83,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     private List<CompilerOptionsProvider> compilerOptionsProviders = new ArrayList<CompilerOptionsProvider>();
     private List<String> sourceDirs = new ArrayList<String>();
     private List<String> sourceArchiveUrls = new ArrayList<String>();
+    private String lastBuildResults;
 
     /**
      * Sets the list of source archive URLs. The source archives must be ZIP compressed archives, containing COPPER
@@ -501,17 +502,18 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
         final Map<String, File> files = new HashMap<String, File>();
         try {
-            final StringWriter sw = new StringWriter();
-            sw.append("Compilation failed!\n");
             for (String dir : sourceDirs) {
                 files.putAll(findFiles(new File(dir), ".java"));
             }
             files.putAll(findFiles(additionalSourcesDir, ".java"));
             if (files.size() > 0) {
                 final Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(files.values());
+                final StringWriter sw = new StringWriter();
                 final CompilationTask task = compiler.getTask(sw, fileManager, null, options, null, compilationUnits1);
+                lastBuildResults = null;
                 if (!task.call()) {
-                    logger.error(sw.toString());
+                    lastBuildResults = "Compilation failed!\n" + sw.toString();
+                    logger.error(lastBuildResults);
                     throw new CopperRuntimeException("Compilation failed, see logfile for details");
                 }
             }
@@ -655,4 +657,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
         setCompilerOptionsProviders(compilerOptionsProviders);
     }
 
+    public String getLastBuildResults() {
+        return lastBuildResults;
+    }
 }
