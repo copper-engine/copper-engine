@@ -25,4 +25,6 @@ public interface FileBasedWorkflowRepositoryMXBean extends WorkflowRepositoryMXB
     public List<String> getSourceDirs();
 
     public List<String> getSourceArchiveUrls();
+
+    public String getLastBuildResults();
 }

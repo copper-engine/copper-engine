@@ -1,3 +1,7 @@
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/copper-engine/copper-engine/blob/master/LICENSE)
+[![Build Status](https://img.shields.io/travis/copper-engine/copper-engine/master.svg?label=Build)](https://travis-ci.org/copper-engine/copper-engine)
+
 copper-engine
 =============
 
