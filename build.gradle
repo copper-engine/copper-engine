@@ -51,7 +51,7 @@ buildscript {
         // the license plugin, see https://github.com/hierynomus/license-gradle-plugin
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.0'
         // the spotbugs plugin, see https://plugins.gradle.org/plugin/com.github.spotbugs
-        classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.1"
+        classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.2"
         // the task-tree plugin: https://github.com/dorongold/gradle-task-tree
         classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.3"
     }
