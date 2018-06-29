@@ -50,6 +50,7 @@ import org.copperengine.core.util.FunctionWithException;
 import org.copperengine.management.DatabaseDialectMXBean;
 import org.copperengine.management.model.AuditTrailInfo;
 import org.copperengine.management.model.AuditTrailInstanceFilter;
+import org.copperengine.management.model.HalfOpenTimeInterval;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -451,11 +452,6 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     }
 
     @Override
-    public void restartFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void restartAll(Connection c) throws Exception {
         logger.trace("restartAll()");
         CallableStatement stmt = c.prepareCall("begin COP_COREENGINE.restart_all; end;");
@@ -506,8 +502,118 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     }
 
     @Override
-    public void deleteFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
-        throw new UnsupportedOperationException();
+    public void restartFiltered(WorkflowInstanceFilter filter, Connection c) throws Exception {
+        logger.trace("restartFiltered()");
+
+        List<String> states = filter.getStates();
+        Date lastModTo = filter.getLastModTS().getTo();
+        Date lastModFrom = filter.getLastModTS().getFrom();
+        Date creationTo = filter.getCreationTS().getTo();
+        Date creationFrom = filter.getCreationTS().getFrom();
+        Timestamp lastModToTS;
+        Timestamp lastModFromTS;
+        Timestamp creationToTS;
+        Timestamp creationFromTS;
+        if (lastModTo == null) {
+            lastModToTS = null;
+        } else {
+            lastModToTS = new Timestamp(filter.getLastModTS().getTo().getTime());
+        }
+        if (lastModFrom == null) {
+            lastModFromTS = null;
+        } else {
+            lastModFromTS = new Timestamp(filter.getLastModTS().getFrom().getTime());
+        }
+        if (creationTo == null) {
+            creationToTS = null;
+        } else {
+            creationToTS = new Timestamp(filter.getCreationTS().getTo().getTime());
+        }
+        if (creationFrom == null) {
+            creationFromTS = null;
+        } else {
+            creationFromTS = new Timestamp(filter.getCreationTS().getFrom().getTime());
+        }
+        CallableStatement stmt = c.prepareCall("begin COP_COREENGINE.restartFiltered(?, ?, ?, ?, ?, ?, ?, ?); end;");
+        try {
+            stmt.setInt(1, this.getINTfromBOOLEAN(states.contains(ProcessingState.ERROR.name())));
+            stmt.setInt(2, this.getINTfromBOOLEAN(states.contains(ProcessingState.INVALID.name())));
+            stmt.setString(3, filter.getWorkflowClassname());
+            stmt.setTimestamp(4, lastModToTS);
+            stmt.setTimestamp(5, lastModFromTS);
+            stmt.setTimestamp(6, creationToTS);
+            stmt.setTimestamp(7, creationFromTS);
+
+            stmt.registerOutParameter(8, Types.INTEGER);
+            stmt.execute();
+            int restartCount = stmt.getInt(8);
+            if (restartCount == 0) {
+                throw new CopperException("Filtered Workflows could not be restarted");
+            }
+        } finally {
+            JdbcUtils.closeStatement(stmt);
+        }
+        logger.info("Filtered workflows successfully restarted.");
+    }
+
+    @Override
+    public void deleteFiltered(WorkflowInstanceFilter filter, Connection c) throws Exception {
+        logger.trace("deleteFiltered()");
+        List<String> states = filter.getStates();
+        Date lastModTo = filter.getLastModTS().getTo();
+        Date lastModFrom = filter.getLastModTS().getFrom();
+        Date creationTo = filter.getCreationTS().getTo();
+        Date creationFrom = filter.getCreationTS().getFrom();
+        Timestamp lastModToTS;
+        Timestamp lastModFromTS;
+        Timestamp creationToTS;
+        Timestamp creationFromTS;
+        if (lastModTo == null) {
+            lastModToTS = null;
+        } else {
+            lastModToTS = new Timestamp(filter.getLastModTS().getTo().getTime());
+        }
+        if (lastModFrom == null) {
+            lastModFromTS = null;
+        } else {
+            lastModFromTS = new Timestamp(filter.getLastModTS().getFrom().getTime());
+        }
+        if (creationTo == null) {
+            creationToTS = null;
+        } else {
+            creationToTS = new Timestamp(filter.getCreationTS().getTo().getTime());
+        }
+        if (creationFrom == null) {
+            creationFromTS = null;
+        } else {
+            creationFromTS = new Timestamp(filter.getCreationTS().getFrom().getTime());
+        }
+        CallableStatement stmt = c.prepareCall("begin COP_COREENGINE.deleteFiltered(?, ?, ?, ?, ?, ?, ?, ?, ?); end;");
+        try {
+            stmt.setInt(1, this.getINTfromBOOLEAN(states.contains(ProcessingState.WAITING.name())));
+            stmt.setInt(2, this.getINTfromBOOLEAN(states.contains(ProcessingState.ERROR.name())));
+            stmt.setInt(3, this.getINTfromBOOLEAN(states.contains(ProcessingState.INVALID.name())));
+            stmt.setString(4, filter.getWorkflowClassname());
+            stmt.setTimestamp(5, lastModToTS);
+            stmt.setTimestamp(6, lastModFromTS);
+            stmt.setTimestamp(7, creationToTS);
+            stmt.setTimestamp(8, creationFromTS);
+
+            stmt.registerOutParameter(9, Types.INTEGER);
+            stmt.execute();
+            int delCount = stmt.getInt(9);
+            if (delCount == 0) {
+                throw new CopperException("Filtered Workflows could not be deleted");
+            }
+        } finally {
+            JdbcUtils.closeStatement(stmt);
+        }
+        logger.info("Filtered workflows successfully deleted.");
+    }
+
+    public int getINTfromBOOLEAN(Boolean input) {
+        if (input == true) {return 1;}
+        else {return 0;}
     }
 
     @Override

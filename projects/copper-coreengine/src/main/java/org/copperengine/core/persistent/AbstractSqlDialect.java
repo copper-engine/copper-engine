@@ -650,7 +650,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         PreparedStatement stmtReadAndLockWorkflowInstance = null;
         PreparedStatement stmtDelResponses = null;
         PreparedStatement stmtDelWait = null;
-        PreparedStatement stmtDelError = null;
         PreparedStatement stmtDelInstance = null;
 
         try {
@@ -666,7 +665,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 // No delete from COP_QUEUE as a broken workflow should never be in the queue..
                 stmtDelResponses = c.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID IN (SELECT CORRELATION_ID FROM COP_WAIT WHERE WORKFLOW_INSTANCE_ID=?)");
                 stmtDelWait = c.prepareStatement("DELETE FROM COP_WAIT WHERE WORKFLOW_INSTANCE_ID=?");
-                stmtDelError = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE_ERROR WHERE WORKFLOW_INSTANCE_ID=?");
                 stmtDelInstance = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?");
 
                 stmtDelResponses.setString(1, workflowInstanceId);
@@ -674,9 +672,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
                 stmtDelWait.setString(1, workflowInstanceId);
                 stmtDelWait.execute();
-
-                stmtDelError.setString(1, workflowInstanceId);
-                stmtDelError.execute();
 
                 stmtDelInstance.setString(1, workflowInstanceId);
                 int deletedInstances = stmtDelInstance.executeUpdate();
@@ -688,7 +683,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         } finally {
             JdbcUtils.closeStatement(stmtDelResponses);
             JdbcUtils.closeStatement(stmtDelWait);
-            JdbcUtils.closeStatement(stmtDelError);
             JdbcUtils.closeStatement(stmtDelInstance);
         }
     }
@@ -721,6 +715,14 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
     @Override
     public void deleteFiltered(WorkflowInstanceFilter filter, Connection con) throws Exception {
+
+        if (filter.getStates().contains(ProcessingState.RUNNING.name()) || filter.getStates().contains(ProcessingState.RAW.name())
+                || filter.getStates().contains(ProcessingState.ENQUEUED.name()) || filter.getStates().contains(ProcessingState.DEQUEUED.name())
+                || filter.getStates().contains(ProcessingState.FINISHED.name())) {
+            throw new CopperException("Error: filter contains states that are not INVALID, ERROR, or WAITING, and therefore" +
+                    "are not supported by this function");
+        }
+
         assert(con.getAutoCommit() == false); // Should be set by the transaction manager.
 
         PreparedStatement stmtReadAndLockWorkflowInstance = null;
