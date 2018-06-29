@@ -40,6 +40,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.util.StringUtils;
 
+// Use org.copperengine.core.audit.ScottyAuditTrailQueryEngine instead
+@Deprecated
 public class AuditTrailQueryEngine extends JdbcDaoSupport implements AuditTrailQueryMXBean {
     private static final Logger logger = LoggerFactory.getLogger(AuditTrailQueryEngine.class);
 

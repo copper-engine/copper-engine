@@ -1147,6 +1147,7 @@ public class SpringlessBasePersistentWorkflowTest {
             }
         assertEquals(NUMB_OF_WFI, engine.queryWorkflowInstances(filter).size());
     }
+
     private void assertEqualsCountX(final PersistentScottyEngine engine, final int NUMB_OF_WFI, WorkflowInstanceFilter filter) throws InterruptedException {
         for (int i=0; i < 50; i++) {
             Thread.sleep(100);
@@ -1257,6 +1258,58 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(EngineState.STOPPED, engine.getEngineState());
         assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
+
+    public void testJmxCountWorkflowInstancesWaiting(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+            final int NUMB_OF_WFI = 4;
+            final WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            assertEquals(0, engine.queryWorkflowInstances(filter).size());
+
+            for (int i=0; i<NUMB_OF_WFI; i++) {
+                engine.run(WaitForEverTestWF_NAME, "ERROR");
+            }
+            Thread.sleep(200); // wait for it to start up / bring workflows to error state
+
+            logger.info("query RUNNING...");
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
+            assertEqualsCountX(engine, NUMB_OF_WFI, filter);
+        }
+        finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+//    public void testJmxDeleteWorkflowInstancesWaiting(DataSourceType dsType) throws Exception {
+//        assumeFalse(skipTests());
+//        final PersistentEngineTestContext context = createContext(dsType);
+//        final PersistentScottyEngine engine = context.getEngine();
+//        try {
+//            final int NUMB_OF_WFI = 4;
+//            final WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+//            assertEquals(0, engine.queryWorkflowInstances(filter).size());
+//
+//            for (int i=0; i<NUMB_OF_WFI; i++) {
+//                engine.run(WaitForEverTestWF_NAME, "ERROR");
+//            }
+//            Thread.sleep(200); // wait for it to start up / bring workflows to error state
+//
+//            logger.info("query RUNNING...");
+//            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
+//            assertEqualsCountX(engine, NUMB_OF_WFI, filter);
+//            engine.deleteFiltered(filter);
+//            assertEqualsCountX(engine, 0, filter);
+//        }
+//        finally {
+//            closeContext(context);
+//        }
+//        assertEquals(EngineState.STOPPED, engine.getEngineState());
+//        assertEquals(0, engine.getNumberOfWorkflowInstances());
+//    }
 
 
     public void testDeleteBrokenWorkflowInstance(DataSourceType dsType) throws Exception {
