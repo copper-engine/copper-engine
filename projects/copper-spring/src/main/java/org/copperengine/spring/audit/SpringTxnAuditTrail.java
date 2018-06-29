@@ -24,7 +24,6 @@ import org.copperengine.core.audit.AbstractAuditTrail;
 import org.copperengine.core.audit.AuditTrailEvent;
 import org.copperengine.core.audit.BatchInsertIntoAutoTrail.Command;
 import org.copperengine.core.audit.BatchInsertIntoAutoTrail.Executor;
-import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.batcher.NullCallback;
 import org.copperengine.spring.SpringTransaction;
@@ -33,7 +32,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-public class SpringTxnAuditTrail extends BatchingAuditTrail {
+public class SpringTxnAuditTrail extends AbstractAuditTrail {
 
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(SpringTxnAuditTrail.class);
 
