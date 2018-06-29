@@ -284,6 +284,11 @@ public class ClasspathWorkflowRepository extends AbstractWorkflowRepository impl
     }
 
     @Override
+    public String getLastBuildResults() {
+        return null;
+    }
+
+    @Override
     protected VolatileState getVolatileState() {
         return volatileState;
     }
