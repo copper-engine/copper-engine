@@ -16,33 +16,11 @@
 package org.copperengine.regtest.audit;
 
 import org.copperengine.core.audit.AbstractAuditTrail;
-import org.copperengine.core.audit.AbstractAuditTrail.Property2ColumnMapping;
-import org.copperengine.core.audit.AuditTrail;
-import org.copperengine.core.audit.AuditTrailEvent;
-import org.copperengine.core.audit.BatchInsertIntoAutoTrail.Command;
-import org.copperengine.core.audit.BatchInsertIntoAutoTrail.Executor;
-import org.copperengine.core.audit.BatchingAuditTrail;
-import org.copperengine.core.batcher.BatchCommand;
-import org.copperengine.core.batcher.NullCallback;
-import org.copperengine.regtest.persistent.DataSourceFactory;
 import org.copperengine.spring.audit.SpringTxnAuditTrail;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-
-import static org.junit.Assert.*;
 
 public class SpringAuditTrailTest extends AuditTrailTestBase {
 

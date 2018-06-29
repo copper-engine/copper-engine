@@ -93,10 +93,9 @@
 		<property name="notifyProcessorPoolsOnResponse" value="false"/>
 	</bean>
 	
-	<bean id="auditTrail" class="org.copperengine.spring.audit.SpringTxnAuditTrail" scope="singleton" init-method="startup" >
+	<bean id="auditTrail" class="org.copperengine.core.audit.BatchingAuditTrail" scope="singleton" init-method="startup" >
 		<property name="batcher" ref="batcher"/>
 		<property name="dataSource" ref="datasource_default"/>
-		<property name="transactionManager" ref="txManager"/>
 	</bean>
 	
 	<bean id="dbMockAdapter" class="org.copperengine.regtest.test.DBMockAdapter" scope="singleton" init-method="startup" destroy-method="shutdown">
