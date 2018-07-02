@@ -190,7 +190,7 @@ configure(properSubprojects) {
         exclude '**/module-info.java'
     }
 
-    if (project.hasProperty('secretKeyRingFileSourceURL')) {
+    if (project.hasProperty('nexusUsername')) {
         // the nexus plugin makes uploading to Sonatype Nexus repository easier
         // see https://github.com/bmuschko/gradle-nexus-plugin for documentation
         apply plugin: 'nexus'
@@ -199,16 +199,7 @@ configure(properSubprojects) {
             sign = true
         }
 
-        // task to fetch the GPG key to sign the JAR archives
-        // we put the key to build/secring.gpg where it will be picked up by the uploadArchives task of the nexus plugin
-        task fetchSecretKeyRingFile << {
-            file(secretKeyRingFileDestFile).getParentFile().mkdirs()
-            ant.get(src: secretKeyRingFileSourceURL, dest: secretKeyRingFileDestFile, username: secretKeyRingFileSourceURLAuthUsername, password: secretKeyRingFileSourceURLAuthPassword)
-        }
         afterEvaluate {
-            // always fetch the GPG key before signing archives
-            tasks.signArchives.dependsOn fetchSecretKeyRingFile
-
             // copy module-info.class to the 'classes' dir after running 'classes' and before running 'jar'
             tasks.signArchives.dependsOn copyInfoClass
             copyInfoClass.mustRunAfter classes
