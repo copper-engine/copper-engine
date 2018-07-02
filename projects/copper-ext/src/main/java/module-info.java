@@ -5,7 +5,7 @@ module org.copperengine.ext {
 
     requires org.slf4j;
     requires org.objectweb.asm;
-    requires commons.io;
+    requires org.apache.commons.io;
     requires com.google.common;
     requires snakeyaml;
 
