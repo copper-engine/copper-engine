@@ -293,7 +293,7 @@ configure(properSubprojects) {
                 if(javaCompatibility >= 9) {
                     options.compilerArgs = [
                             '--module-path', classpath.asPath,
-                            '--add-modules', 'junit,slf4j.log4j12',
+                            '--add-modules', 'junit,org.slf4j',
                             '--add-reads', "$moduleName=junit",
                             '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
                     ]
@@ -494,7 +494,6 @@ project(':projects:copper-regtest') {
         testImplementation 'com.h2database:h2:1.4.193'
         testImplementation "com.mchange:c3p0:$c3p0Version"
 
-        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
         testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
 
     }
@@ -510,7 +509,6 @@ project(':projects:copper-ext') {
         implementation "com.google.guava:guava:$guavaVersion"
         implementation "org.yaml:snakeyaml:$snakeyamlVersion"
     	
-        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
         testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
     }
 }
@@ -529,7 +527,6 @@ project(':projects:copper-cassandra:cassandra-storage') {
         implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
         implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         
-        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
         testImplementation('org.cassandraunit:cassandra-unit:3.1.1.0') {
             exclude module: 'hamcrest-core'
             exclude module: 'hamcrest-library'
@@ -587,7 +584,6 @@ project(':projects:copper-coreengine') {
         implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
         implementation 'javax.xml.bind:jaxb-api:2.3.0'
-        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
     }
 
     task scriptsZip(type: Zip) {

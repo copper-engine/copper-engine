@@ -6,5 +6,7 @@ module org.copperengine.regtest {
     requires org.copperengine.ext;
     requires org.copperengine.spring;
 
+    requires org.slf4j;
+
     requires spring.tx;
 }
