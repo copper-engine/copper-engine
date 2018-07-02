@@ -28,7 +28,7 @@ import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.audit.AuditTrail;
-import org.copperengine.core.audit.BatchingAuditTrail;
+import org.copperengine.core.audit.AbstractAuditTrail;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.regtest.test.DBMockAdapter;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
@@ -44,7 +44,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
 
     private transient BackChannelQueue backChannelQueue;
     private transient DBMockAdapter dbMockAdapter;
-    private transient BatchingAuditTrail auditTrail;
+    private transient AbstractAuditTrail auditTrail;
 
     @AutoWire
     public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
@@ -57,7 +57,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
     }
 
     @AutoWire
-    public void setAuditTrail(BatchingAuditTrail auditTrail) {
+    public void setAuditTrail(AbstractAuditTrail auditTrail) {
         this.auditTrail = auditTrail;
     }
 
@@ -68,7 +68,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
                 callFoo();
                 assertNotNull(this.getCreationTS());
             }
-            auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", null);
+            auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", null);
             backChannelQueue.enqueue(new WorkflowResult(getData(), null));
         } catch (Exception e) {
             logger.error("execution failed", e);
@@ -89,7 +89,7 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
         assertFalse(res.isTimeout());
         assertEquals(getData(), res.getResponse());
         assertNull(res.getException());
-        auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
+        auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
     }
 
 }
