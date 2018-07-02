@@ -17,17 +17,18 @@ package org.copperengine.regtest.test;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.persistent.PersistentWorkflow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IssueClassCastExceptionWorkflow3<Data extends Serializable> extends PersistentWorkflow<Serializable> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = Logger.getLogger(IssueClassCastExceptionWorkflow3.class);
+    private static final Logger logger = LoggerFactory.getLogger(IssueClassCastExceptionWorkflow3.class);
 
     private int retriesLeft = 5;
 
