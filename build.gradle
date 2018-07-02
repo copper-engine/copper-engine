@@ -199,7 +199,16 @@ configure(properSubprojects) {
             sign = true
         }
 
+        // task to fetch the GPG key to sign the JAR archives
+        // we put the key to build/secring.gpg where it will be picked up by the uploadArchives task of the nexus plugin
+        task fetchSecretKeyRingFile << {
+            file(secretKeyRingFileDestFile).getParentFile().mkdirs()
+            ant.get(src: secretKeyRingFileSourceURL, dest: secretKeyRingFileDestFile, username: secretKeyRingFileSourceURLAuthUsername, password: secretKeyRingFileSourceURLAuthPassword)
+        }
         afterEvaluate {
+            // always fetch the GPG key before signing archives
+            tasks.signArchives.dependsOn fetchSecretKeyRingFile
+            
             // copy module-info.class to the 'classes' dir after running 'classes' and before running 'jar'
             tasks.signArchives.dependsOn copyInfoClass
             copyInfoClass.mustRunAfter classes
@@ -499,7 +508,7 @@ project(':projects:copper-ext') {
         implementation "commons-io:commons-io:$commonsIoVersion"
         implementation "com.google.guava:guava:$guavaVersion"
         implementation "org.yaml:snakeyaml:$snakeyamlVersion"
-    	
+
         testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
     }
 }
@@ -517,7 +526,7 @@ project(':projects:copper-cassandra:cassandra-storage') {
         implementation 'commons-lang:commons-lang:2.6'
         implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
         implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-        
+
         testImplementation('org.cassandraunit:cassandra-unit:3.1.1.0') {
             exclude module: 'hamcrest-core'
             exclude module: 'hamcrest-library'
@@ -609,7 +618,7 @@ project(':projects:copper-performance-test') {
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
         runtimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
     }
-    
+
 	jar {
         dependsOn ':projects:copper-coreengine:jar', ':projects:copper-ext:jar', ':projects:copper-cassandra:cassandra-storage:jar'
 	    manifest.attributes provider: 'gradle'
@@ -629,6 +638,6 @@ project(':projects:copper-performance-test') {
 		    attributes 'Main-Class': 'org.copperengine.performancetest.main.Main'
 	    }
 
-	}    
+	}
 
 }
