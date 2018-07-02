@@ -3,8 +3,7 @@ language: java
 sudo: false
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_7900514af20e_key -iv $encrypted_7900514af20e_iv -in secring.base64.gpg.enc -out secring.base64.gpg -d
-  - base64 -d secring.base64.gpg > secring.gpg
+  - openssl aes-256-cbc -K $encrypted_7900514af20e_key -iv $encrypted_7900514af20e_iv -in secring.gpg.enc -out secring.gpg -d
   - wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
 
 install: 
