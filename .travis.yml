@@ -2,14 +2,18 @@ language: java
 
 sudo: false
 
-before_install: wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
+before_install:
+  - wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
+  - sudo apt-get install p7zip-full
 
 install:
   - . ./install-jdk.sh -F 10 -L BCL
   - chmod a+x ./gradlew
+  - 7z x secring.zip -p$KEY_RING_PASSWORD
+
 
 cache:
   directories:
     - $HOME/.gradle
 
-script: ./gradlew -PfindbugsXmlReportEnabled=true -PsecretKeyRingFileSourceURL=$KEY_RING_URL -PsecretKeyRingFileSourceURLAuthUsername=$KEY_RING_USER -PsecretKeyRingFileSourceURLAuthPassword=$KEY_RING_PASSWORD -PsecretKeyRingFileDestFile=$KEY_RING_FILE_LOCATION -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -Psigning.secretKeyRingFile=$KEY_RING_FILE_LOCATION -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --recompile-scripts --refresh-dependencies --info --full-stacktrace uploadArchives nexusStagingRelease
+script: ./gradlew -PfindbugsXmlReportEnabled=true -PsecretKeyRingFileDestFile=secring.gpg -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -Psigning.secretKeyRingFile=$KEY_RING_FILE_LOCATION -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --recompile-scripts --refresh-dependencies --info --full-stacktrace uploadArchives nexusStagingRelease
