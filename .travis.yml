@@ -16,4 +16,4 @@ cache:
   directories:
     - $HOME/.gradle
 
-script: ./gradlew -PfindbugsXmlReportEnabled=true -PsecretKeyRingFileDestFile=secring.gpg -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -Psigning.secretKeyRingFile=$KEY_RING_FILE_LOCATION -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --recompile-scripts --refresh-dependencies --info --full-stacktrace uploadArchives nexusStagingRelease
+script: ./gradlew -PfindbugsXmlReportEnabled=true -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -Psigning.secretKeyRingFile=secring.gpg -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --recompile-scripts --refresh-dependencies --info --full-stacktrace uploadArchives nexusStagingRelease
