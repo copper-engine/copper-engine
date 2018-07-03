@@ -191,7 +191,7 @@ configure(properSubprojects) {
     }
 
     if (project.hasProperty('nexusUsername')) {
-        ext."signing.secretKeyRingFile" = "$rootDir/secring.pgp"
+        ext."signing.secretKeyRingFile" = "$rootDir/secring.gpg"
 
         // the nexus plugin makes uploading to Sonatype Nexus repository easier
         // see https://github.com/bmuschko/gradle-nexus-plugin for documentation

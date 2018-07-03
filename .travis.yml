@@ -10,6 +10,8 @@ install:
   - . ./install-jdk.sh -F 10 -L BCL
   - chmod a+x ./gradlew
   - 7z x secring.zip -p$KEY_RING_PASSWORD
+  - pwd
+  - ls -al
 
 
 cache:
