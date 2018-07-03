@@ -200,9 +200,6 @@ configure(properSubprojects) {
         }
 
         afterEvaluate {
-            // always fetch the GPG key before signing archives
-            tasks.signArchives.dependsOn fetchSecretKeyRingFile
-            
             // copy module-info.class to the 'classes' dir after running 'classes' and before running 'jar'
             tasks.signArchives.dependsOn copyInfoClass
             copyInfoClass.mustRunAfter classes
