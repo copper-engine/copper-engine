@@ -167,6 +167,27 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
         return new ArrayList<>(getVolatileState().workflowClassInfoMap.values());
     }
 
+    @Override
+    public WorkflowClassInfo[] queryWorkflowsSubset(int max, int offset) {
+        WorkflowClassInfo wfInfo[] = getVolatileState().workflowClassInfoMap.values().toArray(new WorkflowClassInfo[0]);
+        int available = wfInfo.length - offset;
+        if (available > max && max > 0) {
+            available = max;
+        }
+        WorkflowClassInfo subset[]= new WorkflowClassInfo[available];
+        int counter = 0;
+        for (int i = offset; i < (available + offset); i++) {
+            subset[counter] = wfInfo[i];
+            counter++;
+        }
+        return subset;
+    }
+
+    @Override
+    public int getWorkflowRepoSize() {
+        return getVolatileState().workflowClassInfoMap.values().size();
+    }
+
     protected static Map<String, WorkflowClassInfo> createWorkflowClassInfoMap(final Map<String, Class<?>> wfClassMap, final Map<String, String> javaSources) {
         final Map<String, WorkflowClassInfo> map = new HashMap<>();
         for (Class<?> wfClass : wfClassMap.values()) {

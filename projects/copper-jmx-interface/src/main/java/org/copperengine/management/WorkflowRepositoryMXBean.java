@@ -24,5 +24,10 @@ public interface WorkflowRepositoryMXBean {
 
     public List<WorkflowClassInfo> getWorkflows();
 
+    public WorkflowClassInfo[] queryWorkflowsSubset(int max, int offset);
+
     public WorkflowClassInfo getWorkflowInfo(String classname);
+
+    public int getWorkflowRepoSize();
+
 }
