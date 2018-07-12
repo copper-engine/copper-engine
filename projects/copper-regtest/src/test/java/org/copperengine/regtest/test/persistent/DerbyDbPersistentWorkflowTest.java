@@ -132,6 +132,21 @@ public class DerbyDbPersistentWorkflowTest extends SpringlessBasePersistentWorkf
     }
 
     @Test
+    public void testDeleteWaitingWorkflowInstances() throws Exception {
+        super.testDeleteWaitingWorkflowInstances(DS_CONTEXT);
+    }
+
+    @Test
+    public void testDeleteFilteredWorkflowInstance() throws Exception {
+        super.testDeleteFilteredWorkflowInstance(DS_CONTEXT);
+    }
+
+    @Test
+    public void testRestartFilteredWorkflowInstance() throws Exception {
+        super.testRestartFilteredWorkflowInstance(DS_CONTEXT);
+    }
+
+    @Test
     public void testJmxQueryWithOffsetWorkflowInstancesERROR() throws Exception {
         super.testJmxQueryWithOffsetWorkflowInstancesERROR(DS_CONTEXT);
     }

@@ -32,7 +32,7 @@ public class ScottyAuditTrailQueryEngine implements AuditTrailQueryMXBean {
 
     @Override
     public List<AuditTrailInfo> getAuditTrails(String transactionId, String conversationId, String correlationId, Integer level, int maxResult) {
-        return getAuditTrails(new AuditTrailInstanceFilter(transactionId, conversationId, correlationId, level, maxResult, 0, false));
+        return getAuditTrails(new AuditTrailInstanceFilter(null, transactionId, conversationId, correlationId, level, maxResult, 0, null, null, false));
     }
 
     @Override

@@ -662,7 +662,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 // now table COP_WORKFLOW_INSTANCE is locked for the given workflow instance in order to no one else making
                 // changes on the workflow while we are going to delete it.
 
-                // No delete from COP_QUEUE as a broken workflow should never be in the queue..
                 stmtDelResponses = c.prepareStatement("DELETE FROM COP_RESPONSE WHERE CORRELATION_ID IN (SELECT CORRELATION_ID FROM COP_WAIT WHERE WORKFLOW_INSTANCE_ID=?)");
                 stmtDelWait = c.prepareStatement("DELETE FROM COP_WAIT WHERE WORKFLOW_INSTANCE_ID=?");
                 stmtDelInstance = c.prepareStatement("DELETE FROM COP_WORKFLOW_INSTANCE WHERE ID=?");
@@ -745,11 +744,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
             ResultSet res = sqlStmt.executeQuery();
             if (res.next()) {
-                // There is an entry for the given workflowInstanceID in the table with a workflow in error level and
-                // now table COP_WORKFLOW_INSTANCE is locked for the given workflow instance in order to no one else making
-                // changes on the workflow while we are going to delete it.
-
-                // No delete from COP_QUEUE as a broken workflow should never be in the queue..
 
                 sqlMain = new StringBuilder();
                 sqlMain.append("DELETE FROM COP_RESPONSE WHERE COP_RESPONSE.CORRELATION_ID IN (SELECT ID FROM COP_WORKFLOW_INSTANCE as x");
@@ -786,7 +780,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
                 getSQLParams(stmtDelInstance, filter, params, 1);
                 int deletedInstances = stmtDelInstance.executeUpdate();
-                assert(deletedInstances == 1);
 
             } else {
                 throw new CopperException("Error Deleting Filtered Workflows");
@@ -1247,12 +1240,17 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         sql.append(" FROM COP_AUDIT_TRAIL_EVENT WHERE 1=1 ");
 
         if (filter.getLevel() != null && filter.getLevel() > 0) {
-            sql.append(" AND LOGLEVEL <= ? ");
+            sql.append(" AND LOGLEVEL >= ? ");
             params.add(filter.getLevel());
         }
         if (!isBlank(filter.getCorrelationId())) {
             sql.append(" AND CORRELATION_ID = ? ");
             params.add(filter.getCorrelationId());
+        }
+
+        if (!isBlank(filter.getInstanceId())) {
+            sql.append(" AND INSTANCE_ID = ? ");
+            params.add(filter.getInstanceId());
         }
 
         if (!isBlank(filter.getConversationId())) {
@@ -1263,6 +1261,16 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         if (!isBlank(filter.getTransactionId())) {
             sql.append(" AND TRANSACTION_ID = ? ");
             params.add(filter.getTransactionId());
+        }
+
+        if (filter.getOccurredFrom() != null) {
+            sql.append(" AND OCCURRENCE >= ? ");
+            params.add(filter.getOccurredFrom());
+        }
+
+        if (filter.getOccurredTo() != null) {
+            sql.append(" AND OCCURRENCE <= ? ");
+            params.add(filter.getOccurredTo());
         }
 
         return sql;

@@ -141,6 +141,21 @@ public class H2PersistentWorkflowTest extends SpringlessBasePersistentWorkflowTe
     }
 
     @Test
+    public void testDeleteWaitingWorkflowInstances() throws Exception {
+        super.testDeleteWaitingWorkflowInstances(DS_CONTEXT);
+    }
+
+    @Test
+    public void testDeleteFilteredWorkflowInstance() throws Exception {
+        super.testDeleteFilteredWorkflowInstance(DS_CONTEXT);
+    }
+
+    @Test
+    public void testRestartFilteredWorkflowInstance() throws Exception {
+        super.testRestartFilteredWorkflowInstance(DS_CONTEXT);
+    }
+
+    @Test
     public void testJmxQueryWithOffsetWorkflowInstances() throws Exception {
         super.testJmxQueryWithOffsetWorkflowInstances(DS_CONTEXT);
     }

@@ -15,13 +15,7 @@
  */
 package org.copperengine.core.persistent;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +33,7 @@ import org.copperengine.core.EngineIdProviderBean;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
+import org.copperengine.core.audit.AuditTrail;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.db.utility.JdbcUtils;
@@ -1000,18 +995,118 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     }
 
     @Override
-    public List<AuditTrailInfo> queryAuditTrailInstances(AuditTrailInstanceFilter filter, Connection con) throws SQLException {
-        throw new UnsupportedOperationException();
+    public List<AuditTrailInfo> queryAuditTrailInstances(AuditTrailInstanceFilter filter, Connection c) throws SQLException {
+        logger.trace("queryAuditTrailInstances()");
+
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT SEQ_ID, TRANSACTION_ID, CONVERSATION_ID, CORRELATION_ID, OCCURRENCE, LOGLEVEL, CONTEXT, INSTANCE_ID, MESSAGE_TYPE ");
+
+        if (filter.isIncludeMessages()) {
+            sql.append(", LONG_MESSAGE");
+        }
+
+        final List<Object> params = new ArrayList<>();
+        appendAuditTrailQueryBase(sql, params, filter);
+
+        if (filter.getOffset() > 0 && filter.getMax() > 0) {
+            addLimitationAndOffset(sql, filter.getMax(), filter.getOffset());
+        } else if (filter.getMax() > 0){
+            addLimitation(sql, filter.getMax());
+        }
+
+        logger.debug("queryAuditTrailInstances: sql={}, params={}", sql, params);
+
+        return CommonSQLHelper.processAuditResult(sql.toString(), params, c, filter.isIncludeMessages());
+    }
+
+    private StringBuilder appendAuditTrailQueryBase(StringBuilder sql, List<Object> params, AuditTrailInstanceFilter filter) {
+        sql.append(" FROM COP_AUDIT_TRAIL_EVENT WHERE 1=1 ");
+
+        if (filter.getLevel() != null && filter.getLevel() > 0) {
+            sql.append(" AND LOGLEVEL >= ? ");
+            params.add(filter.getLevel());
+        }
+        if (!isBlank(filter.getCorrelationId())) {
+            sql.append(" AND CORRELATION_ID = ? ");
+            params.add(filter.getCorrelationId());
+        }
+
+        if (!isBlank(filter.getInstanceId())) {
+            sql.append(" AND INSTANCE_ID = ? ");
+            params.add(filter.getInstanceId());
+        }
+
+        if (!isBlank(filter.getConversationId())) {
+            sql.append(" AND CONVERSATION_ID = ? ");
+            params.add(filter.getConversationId());
+        }
+
+        if (!isBlank(filter.getTransactionId())) {
+            sql.append(" AND TRANSACTION_ID = ? ");
+            params.add(filter.getTransactionId());
+        }
+
+        if (filter.getOccurredFrom() != null) {
+            sql.append(" AND OCCURRENCE >= ? ");
+            params.add(filter.getOccurredFrom());
+        }
+
+        if (filter.getOccurredTo() != null) {
+            sql.append(" AND OCCURRENCE <= ? ");
+            params.add(filter.getOccurredTo());
+        }
+
+        return sql;
+    }
+
+    protected boolean isBlank(String str) {
+        int strLen;
+        if (str == null || (strLen = str.length()) == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if ((Character.isWhitespace(str.charAt(i)) == false)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public String queryAuditTrailMessage(long id, Connection con) throws SQLException {
-        throw new UnsupportedOperationException();
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT LONG_MESSAGE FROM COP_AUDIT_TRAIL_EVENT WHERE SEQ_ID = ?");
+
+        try (PreparedStatement pStmtQueryWFIs = con.prepareStatement(sql.toString())) {
+            pStmtQueryWFIs.setObject(1, id);
+            ResultSet rs = pStmtQueryWFIs.executeQuery();
+            while (rs.next()) {
+                try {
+                    Clob message = rs.getClob("LONG_MESSAGE");
+                    if ((int) message.length() > 0) {
+                        return message.getSubString(1, (int) message.length());
+                    }
+                    return null;
+                } catch (Exception e) {
+                    logger.error("decoding of '" + rs + "' failed: " + e.toString(), e);
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override
     public int countAuditTrailInstances(AuditTrailInstanceFilter filter, Connection con) throws SQLException {
-        throw new UnsupportedOperationException();
+        logger.trace("countAuditTrailInstances()");
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) as COUNT_NUMBER");
+        final List<Object> params = new ArrayList<>();
+
+        appendAuditTrailQueryBase(sql, params, filter);
+        logger.debug("queryWorkflowInstances: sql={}, params={}", sql, params);
+
+        return CommonSQLHelper.processCountResult(sql,params, con);
     }
 
     protected PersistentWorkflow<?> decode(ResultSet rs) throws SQLException, Exception {

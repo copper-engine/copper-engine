@@ -55,6 +55,7 @@ import org.copperengine.core.audit.CompressedBase64PostProcessor;
 import org.copperengine.core.audit.DummyPostProcessor;
 import org.copperengine.core.db.utility.RetryingTransaction;
 import org.copperengine.core.persistent.PersistentScottyEngine;
+import org.copperengine.management.model.HalfOpenTimeInterval;
 import org.copperengine.management.model.WorkflowInfo;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.copperengine.regtest.test.DataHolder;
@@ -1284,33 +1285,43 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
 
-//    public void testJmxDeleteWorkflowInstancesWaiting(DataSourceType dsType) throws Exception {
-//        assumeFalse(skipTests());
-//        final PersistentEngineTestContext context = createContext(dsType);
-//        final PersistentScottyEngine engine = context.getEngine();
-//        try {
-//            final int NUMB_OF_WFI = 4;
-//            final WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
-//            assertEquals(0, engine.queryWorkflowInstances(filter).size());
-//
-//            for (int i=0; i<NUMB_OF_WFI; i++) {
-//                engine.run(WaitForEverTestWF_NAME, "ERROR");
-//            }
-//            Thread.sleep(200); // wait for it to start up / bring workflows to error state
-//
-//            logger.info("query RUNNING...");
-//            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
-//            assertEqualsCountX(engine, NUMB_OF_WFI, filter);
-//            engine.deleteFiltered(filter);
-//            assertEqualsCountX(engine, 0, filter);
-//        }
-//        finally {
-//            closeContext(context);
-//        }
-//        assertEquals(EngineState.STOPPED, engine.getEngineState());
-//        assertEquals(0, engine.getNumberOfWorkflowInstances());
-//    }
+    public void testDeleteWaitingWorkflowInstances(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+            final WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            assertEquals(0, engine.queryWorkflowInstances(filter).size());
 
+            final WorkflowInstanceDescr<Integer> waitingWorkflow = new WorkflowInstanceDescr<>(WaitForEverTestWF_NAME, 1);
+            waitingWorkflow.setId(engine.createUUID());
+            engine.run(waitingWorkflow);
+
+            final WorkflowInstanceDescr<Integer> brokenWorkflow = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
+            brokenWorkflow.setId(engine.createUUID());
+            engine.run(brokenWorkflow);
+
+            Thread.sleep(200); // wait for it to start up / bring workflows to error state
+
+            logger.info("query RUNNING...");
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
+            assertEqualsCountX(engine, 1, filter);
+            filter.setStates(Arrays.asList(ProcessingState.ERROR.name()));
+            assertEqualsCountX(engine, 1, filter);
+
+            engine.deleteWaiting(waitingWorkflow.getId());
+
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
+            assertEqualsCountX(engine, 0, filter);
+            filter.setStates(Arrays.asList(ProcessingState.ERROR.name()));
+            assertEqualsCountX(engine, 1, filter);
+        }
+        finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
 
     public void testDeleteBrokenWorkflowInstance(DataSourceType dsType) throws Exception {
         assumeFalse(skipTests());
@@ -1441,5 +1452,169 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(EngineState.STOPPED, engine.getEngineState());
         assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
-    
+
+    public void testDeleteFilteredWorkflowInstance(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+            WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            assertEquals(0, engine.queryWorkflowInstances(filter).size());
+
+            // initializing test for deleting workflows based off of a time filter
+            // creating 3 workflows with time between them
+            WorkflowInstanceDescr<Integer> waitingWorkflow = new WorkflowInstanceDescr<>(WaitForEverTestWF_NAME, 1);
+            waitingWorkflow.setId(engine.createUUID());
+            engine.run(waitingWorkflow);
+            long thisExactMoment = new Date().getTime();
+            Date inbetweenFirstWFs = new Date(thisExactMoment + 120000);
+
+            Thread.sleep(280000); // the next workflow to be created will have a later Timestamp
+
+            WorkflowInstanceDescr<Integer> brokenWorkflow = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
+            brokenWorkflow.setId(engine.createUUID());
+            engine.run(brokenWorkflow);
+            thisExactMoment = new Date().getTime();
+            Date inbetweenSecondWFs = new Date(thisExactMoment + 120000);
+
+            Thread.sleep(280000); // wait for it to start up / bring workflows to error state
+
+            WorkflowInstanceDescr<Integer> brokenWorkflow2 = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
+            brokenWorkflow2.setId(engine.createUUID());
+            engine.run(brokenWorkflow2);
+
+            logger.info("query RUNNING...");
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
+            assertEqualsCountX(engine, 1, filter);
+            filter.setStates(Arrays.asList(ProcessingState.ERROR.name()));
+            assertEqualsCountX(engine, 2, filter);
+
+            // attempting to delete the first workflow based on Time
+            HalfOpenTimeInterval time = new HalfOpenTimeInterval();
+            time.setFrom(inbetweenFirstWFs);
+            time.setTo(inbetweenSecondWFs);
+            filter = new WorkflowInstanceFilter();
+            filter.setCreationTS(time);
+            engine.deleteFiltered(filter);
+
+            logger.info("Attempting to Delete with Filter based on Create Time From");
+            filter = new WorkflowInstanceFilter();
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
+            assertEqualsCountX(engine, 1, filter);
+            filter.setStates(Arrays.asList(ProcessingState.ERROR.name()));
+            assertEqualsCountX(engine, 1, filter);
+
+            // attempting to delete the remaining Waiting workflow based on State
+            logger.info("Attempting to Delete with Filter based on State");
+            filter = new WorkflowInstanceFilter();
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
+            engine.deleteFiltered(filter);
+
+            assertEqualsCountX(engine, 0, filter);
+            filter.setStates(Arrays.asList(ProcessingState.ERROR.name()));
+            assertEqualsCountX(engine, 1, filter);
+
+            // creating a new Waiting workflow
+            WorkflowInstanceDescr<Integer> waitingWorkflow2 = new WorkflowInstanceDescr<>(WaitForEverTestWF_NAME, 1);
+            waitingWorkflow2.setId(engine.createUUID());
+            engine.run(waitingWorkflow2);
+
+            Thread.sleep(200); // wait for it to start up / bring workflows to error state
+
+            // checking that 2 new workflows exist
+            filter.setStates(Arrays.asList(ProcessingState.WAITING.name()));
+            assertEqualsCountX(engine, 1, filter);
+            filter.setStates(Arrays.asList(ProcessingState.ERROR.name()));
+            assertEqualsCountX(engine, 1, filter);
+
+            // attempting to delete both remaining workflows with an empty filter
+            logger.info("Attempting to Delete with empty Filter to delete All workflows");
+            filter = new WorkflowInstanceFilter();
+            engine.deleteFiltered(filter);
+            assertEqualsCountX(engine, 0, filter);
+
+        }
+        finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
+    public void testRestartFilteredWorkflowInstance(DataSourceType dsType) throws Exception {
+        assumeFalse(skipTests());
+        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentScottyEngine engine = context.getEngine();
+        try {
+            WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
+            assertEquals(0, engine.queryWorkflowInstances(filter).size());
+
+            // creating 2 workflows with time between them
+            WorkflowInstanceDescr<Integer> brokenWorkflow = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
+            brokenWorkflow.setId(engine.createUUID());
+            engine.run(brokenWorkflow);
+
+            long thisExactMoment = new Date().getTime();
+            Date inbetweenWFs = new Date(thisExactMoment + 120000);
+
+            Thread.sleep(280000); // the next workflow to be created will have a later Timestamp
+
+            WorkflowInstanceDescr<Integer> brokenWorkflow2 = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
+            brokenWorkflow2.setId(engine.createUUID());
+            engine.run(brokenWorkflow2);
+
+            thisExactMoment = new Date().getTime();
+            Date afterWFs = new Date(thisExactMoment + 120000);
+
+            Thread.sleep(200); // wait for it to start up / bring workflows to error state
+
+            filter = new WorkflowInstanceFilter();
+            assertEqualsCountX(engine, 2, filter);
+            HalfOpenTimeInterval time = new HalfOpenTimeInterval();
+            time.setTo(afterWFs);
+            filter.setCreationTS(time);
+            assertEqualsCountX(engine, 2, filter);
+
+            // wait long enough so that when WF is restarted, it is past the point of the previously created
+            // afterWFs time
+            Thread.sleep(180000);
+
+            // restarting the first workflow based on it being created before the first timestamp
+            time = new HalfOpenTimeInterval();
+            time.setTo(inbetweenWFs);
+            filter = new WorkflowInstanceFilter();
+            filter.setLastModTS(time);
+            engine.restartFiltered(filter);
+
+            Thread.sleep(200); // wait for it to start up / bring workflows to error state
+
+            assertEqualsCountX(engine, 0, filter);
+            time = new HalfOpenTimeInterval();
+            time.setFrom(inbetweenWFs);
+            filter = new WorkflowInstanceFilter();
+            filter.setLastModTS(time);
+            assertEqualsCountX(engine, 2, filter);
+            time = new HalfOpenTimeInterval();
+            time.setFrom(afterWFs);
+            filter = new WorkflowInstanceFilter();
+            filter.setLastModTS(time);
+            assertEqualsCountX(engine, 1, filter);
+
+            // restarting both workflows based on them being after the afterWfs timestamp
+            filter = new WorkflowInstanceFilter();
+            engine.restartFiltered(filter);
+
+            Thread.sleep(200); // wait for it to start up / bring workflows to error state
+
+            filter.setLastModTS(time);
+            assertEqualsCountX(engine, 2, filter);
+
+        }
+        finally {
+            closeContext(context);
+        }
+        assertEquals(EngineState.STOPPED, engine.getEngineState());
+        assertEquals(0, engine.getNumberOfWorkflowInstances());
+    }
+
 }

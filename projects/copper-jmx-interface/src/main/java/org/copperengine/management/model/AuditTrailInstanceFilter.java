@@ -17,38 +17,58 @@
 package org.copperengine.management.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class AuditTrailInstanceFilter implements Serializable {
 
     private static final long serialVersionUID = 1220517848783719579L;
 
+    private String instanceId;
     private String transactionId;
     private String conversationId;
     private String correlationId;
     private Integer level = null;
     private int max;
     private int offset;
+    private Date occurredFrom;
+    private Date occurredTo;
     private boolean includeMessages = true;
 
     public AuditTrailInstanceFilter() {}
 
-    public AuditTrailInstanceFilter(String transactionId, String conversationId, String correlationId, Integer level, int max, int offset) {
+    public AuditTrailInstanceFilter(String instanceId, String transactionId, String conversationId,
+            String correlationId, Integer level, int max, int offset, Date occurredFrom, Date occurredTo) {
+        this.instanceId = instanceId;
         this.transactionId = transactionId;
         this.conversationId = conversationId;
         this.correlationId = correlationId;
         this.level = level;
         this.max = max;
         this.offset = offset;
+        this.occurredFrom = occurredFrom;
+        this.occurredTo = occurredTo;
     }
 
-    public AuditTrailInstanceFilter(String transactionId, String conversationId, String correlationId, Integer level, int max, int offset, boolean includeMessages) {
+    public AuditTrailInstanceFilter(String instanceId, String transactionId, String conversationId,
+            String correlationId, Integer level, int max, int offset, Date occurredFrom, Date occurredTo, boolean includeMessages) {
+        this.instanceId = instanceId;
         this.transactionId = transactionId;
         this.conversationId = conversationId;
         this.correlationId = correlationId;
         this.level = level;
         this.max = max;
         this.offset = offset;
+        this.occurredFrom = occurredFrom;
+        this.occurredTo = occurredTo;
         this.includeMessages = includeMessages;
+    }
+
+    public String getInstanceId() {
+        return this.instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     public String getTransactionId() {
@@ -99,6 +119,22 @@ public class AuditTrailInstanceFilter implements Serializable {
         this.offset = offset;
     }
 
+    public Date getOccurredFrom() {
+        return this.occurredFrom;
+    }
+
+    public void setOccurredFrom(Date from) {
+        this.occurredFrom = from;
+    }
+
+    public Date getOccurredTo() {
+        return this.occurredTo;
+    }
+
+    public void setOccurredTo(Date to) {
+        this.occurredTo = to;
+    }
+
     public boolean isIncludeMessages() {
         return includeMessages;
     }
@@ -110,6 +146,7 @@ public class AuditTrailInstanceFilter implements Serializable {
     @Override
     public String toString() {
         return "AuditTrailInstanceFilter{" +
+                "instanceId='" + instanceId + '\'' +
                 "transactionId='" + transactionId + '\'' +
                 ", conversationId='" + conversationId + '\'' +
                 ", correlationId='" + correlationId + '\'' +
