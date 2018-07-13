@@ -1,6 +1,6 @@
 language: java
 
-sudo: false
+sudo: required
 
 before_install:
   - wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
