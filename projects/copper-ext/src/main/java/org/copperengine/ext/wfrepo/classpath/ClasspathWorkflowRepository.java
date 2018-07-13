@@ -110,6 +110,8 @@ public class ClasspathWorkflowRepository extends AbstractWorkflowRepository impl
             logger.info("adaptedTargetDir={}", adaptedTargetDir);
             adaptedTargetDir.mkdirs();
             final Set<Class<?>> wfSet = findWorkflowClasses(wfPackages, tcl);
+            wfSet.addAll(findWorkflowClasses(wfPackages, ClassLoader.getSystemClassLoader()));
+
             logger.info("wfSet.size={}", wfSet.size());
             final Map<String, Clazz> clazzMap = findInterruptableMethods(wfSet, tcl);
             final Map<String, ClassInfo> classInfos = new HashMap<String, ClassInfo>();
