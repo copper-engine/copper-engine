@@ -356,13 +356,17 @@ afterEvaluate {
     }
 
     task jarWithJava9(type: GradleBuild) {
-        startParameter = gradle.startParameter.newBuild()
+        startParameter = rootProject.gradle.startParameter.newBuild()
+        startParameter.excludedTaskNames.addAll(rootProject.gradle.startParameter.excludedTaskNames)
+        startParameter.projectProperties.putAll(rootProject.gradle.startParameter.projectProperties)
         startParameter.projectProperties.javaCompatibility = 9
         buildFile = './build.gradle'
         tasks = ['clean', 'jar']
     }
     task jarWithJava8(type: GradleBuild) {
-        startParameter = gradle.startParameter.newBuild()
+        startParameter = rootProject.gradle.startParameter.newBuild()
+        startParameter.excludedTaskNames.addAll(rootProject.gradle.startParameter.excludedTaskNames)
+        startParameter.projectProperties.putAll(rootProject.gradle.startParameter.projectProperties)
         startParameter.projectProperties.javaCompatibility = 8
         buildFile = './build.gradle'
         tasks = ['cleanClassesAndLibsAll', 'jar']
@@ -377,14 +381,16 @@ afterEvaluate {
     }
 
     task buildWithJava9(type: GradleBuild) {
-        startParameter = gradle.startParameter.newBuild()
+        startParameter.excludedTaskNames.addAll(rootProject.gradle.startParameter.excludedTaskNames)
+        startParameter.projectProperties.putAll(rootProject.gradle.startParameter.projectProperties)
         startParameter.projectProperties.javaCompatibility = 9
         buildFile = './build.gradle'
         tasks = ['clean', 'build']
     }
     task buildWithJava8(type: GradleBuild) {
-        startParameter = gradle.startParameter.newBuild()
-        startParameter.projectProperties.javaCompatibility = 8
+        startParameter.excludedTaskNames.addAll(rootProject.gradle.startParameter.excludedTaskNames)
+        startParameter.projectProperties.putAll(rootProject.gradle.startParameter.projectProperties)
+        startParameter.projectProperties.javaCompatibility = 9
         buildFile = './build.gradle'
         tasks = ['cleanClassesAndLibsAll', 'build']
     }

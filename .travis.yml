@@ -18,4 +18,9 @@ cache:
   directories:
     - $HOME/.gradle
 
-script: ./gradlew $COPPER_GRADLE_OPTS -PfindbugsXmlReportEnabled=true -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --recompile-scripts --refresh-dependencies --full-stacktrace uploadArchives nexusStagingRelease
+script:
+  - ./gradlew $GRADLE_BUILD_OPTS -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD -PfindbugsXmlReportEnabled=true --rerun-tasks --full-stacktrace modularBuild
+  - ./gradlew $GRADLE_UPLOAD_OPTS -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --full-stacktrace uploadArchives
+  - echo Sleeping 30 seconds before executing nexusStagingRelease...
+  - sleep 30s
+  - ./gradlew $GRADLE_RELEASE_OPTS -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --full-stacktrace nexusStagingRelease
