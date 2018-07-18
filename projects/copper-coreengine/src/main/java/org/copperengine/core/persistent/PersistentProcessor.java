@@ -66,8 +66,8 @@ public class PersistentProcessor extends Processor {
                             WorkflowAccessor.setLastActivityTS(wf, new Date());
                             engine.unregister(pw);
                         }
-                        if (pw.registerCall != null) {
-                            engine.getDbStorage().registerCallback(pw.registerCall, new Acknowledge.BestEffortAcknowledge());
+                        if (pw.getRegisterCall() != null) {
+                            engine.getDbStorage().registerCallback(pw.getRegisterCall(), new Acknowledge.BestEffortAcknowledge());
                         }
                     }
                     return null;
