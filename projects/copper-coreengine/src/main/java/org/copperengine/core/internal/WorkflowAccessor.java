@@ -15,6 +15,7 @@
  */
 package org.copperengine.core.internal;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Date;
 
@@ -22,6 +23,7 @@ import org.copperengine.core.ProcessingState;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.persistent.ErrorData;
 import org.copperengine.core.persistent.PersistentWorkflow;
+import org.copperengine.core.persistent.RegisterCall;
 
 public class WorkflowAccessor {
 
@@ -30,6 +32,7 @@ public class WorkflowAccessor {
     private static final Method methodSetLastActivityTS;
     private static final Method methodSetTimeoutTS;
     private static final Method methodSetErrorData;
+    private static final Field fieldRegisterCall;
 
     static {
         try {
@@ -48,6 +51,8 @@ public class WorkflowAccessor {
             methodSetErrorData = PersistentWorkflow.class.getDeclaredMethod("setErrorData", ErrorData.class);
             methodSetErrorData.setAccessible(true);
 
+            fieldRegisterCall = PersistentWorkflow.class.getDeclaredField("registerCall");
+            fieldRegisterCall.setAccessible(true);
         } catch (Exception e) {
             throw new Error(e);
         }
@@ -102,5 +107,15 @@ public class WorkflowAccessor {
             throw new RuntimeException(e);
         }
     }
-    
+
+    public static RegisterCall getRegisterCall(PersistentWorkflow<?> w) {
+        try {
+            return (RegisterCall)fieldRegisterCall.get(w);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

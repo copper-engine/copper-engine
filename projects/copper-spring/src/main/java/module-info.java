@@ -11,4 +11,6 @@ module org.copperengine.spring {
     requires transitive spring.beans;
     requires transitive spring.context;
     requires transitive spring.tx;
+
+    exports org.copperengine.spring.audit;
 }

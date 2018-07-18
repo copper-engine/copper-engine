@@ -3,6 +3,7 @@
 **/build
 **/generated
 *.log
+*.gpg
 .gradle
 .classpath
 .project

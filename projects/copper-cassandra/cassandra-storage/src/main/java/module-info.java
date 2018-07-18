@@ -9,8 +9,8 @@ module org.copperengine.cassandra.storage {
     requires commons.lang;
     requires transitive cassandra.driver.core;
     requires transitive com.google.common;
-    requires jackson.core;
-    requires jackson.databind;
+    requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.databind;
 
     exports org.copperengine.core.persistent.cassandra;
     exports org.copperengine.core.persistent.hybrid;

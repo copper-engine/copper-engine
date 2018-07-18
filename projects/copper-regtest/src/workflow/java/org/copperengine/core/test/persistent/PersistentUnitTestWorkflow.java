@@ -34,12 +34,14 @@ import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.audit.AuditTrail;
+import org.copperengine.core.audit.AbstractAuditTrail;
 import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.regtest.test.DataHolder;
 import org.copperengine.regtest.test.MockAdapter;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
+import org.copperengine.spring.audit.SpringTxnAuditTrail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +53,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
     private transient BackChannelQueue backChannelQueue;
     private transient MockAdapter mockAdapter;
-    private transient BatchingAuditTrail auditTrail;
+    private transient AbstractAuditTrail auditTrail;
     private transient DataHolder dataHolder;
 
     @AutoWire
@@ -70,7 +72,7 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
     }
 
     @AutoWire
-    public void setAuditTrail(BatchingAuditTrail auditTrail) {
+    public void setAuditTrail(AbstractAuditTrail auditTrail) {
         this.auditTrail = auditTrail;
     }
 
@@ -92,7 +94,11 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
 
             callFooWithWaitHook();
 
-            auditTrail.asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", "TEXT");
+            if(auditTrail instanceof BatchingAuditTrail) {
+                ((BatchingAuditTrail)auditTrail).asynchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", "TEXT");
+            } else {
+                auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", "TEXT");
+            }
             backChannelQueue.enqueue(new WorkflowResult(getData(), null));
         } catch (Exception e) {
             logger.error("execution failed", e);

@@ -44,7 +44,7 @@ import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.audit.AuditTrailEvent;
-import org.copperengine.core.audit.BatchingAuditTrail;
+import org.copperengine.spring.audit.SpringTxnAuditTrail;
 import org.copperengine.core.audit.CompressedBase64PostProcessor;
 import org.copperengine.core.audit.DummyPostProcessor;
 import org.copperengine.core.db.utility.RetryingTransaction;
@@ -535,7 +535,7 @@ public class BasePersistentWorkflowTest {
         final int NUMB = 20;
         final String DATA = createTestData(50);
         final ConfigurableApplicationContext context = createContext(dsContext);
-        context.getBean(BatchingAuditTrail.class).setMessagePostProcessor(new CompressedBase64PostProcessor());
+        context.getBean(SpringTxnAuditTrail.class).setMessagePostProcessor(new CompressedBase64PostProcessor());
         cleanDB(context.getBean(DataSource.class));
         final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
         engine.startup();
@@ -618,7 +618,7 @@ public class BasePersistentWorkflowTest {
         logger.info("running testAuditTrailSmallData");
         final ConfigurableApplicationContext context = createContext(dsContext);
         try {
-            org.copperengine.core.audit.BatchingAuditTrail auditTrail = context.getBean(org.copperengine.core.audit.BatchingAuditTrail.class);
+            org.copperengine.spring.audit.SpringTxnAuditTrail auditTrail = context.getBean(org.copperengine.spring.audit.SpringTxnAuditTrail.class);
             auditTrail.setMessagePostProcessor(new DummyPostProcessor());
             auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", null, "TEXT");
             auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(500), "TEXT");
@@ -668,7 +668,7 @@ public class BasePersistentWorkflowTest {
         final ConfigurableApplicationContext context = createContext(dsContext);
         try {
             cleanDB(context.getBean(DataSource.class));
-            org.copperengine.core.audit.BatchingAuditTrail auditTrail = context.getBean(org.copperengine.core.audit.BatchingAuditTrail.class);
+            org.copperengine.spring.audit.SpringTxnAuditTrail auditTrail = context.getBean(org.copperengine.spring.audit.SpringTxnAuditTrail.class);
             auditTrail.setMessagePostProcessor(new DummyPostProcessor());
             long seqNr = 1;
             auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", null, "TEXT", seqNr++));

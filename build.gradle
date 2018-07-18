@@ -21,14 +21,14 @@ ext {
         throw new GradleException("Cannot generate java-$javaCompatibility compatible code using a java-$javaVersion compiler")
     }
 	slf4jVersion = "1.8.0-beta2"
-	springVersion = '5.0.5.RELEASE'
+	springVersion = '5.0.7.RELEASE'
 	c3p0Version = '0.9.5.2'
-	asmVersion = '6.1.1'
-	guavaVersion = '24.1-jre'
-	jacksonVersion = '2.8.4'
+	asmVersion = '6.2'
+	guavaVersion = '25.1-jre'
+	jacksonVersion = '2.9.6'
 	cassandraDriverVersion = '3.4.0'
-	snakeyamlVersion = '1.17'
-	commonsIoVersion = '2.5'
+	snakeyamlVersion = '1.21'
+	commonsIoVersion = '2.6'
 }
 
 buildscript {
@@ -190,7 +190,9 @@ configure(properSubprojects) {
         exclude '**/module-info.java'
     }
 
-    if (project.hasProperty('secretKeyRingFileSourceURL')) {
+    if (project.hasProperty('nexusUsername')) {
+        ext."signing.secretKeyRingFile" = "$rootDir/secring.gpg"
+
         // the nexus plugin makes uploading to Sonatype Nexus repository easier
         // see https://github.com/bmuschko/gradle-nexus-plugin for documentation
         apply plugin: 'nexus'
@@ -199,16 +201,7 @@ configure(properSubprojects) {
             sign = true
         }
 
-        // task to fetch the GPG key to sign the JAR archives
-        // we put the key to build/secring.gpg where it will be picked up by the uploadArchives task of the nexus plugin
-        task fetchSecretKeyRingFile << {
-            file(secretKeyRingFileDestFile).getParentFile().mkdirs()
-            ant.get(src: secretKeyRingFileSourceURL, dest: secretKeyRingFileDestFile, username: secretKeyRingFileSourceURLAuthUsername, password: secretKeyRingFileSourceURLAuthPassword)
-        }
         afterEvaluate {
-            // always fetch the GPG key before signing archives
-            tasks.signArchives.dependsOn fetchSecretKeyRingFile
-
             // copy module-info.class to the 'classes' dir after running 'classes' and before running 'jar'
             tasks.signArchives.dependsOn copyInfoClass
             copyInfoClass.mustRunAfter classes
@@ -293,7 +286,7 @@ configure(properSubprojects) {
                 if(javaCompatibility >= 9) {
                     options.compilerArgs = [
                             '--module-path', classpath.asPath,
-                            '--add-modules', 'junit,slf4j.log4j12',
+                            '--add-modules', 'junit,org.slf4j',
                             '--add-reads', "$moduleName=junit",
                             '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
                     ]
@@ -363,13 +356,17 @@ afterEvaluate {
     }
 
     task jarWithJava9(type: GradleBuild) {
-        startParameter = gradle.startParameter.newBuild()
+        startParameter = rootProject.gradle.startParameter.newBuild()
+        startParameter.excludedTaskNames.addAll(rootProject.gradle.startParameter.excludedTaskNames)
+        startParameter.projectProperties.putAll(rootProject.gradle.startParameter.projectProperties)
         startParameter.projectProperties.javaCompatibility = 9
         buildFile = './build.gradle'
         tasks = ['clean', 'jar']
     }
     task jarWithJava8(type: GradleBuild) {
-        startParameter = gradle.startParameter.newBuild()
+        startParameter = rootProject.gradle.startParameter.newBuild()
+        startParameter.excludedTaskNames.addAll(rootProject.gradle.startParameter.excludedTaskNames)
+        startParameter.projectProperties.putAll(rootProject.gradle.startParameter.projectProperties)
         startParameter.projectProperties.javaCompatibility = 8
         buildFile = './build.gradle'
         tasks = ['cleanClassesAndLibsAll', 'jar']
@@ -384,14 +381,16 @@ afterEvaluate {
     }
 
     task buildWithJava9(type: GradleBuild) {
-        startParameter = gradle.startParameter.newBuild()
+        startParameter.excludedTaskNames.addAll(rootProject.gradle.startParameter.excludedTaskNames)
+        startParameter.projectProperties.putAll(rootProject.gradle.startParameter.projectProperties)
         startParameter.projectProperties.javaCompatibility = 9
         buildFile = './build.gradle'
         tasks = ['clean', 'build']
     }
     task buildWithJava8(type: GradleBuild) {
-        startParameter = gradle.startParameter.newBuild()
-        startParameter.projectProperties.javaCompatibility = 8
+        startParameter.excludedTaskNames.addAll(rootProject.gradle.startParameter.excludedTaskNames)
+        startParameter.projectProperties.putAll(rootProject.gradle.startParameter.projectProperties)
+        startParameter.projectProperties.javaCompatibility = 9
         buildFile = './build.gradle'
         tasks = ['cleanClassesAndLibsAll', 'build']
     }
@@ -494,7 +493,6 @@ project(':projects:copper-regtest') {
         testImplementation 'com.h2database:h2:1.4.193'
         testImplementation "com.mchange:c3p0:$c3p0Version"
 
-        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
         testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
 
     }
@@ -509,8 +507,7 @@ project(':projects:copper-ext') {
         implementation "commons-io:commons-io:$commonsIoVersion"
         implementation "com.google.guava:guava:$guavaVersion"
         implementation "org.yaml:snakeyaml:$snakeyamlVersion"
-    	
-        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
+
         testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
     }
 }
@@ -528,8 +525,7 @@ project(':projects:copper-cassandra:cassandra-storage') {
         implementation 'commons-lang:commons-lang:2.6'
         implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
         implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-        
-        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
+
         testImplementation('org.cassandraunit:cassandra-unit:3.1.1.0') {
             exclude module: 'hamcrest-core'
             exclude module: 'hamcrest-library'
@@ -587,7 +583,6 @@ project(':projects:copper-coreengine') {
         implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
         implementation 'javax.xml.bind:jaxb-api:2.3.0'
-        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
     }
 
     task scriptsZip(type: Zip) {
@@ -622,7 +617,7 @@ project(':projects:copper-performance-test') {
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
         runtimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
     }
-    
+
 	jar {
         dependsOn ':projects:copper-coreengine:jar', ':projects:copper-ext:jar', ':projects:copper-cassandra:cassandra-storage:jar'
 	    manifest.attributes provider: 'gradle'
@@ -642,6 +637,6 @@ project(':projects:copper-performance-test') {
 		    attributes 'Main-Class': 'org.copperengine.performancetest.main.Main'
 	    }
 
-	}    
+	}
 
 }

@@ -1,15 +1,26 @@
 language: java
 
-sudo: false
+sudo: required
 
-before_install: wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
+before_install:
+  - wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
+  - sudo apt-get install p7zip-full
 
-install: 
+install:
   - . ./install-jdk.sh -F 10 -L BCL
   - chmod a+x ./gradlew
+  - 7z x secring.zip -p$KEY_RING_PASSWORD
+  - pwd
+  - ls -al
+
 
 cache:
   directories:
     - $HOME/.gradle
 
-script: ./gradlew --info --full-stacktrace build
+script:
+  - ./gradlew $GRADLE_BUILD_OPTS -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD -PfindbugsXmlReportEnabled=true --rerun-tasks --full-stacktrace modularBuild
+  - ./gradlew $GRADLE_UPLOAD_OPTS -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --full-stacktrace uploadArchives
+  - echo Sleeping 30 seconds before executing nexusStagingRelease...
+  - sleep 30s
+  - ./gradlew $GRADLE_RELEASE_OPTS -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --full-stacktrace nexusStagingRelease
