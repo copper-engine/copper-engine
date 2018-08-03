@@ -510,6 +510,11 @@ public class PersistentScottyEngine extends AbstractProcessingEngine implements 
     }
 
     @Override
+    public String queryObjectState(String id, String data) throws Exception{
+        return dbStorage.queryObjectState(id, data);
+    }
+
+    @Override
     public List<WorkflowInfo> queryWorkflowInstances() {
         WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
         filter.setMax(0);

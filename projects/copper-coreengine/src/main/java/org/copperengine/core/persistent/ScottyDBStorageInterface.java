@@ -250,6 +250,8 @@ public interface ScottyDBStorageInterface {
     
     public int queryQueueSize(String processorPoolId) throws Exception;
 
+    public String queryObjectState(String id, String data) throws Exception;
+
     public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter) throws Exception;
 
     public int countWorkflowInstances(WorkflowInstanceFilter filter) throws Exception;

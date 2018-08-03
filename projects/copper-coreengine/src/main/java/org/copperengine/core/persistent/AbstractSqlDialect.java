@@ -28,13 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.copperengine.core.Acknowledge;
-import org.copperengine.core.CopperException;
-import org.copperengine.core.DuplicateIdException;
-import org.copperengine.core.EngineIdProvider;
-import org.copperengine.core.ProcessingState;
-import org.copperengine.core.Response;
-import org.copperengine.core.Workflow;
+import org.copperengine.core.*;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.db.utility.JdbcUtils;
@@ -223,6 +217,21 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         logger.info("done!");
     }
 
+    public PersistentWorkflow deserializeWF(String id, String data, String state) {
+
+        PersistentWorkflow<?> wf = null;
+        SerializedWorkflow sw = new SerializedWorkflow();
+        sw.setData(data);
+        sw.setObjectState(state);
+        try {
+            wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
+        } catch (Exception e) {
+            logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
+        }
+
+        return wf;
+    }
+
     @SuppressWarnings("rawtypes")
     @Override
     public List<Workflow<?>> dequeue(String ppoolId, int max, Connection con) throws Exception {
@@ -253,10 +262,11 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 updateQueueStmt.addBatch();
 
                 try {
-                    SerializedWorkflow sw = new SerializedWorkflow();
-                    sw.setData(rs.getString(3));
-                    sw.setObjectState(rs.getString(4));
-                    PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
+//                    SerializedWorkflow sw = new SerializedWorkflow();
+//                    sw.setData(rs.getString(3));
+//                    sw.setObjectState(rs.getString(4));
+//                    PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
+                    PersistentWorkflow<?> wf = this.deserializeWF(id, rs.getString(3), rs.getString(4));
                     wf.setId(id);
                     wf.setProcessorPoolId(ppoolId);
                     wf.setPriority(prio);
@@ -1141,6 +1151,30 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         CommonSQLHelper.appendStates(sql, params, filter);
 
         return sql;
+    }
+
+    @Override
+    public String queryObjectState(String id, String data, Connection con) throws Exception {
+        String decodedState;
+        String codedState = null;
+
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT OBJECT_STATE FROM COP_WORKFLOW_INSTANCE WHERE WORKFLOW_INSTANCE_ID = ?");
+        PreparedStatement prepedStmt = con.prepareStatement(sql.toString());
+        prepedStmt.setString(1, id);
+        ResultSet rs = prepedStmt.executeQuery();
+
+        while (rs.next()) {
+            codedState = rs.getString("OBJECT_STATE");
+        }
+
+        try {
+            decodedState = this.deserializeWF(id, data, codedState).toString();
+        } catch (Exception e) {
+            logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
+            throw new CopperException("Workflow \"" + id + "\" can't be deserialzed");
+        }
+        return decodedState;
     }
 
     @Override

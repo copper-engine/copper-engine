@@ -960,6 +960,10 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         return sql;
     }
 
+    @Override
+    public String queryObjectState(String id, String data, Connection con) throws Exception {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException {
