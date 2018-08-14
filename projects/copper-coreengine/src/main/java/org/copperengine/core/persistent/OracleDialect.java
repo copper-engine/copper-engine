@@ -1129,14 +1129,14 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
         WorkflowAccessor.setTimeoutTS(wf, rs.getTimestamp("TIMEOUT"));
         return wf;
     }
-    
+
     protected void addLimitation(StringBuilder sql, int max) {
-        sql.append(" AND ROWNUM <= ").append(max);
+        sql.append(" FETCH FIRST " + max + " ROWS ONLY");
     }
 
-    protected void addLimitationAndOffset(StringBuilder sql, int max, int offset) {
-        sql.append(" AND ROWNUM <= ").append(max);
+    protected void addLimitationAndOffset(StringBuilder sql,int max, int offset) {
         sql.append(" OFFSET " + offset + " ROWS");
+        addLimitation(sql, max);
     }
 
 }
