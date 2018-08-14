@@ -51,7 +51,7 @@ public class TransientLockManager implements LockManager {
 
     // For garbage collection capabilities, we add a boolean inUse here. With this small helper, it is possible
     // to remove a workflow from the global lock map if no other workflow is currently using it anymore.
-    private class Locker {
+    protected class Locker {
         boolean inUse=true; // Help variable to allow removal out of HashMap for garbage collection of unused lock-keys!
         LinkedList<LockPair> waiter;
 

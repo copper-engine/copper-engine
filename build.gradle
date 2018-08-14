@@ -9,6 +9,9 @@ wrapper {
 
 if(!hasProperty('javaCompatibility')) {
     ext.javaCompatibility = 8
+} else {
+    javaCompatibility = javaCompatibility as int
+    ext.javaCompatibility = javaCompatibility as int
 }
 ext {
     javaVersion = (System.properties['java.specification.version'] ?: 1.0) as double
@@ -17,7 +20,7 @@ ext {
     } else {
         javaVersion = (int)javaVersion
     }
-    if(javaVersion < (javaCompatibility as int)) {
+    if(javaVersion < javaCompatibility) {
         throw new GradleException("Cannot generate java-$javaCompatibility compatible code using a java-$javaVersion compiler")
     }
 	slf4jVersion = "1.8.0-beta2"
@@ -187,6 +190,7 @@ configure(properSubprojects) {
 
     javadoc {
         options.encoding = StandardCharsets.UTF_8
+        options.addBooleanOption('html5', true)
         exclude '**/module-info.java'
     }
 
@@ -251,6 +255,7 @@ configure(properSubprojects) {
 
 
     afterEvaluate {
+        javaCompatibility = javaCompatibility as int
         javadoc {
             inputs.property("moduleName", moduleName)
             doFirst {
@@ -271,6 +276,7 @@ configure(properSubprojects) {
                 } else {
                     options.compilerArgs = [
                             '--module-path', classpath.asPath,
+                            '-Xlint:exports'
                     ]
                     classpath = files()
                 }
@@ -482,6 +488,10 @@ project(':projects:copper-regtest') {
         implementation project(':projects:copper-spring')
         implementation project(':projects:copper-ext')
 
+        implementation "org.ow2.asm:asm:$asmVersion"
+        implementation "org.ow2.asm:asm-tree:$asmVersion"
+        implementation "org.yaml:snakeyaml:$snakeyamlVersion"
+        implementation "org.springframework:spring-jdbc:$springVersion"
         implementation "org.springframework:spring-context:$springVersion"
         implementation "org.springframework:spring-tx:$springVersion"
         implementation "com.google.guava:guava:$guavaVersion"
@@ -504,6 +514,7 @@ project(':projects:copper-ext') {
         implementation project(':projects:copper-coreengine')
 
         implementation "org.ow2.asm:asm:$asmVersion"
+        implementation "org.ow2.asm:asm-tree:$asmVersion"
         implementation "commons-io:commons-io:$commonsIoVersion"
         implementation "com.google.guava:guava:$guavaVersion"
         implementation "org.yaml:snakeyaml:$snakeyamlVersion"
@@ -521,10 +532,13 @@ project(':projects:copper-cassandra:cassandra-storage') {
         api "com.datastax.cassandra:cassandra-driver-core:$cassandraDriverVersion"
         api "com.google.guava:guava:$guavaVersion"
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
+        implementation "org.ow2.asm:asm:$asmVersion"
+        implementation "org.ow2.asm:asm-tree:$asmVersion"
         implementation "commons-io:commons-io:$commonsIoVersion"
         implementation 'commons-lang:commons-lang:2.6'
         implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
         implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        implementation "org.yaml:snakeyaml:$snakeyamlVersion"
 
         testImplementation('org.cassandraunit:cassandra-unit:3.1.1.0') {
             exclude module: 'hamcrest-core'
@@ -547,6 +561,9 @@ project(':projects:copper-cassandra:cassandra-loadtest') {
         implementation project(':projects:copper-cassandra:cassandra-storage')
 
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
+        implementation "org.ow2.asm:asm:$asmVersion"
+        implementation "org.ow2.asm:asm-tree:$asmVersion"
+        implementation "org.yaml:snakeyaml:$snakeyamlVersion"
     }
 }
 
@@ -555,6 +572,9 @@ project(':projects:copper-spring') {
     ext.moduleName = 'org.copperengine.spring'
     dependencies {
         implementation project(':projects:copper-coreengine')
+
+        implementation "org.ow2.asm:asm:$asmVersion"
+        implementation "org.ow2.asm:asm-tree:$asmVersion"
 
         // Spring
         implementation "org.springframework:spring-aop:$springVersion"
@@ -608,6 +628,9 @@ project(':projects:copper-performance-test') {
         implementation project(':projects:copper-ext')
         implementation project(':projects:copper-cassandra:cassandra-storage')
 
+        implementation "org.ow2.asm:asm:$asmVersion"
+        implementation "org.ow2.asm:asm-tree:$asmVersion"
+        implementation "org.yaml:snakeyaml:$snakeyamlVersion"
         implementation "com.google.guava:guava:$guavaVersion"
         implementation 'mysql:mysql-connector-java:5.1.39'
         implementation 'org.apache.derby:derby:10.13.1.1'

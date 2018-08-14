@@ -1,16 +1,15 @@
 module org.copperengine.core {
     requires transitive org.copperengine.management;
 
+    requires transitive java.sql;
+    requires transitive java.management;
+    requires transitive org.slf4j;
+    requires transitive org.objectweb.asm;
+    requires transitive org.objectweb.asm.tree;
+    requires org.objectweb.asm.util;
     requires java.desktop;
-    requires java.sql;
-    requires java.management;
     requires java.compiler;
     requires java.xml.bind;
-
-    requires org.slf4j;
-    requires org.objectweb.asm;
-    requires org.objectweb.asm.tree;
-    requires org.objectweb.asm.util;
 
     uses javax.tools.JavaCompiler;
 

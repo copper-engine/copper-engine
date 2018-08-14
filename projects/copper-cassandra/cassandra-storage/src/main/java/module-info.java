@@ -1,7 +1,7 @@
 module org.copperengine.cassandra.storage {
-    requires org.copperengine.core;
+    requires transitive org.copperengine.core;
+    requires transitive org.copperengine.ext;
     requires org.copperengine.management;
-    requires org.copperengine.ext;
 
     requires java.sql;
 

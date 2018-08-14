@@ -25,7 +25,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-class StackInfo {
+public class StackInfo {
 
     class DummyClass {
     }

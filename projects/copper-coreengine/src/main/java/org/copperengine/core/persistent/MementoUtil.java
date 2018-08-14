@@ -141,7 +141,7 @@ public class MementoUtil {
         }
     }
 
-    static interface IteratorCallback {
+    protected interface IteratorCallback {
         void operateOn(String memberName, Object o);
     }
 
@@ -239,7 +239,7 @@ public class MementoUtil {
         return false;
     }
 
-    interface PersistentMemberAccessor {
+    protected interface PersistentMemberAccessor {
         String memberName();
 
         Object get(Object obj);

@@ -121,7 +121,7 @@ public abstract class AdapterCallPersisterFactory implements DefaultEntityPersis
 
     public abstract Selector createSelector();
 
-    static final class Selector {
+    public static final class Selector {
 
         private static final Logger logger = LoggerFactory.getLogger(Selector.class);
 
