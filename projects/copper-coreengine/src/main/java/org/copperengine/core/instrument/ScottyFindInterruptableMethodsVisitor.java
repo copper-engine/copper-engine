@@ -31,7 +31,7 @@ public class ScottyFindInterruptableMethodsVisitor extends ClassVisitor implemen
     private String superClassname;
 
     public ScottyFindInterruptableMethodsVisitor() {
-        super(ASM6);
+        super(ASMConstants.API_VERSION);
     }
 
     public void reset() {
@@ -67,7 +67,7 @@ public class ScottyFindInterruptableMethodsVisitor extends ClassVisitor implemen
                 }
             }
         }
-        return new MethodVisitor(ASM6, super.visitMethod(access, name, desc, signature, exceptions)) {
+        return new MethodVisitor(ASMConstants.API_VERSION, super.visitMethod(access, name, desc, signature, exceptions)) {
             @Override
             public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
                 if ("org/copperengine/core/Interrupt".equals(type)) {

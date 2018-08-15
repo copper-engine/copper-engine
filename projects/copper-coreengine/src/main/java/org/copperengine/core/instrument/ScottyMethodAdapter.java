@@ -57,7 +57,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
     private final MethodInfo info;
 
     public ScottyMethodAdapter(MethodVisitor mv, String currentClassName, Set<String> interruptableMethods, ByteCodeStackInfo stackInfo, String name, int access, String descriptor) {
-        super(ASM6, mv);
+        super(ASMConstants.API_VERSION, mv);
         info = new MethodInfo(currentClassName, name, access, descriptor);
         this.currentClassName = currentClassName;
         this.interruptableMethods = interruptableMethods;

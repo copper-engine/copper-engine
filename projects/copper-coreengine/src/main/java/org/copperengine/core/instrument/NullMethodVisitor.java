@@ -21,7 +21,7 @@ import org.objectweb.asm.Opcodes;
 public class NullMethodVisitor extends MethodVisitor implements Opcodes {
 
     public NullMethodVisitor() {
-        super(ASM6);
+        super(ASMConstants.API_VERSION);
     }
 
 }

@@ -48,7 +48,7 @@ public class BuildStackInfoAdapter extends MethodVisitor implements Opcodes, Byt
     MethodVisitor delegate;
 
     public BuildStackInfoAdapter(String classType, boolean isStatic, String methodName, String arguments, String extendedArguments) {
-        super(ASM6);
+        super(ASMConstants.API_VERSION);
         int i = 0;
         Type[] argumentTypes = Type.getArgumentTypes(arguments);
         currentFrame = new StackInfo();
