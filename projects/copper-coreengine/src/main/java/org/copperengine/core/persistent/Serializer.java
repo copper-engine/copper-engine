@@ -33,6 +33,8 @@ public interface Serializer {
 
     public Workflow<?> deserializeWorkflow(SerializedWorkflow serializedWorkflow, final WorkflowRepository wfRepo) throws Exception;
 
+    public Workflow<?> deserializeStateOnly(String state, WorkflowRepository wfRepo) throws Exception;
+
     public String serializeResponse(final Response<?> r) throws Exception;
 
     public Response<?> deserializeResponse(String _data) throws Exception;

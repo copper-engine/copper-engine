@@ -961,7 +961,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
     }
 
     @Override
-    public String queryObjectState(String id, String data, Connection con) throws Exception {
+    public String queryObjectState(String id, Connection con) throws Exception {
         throw new UnsupportedOperationException();
     }
 

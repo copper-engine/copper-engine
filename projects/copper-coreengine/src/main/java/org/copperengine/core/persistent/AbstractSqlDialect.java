@@ -18,15 +18,11 @@ package org.copperengine.core.persistent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.copperengine.core.*;
 import org.copperengine.core.batcher.BatchCommand;
@@ -217,21 +213,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         logger.info("done!");
     }
 
-    public PersistentWorkflow deserializeWF(String id, String data, String state) {
-
-        PersistentWorkflow<?> wf = null;
-        SerializedWorkflow sw = new SerializedWorkflow();
-        sw.setData(data);
-        sw.setObjectState(state);
-        try {
-            wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
-        } catch (Exception e) {
-            logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
-        }
-
-        return wf;
-    }
-
     @SuppressWarnings("rawtypes")
     @Override
     public List<Workflow<?>> dequeue(String ppoolId, int max, Connection con) throws Exception {
@@ -262,11 +243,10 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 updateQueueStmt.addBatch();
 
                 try {
-//                    SerializedWorkflow sw = new SerializedWorkflow();
-//                    sw.setData(rs.getString(3));
-//                    sw.setObjectState(rs.getString(4));
-//                    PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
-                    PersistentWorkflow<?> wf = this.deserializeWF(id, rs.getString(3), rs.getString(4));
+                    SerializedWorkflow sw = new SerializedWorkflow();
+                    sw.setData(rs.getString(3));
+                    sw.setObjectState(rs.getString(4));
+                    PersistentWorkflow<?> wf = (PersistentWorkflow<?>) serializer.deserializeWorkflow(sw, wfRepository);
                     wf.setId(id);
                     wf.setProcessorPoolId(ppoolId);
                     wf.setPriority(prio);
@@ -1154,12 +1134,12 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     }
 
     @Override
-    public String queryObjectState(String id, String data, Connection con) throws Exception {
-        String decodedState;
+    public String queryObjectState(String id, Connection con) throws Exception {
+        PersistentWorkflow decodedState;
         String codedState = null;
 
         final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT OBJECT_STATE FROM COP_WORKFLOW_INSTANCE WHERE WORKFLOW_INSTANCE_ID = ?");
+        sql.append("SELECT OBJECT_STATE FROM COP_WORKFLOW_INSTANCE WHERE ID = ?");
         PreparedStatement prepedStmt = con.prepareStatement(sql.toString());
         prepedStmt.setString(1, id);
         ResultSet rs = prepedStmt.executeQuery();
@@ -1167,14 +1147,25 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         while (rs.next()) {
             codedState = rs.getString("OBJECT_STATE");
         }
+        JdbcUtils.closeStatement(prepedStmt);
 
         try {
-            decodedState = this.deserializeWF(id, data, codedState).toString();
+            decodedState = (PersistentWorkflow<?>) serializer.deserializeStateOnly(codedState, wfRepository);
         } catch (Exception e) {
             logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
             throw new CopperException("Workflow \"" + id + "\" can't be deserialzed");
         }
-        return decodedState;
+
+        Map<String, Object> map = new HashMap<>();
+        Field[] fields = decodedState.getClass().getDeclaredFields();
+        for (int i = 0; i < fields.length; i++ ) {
+            fields[i].setAccessible(true);
+            String name = fields[i].getName();
+            Object value = fields[i].get(decodedState);
+            map.put(name, value);
+        }
+
+        return map.toString();
     }
 
     @Override

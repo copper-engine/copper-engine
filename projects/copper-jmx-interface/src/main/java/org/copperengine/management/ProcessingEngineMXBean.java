@@ -36,7 +36,7 @@ public interface ProcessingEngineMXBean {
      */
     public List<WorkflowInfo> queryWorkflowInstances();
 
-    public String queryObjectState(String id, String data) throws Exception;
+    public String queryObjectState(String id) throws Exception;
 
 
     /**

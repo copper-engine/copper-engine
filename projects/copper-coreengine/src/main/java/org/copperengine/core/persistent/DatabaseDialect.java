@@ -125,7 +125,7 @@ public interface DatabaseDialect {
 
     public int queryQueueSize(String processorPoolId, int max, Connection con) throws SQLException;
 
-    public abstract String queryObjectState(String id, String data, Connection con) throws Exception;
+    public abstract String queryObjectState(String id, Connection con) throws Exception;
 
     public abstract List<Workflow<?>> queryWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException;
     public abstract int countWorkflowInstances(WorkflowInstanceFilter filter, Connection con) throws SQLException;

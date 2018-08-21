@@ -156,6 +156,12 @@ public class StandardJavaSerializer implements Serializer {
         return wf;
     }
 
+    @Override
+    public Workflow<?> deserializeStateOnly(String state, WorkflowRepository wfRepo) throws Exception {
+        PersistentWorkflow<?> wf = (PersistentWorkflow<?>) deserialize(state, wfRepo);
+        return wf;
+    }
+
     protected Object deserializeData(SerializedWorkflow sw) throws Exception {
         return deserializeObject(sw.getData());
     }

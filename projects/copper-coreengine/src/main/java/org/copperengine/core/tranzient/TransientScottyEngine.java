@@ -309,7 +309,7 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     }
 
     @Override
-    public String queryObjectState(String id, String data) {
+    public String queryObjectState(String id) {
         throw new UnsupportedOperationException();
     }
 

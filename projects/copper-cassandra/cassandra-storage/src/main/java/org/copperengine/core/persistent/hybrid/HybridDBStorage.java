@@ -615,7 +615,7 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     }
 
     @Override
-    public String queryObjectState(String id, String data) throws Exception {
+    public String queryObjectState(String id) throws Exception {
         throw new UnsupportedOperationException();
     }
 
