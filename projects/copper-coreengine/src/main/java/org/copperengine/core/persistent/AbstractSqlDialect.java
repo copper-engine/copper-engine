@@ -1156,16 +1156,51 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             throw new CopperException("Workflow \"" + id + "\" can't be deserialzed");
         }
 
+        Map<String, Object> map = this.createStateMap(decodedState);
+
+//        Map<String, Object> map = new HashMap<>();
+//        Field[] fields = decodedState.getClass().getDeclaredFields();
+//        for (int i = 0; i < fields.length; i++ ) {
+//            fields[i].setAccessible(true);
+//            String name = fields[i].getName();
+//            Object value = null;
+//            if (fields[i].getType().isPrimitive()) {
+//                value =
+//            } else {
+//                value = fields[i].get(decodedState);
+//            }
+//            map.put(name, value);
+//        }
+
+//        return decodedState.toString();
+        return map.toString();
+    }
+
+    private Map<String, Object> createStateMap(Object state){
+        if (state == null) {
+            return null;
+        }
         Map<String, Object> map = new HashMap<>();
-        Field[] fields = decodedState.getClass().getDeclaredFields();
+        Field[] fields = state.getClass().getDeclaredFields();
+
         for (int i = 0; i < fields.length; i++ ) {
             fields[i].setAccessible(true);
             String name = fields[i].getName();
-            Object value = fields[i].get(decodedState);
+            Object value = null;
+
+            try {
+                value = fields[i].get(state);
+            } catch (Exception e) {
+                logger.error("decoding of state failed: " + e.toString(), e);
+            }
+
+            if (!fields[i].getType().isPrimitive()) {
+                value = this.createStateMap(value);
+            }
+
             map.put(name, value);
         }
-
-        return map.toString();
+        return map;
     }
 
     @Override
