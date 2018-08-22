@@ -658,6 +658,16 @@ public class ScottyDBStorage implements ScottyDBStorageInterface, ScottyDBStorag
     }
 
     @Override
+    public String queryObjectState(String id) throws Exception {
+        return run(new DatabaseTransaction<String>() {
+            @Override
+            public String run(Connection con) throws Exception {
+                return dialect.queryObjectState(id, con);
+            }
+        });
+    }
+
+    @Override
     public List<Workflow<?>> queryWorkflowInstances(final WorkflowInstanceFilter filter) throws Exception {
         return run(new DatabaseTransaction<List<Workflow<?>>>() {
             @Override

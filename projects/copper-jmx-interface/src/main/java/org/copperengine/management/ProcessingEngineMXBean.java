@@ -36,6 +36,9 @@ public interface ProcessingEngineMXBean {
      */
     public List<WorkflowInfo> queryWorkflowInstances();
 
+    public String queryObjectState(String id) throws Exception;
+
+
     /**
      * Query all active instances, this includes instances in ENQUEUED, WAITING and RUNNING state
      * 

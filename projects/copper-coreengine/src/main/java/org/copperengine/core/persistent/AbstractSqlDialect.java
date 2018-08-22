@@ -18,23 +18,14 @@ package org.copperengine.core.persistent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.copperengine.core.Acknowledge;
-import org.copperengine.core.CopperException;
-import org.copperengine.core.DuplicateIdException;
-import org.copperengine.core.EngineIdProvider;
-import org.copperengine.core.ProcessingState;
-import org.copperengine.core.Response;
-import org.copperengine.core.Workflow;
+import org.copperengine.core.*;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.db.utility.JdbcUtils;
@@ -1141,6 +1132,68 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         CommonSQLHelper.appendStates(sql, params, filter);
 
         return sql;
+    }
+
+    @Override
+    public String queryObjectState(String id, Connection con) throws Exception {
+        PersistentWorkflow decodedState;
+        String codedState = null;
+
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT OBJECT_STATE FROM COP_WORKFLOW_INSTANCE WHERE ID = ?");
+        PreparedStatement prepedStmt = con.prepareStatement(sql.toString());
+        prepedStmt.setString(1, id);
+        ResultSet rs = prepedStmt.executeQuery();
+
+        while (rs.next()) {
+            codedState = rs.getString("OBJECT_STATE");
+        }
+        JdbcUtils.closeStatement(prepedStmt);
+
+        try {
+            decodedState = (PersistentWorkflow<?>) serializer.deserializeStateOnly(codedState, wfRepository);
+        } catch (Exception e) {
+            logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
+            throw new CopperException("Workflow \"" + id + "\" can't be deserialzed");
+        }
+
+        Map<String, Object> map = this.createStateMap(decodedState);
+
+        return map.toString();
+    }
+
+    private Map<String, Object> createStateMap(Object state){
+        if (state == null) {
+            return null;
+        }
+        Map<String, Object> map = new HashMap<>();
+        Field[] fields = state.getClass().getDeclaredFields();
+
+        for (int i = 0; i < fields.length; i++ ) {
+            fields[i].setAccessible(true);
+            String name = "\"" + fields[i].getName() + "\"";
+            Object value = null;
+
+            try {
+                value = fields[i].get(state);
+            } catch (Exception e) {
+                logger.error("decoding of state failed: " + e.toString(), e);
+            }
+
+            if (!Modifier.isTransient(fields[i].getModifiers())) {
+                if (fields[i].getType().isPrimitive() || fields[i].getType().equals(String.class)) {
+                    if (fields[i].getType().equals(String.class)) {
+                        value = "\"" + value + "\"";
+                    }
+                    map.put(name, value);
+                } else {
+                    map.put(name, this.createStateMap(value));
+                }
+            }
+
+        }
+
+        return map;
     }
 
     @Override

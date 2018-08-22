@@ -309,6 +309,11 @@ public class TransientScottyEngine extends AbstractProcessingEngine implements P
     }
 
     @Override
+    public String queryObjectState(String id) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public List<WorkflowInfo> queryWorkflowInstances() {
         List<WorkflowInfo> rv = new ArrayList<WorkflowInfo>();
         for (Workflow<?> wf : workflowMap.values()) {

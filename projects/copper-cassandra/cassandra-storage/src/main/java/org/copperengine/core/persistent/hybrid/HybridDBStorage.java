@@ -615,6 +615,12 @@ public class HybridDBStorage implements ScottyDBStorageInterface {
     }
 
     @Override
+    public String queryObjectState(String id) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+
+    @Override
     public int countWorkflowInstances(final WorkflowInstanceFilter filter) throws Exception {
         return storage.countWorkflowInstances(filter);
     }
