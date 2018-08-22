@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -1158,21 +1159,6 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
         Map<String, Object> map = this.createStateMap(decodedState);
 
-//        Map<String, Object> map = new HashMap<>();
-//        Field[] fields = decodedState.getClass().getDeclaredFields();
-//        for (int i = 0; i < fields.length; i++ ) {
-//            fields[i].setAccessible(true);
-//            String name = fields[i].getName();
-//            Object value = null;
-//            if (fields[i].getType().isPrimitive()) {
-//                value =
-//            } else {
-//                value = fields[i].get(decodedState);
-//            }
-//            map.put(name, value);
-//        }
-
-//        return decodedState.toString();
         return map.toString();
     }
 
@@ -1194,12 +1180,16 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
                 logger.error("decoding of state failed: " + e.toString(), e);
             }
 
-            if (!fields[i].getType().isPrimitive()) {
-                value = this.createStateMap(value);
+            if (!Modifier.isTransient(fields[i].getModifiers())) {
+                if (fields[i].getType().isPrimitive()) {
+                    map.put(name, value);
+                } else {
+                    map.put(name, this.createStateMap(value));
+                }
             }
 
-            map.put(name, value);
         }
+
         return map;
     }
 
