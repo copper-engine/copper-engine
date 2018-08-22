@@ -1171,7 +1171,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
         for (int i = 0; i < fields.length; i++ ) {
             fields[i].setAccessible(true);
-            String name = fields[i].getName();
+            String name = "\"" + fields[i].getName() + "\"";
             Object value = null;
 
             try {
@@ -1181,7 +1181,10 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
             }
 
             if (!Modifier.isTransient(fields[i].getModifiers())) {
-                if (fields[i].getType().isPrimitive()) {
+                if (fields[i].getType().isPrimitive() || fields[i].getType().equals(String.class)) {
+                    if (fields[i].getType().equals(String.class)) {
+                        value = "\"" + value + "\"";
+                    }
                     map.put(name, value);
                 } else {
                     map.put(name, this.createStateMap(value));

@@ -15,6 +15,8 @@
  */
 package org.copperengine.core.persistent;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -962,7 +964,64 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
     @Override
     public String queryObjectState(String id, Connection con) throws Exception {
-        throw new UnsupportedOperationException();
+        PersistentWorkflow decodedState;
+        String codedState = null;
+
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT OBJECT_STATE FROM COP_WORKFLOW_INSTANCE WHERE ID = ?");
+        PreparedStatement prepedStmt = con.prepareStatement(sql.toString());
+        prepedStmt.setString(1, id);
+        ResultSet rs = prepedStmt.executeQuery();
+
+        while (rs.next()) {
+            codedState = rs.getString("OBJECT_STATE");
+        }
+        JdbcUtils.closeStatement(prepedStmt);
+
+        try {
+            decodedState = (PersistentWorkflow<?>) serializer.deserializeStateOnly(codedState, wfRepository);
+        } catch (Exception e) {
+            logger.error("decoding of '" + id + "' failed: " + e.toString(), e);
+            throw new CopperException("Workflow \"" + id + "\" can't be deserialzed");
+        }
+
+        Map<String, Object> map = this.createStateMap(decodedState);
+
+        return map.toString();
+    }
+
+    private Map<String, Object> createStateMap(Object state){
+        if (state == null) {
+            return null;
+        }
+        Map<String, Object> map = new HashMap<>();
+        Field[] fields = state.getClass().getDeclaredFields();
+
+        for (int i = 0; i < fields.length; i++ ) {
+            fields[i].setAccessible(true);
+            String name = "\"" + fields[i].getName() + "\"";
+            Object value = null;
+
+            try {
+                value = fields[i].get(state);
+            } catch (Exception e) {
+                logger.error("decoding of state failed: " + e.toString(), e);
+            }
+
+            if (!Modifier.isTransient(fields[i].getModifiers())) {
+                if (fields[i].getType().isPrimitive() || fields[i].getType().equals(String.class)) {
+                    if (fields[i].getType().equals(String.class)) {
+                        value = "\"" + value + "\"";
+                    }
+                    map.put(name, value);
+                } else {
+                    map.put(name, this.createStateMap(value));
+                }
+            }
+
+        }
+
+        return map;
     }
 
     @Override
