@@ -7,7 +7,7 @@ before_install:
   - sudo apt-get install p7zip-full
 
 install:
-  - . ./install-jdk.sh -F 10 -L BCL
+  - . ./install-jdk.sh -F 11 -L BCL
   - chmod a+x ./gradlew
   - 7z x secring.zip -p$KEY_RING_PASSWORD
   - pwd
