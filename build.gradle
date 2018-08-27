@@ -603,6 +603,7 @@ project(':projects:copper-coreengine') {
         implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
         implementation 'javax.xml.bind:jaxb-api:2.3.0'
+        implementation 'com.sun.activation:javax.activation:1.2.0'
     }
 
     task scriptsZip(type: Zip) {
