@@ -85,6 +85,60 @@ public class CommonSQLHelper {
         return sql;
     }
 
+    static StringBuilder appendSQLDates(StringBuilder sql, List<Object> params, WorkflowInstanceFilter filter) {
+        if (filter.getCreationTS() != null) {
+            if (filter.getCreationTS().getFrom() != null) {
+                sql.append(" AND x.CREATION_TS >= ?");
+                params.add(new java.sql.Date(filter.getCreationTS().getFrom().getTime()));
+
+            }
+            if (filter.getCreationTS().getTo() != null) {
+                sql.append(" AND x.CREATION_TS < ?");
+                params.add(new java.sql.Date(filter.getCreationTS().getTo().getTime()));
+            }
+        }
+        if (filter.getLastModTS() != null) {
+            if (filter.getLastModTS().getFrom() != null) {
+                sql.append(" AND x.LAST_MOD_TS >= ?");
+                params.add(new java.sql.Date(filter.getLastModTS().getFrom().getTime()));
+            }
+            if (filter.getLastModTS().getTo() != null) {
+                sql.append(" AND x.LAST_MOD_TS < ?");
+                params.add(new java.sql.Date(filter.getLastModTS().getTo().getTime()));
+            }
+        }
+
+        return sql;
+    }
+
+    static StringBuilder appendSQLStates(StringBuilder sql, List<Object> params, WorkflowInstanceFilter filter) {
+        if (filter.getStates() != null && !filter.getStates().isEmpty()) {
+            List<Integer> filterStates = new ArrayList<>();
+            if (filter.getStates().contains(ProcessingState.ENQUEUED.name())) {
+                filterStates.add(DBProcessingState.ENQUEUED.ordinal());
+            }
+            if (filter.getStates().contains(ProcessingState.ERROR.name())) {
+                filterStates.add(DBProcessingState.ERROR.ordinal());
+            }
+            if (filter.getStates().contains(ProcessingState.WAITING.name())) {
+                filterStates.add(DBProcessingState.WAITING.ordinal());
+            }
+            if (filter.getStates().contains(ProcessingState.INVALID.name())) {
+                filterStates.add(DBProcessingState.INVALID.ordinal());
+            }
+            if (filter.getStates().contains(ProcessingState.FINISHED.name())) {
+                filterStates.add(DBProcessingState.FINISHED.ordinal());
+            }
+
+
+            if (!filterStates.isEmpty()) {
+                sql.append(" AND x.STATE in (" + String.join(", ", Collections.nCopies(filterStates.size(), "?"))  + ")");
+                params.addAll(filterStates);
+            }
+        }
+        return sql;
+    }
+
     public static List<Workflow<?>> processResult(String sql, List<Object> params, String sqlQueryErrorData, Connection con, FunctionWithException<ResultSet, PersistentWorkflow<?>> decode) throws SQLException {
         final List<Workflow<?>> result = new ArrayList<>();
         try (PreparedStatement pStmtQueryWFIs = con.prepareStatement(sql.toString()); PreparedStatement pStmtQueryErrorData = con.prepareStatement(sqlQueryErrorData)) {
@@ -135,10 +189,15 @@ public class CommonSQLHelper {
                             rs.getString("INSTANCE_ID"),
                             rs.getString("MESSAGE_TYPE"));
                     if (loadMessage) {
-                        Clob message = rs.getClob("LONG_MESSAGE");
-                        if ((int) message.length() > 0) {
-                            auditTrailInfo.setMessage(message.getSubString(1, (int) message.length()));
+                        try {
+                            Clob message = rs.getClob("LONG_MESSAGE");
+                            if ((int) message.length() > 0) {
+                                auditTrailInfo.setMessage(message.getSubString(1, (int) message.length()));
+                            }
+                        } catch(Exception e) {
+                            logger.info("Failed to parse AuditTrail Message");
                         }
+
                     }
 
                     result.add(auditTrailInfo);

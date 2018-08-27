@@ -46,9 +46,14 @@ public class ScottyAuditTrailQueryEngine implements AuditTrailQueryMXBean {
             List<AuditTrailInfo> auditTrailInfoList = dbStorage.queryAuditTrailInstances(filter);
             logger.info("getAuditTrails returned " + auditTrailInfoList.size() + " instance(s)");
             if (filter.isIncludeMessages()) {
-                auditTrailInfoList.forEach(auditTrailInfo -> {
-                    auditTrailInfo.setMessage(messagePostProcessor.deserialize(auditTrailInfo.getMessage()));
-                });
+                try {
+                    auditTrailInfoList.forEach(auditTrailInfo -> {
+                        auditTrailInfo.setMessage(messagePostProcessor.deserialize(auditTrailInfo.getMessage()));
+                    });
+                } catch(Exception e) {
+                    logger.info("Failed to deserialize Audit Trail Message", e);
+                }
+
             }
 
             return auditTrailInfoList;
