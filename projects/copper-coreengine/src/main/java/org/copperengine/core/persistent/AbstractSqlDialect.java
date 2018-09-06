@@ -1176,24 +1176,60 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
             try {
                 value = fields[i].get(state);
+                if (fields[i].getType().equals(Map.class) || fields[i].getType().equals(HashMap.class)) {
+                    value = this.formatMap(value);
+                }
             } catch (Exception e) {
                 logger.error("decoding of state failed: " + e.toString(), e);
             }
 
             if (!Modifier.isTransient(fields[i].getModifiers())) {
-                if (fields[i].getType().isPrimitive() || fields[i].getType().equals(String.class)) {
-                    if (fields[i].getType().equals(String.class)) {
-                        value = "\"" + value + "\"";
+                if (value != null) {
+                    if (fields[i].getType().isPrimitive()
+                            || fields[i].getType().equals(String.class)
+                            || fields[i].getType().equals(Map.class)
+                            || fields[i].getType().equals(HashMap.class)
+                            || value.getClass().equals(java.util.Date.class)
+                            || value.getClass().equals(java.sql.Date.class)) {
+                        if (fields[i].getType().equals(String.class)) {
+                            value = "\"" + value + "\"";
+                        } else if (value.getClass().equals(java.util.Date.class) || value.getClass().equals(java.sql.Date.class)) {
+                            value = "\"" + value.toString() + "\"";
+                        }
+                        map.put(name, value);
+                    } else {
+                        map.put(name, this.createStateMap(value));
                     }
-                    map.put(name, value);
                 } else {
-                    map.put(name, this.createStateMap(value));
+                    map.put(name, value);
                 }
             }
 
         }
 
         return map;
+    }
+
+    public Object formatMap(Object map) {
+        Map<String, Object> newMap = new HashMap<>();
+        for (Object entry : ((Map) map).entrySet()) {
+            String key = ((Map.Entry<String, Object>) entry).getKey();
+            Object value = ((Map.Entry<String, Object>) entry).getValue();
+            String newKey = "\"" + key + "\"";
+            Object newValue = value;
+            if (value.getClass().isPrimitive() || value.getClass().equals(String.class)) {
+                if (value.getClass().equals(String.class)) {
+                    newValue = "\"" + value + "\"";
+                }
+                newMap.put(newKey, newValue);
+            } else if (value.getClass().equals(Map.class) || value.getClass().equals(HashMap.class)) {
+                newValue = formatMap(value);
+                newMap.put(newKey, newValue);
+            } else {
+                newMap.put(newKey, this.createStateMap(newValue));
+            }
+        }
+        return newMap;
     }
 
     @Override
