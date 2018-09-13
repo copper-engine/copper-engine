@@ -1004,24 +1004,116 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
             try {
                 value = fields[i].get(state);
+                if (fields[i].getType().equals(Map.class) || fields[i].getType().equals(HashMap.class)) {
+                    value = this.formatMap(value);
+                }
+                else if (fields[i].getType().isArray()) {
+                    value = this.formatArray((Object[])value);
+                }
+                else if (fields[i].getType().equals(java.util.List.class) || fields[i].getType().equals(java.util.ArrayList.class)) {
+                    value = this.formatList((List<Object>)value);
+                }
             } catch (Exception e) {
                 logger.error("decoding of state failed: " + e.toString(), e);
             }
 
             if (!Modifier.isTransient(fields[i].getModifiers())) {
-                if (fields[i].getType().isPrimitive() || fields[i].getType().equals(String.class)) {
-                    if (fields[i].getType().equals(String.class)) {
-                        value = "\"" + value + "\"";
+                if (value != null) {
+                    if (fields[i].getType().isPrimitive()
+                            || fields[i].getType().equals(String.class)
+                            || fields[i].getType().equals(Map.class)
+                            || fields[i].getType().equals(HashMap.class)
+                            || fields[i].getType().isArray()
+                            || fields[i].getType().equals(java.util.List.class)
+                            || fields[i].getType().equals(java.util.ArrayList.class)
+                            || this.objectIsDateType(value)) {
+                        if (fields[i].getType().equals(String.class)) {
+                            value = "\"" + value + "\"";
+                        } else if (this.objectIsDateType(value)) {
+                            value = "\"" + value.toString() + "\"";
+                        }
+                        map.put(name, value);
+                    } else {
+                        map.put(name, this.createStateMap(value));
                     }
-                    map.put(name, value);
                 } else {
-                    map.put(name, this.createStateMap(value));
+                    map.put(name, value);
                 }
             }
 
         }
 
         return map;
+    }
+
+    public Object formatMap(Object map) {
+        Map<String, Object> newMap = new HashMap<>();
+        for (Object entry : ((Map) map).entrySet()) {
+            String key = ((Map.Entry<String, Object>) entry).getKey();
+            Object value = ((Map.Entry<String, Object>) entry).getValue();
+            String newKey = "\"" + key + "\"";
+            Object newValue = value;
+            if (value.getClass().isPrimitive() || value.getClass().equals(String.class) || this.objectIsDateType(value)) {
+                if (value.getClass().equals(String.class)) {
+                    newValue = "\"" + value + "\"";
+                } else if (this.objectIsDateType(value)) {
+                    newValue = "\"" + value.toString() + "\"";
+                }
+                newMap.put(newKey, newValue);
+            } else if (value.getClass().equals(Map.class) || value.getClass().equals(HashMap.class)) {
+                newValue = formatMap(value);
+                newMap.put(newKey, newValue);
+            } else if (value.getClass().isArray()) {
+                newValue = formatArray((Object[]) value);
+                newMap.put(newKey, newValue);
+            } else if (value.getClass().equals(java.util.List.class) || value.getClass().equals(java.util.ArrayList.class)) {
+                newValue = formatList((List<Object>) value);
+                newMap.put(newKey, newValue);
+            } else {
+                newMap.put(newKey, this.createStateMap(newValue));
+            }
+        }
+        return newMap;
+    }
+
+    public Object formatArray(Object[] array) {
+        Map<String, Object> newMap = new HashMap<>();
+        try {
+            for (int i = 0; i < array.length; i++) {
+                newMap.put("Array[" + i + "]", array[i]);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+
+        return this.formatMap(newMap);
+    }
+
+    public Object formatList(List<Object> list) {
+        Map<String, Object> newMap = new HashMap<>();
+        try {
+            for (int i = 0; i < list.size(); i++) {
+                newMap.put("List[" + i + "]", list.get(i));
+            }
+        } catch (Exception e) {
+            return null;
+        }
+
+        return this.formatMap(newMap);
+    }
+
+    public boolean objectIsDateType(Object value) {
+        Boolean result = false;
+        if (
+                value.getClass().equals(java.util.Date.class) ||
+                        value.getClass().equals(java.sql.Date.class) ||
+                        value.getClass().equals(java.time.Instant.class) ||
+                        value.getClass().equals(java.time.ZonedDateTime.class) ||
+                        value.getClass().equals(java.time.LocalDate.class) ||
+                        value.getClass().equals(java.time.LocalDateTime.class)) {
+            result = true;
+        }
+        return result;
     }
 
     @Override
