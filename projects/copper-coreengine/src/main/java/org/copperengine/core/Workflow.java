@@ -168,11 +168,8 @@ public abstract class Workflow<D> implements Serializable {
      *
      * @param correlationIds
      *        one or more correlation ids
-     * @throws Interrupt
-     *        for internal use of COPPER. When wait is called, an Interrupt is thrown, caught by COPPER itself for
-     *        taking back control over the executed workflow.
      */
-    protected final void waitForAll(String... correlationIds) throws Interrupt {
+    protected final void waitForAll(String... correlationIds) {
         this.wait(WaitMode.ALL, 0, correlationIds);
     }
 
@@ -181,11 +178,8 @@ public abstract class Workflow<D> implements Serializable {
      *
      * @param callbacks
      *        one or more callback objects
-     * @throws Interrupt
-     *        for internal use of COPPER. When wait is called, an Interrupt is thrown, caught by COPPER itself for
-     *        taking back control over the executed workflow.
      */
-    protected final void waitForAll(Callback<?>... callbacks) throws Interrupt {
+    protected final void waitForAll(Callback<?>... callbacks) {
         this.wait(WaitMode.ALL, 0, callbacks);
     }
 
@@ -200,11 +194,8 @@ public abstract class Workflow<D> implements Serializable {
      *        timeout in milliseconds or {@link Workflow#NO_TIMEOUT} (or any value &le; 0) to wait for ever
      * @param correlationIds
      *        one ore more correlation ids
-     * @throws Interrupt
-     *        for internal use of COPPER. When wait is called, an Interrupt is thrown, caught by COPPER itself for
-     *        taking back control over the executed workflow.
      */
-    protected final void wait(WaitMode mode, int timeoutMsec, String... correlationIds) throws Interrupt {
+    protected final void wait(WaitMode mode, int timeoutMsec, String... correlationIds) {
         if (correlationIds.length == 0)
             throw new IllegalArgumentException();
         updateLastWaitStackTrace();
@@ -215,7 +206,7 @@ public abstract class Workflow<D> implements Serializable {
         engine.registerCallbacks(this, mode, timeoutMsec, correlationIds);
     }
 
-    protected final void wait(final WaitMode mode, final int timeoutMsec, final Callback<?>... callbacks) throws Interrupt {
+    protected final void wait(final WaitMode mode, final int timeoutMsec, final Callback<?>... callbacks) {
         updateLastWaitStackTrace();
         String[] correlationIds = new String[callbacks.length];
         for (int i = 0; i < correlationIds.length; i++) {
@@ -237,11 +228,8 @@ public abstract class Workflow<D> implements Serializable {
      *        unit of the timeout; ignored, if a negative timeout is specified
      * @param correlationIds
      *        one ore more correlation ids
-     * @throws Interrupt
-     *        for internal use of COPPER. When wait is called, an Interrupt is thrown, caught by COPPER itself for
-     *        taking back control over the executed workflow.
      */
-    protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final String... correlationIds) throws Interrupt {
+    protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final String... correlationIds) {
         if (correlationIds.length == 0)
             throw new IllegalArgumentException();
         updateLastWaitStackTrace();
@@ -265,11 +253,8 @@ public abstract class Workflow<D> implements Serializable {
      *        unit of the timeout; ignored, if a negative timeout is specified
      * @param callbacks
      *        one ore more callbacks
-     * @throws Interrupt
-     *        for internal use of COPPER. When wait is called, an Interrupt is thrown, caught by COPPER itself for
-     *        taking back control over the executed workflow.
      */
-    protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final Callback<?>... callbacks) throws Interrupt {
+    protected final void wait(final WaitMode mode, final long timeout, final TimeUnit timeUnit, final Callback<?>... callbacks) {
         updateLastWaitStackTrace();
         String[] correlationIds = new String[callbacks.length];
         for (int i = 0; i < correlationIds.length; i++) {
@@ -405,6 +390,8 @@ public abstract class Workflow<D> implements Serializable {
      * @throws Interrupt
      *        for internal use of COPPER. When main is called, an Interrupt may be thrown, caught by COPPER itself for
      *        taking back control over the executed workflow.
+     *        An application developer MUST NOT throw an Interrupt at any time in Workflow class code for
+     *        COPPER to work properly.
      */
     public abstract void main() throws Interrupt;
 
@@ -412,11 +399,8 @@ public abstract class Workflow<D> implements Serializable {
      * Causes the engine to stop processing of this workflow instance and to enqueue it again.
      * May be used in case of processor pool change or to create a 'savepoint'.
      *
-     * @throws Interrupt
-     *        for internal use of COPPER. After resubmit is called, an Interrupt is thrown, caught by COPPER itself for
-     *        taking back control over the executed workflow.
      */
-    protected final void resubmit() throws Interrupt {
+    protected final void resubmit() {
         final String cid = engine.createUUID();
         engine.registerCallbacks(this, WaitMode.ALL, 0, cid);
         Acknowledge ack = createCheckpointAcknowledge();
@@ -435,12 +419,8 @@ public abstract class Workflow<D> implements Serializable {
      * May be used in case of processor pool change or to create a 'savepoint' in a persistent engine.
      * <p>
      * Same as {@link Workflow#resubmit()}
-     *
-     * @throws Interrupt
-     *        for internal use of COPPER. After savepoint is called, an Interrupt is thrown, caught by COPPER itself for
-     *        taking back control over the executed workflow.
      */
-    protected final void savepoint() throws Interrupt {
+    protected final void savepoint() {
         resubmit();
     }
 
