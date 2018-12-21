@@ -14,6 +14,9 @@
   org.copperengine.regtest/org.copperengine.regtest.test.persistent.example=ALL-UNNAMED
 
 --add-exports
+  org.copperengine.regtest/org.copperengine.regtest.test.persistent.jmx=ALL-UNNAMED
+
+--add-exports
   org.copperengine.regtest/org.copperengine.regtest.test.persistent.lock=ALL-UNNAMED
 
 --add-exports
