@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package example;
 
 // Added to prevent OSGI plugin to fail - see https://issues.gradle.org/browse/GRADLE-1288
 public class Dummy {

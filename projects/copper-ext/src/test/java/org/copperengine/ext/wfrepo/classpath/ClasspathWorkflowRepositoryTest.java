@@ -19,6 +19,7 @@ package org.copperengine.ext.wfrepo.classpath;
 import java.io.File;
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.tranzient.TransientEngineFactory;
@@ -26,12 +27,16 @@ import org.copperengine.core.tranzient.TransientScottyEngine;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
+
 public class ClasspathWorkflowRepositoryTest {
 
     private static final String TESTWORKFLOWS_PACKAGE = "org.copperengine.ext.wfrepo.classpath.testworkflows";
 
     @Test
     public void testFindWorkflowClasses() throws Exception {
+        assumeTrue(System.getProperty("jdk.module.path", "").isBlank());
         Set<Class<?>> set = ClasspathWorkflowRepository.findWorkflowClasses(Collections.singletonList(TESTWORKFLOWS_PACKAGE), Thread.currentThread().getContextClassLoader());
         Assert.assertEquals(5, set.size());
         Assert.assertNotNull(set.contains(Class.forName("org.copperengine.ext.wfrepo.classpath.testworkflows.TestWorkflowThree")));
@@ -39,6 +44,7 @@ public class ClasspathWorkflowRepositoryTest {
 
     @Test
     public void testExec() throws Exception {
+        assumeTrue(System.getProperty("jdk.module.path", "").isBlank());
         final ClasspathWorkflowRepository wfRepo = new ClasspathWorkflowRepository(TESTWORKFLOWS_PACKAGE);
         try {
             final TransientEngineFactory factory = new TransientEngineFactory() {
