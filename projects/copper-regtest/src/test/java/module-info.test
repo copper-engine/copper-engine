@@ -1,0 +1,15 @@
+--add-exports
+  org.copperengine.regtest/org.copperengine.regtest.test=ALL-UNNAMED
+
+--add-exports
+  org.copperengine.regtest/org.copperengine.regtest.test.backchannel=ALL-UNNAMED
+
+--add-exports
+  org.copperengine.regtest/org.copperengine.regtest.test.tranzient.lockManager=ALL-UNNAMED
+
+--add-exports
+  org.copperengine.regtest/org.copperengine.regtest.test.tranzient.simple=ALL-UNNAMED
+
+--add-exports
+  org.copperengine.regtest/org.copperengine.regtest.test.versioning.compatibility=ALL-UNNAMED
+
