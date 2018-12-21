@@ -317,6 +317,15 @@ project(':projects:copper-regtest') {
     }
     sourceSets.test.resources.srcDirs += sourceSets.workflow.srcDir
 
+    tasks.testClasses.doLast {
+        if(project.sourceCompatibility.java9Compatible) {
+            copy {
+                from sourceSets.test.resources.srcDirs
+                into "$buildDir/classes/java/test"
+            }
+        }
+    }
+
     dependencies {
         implementation project(':projects:copper-coreengine')
         implementation project(':projects:copper-spring')
