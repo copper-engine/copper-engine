@@ -10,7 +10,7 @@ public class ASMConstants {
         switch (version) {
             case "5": return Opcodes.ASM5;
             case "6": return Opcodes.ASM6;
-            case "7": return Opcodes.ASM7_EXPERIMENTAL;
+            case "7": return Opcodes.ASM7;
             default: throw new IllegalArgumentException("Unsupported ASM API version: " + version);
         }
     }
