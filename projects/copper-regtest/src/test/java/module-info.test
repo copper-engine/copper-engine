@@ -1,62 +1,62 @@
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.audit=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.audit=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.common=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.common=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.persistent=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.persistent=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.persistent.lock=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.persistent.lock=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.backchannel=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.backchannel=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.versioning.compatibility=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.versioning.compatibility=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.persistent=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.persistent=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.persistent.example=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.persistent.example=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.persistent.jmx=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.persistent.jmx=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.persistent.lock=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.persistent.lock=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.persistent.performance=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.persistent.performance=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.sourcearchive=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.sourcearchive=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.tranzient=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.tranzient=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.tranzient.classhierarchy=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.tranzient.classhierarchy=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.tranzient.lang=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.tranzient.lang=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.tranzient.lockManager=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.tranzient.lockManager=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.tranzient.simple=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.tranzient.simple=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.versioning=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.versioning=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.test.versioning.compatibility=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.test.versioning.compatibility=ALL-UNNAMED,org.copperengine.core
 
 --add-exports
-  org.copperengine.regtest/org.copperengine.regtest.wfrepo=ALL-UNNAMED
+  org.copperengine.regtest/org.copperengine.regtest.wfrepo=ALL-UNNAMED,org.copperengine.core
