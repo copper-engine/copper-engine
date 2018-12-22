@@ -1,4 +1,16 @@
 --add-exports
+  org.copperengine.regtest/org.copperengine.regtest.audit=ALL-UNNAMED
+
+--add-exports
+  org.copperengine.regtest/org.copperengine.regtest.common=ALL-UNNAMED
+
+--add-exports
+  org.copperengine.regtest/org.copperengine.regtest.persistent=ALL-UNNAMED
+
+--add-exports
+  org.copperengine.regtest/org.copperengine.regtest.persistent.lock=ALL-UNNAMED
+
+--add-exports
   org.copperengine.regtest/org.copperengine.regtest.test=ALL-UNNAMED
 
 --add-exports
@@ -45,3 +57,6 @@
 
 --add-exports
   org.copperengine.regtest/org.copperengine.regtest.test.versioning.compatibility=ALL-UNNAMED
+
+--add-exports
+  org.copperengine.regtest/org.copperengine.regtest.wfrepo=ALL-UNNAMED
