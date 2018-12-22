@@ -33,12 +33,16 @@ import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowTest {
 
     protected ConfigurableApplicationContext createContext(String dsContext) {
-        return new ClassPathXmlApplicationContext(new String[] { dsContext, "SpringTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml", "unittest-context.xml" });
+        String prefix = "src/test/resources/";
+        return new FileSystemXmlApplicationContext(new String[] {
+                prefix + dsContext,
+                prefix + "SpringTxnPersistentWorkflowTest/persistent-engine-unittest-context.xml",
+                prefix + "unittest-context.xml" });
     }
 
     public void testSpringTxnUnitTestWorkflow(String dsContext) throws Exception {
