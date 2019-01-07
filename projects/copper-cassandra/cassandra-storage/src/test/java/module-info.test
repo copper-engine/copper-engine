@@ -1,0 +1,5 @@
+--add-reads
+  org.copperengine.cassandra.storage=org.mockito
+
+--add-exports
+  org.copperengine.cassandra.storage/org.copperengine.core.persistent.cassandra.workflows=ALL-UNNAMED
