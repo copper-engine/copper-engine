@@ -15,4 +15,5 @@ cache:
     - $HOME/.gradle
 
 script:
-  - ./gradlew $GRADLE_BUILD_OPTS -PfindbugsXmlReportEnabled=true --rerun-tasks --full-stacktrace build
+  - ./gradlew $GRADLE_BUILD_OPTS -PjavaCompatibility=11 --no-daemon --no-parallel --rerun-tasks -S build
+  - ./gradlew $GRADLE_BUILD_OPTS --no-daemon --no-parallel --rerun-tasks -S build
