@@ -1,3 +1,4 @@
+gradle-local.properties
 *.iml
 .idea
 **/build
