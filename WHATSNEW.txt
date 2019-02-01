@@ -1,3 +1,11 @@
+COPPER 5.0.2
+============
+- Maintenance: Now using ASM 7.0
+
+COPPER 5.0.1
+============
+- Bugfix: Fixed SQL bug in Postgres Dialect
+
 COPPER 5.0.0
 ============
 - New feature: compatible with Java 9 and 10 (in addition to Java 8)
