@@ -46,6 +46,8 @@ public class CompatibilityCheckWorkflow_0001 extends PersistentWorkflow<Serializ
     public void main() throws Interrupt {
         aString_RENAMED = "A";
         int localIntValue_RENAMED = 1;
+        int localValue3 = 2;
+        String localValue4 = null;
         directlyWaitingMethod(aString_RENAMED, localIntValue_RENAMED);
         bString = "B";
         localIntValue_RENAMED++;

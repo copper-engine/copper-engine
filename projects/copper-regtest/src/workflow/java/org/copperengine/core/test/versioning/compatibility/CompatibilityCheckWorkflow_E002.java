@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright 2002-2015 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,6 +45,8 @@ public class CompatibilityCheckWorkflow_E002 extends PersistentWorkflow<Serializ
     public void main() throws Interrupt {
         aString = "A";
         int localIntValue = 1;
+        int localValue3 = 2;
+        String localValue4 = null;
         directlyWaitingMethod(aString, localIntValue);
         bString = "B";
         localIntValue++;

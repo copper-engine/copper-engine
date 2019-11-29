@@ -15,9 +15,6 @@
  */
 package org.copperengine.regtest.test.versioning.compatibility;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -31,6 +28,8 @@ import org.copperengine.core.persistent.Serializer;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.*;
 
 public class CompatibilityCheckTest {
 
@@ -59,6 +58,9 @@ public class CompatibilityCheckTest {
             doTest(repo, engine, "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_E004", false, true);
             doTest(repo, engine, "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_E005", false, true);
             doTest(repo, engine, "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_E006", false, true);
+            doTest(repo, engine, "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_E007", false, true);
+            Exception exception = doTest(repo, engine, "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_E008", false, true);
+            assertTrue("UnexpectedValueException expected as result.", exception instanceof UnexpectedValueException);
 
             doTest(repo, engine, "org.copperengine.regtest.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_Base", "org.copperengine.regtest.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_E101", false, true);
         } catch (Exception e) {
@@ -70,7 +72,8 @@ public class CompatibilityCheckTest {
 
     }
 
-    private void doTest(TestWorkflowRepository repo, TestEngine engine, String baseClass, String compatibleClass, boolean successExpected, boolean checkIterations) throws Interrupt, Exception {
+    private Exception doTest(TestWorkflowRepository repo, TestEngine engine, String baseClass, String compatibleClass, boolean successExpected, boolean checkIterations) throws Interrupt, Exception {
+        Exception exception = null;
         try {
             TestJavaSerializer serializer = new TestJavaSerializer();
             serializer.setClassNameReplacement(compatibleClass);
@@ -107,11 +110,13 @@ public class CompatibilityCheckTest {
             }
 
         } catch (Exception e) {
+            exception = e;
             if (successExpected) {
                 throw e;
             }
             logger.info("Caught expected exception " + e.toString(), e);
         }
+        return exception;
     }
 
     private void checkCompatibility(SerializedWorkflow cp1, SerializedWorkflow cp2, String baseClass, String className, Serializer serializer, ProcessingEngine engine, TestWorkflowRepository repo, boolean checkIterations) throws Exception {
