@@ -49,6 +49,8 @@ public class CompatibilityCheckWorkflow_0003 extends PersistentWorkflow<Serializ
         aString = "A";
         NEW_NeverWaitingMethod("test", 1);
         int localIntValue = 1;
+        int localValue3 = 2;
+        String localValue4 = null;
         NEW_NeverWaitingMethod("test", 1);
         directlyWaitingMethod(aString, localIntValue);
         NEW_NeverWaitingMethod("test", 1);

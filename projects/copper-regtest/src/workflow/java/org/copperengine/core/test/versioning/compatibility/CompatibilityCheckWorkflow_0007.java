@@ -44,6 +44,8 @@ public class CompatibilityCheckWorkflow_0007 extends PersistentWorkflow<Serializ
     @Override
     public void main() throws Interrupt {
         int localIntValue = 1;
+        int localValue3 = 2;
+        String localValue4 = null;
         directlyWaitingMethod("A", localIntValue);
         bString = "B";
         localIntValue++;

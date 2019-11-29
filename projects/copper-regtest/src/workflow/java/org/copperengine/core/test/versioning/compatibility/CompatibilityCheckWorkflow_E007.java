@@ -23,46 +23,33 @@ import org.copperengine.core.WorkflowDescription;
 import org.copperengine.core.persistent.PersistentWorkflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
- * Compatible change example 0005
- * This class is a compatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
- * Changing the implementation of a method, as long as no COPPER wait calls are mixed up
+ * Incompatible change example E007
+ * This class is a incompatible version of {@link CompatibilityCheckWorkflow_Base}. The following change(s) are applied:
+ * Reordered local variables localValue3 and localValue4 of different type
  *
- * @author austermann
+ * @author sluyterman
  */
-@WorkflowDescription(alias = CompatibilityCheckWorkflowDef.NAME, majorVersion = 1, minorVersion = 0, patchLevelVersion = 0005)
-public class CompatibilityCheckWorkflow_0005 extends PersistentWorkflow<Serializable> {
+@WorkflowDescription(alias = CompatibilityCheckWorkflowDef.NAME, majorVersion = 1, minorVersion = 0, patchLevelVersion = 0)
+public class CompatibilityCheckWorkflow_E007 extends PersistentWorkflow<Serializable> {
 
-    private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_0005.class);
+    private static final Logger logger = LoggerFactory.getLogger(CompatibilityCheckWorkflow_E007.class);
 
     private static final long serialVersionUID = 1L;
 
     private String aString;
     private String bString;
 
-    private int NEW_INT;
-
     @Override
     public void main() throws Interrupt {
         aString = "A";
         int localIntValue = 1;
-        int localValue3 = 2;
         String localValue4 = null;
-
-        // we need a new for loop here.
-        // because we are not allowed to add a new local variable here to stay downwards compatible,
-        // we just create a new class instance field NEW_INT and use it here
-        for (NEW_INT = 0; NEW_INT < 5; NEW_INT++) {
-            aString = aString + "," + NEW_INT;
-        }
+        int localValue3 = 2;
         directlyWaitingMethod(aString, localIntValue);
         bString = "B";
         localIntValue++;
         indirectlyWaitingMethod(bString, localIntValue);
-        if (aString.equals(bString)) {
-            logger.debug("The are equal!");
-        }
     }
 
     protected void directlyWaitingMethod(String strValue, int intValue) throws Interrupt {

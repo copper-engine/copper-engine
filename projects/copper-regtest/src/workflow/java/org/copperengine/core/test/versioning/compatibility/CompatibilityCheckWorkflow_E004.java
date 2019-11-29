@@ -44,6 +44,8 @@ public class CompatibilityCheckWorkflow_E004 extends PersistentWorkflow<Serializ
     public void main() throws Interrupt {
         aString = BigInteger.TEN;
         int localIntValue = 1;
+        int localValue3 = 2;
+        String localValue4 = null;
         directlyWaitingMethod(aString.toString(), localIntValue);
         bString = "B";
         localIntValue++;

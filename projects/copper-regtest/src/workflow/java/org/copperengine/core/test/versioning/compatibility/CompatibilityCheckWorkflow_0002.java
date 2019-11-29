@@ -50,6 +50,8 @@ public class CompatibilityCheckWorkflow_0002 extends PersistentWorkflow<Serializ
         aString = "A";
         NEW_STRING_FIELD = "NewValue";
         int localIntValue = 1;
+        int localValue3 = 2;
+        String localValue4 = null;
         directlyWaitingMethod(aString, localIntValue);
         bString = "B";
         localIntValue++;
