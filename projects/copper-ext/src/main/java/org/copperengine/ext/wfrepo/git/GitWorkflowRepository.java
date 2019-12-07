@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Extension of {@link FileBasedWorkflowRepository}, that adds an observer of a git repository.
  *
- *  @author wsluyterman
+ * @author wsluyterman
  */
 public class GitWorkflowRepository extends FileBasedWorkflowRepository implements WorkflowRepository, FileBasedWorkflowRepositoryMXBean {
 
@@ -55,6 +55,7 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     public synchronized void setVersion(String version) {
         this.version = version;
     }
+
     @Override
     public synchronized void setCheckIntervalMSec(int checkIntervalMSec) {
         this.checkIntervalMSecGit = checkIntervalMSec;
@@ -126,17 +127,42 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         } else {
             try (Git git = Git.open(baseDir)) {
                 Repository repository = git.getRepository();
-                List<Ref> l = git.branchList().call();
+                git.checkout()
+                        .setName(ORIGIN + "/" + version)
+                        .setForced(true)
+                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                        .call();
                 logger.trace("Repository bare={}.", repository.isBare());
                 logger.debug("Pull repository {}", repository);
                 git.pull().setRemote(ORIGIN).setRemoteBranchName(version).call();
                 logger.debug("Checkout repository {}", repository);
                 git.checkout()
-                        .setName( ORIGIN + "/" + version)
+                        .setName(ORIGIN + "/" + version)
                         .setForced(true)
                         .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                         .call();
             }
+        }
+    }
+
+    private void changeVersion(String oldVersion, String newVersion) throws IOException, GitAPIException {
+        logger.debug("Update git repositories.");
+        File baseDir = new File("./ttt");
+        if (baseDir.exists()) {
+            try (Git git = Git.open(baseDir)) {
+                Repository repository = git.getRepository();
+                git.checkout()
+                        .setName(ORIGIN + "/" + oldVersion)
+                        .setForced(true)
+                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                        .call();
+                git.checkout()
+                        .setName(ORIGIN + "/" + newVersion)
+                        .setForced(true)
+                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                        .call();
+            }
+            updateLocalGitRepositories();
         }
 
     }
