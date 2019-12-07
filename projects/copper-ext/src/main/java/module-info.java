@@ -12,4 +12,5 @@ module org.copperengine.ext {
     exports org.copperengine.ext.persistent;
     exports org.copperengine.ext.util;
     exports org.copperengine.ext.wfrepo.classpath;
+    exports org.copperengine.ext.wfrepo.git;
 }

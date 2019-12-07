@@ -19,7 +19,6 @@ package org.copperengine.ext.wfrepo.git;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.copperengine.core.common.WorkflowRepository;
@@ -28,7 +27,6 @@ import org.copperengine.management.FileBasedWorkflowRepositoryMXBean;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,14 +44,27 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     private AtomicBoolean gitObserverStopped = new AtomicBoolean(false);
     private Thread observerThread;
     private String uri;
-    private String version;
+    private String branch;
+    private File gitRepositoryDir;
 
-    public synchronized void setURI(String uri) {
+    public synchronized void setGitRepositoryDir(File gitRepositoryDir) {
+        this.gitRepositoryDir = gitRepositoryDir;
+    }
+
+    public synchronized void setGitRepositoryDir(String gitRepositoryDir) {
+        this.gitRepositoryDir = new File (gitRepositoryDir);
+    }
+
+    public synchronized File getGitRepositoryDir() {
+        return gitRepositoryDir;
+    }
+
+    public synchronized void setOriginURI(String uri) {
         this.uri = uri;
     }
 
-    public synchronized void setVersion(String version) {
-        this.version = version;
+    public synchronized void setBranch(String branch) {
+        this.branch = branch;
     }
 
     @Override
@@ -68,7 +79,7 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         try {
             updateLocalGitRepositories();
         } catch (Exception e) {
-            logger.error("", new GitWorkflowRepositoryExcpetion("Exception while initial update of it workflow repository.", e));
+            logger.error("", new GitWorkflowRepositoryException("Exception while initial update of it workflow repository.", e));
         }
         this.gitObserverStopped.set(false);
         observerThread = new GitWorkflowRepository.ObserverThread(this);
@@ -80,110 +91,86 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     public synchronized void shutdown() {
         logger.info("Shutting down git workflow repository.");
         this.gitObserverStopped.set(true);
+        observerThread.interrupt();
         super.shutdown();
     }
 
-    static class ObserverThread extends Thread {
+    private synchronized void updateLocalGitRepositories() throws IOException, GitAPIException {
+        logger.debug("Update git repositories.");
+        if (!getGitRepositoryDir().exists()) {
+            try (Git git = Git.cloneRepository()
+                    .setURI(uri)
+                    .setDirectory(getGitRepositoryDir())
+                    .setRemote(ORIGIN)
+                    .call();) {
+                git.checkout().setName("remotes/" + ORIGIN + "/" + branch).call();
+            }
+        } else {
+            try (Git git = Git.open(getGitRepositoryDir())) {
+                Repository repository = git.getRepository();
+                git.checkout()
+                        .setName(ORIGIN + "/" + branch)
+                        .setForced(true)
+                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                        .call();
+                logger.trace("Repository bare={}.", repository.isBare());
+                logger.debug("Pull repository {}", repository);
+                git.pull().setRemote(ORIGIN).setRemoteBranchName(branch).call();
+                logger.debug("Checkout repository {}", repository);
+                git.checkout()
+                        .setName(ORIGIN + "/" + branch)
+                        .setForced(true)
+                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                        .call();
+            }
+        }
+    }
+
+    private static class ObserverThread extends Thread {
         private static final Logger logger = LoggerFactory.getLogger(GitWorkflowRepository.ObserverThread.class);
 
-        final WeakReference<GitWorkflowRepository> repository;
+        final WeakReference<GitWorkflowRepository> gitWorkflowRepository;
 
         public ObserverThread(GitWorkflowRepository repository) {
             super("WfRepoObserverGit");
-            this.repository = new WeakReference<GitWorkflowRepository>(repository);
+            this.gitWorkflowRepository = new WeakReference<>(repository);
             setDaemon(true);
         }
 
         @Override
         public void run() {
             logger.info("Starting git observation");
-            GitWorkflowRepository repository = this.repository.get();
+            GitWorkflowRepository repository = this.gitWorkflowRepository.get();
 
             while (repository != null && !repository.gitObserverStopped.get()) {
                 try {
                     Thread.sleep(repository.checkIntervalMSecGit);
                     repository.updateLocalGitRepositories();
-                } catch (InterruptedException e) {
-                    logger.warn("Caught InterruptedException for git observation. Continue anyway.");
                 } catch (Exception e) {
-                    logger.warn("Exception caught while git oberservation. Continue anyway.", e);
+                    logger.info("Exception caught while git oberservation. Continue anyway.", e);
                 }
             }
             logger.info("Stopping git observation");
         }
     }
 
-    private void updateLocalGitRepositories() throws IOException, GitAPIException {
-        logger.debug("Update git repositories.");
-        File baseDir = new File("./ttt");
-        if (!baseDir.exists()) {
-            try (Git git = Git.cloneRepository()
-                    .setURI(uri)
-                    .setDirectory(baseDir)
-                    .setRemote(ORIGIN)
-                    .call();) {
-                git.checkout().setName("remotes/" + ORIGIN + "/" + version).call();
-            }
-        } else {
-            try (Git git = Git.open(baseDir)) {
-                Repository repository = git.getRepository();
-                git.checkout()
-                        .setName(ORIGIN + "/" + version)
-                        .setForced(true)
-                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                        .call();
-                logger.trace("Repository bare={}.", repository.isBare());
-                logger.debug("Pull repository {}", repository);
-                git.pull().setRemote(ORIGIN).setRemoteBranchName(version).call();
-                logger.debug("Checkout repository {}", repository);
-                git.checkout()
-                        .setName(ORIGIN + "/" + version)
-                        .setForced(true)
-                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                        .call();
-            }
-        }
-    }
-
-    private void changeVersion(String oldVersion, String newVersion) throws IOException, GitAPIException {
-        logger.debug("Update git repositories.");
-        File baseDir = new File("./ttt");
-        if (baseDir.exists()) {
-            try (Git git = Git.open(baseDir)) {
-                Repository repository = git.getRepository();
-                git.checkout()
-                        .setName(ORIGIN + "/" + oldVersion)
-                        .setForced(true)
-                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                        .call();
-                git.checkout()
-                        .setName(ORIGIN + "/" + newVersion)
-                        .setForced(true)
-                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                        .call();
-            }
-            updateLocalGitRepositories();
+    public static class GitWorkflowRepositoryException extends RuntimeException {
+        public GitWorkflowRepositoryException() {
         }
 
-    }
-
-    public static class GitWorkflowRepositoryExcpetion extends RuntimeException {
-        public GitWorkflowRepositoryExcpetion() {
-        }
-
-        public GitWorkflowRepositoryExcpetion(String message) {
+        public GitWorkflowRepositoryException(String message) {
             super(message);
         }
 
-        public GitWorkflowRepositoryExcpetion(String message, Throwable cause) {
+        public GitWorkflowRepositoryException(String message, Throwable cause) {
             super(message, cause);
         }
 
-        public GitWorkflowRepositoryExcpetion(Throwable cause) {
+        public GitWorkflowRepositoryException(Throwable cause) {
             super(cause);
         }
 
-        public GitWorkflowRepositoryExcpetion(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        public GitWorkflowRepositoryException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
             super(message, cause, enableSuppression, writableStackTrace);
         }
     }
