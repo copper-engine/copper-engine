@@ -40,10 +40,11 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
 
     private static final Logger logger = LoggerFactory.getLogger(GitWorkflowRepository.class);
     private static final String ORIGIN = "origin";
+
     private int checkIntervalMSecGit = 5000;
     private AtomicBoolean gitObserverStopped = new AtomicBoolean(false);
     private Thread observerThread;
-    private String uri;
+    private String originUri;
     private String branch;
     private File gitRepositoryDir;
 
@@ -60,7 +61,7 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     }
 
     public synchronized void setOriginURI(String uri) {
-        this.uri = uri;
+        this.originUri = uri;
     }
 
     public synchronized void setBranch(String branch) {
@@ -76,6 +77,8 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     @Override
     public synchronized void start() {
         logger.info("Starting git workflow repository.");
+        if (gitObserverStopped.get())
+            throw new IllegalStateException();
         try {
             updateLocalGitRepositories();
         } catch (Exception e) {
@@ -92,14 +95,19 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         logger.info("Shutting down git workflow repository.");
         this.gitObserverStopped.set(true);
         observerThread.interrupt();
+        try {
+            observerThread.join();
+        } catch (Exception e) {
+            /* ignore */
+        }
         super.shutdown();
     }
 
-    private synchronized void updateLocalGitRepositories() throws IOException, GitAPIException {
+    protected synchronized void updateLocalGitRepositories() throws IOException, GitAPIException {
         logger.debug("Update git repositories.");
         if (!getGitRepositoryDir().exists()) {
             try (Git git = Git.cloneRepository()
-                    .setURI(uri)
+                    .setURI(originUri)
                     .setDirectory(getGitRepositoryDir())
                     .setRemote(ORIGIN)
                     .call();) {
@@ -154,6 +162,9 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         }
     }
 
+    /**
+     * Used for runtime exception in this class.
+     */
     public static class GitWorkflowRepositoryException extends RuntimeException {
         public GitWorkflowRepositoryException() {
         }
