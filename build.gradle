@@ -336,8 +336,8 @@ project(':projects:copper-ext') {
         implementation "org.yaml:snakeyaml:$snakeyamlVersion"
 
         testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
-        testImplementation 'org.apache.logging.log4j:log4j-core:2.+'
-        testImplementation 'org.slf4j:slf4j-log4j12:2.0.+'
+        //testImplementation 'org.apache.logging.log4j:log4j-core:2.+'
+        //testImplementation 'org.slf4j:slf4j-log4j12:2.0.+'
     }
 }
 
