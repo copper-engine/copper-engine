@@ -35,14 +35,38 @@ import org.slf4j.LoggerFactory;
 /**
  * Extension of {@link FileBasedWorkflowRepository}, that adds an observer of a git repository.
  *
+ * The {@link #setBranch(String)} branch in {@link #setOriginURI(String)} is pulled for changes. The
+ * changes are applyed online. The interval {@link #setCheckIntervalMSec(int)} is also used in the FileBasedWorkflowRepository.
+ *
+ * This class enables a lightweight CI/CD pipeline using git repositories only for changes in workflows. Changes
+ * outside the workflows are not in scope of this pipeline.
+ *
  * @author wsluyterman
  */
 public class GitWorkflowRepository extends FileBasedWorkflowRepository implements WorkflowRepository, FileBasedWorkflowRepositoryMXBean {
 
+
+    /**
+     * Used as remote name: "origin". Not changed.
+     */
+    public static final String ORIGIN = "origin";
+
+    /**
+     * Default name "master". Changeable with {@link #setBranch(String)}
+     */
+    public static final String DEFAULT_BRANCH = "master";
+
     private static final Logger logger = LoggerFactory.getLogger(GitWorkflowRepository.class);
 
-    private static final String ORIGIN = "origin";
-    public static final String DEFAULT_BRANCH = "master";
+    /**
+     * Used for runtime exception in this class.
+     */
+    public static class GitWorkflowRepositoryException extends RuntimeException {
+        public GitWorkflowRepositoryException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
 
     private String originUri;
     private String branch = DEFAULT_BRANCH;
@@ -53,35 +77,71 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     private Thread observerThread;
 
 
-    public boolean isUp() {
-        return gitObserverStopped != null && !gitObserverStopped.get();
-    }
-
-    public synchronized void setGitRepositoryDir(File gitRepositoryDir) throws IOException {
-        deleteGitRepositoryDir();
+    /**
+     * Define the directory, where the local git clone is created expected to exists.
+     * <p>
+     * If the GitWorkflowRepository {@link #isUp()} isUp the a refesh incl. directory deletion is performed.
+     *
+     * @param gitRepositoryDir the new or same location of local git clone
+     * @throws GitAPIException on exception in refresh
+     * @throws IOException     on exception on directory deletion
+     */
+    public synchronized void setGitRepositoryDir(File gitRepositoryDir) throws IOException, GitAPIException {
+        if (isUp()) {
+            deleteGitRepositoryDir();
+        }
         this.gitRepositoryDir = gitRepositoryDir;
+        if (isUp()) {
+            updateLocalGitRepositories();
+        }
     }
 
-    public synchronized void setGitRepositoryDir(String gitRepositoryDir) throws IOException {
+
+    /**
+     * Delegates to {@link #setGitRepositoryDir}.
+     */
+    public synchronized void setGitRepositoryDir(String gitRepositoryDir) throws IOException, GitAPIException {
         setGitRepositoryDir(new File(gitRepositoryDir));
     }
 
+    /**
+     * @return a new file object for the current directory of the local repository clone
+     */
     public synchronized File getGitRepositoryDir() {
-        return gitRepositoryDir;
+        return new File (gitRepositoryDir.getAbsolutePath());
     }
 
+    /**
+     * @return the current originURI
+     */
     public synchronized String getOriginUri() {
         return originUri;
     }
 
-    public synchronized void setOriginURI(String uri) throws IOException, GitAPIException {
-        this.originUri = uri;
+    /**
+     * The current originUri is changed.
+     *
+     * * If the GitWorkflowRepository {@link #isUp()} isUp the a refesh incl. directory deletion is performed.
+     *
+     * @param originUri new origin URI
+     * @throws GitAPIException on exception in refresh
+     * @throws IOException     on exception on directory deletion
+     */
+    public synchronized void setOriginURI(String originUri) throws IOException, GitAPIException {
+        this.originUri = originUri;
         if (isUp()) {
             deleteGitRepositoryDir();
             updateLocalGitRepositories();
         }
     }
 
+    /**
+     * Changes the used branch and refreshes the the local repository clone.
+     * @param branch
+     *
+     * @throws GitAPIException on exception in refresh
+     * @throws IOException     on exception in refresh
+    */
     public synchronized void setBranch(String branch) throws IOException, GitAPIException {
         this.branch = branch;
         if (isUp()) {
@@ -89,12 +149,25 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         }
     }
 
+    /**
+     * Defines the poll interval for changes in a branch.
+     *
+     * It is also given to {@link FileBasedWorkflowRepository} as the underlying file poll.
+     *
+     * @param checkIntervalMSec
+     */
     @Override
     public synchronized void setCheckIntervalMSec(int checkIntervalMSec) {
         this.checkIntervalMSecGit = checkIntervalMSec;
         super.setCheckIntervalMSec(checkIntervalMSec);
     }
 
+    /**
+     * Starts the repository poll activities and refreshes the the local repository clone.
+     *
+     * @throws IllegalStateException if another start already was executed
+     * @GitWorkflowRepositoryException on exception in refresh
+     */
     @Override
     public synchronized void start() {
         logger.info("Starting git workflow repository.");
@@ -103,7 +176,7 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         try {
             updateLocalGitRepositories();
         } catch (Exception e) {
-            throw  new GitWorkflowRepositoryException("Exception while initial update of it workflow repository.", e);
+            throw new GitWorkflowRepositoryException("Exception while initial update of it workflow repository.", e);
         }
         this.gitObserverStopped = new AtomicBoolean(false);
         observerThread = new GitWorkflowRepository.ObserverThread(this);
@@ -111,6 +184,9 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         super.start();
     }
 
+    /**
+     * Shuts down  the repository poll activities on git repository and files.
+     */
     @Override
     public synchronized void shutdown() {
         logger.info("Shutting down git workflow repository.");
@@ -124,6 +200,20 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         super.shutdown();
     }
 
+    /**
+     * @return true, if repository start was sucessful and no shutdown was requested.
+     */
+    public synchronized boolean isUp() {
+        return gitObserverStopped != null && !gitObserverStopped.get();
+    }
+
+
+    /**
+     * Updates the used local repository, either with gut-pull or with git-checkout force with git pull.
+     *
+     * @throws IOException     in case of git open exception
+     * @throws GitAPIException in case of exception in git calls
+     */
     protected synchronized void updateLocalGitRepositories() throws IOException, GitAPIException {
         logger.debug("Update git repositories.");
         if (!getGitRepositoryDir().exists()) {
@@ -157,6 +247,11 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         }
     }
 
+    /**
+     * Deletes the whole tree in {@link #getGitRepositoryDir()}.
+     *
+     * @throws IOException if exception in deleting is thrown.
+     */
     protected synchronized void deleteGitRepositoryDir() throws IOException {
         logger.info("Delete repository dir {}.", getGitRepositoryDir());
         if (getGitRepositoryDir() != null) {
@@ -167,9 +262,9 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     private static class ObserverThread extends Thread {
         private static final Logger logger = LoggerFactory.getLogger(GitWorkflowRepository.ObserverThread.class);
 
-        final WeakReference<GitWorkflowRepository> gitWorkflowRepository;
+        private final WeakReference<GitWorkflowRepository> gitWorkflowRepository;
 
-        public ObserverThread(GitWorkflowRepository repository) {
+        private ObserverThread(GitWorkflowRepository repository) {
             super("WfRepoObserverGit");
             this.gitWorkflowRepository = new WeakReference<>(repository);
             setDaemon(true);
@@ -189,15 +284,6 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
                 }
             }
             logger.info("Stopping git observation");
-        }
-    }
-
-    /**
-     * Used for runtime exception in this class.
-     */
-    public static class GitWorkflowRepositoryException extends RuntimeException {
-        public GitWorkflowRepositoryException(String message, Throwable cause) {
-            super(message, cause);
         }
     }
 }

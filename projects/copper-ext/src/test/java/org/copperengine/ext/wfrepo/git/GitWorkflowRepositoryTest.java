@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.zip.ZipEntry;
@@ -145,6 +147,43 @@ public class GitWorkflowRepositoryTest {
     @Test(expected = RefNotAdvertisedException.class)
     public void changeToTagTest() throws IOException, GitAPIException {
         wfRepo.setBranch("2.0.0");
+    }
+
+
+    @Test
+    public void sameGitRepositoryDirTest() throws Exception {
+        wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source");
+        defaultBranchTest();
+    }
+
+    @Test
+    public void changeGitRepositoryRobustDirTest() throws Exception {
+        wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
+        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        defaultBranchTest(); // should run, because working classes are not overwritten (with empty configuration) by copper
+    }
+
+    @Test
+    public void changeGitRepositoryDirTest() throws Exception {
+        wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
+        String oldSourceDir = wfRepo.getSourceDirs().get(0);
+        List<String> sourceDirs = new ArrayList<String>(1);
+        sourceDirs.add(0, WORK_DIR + "/wf-source2");
+        wfRepo.setSourceDirs(sourceDirs);
+        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        change2BranchesTest(); // should run, because working classes are not overwritten (with empty configuration) by copper
+    }
+
+    @Test
+    public void changeGitRepositoryFailureDirTest() throws Exception {
+        wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
+        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        defaultBranchTest();
+        wfRepo.setBranch("1.0");
+        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        engine.run("Workflow1", "foo");
+        String result1 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
+        assertEquals("new branch not loaded, so expect Vmaster", "Vmaster", result1);
     }
 
     @Test

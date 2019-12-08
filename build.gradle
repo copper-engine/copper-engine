@@ -328,6 +328,7 @@ project(':projects:copper-ext') {
     dependencies {
         implementation project(':projects:copper-coreengine')
 
+        implementation	"org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"
         implementation "org.ow2.asm:asm:$asmVersion"
         implementation "org.ow2.asm:asm-tree:$asmVersion"
         implementation "commons-io:commons-io:$commonsIoVersion"
@@ -335,6 +336,8 @@ project(':projects:copper-ext') {
         implementation "org.yaml:snakeyaml:$snakeyamlVersion"
 
         testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
+        testImplementation 'org.apache.logging.log4j:log4j-core:2.+'
+        testImplementation 'org.slf4j:slf4j-log4j12:2.0.+'
     }
 }
 
