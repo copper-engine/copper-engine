@@ -166,7 +166,7 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
      * Starts the repository poll activities and refreshes the the local repository clone.
      *
      * @throws IllegalStateException if another start already was executed
-     * @GitWorkflowRepositoryException on exception in refresh
+     * @throws  GitWorkflowRepositoryException on exception in refresh
      */
     @Override
     public synchronized void start() {
