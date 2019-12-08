@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 SCOOP Software GmbH
+ * Copyright 2002-2019 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,22 @@
 package org.copperengine.ext.wfrepo.git;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.util.Collections;
-import java.util.Set;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FileUtils;
+import org.copperengine.core.CopperException;
 import org.copperengine.core.DependencyInjector;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.tranzient.TransientEngineFactory;
@@ -31,63 +40,170 @@ import org.copperengine.core.tranzient.TransientScottyEngine;
 import org.copperengine.core.util.Backchannel;
 import org.copperengine.core.util.BackchannelDefaultImpl;
 import org.copperengine.core.util.PojoDependencyInjector;
-import org.copperengine.ext.util.Supplier2Provider;
-import org.copperengine.ext.wfrepo.classpath.ClasspathWorkflowRepository;
-import org.junit.Assert;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class GitWorkflowRepositoryTest {
 
-    @Test
-    public void testExec() throws Exception {
-        final GitWorkflowRepository wfRepo = new GitWorkflowRepository();
-        wfRepo.addSourceDir("./ttt");
-        wfRepo.setTargetDir(".tttarget");
-        wfRepo.setCheckIntervalMSec(1000);
-        wfRepo.setURI("file://C:/DEV/src/git-wf");
-        wfRepo.setVersion("master");
+    public static final String WF_WORK = "wf-work";
+    public static final String WORK_DIR = "./" + WF_WORK;
+    public static final int CHECK_INTERVAL_M_SEC = 1000;
+
+    private GitWorkflowRepository wfRepo;
+    private TransientScottyEngine engine;
+    private Backchannel channel;
+
+    @Before
+    public void setUp() throws Exception {
+        FileUtils.deleteDirectory(new File(WORK_DIR));
+        new File(WORK_DIR).mkdirs();
+        unzip(this.getClass().getClassLoader().getResource("git-wf.zip").openStream(), WORK_DIR);
+
+        wfRepo = new GitWorkflowRepository();
+        //new File(workDir + "/wf-source").mkdirs();
+        wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source");
+        wfRepo.addSourceDir(WORK_DIR + "/wf-source");
+        wfRepo.setTargetDir(WORK_DIR + "/wf-target");
+        wfRepo.setOriginURI("file://" + new File(WORK_DIR + "/git-wf").getAbsolutePath());
+        setUpEngine();
+    }
+
+    private void setUpEngine() {
+        wfRepo.setCheckIntervalMSec(CHECK_INTERVAL_M_SEC);
         PojoDependencyInjector injector = new PojoDependencyInjector();
-        try {
-            final TransientEngineFactory factory = new TransientEngineFactory() {
 
-                @Override
-                protected WorkflowRepository createWorkflowRepository() {
-                    return wfRepo;
+        final TransientEngineFactory factory = new TransientEngineFactory() {
+
+            @Override
+            protected WorkflowRepository createWorkflowRepository() {
+                return wfRepo;
+            }
+
+            @Override
+            protected File getWorkflowSourceDirectory() {
+                return null;
+            }
+
+            protected DependencyInjector createDependencyInjector() {
+                return injector;
+            }
+        };
+        engine = factory.create();
+
+        channel = new BackchannelDefaultImpl();
+        injector.register("backChannel", channel);
+    }
+
+
+    @Test
+    public void defaultBranchTest() throws Exception {
+        engine.run("Workflow1", "foo");
+        String result = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
+        assertEquals("Vmaster", result);
+    }
+
+    @Test
+    public void change2BranchesTest() throws CopperException, InterruptedException, IOException, GitAPIException {
+        wfRepo.setBranch("1.0");
+        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        engine.run("Workflow1", "foo");
+        String result1 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
+        assertEquals("V1.0", result1);
+
+        wfRepo.setBranch("2.0");
+        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        engine.run("Workflow1", "foo");
+        String result2 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
+        assertEquals("V2.0", result2);
+    }
+
+    @Test
+    public void shutdownTest() {
+        assertEquals("wfRepos should be up.", true, wfRepo.isUp());
+        wfRepo.shutdown();
+        assertEquals("wfRepos should be down.", false, wfRepo.isUp());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shutdownStartTest() {
+        assertEquals("wfRepos should be up.", true, wfRepo.isUp());
+        wfRepo.shutdown();
+        assertEquals("wfRepos should be down.", false, wfRepo.isUp());
+        wfRepo.start();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shutdownDoubleStartTest() {
+        assertEquals("wfRepos should be up.", true, wfRepo.isUp());
+        wfRepo.start();
+    }
+
+    @Test(expected = RefNotAdvertisedException.class)
+    public void changeToTagTest() throws IOException, GitAPIException {
+        wfRepo.setBranch("2.0.0");
+    }
+
+    @Test
+    public void sameURITest() throws Exception {
+        wfRepo.setOriginURI(wfRepo.getOriginUri());
+        defaultBranchTest();
+    }
+
+
+    @Test(expected = InvalidRemoteException.class)
+    public void changeURITest() throws Exception {
+        wfRepo.setOriginURI(wfRepo.getOriginUri() + "ERROR_TEST");
+        defaultBranchTest();
+    }
+
+    @Test(expected = GitWorkflowRepository.GitWorkflowRepositoryException.class)
+    public void startFailureEmptyRepoTest() throws Exception {
+        GitWorkflowRepository wfRepo2 = new GitWorkflowRepository();
+        wfRepo2.start();
+    }
+
+    @Test(expected = GitWorkflowRepository.GitWorkflowRepositoryException.class)
+    public void startFailureTargetDirTest() throws Exception {
+        GitWorkflowRepository wfRepo2 = new GitWorkflowRepository();
+        wfRepo2.setTargetDir(WORK_DIR + "/wf-target2");
+        wfRepo2.start();
+        assertEquals("Repository should be down.", false, wfRepo2.isUp());
+    }
+
+    @After
+    public void setDown() throws IOException {
+        engine.shutdown();
+        FileUtils.deleteDirectory(new File(WF_WORK));
+    }
+
+    private static void unzip(InputStream inputStream, String out) throws Exception {
+
+        byte[] buffer = new byte[2048];
+
+        Path outDir = Paths.get(out);
+
+        try (
+                BufferedInputStream bis = new BufferedInputStream(inputStream);
+                ZipInputStream stream = new ZipInputStream(bis)) {
+            ZipEntry entry;
+            while ((entry = stream.getNextEntry()) != null) {
+                Path filePath = outDir.resolve(entry.getName());
+                if (entry.isDirectory()) {
+                    filePath.toFile().mkdirs();
+                } else {
+                    try (FileOutputStream fos = new FileOutputStream(filePath.toFile());
+                         BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length)) {
+                        int len;
+                        while ((len = stream.read(buffer)) > 0) {
+                            bos.write(buffer, 0, len);
+                        }
+                    }
                 }
-
-                @Override
-                protected File getWorkflowSourceDirectory() {
-                    return null;
-                }
-
-                protected DependencyInjector createDependencyInjector() {
-                    return injector;
-                }
-            };
-            TransientScottyEngine engine = factory.create();
-
-            Backchannel channel = new BackchannelDefaultImpl();
-            injector.register("backChannel", channel);
-
-
-            engine.run("Workflow1", "foo");
-            String result = (String) channel.wait("correlationId",1000, TimeUnit.MILLISECONDS);
-            assertEquals("Vmaster", result);
-
-            wfRepo.setVersion("1.0");
-            Thread.sleep(3 * 1000); // wait for workflow refresh
-            engine.run("Workflow1", "foo");
-            result = (String) channel.wait("correlationId",1000, TimeUnit.MILLISECONDS);
-            assertEquals("V1.0", result);
-
-            wfRepo.setVersion("2.0");
-            Thread.sleep(3 * 1000); // wait for workflow refresh
-            engine.run("Workflow1", "foo");
-            result = (String) channel.wait("correlationId",1000, TimeUnit.MILLISECONDS);
-            assertEquals("V2.0", result);
-
-        } finally {
-            wfRepo.shutdown();
+            }
         }
     }
 }

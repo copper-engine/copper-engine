@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 SCOOP Software GmbH
+ * Copyright 2002-2019 SCOOP Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.io.FileUtils;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 import org.copperengine.management.FileBasedWorkflowRepositoryMXBean;
@@ -39,33 +40,53 @@ import org.slf4j.LoggerFactory;
 public class GitWorkflowRepository extends FileBasedWorkflowRepository implements WorkflowRepository, FileBasedWorkflowRepositoryMXBean {
 
     private static final Logger logger = LoggerFactory.getLogger(GitWorkflowRepository.class);
-    private static final String ORIGIN = "origin";
 
-    private int checkIntervalMSecGit = 5000;
-    private AtomicBoolean gitObserverStopped = new AtomicBoolean(false);
-    private Thread observerThread;
+    private static final String ORIGIN = "origin";
+    public static final String DEFAULT_BRANCH = "master";
+
     private String originUri;
-    private String branch;
+    private String branch = DEFAULT_BRANCH;
     private File gitRepositoryDir;
 
-    public synchronized void setGitRepositoryDir(File gitRepositoryDir) {
+    private int checkIntervalMSecGit = 5000;
+    private AtomicBoolean gitObserverStopped;
+    private Thread observerThread;
+
+
+    public boolean isUp() {
+        return gitObserverStopped != null && !gitObserverStopped.get();
+    }
+
+    public synchronized void setGitRepositoryDir(File gitRepositoryDir) throws IOException {
+        deleteGitRepositoryDir();
         this.gitRepositoryDir = gitRepositoryDir;
     }
 
-    public synchronized void setGitRepositoryDir(String gitRepositoryDir) {
-        this.gitRepositoryDir = new File (gitRepositoryDir);
+    public synchronized void setGitRepositoryDir(String gitRepositoryDir) throws IOException {
+        setGitRepositoryDir(new File(gitRepositoryDir));
     }
 
     public synchronized File getGitRepositoryDir() {
         return gitRepositoryDir;
     }
 
-    public synchronized void setOriginURI(String uri) {
-        this.originUri = uri;
+    public synchronized String getOriginUri() {
+        return originUri;
     }
 
-    public synchronized void setBranch(String branch) {
+    public synchronized void setOriginURI(String uri) throws IOException, GitAPIException {
+        this.originUri = uri;
+        if (isUp()) {
+            deleteGitRepositoryDir();
+            updateLocalGitRepositories();
+        }
+    }
+
+    public synchronized void setBranch(String branch) throws IOException, GitAPIException {
         this.branch = branch;
+        if (isUp()) {
+            updateLocalGitRepositories();
+        }
     }
 
     @Override
@@ -77,14 +98,14 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     @Override
     public synchronized void start() {
         logger.info("Starting git workflow repository.");
-        if (gitObserverStopped.get())
-            throw new IllegalStateException();
+        if (gitObserverStopped != null)
+            throw new IllegalStateException("Git workflow repository can only be startet once.");
         try {
             updateLocalGitRepositories();
         } catch (Exception e) {
-            logger.error("", new GitWorkflowRepositoryException("Exception while initial update of it workflow repository.", e));
+            throw  new GitWorkflowRepositoryException("Exception while initial update of it workflow repository.", e);
         }
-        this.gitObserverStopped.set(false);
+        this.gitObserverStopped = new AtomicBoolean(false);
         observerThread = new GitWorkflowRepository.ObserverThread(this);
         observerThread.start();
         super.start();
@@ -106,6 +127,7 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     protected synchronized void updateLocalGitRepositories() throws IOException, GitAPIException {
         logger.debug("Update git repositories.");
         if (!getGitRepositoryDir().exists()) {
+            logger.info("No local repository found. Clone a new one. Branch is {}.", branch);
             try (Git git = Git.cloneRepository()
                     .setURI(originUri)
                     .setDirectory(getGitRepositoryDir())
@@ -116,21 +138,29 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         } else {
             try (Git git = Git.open(getGitRepositoryDir())) {
                 Repository repository = git.getRepository();
+                logger.debug("Local repository {} found. Checkout branch {} force.", repository, branch);
+                logger.trace("Repository {}: bare={}.", repository, repository.isBare());
                 git.checkout()
                         .setName(ORIGIN + "/" + branch)
                         .setForced(true)
                         .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                         .call();
-                logger.trace("Repository bare={}.", repository.isBare());
                 logger.debug("Pull repository {}", repository);
                 git.pull().setRemote(ORIGIN).setRemoteBranchName(branch).call();
-                logger.debug("Checkout repository {}", repository);
+                logger.debug("Local repository {} found. Again checkout branch {} force.", repository, branch);
                 git.checkout()
                         .setName(ORIGIN + "/" + branch)
                         .setForced(true)
                         .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                         .call();
             }
+        }
+    }
+
+    protected synchronized void deleteGitRepositoryDir() throws IOException {
+        logger.info("Delete repository dir {}.", getGitRepositoryDir());
+        if (getGitRepositoryDir() != null) {
+            FileUtils.deleteDirectory(getGitRepositoryDir());
         }
     }
 
@@ -166,23 +196,8 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
      * Used for runtime exception in this class.
      */
     public static class GitWorkflowRepositoryException extends RuntimeException {
-        public GitWorkflowRepositoryException() {
-        }
-
-        public GitWorkflowRepositoryException(String message) {
-            super(message);
-        }
-
         public GitWorkflowRepositoryException(String message, Throwable cause) {
             super(message, cause);
-        }
-
-        public GitWorkflowRepositoryException(Throwable cause) {
-            super(cause);
-        }
-
-        public GitWorkflowRepositoryException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-            super(message, cause, enableSuppression, writableStackTrace);
         }
     }
 }
