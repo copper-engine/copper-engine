@@ -337,4 +337,9 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
     public WorkflowClassInfo getWorkflowInfo(String classname) {
         return getVolatileState().workflowClassInfoMap.get(classname);
     }
+
+
+    public ClassLoader getWorkflowClassLoader() {
+        return getVolatileState().classLoader;
+    }
 }

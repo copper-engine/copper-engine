@@ -15,21 +15,23 @@
  */
 package org.copperengine.core;
 
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
  * For internal use only.
  *
  * @author austermann
  */
-public class StackEntry implements Serializable {
+public class StackEntry implements Externalizable {
 
     private static final long serialVersionUID = 1L;
 
-    public transient int jumpNo;
-    public transient Object[] locals;
-    public transient Object[] stack;
+    public int jumpNo;
+    public Object[] locals;
+    public Object[] stack;
 
     public StackEntry(Object[] stack, int jumpNo, Object[] locals) {
         this.jumpNo = jumpNo;
@@ -41,32 +43,39 @@ public class StackEntry implements Serializable {
         this.jumpNo = jumpNo;
     }
 
-    private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
-        jumpNo = stream.readInt();
-        int numLocals = stream.readInt();
-        int numStack = stream.readInt();
+    // Externalizable interface requires public default constructor to be given.
+    public StackEntry() {
+        this(0);
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeInt(jumpNo);
+        out.writeInt(locals == null ? 0 : locals.length);
+        out.writeInt(stack == null ? 0 : stack.length);
+        if (locals != null) {
+            for (int i = 0; i < locals.length; ++i)
+                out.writeObject(locals[i]);
+        }
+        if (stack != null) {
+            for (int i = 0; i < stack.length; ++i)
+                out.writeObject(stack[i]);
+        }
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        jumpNo = in.readInt();
+        int numLocals = in.readInt();
+        int numStack = in.readInt();
         if (numLocals > 0)
             locals = new Object[numLocals];
         if (numStack > 0)
             stack = new Object[numStack];
         for (int i = 0; i < numLocals; ++i)
-            locals[i] = stream.readObject();
+            locals[i] = in.readObject();
         for (int i = 0; i < numStack; ++i)
-            stack[i] = stream.readObject();
-    }
-
-    private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
-        stream.writeInt(jumpNo);
-        stream.writeInt(locals == null ? 0 : locals.length);
-        stream.writeInt(stack == null ? 0 : stack.length);
-        if (locals != null) {
-            for (int i = 0; i < locals.length; ++i)
-                stream.writeObject(locals[i]);
-        }
-        if (stack != null) {
-            for (int i = 0; i < stack.length; ++i)
-                stream.writeObject(stack[i]);
-        }
+            stack[i] = in.readObject();
     }
 
     @Override
