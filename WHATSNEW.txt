@@ -1,3 +1,8 @@
+COPPER 5.x
+============
+- New feature: Lightweight CI/CD pipeline using git repositories only for changes in workflows (see GitWorkflowRepository).
+- Maintenance: Added compatibility tests for reordering local variables
+
 COPPER 5.0.2
 ============
 - Maintenance: Now using ASM 7.0
