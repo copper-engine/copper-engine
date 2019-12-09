@@ -142,6 +142,12 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     }
 
 
+    /**
+     * Sets the credentials used in next clone
+     *
+     * @param username selfexplaining
+     * @param password selfexplaining
+     */
     public synchronized void setCredentials(String username, char[] password) {
         this.credentialsProvider = new UsernamePasswordCredentialsProvider(username, password);
     }
