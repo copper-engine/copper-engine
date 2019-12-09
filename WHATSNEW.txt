@@ -1,7 +1,8 @@
-COPPER 5.x
+COPPER 5.1.0
 ============
 - New feature: Lightweight CI/CD pipeline using git repositories only for changes in workflows (see GitWorkflowRepository).
 - Maintenance: Added compatibility tests for reordering local variables
+- Maintenance: Added tests that shows copper internals (AnalyseTest)
 
 COPPER 5.0.2
 ============

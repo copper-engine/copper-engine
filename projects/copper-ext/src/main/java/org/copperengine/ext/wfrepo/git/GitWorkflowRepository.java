@@ -29,6 +29,8 @@ import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +73,7 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     private String originUri;
     private String branch = DEFAULT_BRANCH;
     private File gitRepositoryDir;
+    private CredentialsProvider credentialsProvider;
 
     private int checkIntervalMSecGit = 5000;
     private AtomicBoolean gitObserverStopped;
@@ -96,9 +99,12 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         }
     }
 
-
     /**
      * Delegates to {@link #setGitRepositoryDir}.
+     *
+     * @param gitRepositoryDir see {@link #setGitRepositoryDir}.
+     * @throws IOException see {@link #setGitRepositoryDir}.
+     * @throws GitAPIException see {@link #setGitRepositoryDir}.
      */
     public synchronized void setGitRepositoryDir(String gitRepositoryDir) throws IOException, GitAPIException {
         setGitRepositoryDir(new File(gitRepositoryDir));
@@ -135,9 +141,15 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
         }
     }
 
+
+    public synchronized void setCredentials(String username, char[] password) {
+        this.credentialsProvider = new UsernamePasswordCredentialsProvider(username, password);
+    }
+
     /**
      * Changes the used branch and refreshes the the local repository clone.
-     * @param branch
+     *
+     * @param branch new branch
      *
      * @throws GitAPIException on exception in refresh
      * @throws IOException     on exception in refresh
@@ -152,9 +164,7 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     /**
      * Defines the poll interval for changes in a branch.
      *
-     * It is also given to {@link FileBasedWorkflowRepository} as the underlying file poll.
-     *
-     * @param checkIntervalMSec
+     * @param checkIntervalMSec also given to {@link FileBasedWorkflowRepository} as the underlying file pol
      */
     @Override
     public synchronized void setCheckIntervalMSec(int checkIntervalMSec) {
@@ -222,6 +232,7 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
                     .setURI(originUri)
                     .setDirectory(getGitRepositoryDir())
                     .setRemote(ORIGIN)
+                    .setCredentialsProvider(credentialsProvider)
                     .call();) {
                 git.checkout().setName("remotes/" + ORIGIN + "/" + branch).call();
             }
