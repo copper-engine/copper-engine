@@ -66,11 +66,10 @@ public class GitWorkflowRepositoryTest {
         unzip(this.getClass().getClassLoader().getResource("git-wf.zip").openStream(), WORK_DIR);
 
         wfRepo = new GitWorkflowRepository();
-        //new File(workDir + "/wf-source").mkdirs();
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source");
         wfRepo.addSourceDir(WORK_DIR + "/wf-source");
         wfRepo.setTargetDir(WORK_DIR + "/wf-target");
-        wfRepo.setOriginURI("file://" + new File(WORK_DIR + "/git-wf").getAbsolutePath());
+        wfRepo.setOriginURI("file://" + new File(WORK_DIR + "/git-wf").getAbsolutePath()); // http/s to be verified is system test
         setUpEngine();
     }
 
@@ -156,11 +155,19 @@ public class GitWorkflowRepositoryTest {
         defaultBranchTest();
     }
 
+
     @Test
     public void changeGitRepositoryRobustDirTest() throws Exception {
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
         LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
         defaultBranchTest(); // should run, because working classes are not overwritten (with empty configuration) by copper
+    }
+
+    @Test
+    public void sameGitRepositoryFakeCredentialTest() throws Exception {
+        wfRepo.setCredentials("test", "s3cret".toCharArray()); // will be ignored, credential feature to be verified is system test
+        wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source");
+        defaultBranchTest();
     }
 
     @Test
