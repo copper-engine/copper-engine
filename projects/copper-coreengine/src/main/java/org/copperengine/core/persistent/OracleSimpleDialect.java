@@ -37,7 +37,7 @@ import org.copperengine.core.batcher.BatchCommand;
 public class OracleSimpleDialect extends AbstractSqlDialect {
 
     public OracleSimpleDialect() {
-        super(true, false);
+        super(true, false, true);
     }
 
     @Override

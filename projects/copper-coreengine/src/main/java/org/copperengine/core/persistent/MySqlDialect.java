@@ -42,7 +42,7 @@ public class MySqlDialect extends AbstractSqlDialect {
     private static final Logger logger = LoggerFactory.getLogger(MySqlDialect.class);
 
     public MySqlDialect() {
-        super(true, false);
+        super(true, false, false);
     }
 
     @Override

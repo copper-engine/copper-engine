@@ -57,6 +57,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
      */
     protected boolean multiEngineMode;
     protected final boolean supportsMultipleEngines;
+    protected final boolean supportsClob;
     protected long defaultStaleResponseRemovalTimeout = 60 * 60 * 1000;
     protected final int ACQUIRE_BLOCKING_WAIT_SEC = 10;
     protected Serializer serializer = new StandardJavaSerializer();
@@ -73,11 +74,12 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
     protected StmtStatistic selectQueueSizeStmtStatistic;
 
     public AbstractSqlDialect() {
-        this(false, false);
+        this(false, false, true);
     }
 
-    public AbstractSqlDialect(final boolean supportsMultipleEngines, final boolean defaultMultiEngineMode) {
+    public AbstractSqlDialect(final boolean supportsMultipleEngines, final boolean defaultMultiEngineMode, boolean supportsClob) {
         this.supportsMultipleEngines = supportsMultipleEngines;
+        this.supportsClob = supportsClob;
         setMultiEngineMode(defaultMultiEngineMode);
     }
 
@@ -1215,7 +1217,7 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
 
         logger.debug("queryAuditTrailInstances: sql={}, params={}", sql, params);
 
-        return CommonSQLHelper.processAuditResult(sql.toString(), params, con, filter.isIncludeMessages());
+        return CommonSQLHelper.processAuditResult(sql.toString(), params, con, filter.isIncludeMessages(), supportsClob);
     }
 
     @Override

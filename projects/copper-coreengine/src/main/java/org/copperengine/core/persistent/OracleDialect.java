@@ -1041,7 +1041,7 @@ public class OracleDialect implements DatabaseDialect, DatabaseDialectMXBean {
 
         logger.debug("queryAuditTrailInstances: sql={}, params={}", sql, params);
 
-        return CommonSQLHelper.processAuditResult(sql.toString(), params, c, filter.isIncludeMessages());
+        return CommonSQLHelper.processAuditResult(sql.toString(), params, c, filter.isIncludeMessages(), true);
     }
 
     private StringBuilder appendAuditTrailQueryBase(StringBuilder sql, List<Object> params, AuditTrailInstanceFilter filter) {
