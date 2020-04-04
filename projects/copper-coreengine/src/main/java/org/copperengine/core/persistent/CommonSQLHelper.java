@@ -169,6 +169,11 @@ public class CommonSQLHelper {
         return result;
     }
 
+    @Deprecated
+    public static List<AuditTrailInfo> processAuditResult(String sql, List<Object> params, Connection con, boolean loadMessage) throws SQLException {
+        return processAuditResult(sql, params, con, loadMessage, true);
+    }
+
     public static List<AuditTrailInfo> processAuditResult(String sql, List<Object> params, Connection con, boolean loadMessage, boolean clobSupported) throws SQLException {
         final List<AuditTrailInfo> result = new ArrayList<>();
         try (PreparedStatement pStmtQueryWFIs = con.prepareStatement(sql.toString())) {

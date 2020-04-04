@@ -77,6 +77,11 @@ public abstract class AbstractSqlDialect implements DatabaseDialect, DatabaseDia
         this(false, false, true);
     }
 
+    @Deprecated
+    public AbstractSqlDialect(final boolean supportsMultipleEngines, final boolean defaultMultiEngineMode) {
+        this(supportsMultipleEngines, defaultMultiEngineMode, true);
+    }
+
     public AbstractSqlDialect(final boolean supportsMultipleEngines, final boolean defaultMultiEngineMode, boolean supportsClob) {
         this.supportsMultipleEngines = supportsMultipleEngines;
         this.supportsClob = supportsClob;
