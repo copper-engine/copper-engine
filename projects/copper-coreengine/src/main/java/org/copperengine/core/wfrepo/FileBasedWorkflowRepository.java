@@ -482,6 +482,12 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
     private Map<String, File> compile(File compileTargetDir, File additionalSourcesDir) throws IOException {
         logger.info("Compiling workflows");
         List<String> options = new ArrayList<String>();
+        String extraOptions = System.getProperty("org.copperengine.workflow.compiler.options", "");
+        if(!extraOptions.isEmpty()) {
+            for(String opt: extraOptions.split(",")) {
+                options.add(opt);
+            }
+        }
         options.add("-g");
         options.add("-d");
         options.add(compileTargetDir.getAbsolutePath());
