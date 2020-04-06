@@ -1,3 +1,8 @@
+COPPER 5.2.0
+============
+- New feature: compatible with Java 14
+- Bugfix: Fix for missing CLOB support in PostgreSQL and MySQL (thanks to Winfried Klum)
+
 COPPER 5.1.0
 ============
 - New feature: Lightweight CI/CD pipeline using git repositories only for changes in workflows (see GitWorkflowRepository).
@@ -62,7 +67,7 @@ COPPER 4.1.0
 COPPER 4.0.3
 ============
 - Bugfix:      Issue #60 PersistentScottyEngine.notifyProcessorPoolsOnResponse without effect when using PersistentLockManager
-- Bugfix:      Issue #59 SortedReponseList StackOverflow 
+- Bugfix:      Issue #59 SortedReponseList StackOverflow
 - Refactoring: No NOT use spring framework in regression tests where possible
 
 COPPER 4.0.2
@@ -163,7 +168,7 @@ COPPER 2.3
 - New feature: COPPER now allows for multipe responses for the same correlationId - see new method Workflow.getAndRemoveResponses(..)
 - New feature: Custom persistence - persist application specific data in extra database tables and columns. This enables viewing (and modifying) data with standard SQL
 - New feature: Monitoring GUI (beta)
-- Maintenance: Now using ASM 4.1 
+- Maintenance: Now using ASM 4.1
 - Bugfix: Timeout signaled for missing responses in case of WaitMode.FIRST
 - New feature: generic return value for RetryingTransaction
 
@@ -186,7 +191,7 @@ COPPER 2.1
 COPPER 2.0
 ==========
 - New feature: Check consistency of all workflow instances during startup (optional) - IDs of inconsistent workflows are logged
-- Bugfix: Incorrect handling of INVALID workflow instances 
+- Bugfix: Incorrect handling of INVALID workflow instances
 - New feature: workflow object state and data are serialized in different DB columns
 - Bugfix: wait(First) followed by wait(?) containing same correlation id caused unique constraint violation exception
 - New feature: PersistentProcessor now public to allow subclassing
@@ -194,12 +199,12 @@ COPPER 2.0
 - New feature: Configurable transaction management - COPPER comes with internal or Spring transaction management
 - Refactoring: of DB layer: one single db storage class and various configurable DBMS specific SQL dialects; Configurable Transaction Mgmt
 - New feature: suspend/resume ProcessorPools
-- Bugfix: for MySQL, Postgres & DerbyDB 
+- Bugfix: for MySQL, Postgres & DerbyDB
 - New feature: custom stale response timeout
 - New feature: Workflow classname in DB - for debugging/monitoring
 - New feature: New property for DBStorage: staleResponseRemovalTimeout
 - Bugfix: in instrumentation: Bad exception handling may cause non deterministic behavior
-- New feature: Implement a custom batch runner. Used e.g. for custom transaction handling 
+- New feature: Implement a custom batch runner. Used e.g. for custom transaction handling
 - New feature: Allow custom seqnr for audit trail events
 - New feature: Store exceptions during "registerCallback/wait" in database error table
 - Bugfix: for AuditTrail on Oracle DB when payload.length >= 4000
@@ -231,5 +236,5 @@ Unreleased first COPPER version with all basic features, e.g.
 - asynchronous waits without thread blocking
 - persistent or transient workflows
 - configurable amount and size of processor pools
-- persistence support for Oracle and MySQL 
+- persistence support for Oracle and MySQL
 - any many more...
