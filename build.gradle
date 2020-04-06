@@ -30,6 +30,9 @@ buildscript {
 
         // Plugin for loading project properties from gradle-local.properties
         classpath "net.saliman:gradle-properties-plugin:1.4.6"
+
+        // OSGI plugin
+        classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:5.0.1"
     }
 }
 
@@ -58,7 +61,7 @@ configure(properSubprojects) {
     println "configuring java module " + project.path
 
     apply plugin: 'java-library'
-    apply plugin: 'osgi'
+    apply plugin: 'biz.aQute.bnd.builder'
 
     apply plugin: "org.beryx.jar"
 
@@ -175,6 +178,7 @@ configure(properSubprojects) {
 
     jar {
         manifest.attributes provider: 'gradle'
+        multiRelease = false
     }
 
     javadoc {
