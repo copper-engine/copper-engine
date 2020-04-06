@@ -169,7 +169,12 @@ public class CommonSQLHelper {
         return result;
     }
 
+    @Deprecated
     public static List<AuditTrailInfo> processAuditResult(String sql, List<Object> params, Connection con, boolean loadMessage) throws SQLException {
+        return processAuditResult(sql, params, con, loadMessage, true);
+    }
+
+    public static List<AuditTrailInfo> processAuditResult(String sql, List<Object> params, Connection con, boolean loadMessage, boolean clobSupported) throws SQLException {
         final List<AuditTrailInfo> result = new ArrayList<>();
         try (PreparedStatement pStmtQueryWFIs = con.prepareStatement(sql.toString())) {
             for (int i=1; i<=params.size(); i++) {
@@ -190,9 +195,15 @@ public class CommonSQLHelper {
                             rs.getString("MESSAGE_TYPE"));
                     if (loadMessage) {
                         try {
-                            Clob message = rs.getClob("LONG_MESSAGE");
-                            if ((int) message.length() > 0) {
-                                auditTrailInfo.setMessage(message.getSubString(1, (int) message.length()));
+                            String message;
+                            if (clobSupported) {
+                                Clob msg = rs.getClob("LONG_MESSAGE");
+                                message = msg.getSubString(1, (int) msg.length());
+                            }else{
+                                message = rs.getString("LONG_MESSAGE");
+                            }
+                            if (message.length() > 0) {
+                                auditTrailInfo.setMessage(message);
                             }
                         } catch(Exception e) {
                             logger.info("Failed to parse AuditTrail Message");

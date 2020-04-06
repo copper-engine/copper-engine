@@ -43,7 +43,7 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
     private static final Logger logger = LoggerFactory.getLogger(PostgreSQLDialect.class);
 
     public PostgreSQLDialect() {
-        super(true, false);
+        super(true, false, false);
     }
 
     @Override
@@ -327,7 +327,7 @@ public class PostgreSQLDialect extends AbstractSqlDialect {
 
         logger.debug("queryAuditTrailInstances: sql={}, params={}", sql, params);
 
-        return CommonSQLHelper.processAuditResult(sql.toString(), params, con, filter.isIncludeMessages());
+        return CommonSQLHelper.processAuditResult(sql.toString(), params, con, filter.isIncludeMessages(), supportsClob);
     }
 
     @Override
