@@ -7,7 +7,7 @@ module org.copperengine.ext {
     requires org.objectweb.asm;
     requires org.apache.commons.io;
     requires transitive com.google.common;
-    requires transitive snakeyaml;
+    requires transitive org.yaml.snakeyaml;
 
     exports org.copperengine.ext.persistent;
     exports org.copperengine.ext.util;
