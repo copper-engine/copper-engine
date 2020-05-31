@@ -125,6 +125,13 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
     }
 
     /**
+     * @return the current branch
+     */
+    public synchronized String getBranch() {
+        return branch;
+    }
+
+    /**
      * The current originUri is changed.
      *
      * * If the GitWorkflowRepository {@link #isUp()} isUp the a refesh incl. directory deletion is performed.
@@ -253,7 +260,7 @@ public class GitWorkflowRepository extends FileBasedWorkflowRepository implement
                         .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                         .call();
                 logger.debug("Pull repository {}", repository);
-                git.pull().setRemote(ORIGIN).setRemoteBranchName(branch).call();
+                git.pull().setRemote(ORIGIN).setCredentialsProvider(credentialsProvider).setRemoteBranchName(branch).call();
                 logger.debug("Local repository {} found. Again checkout branch {} force.", repository, branch);
                 git.checkout()
                         .setName(ORIGIN + "/" + branch)
