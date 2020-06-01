@@ -105,6 +105,7 @@ public class GitWorkflowRepositoryTest {
         engine.run("Workflow1", "foo");
         String result = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
         assertEquals("Vmaster", result);
+        assertEquals("master", wfRepo.getBranch());
     }
 
     @Test

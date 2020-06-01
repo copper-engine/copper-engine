@@ -1,3 +1,7 @@
+COPPER 5.2.1
+============
+- Bugfix: For issue 107 - GitWorkflowRepository.updateLocalGitRepositories() fails if credentials are needed (https://github.com/copper-engine/copper-engine/issues/107)
+
 COPPER 5.2.0
 ============
 - New feature: compatible with Java 14
