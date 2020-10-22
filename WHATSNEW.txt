@@ -1,5 +1,7 @@
-COPPER 5.2.1
+COPPER 5.3.0
 ============
+- New feature: compatible with Java 15 and 16
+- New feature: allow specifying additional options for the workflow compiler (via system property "org.copperengine.workflow.compiler.options")
 - Bugfix: For issue 107 - GitWorkflowRepository.updateLocalGitRepositories() fails if credentials are needed (https://github.com/copper-engine/copper-engine/issues/107)
 
 COPPER 5.2.0
