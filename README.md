@@ -1,6 +1,6 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/copper-engine/copper-engine/blob/master/LICENSE)
-[![Build Status](https://img.shields.io/travis/copper-engine/copper-engine/master.svg?label=Build)](https://travis-ci.org/copper-engine/copper-engine)
+[![Build Status](https://img.shields.io/github/workflow/status/copper-engine/copper-engine/Build%20and%20upload)](https://github.com/copper-engine/copper-engine/actions?query=workflow%3A%22Build+and+upload%22)
 
 copper-engine
 =============
@@ -86,5 +86,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-
