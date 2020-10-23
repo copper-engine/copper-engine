@@ -36,9 +36,7 @@ jobs:
       run: ./gradlew --no-daemon --no-parallel --info -Psigning.secretKeyRingFile=$PWD/secring.gpg -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --full-stacktrace uploadArchives
     - name: Sleep for 30 seconds
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '30s'
+      run: sleep 30
     - name: Nexus staging release
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: ./gradlew --no-daemon --no-parallel --info -Psigning.secretKeyRingFile=$PWD/secring.gpg -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -PnexusUsername=$NEXUS_USER -PnexusPassword=$NEXUS_PASSWORD -Poss-releases.username=$NEXUS_USER -Poss-releases.password=$NEXUS_PASSWORD --full-stacktrace nexusStagingRelease
