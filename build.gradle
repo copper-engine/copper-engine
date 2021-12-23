@@ -341,7 +341,7 @@ project(':projects:copper-ext') {
 
         testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
         //testImplementation 'org.apache.logging.log4j:log4j-core:2.+'
-        //testImplementation 'org.slf4j:slf4j-log4j12:2.0.+'
+        //testImplementation 'org.slf4j:slf4j-log4j12:2.+'
     }
 }
 
@@ -426,7 +426,7 @@ project(':projects:copper-coreengine') {
         implementation "org.ow2.asm:asm-util:$asmVersion"
         implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
-        implementation 'javax.xml.bind:jaxb-api:2.3.0'
+        implementation 'javax.xml.bind:jaxb-api:2.3.1'
         implementation 'com.sun.activation:javax.activation:1.2.0'
     }
 

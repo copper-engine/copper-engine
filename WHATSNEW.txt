@@ -1,3 +1,12 @@
+COPPER 5.4.1
+============
+- Maintenance: Update commons-io 2.8.0 -> 2.11.0
+- Maintenance: Update org.eclipse.jgit 5.9.0.202009080501-r -> 6.0.0.202111291000-r
+- Maintenance: Update guava 29.0-jre -> 31.0.1-jre
+- Maintenance: Update snakeyaml 1.27 -> 1.30
+- Maintenance: Update slf4j 1.8.0-beta4 -> 2.0.0-alpha5
+- Maintenance: Update jaxb-api 2.3.0 -> 2.3.1
+
 COPPER 5.4.0
 ============
 - New feature: compatible with Java 17 and 18
