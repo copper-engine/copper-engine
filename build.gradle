@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets
 
 buildscript {
     repositories {
-        jcenter() // needed for gradle-nexus-plugin
+        gradlePluginPortal() // needed for gradle-nexus-plugin
         mavenCentral() // needed for nexus-workflow plugin
         maven { // needed for license-gradle-plugin
 	      url "https://plugins.gradle.org/m2/"
@@ -172,6 +172,7 @@ configure(properSubprojects) {
         testImplementation 'org.mockito:mockito-core:2.23.4'
         testImplementation 'net.bytebuddy:byte-buddy:1.10.17'
         testImplementation 'org.hamcrest:hamcrest-core:1.3'
+        testImplementation 'ch.qos.logback:logback-classic:1.4.3'
 
 //        spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
     }
