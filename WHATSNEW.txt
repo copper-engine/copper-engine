@@ -1,3 +1,8 @@
+COPPER 5.4.2
+============
+- New feature: compatible with Java 19, 20 and 21
+- Maintenance: Update slf4j 2.0.0-alpha5 -> 2.0.3
+
 COPPER 5.4.1
 ============
 - Maintenance: Update commons-io 2.8.0 -> 2.11.0
