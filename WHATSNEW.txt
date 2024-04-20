@@ -15,7 +15,6 @@ COPPER 5.5.0
 - Maintenance: Update byte-buddy 1.10.17 -> 1.14.13
 - Maintenance: Update hamcrest 1.3 -> 2.2
 
-
 COPPER 5.4.2
 ============
 - New feature: compatible with Java 19, 20 and 21
