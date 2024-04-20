@@ -1,6 +1,7 @@
 COPPER 5.4.3
 ============
 - New feature: compatible with Java 22 and 23
+- Maintenance: Update slf4j 2.0.3 -> 2.0.13
 
 COPPER 5.4.2
 ============
