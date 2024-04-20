@@ -5,6 +5,9 @@ COPPER 5.5.0
 - Maintenance: Update jgit 6.0.0.202111291000-r -> 6.9.0.202403050737-r
 - Maintenance: Update spring 5.2.9.RELEASE -> 5.3.34
 - Maintenance: Update spring-batch 4.0.1.RELEASE -> 4.3.10
+- Maintenance: Update snakeyaml 1.30 -> 2.2
+- Maintenance: Update commonsio 2.11.0 -> 2.16.1
+- Maintenance: Update logback 1.4.3 -> 1.5.6
 
 
 COPPER 5.4.2
