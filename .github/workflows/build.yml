@@ -1,7 +1,12 @@
 name: Build and upload
 
-on: [push, pull_request]
-
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,19 +18,20 @@ jobs:
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
     steps:
     - name: Git checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Create secring.gpg
       run: echo $SECRING_HEX > secring.gpg.hex && xxd -p -r secring.gpg.hex > secring.gpg
     - name: Configure Gradle cache
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ~/.gradle/caches
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
     - name: Set up JDK 11
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
+        distribution: zulu
         java-version: 11
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
