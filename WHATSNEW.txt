@@ -1,3 +1,7 @@
+COPPER 5.4.3
+============
+- New feature: compatible with Java 22 and 23
+
 COPPER 5.4.2
 ============
 - New feature: compatible with Java 19, 20 and 21
