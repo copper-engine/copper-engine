@@ -32,7 +32,7 @@ buildscript {
         classpath "net.saliman:gradle-properties-plugin:1.5.1"
 
         // OSGI plugin
-        classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:5.2.0"
+        classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:6.4.0"
     }
 }
 
@@ -161,18 +161,18 @@ configure(properSubprojects) {
 
     dependencies {
 
-        implementation('com.github.javaparser:javaparser-symbol-solver-core:3.6.23') {
+        implementation("com.github.javaparser:javaparser-symbol-solver-core:$javaparserVersion") {
             exclude module: 'javaparser-symbol-solver-model'
         }
 
         implementation	"org.slf4j:slf4j-api:$slf4jVersion"
-        testImplementation('junit:junit:4.11') {
+        testImplementation("junit:junit:$junitVersion") {
             exclude module: 'hamcrest-core'
         }
-        testImplementation 'org.mockito:mockito-core:2.23.4'
-        testImplementation 'net.bytebuddy:byte-buddy:1.10.17'
-        testImplementation 'org.hamcrest:hamcrest-core:1.3'
-        testImplementation 'ch.qos.logback:logback-classic:1.4.3'
+        testImplementation "org.mockito:mockito-core:$mockitoVersion"
+        testImplementation "net.bytebuddy:byte-buddy:$byteBuddyVersion"
+        testImplementation "org.hamcrest:hamcrest-core:$hamcrestVersion"
+        testImplementation "ch.qos.logback:logback-classic:$logbackVersion"
 
 //        spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
     }
@@ -318,9 +318,9 @@ project(':projects:copper-regtest') {
         testRuntimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
 
         testImplementation 'mysql:mysql-connector-java:5.1.25'
-        testImplementation 'org.apache.derby:derby:10.13.1.1'
-        testImplementation 'postgresql:postgresql:9.1-901.jdbc4'
-        testImplementation 'com.h2database:h2:1.4.193'
+        testImplementation "org.apache.derby:derby:$derbyVersion"
+        testImplementation "postgresql:postgresql:$postgresqlVersion"
+        testImplementation "com.h2database:h2:$h2Version"
         testImplementation "com.mchange:c3p0:$c3p0Version"
 
         testImplementation "org.slf4j:slf4j-api:$slf4jVersion"
@@ -358,12 +358,12 @@ project(':projects:copper-cassandra:cassandra-storage') {
         implementation "org.ow2.asm:asm:$asmVersion"
         implementation "org.ow2.asm:asm-tree:$asmVersion"
         implementation "commons-io:commons-io:$commonsIoVersion"
-        implementation 'commons-lang:commons-lang:2.6'
+        implementation "commons-lang:commons-lang:$commonsLangVersion"
         implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
         implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         implementation "org.yaml:snakeyaml:$snakeyamlVersion"
 
-        testImplementation('org.cassandraunit:cassandra-unit:3.1.1.0') {
+        testImplementation("org.cassandraunit:cassandra-unit:$cassandraUnitVersion") {
             exclude module: 'hamcrest-core'
             exclude module: 'hamcrest-library'
             exclude module: 'cassandra-thrift'
@@ -427,8 +427,8 @@ project(':projects:copper-coreengine') {
         implementation "org.ow2.asm:asm-util:$asmVersion"
         implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
-        implementation 'javax.xml.bind:jaxb-api:2.3.1'
-        implementation 'com.sun.activation:javax.activation:1.2.0'
+        implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"
+        implementation "com.sun.activation:javax.activation:$javaxActivationVersion"
     }
 
     task scriptsZip(type: Zip) {
@@ -458,10 +458,10 @@ project(':projects:copper-performance-test') {
         implementation "org.ow2.asm:asm-tree:$asmVersion"
         implementation "org.yaml:snakeyaml:$snakeyamlVersion"
         implementation "com.google.guava:guava:$guavaVersion"
-        implementation 'mysql:mysql-connector-java:5.1.39'
-        implementation 'org.apache.derby:derby:10.13.1.1'
-        implementation 'postgresql:postgresql:9.1-901.jdbc4'
-        implementation 'com.h2database:h2:1.4.193'
+        implementation "mysql:mysql-connector-java:$mysqlVersion"
+        implementation "org.apache.derby:derby:$derbyVersion"
+        implementation "postgresql:postgresql:$postgresqlVersion"
+        implementation "com.h2database:h2:$h2Version"
         implementation "com.mchange:c3p0:$c3p0Version"
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
         runtimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
