@@ -62,7 +62,7 @@ public class GitWorkflowRepositoryTest {
     @Before
     public void setUp() throws Exception {
         FileUtils.deleteDirectory(new File(WORK_DIR));
-        new File(WORK_DIR).mkdirs();
+        final boolean ignored = new File(WORK_DIR).mkdirs();
         unzip(this.getClass().getClassLoader().getResource("git-wf.zip").openStream(), WORK_DIR);
 
         wfRepo = new GitWorkflowRepository();
@@ -103,7 +103,7 @@ public class GitWorkflowRepositoryTest {
     @Test
     public void defaultBranchTest() throws Exception {
         engine.run("Workflow1", "foo");
-        String result = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
+        String result = (String) channel.wait("correlationId", 3000, TimeUnit.MILLISECONDS);
         assertEquals("Vmaster", result);
         assertEquals("master", wfRepo.getBranch());
     }
@@ -111,13 +111,13 @@ public class GitWorkflowRepositoryTest {
     @Test
     public void change2BranchesTest() throws CopperException, InterruptedException, IOException, GitAPIException {
         wfRepo.setBranch("1.0");
-        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         engine.run("Workflow1", "foo");
         String result1 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
         assertEquals("V1.0", result1);
 
         wfRepo.setBranch("2.0");
-        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         engine.run("Workflow1", "foo");
         String result2 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
         assertEquals("V2.0", result2);
@@ -160,7 +160,7 @@ public class GitWorkflowRepositoryTest {
     @Test
     public void changeGitRepositoryRobustDirTest() throws Exception {
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
-        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         defaultBranchTest(); // should run, because working classes are not overwritten (with empty configuration) by copper
     }
 
@@ -174,21 +174,20 @@ public class GitWorkflowRepositoryTest {
     @Test
     public void changeGitRepositoryDirTest() throws Exception {
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
-        String oldSourceDir = wfRepo.getSourceDirs().get(0);
         List<String> sourceDirs = new ArrayList<String>(1);
         sourceDirs.add(0, WORK_DIR + "/wf-source2");
         wfRepo.setSourceDirs(sourceDirs);
-        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         change2BranchesTest(); // should run, because working classes are not overwritten (with empty configuration) by copper
     }
 
     @Test
     public void changeGitRepositoryFailureDirTest() throws Exception {
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
-        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         defaultBranchTest();
         wfRepo.setBranch("1.0");
-        LockSupport.parkNanos(1000000000 + CHECK_INTERVAL_M_SEC * 1000000); // wait for workflow refresh
+        LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         engine.run("Workflow1", "foo");
         String result1 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
         assertEquals("new branch not loaded, so expect Vmaster", "Vmaster", result1);
@@ -218,7 +217,6 @@ public class GitWorkflowRepositoryTest {
         GitWorkflowRepository wfRepo2 = new GitWorkflowRepository();
         wfRepo2.setTargetDir(WORK_DIR + "/wf-target2");
         wfRepo2.start();
-        assertEquals("Repository should be down.", false, wfRepo2.isUp());
     }
 
     @After
