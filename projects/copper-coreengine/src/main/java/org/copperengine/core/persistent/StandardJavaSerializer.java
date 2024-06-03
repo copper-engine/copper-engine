@@ -21,13 +21,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Base64;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 
 import org.copperengine.core.Response;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.common.WorkflowRepository;
-import org.copperengine.core.util.Base64;
 
 /**
  * Implementation of the {@link Serializer} interface using java's standard object serialization.
@@ -37,9 +37,10 @@ import org.copperengine.core.util.Base64;
  * @author austermann
  */
 public class StandardJavaSerializer implements Serializer {
-
     public static final boolean DEFAULT_COMPRESS = true;
 
+    private static final Base64.Encoder B64_ENCODER = Base64.getEncoder();
+    private static final Base64.Decoder B64_DECODER = Base64.getDecoder();
     private static final String COPPER_3_PACKAGE_PREFIX = "org.copperengine.core.";
     private static final String COPPER_2X_PACKAGE_PREFIX = "de.scoopgmbh.copper.";
     private static final String COPPER_2X_INTERRUPT_NAME = "InterruptException";
@@ -88,7 +89,7 @@ public class StandardJavaSerializer implements Serializer {
             data = compressorTL.get().compress(data);
             isCompressed = true;
         }
-        final String encoded = Base64.encode(data);
+        final String encoded = B64_ENCODER.encodeToString(data);
         final StringBuilder sb = new StringBuilder(encoded.length() + 4);
         sb.append(isCompressed ? 'C' : 'U').append(encoded);
         return sb.toString();
@@ -98,7 +99,7 @@ public class StandardJavaSerializer implements Serializer {
         if (_data == null)
             return null;
         boolean isCompressed = _data.charAt(0) == 'C';
-        byte[] data = Base64.decode(_data.substring(1));
+        byte[] data = B64_DECODER.decode(_data.substring(1));
         if (isCompressed) {
             data = compressorTL.get().uncompress(data);
         }

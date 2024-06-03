@@ -15,15 +15,17 @@
  */
 package org.copperengine.core.util;
 
-import javax.xml.bind.DatatypeConverter;
-
 /**
  * Provides Base64 encoding and decoding as defined by RFC 2045.
  *
  * @author dmoebius
  * @since 3.0.1
+ * @deprecated This class can be replaced by using the built-in class java.util.Base64
  */
+@Deprecated
 public class Base64 {
+    private static final java.util.Base64.Encoder encoder = java.util.Base64.getEncoder();
+    private static final java.util.Base64.Decoder decoder = java.util.Base64.getDecoder();
 
     /**
      * Encodes a byte[] containing binary data, into a String containing characters in the Base64 alphabet.
@@ -31,9 +33,11 @@ public class Base64 {
      * @param data
      *         a byte array containing binary data
      * @return a String containing only Base64 character data
+     * @deprecated This function can be replaced by using the built-in class java.util.Base64
      */
+    @Deprecated
     public static String encode(byte[] data) {
-        return DatatypeConverter.printBase64Binary(data);
+        return encoder.encodeToString(data);
     }
 
     /**
@@ -42,9 +46,10 @@ public class Base64 {
      * @param data
      *         a String containing Base64 character data
      * @return a byte array containing binary data
+     * @deprecated This function can be replaced by using the built-in class java.util.Base64
      */
+    @Deprecated
     public static byte[] decode(String data) {
-        return DatatypeConverter.parseBase64Binary(data);
+        return decoder.decode(data);
     }
-
 }
