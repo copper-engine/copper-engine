@@ -427,8 +427,9 @@ project(':projects:copper-coreengine') {
         implementation "org.ow2.asm:asm-util:$asmVersion"
         implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
-        implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"
-        implementation "com.sun.activation:javax.activation:$javaxActivationVersion"
+        implementation platform("jakarta.platform:jakarta.jakartaee-bom:$jakartaPlatformVersion")
+        implementation 'jakarta.xml.bind:jakarta.xml.bind-api'
+        implementation 'jakarta.activation:jakarta.activation-api'
     }
 
     task scriptsZip(type: Zip) {

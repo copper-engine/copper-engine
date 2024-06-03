@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.util;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 
 /**
  * Provides Base64 encoding and decoding as defined by RFC 2045.
