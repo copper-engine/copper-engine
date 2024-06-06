@@ -3,7 +3,7 @@ name: Build and upload
 on:
   push:
     branches:
-      - master
+      - keymaster
   pull_request:
     types: [ opened, synchronize, reopened ]
     
