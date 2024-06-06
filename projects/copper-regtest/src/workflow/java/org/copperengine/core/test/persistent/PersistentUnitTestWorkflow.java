@@ -41,7 +41,6 @@ import org.copperengine.regtest.test.DataHolder;
 import org.copperengine.regtest.test.MockAdapter;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
-import org.copperengine.spring.audit.SpringTxnAuditTrail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
