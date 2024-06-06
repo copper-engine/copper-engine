@@ -1,3 +1,7 @@
+COPPER 6.0.0
+============
+- Breaking: Update to Java 21
+
 COPPER 5.5.2
 ============
 - Maintenance: Update spring 5.3.34 -> 5.3.36
