@@ -1,49 +1,11 @@
-import groovy.xml.QName
-
 import java.nio.charset.StandardCharsets
 
-buildscript {
-    repositories {
-        gradlePluginPortal() // needed for gradle-nexus-plugin
-        mavenCentral() // needed for nexus-workflow plugin
-        maven { // needed for license-gradle-plugin
-	      url "https://plugins.gradle.org/m2/"
-    	}
-    }
-    dependencies {
-        // The nexus plugin makes uploading to Sonatype Nexus repository easier.
-        // See https://github.com/bmuschko/gradle-nexus-plugin for documentation
-        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7'
-        // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
-        // by providing the task 'nexusStagingRelease'.
-        // See https://github.com/adaptivecomputing/plugins-gradle/tree/master/nexus-workflow
-        // and http://stackoverflow.com/questions/20432907/automated-release-to-maven-central-with-gradle
-        classpath 'com.adaptc.gradle:nexus-workflow:0.6'
-        // the license plugin, see https://github.com/hierynomus/license-gradle-plugin
-        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.0'
-        // the spotbugs plugin, see https://plugins.gradle.org/plugin/com.github.spotbugs
-        // DISABLED: spotbugs is currently not compatible with Gradle 5
-        // classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.8"
-
-        // Plugin to create modular jars that target a Java release before 9 (https://github.com/beryx/badass-jar-plugin)
-        classpath "gradle.plugin.org.beryx:badass-jar:1.2.0"
-
-        // Plugin for loading project properties from gradle-local.properties
-        classpath "net.saliman:gradle-properties-plugin:1.5.1"
-
-        // OSGI plugin
-        classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:6.4.0"
-    }
+plugins {
+    id("com.github.ben-manes.versions") version "0.51.0"
+    id("com.github.hierynomus.license-base") version "0.16.1"
 }
 
-
 allprojects {
-    apply plugin: 'project-report'
-    apply plugin: "net.saliman.properties"
-
-    // DISABLED: spotbugs is currently not compatible with Gradle 5
-//    apply plugin: "com.github.spotbugs"
-
     group = "org.copper-engine"
 
     repositories {
@@ -61,17 +23,10 @@ configure(properSubprojects) {
     println "configuring java module " + project.path
 
     apply plugin: 'java-library'
-    apply plugin: 'biz.aQute.bnd.builder'
+    apply plugin: 'maven-publish'
 
-    apply plugin: "org.beryx.jar"
-
-    compileJava.options.encoding = StandardCharsets.UTF_8
-    compileTestJava.options.encoding = StandardCharsets.UTF_8
-
-    apply plugin: 'maven'
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 21
+    targetCompatibility = 21
 
     task createSourcesJar(type: Jar, dependsOn: classes) {
         archiveClassifier = 'sources'
@@ -88,55 +43,13 @@ configure(properSubprojects) {
         archives createJavadocJar
     }
 
-    if (!project.getName().contains('orch-interfaces')) {
-        apply plugin: 'com.github.hierynomus.license'
-        license {
-            // verify that every java file has our Apache License header; fail build if header is missing
-            header file("$rootDir/common/apache-license-file.txt")
-            skipExistingHeaders true
-            ignoreFailures true
-        }
+    apply plugin: 'com.github.hierynomus.license'
+    license {
+        // verify that every java file has our Apache License header; fail build if header is missing
+        header file("$rootDir/common/apache-license-file.txt")
+        skipExistingHeaders true
+        ignoreFailures true
     }
-
-    apply plugin: 'eclipse'
-    eclipse {
-        classpath {
-            defaultOutputDir = file('build')
-            file {
-                //exclude slf4f log binding from export
-                withXml {
-                    Node root = it.asNode()
-                    NodeList nodeList = root.getAt(new QName('classpathentry'))
-                    nodeList.each { Node classpathentry ->
-                        if (classpathentry.attributes().path.contains('slf4j-log4j12')) {
-                            classpathentry.attributes().remove('exported')
-                        }
-                    }
-                }
-            }
-        }
-        jdt {
-            file {
-                // add our code style settings to every eclipse project
-                withProperties { properties ->
-                    def codestyle = new XmlParser().parse(file("$rootDir/common/eclipse-codestyle.xml"))
-                    codestyle.profile[0].setting.each {
-                        properties.put(it.'@id', it.'@value')
-                    }
-                }
-                whenMerged {
-                    def uiprops = new Properties();
-                    uiprops.put('eclipse.preferences.version', '1')
-                    uiprops.put('formatter_profile', '_SCOOP-CodeStyle')
-                    uiprops.put('formatter_settings_version', '12')
-                    uiprops.store(file("$projectDir/.settings/org.eclipse.jdt.ui.prefs").newWriter(), "generated by build.gradle")
-                }
-            }
-        }
-    }
-    // be sure to always regenerate eclipse files, because default behavior is merging into existing files
-    tasks.eclipse.dependsOn cleanEclipse
-    eclipse.classpath.defaultOutputDir = new File("$buildDir/classes/main")
 
     dependencies {
 
@@ -144,7 +57,7 @@ configure(properSubprojects) {
             exclude module: 'javaparser-symbol-solver-model'
         }
 
-        implementation	"org.slf4j:slf4j-api:$slf4jVersion"
+        implementation "org.slf4j:slf4j-api:$slf4jVersion"
         testImplementation("junit:junit:$junitVersion") {
             exclude module: 'hamcrest-core'
         }
@@ -152,13 +65,10 @@ configure(properSubprojects) {
         testImplementation "net.bytebuddy:byte-buddy:$byteBuddyVersion"
         testImplementation "org.hamcrest:hamcrest-core:$hamcrestVersion"
         testImplementation "ch.qos.logback:logback-classic:$logbackVersion"
-
-//        spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
     }
 
     jar {
         manifest.attributes provider: 'gradle'
-        multiRelease = false
     }
 
     javadoc {
@@ -168,92 +78,12 @@ configure(properSubprojects) {
         exclude '**/module-info.java'
     }
 
-    if (!project.sourceCompatibility.java9Compatible && project.hasProperty('nexusUsername')) {
-        // the nexus plugin makes uploading to Sonatype Nexus repository easier
-        // see https://github.com/bmuschko/gradle-nexus-plugin for documentation
-        apply plugin: 'nexus'
-        nexus {
-            attachTests = true
-            sign = true
-        }
-
-        modifyPom {
-            project {
-                name = 'COPPER high-performance workflow engine'
-                packaging = 'jar'
-                description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
-                url 'http://copper-engine.org/'
-
-                scm {
-                    url 'https://github.com/copper-engine/copper-engine'
-                    connection 'scm:git@github.com:copper-engine/copper-engine.git'
-                }
-
-                licenses {
-                    license {
-                        name = 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'copper-team'
-                        name = 'Copper Engine Development Team'
-                        roles {
-                            role 'architect'
-                            role 'developer'
-                            role 'tester'
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     test {
         testLogging {
             exceptionFormat = 'full'
         }
     }
 }
-
-configure(rootProject) {
-    // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
-    // by providing the task 'nexusStagingRelease'. We perform "nexusStagingRelease" only if the current
-    // version is not a SNAPSHOT release.
-    apply plugin: 'nexus-workflow'
-    tasks.nexusStagingRelease.onlyIf { !version.endsWith("-SNAPSHOT") }
-
-    // task to create source distribution containing all source files
-    // note: this task won't run automatically; it must be called explicitely
-    task fullSourcesJar(type: Jar) {
-        classifier = 'sources-full'
-        from project.rootDir
-        exclude '**/build/'
-        exclude '**/classes/'
-        exclude '**/generated/'
-        exclude '.gradle/'
-        exclude 'tmp/'
-        exclude '.idea'
-        exclude '**/*.iml'
-        exclude '**/*.log'
-        exclude '**/*.classpath'
-        exclude '**/*.project'
-        exclude '**/*.settings/'
-    }
-
-    // copy Intellij Codestyle settings each time 'gradle assemble' or 'gradle build' is performed on the root project
-    task ideaCodeStyleSetup(type: Copy) {
-        from 'common/intellij-codestyle.xml'
-        into '.idea/'
-        rename '.+', 'codeStyleSettings.xml'
-    }
-    ideaCodeStyleSetup.onlyIf { file(".idea").exists() }
-    assemble.dependsOn ideaCodeStyleSetup
-}
-
 
 project(':projects:copper-jmx-interface') {
     ext.moduleName = 'org.copperengine.management'
@@ -274,7 +104,7 @@ project(':projects:copper-regtest') {
     sourceSets.test.resources.srcDirs += sourceSets.workflow.srcDir
 
     tasks.testClasses.doLast {
-        if(project.sourceCompatibility.java9Compatible) {
+        if (project.sourceCompatibility.java9Compatible) {
             copy {
                 from sourceSets.test.resources.srcDirs
                 into "$buildDir/classes/java/test"
@@ -311,7 +141,7 @@ project(':projects:copper-coreengine') {
     dependencies {
         api project(':projects:copper-jmx-interface')
 
-        compile	"org.slf4j:slf4j-api:$slf4jVersion"
+        implementation("org.slf4j:slf4j-api:$slf4jVersion")
 
         // asm
         implementation "org.ow2.asm:asm:$asmVersion"
@@ -322,7 +152,7 @@ project(':projects:copper-coreengine') {
     }
 
     task scriptsZip(type: Zip) {
-        classifier = 'scripts'
+        archiveClassifier = 'scripts'
         from file("src/main/database")
         into 'scripts/sql'
     }
@@ -338,7 +168,7 @@ project(':projects:copper-ext') {
     dependencies {
         implementation project(':projects:copper-coreengine')
 
-        implementation	"org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"
+        implementation "org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"
         implementation "org.ow2.asm:asm:$asmVersion"
         implementation "org.ow2.asm:asm-tree:$asmVersion"
         implementation "commons-io:commons-io:$commonsIoVersion"
@@ -349,8 +179,4 @@ project(':projects:copper-ext') {
         //testImplementation 'org.apache.logging.log4j:log4j-core:2.+'
         //testImplementation 'org.slf4j:slf4j-log4j12:2.+'
     }
-}
-
-subprojects {
-    task allDeps(type: DependencyReportTask) {}
 }

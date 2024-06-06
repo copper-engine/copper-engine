@@ -9,7 +9,6 @@ module org.copperengine.core {
     requires org.objectweb.asm.util;
     requires java.desktop;
     requires java.compiler;
-    requires java.xml.bind;
 
     uses javax.tools.JavaCompiler;
 
