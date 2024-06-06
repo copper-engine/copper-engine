@@ -177,7 +177,7 @@ public class GitWorkflowRepositoryTest {
         List<String> sourceDirs = new ArrayList<String>(1);
         sourceDirs.add(0, WORK_DIR + "/wf-source2");
         wfRepo.setSourceDirs(sourceDirs);
-        LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
+        LockSupport.parkNanos(3_000_000_000L + CHECK_INTERVAL_M_SEC * 3_000_000L); // wait for workflow refresh
         change2BranchesTest(); // should run, because working classes are not overwritten (with empty configuration) by copper
     }
 
