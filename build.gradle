@@ -13,7 +13,7 @@ buildscript {
     dependencies {
         // The nexus plugin makes uploading to Sonatype Nexus repository easier.
         // See https://github.com/bmuschko/gradle-nexus-plugin for documentation
-        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.3'
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
         // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
         // by providing the task 'nexusStagingRelease'.
         // See https://github.com/adaptivecomputing/plugins-gradle/tree/master/nexus-workflow
@@ -192,9 +192,8 @@ configure(properSubprojects) {
     if (!project.sourceCompatibility.java9Compatible && project.hasProperty('nexusUsername')) {
         // the nexus plugin makes uploading to Sonatype Nexus repository easier
         // see https://github.com/bmuschko/gradle-nexus-plugin for documentation
-        apply plugin: 'nexus'
+        apply plugin: 'com.bmuschko.nexus'
         nexus {
-            attachTests = true
             sign = true
         }
 
