@@ -57,12 +57,21 @@ public class YamlSerializer extends StandardJavaSerializer implements Serializer
 
     @Override
     protected String serializeData(Workflow<?> o) throws IOException {
-        return yaml.get().dump(o.getData());
+        return serialize(o.getData());
     }
 
     @Override
     protected Object deserializeData(SerializedWorkflow sw) throws Exception {
-        return yaml.get().load(sw.getData());
+        return deserialize(sw.getData());
+    }
+
+
+    String serialize(final Object workflowData) {
+        return yaml.get().dump(workflowData);
+    }
+
+    Object deserialize(String workflowData) {
+        return yaml.get().load(workflowData);
     }
 
 }
