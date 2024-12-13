@@ -24,6 +24,7 @@ configure(properSubprojects) {
 
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
+    apply plugin: 'signing'
 
     sourceCompatibility = 21
     targetCompatibility = 21
@@ -49,6 +50,64 @@ configure(properSubprojects) {
         header file("$rootDir/common/apache-license-file.txt")
         skipExistingHeaders true
         ignoreFailures true
+    }
+
+    apply plugin: 'signing'
+    signing {
+        sign configurations.archives
+    }
+
+    publishing {
+        publications {
+            signing.sign(
+                    create("library", MavenPublication) {
+                        from components.java
+                        pom {
+                            name = 'COPPER high-performance workflow engine'
+                            group = 'io.github.keymaster65'
+                            packaging = 'jar'
+                            description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
+                            url = 'http://copper-engine.org/'
+
+                            scm {
+                                url = 'https://github.com/copper-engine/copper-engine'
+                                connection = 'scm:git@github.com:copper-engine/copper-engine.git'
+                            }
+
+                            licenses {
+                                license {
+                                    name = 'The Apache Software License, Version 2.0'
+                                    url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                                    distribution = 'repo'
+                                }
+                            }
+
+                            developers {
+                                developer {
+                                    id = 'copper-team'
+                                    name = 'Copper Engine Development Team'
+                                }
+                            }
+                        }
+                    }
+            )
+        }
+    }
+
+    publishing {
+        repositories {
+            maven {
+                credentials {
+                    username project.hasProperty('SONA_TOKEN_USERNAME') ? project.SONA_TOKEN_USERNAME : ''
+                    password project.hasProperty('SONA_TOKEN_PASSWORD') ? project.SONA_TOKEN_PASSWORD : ''
+                }
+                if (version.toString().endsWith('-SNAPSHOT')) {
+                    url = uri('https://oss.sonatype.org/content/repositories/snapshots/')
+                } else {
+                    url = uri('https://oss.sonatype.org/service/local/staging/deploy/maven2/')
+                }
+            }
+        }
     }
 
     dependencies {
