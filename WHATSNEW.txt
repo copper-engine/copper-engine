@@ -2,6 +2,8 @@ COPPER 21.0.0
 ============
 - Breaking: Update to Java 21
 - Breaking: Exclude from publishing: copper-spring, copper-performance-test and copper-cassandra
+- Breaking: Update jgit 6.9.0.202403050737-r to 7.1.0.202411261347-r
+- Maintenance: Update gradle 8.8 to 8.11.1
 
 COPPER 5.5.2
 ============
