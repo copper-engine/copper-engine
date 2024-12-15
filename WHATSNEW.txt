@@ -1,6 +1,7 @@
 COPPER 21.0.0
 ============
 - Breaking: Update to Java 21
+- Breaking: Exclude from publishing: copper-spring, copper-performance-test and copper-cassandra
 
 COPPER 5.5.2
 ============
