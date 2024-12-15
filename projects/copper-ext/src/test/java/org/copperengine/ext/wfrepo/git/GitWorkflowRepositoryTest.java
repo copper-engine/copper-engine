@@ -111,13 +111,13 @@ public class GitWorkflowRepositoryTest {
     @Test
     public void change2BranchesTest() throws CopperException, InterruptedException, IOException, GitAPIException {
         wfRepo.setBranch("1.0");
-        LockSupport.parkNanos(3_000_000_000L + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
+        LockSupport.parkNanos(5_000_000_000L + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         engine.run("Workflow1", "foo");
         String result1 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
         assertEquals("V1.0", result1);
 
         wfRepo.setBranch("2.0");
-        LockSupport.parkNanos(3_000_000_000L + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
+        LockSupport.parkNanos(5_000_000_000L + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         engine.run("Workflow1", "foo");
         String result2 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
         assertEquals("V2.0", result2);
