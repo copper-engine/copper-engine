@@ -1,4 +1,4 @@
-COPPER 6.0.0
+COPPER 21.0.0
 ============
 - Breaking: Update to Java 21
 
