@@ -1,0 +1,6 @@
+include(
+        ":projects:copper-coreengine",
+        ":projects:copper-ext",
+        ":projects:copper-jmx-interface",
+        ":projects:copper-regtest"
+)
