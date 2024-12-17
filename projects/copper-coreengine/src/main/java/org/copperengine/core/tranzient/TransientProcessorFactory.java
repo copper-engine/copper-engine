@@ -27,7 +27,8 @@ public class TransientProcessorFactory implements ProcessorFactory {
     public TransientProcessorFactory() {
     }
 
-    public Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPriority, ProcessingEngine engine) {
+    public Processor
+    newProcessor(String id, Queue<Workflow<?>> queue, int threadPriority, ProcessingEngine engine) {
         return new TransientProcessor(id, queue, threadPriority, engine);
     }
 }
