@@ -1,6 +1,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/copper-engine/copper-engine/blob/master/LICENSE)
 [![Build Status](https://img.shields.io/github/workflow/status/copper-engine/copper-engine/Build%20and%20upload)](https://github.com/copper-engine/copper-engine/actions?query=workflow%3A%22Build+and+upload%22)
+[![libs.tech recommends](https://libs.tech/project/15008570/badge.svg)](https://libs.tech/project/15008570/copper-engine)
 
 copper-engine
 =============
