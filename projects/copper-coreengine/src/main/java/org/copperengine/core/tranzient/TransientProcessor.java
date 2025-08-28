@@ -34,9 +34,13 @@ class TransientProcessor extends Processor {
 
     private TransientScottyEngine engine;
 
-    public TransientProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine) {
-        super(name, queue, prio, engine);
+    public TransientProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine, boolean virtual) {
+        super(name, queue, prio, engine, virtual);
         this.engine = (TransientScottyEngine) engine;
+    }
+
+    public TransientProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine) {
+        this(name, queue, prio, engine, false);
     }
 
     @Override

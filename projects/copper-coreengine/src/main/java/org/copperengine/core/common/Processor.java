@@ -38,8 +38,12 @@ public abstract class Processor implements Runnable {
     private final Thread thread;
     private boolean idle = false;
 
-    public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
-        this.thread = Thread.ofPlatform().name(name).unstarted(this);
+    public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine, final boolean virtual) {
+        if (virtual) {
+            this.thread = Thread.ofVirtual().name(name).unstarted(this);
+        } else {
+            this.thread = Thread.ofPlatform().name(name).unstarted(this);
+        }
         this.queue = queue;
         this.thread.setPriority(prio);
         this.engine = engine;

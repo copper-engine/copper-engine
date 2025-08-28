@@ -261,7 +261,11 @@ public class SpringlessBasePersistentWorkflowTest {
     }
 
     protected PersistentEngineTestContext createContext(DataSourceType dsType) {
-        PersistentEngineTestContext ctx = new PersistentEngineTestContext(dsType, true);
+        return createContext(dsType, false);
+    }
+
+    protected PersistentEngineTestContext createContext(DataSourceType dsType, boolean virtual) {
+        PersistentEngineTestContext ctx = new PersistentEngineTestContext(dsType, true, virtual);
         ctx.startup();
         return ctx;
     }
@@ -346,10 +350,14 @@ public class SpringlessBasePersistentWorkflowTest {
     }
 
     public void testTimeouts(DataSourceType dsType) throws Exception {
+        testTimeouts(dsType, false);
+    }
+
+    public void testTimeouts(DataSourceType dsType, boolean virtual) throws Exception {
         assumeFalse(skipTests());
         logger.info("running testTimeouts");
         final int NUMB = 10;
-        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType, virtual);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         try {
@@ -816,10 +824,10 @@ public class SpringlessBasePersistentWorkflowTest {
         logger.info("running testMultipleEngines");
         final int NUMB = 50;
 
-        final PersistentEngineTestContext contextRed = new PersistentEngineTestContext(dsType, true, "red", true);
+        final PersistentEngineTestContext contextRed = new PersistentEngineTestContext(dsType, true, "red", true, false);
         contextRed.startup();
 
-        final PersistentEngineTestContext contextBlue = new PersistentEngineTestContext(dsType, false, "blue", true) {
+        final PersistentEngineTestContext contextBlue = new PersistentEngineTestContext(dsType, false, "blue", true, false) {
             @Override
             protected DataHolder createDataHolder() {
                 return contextRed.getDataHolder();

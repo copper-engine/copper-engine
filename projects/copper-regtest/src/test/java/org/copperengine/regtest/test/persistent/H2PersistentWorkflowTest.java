@@ -61,6 +61,11 @@ public class H2PersistentWorkflowTest extends SpringlessBasePersistentWorkflowTe
     }
 
     @Test
+    public void testTimeoutsWithVirtualThreads() throws Exception {
+        super.testTimeouts(DS_CONTEXT, true);
+    }
+
+    @Test
     public void testErrorHandlingInCoreEngine() throws Exception {
         super.testErrorHandlingInCoreEngine(DS_CONTEXT);
     }

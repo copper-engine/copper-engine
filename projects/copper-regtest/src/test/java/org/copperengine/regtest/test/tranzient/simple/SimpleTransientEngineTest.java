@@ -30,7 +30,16 @@ public class SimpleTransientEngineTest {
 
     @Test
     public void testWorkflow() throws Exception {
-        try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
+        testWorkflow(false);
+    }
+
+    @Test
+    public void testWorkflowWithVirtualThreads() throws Exception {
+        testWorkflow(true);
+    }
+
+    void testWorkflow(boolean virtual) throws Exception {
+        try (TransientEngineTestContext ctx = new TransientEngineTestContext(virtual)) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
@@ -38,7 +47,6 @@ public class SimpleTransientEngineTest {
             WorkflowResult response = ctx.getBackChannelQueue().dequeue(5000, TimeUnit.MILLISECONDS);
             assertEquals(Integer.valueOf(10), response.getResult());
         }
-
     }
 
     @Test(expected = DuplicateIdException.class)

@@ -46,6 +46,7 @@ public class TimingOutPersistentUnitTestWorkflow extends PersistentWorkflow<Seri
 
     @Override
     public void main() throws Interrupt {
+        logger.info("Start Thread=" + Thread.currentThread());
         try {
             String cid = getEngine().createUUID();
             wait(WaitMode.ALL, 500, cid);
@@ -65,6 +66,7 @@ public class TimingOutPersistentUnitTestWorkflow extends PersistentWorkflow<Seri
             logger.error("execution failed", e);
             backChannelQueue.enqueue(new WorkflowResult(null, e));
         }
+        logger.info("End Thread=" + Thread.currentThread());
     }
 
 }
