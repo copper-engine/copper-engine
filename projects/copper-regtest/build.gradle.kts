@@ -11,8 +11,8 @@ dependencies {
     implementation(project(":projects:copper-coreengine"))
     implementation(project(":projects:copper-ext"))
 
-    implementation("org.ow2.asm:asm:9.7")
-    implementation("org.ow2.asm:asm-tree:9.7")
+    implementation("org.ow2.asm:asm:9.8")
+    implementation("org.ow2.asm:asm-tree:9.8")
     implementation("org.yaml:snakeyaml:1.33")
     implementation("org.springframework:spring-jdbc:5.3.36")
     implementation("org.springframework:spring-context:5.3.36")
@@ -26,4 +26,8 @@ dependencies {
     testImplementation("com.h2database:h2:1.4.193")
     testImplementation("com.mchange:c3p0:0.10.0")
     testImplementation("org.slf4j:slf4j-api:2.0.13")
+}
+
+tasks.withType<Test> {
+    jvmArgs = listOf("-Dorg.copperengine.workflow.compiler.options=-target,25,-source,25")
 }

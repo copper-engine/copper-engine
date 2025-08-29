@@ -1,8 +1,11 @@
+COPPER 25.0.0
+============
+- Breaking: Update to Java 25
+
 COPPER 21.0.0
 ============
 - New feature: Optional use of virtual threads in Processor
 - Breaking: Remove extension of Thread from Processor
-- Breaking: Update to Java 21
 - Breaking: Update to Java 21
 - Breaking: Exclude from publishing: copper-spring, copper-performance-test and copper-cassandra
 - Breaking: Update jgit 6.9.0.202403050737-r to 7.1.0.202411261347-r
