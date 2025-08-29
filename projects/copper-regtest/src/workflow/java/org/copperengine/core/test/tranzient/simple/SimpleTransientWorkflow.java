@@ -63,6 +63,8 @@ public class SimpleTransientWorkflow extends Workflow<String> {
      */
     @Override
     public void main() throws Interrupt {
+        System.out.println("Start Thread=" + Thread.currentThread());
+
         new Innerclass();
 
         try {
@@ -138,6 +140,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
         } finally {
             System.out.println("finally");
         }
+        System.out.println("End Thread=" + Thread.currentThread());
     }
 
     private void wait4all(final String cid1, final String cid2) throws Interrupt {

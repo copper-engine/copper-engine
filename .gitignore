@@ -16,3 +16,4 @@ out/
 # Copper specific user setting files
 projects/copper-regtest/src/test/resources/regtest.*.properties
 !projects/copper-regtest/src/test/resources/regtest.default.properties
+/projects/copper-ext/wf-work/

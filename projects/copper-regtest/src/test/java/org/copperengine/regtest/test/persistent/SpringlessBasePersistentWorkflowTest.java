@@ -261,7 +261,11 @@ public class SpringlessBasePersistentWorkflowTest {
     }
 
     protected PersistentEngineTestContext createContext(DataSourceType dsType) {
-        PersistentEngineTestContext ctx = new PersistentEngineTestContext(dsType, true);
+        return createContext(dsType, false);
+    }
+
+    protected PersistentEngineTestContext createContext(DataSourceType dsType, boolean virtual) {
+        PersistentEngineTestContext ctx = new PersistentEngineTestContext(dsType, true, virtual);
         ctx.startup();
         return ctx;
     }
@@ -346,10 +350,14 @@ public class SpringlessBasePersistentWorkflowTest {
     }
 
     public void testTimeouts(DataSourceType dsType) throws Exception {
+        testTimeouts(dsType, false);
+    }
+
+    public void testTimeouts(DataSourceType dsType, boolean virtual) throws Exception {
         assumeFalse(skipTests());
         logger.info("running testTimeouts");
         final int NUMB = 10;
-        final PersistentEngineTestContext context = createContext(dsType);
+        final PersistentEngineTestContext context = createContext(dsType, virtual);
         final PersistentScottyEngine engine = context.getEngine();
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         try {
@@ -816,10 +824,10 @@ public class SpringlessBasePersistentWorkflowTest {
         logger.info("running testMultipleEngines");
         final int NUMB = 50;
 
-        final PersistentEngineTestContext contextRed = new PersistentEngineTestContext(dsType, true, "red", true);
+        final PersistentEngineTestContext contextRed = new PersistentEngineTestContext(dsType, true, "red", true, false);
         contextRed.startup();
 
-        final PersistentEngineTestContext contextBlue = new PersistentEngineTestContext(dsType, false, "blue", true) {
+        final PersistentEngineTestContext contextBlue = new PersistentEngineTestContext(dsType, false, "blue", true, false) {
             @Override
             protected DataHolder createDataHolder() {
                 return contextRed.getDataHolder();
@@ -1453,7 +1461,7 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
 
-    public void testDeleteFilteredWorkflowInstance(DataSourceType dsType) throws Exception {
+    public void testDeleteFilteredWorkflowInstance(DataSourceType dsType, long inbetween, long delay) throws Exception {
         assumeFalse(skipTests());
         final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
@@ -1467,17 +1475,19 @@ public class SpringlessBasePersistentWorkflowTest {
             waitingWorkflow.setId(engine.createUUID());
             engine.run(waitingWorkflow);
             long thisExactMoment = new Date().getTime();
-            Date inbetweenFirstWFs = new Date(thisExactMoment + 120000);
+            Date inbetweenFirstWFs = new Date(thisExactMoment + inbetween);
 
-            Thread.sleep(280000); // the next workflow to be created will have a later Timestamp
+            logger.info("Sleep for {} millis.", delay);
+            Thread.sleep(delay); // the next workflow to be created will have a later Timestamp
 
             WorkflowInstanceDescr<Integer> brokenWorkflow = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
             brokenWorkflow.setId(engine.createUUID());
             engine.run(brokenWorkflow);
             thisExactMoment = new Date().getTime();
-            Date inbetweenSecondWFs = new Date(thisExactMoment + 120000);
+            Date inbetweenSecondWFs = new Date(thisExactMoment + inbetween);
 
-            Thread.sleep(280000); // wait for it to start up / bring workflows to error state
+            logger.info("Sleep for {} millis.", delay);
+            Thread.sleep(delay); // wait for it to start up / bring workflows to error state
 
             WorkflowInstanceDescr<Integer> brokenWorkflow2 = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
             brokenWorkflow2.setId(engine.createUUID());
@@ -1541,7 +1551,7 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
 
-    public void testRestartFilteredWorkflowInstance(DataSourceType dsType) throws Exception {
+    public void testRestartFilteredWorkflowInstance(DataSourceType dsType, long inbetween, long delay, long after) throws Exception {
         assumeFalse(skipTests());
         final PersistentEngineTestContext context = createContext(dsType);
         final PersistentScottyEngine engine = context.getEngine();
@@ -1555,16 +1565,17 @@ public class SpringlessBasePersistentWorkflowTest {
             engine.run(brokenWorkflow);
 
             long thisExactMoment = new Date().getTime();
-            Date inbetweenWFs = new Date(thisExactMoment + 120000);
+            Date inbetweenWFs = new Date(thisExactMoment + inbetween);
 
-            Thread.sleep(280000); // the next workflow to be created will have a later Timestamp
+            logger.info("Sleep for {} millis.", delay);
+            Thread.sleep(delay); // the next workflow to be created will have a later Timestamp
 
             WorkflowInstanceDescr<Integer> brokenWorkflow2 = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
             brokenWorkflow2.setId(engine.createUUID());
             engine.run(brokenWorkflow2);
 
             thisExactMoment = new Date().getTime();
-            Date afterWFs = new Date(thisExactMoment + 120000);
+            Date afterWFs = new Date(thisExactMoment + inbetween);
 
             Thread.sleep(200); // wait for it to start up / bring workflows to error state
 
@@ -1577,7 +1588,8 @@ public class SpringlessBasePersistentWorkflowTest {
 
             // wait long enough so that when WF is restarted, it is past the point of the previously created
             // afterWFs time
-            Thread.sleep(180000);
+            logger.info("Sleep for {} millis.", after);
+            Thread.sleep(after);
 
             // restarting the first workflow based on it being created before the first timestamp
             time = new HalfOpenTimeInterval();

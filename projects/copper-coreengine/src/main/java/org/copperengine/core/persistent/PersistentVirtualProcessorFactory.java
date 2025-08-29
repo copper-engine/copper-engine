@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.tranzient;
+package org.copperengine.core.persistent;
 
 import java.util.Queue;
 
@@ -21,14 +21,17 @@ import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.common.Processor;
 import org.copperengine.core.common.ProcessorFactory;
+import org.copperengine.core.persistent.txn.TransactionController;
 
-public class TransientProcessorFactory implements ProcessorFactory {
+public class PersistentVirtualProcessorFactory implements ProcessorFactory {
 
-    public TransientProcessorFactory() {
+    private final TransactionController transactionController;
+
+    public PersistentVirtualProcessorFactory(TransactionController transactionController) {
+        this.transactionController = transactionController;
     }
 
-    public Processor
-    newProcessor(String id, Queue<Workflow<?>> queue, int threadPriority, ProcessingEngine engine) {
-        return new TransientProcessor(id, queue, threadPriority, engine);
+    public Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine) {
+        return new PersistentProcessor(id, queue, threadPrioriry, engine, transactionController, true);
     }
 }

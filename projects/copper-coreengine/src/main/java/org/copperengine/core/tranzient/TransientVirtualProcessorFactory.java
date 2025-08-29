@@ -22,13 +22,13 @@ import org.copperengine.core.Workflow;
 import org.copperengine.core.common.Processor;
 import org.copperengine.core.common.ProcessorFactory;
 
-public class TransientProcessorFactory implements ProcessorFactory {
+public class TransientVirtualProcessorFactory implements ProcessorFactory {
 
-    public TransientProcessorFactory() {
+    public TransientVirtualProcessorFactory() {
     }
 
     public Processor
     newProcessor(String id, Queue<Workflow<?>> queue, int threadPriority, ProcessingEngine engine) {
-        return new TransientProcessor(id, queue, threadPriority, engine);
+        return new TransientProcessor(id, queue, threadPriority, engine, true);
     }
 }

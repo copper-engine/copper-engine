@@ -124,7 +124,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 
     @Override
     public void registerTimeout(long _timeoutTS, String correlationId) {
-        Long timeoutTS = new Long(processSlot(_timeoutTS));
+        Long timeoutTS = Long.valueOf(processSlot(_timeoutTS));
         if (logger.isDebugEnabled()) {
             long currentTime = System.currentTimeMillis();
             logger.debug("currentTime=" + currentTime);
@@ -145,7 +145,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 
     @Override
     public void registerTimeout(long _timeoutTS, List<String> correlationIds) {
-        Long timeoutTS = new Long(processSlot(_timeoutTS));
+        Long timeoutTS = Long.valueOf(processSlot(_timeoutTS));
         if (logger.isDebugEnabled()) {
             long currentTime = System.currentTimeMillis();
             logger.debug("currentTime=" + currentTime);

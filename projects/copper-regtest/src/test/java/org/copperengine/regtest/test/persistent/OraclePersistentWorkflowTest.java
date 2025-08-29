@@ -153,12 +153,21 @@ public class OraclePersistentWorkflowTest extends SpringlessBasePersistentWorkfl
 
     @Test
     public void testDeleteFilteredWorkflowInstance() throws Exception {
-        super.testDeleteFilteredWorkflowInstance(DS_CONTEXT);
+        super.testDeleteFilteredWorkflowInstance(
+                DS_CONTEXT,
+                5_000,
+                10_000
+        );
     }
 
     @Test
     public void testRestartFilteredWorkflowInstance() throws Exception {
-        super.testRestartFilteredWorkflowInstance(DS_CONTEXT);
+        super.testRestartFilteredWorkflowInstance(
+                DS_CONTEXT,
+                5_000,
+                10_000,
+                5_000
+        );
     }
     @Test
     public void testJmxQueryWithOffsetWorkflowInstances() throws Exception {

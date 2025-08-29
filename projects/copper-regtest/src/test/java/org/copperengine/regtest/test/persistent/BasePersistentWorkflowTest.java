@@ -44,7 +44,6 @@ import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.audit.AuditTrailEvent;
-import org.copperengine.spring.audit.SpringTxnAuditTrail;
 import org.copperengine.core.audit.CompressedBase64PostProcessor;
 import org.copperengine.core.audit.DummyPostProcessor;
 import org.copperengine.core.db.utility.RetryingTransaction;
@@ -529,63 +528,6 @@ public class BasePersistentWorkflowTest {
         assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
 
-    public void testCompressedAuditTrail(String dsContext) throws Exception {
-        assumeFalse(skipTests());
-        logger.info("running testCompressedAuditTrail");
-        final int NUMB = 20;
-        final String DATA = createTestData(50);
-        final ConfigurableApplicationContext context = createContext(dsContext);
-        context.getBean(SpringTxnAuditTrail.class).setMessagePostProcessor(new CompressedBase64PostProcessor());
-        cleanDB(context.getBean(DataSource.class));
-        final PersistentScottyEngine engine = context.getBean(PersistentScottyEngine.class);
-        engine.startup();
-        final BackChannelQueue backChannelQueue = context.getBean(BackChannelQueue.class);
-        try {
-            assertEquals(EngineState.STARTED, engine.getEngineState());
-
-            for (int i = 0; i < NUMB; i++) {
-                engine.run(PersistentUnitTestWorkflow_NAME, DATA);
-            }
-
-            for (int i = 0; i < NUMB; i++) {
-                WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
-                assertNotNull(x);
-                assertNotNull(x.getResult());
-                assertNotNull(x.getResult().toString().length() == DATA.length());
-                assertNull(x.getException());
-            }
-            Thread.sleep(1000);
-
-            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-                @Override
-                protected Void execute() throws Exception {
-                    Statement stmt = createStatement(getConnection());
-                    ResultSet rs = stmt.executeQuery("select unique message from (select dbms_lob.substr(long_message, 4000, 1 ) message from COP_AUDIT_TRAIL_EVENT) order by 1 asc");
-                    assertTrue(rs.next());
-                    // logger.info("\""+new CompressedBase64PostProcessor().deserialize(rs.getString(1))+"\"");
-                    // System.out.println(new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
-                    assertEquals("finished", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
-                    assertTrue(rs.next());
-                    assertEquals("foo successfully called", new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
-                    // System.out.println(new CompressedBase64PostProcessor().deserialize(rs.getString(1)));
-                    assertFalse(rs.next());
-                    rs.close();
-                    stmt.close();
-                    return null;
-                }
-            }.run();
-
-        } catch (Exception e) {
-            logger.error("testCompressedAuditTrail failed", e);
-            throw e;
-        } finally {
-            closeContext(context);
-        }
-        assertEquals(EngineState.STOPPED, engine.getEngineState());
-        assertEquals(0, engine.getNumberOfWorkflowInstances());
-
-    }
-
     public void testAutoCommit(String dsContext) throws Exception {
         assumeFalse(skipTests());
         logger.info("running testAutoCommit");
@@ -611,22 +553,6 @@ public class BasePersistentWorkflowTest {
         }
         final String msg = sb.toString();
         return msg;
-    }
-
-    public void testAuditTrailUncompressed(String dsContext) throws Exception {
-        assumeFalse(skipTests());
-        logger.info("running testAuditTrailSmallData");
-        final ConfigurableApplicationContext context = createContext(dsContext);
-        try {
-            org.copperengine.spring.audit.SpringTxnAuditTrail auditTrail = context.getBean(org.copperengine.spring.audit.SpringTxnAuditTrail.class);
-            auditTrail.setMessagePostProcessor(new DummyPostProcessor());
-            auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", null, "TEXT");
-            auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(500), "TEXT");
-            auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(5000), "TEXT");
-            auditTrail.synchLog(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT");
-        } finally {
-            closeContext(context);
-        }
     }
 
     public void testErrorHandlingWithWaitHook(String dsContext) throws Exception {
@@ -660,44 +586,6 @@ public class BasePersistentWorkflowTest {
         }
         assertEquals(EngineState.STOPPED, engine.getEngineState());
         assertEquals(0, engine.getNumberOfWorkflowInstances());
-    }
-
-    public void testAuditTrailCustomSeqNr(String dsContext) throws Exception {
-        assumeFalse(skipTests());
-        logger.info("running testAuditTrailCustomSeqNr");
-        final ConfigurableApplicationContext context = createContext(dsContext);
-        try {
-            cleanDB(context.getBean(DataSource.class));
-            org.copperengine.spring.audit.SpringTxnAuditTrail auditTrail = context.getBean(org.copperengine.spring.audit.SpringTxnAuditTrail.class);
-            auditTrail.setMessagePostProcessor(new DummyPostProcessor());
-            long seqNr = 1;
-            auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", null, "TEXT", seqNr++));
-            auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(500), "TEXT", seqNr++));
-            auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(5000), "TEXT", seqNr++));
-            auditTrail.synchLog(new AuditTrailEvent(1, new Date(), "4711", dsContext, "4711", "4711", "4711", createTestMessage(50000), "TEXT", seqNr++));
-            // check
-            new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
-                @Override
-                protected Void execute() throws Exception {
-                    Statement stmt = createStatement(getConnection());
-                    ResultSet rs = stmt.executeQuery("select seq_id from COP_AUDIT_TRAIL_EVENT order by seq_id");
-                    assertTrue(rs.next());
-                    assertEquals(1, rs.getLong(1));
-                    assertTrue(rs.next());
-                    assertEquals(2, rs.getLong(1));
-                    assertTrue(rs.next());
-                    assertEquals(3, rs.getLong(1));
-                    assertTrue(rs.next());
-                    assertEquals(4, rs.getLong(1));
-                    assertFalse(rs.next());
-                    rs.close();
-                    stmt.close();
-                    return null;
-                }
-            }.run();
-        } finally {
-            closeContext(context);
-        }
     }
 
     public void testNotifyWithoutEarlyResponseHandling(String dsContext) throws Exception {

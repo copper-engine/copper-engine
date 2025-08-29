@@ -28,19 +28,24 @@ import org.slf4j.LoggerFactory;
  *
  * @author austermann
  */
-public abstract class Processor extends Thread {
+public abstract class Processor implements Runnable {
 
     protected static final Logger logger = LoggerFactory.getLogger(Processor.class);
     protected final Queue<Workflow<?>> queue;
     protected volatile boolean shutdown = false;
     protected final ProcessingEngine engine;
     protected ProcessingHook processingHook = new MDCProcessingHook();
-    private boolean idle = false; 
+    private final Thread thread;
+    private boolean idle = false;
 
-    public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
-        super(name);
+    public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine, final boolean virtual) {
+        if (virtual) {
+            this.thread = Thread.ofVirtual().name(name).unstarted(this);
+        } else {
+            this.thread = Thread.ofPlatform().name(name).unstarted(this);
+        }
         this.queue = queue;
-        this.setPriority(prio);
+        this.thread.setPriority(prio);
         this.engine = engine;
     }
 
@@ -51,9 +56,9 @@ public abstract class Processor extends Thread {
     public synchronized void shutdown() {
         if (shutdown)
             return;
-        logger.info("Stopping processor '" + getName() + "'...");
+        logger.info("Stopping processor '" + this.thread.getName() + "'...");
         shutdown = true;
-        interrupt();
+        this.thread.interrupt();
     }
 
     @Override
@@ -107,10 +112,26 @@ public abstract class Processor extends Thread {
     }
 
     protected abstract void process(Workflow<?> wf);
-    
+
     public boolean isIdle() {
         synchronized (queue) {
             return idle;
         }
+    }
+
+    void start() {
+        thread.start();
+    }
+
+    void join() throws InterruptedException {
+        thread.join();
+    }
+
+    void join(final long timeout) throws InterruptedException {
+        thread.join(timeout);
+    }
+
+    void setPriority(int threadPriority) {
+        thread.setPriority(threadPriority);
     }
 }
