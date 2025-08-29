@@ -24,6 +24,6 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: zulu
-        java-version: 21
+        java-version: 25
     - name: Build with Gradle
       run: ./gradlew --no-daemon --no-parallel --rerun-tasks --info --full-stacktrace build
