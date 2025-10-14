@@ -26,12 +26,16 @@ import org.copperengine.core.DependencyInjector;
 import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.audit.BatchingAuditTrail;
 import org.copperengine.core.batcher.impl.BatcherImpl;
+import org.copperengine.core.common.ProcessorPoolManager;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.db.utility.RetryingTransaction;
 import org.copperengine.core.persistent.AbstractSqlDialect;
 import org.copperengine.core.persistent.DatabaseDialect;
 import org.copperengine.core.persistent.OracleDialect;
+import org.copperengine.core.persistent.PersistentPriorityProcessorPool;
+import org.copperengine.core.persistent.PersistentProcessorPool;
 import org.copperengine.core.persistent.PersistentScottyEngine;
+import org.copperengine.core.persistent.PersistentVirtualProcessorFactory;
 import org.copperengine.core.persistent.lock.PersistentLockManager;
 import org.copperengine.core.persistent.lock.PersistentLockManagerDialectPostgres;
 import org.copperengine.core.persistent.lock.PersistentLockManagerDialectSQL;
@@ -64,12 +68,18 @@ public class PersistentEngineTestContext extends TestContext {
     protected final Supplier<PersistentLockManager> lockManager;
     protected final Supplier<Backchannel> backchannel;
     protected final Supplier<JmxTestAdapter> jmxTestAdapter;
+    private final boolean virtual;
 
     public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB) {
-        this(dataSourceType, cleanDB, "default", false);
+        this(dataSourceType, cleanDB, false);
     }
 
-    public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB, final String engineId, final boolean multiEngineMode) {
+    public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB, final boolean virtual) {
+        this(dataSourceType, cleanDB, "default", false, virtual);
+    }
+
+    public PersistentEngineTestContext(final DataSourceType dataSourceType, final boolean cleanDB, final String engineId, final boolean multiEngineMode, final boolean virtual) {
+        this.virtual = virtual;
         jmxTestAdapter = Suppliers.memoize(new Supplier<JmxTestAdapter>() {
             @Override
             public JmxTestAdapter get() {
@@ -274,6 +284,26 @@ public class PersistentEngineTestContext extends TestContext {
                     }
                 }
                 return x;
+            }
+
+
+            @Override
+            protected ProcessorPoolManager<PersistentProcessorPool> createProcessorPoolManager() {
+                ProcessorPoolManager<PersistentProcessorPool> processorPoolManager = super.createProcessorPoolManager();
+
+                if (virtual) {
+                    processorPoolManager
+                            .getProcessorPoolIds()
+                            .stream()
+                            .map(processorPoolManager::getProcessorPool)
+                            .forEach(ppool ->
+                                    ((PersistentPriorityProcessorPool) ppool)
+                                            .setProcessorFactory(
+                                                    new PersistentVirtualProcessorFactory(transactionController.get()))
+                            );
+                }
+
+                return processorPoolManager;
             }
 
             @Override

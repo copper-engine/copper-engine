@@ -41,7 +41,6 @@ import org.copperengine.regtest.test.DataHolder;
 import org.copperengine.regtest.test.MockAdapter;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
-import org.copperengine.spring.audit.SpringTxnAuditTrail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +78,8 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
     @Override
     public void main() throws Interrupt {
         logger.info("Started!");
+        logger.info("Thread=" + Thread.currentThread());
+
         try {
             // testWaitAllMultiResponseAndTimeout();
 
@@ -104,6 +105,8 @@ public class PersistentUnitTestWorkflow extends PersistentWorkflow<String> {
             logger.error("execution failed", e);
             backChannelQueue.enqueue(new WorkflowResult(null, e));
         }
+        logger.info("Thread=" + Thread.currentThread());
+        logger.info("Finished!");
     }
 
     private String callFoo() throws Interrupt {

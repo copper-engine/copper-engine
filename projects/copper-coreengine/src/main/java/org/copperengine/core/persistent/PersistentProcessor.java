@@ -33,14 +33,18 @@ public class PersistentProcessor extends Processor {
     private final PersistentScottyEngine engine;
     private final TransactionController transactionController;
 
-    public PersistentProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine, TransactionController transactionController) {
-        super(name, queue, prio, engine);
+    public PersistentProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine, TransactionController transactionController, boolean virtual) {
+        super(name, queue, prio, engine, virtual);
         if (engine == null)
             throw new NullPointerException();
         if (transactionController == null)
             throw new NullPointerException();
         this.engine = (PersistentScottyEngine) engine;
         this.transactionController = transactionController;
+    }
+
+    public PersistentProcessor(String name, Queue<Workflow<?>> queue, int prio, ProcessingEngine engine, TransactionController transactionController) {
+        this(name, queue, prio, engine, transactionController, false);
     }
 
     @Override

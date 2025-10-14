@@ -149,7 +149,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
         if (threadPriority != this.threadPriority) {
             logger.info("ProcessorPool " + id + ": Setting new thread priority to " + threadPriority);
             this.threadPriority = threadPriority;
-            for (Thread t : workerThreads) {
+            for (Processor t : workerThreads) {
                 t.setPriority(threadPriority);
             }
         }

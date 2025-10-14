@@ -61,6 +61,11 @@ public class H2PersistentWorkflowTest extends SpringlessBasePersistentWorkflowTe
     }
 
     @Test
+    public void testTimeoutsWithVirtualThreads() throws Exception {
+        super.testTimeouts(DS_CONTEXT, true);
+    }
+
+    @Test
     public void testErrorHandlingInCoreEngine() throws Exception {
         super.testErrorHandlingInCoreEngine(DS_CONTEXT);
     }
@@ -147,12 +152,21 @@ public class H2PersistentWorkflowTest extends SpringlessBasePersistentWorkflowTe
 
     @Test
     public void testDeleteFilteredWorkflowInstance() throws Exception {
-        super.testDeleteFilteredWorkflowInstance(DS_CONTEXT);
+        super.testDeleteFilteredWorkflowInstance(
+                DS_CONTEXT,
+                5_000,
+                10_000
+        );
     }
 
     @Test
     public void testRestartFilteredWorkflowInstance() throws Exception {
-        super.testRestartFilteredWorkflowInstance(DS_CONTEXT);
+        super.testRestartFilteredWorkflowInstance(
+                DS_CONTEXT,
+                5_000,
+                10_000,
+                5_000
+        );
     }
 
     @Test

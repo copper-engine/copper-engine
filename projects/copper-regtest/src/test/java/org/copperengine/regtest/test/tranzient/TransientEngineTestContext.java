@@ -26,6 +26,7 @@ import org.copperengine.core.tranzient.DefaultTimeoutManager;
 import org.copperengine.core.tranzient.TransientPriorityProcessorPool;
 import org.copperengine.core.tranzient.TransientProcessorPool;
 import org.copperengine.core.tranzient.TransientScottyEngine;
+import org.copperengine.core.tranzient.TransientVirtualProcessorFactory;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 
 import com.google.common.base.Supplier;
@@ -40,8 +41,13 @@ public class TransientEngineTestContext extends TestContext {
     protected final Supplier<TransientScottyEngine> engine;
     protected final Supplier<FileBasedWorkflowRepository> repo;
     protected final Supplier<DefaultProcessorPoolManager<TransientProcessorPool>> ppoolManager;
+    private final boolean virtual;
 
     public TransientEngineTestContext() {
+        this(false);
+    }
+    public TransientEngineTestContext(boolean virtual) {
+        this.virtual = virtual;
         ppoolManager = Suppliers.memoize(new Supplier<DefaultProcessorPoolManager<TransientProcessorPool>>() {
             @Override
             public DefaultProcessorPoolManager<TransientProcessorPool> get() {
@@ -94,8 +100,15 @@ public class TransientEngineTestContext extends TestContext {
 
     private DefaultProcessorPoolManager<TransientProcessorPool> createProcessorPoolManager() {
         DefaultProcessorPoolManager<TransientProcessorPool> processorPoolManager = new DefaultProcessorPoolManager<TransientProcessorPool>();
-        processorPoolManager.addProcessorPool(new TransientPriorityProcessorPool(PPOOL_DEFAULT, 4));
-        processorPoolManager.addProcessorPool(new TransientPriorityProcessorPool("PS47112", 4));
+        final TransientPriorityProcessorPool poolDefault = new TransientPriorityProcessorPool(PPOOL_DEFAULT, 4);
+        processorPoolManager.addProcessorPool(poolDefault);
+        final TransientPriorityProcessorPool poolPs47112 = new TransientPriorityProcessorPool("PS47112", 4);
+        processorPoolManager.addProcessorPool(poolPs47112);
+        if (virtual) {
+            final TransientVirtualProcessorFactory processorFactory = new TransientVirtualProcessorFactory();
+            poolDefault.setProcessorFactory(processorFactory);
+            poolPs47112.setProcessorFactory(processorFactory);
+        }
         return processorPoolManager;
     }
 

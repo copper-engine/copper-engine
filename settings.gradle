@@ -1,8 +1,0 @@
-include ":projects:copper-coreengine", 
-":projects:copper-ext", 
-":projects:copper-cassandra:cassandra-storage",
-":projects:copper-cassandra:cassandra-loadtest",
-":projects:copper-jmx-interface", 
-":projects:copper-spring",
-":projects:copper-regtest",
-":projects:copper-performance-test"

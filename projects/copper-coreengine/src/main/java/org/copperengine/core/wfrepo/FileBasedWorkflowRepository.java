@@ -233,6 +233,7 @@ public class FileBasedWorkflowRepository extends AbstractWorkflowRepository impl
                 try {
                     int checkIntervalMSec = repository.checkIntervalMSec;
                     repository = null;
+                    logger.debug("Break observation for {} milliseconds", checkIntervalMSec);
                     Thread.sleep(checkIntervalMSec);
                     repository = this.repository.get();
                     if (repository == null)
