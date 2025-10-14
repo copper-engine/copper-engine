@@ -1,23 +1,38 @@
 plugins {
     id("com.github.ben-manes.versions") version "0.51.0"
     id("com.github.hierynomus.license-base") version "0.16.1"
+    id("com.gradleup.nmcp") version "1.2.0"
+    id("com.gradleup.nmcp.aggregation") version "1.2.0"
     `maven-publish`
     `java-library`
     signing
+}
 
+nmcpAggregation {
+    centralPortal {
+        username = project.findProperty("SONA_TOKEN_USERNAME")?.toString() ?: ""
+        password = project.findProperty("SONA_TOKEN_PASSWORD")?.toString() ?: ""
+        publishingType = "USER_MANAGED"
+    }
+}
+dependencies {
+    nmcpAggregation(project(":projects:copper-coreengine"))
+    nmcpAggregation(project(":projects:copper-ext"))
+    nmcpAggregation(project(":projects:copper-jmx-interface"))
+    nmcpAggregation(project(":projects:copper-regtest"))
 }
 
 subprojects {
     apply(plugin = "java-library")
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
+    apply(plugin = "com.gradleup.nmcp")
 
     group = "org.copper-engine"
 
     repositories {
         mavenCentral()
     }
-
 
     java {
         sourceCompatibility = JavaVersion.VERSION_25
@@ -50,7 +65,13 @@ subprojects {
         setIgnoreFailures(true)
     }
 
-    apply(plugin = "signing")
+    signing {
+        val signingKeyId = project.findProperty("SIGNING_KEY_ID")?.toString() ?: ""
+        val signingKey = project.findProperty("SECRING_HEX")?.toString() ?: ""
+        val signingPassword = project.findProperty("SIGNING_PASSWORD")?.toString() ?: ""
+        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    }
+
     publishing {
         publications {
             signing.sign(
@@ -85,24 +106,6 @@ subprojects {
                     }
                 }
             )
-        }
-    }
-
-    publishing {
-        repositories {
-            maven {
-                credentials {
-                    username = project.findProperty("SONA_TOKEN_USERNAME")?.toString() ?: ""
-                    password = project.findProperty("SONA_TOKEN_PASSWORD")?.toString() ?: ""
-                }
-                url = uri(
-                    if (version.toString().endsWith("-SNAPSHOT")) {
-                        "https://oss.sonatype.org/content/repositories/snapshots/"
-                    } else {
-                        "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-                    }
-                )
-            }
         }
     }
 
