@@ -20,11 +20,13 @@ import org.copperengine.core.persistent.lock.PersistentLockManagerDialectPostgre
 import org.copperengine.regtest.persistent.DataSourceFactory;
 import org.copperengine.regtest.test.persistent.DataSourceType;
 import org.copperengine.regtest.test.persistent.PersistentEngineTestContext;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+
+import org.junit.jupiter.api.Test;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class PersistentLockManagerDialectPostgresTest extends AbstractPersistentLockManagerDialectTest {
 
@@ -50,8 +52,8 @@ public class PersistentLockManagerDialectPostgresTest extends AbstractPersistent
 
     @Test
     public void testSupportsMultipleInstances() {
-        Assume.assumeFalse(skipTests());
-        Assert.assertFalse(createImplementation().supportsMultipleInstances());
+        assumeFalse(skipTests());
+        Assertions.assertFalse(createImplementation().supportsMultipleInstances());
     }
 
 }

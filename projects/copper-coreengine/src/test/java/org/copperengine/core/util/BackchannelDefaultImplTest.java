@@ -17,8 +17,8 @@ package org.copperengine.core.util;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class BackchannelDefaultImplTest {
         BackchannelDefaultImpl channel = new BackchannelDefaultImpl();
         channel.notify(correlationId, payload);
         final Object response = channel.wait(correlationId, 1000, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(payload, response);
+        Assertions.assertEquals(payload, response);
     }
 
     @Test
@@ -51,6 +51,6 @@ public class BackchannelDefaultImplTest {
             };
         }.start();
         final Object response = channel.wait(correlationId, 1000, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(payload, response);
+        Assertions.assertEquals(payload, response);
     }
 }

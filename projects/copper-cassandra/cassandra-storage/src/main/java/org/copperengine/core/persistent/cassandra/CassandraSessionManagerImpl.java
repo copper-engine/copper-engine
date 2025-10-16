@@ -17,7 +17,6 @@ package org.copperengine.core.persistent.cassandra;
 
 import java.util.Collection;
 
-import org.apache.commons.lang.NullArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +39,9 @@ public class CassandraSessionManagerImpl implements CassandraSessionManager {
 
     public CassandraSessionManagerImpl(Collection<String> hosts, Integer port, String keyspace) {
         if (hosts == null || hosts.isEmpty())
-            throw new NullArgumentException("hosts");
+            throw new IllegalArgumentException("hosts");
         if (keyspace == null || keyspace.isEmpty())
-            throw new NullArgumentException("keyspace");
+            throw new IllegalArgumentException("keyspace");
         this.hosts = hosts;
         this.port = port;
         this.keyspace = keyspace;

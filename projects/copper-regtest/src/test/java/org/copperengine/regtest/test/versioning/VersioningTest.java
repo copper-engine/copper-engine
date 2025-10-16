@@ -15,14 +15,14 @@
  */
 package org.copperengine.regtest.test.versioning;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.copperengine.core.EngineState;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.WorkflowVersion;
 import org.copperengine.regtest.test.tranzient.TransientEngineTestContext;
 import org.copperengine.core.util.BlockingResponseReceiver;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class VersioningTest {
 

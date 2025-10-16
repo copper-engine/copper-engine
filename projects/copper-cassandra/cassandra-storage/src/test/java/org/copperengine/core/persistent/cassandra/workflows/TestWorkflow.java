@@ -16,8 +16,6 @@
 
 package org.copperengine.core.persistent.cassandra.workflows;
 
-import java.util.concurrent.TimeUnit;
-
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
@@ -26,9 +24,11 @@ import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.core.persistent.cassandra.DummyResponseSender;
 import org.copperengine.core.persistent.cassandra.TestData;
 import org.copperengine.core.util.Backchannel;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 public class TestWorkflow extends PersistentWorkflow<TestData> {
 
@@ -95,17 +95,17 @@ public class TestWorkflow extends PersistentWorkflow<TestData> {
 
     private void checkResponse(final String cid) {
         Response<String> r = getAndRemoveResponse(cid);
-        Assert.assertNotNull("Response is null for wfid=" + getId() + " and cid=" + cid, r);
-        Assert.assertEquals("Unexpected response for  wfid=" + getId() + " and cid=" + cid, "foo" + cid, r.getResponse());
+        Assertions.assertNotNull(r, "Response is null for wfid=" + getId() + " and cid=" + cid);
+        Assertions.assertEquals(r.getResponse(), "Unexpected response for  wfid=" + getId() + " and cid=" + cid, "foo" + cid);
     }
 
     private void timeoutResponse() throws Interrupt {
         final String cid = getEngine().createUUID();
         wait(WaitMode.ALL, 100, cid);
         Response<String> r = getAndRemoveResponse(cid);
-        Assert.assertNotNull(r);
-        Assert.assertNull(r.getResponse());
-        Assert.assertTrue(r.isTimeout());
+        Assertions.assertNotNull(r);
+        Assertions.assertNull(r.getResponse());
+        Assertions.assertTrue(r.isTimeout());
     }
 
     private void delayedMultiResponse() throws Interrupt {

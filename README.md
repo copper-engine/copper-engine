@@ -24,10 +24,6 @@ If you want to build all and run all tests, just execute:
 
     ./gradlew build
 
-To generate Eclipse project files, run:
-
-    ./gradlew eclipse
-
 once in the projects root directory and open the corresponding projects with the eclipse IDE. (You must perform this step every time the project dependencies change).
 
 
@@ -47,22 +43,6 @@ How to contribute
 8. Create a pull request on GtHub.
 
 **Have fun!**
-
-
-How to configure your IDE
--------------------------
-
-### Eclipse
-
-Run `./gradlew eclipse` once. This will create Eclipse project files which you can import. This also creates proper code style settings. Before committing you should always reformat the code. You can configure Eclipse to do this automatically on each save.
-
-Every time a dependency changes in `build.gradle` you must run `./gradlew eclipse` again. You don't need to restart Eclipse for this, simply press F5 on the projects.
-
-### IntelliJ IDEA
-
-Before you open the project in IntelliJ for the first time, run `./gradlew assemble` once. This also creates proper code style settings, which IntelliJ automatically picks up. After that open `build.gradle`  with "File->Open" and follow the instructions, accept the defaults.
-
-Before committing you should always reformat the code. You can configure IntelliJ to do this automatically on each commit.
 
 
 Performance Test

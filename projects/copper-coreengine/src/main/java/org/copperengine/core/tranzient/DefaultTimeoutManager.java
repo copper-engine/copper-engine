@@ -124,7 +124,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 
     @Override
     public void registerTimeout(long _timeoutTS, String correlationId) {
-        Long timeoutTS = new Long(processSlot(_timeoutTS));
+        long timeoutTS = processSlot(_timeoutTS);
         if (logger.isDebugEnabled()) {
             long currentTime = System.currentTimeMillis();
             logger.debug("currentTime=" + currentTime);
@@ -134,9 +134,9 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
         synchronized (slots) {
             TimeoutSlot timeoutSlot = (TimeoutSlot) slots.get(timeoutTS);
             if (timeoutSlot == null) {
-                timeoutSlot = new TimeoutSlot(timeoutTS.longValue());
+                timeoutSlot = new TimeoutSlot(timeoutTS);
                 slots.put(timeoutTS, timeoutSlot);
-                if (nextWakeupTime > timeoutTS.longValue() || nextWakeupTime == 0L)
+                if (nextWakeupTime > timeoutTS || nextWakeupTime == 0L)
                     slots.notify();
             }
             timeoutSlot.getCorrelationIds().add(correlationId);
@@ -145,7 +145,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 
     @Override
     public void registerTimeout(long _timeoutTS, List<String> correlationIds) {
-        Long timeoutTS = new Long(processSlot(_timeoutTS));
+        long timeoutTS = processSlot(_timeoutTS);
         if (logger.isDebugEnabled()) {
             long currentTime = System.currentTimeMillis();
             logger.debug("currentTime=" + currentTime);
@@ -155,9 +155,9 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
         synchronized (slots) {
             TimeoutSlot timeoutSlot = (TimeoutSlot) slots.get(timeoutTS);
             if (timeoutSlot == null) {
-                timeoutSlot = new TimeoutSlot(timeoutTS.longValue());
+                timeoutSlot = new TimeoutSlot(timeoutTS);
                 slots.put(timeoutTS, timeoutSlot);
-                if (nextWakeupTime > timeoutTS.longValue() || nextWakeupTime == 0L)
+                if (nextWakeupTime > timeoutTS || nextWakeupTime == 0L)
                     slots.notify();
             }
             timeoutSlot.getCorrelationIds().addAll(correlationIds);
@@ -171,7 +171,7 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 
     @Override
     public void unregisterTimeout(long _timeoutTS, String correlationId) {
-        final Long timeoutTS = Long.valueOf(processSlot(_timeoutTS));
+        final Long timeoutTS = processSlot(_timeoutTS);
         synchronized (slots) {
             TimeoutSlot timeoutSlot = (TimeoutSlot) slots.get(timeoutTS);
             if (timeoutSlot != null) {
@@ -185,9 +185,9 @@ public final class DefaultTimeoutManager extends Thread implements TimeoutManage
 
     @Override
     public void unregisterTimeout(long _timeoutTS, List<String> correlationIds) {
-        final Long timeoutTS = Long.valueOf(processSlot(_timeoutTS));
+        final Long timeoutTS = processSlot(_timeoutTS);
         synchronized (slots) {
-            TimeoutSlot timeoutSlot = (TimeoutSlot) slots.get(timeoutTS);
+            TimeoutSlot timeoutSlot = slots.get(timeoutTS);
             if (timeoutSlot != null) {
                 timeoutSlot.getCorrelationIds().removeAll(correlationIds);
                 if (timeoutSlot.getCorrelationIds().isEmpty()) {

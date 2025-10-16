@@ -19,16 +19,15 @@ package org.copperengine.ext.wfrepo.classpath;
 import java.io.File;
 import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.tranzient.TransientEngineFactory;
 import org.copperengine.core.tranzient.TransientScottyEngine;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 
 public class ClasspathWorkflowRepositoryTest {
 
@@ -38,8 +37,8 @@ public class ClasspathWorkflowRepositoryTest {
     public void testFindWorkflowClasses() throws Exception {
         assumeTrue(System.getProperty("jdk.module.path", "").isBlank());
         Set<Class<?>> set = ClasspathWorkflowRepository.findWorkflowClasses(Collections.singletonList(TESTWORKFLOWS_PACKAGE), Thread.currentThread().getContextClassLoader());
-        Assert.assertEquals(5, set.size());
-        Assert.assertNotNull(set.contains(Class.forName("org.copperengine.ext.wfrepo.classpath.testworkflows.TestWorkflowThree")));
+        Assertions.assertEquals(5, set.size());
+        Assertions.assertNotNull(set.contains(Class.forName("org.copperengine.ext.wfrepo.classpath.testworkflows.TestWorkflowThree")));
     }
 
     @Test

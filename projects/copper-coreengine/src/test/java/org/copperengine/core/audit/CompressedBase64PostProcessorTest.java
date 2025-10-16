@@ -15,11 +15,9 @@
  */
 package org.copperengine.core.audit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CompressedBase64PostProcessorTest {
 
@@ -38,17 +36,17 @@ public class CompressedBase64PostProcessorTest {
         compressor.deserialize(null);
 
         String nullSerialization = compressor.serialize(null);
-        assertNull("Serialized null must be null.", nullSerialization);
+        assertNull(nullSerialization, "Serialized null must be null.");
         String nullDeserialization = compressor.deserialize(nullSerialization);
-        assertNull("Deserialized repsesentation of null must be null again.", nullDeserialization);
+        assertNull(nullDeserialization, "Deserialized repsesentation of null must be null again.");
     }
 
     private void simpleTest(String msg) {
         CompressedBase64PostProcessor compressor = new CompressedBase64PostProcessor();
         String nmsgSerialization = compressor.serialize(msg);
-        assertNotNull("Serialized '" + msg + "' must not be null.", nmsgSerialization);
+        assertNotNull(nmsgSerialization, "Serialized '" + msg + "' must not be null.");
         String msgDeserialization = compressor.deserialize(nmsgSerialization);
-        assertEquals("Deserialized repsesentation of '" + msgDeserialization + "' must be '" + msg + "' again.", msg, msgDeserialization);
+        assertEquals(msg, msgDeserialization, "Deserialized repsesentation of '" + msgDeserialization + "' must be '" + msg + "' again.");
     }
 
 }

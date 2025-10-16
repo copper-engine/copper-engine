@@ -18,6 +18,7 @@ package org.copperengine.core.persistent.cassandra;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -31,7 +32,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.NullArgumentException;
 import org.copperengine.core.CopperRuntimeException;
 import org.copperengine.core.ProcessingState;
 import org.copperengine.core.WaitMode;
@@ -89,8 +89,8 @@ public class CassandraStorage implements Storage {
     private final ConsistencyLevel consistencyLevel;
     private final RuntimeStatisticsCollector runtimeStatisticsCollector;
     private final RetryPolicy alwaysRetry = new LoggingRetryPolicy(new AlwaysRetryPolicy());
-    private int ttlEarlyResponseSeconds = 1 * 24 * 60 * 60; // one day
-    private int initializationTimeoutSeconds = 1 * 24 * 60 * 60; // one day
+    private long ttlEarlyResponseSeconds = Duration.ofDays(1).toSeconds(); // one day
+    private long initializationTimeoutSeconds = Duration.ofDays(1).toSeconds(); // one day
     private boolean createSchemaOnStartup = true;
 
     public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor, final RuntimeStatisticsCollector runtimeStatisticsCollector) {
@@ -100,16 +100,16 @@ public class CassandraStorage implements Storage {
 
     public CassandraStorage(final CassandraSessionManager sessionManager, final Executor executor, final RuntimeStatisticsCollector runtimeStatisticsCollector, final ConsistencyLevel consistencyLevel) {
         if (sessionManager == null)
-            throw new NullArgumentException("sessionManager");
+            throw new IllegalArgumentException("sessionManager");
 
         if (consistencyLevel == null)
-            throw new NullArgumentException("consistencyLevel");
+            throw new IllegalArgumentException("consistencyLevel");
 
         if (executor == null)
-            throw new NullArgumentException("executor");
+            throw new IllegalArgumentException("executor");
 
         if (runtimeStatisticsCollector == null)
-            throw new NullArgumentException("runtimeStatisticsCollector");
+            throw new IllegalArgumentException("runtimeStatisticsCollector");
 
         this.executor = executor;
         this.consistencyLevel = consistencyLevel;

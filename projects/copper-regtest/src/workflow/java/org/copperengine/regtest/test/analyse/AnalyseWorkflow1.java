@@ -20,7 +20,7 @@ import org.copperengine.regtest.test.backchannel.WorkflowResult;
 
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.copperengine.core.AutoWire;
 

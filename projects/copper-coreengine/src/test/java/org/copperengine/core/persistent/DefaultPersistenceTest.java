@@ -29,8 +29,9 @@ import org.copperengine.core.instrument.Transformed;
 import org.copperengine.core.persistent.DefaultPersistenceTest.WorkLogEntry.Type;
 import org.copperengine.core.persistent.DefaultPersistenceWorker.OperationType;
 import org.copperengine.core.persistent.DefaultPersistenceWorker.WorkflowAndEntity;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 
 public class DefaultPersistenceTest {
 
@@ -63,7 +64,7 @@ public class DefaultPersistenceTest {
 
         public DefaultPersistenceWorker<E, T> createSelectionWorker() {
             if (selectionWorkerCreated)
-                Assert.fail("more than one selection worker created");
+                Assertions.fail("more than one selection worker created");
             selectionWorkerCreated = true;
             return new DefaultPersistenceWorker<E, T>(OperationType.SELECT) {
                 @Override
@@ -73,7 +74,7 @@ public class DefaultPersistenceTest {
                         throws SQLException {
                     workLog.add(new WorkLogEntry<E>(WorkLogEntry.Type.SELECT, theWork));
                     for (WorkflowAndEntity<E> en : theWork) {
-                        Assert.assertSame(expectedWorkflow, en.workflow);
+                        Assertions.assertSame(expectedWorkflow, en.workflow);
                         en.callback.entitySelected(en.entity);
                     }
                 }
@@ -85,7 +86,7 @@ public class DefaultPersistenceTest {
 
         public DefaultPersistenceWorker<E, T> createInsertionWorker() {
             if (insertionWorkerCreated)
-                Assert.fail("more than one insertion worker created");
+                Assertions.fail("more than one insertion worker created");
             insertionWorkerCreated = true;
             return new DefaultPersistenceWorker<E, T>(OperationType.INSERT) {
                 @Override
@@ -95,7 +96,7 @@ public class DefaultPersistenceTest {
                         throws SQLException {
                     workLog.add(new WorkLogEntry<E>(WorkLogEntry.Type.INSERT, theWork));
                     for (WorkflowAndEntity<E> en : theWork) {
-                        Assert.assertSame(expectedWorkflow, en.workflow);
+                        Assertions.assertSame(expectedWorkflow, en.workflow);
                     }
                 }
 
@@ -106,7 +107,7 @@ public class DefaultPersistenceTest {
 
         public DefaultPersistenceWorker<E, T> createUpdateWorker() {
             if (updateWorkerCreated)
-                Assert.fail("more than one update worker created");
+                Assertions.fail("more than one update worker created");
             updateWorkerCreated = true;
             return new DefaultPersistenceWorker<E, T>(OperationType.UPDATE) {
                 @Override
@@ -116,7 +117,7 @@ public class DefaultPersistenceTest {
                         throws SQLException {
                     workLog.add(new WorkLogEntry<E>(WorkLogEntry.Type.UPDATE, theWork));
                     for (WorkflowAndEntity<E> en : theWork) {
-                        Assert.assertSame(expectedWorkflow, en.workflow);
+                        Assertions.assertSame(expectedWorkflow, en.workflow);
                     }
                 }
 
@@ -127,7 +128,7 @@ public class DefaultPersistenceTest {
 
         public DefaultPersistenceWorker<E, T> createDeletionWorker() {
             if (deletionWorkerCreated)
-                Assert.fail("more than one Deletion worker created");
+                Assertions.fail("more than one Deletion worker created");
             deletionWorkerCreated = true;
             return new DefaultPersistenceWorker<E, T>(OperationType.DELETE) {
                 @Override
@@ -137,7 +138,7 @@ public class DefaultPersistenceTest {
                         throws SQLException {
                     workLog.add(new WorkLogEntry<E>(WorkLogEntry.Type.DELETE, theWork));
                     for (WorkflowAndEntity<E> en : theWork) {
-                        Assert.assertSame(expectedWorkflow, en.workflow);
+                        Assertions.assertSame(expectedWorkflow, en.workflow);
                     }
                 }
 
@@ -300,7 +301,7 @@ public class DefaultPersistenceTest {
 
                 @Override
                 public void entityNotFound(MasterEntity e) {
-                    Assert.fail("Entity " + e + " not found");
+                    Assertions.fail("Entity " + e + " not found");
                 }
             });
             masterEntityPersister.insert(data.insertedMaster);
@@ -314,7 +315,7 @@ public class DefaultPersistenceTest {
 
                 @Override
                 public void entityNotFound(ChildEntity e) {
-                    Assert.fail("Entity " + e + " not found");
+                    Assertions.fail("Entity " + e + " not found");
                 }
             });
             childEntityPersister.insert(data.insertedChild);
@@ -339,7 +340,7 @@ public class DefaultPersistenceTest {
             plugin.onWorkflowsDeleted(null, Arrays.<PersistentWorkflow<?>>asList(expectedWorkflow, expectedWorkflow));
             checkOrder(work, onDelete);
         } catch (SQLException e) {
-            Assert.fail();
+            Assertions.fail();
         }
         expectedWorkflow = new TestWorkflow();
         masterPersisterFactory.deletionWorkerCreated = false;
@@ -355,7 +356,7 @@ public class DefaultPersistenceTest {
             plugin.onWorkflowsSaved(null, Arrays.<PersistentWorkflow<?>>asList(expectedWorkflow, expectedWorkflow));
             checkOrder(work, onSave);
         } catch (SQLException e) {
-            Assert.fail();
+            Assertions.fail();
         }
         expectedWorkflow = new TestWorkflow();
         masterPersisterFactory.deletionWorkerCreated = false;
@@ -371,16 +372,16 @@ public class DefaultPersistenceTest {
             plugin.onWorkflowsLoaded(null, Arrays.<PersistentWorkflow<?>>asList(expectedWorkflow, expectedWorkflow));
             checkOrder(work, onLoad);
         } catch (SQLException e) {
-            Assert.fail();
+            Assertions.fail();
         }
 
     }
 
     private void checkOrder(ArrayList<WorkLogEntry<?>> work,
             DefaultPersistenceTestData data) {
-        Assert.assertEquals(8, work.size());
-        Assert.assertSame(data.selectedChild, data.selectedChildResult);
-        Assert.assertSame(data.selectedMaster, data.selectedMasterResult);
+        Assertions.assertEquals(8, work.size());
+        Assertions.assertSame(data.selectedChild, data.selectedChildResult);
+        Assertions.assertSame(data.selectedMaster, data.selectedMasterResult);
         assertData(work.get(0), WorkLogEntry.Type.INSERT, data.insertedMaster);
         assertData(work.get(1), WorkLogEntry.Type.INSERT, data.insertedChild);
         assertData(work.get(2), WorkLogEntry.Type.UPDATE, data.updatedMaster);
@@ -393,16 +394,16 @@ public class DefaultPersistenceTest {
     }
 
     private void assertData(WorkLogEntry<?> workLogEntry, Type type, Object expectedEntity) {
-        Assert.assertEquals(2, workLogEntry.entities.size());
+        Assertions.assertEquals(2, workLogEntry.entities.size());
         for (int i = 0; i < 2; ++i) {
-            Assert.assertSame(expectedEntity, workLogEntry.entities.get(i).entity);
+            Assertions.assertSame(expectedEntity, workLogEntry.entities.get(i).entity);
             if (type == Type.SELECT)
-                Assert.assertNotNull(workLogEntry.entities.get(i).callback);
+                Assertions.assertNotNull(workLogEntry.entities.get(i).callback);
             else
-                Assert.assertNull(workLogEntry.entities.get(i).callback);
-            Assert.assertSame(expectedWorkflow, workLogEntry.entities.get(i).workflow);
+                Assertions.assertNull(workLogEntry.entities.get(i).callback);
+            Assertions.assertSame(expectedWorkflow, workLogEntry.entities.get(i).workflow);
         }
-        Assert.assertSame(type, workLogEntry.type);
+        Assertions.assertSame(type, workLogEntry.type);
     }
 
     @Test
@@ -415,7 +416,7 @@ public class DefaultPersistenceTest {
         configurationBuilder.addPersisterFactory(childPersisterFactory);
         try {
             configurationBuilder.compile();
-            Assert.fail("Expected failure due to cycle in configuration");
+            Assertions.fail("Expected failure due to cycle in configuration");
         } catch (Exception e) {
             // ok
         }

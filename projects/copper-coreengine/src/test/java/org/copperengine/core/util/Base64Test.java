@@ -15,33 +15,23 @@
  */
 package org.copperengine.core.util;
 
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertArrayEquals;
+import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-@RunWith(Parameterized.class)
 public class Base64Test {
-
-    @Parameterized.Parameter
-    public int length;
-
-    @Parameterized.Parameters(name = "length={0}")
-    public static Collection<Object[]> data() {
-        return asList(new Object[][] { { 0 }, { 1 }, { 2 }, { 3 }, { 1000000 } });
-    }
 
     @Test
     public void testEncodeThenDecode() {
-        byte[] data = createRandomData(length);
-        String s = Base64.encode(data);
-        byte[] result = Base64.decode(s);
-        assertArrayEquals(data, result);
+        for(int length : List.of(0 , 1 ,  2,  3,  1000000)) {
+            byte[] data = createRandomData(length);
+            String s = Base64.encode(data);
+            byte[] result = Base64.decode(s);
+            assertArrayEquals(data, result);
+        }
     }
 
     private byte[] createRandomData(int length) {

@@ -15,8 +15,8 @@
  */
 package org.copperengine.regtest.persistent;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.copperengine.core.Workflow;
 import org.copperengine.core.WorkflowFactory;
@@ -25,7 +25,7 @@ import org.copperengine.core.persistent.SerializedWorkflow;
 import org.copperengine.core.persistent.Serializer;
 import org.copperengine.core.persistent.StandardJavaSerializer;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StandardJavaSerializerTest {
 

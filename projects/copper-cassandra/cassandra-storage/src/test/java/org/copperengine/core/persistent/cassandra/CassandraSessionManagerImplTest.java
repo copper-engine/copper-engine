@@ -17,14 +17,14 @@ package org.copperengine.core.persistent.cassandra;
 
 import java.util.Collections;
 
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 public class CassandraSessionManagerImplTest extends CassandraTest {
 
     @Test()
     public void test() {
-        Assume.assumeTrue(factory != null);
+        Assumptions.assumeTrue(factory != null);
         CassandraSessionManagerImpl cassandraSessionManagerImpl = new CassandraSessionManagerImpl(Collections.singletonList("localhost"), CassandraTest.CASSANDRA_PORT, "copper");
         cassandraSessionManagerImpl.startup();
         cassandraSessionManagerImpl.shutdown();

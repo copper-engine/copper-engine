@@ -15,29 +15,33 @@
  */
 package org.copperengine.regtest.wfrepo;
 
-import java.util.List;
-
 import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 import org.copperengine.management.model.WorkflowClassInfo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FileBasedWorkflowRepositoryTest {
 
     private static final Logger logger = LoggerFactory.getLogger(FileBasedWorkflowRepositoryTest.class);
 
-    @Test(expected = ClassNotFoundException.class)
+    @Test
     public void testCreateWorkflowFactory_ClassNotFound() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
         repo.addSourceDir("src/workflow/java");
         repo.setTargetDir("build/compiled_workflow");
         repo.start();
         try {
-            WorkflowFactory<Object> factory = repo.createWorkflowFactory("foo");
-            factory.newInstance();
+            assertThrows(ClassNotFoundException.class, () -> {
+                WorkflowFactory<Object> factory = repo.createWorkflowFactory("foo");
+                factory.newInstance();
+            });
         } finally {
             repo.shutdown();
         }
@@ -53,20 +57,20 @@ public class FileBasedWorkflowRepositoryTest {
         try {
             List<WorkflowClassInfo> wfClassInfos = repo.getWorkflows();
             logger.info("wfClassInfos.size={}", wfClassInfos.size());
-            Assert.assertTrue(wfClassInfos.size() >= 54);
+            Assertions.assertTrue(wfClassInfos.size() >= 54);
             boolean checked = false;
             for (WorkflowClassInfo wfi : wfClassInfos) {
                 if (wfi.getClassname().equals("org.copperengine.regtest.test.versioning.VersionTestWorkflow_9_1_1")) {
-                    Assert.assertEquals("VersionTestWorkflow", wfi.getAlias());
-                    Assert.assertEquals(9L, wfi.getMajorVersion().longValue());
-                    Assert.assertEquals(1L, wfi.getMinorVersion().longValue());
-                    Assert.assertEquals(1L, wfi.getPatchLevel().longValue());
-                    Assert.assertNotNull(wfi.getSourceCode());
+                    Assertions.assertEquals("VersionTestWorkflow", wfi.getAlias());
+                    Assertions.assertEquals(9L, wfi.getMajorVersion().longValue());
+                    Assertions.assertEquals(1L, wfi.getMinorVersion().longValue());
+                    Assertions.assertEquals(1L, wfi.getPatchLevel().longValue());
+                    Assertions.assertNotNull(wfi.getSourceCode());
                     checked = true;
                     break;
                 }
             }
-            Assert.assertTrue(checked);
+            Assertions.assertTrue(checked);
         } finally {
             repo.shutdown();
         }

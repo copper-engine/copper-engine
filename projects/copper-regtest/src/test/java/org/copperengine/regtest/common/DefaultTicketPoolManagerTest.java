@@ -15,13 +15,13 @@
  */
 package org.copperengine.regtest.common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.copperengine.core.Workflow;
 import org.copperengine.core.common.DefaultTicketPoolManager;
 import org.copperengine.core.common.TicketPool;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DefaultTicketPoolManagerTest {
 

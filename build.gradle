@@ -1,49 +1,45 @@
-import groovy.xml.QName
-
 import java.nio.charset.StandardCharsets
 
 buildscript {
     repositories {
-        gradlePluginPortal() // needed for gradle-nexus-plugin
-        mavenCentral() // needed for nexus-workflow plugin
-        maven { // needed for license-gradle-plugin
-	      url "https://plugins.gradle.org/m2/"
-    	}
+        mavenCentral()
     }
-    dependencies {
-        // The nexus plugin makes uploading to Sonatype Nexus repository easier.
-        // See https://github.com/bmuschko/gradle-nexus-plugin for documentation
-        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
-        // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
-        // by providing the task 'nexusStagingRelease'.
-        // See https://github.com/adaptivecomputing/plugins-gradle/tree/master/nexus-workflow
-        // and http://stackoverflow.com/questions/20432907/automated-release-to-maven-central-with-gradle
-        classpath 'com.adaptc.gradle:nexus-workflow:0.6'
-        // the license plugin, see https://github.com/hierynomus/license-gradle-plugin
-        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.0'
-        // the spotbugs plugin, see https://plugins.gradle.org/plugin/com.github.spotbugs
-        // DISABLED: spotbugs is currently not compatible with Gradle 5
-        // classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.8"
+}
+plugins {
+    // the license plugin, see https://github.com/hierynomus/license-gradle-plugin
+    id "com.github.hierynomus.license" version "0.16.1"
+    id "com.github.spotbugs" version "6.4.3"
+    id "com.github.ben-manes.versions" version "0.53.0"
+    id "com.gradleup.nmcp" version "1.2.0"
+    id "com.gradleup.nmcp.aggregation" version "1.2.0"
+}
 
-        // Plugin to create modular jars that target a Java release before 9 (https://github.com/beryx/badass-jar-plugin)
-        classpath "gradle.plugin.org.beryx:badass-jar:1.2.0"
+wrapper {
+    gradleVersion = '9.1.0'
+    distributionType = Wrapper.DistributionType.ALL
+}
 
-        // Plugin for loading project properties from gradle-local.properties
-        classpath "net.saliman:gradle-properties-plugin:1.5.1"
-
-        // OSGI plugin
-        classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:6.4.0"
+apply plugin: 'maven-publish'
+nmcpAggregation {
+    centralPortal {
+        username = project.findProperty("SONA_TOKEN_USERNAME")?.toString() ?: ""
+        password = project.findProperty("SONA_TOKEN_PASSWORD")?.toString() ?: ""
+        publishingType = "USER_MANAGED"
     }
+}
+
+dependencies {
+    nmcpAggregation(project(":projects:copper-cassandra"))
+    nmcpAggregation(project(":projects:copper-coreengine"))
+    nmcpAggregation(project(":projects:copper-ext"))
+    nmcpAggregation(project(":projects:copper-jmx-interface"))
+    nmcpAggregation(project(":projects:copper-performance-test"))
+    nmcpAggregation(project(":projects:copper-regtest"))
+    nmcpAggregation(project(":projects:copper-spring"))
 }
 
 
 allprojects {
-    apply plugin: 'project-report'
-    apply plugin: "net.saliman.properties"
-
-    // DISABLED: spotbugs is currently not compatible with Gradle 5
-//    apply plugin: "com.github.spotbugs"
-
     group = "org.copper-engine"
 
     repositories {
@@ -58,29 +54,30 @@ def getProperSubprojects() {
 }
 
 configure(properSubprojects) {
-    println "configuring java module " + project.path
-
     apply plugin: 'java-library'
-    apply plugin: 'biz.aQute.bnd.builder'
+    apply plugin: "com.github.spotbugs"
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+    apply plugin: "com.gradleup.nmcp"
+    apply plugin: 'com.github.hierynomus.license'
 
-    apply plugin: "org.beryx.jar"
 
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+    }
     compileJava.options.encoding = StandardCharsets.UTF_8
     compileTestJava.options.encoding = StandardCharsets.UTF_8
 
-    apply plugin: 'maven'
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
-    task createSourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
+    tasks.register('createSourcesJar', Jar) {
+        dependsOn classes
+        archiveClassifier = 'sources'
         from sourceSets.main.allSource
     }
 
-    task createJavadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
+    tasks.register('createJavadocJar', Jar) {
+        dependsOn javadoc
+        archiveClassifier = 'javadoc'
+        from javadoc
     }
 
     artifacts {
@@ -88,143 +85,79 @@ configure(properSubprojects) {
         archives createJavadocJar
     }
 
-//    spotbugs {
-//        toolVersion = '3.1.3'
-//        sourceSets = (javaVersion >= 10) ? [] : [project.sourceSets.main]// check only main classes, neither tests nor example workflow classes
-//        excludeFilter = file("$rootDir/common/findbugs-exclude-filter.xml")
-//        effort = "max"
-//        ignoreFailures = true
-//    }
-//
-//    spotbugsMain {
-//        reports {
-//            // Unfortunately FindBugs cannot emit both XML and HTML report simultanously, so by default we emit HTML only.
-//            // We emit XML only when -PfindbugsXmlReportEnabled=true, e.g. during Jenkins build
-//            def findbugsXmlReportEnabled = project.hasProperty('findbugsXmlReportEnabled') && project.property('findbugsXmlReportEnabled')
-//            xml.enabled = findbugsXmlReportEnabled
-//            html.enabled = !findbugsXmlReportEnabled
-//        }
-//    }
-//
-//    spotbugsTest.enabled = false
-
-
-    if (!project.getName().contains('orch-interfaces')) {
-        apply plugin: 'com.github.hierynomus.license'
-        license {
-            // verify that every java file has our Apache License header; fail build if header is missing
-            header file("$rootDir/common/apache-license-file.txt")
-            skipExistingHeaders true
-            ignoreFailures true
-        }
+    license {
+        // verify that every java file has our Apache License header; fail build if header is missing
+        header file("$rootDir/common/apache-license-file.txt")
+        skipExistingHeaders true
+        ignoreFailures true
     }
-
-    apply plugin: 'eclipse'
-    eclipse {
-        classpath {
-            defaultOutputDir = file('build')
-            file {
-                //exclude slf4f log binding from export
-                withXml {
-                    Node root = it.asNode()
-                    NodeList nodeList = root.getAt(new QName('classpathentry'))
-                    nodeList.each { Node classpathentry ->
-                        if (classpathentry.attributes().path.contains('slf4j-log4j12')) {
-                            classpathentry.attributes().remove('exported')
-                        }
-                    }
-                }
-            }
-        }
-        jdt {
-            file {
-                // add our code style settings to every eclipse project
-                withProperties { properties ->
-                    def codestyle = new XmlParser().parse(file("$rootDir/common/eclipse-codestyle.xml"))
-                    codestyle.profile[0].setting.each {
-                        properties.put(it.'@id', it.'@value')
-                    }
-                }
-                whenMerged {
-                    def uiprops = new Properties();
-                    uiprops.put('eclipse.preferences.version', '1')
-                    uiprops.put('formatter_profile', '_SCOOP-CodeStyle')
-                    uiprops.put('formatter_settings_version', '12')
-                    uiprops.store(file("$projectDir/.settings/org.eclipse.jdt.ui.prefs").newWriter(), "generated by build.gradle")
-                }
-            }
-        }
-    }
-    // be sure to always regenerate eclipse files, because default behavior is merging into existing files
-    tasks.eclipse.dependsOn cleanEclipse
-    eclipse.classpath.defaultOutputDir = new File("$buildDir/classes/main")
 
     dependencies {
-
         implementation("com.github.javaparser:javaparser-symbol-solver-core:$javaparserVersion") {
             exclude module: 'javaparser-symbol-solver-model'
         }
 
-        implementation	"org.slf4j:slf4j-api:$slf4jVersion"
-        testImplementation("junit:junit:$junitVersion") {
-            exclude module: 'hamcrest-core'
-        }
+        implementation "org.slf4j:slf4j-api:$slf4jVersion"
+        testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+        testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+        testRuntimeOnly "org.junit.platform:junit-platform-launcher:$junitVersion"
         testImplementation "org.mockito:mockito-core:$mockitoVersion"
         testImplementation "net.bytebuddy:byte-buddy:$byteBuddyVersion"
         testImplementation "org.hamcrest:hamcrest-core:$hamcrestVersion"
         testImplementation "ch.qos.logback:logback-classic:$logbackVersion"
 
-//        spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
     }
 
-    jar {
-        manifest.attributes provider: 'gradle'
-        multiRelease = false
+    jar.doFirst {
+        manifest {
+            attributes("Created-By": 'SCOOP Software GmbH',
+                    "Implementation-Title": "COPPER",
+                    "Implementation-Version": project.findProperty('version'),
+                    "Implementation-Vendor": 'SCOOP Software GmbH',
+                    "Automatic-Module-Name": project.moduleName)
+        }
     }
 
     javadoc {
-        onlyIf { !project.sourceCompatibility.java9Compatible }
         options.encoding = StandardCharsets.UTF_8
         options.addBooleanOption('html5', true)
-        exclude '**/module-info.java'
     }
 
-    if (!project.sourceCompatibility.java9Compatible && project.hasProperty('nexusUsername')) {
-        // the nexus plugin makes uploading to Sonatype Nexus repository easier
-        // see https://github.com/bmuschko/gradle-nexus-plugin for documentation
-        apply plugin: 'com.bmuschko.nexus'
-        nexus {
-            sign = true
-        }
+    spotbugs {
+        toolVersion = '4.8.6'
+        ignoreFailures = true
+    }
 
-        modifyPom {
-            project {
-                name = 'COPPER high-performance workflow engine'
-                packaging = 'jar'
-                description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
-                url 'http://copper-engine.org/'
+    publishing {
 
-                scm {
-                    url 'https://github.com/copper-engine/copper-engine'
-                    connection 'scm:git@github.com:copper-engine/copper-engine.git'
-                }
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                artifact createSourcesJar
+                artifact createJavadocJar
+                pom {
+                    name = 'COPPER high-performance workflow engine'
+                    packaging = 'jar'
+                    description = 'COPPER is an open-source, powerful, light-weight, and easily configurable workflow engine. The power of COPPER is that it uses Java as a description language for workflows.'
+                    url = 'http://copper-engine.org/'
 
-                licenses {
-                    license {
-                        name = 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
+                    scm {
+                        url = 'https://github.com/copper-engine/copper-engine'
+                        connection = 'scm:git@github.com:copper-engine/copper-engine.git'
                     }
-                }
 
-                developers {
-                    developer {
-                        id 'copper-team'
-                        name = 'Copper Engine Development Team'
-                        roles {
-                            role 'architect'
-                            role 'developer'
-                            role 'tester'
+                    licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution = 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = 'copper-team'
+                            name = 'Copper Engine Development Team'
                         }
                     }
                 }
@@ -232,52 +165,24 @@ configure(properSubprojects) {
         }
     }
 
+    signing {
+        sign publishing.publications.mavenJava
+    }
+
     test {
+        useJUnitPlatform()
+        minHeapSize = "128m"
+        maxHeapSize = "4g"
+        ignoreFailures = true
+        jvmArgs += ['--add-opens', 'java.base/java.lang=ALL-UNNAMED']
         testLogging {
             exceptionFormat = 'full'
         }
     }
 }
 
-configure(rootProject) {
-    // The nexus-workflow plugin automates the staging/promotion/release process on Sonatype OSS
-    // by providing the task 'nexusStagingRelease'. We perform "nexusStagingRelease" only if the current
-    // version is not a SNAPSHOT release.
-    apply plugin: 'nexus-workflow'
-    tasks.nexusStagingRelease.onlyIf { !version.endsWith("-SNAPSHOT") }
-
-    // task to create source distribution containing all source files
-    // note: this task won't run automatically; it must be called explicitely
-    task fullSourcesJar(type: Jar) {
-        classifier = 'sources-full'
-        from project.rootDir
-        exclude '**/build/'
-        exclude '**/classes/'
-        exclude '**/generated/'
-        exclude '.gradle/'
-        exclude 'tmp/'
-        exclude '.idea'
-        exclude '**/*.iml'
-        exclude '**/*.log'
-        exclude '**/*.classpath'
-        exclude '**/*.project'
-        exclude '**/*.settings/'
-    }
-
-    // copy Intellij Codestyle settings each time 'gradle assemble' or 'gradle build' is performed on the root project
-    task ideaCodeStyleSetup(type: Copy) {
-        from 'common/intellij-codestyle.xml'
-        into '.idea/'
-        rename '.+', 'codeStyleSettings.xml'
-    }
-    ideaCodeStyleSetup.onlyIf { file(".idea").exists() }
-    assemble.dependsOn ideaCodeStyleSetup
-}
-
-
 project(':projects:copper-jmx-interface') {
     ext.moduleName = 'org.copperengine.management'
-
     dependencies {
     }
 }
@@ -287,18 +192,8 @@ project(':projects:copper-regtest') {
     ext.moduleName = 'org.copperengine.regtest'
 
     sourceSets {
-        workflow {
-            ext.srcDir = "$projectDir/src/workflow/java"
-        }
-    }
-    sourceSets.test.resources.srcDirs += sourceSets.workflow.srcDir
-
-    tasks.testClasses.doLast {
-        if(project.sourceCompatibility.java9Compatible) {
-            copy {
-                from sourceSets.test.resources.srcDirs
-                into "$buildDir/classes/java/test"
-            }
+        test.java {
+            srcDir file('src/workflow/java')
         }
     }
 
@@ -316,7 +211,8 @@ project(':projects:copper-regtest') {
         implementation "com.google.guava:guava:$guavaVersion"
         testRuntimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
 
-        testImplementation 'mysql:mysql-connector-java:5.1.25'
+        testImplementation project(':projects:copper-performance-test')
+        testImplementation "mysql:mysql-connector-java:$mysqlVersion"
         testImplementation "org.apache.derby:derby:$derbyVersion"
         testImplementation "postgresql:postgresql:$postgresqlVersion"
         testImplementation "com.h2database:h2:$h2Version"
@@ -332,7 +228,7 @@ project(':projects:copper-ext') {
     dependencies {
         implementation project(':projects:copper-coreengine')
 
-        implementation	"org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"
+        implementation "org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"
         implementation "org.ow2.asm:asm:$asmVersion"
         implementation "org.ow2.asm:asm-tree:$asmVersion"
         implementation "commons-io:commons-io:$commonsIoVersion"
@@ -351,13 +247,13 @@ project(':projects:copper-cassandra:cassandra-storage') {
         implementation project(':projects:copper-coreengine')
         implementation project(':projects:copper-ext')
 
-        api "com.datastax.cassandra:cassandra-driver-core:$cassandraDriverVersion"
+        api "org.apache.cassandra:cassandra-all:$cassandraAllVersion"
         api "com.google.guava:guava:$guavaVersion"
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
         implementation "org.ow2.asm:asm:$asmVersion"
         implementation "org.ow2.asm:asm-tree:$asmVersion"
         implementation "commons-io:commons-io:$commonsIoVersion"
-        implementation "commons-lang:commons-lang:$commonsLangVersion"
+        implementation "org.apache.commons:commons-lang3:$commonsLangVersion"
         implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
         implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         implementation "org.yaml:snakeyaml:$snakeyamlVersion"
@@ -367,15 +263,18 @@ project(':projects:copper-cassandra:cassandra-storage') {
             exclude module: 'hamcrest-library'
             exclude module: 'cassandra-thrift'
             exclude module: 'high-scale-lib'
+            exclude module: 'junit'
         }
     }
 }
 
 project(':projects:copper-cassandra:cassandra-loadtest') {
-    apply plugin:'application'
+    apply plugin: 'application'
     ext.moduleName = 'org.copperengine.cassandra.loadtest'
 
-    mainClassName = "org.copperengine.core.persistent.cassandra.loadtest.PermanentLoadCreator"
+    application {
+        mainClass = "org.copperengine.core.persistent.cassandra.loadtest.PermanentLoadCreator"
+    }
 
     dependencies {
         implementation project(':projects:copper-coreengine')
@@ -417,7 +316,7 @@ project(':projects:copper-coreengine') {
     dependencies {
         api project(':projects:copper-jmx-interface')
 
-        compile	"org.slf4j:slf4j-api:$slf4jVersion"
+        api "org.slf4j:slf4j-api:$slf4jVersion"
 
         // asm
         implementation "org.ow2.asm:asm:$asmVersion"
@@ -427,8 +326,8 @@ project(':projects:copper-coreengine') {
         implementation "org.ow2.asm:asm-analysis:$asmVersion"
     }
 
-    task scriptsZip(type: Zip) {
-        classifier = 'scripts'
+    tasks.register('scriptsZip', Zip) {
+        archiveClassifier = 'scripts'
         from file("src/main/database")
         into 'scripts/sql'
     }
@@ -437,10 +336,6 @@ project(':projects:copper-coreengine') {
     artifacts {
         archives scriptsZip
     }
-}
-
-subprojects {
-    task allDeps(type: DependencyReportTask) {}
 }
 
 project(':projects:copper-performance-test') {
@@ -463,24 +358,21 @@ project(':projects:copper-performance-test') {
         runtimeOnly fileTree(dir: "$rootDir/3rdPartyLibs", include: '*.jar')
     }
 
-	jar {
-        dependsOn ':projects:copper-coreengine:jar', ':projects:copper-ext:jar', ':projects:copper-cassandra:cassandra-storage:jar'
-	    manifest.attributes provider: 'gradle'
+    jar {
+        dependsOn ':projects:copper-coreengine:jar', ':projects:copper-ext:jar', ':projects:copper-cassandra:cassandra-storage:jar', ':projects:copper-jmx-interface:jar'
+        manifest.attributes provider: 'gradle'
 
-	    archiveName = "copper-performance-test.jar"
-
-	    from {
-            configurations.runtime.collect {
+        //name = "copper-performance-test.jar"
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from {
+            configurations.runtimeClasspath.collect {
                 it.isDirectory() ? it : zipTree(it)
             }
-            configurations.compile.collect {
-                it.isDirectory() ? it : zipTree(it)
-            }
-	    }
+        }
 
-	    manifest {
-		    attributes 'Main-Class': 'org.copperengine.performancetest.main.Main'
-	    }
+        manifest {
+            attributes 'Main-Class': 'org.copperengine.performancetest.main.Main'
+        }
 
-	}
+    }
 }

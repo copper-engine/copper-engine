@@ -25,11 +25,11 @@ import org.copperengine.core.WorkflowFactory;
 import org.copperengine.core.common.WorkflowRepository;
 import org.copperengine.core.persistent.SerializedWorkflow;
 import org.copperengine.core.persistent.Serializer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CompatibilityCheckTest {
 
@@ -60,7 +60,7 @@ public class CompatibilityCheckTest {
             doTest(repo, engine, "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_E006", false, true);
             doTest(repo, engine, "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_E007", false, true);
             Exception exception = doTest(repo, engine, "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_Base", "org.copperengine.regtest.test.versioning.compatibility.CompatibilityCheckWorkflow_E008", false, true);
-            assertTrue("UnexpectedValueException expected as result.", exception instanceof UnexpectedValueException);
+            assertTrue(exception instanceof UnexpectedValueException, "UnexpectedValueException expected as result.");
 
             doTest(repo, engine, "org.copperengine.regtest.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_Base", "org.copperengine.regtest.test.versioning.compatibility.check2.CompatibilityCheckWorkflow_E101", false, true);
         } catch (Exception e) {

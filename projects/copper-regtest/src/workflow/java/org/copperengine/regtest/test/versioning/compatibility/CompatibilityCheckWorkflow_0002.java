@@ -15,7 +15,7 @@
  */
 package org.copperengine.regtest.test.versioning.compatibility;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;

@@ -31,13 +31,14 @@ import org.copperengine.core.persistent.txn.CopperTransactionController;
 import org.copperengine.regtest.persistent.DataSourceFactory;
 import org.copperengine.regtest.test.persistent.DataSourceType;
 import org.copperengine.regtest.test.persistent.PersistentEngineTestContext;
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class PersistentLockManagerImplTest {
 
@@ -52,7 +53,7 @@ public class PersistentLockManagerImplTest {
 
     private static ComboPooledDataSource dataSource;
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         if (dataSource != null) {
             dataSource.close();
@@ -66,7 +67,7 @@ public class PersistentLockManagerImplTest {
         return c;
     }
 
-    @Before
+    @BeforeEach
     public void beforeTest() throws Exception {
         if (skipTests())
             return;
@@ -88,7 +89,7 @@ public class PersistentLockManagerImplTest {
 
     @Test
     public void testAcquireLock() throws Exception {
-        Assume.assumeFalse(skipTests() || dataSource == null);
+        assumeFalse(skipTests() || dataSource == null);
 
         final String LOCK_ID = "LOCK";
         final PersistentProcessingEngine engine = Mockito.mock(PersistentProcessingEngine.class);

@@ -15,7 +15,6 @@
  */
 package org.copperengine.core.persistent.cassandra;
 
-import org.apache.commons.lang.NullArgumentException;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
@@ -27,9 +26,9 @@ public class CassandraSessionManagerPojo implements CassandraSessionManager {
 
     public CassandraSessionManagerPojo(final Session session, final Cluster cluster) {
         if (session == null)
-            throw new NullArgumentException("session");
+            throw new IllegalArgumentException("session");
         if (cluster == null)
-            throw new NullArgumentException("cluster");
+            throw new IllegalArgumentException("cluster");
         this.session = session;
         this.cluster = cluster;
     }

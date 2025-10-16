@@ -17,7 +17,7 @@ package org.copperengine.regtest.test;
 
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.Workflow;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 public class SwitchCaseTestWF extends Workflow<SwitchCaseTestData> {
 
@@ -38,18 +38,18 @@ public class SwitchCaseTestWF extends Workflow<SwitchCaseTestData> {
     private void doSwitch() {
         switch (getData().testEnumValue) {
             case A:
-                Assert.fail();
+                Assertions.fail();
                 break;
             case B:
-                Assert.fail();
+                Assertions.fail();
                 break;
             case C:
                 break;
             case D:
-                Assert.fail();
+                Assertions.fail();
                 break;
             default:
-                Assert.fail();
+                Assertions.fail();
                 break;
         }
     }

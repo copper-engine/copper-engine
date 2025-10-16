@@ -15,12 +15,12 @@
  */
 package org.copperengine.ext.persistent;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class YamlSerializerTest {
 
@@ -67,6 +67,7 @@ public class YamlSerializerTest {
 
 
         final String serialized = serializer.serialize(workflowData);
+
         final Object deserialized = serializer.deserialize(serialized);
 
 
@@ -76,7 +77,6 @@ public class YamlSerializerTest {
     @Test
     public void compatibilityUserClass() throws Exception {
         final User workflowData = new User( "Wolf");
-
 
         // taken from snakeyaml 1.33
         final String serialized = "!!org.copperengine.ext.persistent.YamlSerializerTest$User {name: Wolf}";

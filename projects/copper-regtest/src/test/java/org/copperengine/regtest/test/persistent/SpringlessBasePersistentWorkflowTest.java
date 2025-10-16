@@ -15,13 +15,13 @@
  */
 package org.copperengine.regtest.test.persistent;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -61,6 +61,7 @@ import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.copperengine.regtest.test.DataHolder;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
+import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +128,7 @@ public class SpringlessBasePersistentWorkflowTest {
                 ResultSet rs = pstmt.executeQuery();
                 rs.next();
                 int actual = rs.getInt(1);
-                org.junit.Assert.assertEquals(expected, actual);
+                Assertions.assertEquals(expected, actual);
                 return null;
             }
         }.run();
@@ -216,7 +217,7 @@ public class SpringlessBasePersistentWorkflowTest {
             WorkflowInstanceDescr<String> desc = new WorkflowInstanceDescr<String>(PersistentUnitTestWorkflow_NAME, DATA, "DUPLICATE#ID", 1, null);
             engine.run(desc);
             engine.run(desc);
-            org.junit.Assert.fail("expected an DuplicateIdException");
+            Assertions.fail("expected an DuplicateIdException");
         } catch (DuplicateIdException e) {
             // ok
         } finally {
@@ -569,7 +570,7 @@ public class SpringlessBasePersistentWorkflowTest {
                 WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
                 assertNotNull(x);
                 assertNotNull(x.getResult());
-                assertNotNull(x.getResult().toString().length() == DATA.length());
+                assertEquals(x.getResult().toString().length(), DATA.length());
                 assertNull(x.getException());
             }
             Thread.sleep(1000);
@@ -857,7 +858,7 @@ public class SpringlessBasePersistentWorkflowTest {
                     Thread.sleep(50);
                 }
             }
-            assertSame("Test failed - Timeout - " + x + " responses so far", x, NUMB);
+            assertSame(x, NUMB, "Test failed - Timeout - " + x + " responses so far");
 
             Thread.sleep(1000);
 

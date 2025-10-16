@@ -15,7 +15,7 @@
  */
 package org.copperengine.regtest.test.tranzient.lang;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +23,7 @@ import org.copperengine.core.CopperException;
 import org.copperengine.core.EngineState;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
 import org.copperengine.regtest.test.tranzient.TransientEngineTestContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LocalVarTest {
 

@@ -1,3 +1,31 @@
+COPPER 6.0.0
+============
+- BREAKING: COPPER will require jdk>=17
+- New feature: compatible with Java 24 and 25
+- Maintenance: asmVersion = 9.7  => 9.9
+- Maintenance: springVersion = 5.3.36  => 6.2.11
+- Maintenance: springBatchVersion = 4.3.10  => 5.2.3
+- Maintenance: c3p0Version = 0.10.0  => 0.11.2
+- Maintenance: guavaVersion = 31.0.1-jre  => 33.5.0-jre
+- Maintenance: jacksonVersion = 2.17.0  => 2.20.0
+- Maintenance: snakeyamlVersion = 1.33  =>
+- Maintenance: commonsIoVersion = 2.16.1  => 2.20.0
+- Maintenance: commonsLangVersion = 2.6  => 3.19.0
+- Maintenance: slf4jVersion = 2.0.13  => 2.0.17
+- Maintenance: logbackVersion = 1.5.6  => 1.5.19
+- Maintenance: junitVersion = 4.13.2  => 6.0.0
+- Maintenance: mockitoVersion = 5.11.0  => 5.20.0
+- Maintenance: byteBuddyVersion = 1.14.13  => 1.17.8
+- Maintenance: hamcrestVersion = 2.2  => 3.0
+- Maintenance: jgitVersion = 6.9.0.202403050737-r  => 7.4.0.202509020913-r
+- Maintenance: derbyVersion = 10.13.1.1  => 10.17.1.0
+- Maintenance: mysqlVersion = 5.1.39  => 8.0.33
+- Maintenance: postgresqlVersion = 9.1-901.jdbc4  => 9.1-901-1.jdbc4
+- Maintenance: cassandraDriverVersion = 3.10.2  => 5.0.5
+- Maintenance: cassandraUnitVersion = 3.1.1.0  => 4.3.1.0
+- Maintenance: h2Version = 1.4.193  => 2.4.240
+- Maintenance: javaparserVersion = 3.6.23  => 3.27.1
+
 COPPER 5.5.2
 ============
 - Maintenance: Update spring 5.3.34 -> 5.3.36

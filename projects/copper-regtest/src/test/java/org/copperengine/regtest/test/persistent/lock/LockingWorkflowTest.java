@@ -24,7 +24,8 @@ import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.core.util.Backchannel;
 import org.copperengine.regtest.test.persistent.DataSourceType;
 import org.copperengine.regtest.test.persistent.PersistentEngineTestContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,8 +82,8 @@ public class LockingWorkflowTest {
 
             for (WorkflowInstanceDescr<?> x : wfid) {
                 Boolean res = (Boolean) backchannel.wait(x.getId(), 30, TimeUnit.SECONDS);
-                org.junit.Assert.assertNotNull(res);
-                org.junit.Assert.assertTrue(res);
+                Assertions.assertNotNull(res);
+                Assertions.assertTrue(res);
             }
 
             logger.info("Test finished!");

@@ -15,15 +15,15 @@
  */
 package org.copperengine.regtest.test.tranzient.simple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.copperengine.core.EngineState;
 import org.copperengine.core.tranzient.TransientProcessorPool;
 import org.copperengine.core.util.BlockingResponseReceiver;
 import org.copperengine.regtest.test.tranzient.TransientEngineTestContext;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class SupendPoolTransientEngineTest {
 
@@ -34,7 +34,7 @@ public class SupendPoolTransientEngineTest {
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
             TransientProcessorPool processorPool = ctx.getPpoolManager().getProcessorPool(TransientEngineTestContext.PPOOL_DEFAULT);
-            Assert.assertNotNull(processorPool);
+            Assertions.assertNotNull(processorPool);
 
             final BlockingResponseReceiver<Integer> brr = new BlockingResponseReceiver<Integer>();
             Thread.sleep(10);

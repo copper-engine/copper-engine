@@ -15,10 +15,11 @@
  */
 package org.copperengine.regtest.test.tranzient.lang;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Interrupt;
@@ -31,10 +32,10 @@ import org.copperengine.regtest.test.backchannel.WorkflowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LocalVarTransientWorkflow2 extends Workflow<String> {
+public class LocalVarTransientWorkflow1 extends Workflow<String> {
 
     private static final long serialVersionUID = 7325419989364229211L;
-    private static final Logger logger = LoggerFactory.getLogger(LocalVarTransientWorkflow2.class);
+    private static final Logger logger = LoggerFactory.getLogger(LocalVarTransientWorkflow1.class);
 
     private int counter = 0;
 
@@ -61,9 +62,34 @@ public class LocalVarTransientWorkflow2 extends Workflow<String> {
 
     @Override
     public void main() throws Interrupt {
-        Object x;
+        Object x = new Innerclass();
+        x = null;
+
         int timeout = 1000;
         String ccid;
+
+        if (counter != 0) {
+
+        } else {
+            String abc = "test";
+            ccid = getEngine().createUUID() + abc;
+            x = execute(ccid, timeout);
+            logger.debug("{}", x);
+        }
+
+        if (counter == 0) {
+            ccid = getEngine().createUUID();
+            logger.debug("{}", execute(ccid, timeout));
+        }
+
+        for (int i = 0; i < 5; i++) {
+            String cid = getEngine().createUUID();
+            mockAdapter.incrementAsync(counter, cid);
+            waitForAll(cid);
+            counter = ((Integer) getAndRemoveResponse(cid).getResponse()).intValue();
+
+            resubmit();
+        }
 
         try {
             x = execute(getEngine().createUUID(), timeout);
@@ -112,14 +138,14 @@ public class LocalVarTransientWorkflow2 extends Workflow<String> {
                     waitForAll(cid);
                     counter = ((Integer) getAndRemoveResponse(cid).getResponse()).intValue();
                 } catch (Exception e) {
-                    logger.error("", e);
+                    e.printStackTrace();
                     throw e;
                 }
             }
 
             // simulate timeout
             final long startTS = System.currentTimeMillis();
-            wait(WaitMode.FIRST, 500, getEngine().createUUID(), getEngine().createUUID());
+            wait(WaitMode.FIRST, 500, TimeUnit.MILLISECONDS, getEngine().createUUID(), getEngine().createUUID());
             if (System.currentTimeMillis() < startTS + 490L)
                 throw new AssertionError();
 
@@ -149,31 +175,30 @@ public class LocalVarTransientWorkflow2 extends Workflow<String> {
                 throw new AssertionError();
 
             testMultiResponse();
+
+            reply();
         } catch (Exception e) {
             logger.error("", e);
             fail("should never come here");
         } finally {
-            logger.debug("finally");
+            logger.debug("{}", "finally");
         }
-
-        counter = 5;
-        reply();
     }
 
     private void wait4all(final String cid1, final String cid2) throws Interrupt {
         try {
-            wait(WaitMode.ALL, 5000, cid1, cid2);
+            wait(WaitMode.ALL, 5000, TimeUnit.MILLISECONDS, cid1, cid2);
         } catch (Exception e) {
             logger.error("", e);
             fail("should never come here");
         } finally {
-            logger.debug("finally");
+            logger.debug("{}", "finally");
         }
     }
 
     private String execute(String cid, int timeout) throws Interrupt {
         mockAdapter.foo("foo", cid);
-        wait(WaitMode.ALL, timeout, cid);
+        wait(WaitMode.ALL, timeout, TimeUnit.MILLISECONDS, cid);
         Response<String> response = getAndRemoveResponse(cid);
         if (response == null)
             throw new AssertionError();
@@ -192,7 +217,7 @@ public class LocalVarTransientWorkflow2 extends Workflow<String> {
         mockAdapter.fooWithMultiResponse("foo", cid1, SIZE);
         List<Response<Object>> list1 = new ArrayList<Response<Object>>();
         for (int i = 0; i < SIZE; i++) {
-            wait(WaitMode.ALL, 500, cid1);
+            wait(WaitMode.ALL, 500, TimeUnit.MILLISECONDS, cid1);
             List<Response<Object>> r1 = getAndRemoveResponses(cid1);
             logger.debug("{}", r1.size());
             for (Response<Object> r : r1) {

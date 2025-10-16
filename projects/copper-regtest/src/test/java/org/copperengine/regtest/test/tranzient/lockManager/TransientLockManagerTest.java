@@ -25,13 +25,13 @@ import org.copperengine.core.lockmgr.tranzient.TransientLockManager;
 import org.copperengine.regtest.test.tranzient.TransientEngineTestContext;
 import org.copperengine.core.tranzient.TransientPriorityProcessorPool;
 import org.copperengine.core.tranzient.TransientProcessorPool;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TransientLockManagerTest {
 

@@ -15,12 +15,12 @@
  */
 package org.copperengine.regtest.test.persistent;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -53,6 +53,7 @@ import org.copperengine.core.persistent.PersistentScottyEngine;
 import org.copperengine.core.persistent.ScottyDBStorageInterface;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
+import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -187,7 +188,7 @@ public class BasePersistentWorkflowTest {
             WorkflowInstanceDescr<String> desc = new WorkflowInstanceDescr<String>(PersistentUnitTestWorkflow_NAME, DATA, "DUPLICATE#ID", 1, null);
             engine.run(desc);
             engine.run(desc);
-            org.junit.Assert.fail("expected an DuplicateIdException");
+            Assertions.fail("expected an DuplicateIdException");
         } catch (DuplicateIdException e) {
             // ok
         } finally {

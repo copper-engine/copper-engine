@@ -17,7 +17,7 @@ package org.copperengine.regtest.test.tranzient.lockManager;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TransientLockEvaluationData {
     private AtomicInteger countAlreadyAcquired;

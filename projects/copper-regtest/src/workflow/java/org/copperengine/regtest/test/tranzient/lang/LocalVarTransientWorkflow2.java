@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.regtest.test.tranzient.simple;
+package org.copperengine.regtest.test.tranzient.lang;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +28,13 @@ import org.copperengine.core.Workflow;
 import org.copperengine.regtest.test.MockAdapter;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class SimpleTransientWorkflow extends Workflow<String> {
+public class LocalVarTransientWorkflow2 extends Workflow<String> {
 
     private static final long serialVersionUID = 7325419989364229211L;
+    private static final Logger logger = LoggerFactory.getLogger(LocalVarTransientWorkflow2.class);
 
     private int counter = 0;
 
@@ -56,21 +59,38 @@ public class SimpleTransientWorkflow extends Workflow<String> {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.copperengine.core.Workflow#main()
-     */
     @Override
     public void main() throws Interrupt {
-        new Innerclass();
+        Object x;
+        int timeout = 1000;
+        String ccid;
 
         try {
-            if (counter != 0) {
+            x = execute(getEngine().createUUID(), timeout);
+            logger.debug("{}", x);
 
+            if (counter != 0) {
+                ccid = getEngine().createUUID();
+                x = execute(ccid, timeout);
+                logger.debug("{}", x);
             } else {
-                final String rv = execute(getEngine().createUUID(), 1000);
-                System.out.println(rv);
+                if (counter != 0) {
+                    ccid = getEngine().createUUID();
+                    x = execute(ccid, timeout);
+                    logger.debug("{}", x);
+                } else {
+                    if (counter != 0) {
+
+                    } else {
+                        if (counter != 0) {
+
+                        } else {
+                            ccid = getEngine().createUUID();
+                            x = execute(ccid, timeout);
+                            logger.debug("{}", x);
+                        }
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,14 +106,13 @@ public class SimpleTransientWorkflow extends Workflow<String> {
                     counter = ((Integer) getAndRemoveResponse(cid).getResponse()).intValue();
 
                     resubmit(); // just for fun...
-                    savepoint();
 
                     cid = getEngine().createUUID();
                     mockAdapter.incrementSync(counter, cid);
                     waitForAll(cid);
                     counter = ((Integer) getAndRemoveResponse(cid).getResponse()).intValue();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("", e);
                     throw e;
                 }
             }
@@ -130,24 +149,25 @@ public class SimpleTransientWorkflow extends Workflow<String> {
                 throw new AssertionError();
 
             testMultiResponse();
-
-            reply();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("", e);
             fail("should never come here");
         } finally {
-            System.out.println("finally");
+            logger.debug("finally");
         }
+
+        counter = 5;
+        reply();
     }
 
     private void wait4all(final String cid1, final String cid2) throws Interrupt {
         try {
             wait(WaitMode.ALL, 5000, cid1, cid2);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("", e);
             fail("should never come here");
         } finally {
-            System.out.println("finally");
+            logger.debug("finally");
         }
     }
 
@@ -174,7 +194,7 @@ public class SimpleTransientWorkflow extends Workflow<String> {
         for (int i = 0; i < SIZE; i++) {
             wait(WaitMode.ALL, 500, cid1);
             List<Response<Object>> r1 = getAndRemoveResponses(cid1);
-            System.out.println(r1.size());
+            logger.debug("{}", r1.size());
             for (Response<Object> r : r1) {
                 if (r.isTimeout()) {
                     throw new AssertionError("Unexpected timeout");

@@ -15,11 +15,13 @@
  */
 package org.copperengine.regtest.test.persistent;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.context.ConfigurableApplicationContext;
+
 import javax.sql.DataSource;
 
-import org.junit.After;
-import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersistentWorkflowTest {
 
@@ -30,7 +32,7 @@ public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersist
         super.cleanDB(ds);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -98,9 +100,9 @@ public class DerbyDbSpringTxnPersistentWorkflowTest extends BaseSpringTxnPersist
         super.testErrorHandlingWithWaitHook(DS_CONTEXT);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testAuditTrailCustomSeqNr() throws Exception {
-        super.testAuditTrailCustomSeqNr(DS_CONTEXT);
+        assertThrows(UnsupportedOperationException.class, () -> super.testAuditTrailCustomSeqNr(DS_CONTEXT));
     }
 
     @Test

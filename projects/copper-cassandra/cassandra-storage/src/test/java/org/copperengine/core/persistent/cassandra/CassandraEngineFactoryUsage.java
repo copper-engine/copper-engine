@@ -18,11 +18,12 @@ package org.copperengine.core.persistent.cassandra;
 import java.util.Arrays;
 
 import org.copperengine.core.util.PojoDependencyInjector;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@org.junit.Ignore
 public class CassandraEngineFactoryUsage extends CassandraTest {
 
+    @Disabled
     @Test
     public void test() throws Exception {
         CassandraEngineFactory<PojoDependencyInjector> engineFactory = new CassandraEngineFactory<PojoDependencyInjector>(Arrays.asList("package.of.copper.workflow.classes")) {

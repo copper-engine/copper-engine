@@ -15,7 +15,7 @@
  */
 package org.copperengine.core.persistent.cassandra;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,14 +24,15 @@ import java.util.concurrent.TimeUnit;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.management.model.WorkflowInfo;
 import org.copperengine.management.model.WorkflowInstanceFilter;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 public class TestWorkflowCassandraTest extends CassandraTest {
 
     @Test
     public void testParallel() throws Exception {
-        Assume.assumeTrue(factory != null);
+        Assumptions.assumeTrue(factory != null);
         List<String> cids = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             final String cid = factory.getEngine().createUUID();
@@ -42,8 +43,8 @@ public class TestWorkflowCassandraTest extends CassandraTest {
         }
         for (String cid : cids) {
             Object response = factory.backchannel.get().wait(cid, 10000, TimeUnit.MILLISECONDS);
-            org.junit.Assert.assertNotNull("no response for workflow instance " + cid, response);
-            org.junit.Assert.assertEquals("OK", response);
+            Assertions.assertNotNull(response,"no response for workflow instance " + cid);
+            Assertions.assertEquals("OK", response);
         }
         Thread.sleep(250);
         WorkflowInstanceFilter filter = new WorkflowInstanceFilter();
@@ -53,15 +54,15 @@ public class TestWorkflowCassandraTest extends CassandraTest {
 
     @Test
     public void testSerial() throws Exception {
-        Assume.assumeTrue(factory != null);
+        Assumptions.assumeTrue(factory != null);
         for (int i = 0; i < 3; i++) {
             final String cid = factory.getEngine().createUUID();
             final TestData data = new TestData(cid, "foo");
             final WorkflowInstanceDescr<TestData> wfid = new WorkflowInstanceDescr<TestData>("org.copperengine.core.persistent.cassandra.workflows.TestWorkflow", data, cid, 1, null);
             factory.getEngine().run(wfid);
             Object response = factory.backchannel.get().wait(cid, 10000, TimeUnit.MILLISECONDS);
-            org.junit.Assert.assertNotNull(response);
-            org.junit.Assert.assertEquals("OK", response);
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals("OK", response);
         }
     }
 

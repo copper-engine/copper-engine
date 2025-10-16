@@ -15,10 +15,10 @@
  */
 package org.copperengine.core.instrument;
 
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Type;
 
 public class BuildStackInfoAdapterTest {
@@ -33,14 +33,14 @@ public class BuildStackInfoAdapterTest {
         try {
             f.popStack();
             fail("Expected empty stack exception");
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
         f = new StackInfo();
         f.pushStack(Type.DOUBLE_TYPE);
         try {
             f.dupStack();
             fail("Expected exception: wrong computational type.");
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
     }
 

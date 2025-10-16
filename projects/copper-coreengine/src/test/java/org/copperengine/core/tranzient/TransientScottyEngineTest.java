@@ -17,7 +17,8 @@ package org.copperengine.core.tranzient;
 
 import java.io.File;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TransientScottyEngineTest {
 
@@ -31,7 +32,7 @@ public class TransientScottyEngineTest {
         };
         TransientScottyEngine engine = factory.create();
         try {
-            org.junit.Assert.assertEquals("STARTED", engine.getState());
+            Assertions.assertEquals("STARTED", engine.getState());
             engine.run("test.HelloWorldWorkflow", null);
         } finally {
             engine.shutdown();

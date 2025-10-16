@@ -28,11 +28,12 @@ import org.copperengine.core.persistent.lock.PersistentLockManagerDialectOracleM
 import org.copperengine.regtest.persistent.DataSourceFactory;
 import org.copperengine.regtest.test.persistent.DataSourceType;
 import org.copperengine.regtest.test.persistent.PersistentEngineTestContext;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLockManagerDialectTest {
 
@@ -58,13 +59,13 @@ public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLo
 
     @Test
     public void testSupportsMultipleInstances() {
-        Assume.assumeFalse(skipTests());
-        Assert.assertTrue(createImplementation().supportsMultipleInstances());
+        assumeFalse(skipTests());
+        Assertions.assertTrue(createImplementation().supportsMultipleInstances());
     }
 
     @Test
     public void testAcquireLock_MultiConcurrent() throws Exception {
-        Assume.assumeFalse(skipTests() || dataSource == null);
+        assumeFalse(skipTests() || dataSource == null);
 
         final Connection con = getConnection();
         final Connection con2 = getConnection();
@@ -82,10 +83,10 @@ public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLo
             final String workflowInstanceId3 = UUID.randomUUID().toString();
 
             String rv = x.acquireLock(_lockId, workflowInstanceId1, correlationId1, null, con);
-            org.junit.Assert.assertNull(correlationId1, rv);
+            Assertions.assertNull(correlationId1, rv);
 
             rv = x.acquireLock(_lockId, workflowInstanceId1, correlationId1, null, con);
-            org.junit.Assert.assertNull(rv);
+            Assertions.assertNull(rv);
 
             final CountDownLatch latch = new CountDownLatch(1);
             executor.execute(new Runnable() {
@@ -93,7 +94,7 @@ public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLo
                 public void run() {
                     try {
                         String rv = x.acquireLock(_lockId, workflowInstanceId2, correlationId2, null, con2);
-                        org.junit.Assert.assertEquals(correlationId2, rv);
+                        Assertions.assertEquals(correlationId2, rv);
                         con2.commit();
                         latch.countDown();
                     }
@@ -102,25 +103,25 @@ public class PersistentLockManagerDialectOracleTest extends AbstractPersistentLo
                     }
                 }
             });
-            org.junit.Assert.assertEquals(1, latch.getCount());
+            Assertions.assertEquals(1, latch.getCount());
             con.commit();
             latch.await(10, TimeUnit.SECONDS);
-            org.junit.Assert.assertEquals(0, latch.getCount());
+            Assertions.assertEquals(0, latch.getCount());
 
             rv = x.acquireLock(_lockId, workflowInstanceId3, correlationId3, null, con);
-            org.junit.Assert.assertEquals(correlationId3, rv);
+            Assertions.assertEquals(correlationId3, rv);
             con.commit();
 
             rv = x.releaseLock(_lockId, workflowInstanceId1, con);
             con.commit();
-            org.junit.Assert.assertEquals(correlationId2, rv);
+            Assertions.assertEquals(correlationId2, rv);
 
             rv = x.releaseLock(_lockId, workflowInstanceId2, con);
-            org.junit.Assert.assertEquals(correlationId3, rv);
+            Assertions.assertEquals(correlationId3, rv);
             con.commit();
 
             rv = x.releaseLock(_lockId, workflowInstanceId3, con);
-            org.junit.Assert.assertNull(rv);
+            Assertions.assertNull(rv);
             con.commit();
 
         } finally {

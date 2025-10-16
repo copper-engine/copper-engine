@@ -18,8 +18,10 @@ package org.copperengine.regtest.test.persistent;
 import javax.sql.DataSource;
 
 import org.copperengine.core.persistent.H2Dialect;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class H2PersistentWorkflowTest extends SpringlessBasePersistentWorkflowTest {
 
@@ -31,7 +33,7 @@ public class H2PersistentWorkflowTest extends SpringlessBasePersistentWorkflowTe
         super.cleanDB(ds);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -175,13 +177,13 @@ public class H2PersistentWorkflowTest extends SpringlessBasePersistentWorkflowTe
         super.testJmxCountWorkflowInstancesERROR(DS_CONTEXT);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testJmxRaisingExceptionQuery() throws Exception {
-        super.testJmxRaisingExceptionQuery(DS_CONTEXT);
+        assertThrows(RuntimeException.class, ()-> super.testJmxRaisingExceptionQuery(DS_CONTEXT));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testJmxRaisingExceptionQueryCount() throws Exception {
-        super.testJmxRaisingExceptionCount(DS_CONTEXT);
+        assertThrows(RuntimeException.class, ()-> super.testJmxRaisingExceptionCount(DS_CONTEXT));
     }
 }

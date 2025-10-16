@@ -21,9 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.NullArgumentException;
 import org.copperengine.core.ProcessingState;
-import org.copperengine.core.Workflow;
 import org.copperengine.management.model.WorkflowInstanceFilter;
 import org.slf4j.Logger;
 
@@ -41,7 +39,7 @@ public class StorageCache implements Storage {
 
     public StorageCache(Storage delegate) {
         if (delegate == null)
-            throw new NullArgumentException("delegate");
+            throw new IllegalArgumentException("delegate");
         this.delegate = delegate;
 
         wfCache = new ConcurrentHashMap<>();

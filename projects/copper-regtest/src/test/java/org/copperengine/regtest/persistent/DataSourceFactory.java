@@ -70,14 +70,14 @@ public class DataSourceFactory {
 
     private static ComboPooledDataSource createDataSource(final String propertyPrefix) {
         try {
-            final Boolean active = Boolean.valueOf(props.getProperty(propertyPrefix + "active", "false"));
+            final boolean active = Boolean.parseBoolean(props.getProperty(propertyPrefix + "active", "false"));
             final String jdbcUrl = trim(props.getProperty(propertyPrefix + "jdbcURL"));
             final String user = trim(props.getProperty(propertyPrefix + "user"));
             final String password = trim(props.getProperty(propertyPrefix + "password"));
             final String driverClass = trim(props.getProperty(propertyPrefix + "driverClass"));
             final String preferredTestQuery = props.getProperty(propertyPrefix + "preferredTestQuery");
-            final int minPoolSize = Integer.valueOf(props.getProperty(propertyPrefix + "minPoolSize", "1"));
-            final int maxPoolSize = Integer.valueOf(props.getProperty(propertyPrefix + "maxPoolSize", "8"));
+            final int minPoolSize = Integer.parseInt(props.getProperty(propertyPrefix + "minPoolSize", "1"));
+            final int maxPoolSize = Integer.parseInt(props.getProperty(propertyPrefix + "maxPoolSize", "8"));
             if (active) {
                 ComboPooledDataSource ds = new ComboPooledDataSource();
                 ds.setJdbcUrl(jdbcUrl.replace("${NOW}", Long.toString(System.currentTimeMillis())));

@@ -15,8 +15,8 @@
  */
 package org.copperengine.regtest.test.tranzient.simple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;

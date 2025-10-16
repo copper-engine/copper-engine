@@ -15,7 +15,9 @@
  */
 package org.copperengine.regtest.test.persistent;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PostgreSQLPersistentWorkflowTest extends SpringlessBasePersistentWorkflowTest {
 
@@ -171,13 +173,13 @@ public class PostgreSQLPersistentWorkflowTest extends SpringlessBasePersistentWo
         super.testJmxCountWorkflowInstancesERROR(DS_CONTEXT);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testJmxRaisingExceptionQuery() throws Exception {
-        super.testJmxRaisingExceptionQuery(DS_CONTEXT);
+        assertThrows(RuntimeException.class, ()-> super.testJmxRaisingExceptionQuery(DS_CONTEXT));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testJmxRaisingExceptionQueryCount() throws Exception {
-        super.testJmxRaisingExceptionCount(DS_CONTEXT);
+        assertThrows(RuntimeException.class, ()-> super.testJmxRaisingExceptionCount(DS_CONTEXT));
     }
 }

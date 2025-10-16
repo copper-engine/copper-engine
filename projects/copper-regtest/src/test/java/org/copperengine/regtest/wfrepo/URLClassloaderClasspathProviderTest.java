@@ -17,8 +17,10 @@ package org.copperengine.regtest.wfrepo;
 
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
 import org.copperengine.core.wfrepo.URLClassloaderClasspathProvider;
-import org.junit.Assume;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class URLClassloaderClasspathProviderTest {
 
@@ -32,7 +34,7 @@ public class URLClassloaderClasspathProviderTest {
 
     @Test
     public void testGetOptions() {
-        Assume.assumeTrue(getJavaVersion() < 9);
+        assumeTrue(getJavaVersion() < 9);
         FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
         try {
             repo.addSourceDir("src/workflow/java");

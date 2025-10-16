@@ -15,12 +15,12 @@
  */
 package org.copperengine.regtest.test.tranzient.classhierarchy;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.copperengine.core.EngineState;
 import org.copperengine.core.util.BlockingResponseReceiver;
 import org.copperengine.regtest.test.tranzient.TransientEngineTestContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DerivedTransientEngineTest {
 

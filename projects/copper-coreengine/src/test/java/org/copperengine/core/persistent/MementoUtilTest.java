@@ -23,8 +23,8 @@ import java.util.Map;
 
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.instrument.Transformed;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class MementoUtilTest {
 
@@ -125,17 +125,17 @@ public class MementoUtilTest {
 
                     @Override
                     public void insert(T e) {
-                        Assert.fail("Only selects allowed");
+                        Assertions.fail("Only selects allowed");
                     }
 
                     @Override
                     public void update(T e) {
-                        Assert.fail("Only selects allowed");
+                        Assertions.fail("Only selects allowed");
                     }
 
                     @Override
                     public void delete(T e) {
-                        Assert.fail("Only selects allowed");
+                        Assertions.fail("Only selects allowed");
                     }
                 };
             }
@@ -152,7 +152,7 @@ public class MementoUtilTest {
 
         };
         util.autoLoad(wf, loadContext);
-        Assert.assertEquals(12, selected[0]);
+        Assertions.assertEquals(12, selected[0]);
         wf.simpleChangedMember.data = "changed#";
         wf.simpleDeletedMember = null;
         wf.simpleInsertedMember = new SomeMemberClass("inserted#", null);
@@ -177,25 +177,25 @@ public class MementoUtilTest {
                     public void select(
                             T e,
                             org.copperengine.core.persistent.EntityPersister.PostSelectedCallback<T> callback) {
-                        Assert.fail("no selects allowed");
+                        Assertions.fail("no selects allowed");
                     }
 
                     @Override
                     public void insert(T e) {
-                        Assert.assertTrue(((SomeMemberClass) e).data.startsWith("inserted"));
-                        Assert.assertNotNull(((SomeMemberClass) e).getEntityId());
+                        Assertions.assertTrue(((SomeMemberClass) e).data.startsWith("inserted"));
+                        Assertions.assertNotNull(((SomeMemberClass) e).getEntityId());
                         inserted[0]++;
                     }
 
                     @Override
                     public void update(T e) {
-                        Assert.assertTrue(((SomeMemberClass) e).data.startsWith("changed"));
+                        Assertions.assertTrue(((SomeMemberClass) e).data.startsWith("changed"));
                         changed[0]++;
                     }
 
                     @Override
                     public void delete(T e) {
-                        Assert.assertTrue(((SomeMemberClass) e).data.startsWith("deleted"));
+                        Assertions.assertTrue(((SomeMemberClass) e).data.startsWith("deleted"));
                         deleted[0]++;
                     }
                 };
@@ -213,17 +213,17 @@ public class MementoUtilTest {
 
         };
         util.autoStore(wf, saveContext);
-        Assert.assertEquals(4, inserted[0]);
-        Assert.assertEquals(4, changed[0]);
-        Assert.assertEquals(4, deleted[0]);
+        Assertions.assertEquals(4, inserted[0]);
+        Assertions.assertEquals(4, changed[0]);
+        Assertions.assertEquals(4, deleted[0]);
         // Must be idempotent
         inserted[0] = 0;
         changed[0] = 0;
         deleted[0] = 0;
         util.autoStore(wf, saveContext);
-        Assert.assertEquals(4, inserted[0]);
-        Assert.assertEquals(4, changed[0]);
-        Assert.assertEquals(4, deleted[0]);
+        Assertions.assertEquals(4, inserted[0]);
+        Assertions.assertEquals(4, changed[0]);
+        Assertions.assertEquals(4, deleted[0]);
     }
 
 }

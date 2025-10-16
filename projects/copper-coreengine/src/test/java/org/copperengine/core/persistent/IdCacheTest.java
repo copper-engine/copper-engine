@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class IdCacheTest {
 
@@ -31,20 +31,20 @@ public class IdCacheTest {
         idCache.put("r1", "c1");
         idCache.put("r2", "c2");
         idCache.put("r3", "c3");
-        Assert.assertTrue(idCache.contains("c1"));
-        Assert.assertTrue(idCache.contains("c2"));
-        Assert.assertTrue(idCache.contains("c3"));
-        Assert.assertTrue(idCache.contains("c1", "c2"));
-        Assert.assertTrue(idCache.contains("c1", "c2", "c3"));
-        Assert.assertFalse(idCache.contains("c4"));
+        Assertions.assertTrue(idCache.contains("c1"));
+        Assertions.assertTrue(idCache.contains("c2"));
+        Assertions.assertTrue(idCache.contains("c3"));
+        Assertions.assertTrue(idCache.contains("c1", "c2"));
+        Assertions.assertTrue(idCache.contains("c1", "c2", "c3"));
+        Assertions.assertFalse(idCache.contains("c4"));
         idCache.put("r4", "c4");
-        Assert.assertFalse(idCache.contains("c1"));
-        Assert.assertTrue(idCache.contains("c2"));
-        Assert.assertTrue(idCache.contains("c3"));
-        Assert.assertFalse(idCache.contains("c1", "c2"));
-        Assert.assertFalse(idCache.contains("c1", "c2", "c3"));
-        Assert.assertTrue(idCache.contains("c4"));
-        Assert.assertTrue(idCache.contains("c2", "c3", "c4"));
+        Assertions.assertFalse(idCache.contains("c1"));
+        Assertions.assertTrue(idCache.contains("c2"));
+        Assertions.assertTrue(idCache.contains("c3"));
+        Assertions.assertFalse(idCache.contains("c1", "c2"));
+        Assertions.assertFalse(idCache.contains("c1", "c2", "c3"));
+        Assertions.assertTrue(idCache.contains("c4"));
+        Assertions.assertTrue(idCache.contains("c2", "c3", "c4"));
     }
 
     @Test
@@ -53,19 +53,19 @@ public class IdCacheTest {
         idCache.put("r1", "c1");
         idCache.put("r2", "c2");
         idCache.put("r3", "c3");
-        Assert.assertTrue(idCache.contains("c1"));
-        Assert.assertTrue(idCache.contains("c2"));
-        Assert.assertTrue(idCache.contains("c3"));
-        Assert.assertTrue(idCache.contains("c1", "c2"));
-        Assert.assertTrue(idCache.contains("c1", "c2", "c3"));
-        Assert.assertFalse(idCache.contains("c4"));
+        Assertions.assertTrue(idCache.contains("c1"));
+        Assertions.assertTrue(idCache.contains("c2"));
+        Assertions.assertTrue(idCache.contains("c3"));
+        Assertions.assertTrue(idCache.contains("c1", "c2"));
+        Assertions.assertTrue(idCache.contains("c1", "c2", "c3"));
+        Assertions.assertFalse(idCache.contains("c4"));
         Thread.sleep(10);
-        Assert.assertFalse(idCache.contains("c1"));
-        Assert.assertFalse(idCache.contains("c2"));
-        Assert.assertFalse(idCache.contains("c3"));
-        Assert.assertFalse(idCache.contains("c1", "c2"));
-        Assert.assertFalse(idCache.contains("c1", "c2", "c3"));
-        Assert.assertFalse(idCache.contains("c4"));
+        Assertions.assertFalse(idCache.contains("c1"));
+        Assertions.assertFalse(idCache.contains("c2"));
+        Assertions.assertFalse(idCache.contains("c3"));
+        Assertions.assertFalse(idCache.contains("c1", "c2"));
+        Assertions.assertFalse(idCache.contains("c1", "c2", "c3"));
+        Assertions.assertFalse(idCache.contains("c4"));
     }
 
     @Test
@@ -86,8 +86,8 @@ public class IdCacheTest {
                             String cid = Long.toString(idFactory.incrementAndGet());
                             long startTS = System.nanoTime();
                             idCache.put(rid, cid);
-                            Assert.assertTrue(idCache.contains(cid));
-                            Assert.assertTrue(idCache.remove(rid));
+                            Assertions.assertTrue(idCache.contains(cid));
+                            Assertions.assertTrue(idCache.remove(rid));
                             long et = System.nanoTime() - startTS;
                             time4all.addAndGet(et);
                         }
@@ -108,7 +108,7 @@ public class IdCacheTest {
         for (Thread t : threads) {
             t.join();
         }
-        Assert.assertTrue(exceptions.isEmpty());
+        Assertions.assertTrue(exceptions.isEmpty());
         System.out.println("time4all=" + (time4all.get() / 1000000L) + " msec");
     }
 }

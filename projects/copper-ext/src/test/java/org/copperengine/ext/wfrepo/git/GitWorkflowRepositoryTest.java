@@ -16,8 +16,6 @@
 
 package org.copperengine.ext.wfrepo.git;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -45,9 +43,11 @@ import org.copperengine.core.util.PojoDependencyInjector;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GitWorkflowRepositoryTest {
 
@@ -59,7 +59,7 @@ public class GitWorkflowRepositoryTest {
     private TransientScottyEngine engine;
     private Backchannel channel;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         FileUtils.deleteDirectory(new File(WORK_DIR));
         final boolean ignored = new File(WORK_DIR).mkdirs();
@@ -125,28 +125,28 @@ public class GitWorkflowRepositoryTest {
 
     @Test
     public void shutdownTest() {
-        assertEquals("wfRepos should be up.", true, wfRepo.isUp());
+        assertTrue(wfRepo.isUp(), "wfRepos should be up.");
         wfRepo.shutdown();
-        assertEquals("wfRepos should be down.", false, wfRepo.isUp());
+        assertFalse(wfRepo.isUp(), "wfRepos should be down.");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shutdownStartTest() {
-        assertEquals("wfRepos should be up.", true, wfRepo.isUp());
+        assertTrue(wfRepo.isUp(), "wfRepos should be up.");
         wfRepo.shutdown();
-        assertEquals("wfRepos should be down.", false, wfRepo.isUp());
-        wfRepo.start();
+        assertFalse(wfRepo.isUp(), "wfRepos should be down.");
+        assertThrows(IllegalStateException.class, () -> wfRepo.start());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shutdownDoubleStartTest() {
-        assertEquals("wfRepos should be up.", true, wfRepo.isUp());
-        wfRepo.start();
+        assertTrue(wfRepo.isUp(), "wfRepos should be up.");
+        assertThrows(IllegalStateException.class, () -> wfRepo.start());
     }
 
-    @Test(expected = RefNotAdvertisedException.class)
-    public void changeToTagTest() throws IOException, GitAPIException {
-        wfRepo.setBranch("2.0.0");
+    @Test
+    public void changeToTagTest() {
+        assertThrows(RefNotAdvertisedException.class, () -> wfRepo.setBranch("2.0.0"));
     }
 
 
@@ -190,7 +190,7 @@ public class GitWorkflowRepositoryTest {
         LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         engine.run("Workflow1", "foo");
         String result1 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
-        assertEquals("new branch not loaded, so expect Vmaster", "Vmaster", result1);
+        assertEquals("Vmaster", result1, "new branch not loaded, so expect Vmaster");
     }
 
     @Test
@@ -200,26 +200,26 @@ public class GitWorkflowRepositoryTest {
     }
 
 
-    @Test(expected = InvalidRemoteException.class)
+    @Test
     public void changeURITest() throws Exception {
-        wfRepo.setOriginURI(wfRepo.getOriginUri() + "ERROR_TEST");
-        defaultBranchTest();
+        assertThrows(InvalidRemoteException.class, ()-> wfRepo.setOriginURI(wfRepo.getOriginUri() + "ERROR_TEST"));
     }
 
-    @Test(expected = GitWorkflowRepository.GitWorkflowRepositoryException.class)
+    @Test
     public void startFailureEmptyRepoTest() throws Exception {
         GitWorkflowRepository wfRepo2 = new GitWorkflowRepository();
-        wfRepo2.start();
+        assertThrows(GitWorkflowRepository.GitWorkflowRepositoryException.class, wfRepo2::start);
+
     }
 
-    @Test(expected = GitWorkflowRepository.GitWorkflowRepositoryException.class)
+    @Test
     public void startFailureTargetDirTest() throws Exception {
         GitWorkflowRepository wfRepo2 = new GitWorkflowRepository();
         wfRepo2.setTargetDir(WORK_DIR + "/wf-target2");
-        wfRepo2.start();
+        assertThrows(GitWorkflowRepository.GitWorkflowRepositoryException.class, wfRepo2::start);
     }
 
-    @After
+    @AfterEach
     public void setDown() throws IOException {
         engine.shutdown();
         FileUtils.deleteDirectory(new File(WF_WORK));

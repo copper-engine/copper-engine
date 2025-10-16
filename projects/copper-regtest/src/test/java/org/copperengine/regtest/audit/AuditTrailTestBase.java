@@ -23,9 +23,9 @@ import org.copperengine.core.audit.BatchInsertIntoAutoTrail.Executor;
 import org.copperengine.core.batcher.BatchCommand;
 import org.copperengine.core.batcher.NullCallback;
 import org.copperengine.regtest.persistent.DataSourceFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AuditTrailTestBase {
 
@@ -47,12 +47,12 @@ public abstract class AuditTrailTestBase {
 
     DataSource ds;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         ds = DataSourceFactory.createDerbyDbDatasource();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 

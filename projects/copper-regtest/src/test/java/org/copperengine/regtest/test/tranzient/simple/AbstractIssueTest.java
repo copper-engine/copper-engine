@@ -15,13 +15,13 @@
  */
 package org.copperengine.regtest.test.tranzient.simple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.copperengine.core.EngineState;
 import org.copperengine.regtest.test.tranzient.TransientEngineTestContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AbstractIssueTest {
 

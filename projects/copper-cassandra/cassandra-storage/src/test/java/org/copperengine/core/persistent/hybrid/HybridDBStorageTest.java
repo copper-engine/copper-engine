@@ -15,6 +15,14 @@
  */
 package org.copperengine.core.persistent.hybrid;
 
+import org.copperengine.core.common.WorkflowRepository;
+import org.copperengine.core.persistent.StandardJavaSerializer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -22,21 +30,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.copperengine.core.common.WorkflowRepository;
-import org.copperengine.core.persistent.StandardJavaSerializer;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 public class HybridDBStorageTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
     }
 
@@ -50,7 +50,7 @@ public class HybridDBStorageTest {
         }
         for (int i = 0; i < max; i++) {
             QueueElement qe = dbStorage._poll(ppoolId);
-            Assert.assertNotNull(qe);
+            Assertions.assertNotNull(qe);
         }
     }
 
@@ -94,6 +94,6 @@ public class HybridDBStorageTest {
         exec.shutdown();
         exec.awaitTermination(10000, TimeUnit.MILLISECONDS);
 
-        Assert.assertEquals(max, counter.intValue());
+        Assertions.assertEquals(max, counter.intValue());
     }
 }

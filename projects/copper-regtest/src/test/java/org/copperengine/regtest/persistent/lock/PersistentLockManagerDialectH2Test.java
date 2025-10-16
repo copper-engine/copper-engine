@@ -18,8 +18,8 @@ package org.copperengine.regtest.persistent.lock;
 import org.copperengine.core.persistent.lock.PersistentLockManagerDialect;
 import org.copperengine.core.persistent.lock.PersistentLockManagerDialectSQL;
 import org.copperengine.regtest.persistent.DataSourceFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -37,6 +37,6 @@ public class PersistentLockManagerDialectH2Test extends AbstractPersistentLockMa
 
     @Test
     public void testSupportsMultipleInstances() {
-        Assert.assertFalse(createImplementation().supportsMultipleInstances());
+        Assertions.assertFalse(createImplementation().supportsMultipleInstances());
     }
 }

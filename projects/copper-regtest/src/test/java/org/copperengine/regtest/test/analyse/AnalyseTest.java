@@ -22,11 +22,11 @@ import org.copperengine.regtest.test.MockAdapter;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
 import org.copperengine.regtest.test.tranzient.TransientEngineTestContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * These tests should test, that no side effects are visible for internal core engine changed. The private workflow

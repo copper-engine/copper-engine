@@ -15,15 +15,15 @@
  */
 package org.copperengine.regtest.test.tranzient.simple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.EngineState;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
 import org.copperengine.regtest.test.tranzient.TransientEngineTestContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SubWorkflowTransientEngineTest {
 

@@ -15,16 +15,17 @@
  */
 package org.copperengine.regtest.test.tranzient.simple;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.concurrent.TimeUnit;
-
 import org.copperengine.core.DuplicateIdException;
 import org.copperengine.core.EngineState;
 import org.copperengine.core.WorkflowInstanceDescr;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
 import org.copperengine.regtest.test.tranzient.TransientEngineTestContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SimpleTransientEngineTest {
 
@@ -41,14 +42,17 @@ public class SimpleTransientEngineTest {
 
     }
 
-    @Test(expected = DuplicateIdException.class)
+    @Test
     public void testDuplicateIdException() throws Exception {
         try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
             assertEquals(EngineState.STARTED, ctx.getEngine().getEngineState());
 
             ctx.getEngine().run(new WorkflowInstanceDescr<String>("org.copperengine.regtest.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null, null));
-            ctx.getEngine().run(new WorkflowInstanceDescr<String>("org.copperengine.regtest.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null, null));
+
+            assertThrows(DuplicateIdException.class,
+                         () -> ctx.getEngine().run(new WorkflowInstanceDescr<String>("org.copperengine.regtest.test.tranzient.simple.VerySimpleTransientWorkflow", "data", "singleton", null, null)));
+
         }
     }
 }

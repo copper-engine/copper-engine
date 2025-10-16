@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.regtest.test.persistent;
+package org.copperengine.regtest.test.persistent.springtxn;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -28,23 +28,22 @@ import org.copperengine.core.Interrupt;
 import org.copperengine.core.Response;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.audit.AuditTrail;
-import org.copperengine.core.audit.AbstractAuditTrail;
+import org.copperengine.core.audit.AuditTrailEvent;
 import org.copperengine.core.persistent.PersistentWorkflow;
-import org.copperengine.regtest.test.DBMockAdapter;
+import org.copperengine.regtest.test.MockAdapter;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWorkflow<String> {
+public class SpringTxnUnitTestWorkflow extends PersistentWorkflow<String> {
 
     private static final long serialVersionUID = 1L;
-
-    private static final Logger logger = LoggerFactory.getLogger(PersistentUnitTestWorkflow.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpringTxnUnitTestWorkflow.class);
 
     private transient BackChannelQueue backChannelQueue;
-    private transient DBMockAdapter dbMockAdapter;
-    private transient AbstractAuditTrail auditTrail;
+    private transient MockAdapter mockAdapter;
+    private transient AuditTrail auditTrail;
 
     @AutoWire
     public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
@@ -52,44 +51,56 @@ public class DBMockAdapterUsingPersistentUnitTestWorkflow extends PersistentWork
     }
 
     @AutoWire
-    public void setDbMockAdapter(DBMockAdapter dbMockAdapter) {
-        this.dbMockAdapter = dbMockAdapter;
+    public void setMockAdapter(MockAdapter mockAdapter) {
+        this.mockAdapter = mockAdapter;
     }
 
     @AutoWire
-    public void setAuditTrail(AbstractAuditTrail auditTrail) {
+    public void setAuditTrail(AuditTrail auditTrail) {
         this.auditTrail = auditTrail;
     }
 
     @Override
     public void main() throws Interrupt {
         try {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 3; i++) {
                 callFoo();
                 assertNotNull(this.getCreationTS());
             }
-            auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "finished", null);
             backChannelQueue.enqueue(new WorkflowResult(getData(), null));
-        } catch (Exception e) {
+            backChannelQueue = null;
+            throw new RuntimeException("test exception to abort execution!!!");
+        } catch (RuntimeException e) {
             logger.error("execution failed", e);
-            backChannelQueue.enqueue(new WorkflowResult(null, e));
+            if (backChannelQueue != null)
+                backChannelQueue.enqueue(new WorkflowResult(null, e));
+            throw e;
         }
-        // finally {
-        // System.out.println("xxx");
-        // }
     }
 
     private void callFoo() throws Interrupt {
         String cid = getEngine().createUUID();
-        dbMockAdapter.foo(getData(), cid);
+        // This is running within the current DB transaction
+        auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "beforeFoo", getId(), cid, cid, "beforeFoo", "String", null));
+
+        mockAdapter.foo(getData(), cid);
+
+        // current Txn ends here
         wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, cid);
+        // new Txn starts here
+
         Response<?> res = getAndRemoveResponse(cid);
         logger.info(res.toString());
+
+        auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "afterFoo", getId(), cid, cid, "afterFoo - result = " + res.toString(), "String", null));
+
         assertNotNull(res);
         assertFalse(res.isTimeout());
         assertEquals(getData(), res.getResponse());
         assertNull(res.getException());
-        auditTrail.synchLog(0, new Date(), "unittest", "-", this.getId(), null, null, "foo successfully called", "TEXT");
+
+        // This is also running within the current DB transaction
+        auditTrail.synchLog(new AuditTrailEvent(1, new Date(), cid, "Assertions checked", getId(), cid, cid, "Assertions checked", "String", null));
     }
 
 }

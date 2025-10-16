@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.regtest.test.tranzient.simple;
+package org.copperengine.regtest.test.persistent.subworkflow;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +31,7 @@ import org.copperengine.core.persistent.PersistentWorkflow;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
 
-public class SimpleTestParentWorkflow extends PersistentWorkflow<String> {
+public class TestParentWorkflow extends PersistentWorkflow<String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -47,13 +47,12 @@ public class SimpleTestParentWorkflow extends PersistentWorkflow<String> {
         try {
             // create and launch the children
             final String id = getEngine().createUUID();
+            getEngine().run(new WorkflowInstanceDescr<String>(TestChildWorkflow.class.getName(), "12345", id, null, null));
 
-            getEngine().run(new WorkflowInstanceDescr<String>(SimpleTestChildWorkflow.class.getName(), "12345", id, null, null));
-
-            // wait for the child to finish
+            // wait for the children to finish
             wait(WaitMode.ALL, 10000, TimeUnit.MILLISECONDS, id);
 
-            // collect the response
+            // collect the responses
             Response<String> r = getAndRemoveResponse(id);
             assertNotNull(r);
             assertNotNull(r.getResponse());

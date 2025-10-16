@@ -23,7 +23,7 @@ import org.copperengine.core.batcher.BatchExecutor;
 import org.copperengine.core.batcher.CommandCallback;
 import org.copperengine.core.batcher.NullCallback;
 import org.copperengine.core.batcher.RetryingTxnBatchRunner;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

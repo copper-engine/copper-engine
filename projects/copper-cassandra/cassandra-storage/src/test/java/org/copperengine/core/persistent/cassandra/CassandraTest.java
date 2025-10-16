@@ -31,15 +31,12 @@ package org.copperengine.core.persistent.cassandra;
  * limitations under the License.
  */
 
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
-import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Cluster.Builder;
-import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.NoHostAvailableException;
+import org.junit.jupiter.api.BeforeAll;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CassandraTest {
 
@@ -49,7 +46,7 @@ public class CassandraTest {
 
     protected static UnitTestCassandraEngineFactory factory;
 
-    @BeforeClass
+    @BeforeAll
     public synchronized static void setUpBeforeClass() throws Exception {
         if (factory == null) {
 //            logger.info("Starting embedded cassandra...");

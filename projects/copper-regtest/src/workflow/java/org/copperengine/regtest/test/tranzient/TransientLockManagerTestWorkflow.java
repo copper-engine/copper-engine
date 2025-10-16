@@ -23,7 +23,7 @@ import org.copperengine.regtest.test.tranzient.lockManager.TransientLockEvaluati
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TransientLockManagerTestWorkflow extends Workflow<Integer> {
 
