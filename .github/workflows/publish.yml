@@ -3,11 +3,6 @@ name: Build and upload
 on:
   release:
     types: [ created ]
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to publish (leave empty to use version from build.gradle)'
-        required: true
 
 jobs:
   build:
@@ -35,10 +30,5 @@ jobs:
         with:
           distribution: zulu
           java-version: 17
-      - name: Set version if provided
-        if: github.event.inputs.version != ''
-        run: |
-          sed -i "s/version = .*/version = ${{ github.event.inputs.version }}/g" gradle.properties
       - name: Upload archives
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: ./gradlew -Psigning.secretKeyRingFile=secring.gpg -Psigning.password=${{ secrets.SIGNING_PASSWORD }} -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }} --no-daemon --no-parallel --info --full-stacktrace publishAggregationToCentralPortal
