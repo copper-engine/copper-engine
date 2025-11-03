@@ -31,4 +31,4 @@ jobs:
           distribution: zulu
           java-version: 17
       - name: Upload archives
-        run: ./gradlew -Psigning.secretKeyRingFile=secring.gpg -Psigning.password=${{ secrets.SIGNING_PASSWORD }} -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }} --no-daemon --no-parallel --info --full-stacktrace publishAggregationToCentralPortal
+        run: ./gradlew -Psigning.secretKeyRingFile=$PWD/secring.gpg -Psigning.password=${{ secrets.SIGNING_PASSWORD }} -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }} --no-daemon --no-parallel --info --full-stacktrace publishAggregationToCentralPortal
