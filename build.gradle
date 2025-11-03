@@ -22,8 +22,8 @@ wrapper {
 apply plugin: 'maven-publish'
 nmcpAggregation {
     centralPortal {
-        username = project.findProperty("SONA_TOKEN_USERNAME")?.toString() ?: ""
-        password = project.findProperty("SONA_TOKEN_PASSWORD")?.toString() ?: ""
+        username = System.getenv("SONA_TOKEN_USERNAME")
+        password = System.getenv("SONA_TOKEN_PASSWORD")
         publishingType = "USER_MANAGED"
     }
 }
