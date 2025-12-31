@@ -173,7 +173,6 @@ configure(properSubprojects) {
         useJUnitPlatform()
         minHeapSize = "128m"
         maxHeapSize = "4g"
-        ignoreFailures = true
         jvmArgs += ['--add-opens', 'java.base/java.lang=ALL-UNNAMED']
         testLogging {
             exceptionFormat = 'full'
@@ -213,6 +212,7 @@ project(':projects:copper-regtest') {
 
         testImplementation project(':projects:copper-performance-test')
         testImplementation "mysql:mysql-connector-java:$mysqlVersion"
+        testImplementation "org.apache.derby:derbytools:$derbyVersion"
         testImplementation "org.apache.derby:derby:$derbyVersion"
         testImplementation "postgresql:postgresql:$postgresqlVersion"
         testImplementation "com.h2database:h2:$h2Version"
