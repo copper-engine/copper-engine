@@ -30,9 +30,12 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 
+    private static final Logger logger = LoggerFactory.getLogger(ScottyMethodAdapter.class);
     public static final Set<String> waitMethods;
 
     static {
@@ -73,6 +76,15 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
         super.visitCode();
         visitJumpInsn(GOTO, switchLabelAtEnd);
         visitLabel(begin);
+    }
+
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+        if (opcode == Opcodes.NEW &&
+                "org/copperengine/core/Interrupt".equals(type)) {
+            logger.warn("Illegal code: Interrupt class is for COPPER internal use only!!!");
+        }
+        super.visitTypeInsn(opcode, type);
     }
 
     void pushLocals(StackInfo info) {
@@ -294,7 +306,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             if ("main".equals(name) && "()V".equals(desc)) {
                 visitInsn(RETURN);
             } else {
-                visitTypeInsn(NEW, "org/copperengine/core/Interrupt");
+                super.visitTypeInsn(NEW, "org/copperengine/core/Interrupt");
                 visitInsn(DUP);
                 visitMethodInsn(INVOKESPECIAL, "org/copperengine/core/Interrupt", "<init>", "()V", false);
                 visitInsn(ATHROW);
