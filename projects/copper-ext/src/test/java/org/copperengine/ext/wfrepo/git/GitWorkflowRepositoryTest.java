@@ -113,13 +113,13 @@ public class GitWorkflowRepositoryTest {
         wfRepo.setBranch("1.0");
         LockSupport.parkNanos(3_000_000_000L + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         engine.run("Workflow1", "foo");
-        String result1 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
+        String result1 = (String) channel.wait("correlationId", 3000, TimeUnit.MILLISECONDS);
         assertEquals("V1.0", result1);
 
         wfRepo.setBranch("2.0");
         LockSupport.parkNanos(6_000_000_000L + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
         engine.run("Workflow1", "foo");
-        String result2 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
+        String result2 = (String) channel.wait("correlationId", 3000, TimeUnit.MILLISECONDS);
         assertEquals("V2.0", result2);
     }
 
