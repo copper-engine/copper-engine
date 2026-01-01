@@ -23,12 +23,15 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LineNumberNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
@@ -81,6 +84,7 @@ public class TryCatchBlockHandler {
 
                 LabelNode labelNode4ifeg = new LabelNode();
                 InsnList newCode = new InsnList();
+                trace("Start instrumentation tryCatchBlock", newCode);
                 newCode.add(new VarInsnNode(Opcodes.ALOAD, varInsnNode.var));
                 newCode.add(new TypeInsnNode(Opcodes.INSTANCEOF, INTERRUPT_EXCEPTION_NAME));
                 newCode.add(new JumpInsnNode(Opcodes.IFEQ, labelNode4ifeg));
@@ -88,8 +92,19 @@ public class TryCatchBlockHandler {
                 newCode.add(new TypeInsnNode(Opcodes.CHECKCAST, INTERRUPT_EXCEPTION_NAME));
                 newCode.add(new InsnNode(Opcodes.ATHROW));
                 newCode.add(labelNode4ifeg);
+                trace("End instrumentation tryCatchBlock", newCode);
                 m.instructions.insert(insertPoint, newCode);
             }
+        }
+    }
+
+    private void trace(String message, InsnList newCode) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(message);
+
+            newCode.add(new FieldInsnNode(Opcodes.GETSTATIC, "org/copperengine/core/Workflow", "logger", "Lorg/slf4j/Logger;"));
+            newCode.add(new LdcInsnNode(message));
+            newCode.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "org/slf4j/Logger", "trace", "(Ljava/lang/String;)V", true));
         }
     }
 }
