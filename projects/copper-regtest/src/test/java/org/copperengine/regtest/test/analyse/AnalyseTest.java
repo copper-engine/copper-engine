@@ -15,11 +15,8 @@
  */
 package org.copperengine.regtest.test.analyse;
 
-import org.copperengine.core.AutoWire;
 import org.copperengine.core.CopperException;
 import org.copperengine.core.EngineState;
-import org.copperengine.regtest.test.MockAdapter;
-import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
 import org.copperengine.regtest.test.tranzient.TransientEngineTestContext;
 import org.junit.jupiter.api.Test;
@@ -84,11 +81,11 @@ public class AnalyseTest {
 
     @Test
     public void testWorkflow() throws Exception {
-        doTest("org.copperengine.regtest.test.analyse.AnalyseWorkflow1", "15");
+        doTest("org.copperengine.regtest.test.analyse.AnalyseWorkflow1");
 
     }
 
-    private void doTest(String wfClassname, String expectedResult) throws CopperException, InterruptedException {
+    private void doTest(String wfClassname) throws CopperException, InterruptedException {
 
         try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
@@ -98,7 +95,11 @@ public class AnalyseTest {
 
             WorkflowResult response = ctx.getBackChannelQueue().dequeue(3000, TimeUnit.MILLISECONDS);
             //
-            assertEquals("Analyse string should only be changed by core impl or changed fomatting in workflow.", STACK_RESULT.replaceAll("Workflow \\[id=[^,]*, ", "Workflow ["), ((String) response.getResult()).toString().replaceAll("Workflow \\[id=[^,]*, ", "Workflow ["));
+            assertEquals(
+                    STACK_RESULT.replaceAll("Workflow \\[id=[^,]*, ", "Workflow ["),
+                    ((String) response.getResult()).replaceAll("Workflow \\[id=[^,]*, ", "Workflow ["),
+                    "Analyse string should only be changed by core impl or changed fomatting in workflow."
+            );
         }
     }
 }
