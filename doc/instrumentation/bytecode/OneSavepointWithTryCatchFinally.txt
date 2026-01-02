@@ -1,0 +1,100 @@
+// class version 61.0 (61)
+// access flags 0x21
+// signature Lorg/copperengine/core/Workflow<Ljava/lang/Void;>;
+// declaration: test/OneSavepointWithTryCatchFinally extends org.copperengine.core.Workflow<java.lang.Void>
+public class test/OneSavepointWithTryCatchFinally extends org/copperengine/core/Workflow {
+
+  // compiled from: OneSavepointWithTryCatchFinally.java
+
+  // access flags 0x1
+  public <init>()V
+   L0
+    LINENUMBER 21 L0
+    ALOAD 0
+    INVOKESPECIAL org/copperengine/core/Workflow.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ltest/OneSavepointWithTryCatchFinally; L0 L1 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public main()V throws org/copperengine/core/Interrupt
+    TRYCATCHBLOCK L0 L1 L2 java/lang/Exception
+    TRYCATCHBLOCK L0 L1 L3 null
+    TRYCATCHBLOCK L2 L4 L3 null
+   L5
+    LINENUMBER 25 L5
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "main start"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L0
+    LINENUMBER 27 L0
+    ICONST_1
+    ISTORE 1
+   L6
+    LINENUMBER 28 L6
+    ICONST_2
+    ISTORE 2
+   L7
+    LINENUMBER 29 L7
+    ALOAD 0
+    INVOKEVIRTUAL test/OneSavepointWithTryCatchFinally.savepoint ()V
+   L8
+    LINENUMBER 30 L8
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "jumpNo=0"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L1
+    LINENUMBER 35 L1
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "Finally" // <1>
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L9
+    LINENUMBER 36 L9
+    GOTO L10
+   L2
+    LINENUMBER 31 L2
+   FRAME SAME1 java/lang/Exception
+    ASTORE 1
+   L11
+    LINENUMBER 32 L11
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "Exception"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L12
+    LINENUMBER 33 L12
+    NEW java/lang/RuntimeException
+    DUP
+    ALOAD 1
+    INVOKESPECIAL java/lang/RuntimeException.<init> (Ljava/lang/Throwable;)V
+    ATHROW
+   L3
+    LINENUMBER 35 L3
+   FRAME SAME1 java/lang/Throwable
+    ASTORE 3
+   L4
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "Finally" // <2>
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L13
+    LINENUMBER 36 L13
+    ALOAD 3
+    ATHROW
+   L10
+    LINENUMBER 37 L10
+   FRAME SAME
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "main end"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L14
+    LINENUMBER 38 L14
+    RETURN
+   L15
+    LOCALVARIABLE i1 I L6 L1 1
+    LOCALVARIABLE i2 I L7 L1 2
+    LOCALVARIABLE e Ljava/lang/Exception; L11 L3 1
+    LOCALVARIABLE this Ltest/OneSavepointWithTryCatchFinally; L5 L15 0
+    MAXSTACK = 3
+    MAXLOCALS = 4
+}

@@ -1,0 +1,59 @@
+// class version 61.0 (61)
+// access flags 0x21
+// signature Lorg/copperengine/core/Workflow<Ljava/lang/Void;>;
+// declaration: test/OneSavepoint extends org.copperengine.core.Workflow<java.lang.Void>
+public class test/OneSavepoint extends org/copperengine/core/Workflow {
+
+  // compiled from: OneSavepoint.java
+
+  // access flags 0x1
+  public <init>()V // <1>
+   L0
+    LINENUMBER 6 L0
+    ALOAD 0
+    INVOKESPECIAL org/copperengine/core/Workflow.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ltest/OneSavepoint; L0 L1 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public main()V throws org/copperengine/core/Interrupt // <2>
+   L0
+    LINENUMBER 10 L0
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "main start"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L1
+    LINENUMBER 11 L1
+    ICONST_1
+    ISTORE 1
+   L2
+    LINENUMBER 12 L2
+    ICONST_2
+    ISTORE 2
+   L3
+    LINENUMBER 13 L3
+    ALOAD 0
+    INVOKEVIRTUAL test/OneSavepoint.savepoint ()V // <3>
+   L4
+    LINENUMBER 14 L4
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "jumpNo=0"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L5
+    LINENUMBER 15 L5
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "main end"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L6
+    LINENUMBER 16 L6
+    RETURN
+   L7
+    LOCALVARIABLE this Ltest/OneSavepoint; L0 L7 0
+    LOCALVARIABLE i1 I L2 L7 1
+    LOCALVARIABLE i2 I L3 L7 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
+}
