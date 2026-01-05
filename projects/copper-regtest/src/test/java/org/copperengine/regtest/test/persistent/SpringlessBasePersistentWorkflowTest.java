@@ -183,6 +183,7 @@ public class SpringlessBasePersistentWorkflowTest {
         final BackChannelQueue backChannelQueue = context.getBackChannelQueue();
         try {
             assertEquals(EngineState.STARTED, engine.getEngineState());
+            assertEquals(0, engine.getNumberOfWorkflowInstances());
 
             for (int i = 0; i < NUMB; i++) {
                 engine.run(PersistentUnitTestWorkflow_NAME, DATA);
