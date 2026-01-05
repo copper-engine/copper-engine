@@ -30,9 +30,12 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 
+    private static final Logger logger = LoggerFactory.getLogger(ScottyMethodAdapter.class);
     public static final Set<String> waitMethods;
 
     static {
@@ -73,6 +76,15 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
         super.visitCode();
         visitJumpInsn(GOTO, switchLabelAtEnd);
         visitLabel(begin);
+    }
+
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+        if (opcode == Opcodes.NEW &&
+                "org/copperengine/core/Interrupt".equals(type)) {
+            logger.warn("Illegal code: Interrupt class is for COPPER internal use only!!!");
+        }
+        super.visitTypeInsn(opcode, type);
     }
 
     void pushLocals(StackInfo info) {
@@ -280,6 +292,8 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
         if (waitMethods.contains(signature)) {
             super.visitMethodInsn(opcode, owner, name, desc, isInterface);
 
+            trace("Start instrumentation waitMethods in visitMethodInsn (" + name + ")");
+
             int idx = interuptibleCalls.size();
             StackInfo currentStackInfo = stackInfo.getCurrentStackInfo();
             Label label = new Label();
@@ -294,14 +308,19 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             if ("main".equals(name) && "()V".equals(desc)) {
                 visitInsn(RETURN);
             } else {
-                visitTypeInsn(NEW, "org/copperengine/core/Interrupt");
+                super.visitTypeInsn(NEW, "org/copperengine/core/Interrupt");
                 visitInsn(DUP);
                 visitMethodInsn(INVOKESPECIAL, "org/copperengine/core/Interrupt", "<init>", "()V", false);
                 visitInsn(ATHROW);
             }
             visitLabel(label);
             popStackEntry();
+
+            trace("End instrumentation waitMethods in visitMethodInsn (" + name + ")");
+
         } else if (interruptableMethods.contains(signature)) {
+            trace("Start instrumentation interruptableMethods in visitMethodInsn (" + name + ")");
+
             Label invokeLabel = new Label();
             Label afterInvokeLabel = new Label();
             Label nopLabel = new Label();
@@ -337,8 +356,21 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             // logger.info("Calling super.visitTryCatchBlock("+invokeLabel+", "+afterInvokeLabel+", "+interruptLabel+", \"org/copperengine/core/Interrupt\")");
             super.visitTryCatchBlock(invokeLabel, afterInvokeLabel, interruptLabel, "org/copperengine/core/Interrupt");
             super.visitTryCatchBlock(invokeLabel, afterInvokeLabel, throwableHandler, "java/lang/Throwable");
+
+            trace("End instrumentation interruptableMethods in visitMethodInsn (" + name + ")");
+
         } else {
             super.visitMethodInsn(opcode, owner, name, desc, isInterface);
+        }
+    }
+
+    private void trace(String message) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(message);
+            visitFieldInsn(GETSTATIC, "org/copperengine/core/Workflow", "logger", "Lorg/slf4j/Logger;");
+            visitLdcInsn(message);
+            super.visitMethodInsn(INVOKEINTERFACE, "org/slf4j/Logger", "trace", "(Ljava/lang/String;)V", true);
+
         }
     }
 
@@ -386,6 +418,9 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 
         Label switchStmtLabel = new Label();
         visitLabel(switchLabelAtEnd);
+
+        trace("Start instrumentation in visitEnd");
+
         visitVarInsn(ALOAD, 0);
         visitFieldInsn(GETFIELD, currentClassName, "__stack", "Ljava/util/Stack;");
         visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(Stack.class), "size", "()I");
@@ -402,6 +437,8 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
         visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(Stack.class), "get", "(I)Ljava/lang/Object;");
         visitTypeInsn(CHECKCAST, Type.getInternalName(StackEntry.class));
         visitFieldInsn(GETFIELD, Type.getInternalName(StackEntry.class), "jumpNo", "I");
+
+        trace("Inside instrumentation in visitEnd");
 
         if (!interuptibleCalls.isEmpty()) {
             int labelNo = 0;
@@ -424,6 +461,9 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
                 info.addLabelInfo(new MethodInfo.LabelInfo(labelNo, currentLabelInfo.lineNo, Arrays.asList(stackInfo.getLocalNames(currentLabelInfo.lineNo, currentLabelInfo.localsSize())), Arrays.asList(stackInfo.getLocalDescriptors(currentLabelInfo.lineNo, currentLabelInfo.localsSize())), currentLabelInfo.locals, currentLabelInfo.stack, call.methodName, call.descriptor));
                 ++labelNo;
             }
+
+            trace("End instrumentation in visitEnd");
+
             visitTypeInsn(NEW, "java/lang/RuntimeException");
             visitInsn(DUP);
             visitLdcInsn("No such label");

@@ -1,10 +1,13 @@
-COPPER 6.0.1
+COPPER 6.1.0
 ============
 - Maintenance: Downgrade derby 10.17.1.0 -> 10.16.1.1 to run on jdk 17
 - Maintenance: Add derbytools 10.16.1.1 make derby tests run again
 - Maintenance: Make H2 tests run again
 - Maintenance: Make tests run again
 - Maintenance: Fail build on test failures
+- New feature: Log warn on new Interrupt() usage
+- New feature: Improve tracing for instrumentation package
+- Documentation enhancement: Add COPPER-instrumentation
 
 COPPER 6.0.0
 ============

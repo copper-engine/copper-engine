@@ -1,0 +1,174 @@
+// class version 61.0 (61)
+// access flags 0x21
+// signature Lorg/copperengine/core/Workflow<Ljava/lang/Void;>;
+// declaration: test/OneSavepoint extends org.copperengine.core.Workflow<java.lang.Void>
+public class test/OneSavepoint extends org/copperengine/core/Workflow {
+
+  // compiled from: OneSavepoint.java
+
+  @Lorg/copperengine/core/instrument/Transformed;()
+
+  // access flags 0x1
+  public <init>()V
+   L0
+    LINENUMBER 6 L0
+    ALOAD 0
+    INVOKESPECIAL org/copperengine/core/Workflow.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ltest/OneSavepoint; L0 L1 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public main()V throws org/copperengine/core/Interrupt
+    GOTO L0 // <1>
+   L1 // <2>
+    LINENUMBER 10 L1
+   FRAME SAME
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "main start"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L2
+    LINENUMBER 11 L2
+    ICONST_1
+    ISTORE 1
+   L3
+    LINENUMBER 12 L3
+    ICONST_2
+    ISTORE 2
+   L4
+    LINENUMBER 13 L4
+    ALOAD 0
+    INVOKEVIRTUAL test/OneSavepoint.savepoint ()V // <3>
+    SIPUSH 0
+    ANEWARRAY java/lang/Object
+    NEW org/copperengine/core/StackEntry // <4>
+    DUP_X1
+    DUP_X1
+    POP
+    SIPUSH 0
+    SIPUSH 3
+    ANEWARRAY java/lang/Object
+    DUP
+    SIPUSH 0
+    ALOAD 0
+    AASTORE
+    DUP
+    SIPUSH 1
+    ILOAD 1
+    INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+    AASTORE
+    DUP
+    SIPUSH 2
+    ILOAD 2
+    INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+    AASTORE
+    INVOKESPECIAL org/copperengine/core/StackEntry.<init> ([Ljava/lang/Object;I[Ljava/lang/Object;)V
+    ALOAD 0
+    GETFIELD test/OneSavepoint.__stack : Ljava/util/Stack;
+    SWAP
+    INVOKEVIRTUAL java/util/Stack.push (Ljava/lang/Object;)Ljava/lang/Object;
+    POP
+    ALOAD 0
+    DUP
+    GETFIELD test/OneSavepoint.__stackPosition : I
+    ICONST_1
+    IADD
+    PUTFIELD test/OneSavepoint.__stackPosition : I
+    NEW org/copperengine/core/Interrupt
+    DUP
+    INVOKESPECIAL org/copperengine/core/Interrupt.<init> ()V
+    ATHROW
+   L5 // <5>
+   FRAME APPEND [I I]
+    ALOAD 0
+    GETFIELD test/OneSavepoint.__stack : Ljava/util/Stack;
+    INVOKEVIRTUAL java/util/Stack.pop ()Ljava/lang/Object;
+    POP
+    ALOAD 0
+    DUP
+    GETFIELD test/OneSavepoint.__stackPosition : I
+    ICONST_1
+    ISUB
+    PUTFIELD test/OneSavepoint.__stackPosition : I
+   L6
+    LINENUMBER 14 L6
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "jumpNo=0"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L7
+    LINENUMBER 15 L7
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "main end"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L8
+    LINENUMBER 16 L8
+    RETURN
+   L0 // <6>
+   FRAME CHOP 2
+    ALOAD 0
+    GETFIELD test/OneSavepoint.__stack : Ljava/util/Stack;
+    INVOKEVIRTUAL java/util/Stack.size ()I
+    ALOAD 0
+    GETFIELD test/OneSavepoint.__stackPosition : I
+    IF_ICMPNE L9
+    GOTO L1 // <7>
+   L9
+   FRAME SAME
+    ALOAD 0
+    GETFIELD test/OneSavepoint.__stack : Ljava/util/Stack;
+    ALOAD 0
+    GETFIELD test/OneSavepoint.__stackPosition : I
+    INVOKEVIRTUAL java/util/Stack.get (I)Ljava/lang/Object;
+    CHECKCAST org/copperengine/core/StackEntry
+    GETFIELD org/copperengine/core/StackEntry.jumpNo : I
+    DUP
+    SIPUSH 0
+    IF_ICMPNE L10
+    POP
+    ALOAD 0
+    GETFIELD test/OneSavepoint.__stack : Ljava/util/Stack;
+    ALOAD 0
+    GETFIELD test/OneSavepoint.__stackPosition : I
+    INVOKEVIRTUAL java/util/Stack.get (I)Ljava/lang/Object; // <8>
+    CHECKCAST org/copperengine/core/StackEntry
+    GETFIELD org/copperengine/core/StackEntry.locals : [Ljava/lang/Object;
+    DUP
+    SIPUSH 0
+    AALOAD
+    CHECKCAST test/OneSavepoint
+    ASTORE 0
+    DUP
+    SIPUSH 1
+    AALOAD
+    CHECKCAST java/lang/Integer
+    INVOKEVIRTUAL java/lang/Integer.intValue ()I
+    ISTORE 1
+    DUP
+    SIPUSH 2
+    AALOAD
+    CHECKCAST java/lang/Integer
+    INVOKEVIRTUAL java/lang/Integer.intValue ()I
+    ISTORE 2
+    POP
+    ALOAD 0
+    DUP
+    GETFIELD test/OneSavepoint.__stackPosition : I
+    ICONST_1
+    IADD
+    PUTFIELD test/OneSavepoint.__stackPosition : I
+    GOTO L5 // <9>
+   L10
+   FRAME SAME1 I
+    NEW java/lang/RuntimeException
+    DUP
+    LDC "No such label"
+    INVOKESPECIAL java/lang/RuntimeException.<init> (Ljava/lang/String;)V
+    ATHROW
+    LOCALVARIABLE this Ltest/OneSavepoint; L1 L0 0
+    LOCALVARIABLE i1 I L3 L0 1
+    LOCALVARIABLE i2 I L4 L0 2
+    MAXSTACK = 8
+    MAXLOCALS = 3
+}

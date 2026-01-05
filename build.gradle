@@ -326,6 +326,12 @@ project(':projects:copper-coreengine') {
         implementation "org.ow2.asm:asm-analysis:$asmVersion"
     }
 
+//    sourceSets {
+//        test.java {
+//            srcDir file('src/test/workflow')
+//        }
+//    }
+
     tasks.register('scriptsZip', Zip) {
         archiveClassifier = 'scripts'
         from file("src/main/database")

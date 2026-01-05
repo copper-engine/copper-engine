@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public abstract class Workflow<D> implements Serializable {
 
     private static final long serialVersionUID = -6351894157077862055L;
-    private static final Logger logger = LoggerFactory.getLogger(Workflow.class);
+    protected static final Logger logger = LoggerFactory.getLogger(Workflow.class);
 
     /**
      * Constant value for {@link Workflow#wait(WaitMode, int, Callback...)} and

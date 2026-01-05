@@ -1,0 +1,258 @@
+// class version 61.0 (61)
+// access flags 0x21
+// signature Lorg/copperengine/core/Workflow<Ljava/lang/Void;>;
+// declaration: test/OneSavepointWithTryCatchFinally extends org.copperengine.core.Workflow<java.lang.Void>
+public class test/OneSavepointWithTryCatchFinally extends org/copperengine/core/Workflow {
+
+  // compiled from: OneSavepointWithTryCatchFinally.java
+
+  @Lorg/copperengine/core/instrument/Transformed;()
+
+  // access flags 0x1
+  public <init>()V
+   L0
+    LINENUMBER 21 L0
+    ALOAD 0
+    INVOKESPECIAL org/copperengine/core/Workflow.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ltest/OneSavepointWithTryCatchFinally; L0 L1 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public main()V throws org/copperengine/core/Interrupt
+    TRYCATCHBLOCK L0 L1 L2 java/lang/Exception
+    TRYCATCHBLOCK L0 L1 L3 null
+    TRYCATCHBLOCK L2 L4 L3 null
+    GOTO L5
+   L6
+    LINENUMBER 25 L6
+   FRAME SAME
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "main start"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L0
+    LINENUMBER 27 L0
+    ICONST_1
+    ISTORE 1
+   L7
+    LINENUMBER 28 L7
+    ICONST_2
+    ISTORE 2
+   L8
+    LINENUMBER 29 L8
+    ALOAD 0
+    INVOKEVIRTUAL test/OneSavepointWithTryCatchFinally.savepoint ()V
+    GETSTATIC org/copperengine/core/Workflow.logger : Lorg/slf4j/Logger;
+    LDC "Start instrumentation waitMethods in visitMethodInsn (savepoint)" // <1>
+    INVOKEINTERFACE org/slf4j/Logger.trace (Ljava/lang/String;)V (itf)
+    SIPUSH 0
+    ANEWARRAY java/lang/Object
+    NEW org/copperengine/core/StackEntry
+    DUP_X1
+    DUP_X1
+    POP
+    SIPUSH 0
+    SIPUSH 3
+    ANEWARRAY java/lang/Object
+    DUP
+    SIPUSH 0
+    ALOAD 0
+    AASTORE
+    DUP
+    SIPUSH 1
+    ILOAD 1
+    INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+    AASTORE
+    DUP
+    SIPUSH 2
+    ILOAD 2
+    INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+    AASTORE
+    INVOKESPECIAL org/copperengine/core/StackEntry.<init> ([Ljava/lang/Object;I[Ljava/lang/Object;)V
+    ALOAD 0
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stack : Ljava/util/Stack;
+    SWAP
+    INVOKEVIRTUAL java/util/Stack.push (Ljava/lang/Object;)Ljava/lang/Object;
+    POP
+    ALOAD 0
+    DUP
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stackPosition : I
+    ICONST_1
+    IADD
+    PUTFIELD test/OneSavepointWithTryCatchFinally.__stackPosition : I
+    NEW org/copperengine/core/Interrupt
+    DUP
+    INVOKESPECIAL org/copperengine/core/Interrupt.<init> ()V
+    ATHROW
+   L9
+   FRAME APPEND [I I]
+    ALOAD 0
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stack : Ljava/util/Stack;
+    INVOKEVIRTUAL java/util/Stack.pop ()Ljava/lang/Object;
+    POP
+    ALOAD 0
+    DUP
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stackPosition : I
+    ICONST_1
+    ISUB
+    PUTFIELD test/OneSavepointWithTryCatchFinally.__stackPosition : I
+    GETSTATIC org/copperengine/core/Workflow.logger : Lorg/slf4j/Logger;
+    LDC "End instrumentation waitMethods in visitMethodInsn (savepoint)" // <2>
+    INVOKEINTERFACE org/slf4j/Logger.trace (Ljava/lang/String;)V (itf)
+   L10
+    LINENUMBER 30 L10
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "jumpNo=0"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L1
+    LINENUMBER 35 L1
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "Finally"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L11
+    LINENUMBER 36 L11
+    GOTO L12
+   L2
+    LINENUMBER 31 L2
+   FRAME FULL [test/OneSavepointWithTryCatchFinally] [java/lang/Exception]
+    ASTORE 1
+    GETSTATIC org/copperengine/core/Workflow.logger : Lorg/slf4j/Logger;
+    LDC "Start instrumentation tryCatchBlock" // <3>
+    INVOKEINTERFACE org/slf4j/Logger.trace (Ljava/lang/String;)V (itf)
+    ALOAD 1
+    INSTANCEOF org/copperengine/core/Interrupt
+    IFEQ L13
+    ALOAD 1
+    CHECKCAST org/copperengine/core/Interrupt
+    ATHROW
+   L13
+   FRAME APPEND [java/lang/Exception]
+    GETSTATIC org/copperengine/core/Workflow.logger : Lorg/slf4j/Logger;
+    LDC "End instrumentation tryCatchBlock" // <4>
+    INVOKEINTERFACE org/slf4j/Logger.trace (Ljava/lang/String;)V (itf)
+   L14
+    LINENUMBER 32 L14
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "Exception"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L15
+    LINENUMBER 33 L15
+    NEW java/lang/RuntimeException
+    DUP
+    ALOAD 1
+    INVOKESPECIAL java/lang/RuntimeException.<init> (Ljava/lang/Throwable;)V
+    ATHROW
+   L3
+    LINENUMBER 35 L3
+   FRAME FULL [test/OneSavepointWithTryCatchFinally] [java/lang/Throwable]
+    ASTORE 3
+   L4
+    GETSTATIC org/copperengine/core/Workflow.logger : Lorg/slf4j/Logger;
+    LDC "Start instrumentation tryCatchBlock" // <5>
+    INVOKEINTERFACE org/slf4j/Logger.trace (Ljava/lang/String;)V (itf)
+    ALOAD 3
+    INSTANCEOF org/copperengine/core/Interrupt
+    IFEQ L16
+    ALOAD 3
+    CHECKCAST org/copperengine/core/Interrupt
+    ATHROW
+   L16
+   FRAME APPEND [T T java/lang/Throwable]
+    GETSTATIC org/copperengine/core/Workflow.logger : Lorg/slf4j/Logger;
+    LDC "End instrumentation tryCatchBlock" // <6>
+    INVOKEINTERFACE org/slf4j/Logger.trace (Ljava/lang/String;)V (itf)
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "Finally"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L17
+    LINENUMBER 36 L17
+    ALOAD 3
+    ATHROW
+   L12
+    LINENUMBER 37 L12
+   FRAME FULL [test/OneSavepointWithTryCatchFinally I I] []
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "main end"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L18
+    LINENUMBER 38 L18
+    RETURN
+   L5
+   FRAME CHOP 2
+    GETSTATIC org/copperengine/core/Workflow.logger : Lorg/slf4j/Logger;
+    LDC "Start instrumentation in visitEnd" // <7>
+    INVOKEINTERFACE org/slf4j/Logger.trace (Ljava/lang/String;)V (itf)
+    ALOAD 0
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stack : Ljava/util/Stack;
+    INVOKEVIRTUAL java/util/Stack.size ()I
+    ALOAD 0
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stackPosition : I
+    IF_ICMPNE L19
+    GOTO L6
+   L19
+   FRAME SAME
+    ALOAD 0
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stack : Ljava/util/Stack;
+    ALOAD 0
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stackPosition : I
+    INVOKEVIRTUAL java/util/Stack.get (I)Ljava/lang/Object;
+    CHECKCAST org/copperengine/core/StackEntry
+    GETFIELD org/copperengine/core/StackEntry.jumpNo : I
+    GETSTATIC org/copperengine/core/Workflow.logger : Lorg/slf4j/Logger;
+    LDC "Inside instrumentation in visitEnd" // <8>
+    INVOKEINTERFACE org/slf4j/Logger.trace (Ljava/lang/String;)V (itf)
+    DUP
+    SIPUSH 0
+    IF_ICMPNE L20
+    POP
+    ALOAD 0
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stack : Ljava/util/Stack;
+    ALOAD 0
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stackPosition : I
+    INVOKEVIRTUAL java/util/Stack.get (I)Ljava/lang/Object;
+    CHECKCAST org/copperengine/core/StackEntry
+    GETFIELD org/copperengine/core/StackEntry.locals : [Ljava/lang/Object;
+    DUP
+    SIPUSH 0
+    AALOAD
+    CHECKCAST test/OneSavepointWithTryCatchFinally
+    ASTORE 0
+    DUP
+    SIPUSH 1
+    AALOAD
+    CHECKCAST java/lang/Integer
+    INVOKEVIRTUAL java/lang/Integer.intValue ()I
+    ISTORE 1
+    DUP
+    SIPUSH 2
+    AALOAD
+    CHECKCAST java/lang/Integer
+    INVOKEVIRTUAL java/lang/Integer.intValue ()I
+    ISTORE 2
+    POP
+    ALOAD 0
+    DUP
+    GETFIELD test/OneSavepointWithTryCatchFinally.__stackPosition : I
+    ICONST_1
+    IADD
+    PUTFIELD test/OneSavepointWithTryCatchFinally.__stackPosition : I
+    GOTO L9
+   L20
+   FRAME SAME1 I
+    GETSTATIC org/copperengine/core/Workflow.logger : Lorg/slf4j/Logger;
+    LDC "End instrumentation in visitEnd" // <9>
+    INVOKEINTERFACE org/slf4j/Logger.trace (Ljava/lang/String;)V (itf)
+    NEW java/lang/RuntimeException
+    DUP
+    LDC "No such label"
+    INVOKESPECIAL java/lang/RuntimeException.<init> (Ljava/lang/String;)V
+    ATHROW
+    LOCALVARIABLE i1 I L7 L1 1
+    LOCALVARIABLE i2 I L8 L1 2
+    LOCALVARIABLE e Ljava/lang/Exception; L14 L3 1
+    LOCALVARIABLE this Ltest/OneSavepointWithTryCatchFinally; L6 L5 0
+    MAXSTACK = 8
+    MAXLOCALS = 4
+}
