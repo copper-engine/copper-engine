@@ -554,6 +554,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
+<p>Version 1.0.1</p>
+</div>
+<div class="paragraph">
 <p>This documentation should help to understand the implementation of
 <a href="https://en.wikipedia.org/wiki/Continuation">continuations</a> in the <a href="https://copper-engine.org/">COPPER Engine</a> Workflows.</p>
 </div>
@@ -578,7 +581,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="paragraph">
 <p>Continuation is realized by using instrumentation with the <a href="https://asm.ow2.io/">ASM Framework</a>.
-Here we start with analyzing a <a href="#OneSavepoint">first simple Workflow</a> and a <a href="#SavepointsAndSubWorkflows">second more complex Workflow</a>.
+The abstract concept is to throw a <code>Throwable</code> (<code>Interrupt</code>) at each <code>savepoint</code>
+and to store the <code>Workflow</code> object with local variables incl. method parameters for next continuation.
+The <code>Workflow</code> and local variables are restored and the Java Call Stack is reconstructed on next continuation.</p>
+</div>
+<div class="paragraph">
+<p>Now we start with analyzing a <a href="#OneSavepoint">first simple Workflow</a> and a <a href="#SavepointsAndSubWorkflows">second more complex Workflow</a>.
 Then we visit some <a href="#Implementation">Implementation</a> details.</p>
 </div>
 </div>
@@ -2015,12 +2023,12 @@ we already discussed above</p>
 connecting [<code>ScottyMethodAdapter</code>] and [<code>BuildStackInfoAdapter</code>]</p>
 </li>
 <li>
-<p><a href="https://github.com/copper-engine/copper-engine/blob/master/projects/copper-coreengine/src/main/java/org/copperengine/core/instrument/ScottyMethodAdapter.java"><code>ScottyMethodAdapter</code></a>
-implementing major methods <code>visitMethodInsn</code> and <code>visitEnd</code></p>
+<p><a href="https://github.com/copper-engine/copper-engine/blob/master/projects/copper-coreengine/src/main/java/org/copperengine/core/instrument/BuildStackInfoAdapter.java"><code>BuildStackInfoAdapter</code></a>
+keeping track of locals, stacks and type information in <code>StackEntry</code></p>
 </li>
 <li>
-<p><a href="https://github.com/copper-engine/copper-engine/blob/master/projects/copper-coreengine/src/main/java/org/copperengine/core/instrument/BuildStackInfoAdapter.java"><code>BuildStackInfoAdapter</code></a>
-keeping track of type information in <code>StackEntry</code></p>
+<p><a href="https://github.com/copper-engine/copper-engine/blob/master/projects/copper-coreengine/src/main/java/org/copperengine/core/instrument/ScottyMethodAdapter.java"><code>ScottyMethodAdapter</code></a>
+delegate in <code>BuildStackInfoAdapter</code> implementing the major methods <code>visitMethodInsn</code> and <code>visitEnd</code></p>
 </li>
 </ul>
 </div>
@@ -2884,7 +2892,7 @@ These already existed in the not instrumented byte code.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-01-05 11:56:11 +0100
+Last updated 2026-01-08 07:35:12 +0100
 </div>
 </div>
 <script>

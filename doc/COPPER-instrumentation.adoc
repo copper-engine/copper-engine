@@ -6,6 +6,8 @@
 :instrumentedDir: instrumentation/instrumented
 :traceDir: instrumentation/trace
 
+Version 1.0.1
+
 This documentation should help to understand the implementation of
 https://en.wikipedia.org/wiki/Continuation[continuations] in the https://copper-engine.org/[COPPER Engine] Workflows.
 
@@ -18,7 +20,11 @@ COPPER Workflows can be interrupted and continued by using several methods:
 In the following examples `savepoint` is used, but the concept is the same for the other methods.
 
 Continuation is realized by using instrumentation with the https://asm.ow2.io/[ASM Framework].
-Here we start with analyzing a <<OneSavepoint,first simple Workflow>> and a <<SavepointsAndSubWorkflows,second more complex Workflow>>.
+The abstract concept is to throw a `Throwable` (`Interrupt`) at each `savepoint`
+and to store the `Workflow` object with local variables incl. method parameters for next continuation.
+The `Workflow` and local variables are restored and the Java Call Stack is reconstructed on next continuation.
+
+Now we start with analyzing a <<OneSavepoint,first simple Workflow>> and a <<SavepointsAndSubWorkflows,second more complex Workflow>>.
 Then we visit some <<Implementation,Implementation>> details.
 
 [[OneSavepoint]]
@@ -212,10 +218,10 @@ controls the instrumentation using the major classes:
 we already discussed above
 * https://github.com/copper-engine/copper-engine/blob/master/projects/copper-coreengine/src/main/java/org/copperengine/core/instrument/ScottyClassAdapter.java[`ScottyClassAdapter`]
 connecting [`ScottyMethodAdapter`] and [`BuildStackInfoAdapter`]
-* https://github.com/copper-engine/copper-engine/blob/master/projects/copper-coreengine/src/main/java/org/copperengine/core/instrument/ScottyMethodAdapter.java[`ScottyMethodAdapter`]
-implementing major methods `visitMethodInsn` and `visitEnd`
 * https://github.com/copper-engine/copper-engine/blob/master/projects/copper-coreengine/src/main/java/org/copperengine/core/instrument/BuildStackInfoAdapter.java[`BuildStackInfoAdapter`]
-keeping track of type information in `StackEntry`
+keeping track of locals, stacks and type information in `StackEntry`
+* https://github.com/copper-engine/copper-engine/blob/master/projects/copper-coreengine/src/main/java/org/copperengine/core/instrument/ScottyMethodAdapter.java[`ScottyMethodAdapter`]
+delegate in `BuildStackInfoAdapter` implementing the major methods `visitMethodInsn` and `visitEnd`
 
 
 ==== Last Workflow
