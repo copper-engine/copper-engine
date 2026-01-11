@@ -16,11 +16,14 @@
 package org.copperengine.core.tranzient;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Queue;
 
+import org.copperengine.core.Auditor;
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.ProcessingState;
+import org.copperengine.core.StackEntry;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.common.Processor;
 import org.copperengine.core.internal.WorkflowAccessor;
@@ -48,15 +51,35 @@ class TransientProcessor extends Processor {
                 WorkflowAccessor.setProcessingState(wf, ProcessingState.RUNNING);
                 WorkflowAccessor.setLastActivityTS(wf, new Date());
                 wf.__beforeProcess();
+                if (wf instanceof Auditor auditor) {
+                    List<StackEntry> stackEntries = wf.get__stack();
+                    if (stackEntries.isEmpty()) {
+                        auditor.start();
+                    } else {
+                        auditor.resume(jumpNos(stackEntries));
+                    }
+                }
                 wf.main();
+                if (wf instanceof Auditor auditor) {
+                    auditor.end();
+                }
                 logger.trace("after 'main' - stack={}", wf.get__stack());
                 engine.removeWorkflow(wf.getId());
                 assert wf.get__stack().isEmpty() : "Stack must be empty \n" + wf.get__stack();
             } catch (Interrupt e) {
+                if (wf instanceof Auditor auditor) {
+                    List<StackEntry> stackEntries = wf.get__stack();
+                    if (!stackEntries.isEmpty()) {
+                        auditor.interrupt(jumpNos(stackEntries));
+                    }
+                }
                 logger.trace("interrupt - stack={}", wf.get__stack());
                 WorkflowAccessor.setLastActivityTS(wf, new Date());
                 assert wf.get__stack().size() > 0;
             } catch (Exception e) {
+                if (wf instanceof Auditor auditor) {
+                    auditor.exception(jumpNos(wf.get__stack()));
+                }
                 engine.removeWorkflow(wf.getId());
                 logger.error("Execution of wf " + wf.getId() + " failed", e);
                 engine.incErrorWFCounter();
@@ -64,5 +87,12 @@ class TransientProcessor extends Processor {
                 assert wf.get__stack().isEmpty() : "Stack must be empty \n" + wf.get__stack();
             }
         }
+    }
+
+    private static List<Integer> jumpNos(final List<StackEntry> stackEntries) {
+        return stackEntries
+                .stream()
+                .map(e -> e.jumpNo)
+                .toList();
     }
 }

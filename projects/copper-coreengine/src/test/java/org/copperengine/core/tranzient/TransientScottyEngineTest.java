@@ -16,14 +16,16 @@
 package org.copperengine.core.tranzient;
 
 import java.io.File;
+import java.time.Duration;
+import java.util.concurrent.locks.LockSupport;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TransientScottyEngineTest {
+class TransientScottyEngineTest {
 
     @Test
-    public void testStartup() throws Exception {
+    void testStartup() throws Exception {
         TransientEngineFactory factory = new TransientEngineFactory() {
             @Override
             protected File getWorkflowSourceDirectory() {
@@ -35,6 +37,25 @@ public class TransientScottyEngineTest {
             Assertions.assertEquals("STARTED", engine.getState());
             engine.run("test.HelloWorldWorkflow", null);
         } finally {
+            engine.shutdown();
+        }
+    }
+
+    @Test
+    void testAuditor() throws Exception {
+        TransientEngineFactory factory = new TransientEngineFactory() {
+            @Override
+            protected File getWorkflowSourceDirectory() {
+                return new File("./src/test/workflow");
+            }
+        };
+        TransientScottyEngine engine = factory.create();
+        try {
+            Assertions.assertEquals("STARTED", engine.getState());
+            engine.run("test.AuditorWorkflow", null);
+        } finally {
+            LockSupport.parkNanos(Duration.ofMillis(500).toNanos());
+            Assertions.assertEquals(0, engine.getNumberOfWorkflowInstances());
             engine.shutdown();
         }
     }

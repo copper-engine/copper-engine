@@ -7,6 +7,14 @@
 
     <logger name="org.copperengine.core.instrument" level="debug" />
 
+    <logger
+        name="test.AuditorWorkflow"
+        level="trace"
+        additivity="false"
+    >
+        <appender-ref ref="STDOUT" />
+    </logger>
+
     <root level="debug">
         <appender-ref ref="STDOUT" />
     </root>
