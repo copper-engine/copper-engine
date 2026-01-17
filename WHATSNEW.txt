@@ -1,3 +1,8 @@
+COPPER 6.2.0
+============
+- New feature: Add Auditor to TransientProcessor
+- New feature: Add Auditor to PersistentProcessor
+
 COPPER 6.1.0
 ============
 - Maintenance: Downgrade derby 10.17.1.0 -> 10.16.1.1 to run on jdk 17

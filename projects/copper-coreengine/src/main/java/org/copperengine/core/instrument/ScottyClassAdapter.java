@@ -49,6 +49,7 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
             final String[] interfaces) {
         currentClassName = name;
         logger.info("Transforming " + currentClassName);
+        logger.info("Found start: {}", currentClassName);
         super.visit(version, access, name, signature, superName, interfaces);
         super.visitAnnotation("Lorg/copperengine/core/instrument/Transformed;", true);
     }
@@ -86,6 +87,7 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
     @Override
     public void visitEnd() {
         super.visitEnd();
+        logger.info("Found end: {}", currentClassName);
     }
 
     public ClassInfo getClassInfo() {

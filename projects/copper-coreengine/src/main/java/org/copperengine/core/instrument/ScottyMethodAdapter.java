@@ -294,6 +294,8 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 
             trace("Start instrumentation waitMethods in visitMethodInsn (" + name + ")");
 
+            logEntryNo(signature);
+
             int idx = interuptibleCalls.size();
             StackInfo currentStackInfo = stackInfo.getCurrentStackInfo();
             Label label = new Label();
@@ -320,6 +322,8 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 
         } else if (interruptableMethods.contains(signature)) {
             trace("Start instrumentation interruptableMethods in visitMethodInsn (" + name + ")");
+
+            logEntryNo(signature);
 
             Label invokeLabel = new Label();
             Label afterInvokeLabel = new Label();
@@ -362,6 +366,10 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
         } else {
             super.visitMethodInsn(opcode, owner, name, desc, isInterface);
         }
+    }
+
+    private void logEntryNo(String signature) {
+        logger.info("Found interrupt: {}.{}{} entryNo[{}]@{}",  info.definingClass, info.methodName, info.descriptor, interuptibleCalls.size(), signature);
     }
 
     private void trace(String message) {
