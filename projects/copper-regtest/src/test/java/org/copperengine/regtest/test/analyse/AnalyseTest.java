@@ -30,62 +30,179 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * member "__stack" might be used.
  *
  * A deep look into STACK_RESULT
- * * shows, the information that is given to the copper engine core
+ * * shows the information given to the copper engine core
  * ** "stack" with relevant method call parameters incl. workflow instance
  * ** "locals" relevant local variables incl. workflow instance
- * ** "jumpNo", that point to the current "Interruptable" method call
+ * ** "jumpNo", that points to the current "Interruptable" method call
  * ** "__stackPosition", that points to the current position in stack
  * * gives an idea of the copper engine concept, used inside the instrumentation (Hint: goto in bytecode is used ;-).
- * * shows, that the current position in stack is not visible, so it is added when throwing an "Interrupt" (a debugger breakpoint in the workflow "finally" block show it as a proof ;-).
+ * * shows that the current position in stack is not visible, so it is added when throwing an "Interrupt" (a debugger breakpoint in the workflow "finally" block show it as a proof ;-).
  *
  * @author wsluyterman
  */
 public class AnalyseTest {
 
-    public static final String STACK_RESULT = "" +
-            "Before resubmit (jumpNo = 0): __stackPosition=0\n" +
-            "\t__stack=[]\n" +
-            "Before resubmit (jumpNo=1): __stackPosition=0\n" +
-            "\t__stack=[]\n" +
-            "Before wait (jumpNo=2): __stackPosition=0\n" +
-            "\t__stack=[]\n" +
-            "Before localWait (jumpNo=3): __stackPosition=0\n" +
-            "\t__stack=[]\n" +
-            "Before wait in localWait (depth=2) :__stackPosition=1\n" +
-            "\t__stack=[[\n" +
-            "\tjumpNo=3\n" +
-            "\tlocals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]\n" +
-            "\tstack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]]]\n" +
-            "After  wait in localWait (depth=2): __stackPosition=1\n" +
-            "\t__stack=[[\n" +
-            "\tjumpNo=3\n" +
-            "\tlocals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]\n" +
-            "\tstack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]]]\n" +
-            "Before wait in localWait (depth=1) :__stackPosition=2\n" +
-            "\t__stack=[[\n" +
-            "\tjumpNo=3\n" +
-            "\tlocals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]\n" +
-            "\tstack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]][\n" +
-            "\tjumpNo=1\n" +
-            "\tlocals=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]\n" +
-            "\tstack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]]]\n" +
-            "After  wait in localWait (depth=1): __stackPosition=2\n" +
-            "\t__stack=[[\n" +
-            "\tjumpNo=3\n" +
-            "\tlocals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]\n" +
-            "\tstack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]][\n" +
-            "\tjumpNo=1\n" +
-            "\tlocals=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]\n" +
-            "\tstack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]]]\n";
+    private static final String STACK_RESULT1 = """
+            Before resubmit (jumpNo = 0): __stackPosition=0
+            	__stack=[]
+            Before resubmit (jumpNo=1): __stackPosition=0
+            	__stack=[]
+            Before wait (jumpNo=2): __stackPosition=0
+            	__stack=[]
+            Before localWait (jumpNo=3): __stackPosition=0
+            	__stack=[]
+            Before wait in localWait (depth=2) :__stackPosition=1
+            	__stack=[[
+            	jumpNo=3
+            	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]
+            	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]]]
+            After  wait in localWait (depth=2): __stackPosition=1
+            	__stack=[[
+            	jumpNo=3
+            	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]
+            	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]]]
+            Before wait in localWait (depth=1) :__stackPosition=2
+            	__stack=[[
+            	jumpNo=3
+            	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]
+            	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]][
+            	jumpNo=1
+            	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]
+            	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]]]
+            After  wait in localWait (depth=1): __stackPosition=2
+            	__stack=[[
+            	jumpNo=3
+            	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]
+            	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]][
+            	jumpNo=1
+            	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]
+            	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]]]
+            """;
 
+    private static  String STACK_RESULT2 = """
+start: __stackPosition=0
+	__stack=[]
+interrupt [0]: __stackPosition=1
+	__stack=[[
+	jumpNo=0
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],0,Hello in main()!]
+	stack=[]]]
+resume [0]: __stackPosition=0
+	__stack=[[
+	jumpNo=0
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],0,Hello in main()!]
+	stack=[]]]
+interrupt [1]: __stackPosition=1
+	__stack=[[
+	jumpNo=1
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],10,Hello in main()!]
+	stack=[]]]
+resume [1]: __stackPosition=0
+	__stack=[[
+	jumpNo=1
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],10,Hello in main()!]
+	stack=[]]]
+interrupt [2]: __stackPosition=1
+	__stack=[[
+	jumpNo=2
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],20,Hello in main()!]
+	stack=[]]]
+resume [2]: __stackPosition=0
+	__stack=[[
+	jumpNo=2
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],20,Hello in main()!]
+	stack=[]]]
+interrupt [3, 0]: __stackPosition=2
+	__stack=[[
+	jumpNo=3
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]
+	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]][
+	jumpNo=0
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]
+	stack=[]]]
+resume [3, 0]: __stackPosition=0
+	__stack=[[
+	jumpNo=3
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]
+	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]][
+	jumpNo=0
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]
+	stack=[]]]
+interrupt [3, 1, 0]: __stackPosition=3
+	__stack=[[
+	jumpNo=3
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]
+	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]][
+	jumpNo=1
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]
+	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]][
+	jumpNo=0
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]
+	stack=[]]]
+resume [3, 1, 0]: __stackPosition=0
+	__stack=[[
+	jumpNo=3
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],30,Hello in main()!]
+	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,2]][
+	jumpNo=1
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]
+	stack=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]][
+	jumpNo=0
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],100,1]
+	stack=[]]]
+interrupt [5]: __stackPosition=1
+	__stack=[[
+	jumpNo=5
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],java.lang.RuntimeException: i > 0]
+	stack=[]]]
+resume [5]: __stackPosition=0
+	__stack=[[
+	jumpNo=5
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],java.lang.RuntimeException: i > 0]
+	stack=[]]]
+interrupt [6]: __stackPosition=1
+	__stack=[[
+	jumpNo=6
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],java.lang.RuntimeException: i > 0]
+	stack=[]]]
+resume [6]: __stackPosition=0
+	__stack=[[
+	jumpNo=6
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],java.lang.RuntimeException: i > 0]
+	stack=[]]]
+interrupt [8]: __stackPosition=1
+	__stack=[[
+	jumpNo=8
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],666,Hello 2in main()!]
+	stack=[]]]
+resume [8]: __stackPosition=0
+	__stack=[[
+	jumpNo=8
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],666,Hello 2in main()!]
+	stack=[]]]
+interrupt [9]: __stackPosition=1
+	__stack=[[
+	jumpNo=9
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],666,Hello 2in main()!]
+	stack=[]]]
+resume [9]: __stackPosition=0
+	__stack=[[
+	jumpNo=9
+	locals=[Workflow [priority=5, processorPoolId=T#DEFAULT],666,Hello 2in main()!]
+	stack=[]]]
+            """;
 
     @Test
     public void testWorkflow() throws Exception {
-        doTest("org.copperengine.regtest.test.analyse.AnalyseWorkflow1");
-
+        doTest("org.copperengine.regtest.test.analyse.AnalyseWorkflow1", STACK_RESULT1);
     }
 
-    private void doTest(String wfClassname) throws CopperException, InterruptedException {
+    @Test
+    public void testWorkflow2() throws Exception {
+        doTest("org.copperengine.regtest.test.analyse.AnalyseWorkflow2", STACK_RESULT2);
+    }
+
+    private void doTest(String wfClassname, final String expectedResult) throws CopperException, InterruptedException {
 
         try (TransientEngineTestContext ctx = new TransientEngineTestContext()) {
             ctx.startup();
@@ -96,9 +213,9 @@ public class AnalyseTest {
             WorkflowResult response = ctx.getBackChannelQueue().dequeue(3000, TimeUnit.MILLISECONDS);
             //
             assertEquals(
-                    STACK_RESULT.replaceAll("Workflow \\[id=[^,]*, ", "Workflow ["),
+                    expectedResult.replaceAll("Workflow \\[id=[^,]*, ", "Workflow ["),
                     ((String) response.getResult()).replaceAll("Workflow \\[id=[^,]*, ", "Workflow ["),
-                    "Analyse string should only be changed by core impl or changed fomatting in workflow."
+                    "Analyse string should only be changed by core impl or changed formatting in workflow."
             );
         }
     }

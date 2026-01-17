@@ -1,0 +1,142 @@
+/*
+ * Copyright 2002-2017 SCOOP Software GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.copperengine.regtest.test.analyse;
+
+import java.util.List;
+
+import org.copperengine.core.Auditor;
+import org.copperengine.core.AutoWire;
+import org.copperengine.core.Interrupt;
+import org.copperengine.core.StackEntry;
+import org.copperengine.core.WaitMode;
+import org.copperengine.core.Workflow;
+import org.copperengine.regtest.test.backchannel.BackChannelQueue;
+import org.copperengine.regtest.test.backchannel.WorkflowResult;
+
+public class AnalyseWorkflow2 extends Workflow<Integer> implements Auditor {
+
+    @AutoWire
+    public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
+        this.backChannelQueue = backChannelQueue;
+    }
+
+    private BackChannelQueue backChannelQueue;
+
+    // not used as a local, so that the content is not coupled on itself
+    private StringBuffer analyseString = new StringBuffer();
+
+    @Override
+    public void start() {
+        appendInfo("start: ");
+    }
+
+    @Override
+    public void interrupt(List<Integer> jumpNos) {
+        appendInfo("interrupt %s: ".formatted(jumpNos));
+    }
+
+    @Override
+    public void resume(List<Integer> jumpNos) {
+        appendInfo("resume %s: ".formatted(jumpNos));
+    }
+
+    @Override
+    public void end() {
+        appendInfo("end: "); // after reply
+    }
+
+    @Override
+    public void exception(List<Integer> jumpNos) {
+        appendInfo("exception %s: ".formatted(jumpNos));
+    }
+
+    private void localWait(int delay, int depth) throws Interrupt {
+        wait(WaitMode.FIRST, delay, "corrlationId");
+        if (depth > 1) {
+            localWait(100, --depth);
+        }
+    }
+
+    public void main() throws Interrupt {
+        try {
+            int i = 0;
+            String s = "Hello in main()!";
+            resubmit();
+            i = i + 10;
+            resubmit();
+            i = i + 10;
+            wait(WaitMode.FIRST, 100, "corrlationId");
+            i = i + 10;
+            localWait(100, 2);
+            i = i + 10;
+            if (i > 0) {
+                throw new RuntimeException("i > 0");
+            }
+        } catch (Exception e) {
+            resubmit();
+        } finally {
+            resubmit();
+        }
+
+        try {
+            int i = 666;
+            String s = "Hello 2in main()!";
+            resubmit();
+        } catch (Exception e) {
+            resubmit();
+        } finally {
+            resubmit();
+            reply();
+        }
+    }
+
+
+    private void appendInfo(String message) {
+        analyseString.append(message).append("__stackPosition=").append(__stackPosition).append("\n\t__stack=");
+        appendStack();
+        analyseString.append("\n");
+    }
+
+    private void appendStack() {
+        analyseString.append("[");
+        for (int i = 0; i < __stack.size(); i++) {
+            analyseString.append("[");
+            StackEntry entry = __stack.get(i);
+            analyseString.append("\n\tjumpNo=").append(entry.jumpNo).append("\n\tlocals=[");
+            for (int j = 0; j < entry.locals.length; j++) {
+                if (j > 0) {
+                    analyseString.append(",");
+                }
+                analyseString.append(entry.locals[j]);
+            }
+            analyseString.append("]\n\tstack=[");
+            for (int j = 0; j < entry.stack.length; j++) {
+                if (j > 0) {
+                    analyseString.append(",");
+                }
+                analyseString.append(entry.stack[j]);
+            }
+            analyseString.append("]");
+            analyseString.append("]");
+        }
+        analyseString.append("]");
+    }
+
+    private void reply() {
+        backChannelQueue.enqueue(new WorkflowResult(analyseString.toString(), null));
+    }
+
+}

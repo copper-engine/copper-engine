@@ -1,6 +1,7 @@
 COPPER 6.2.0
 ============
 - New feature: Add Auditor to TransientProcessor
+- New feature: Add Auditor to PersistentProcessor
 
 COPPER 6.1.0
 ============

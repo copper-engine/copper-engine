@@ -16,12 +16,15 @@
 package org.copperengine.core.persistent;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Queue;
 
 import org.copperengine.core.Acknowledge;
+import org.copperengine.core.Auditor;
 import org.copperengine.core.Interrupt;
 import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.ProcessingState;
+import org.copperengine.core.StackEntry;
 import org.copperengine.core.Workflow;
 import org.copperengine.core.common.Processor;
 import org.copperengine.core.internal.WorkflowAccessor;
@@ -56,11 +59,28 @@ public class PersistentProcessor extends Processor {
                             WorkflowAccessor.setLastActivityTS(wf, new Date());
                             engine.injectDependencies(pw);
                             pw.__beforeProcess();
+                            if (wf instanceof Auditor auditor) {
+                                List<StackEntry> stackEntries = wf.get__stack();
+                                if (stackEntries.isEmpty()) {
+                                    auditor.start();
+                                } else {
+                                    auditor.resume(jumpNos(stackEntries));
+                                }
+                            }
                             pw.main();
+                            if (wf instanceof Auditor auditor) {
+                                auditor.end();
+                            }
                             WorkflowAccessor.setProcessingState(pw, ProcessingState.FINISHED);
                             engine.getDbStorage().finish(pw, new Acknowledge.BestEffortAcknowledge());
                             assert pw.get__stack().isEmpty() : "Stack must be empty";
                         } catch (Interrupt e) {
+                            if (wf instanceof Auditor auditor) {
+                                List<StackEntry> stackEntries = wf.get__stack();
+                                if (!stackEntries.isEmpty()) {
+                                    auditor.interrupt(jumpNos(stackEntries));
+                                }
+                            }
                             assert pw.get__stack().size() > 0;
                         } finally {
                             WorkflowAccessor.setLastActivityTS(wf, new Date());
@@ -74,6 +94,9 @@ public class PersistentProcessor extends Processor {
                 }
             });
         } catch (Exception e) {
+            if (wf instanceof Auditor auditor) {
+                auditor.exception(jumpNos(wf.get__stack()));
+            }
             logger.error("execution of workflow instance failed", e);
             handleError(pw, e);
         }
@@ -88,4 +111,10 @@ public class PersistentProcessor extends Processor {
         }
     }
 
+    private static List<Integer> jumpNos(final List<StackEntry> stackEntries) {
+        return stackEntries
+                .stream()
+                .map(e -> e.jumpNo)
+                .toList();
+    }
 }
