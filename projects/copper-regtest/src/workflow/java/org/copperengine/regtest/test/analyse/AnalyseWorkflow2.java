@@ -15,6 +15,8 @@
  */
 package org.copperengine.regtest.test.analyse;
 
+import static org.copperengine.regtest.test.analyse.Info.appendInfo;
+
 import java.util.List;
 
 import org.copperengine.core.Auditor;
@@ -40,27 +42,27 @@ public class AnalyseWorkflow2 extends Workflow<Integer> implements Auditor {
 
     @Override
     public void start() {
-        appendInfo("start: ");
+        appendInfo("start: ", __stack, __stackPosition, analyseString);
     }
 
     @Override
     public void interrupt(List<Integer> jumpNos) {
-        appendInfo("interrupt %s: ".formatted(jumpNos));
+        appendInfo("interrupt %s: ".formatted(jumpNos), __stack, __stackPosition, analyseString);
     }
 
     @Override
     public void resume(List<Integer> jumpNos) {
-        appendInfo("resume %s: ".formatted(jumpNos));
+        appendInfo("resume %s: ".formatted(jumpNos), __stack, __stackPosition, analyseString);
     }
 
     @Override
     public void end() {
-        appendInfo("end: "); // after reply
+        appendInfo("end: ", __stack, __stackPosition, analyseString); // after reply
     }
 
     @Override
     public void exception(List<Integer> jumpNos) {
-        appendInfo("exception %s: ".formatted(jumpNos));
+        appendInfo("exception %s: ".formatted(jumpNos), __stack, __stackPosition, analyseString);
     }
 
     private void localWait(int delay, int depth) throws Interrupt {
@@ -101,38 +103,6 @@ public class AnalyseWorkflow2 extends Workflow<Integer> implements Auditor {
             resubmit();
             reply();
         }
-    }
-
-
-    private void appendInfo(String message) {
-        analyseString.append(message).append("__stackPosition=").append(__stackPosition).append("\n\t__stack=");
-        appendStack();
-        analyseString.append("\n");
-    }
-
-    private void appendStack() {
-        analyseString.append("[");
-        for (int i = 0; i < __stack.size(); i++) {
-            analyseString.append("[");
-            StackEntry entry = __stack.get(i);
-            analyseString.append("\n\tjumpNo=").append(entry.jumpNo).append("\n\tlocals=[");
-            for (int j = 0; j < entry.locals.length; j++) {
-                if (j > 0) {
-                    analyseString.append(",");
-                }
-                analyseString.append(entry.locals[j]);
-            }
-            analyseString.append("]\n\tstack=[");
-            for (int j = 0; j < entry.stack.length; j++) {
-                if (j > 0) {
-                    analyseString.append(",");
-                }
-                analyseString.append(entry.stack[j]);
-            }
-            analyseString.append("]");
-            analyseString.append("]");
-        }
-        analyseString.append("]");
     }
 
     private void reply() {
