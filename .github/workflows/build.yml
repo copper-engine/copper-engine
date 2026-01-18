@@ -28,4 +28,4 @@ jobs:
           distribution: zulu
           java-version: 17
       - name: Build with Gradle
-        run: ./gradlew --no-daemon --no-parallel --rerun-tasks --info --full-stacktrace build
+        run: ./gradlew --no-daemon --no-parallel --rerun-tasks --info --full-stacktrace clean build

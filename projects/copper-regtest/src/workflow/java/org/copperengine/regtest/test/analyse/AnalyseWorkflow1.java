@@ -15,6 +15,8 @@
  */
 package org.copperengine.regtest.test.analyse;
 
+import static org.copperengine.regtest.test.analyse.Info.appendInfo;
+
 import org.copperengine.core.*;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
 
@@ -36,64 +38,33 @@ public class AnalyseWorkflow1 extends Workflow<Integer> {
 
 
     private void localWait(int delay, int depth) throws Interrupt {
-        appendInfo("Before wait in localWait (depth=" + depth + ") :");
+        appendInfo("Before wait in localWait (depth=" + depth + ") :", __stack, __stackPosition, analyseString);
         wait(WaitMode.FIRST, delay, "corrlationId");
-        appendInfo("After  wait in localWait (depth=" + depth + "): ");
+        appendInfo("After  wait in localWait (depth=" + depth + "): ", __stack, __stackPosition, analyseString);
         if (depth > 1) {
             localWait(100, --depth);
         }
     }
+
     public void main() throws Interrupt {
         try {
             int i = 0;
             String s = "Hello in main()!";
-            appendInfo("Before resubmit (jumpNo = 0): ");
+            appendInfo("Before resubmit (jumpNo = 0): ", __stack, __stackPosition, analyseString);
             resubmit();
             i = i + 10;
-            appendInfo("Before resubmit (jumpNo=1): ");
+            appendInfo("Before resubmit (jumpNo=1): ", __stack, __stackPosition, analyseString);
             resubmit();
             i = i + 10;
-            appendInfo("Before wait (jumpNo=2): ");
+            appendInfo("Before wait (jumpNo=2): ", __stack, __stackPosition, analyseString);
             wait(WaitMode.FIRST, 100, "corrlationId");
             i = i + 10;
-            appendInfo("Before localWait (jumpNo=3): ");
+            appendInfo("Before localWait (jumpNo=3): ", __stack, __stackPosition, analyseString);
             localWait(100, 2);
             i = i + 10;
         } finally {
             reply();
         }
-    }
-
-
-    private void appendInfo(String message) {
-        analyseString.append(message).append("__stackPosition=").append(__stackPosition).append("\n\t__stack=");
-        appendStack();
-        analyseString.append("\n");
-    }
-
-    private void appendStack() {
-        analyseString.append("[");
-        for (int i = 0; i < __stack.size(); i++) {
-            analyseString.append("[");
-            StackEntry entry = __stack.get(i);
-            analyseString.append("\n\tjumpNo=").append(entry.jumpNo).append("\n\tlocals=[");
-            for (int j = 0; j < entry.locals.length; j++) {
-                if (j > 0) {
-                    analyseString.append(",");
-                }
-                analyseString.append(entry.locals[j]);
-            }
-            analyseString.append("]\n\tstack=[");
-            for (int j = 0; j < entry.stack.length; j++) {
-                if (j > 0) {
-                    analyseString.append(",");
-                }
-                analyseString.append(entry.stack[j]);
-            }
-            analyseString.append("]");
-            analyseString.append("]");
-        }
-        analyseString.append("]");
     }
 
     private void reply() {
