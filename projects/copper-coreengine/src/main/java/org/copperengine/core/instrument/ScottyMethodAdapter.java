@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.copperengine.core.StackEntry;
+import org.copperengine.core.wfrepo.CheckpointCollector;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -58,13 +59,27 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
     private final Set<String> interruptableMethods;
     private final ByteCodeStackInfo stackInfo;
     private final MethodInfo info;
+    private final CheckpointCollector checkpointCollector;
 
-    public ScottyMethodAdapter(MethodVisitor mv, String currentClassName, Set<String> interruptableMethods, ByteCodeStackInfo stackInfo, String name, int access, String descriptor) {
+    public ScottyMethodAdapter(MethodVisitor mv, String currentClassName, Set<String> interruptableMethods, ByteCodeStackInfo stackInfo, String name, int access, String descriptor, CheckpointCollector checkpointCollector) {
         super(ASMConstants.API_VERSION, mv);
-        info = new MethodInfo(currentClassName, name, access, descriptor);
+        this.info = new MethodInfo(currentClassName, name, access, descriptor);
         this.currentClassName = currentClassName;
         this.interruptableMethods = interruptableMethods;
         this.stackInfo = stackInfo;
+        this.checkpointCollector = checkpointCollector;
+    }
+    public ScottyMethodAdapter(MethodVisitor mv, String currentClassName, Set<String> interruptableMethods, ByteCodeStackInfo stackInfo, String name, int access, String descriptor) {
+        this(
+                mv,
+                currentClassName,
+                interruptableMethods,
+                stackInfo,
+                name,
+                access,
+                descriptor,
+                new CheckpointCollector() {}
+        );
     }
 
     public MethodInfo getMethodInfo() {
@@ -294,7 +309,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
 
             trace("Start instrumentation waitMethods in visitMethodInsn (" + name + ")");
 
-            logEntryNo(signature);
+            addCheckpoint(name, desc);
 
             int idx = interuptibleCalls.size();
             StackInfo currentStackInfo = stackInfo.getCurrentStackInfo();
@@ -323,7 +338,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
         } else if (interruptableMethods.contains(signature)) {
             trace("Start instrumentation interruptableMethods in visitMethodInsn (" + name + ")");
 
-            logEntryNo(signature);
+            addCheckpoint(name, desc);
 
             Label invokeLabel = new Label();
             Label afterInvokeLabel = new Label();
@@ -368,8 +383,17 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
         }
     }
 
-    private void logEntryNo(String signature) {
-        logger.info("Found interrupt: {}.{}{} entryNo[{}]@{}",  info.definingClass, info.methodName, info.descriptor, interuptibleCalls.size(), signature);
+    private void addCheckpoint(final String name, final String desc) {
+        checkpointCollector.add(
+                new CheckpointCollector.CheckPoint(
+                        info.definingClass,
+                        info.methodName,
+                        info.descriptor,
+                        interuptibleCalls.size(),
+                        name,
+                        desc
+                )
+        );
     }
 
     private void trace(String message) {
