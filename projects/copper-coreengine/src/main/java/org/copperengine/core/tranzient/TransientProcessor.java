@@ -78,7 +78,7 @@ class TransientProcessor extends Processor {
                 assert wf.get__stack().size() > 0;
             } catch (Exception e) {
                 if (wf instanceof Auditor auditor) {
-                    auditor.exception(jumpNos(wf.get__stack()));
+                    auditor.error(jumpNos(wf.get__stack()));
                 }
                 engine.removeWorkflow(wf.getId());
                 logger.error("Execution of wf " + wf.getId() + " failed", e);

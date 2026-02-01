@@ -19,8 +19,10 @@ import java.io.File;
 import java.time.Duration;
 import java.util.concurrent.locks.LockSupport;
 
+import org.copperengine.core.wfrepo.CheckpointCollector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class TransientScottyEngineTest {
 
@@ -49,7 +51,8 @@ class TransientScottyEngineTest {
                 return new File("./src/test/workflow");
             }
         };
-        TransientScottyEngine engine = factory.create();
+        var workflowRepositoryCheckpointCollectorMock = Mockito.mock(CheckpointCollector.class);
+        TransientScottyEngine engine = factory.create(workflowRepositoryCheckpointCollectorMock);
         try {
             Assertions.assertEquals("STARTED", engine.getState());
             engine.run("test.AuditorWorkflow", null);
@@ -58,6 +61,143 @@ class TransientScottyEngineTest {
             Assertions.assertEquals(0, engine.getNumberOfWorkflowInstances());
             engine.shutdown();
         }
-    }
 
+        Mockito.verify(workflowRepositoryCheckpointCollectorMock).startInstrument();
+        Mockito.verify(workflowRepositoryCheckpointCollectorMock).workflowStart("test/AuditorWorkflow");
+        Mockito.verify(workflowRepositoryCheckpointCollectorMock).workflowEnd("test/AuditorWorkflow");
+        Mockito.verify(workflowRepositoryCheckpointCollectorMock, Mockito.times(11)).add(Mockito.any());
+        Mockito.verify(workflowRepositoryCheckpointCollectorMock).endInstrument();
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "main",
+                                "()V",
+                                0,
+                                "wait",
+                                "(Lorg/copperengine/core/WaitMode;I[Ljava/lang/String;)V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "main",
+                                "()V",
+                                1,
+                                "wait",
+                                "(Lorg/copperengine/core/WaitMode;I[Lorg/copperengine/core/Callback;)V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "main",
+                                "()V",
+                                2,
+                                "wait",
+                                "(Lorg/copperengine/core/WaitMode;JLjava/util/concurrent/TimeUnit;[Ljava/lang/String;)V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "main",
+                                "()V",
+                                3,
+                                "wait",
+                                "(Lorg/copperengine/core/WaitMode;JLjava/util/concurrent/TimeUnit;[Lorg/copperengine/core/Callback;)V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "main",
+                                "()V",
+                                4,
+                                "waitForAll",
+                                "([Ljava/lang/String;)V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "main",
+                                "()V",
+                                5,
+                                "waitForAll",
+                                "([Lorg/copperengine/core/Callback;)V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "main",
+                                "()V",
+                                6,
+                                "subWorkflow",
+                                "(IJ)V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "main",
+                                "()V",
+                                7,
+                                "subWorkflow",
+                                "(IJ)V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "main",
+                                "()V",
+                                8,
+                                "interruptableMethod",
+                                "()V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "subWorkflow",
+                                "(IJ)V",
+                                0,
+                                "resubmit",
+                                "()V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                "test/AuditorWorkflow",
+                                "subWorkflow",
+                                "(IJ)V",
+                                1,
+                                "savepoint",
+                                "()V"
+                        )
+                );
+    }
 }

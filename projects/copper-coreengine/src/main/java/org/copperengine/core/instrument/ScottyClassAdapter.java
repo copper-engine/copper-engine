@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.copperengine.core.wfrepo.CheckpointCollector;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -32,11 +33,17 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
 
     private String currentClassName;
     private final Set<String> interruptableMethods;
+    private final CheckpointCollector checkpointCollector;
     private final List<MethodInfo> methodInfos = new ArrayList<MethodInfo>();
 
-    public ScottyClassAdapter(ClassVisitor cv, Set<String> interruptableMethods) {
+    public ScottyClassAdapter(ClassVisitor cv, Set<String> interruptableMethods, CheckpointCollector checkpointCollector) {
         super(ASMConstants.API_VERSION, cv);
         this.interruptableMethods = interruptableMethods;
+        this.checkpointCollector = checkpointCollector;
+    }
+
+    public ScottyClassAdapter(ClassVisitor cv, Set<String> interruptableMethods) {
+        this(cv, interruptableMethods, null);
     }
 
     @Override
@@ -49,7 +56,9 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
             final String[] interfaces) {
         currentClassName = name;
         logger.info("Transforming " + currentClassName);
-        logger.info("Found start: {}", currentClassName);
+        if (checkpointCollector != null) {
+            checkpointCollector.workflowStart(name);
+        }
         super.visit(version, access, name, signature, superName, interfaces);
         super.visitAnnotation("Lorg/copperengine/core/instrument/Transformed;", true);
     }
@@ -69,7 +78,9 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
 
             String classDesc = Type.getObjectType(currentClassName).getDescriptor();
             BuildStackInfoAdapter stackInfo = new BuildStackInfoAdapter(classDesc, (access & ACC_STATIC) > 0, name, desc, signature);
-            final ScottyMethodAdapter scotty = new ScottyMethodAdapter(mv, currentClassName, interruptableMethods, stackInfo, name, access, desc);
+            final ScottyMethodAdapter scotty = checkpointCollector != null
+                    ? new ScottyMethodAdapter(mv, currentClassName, interruptableMethods, stackInfo, name, access, desc, checkpointCollector)
+                    : new ScottyMethodAdapter(mv, currentClassName, interruptableMethods, stackInfo, name, access, desc);
             MethodVisitor collectMethodInfo = new MethodVisitor(ASMConstants.API_VERSION, stackInfo) {
                 @Override
                 public void visitEnd() {
@@ -87,7 +98,9 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
     @Override
     public void visitEnd() {
         super.visitEnd();
-        logger.info("Found end: {}", currentClassName);
+        if (checkpointCollector != null) {
+            checkpointCollector.workflowEnd(this.currentClassName);
+        }
     }
 
     public ClassInfo getClassInfo() {

@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -54,7 +53,13 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractWorkflowRepository.class);
 
+    private CheckpointCollector checkpointCollector;
+
     private static final int flags = ClassReader.EXPAND_FRAMES;
+
+    public void setWorkflowRepositoryCheckpointCollector(final CheckpointCollector checkpointCollector) {
+        this.checkpointCollector = checkpointCollector;
+    }
 
     protected static final class VolatileState {
         public final Map<String, Class<?>> wfClassMap;
@@ -210,59 +215,71 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
 
     protected void instrumentWorkflows(File adaptedTargetDir, Map<String, Clazz> clazzMap, Map<String, ClassInfo> classInfos, ClassLoader tmpClassLoader) throws IOException {
         logger.info("Instrumenting classfiles");
-        for (Clazz clazz : clazzMap.values()) {
-            byte[] bytes;
-            InputStream is = clazz.classfile.openStream();
-            try {
-                ClassReader cr2 = new ClassReader(is);
-                ClassNode cn = new ClassNode();
-                cr2.accept(cn, flags);
-                traceClassNode(clazz.classname + " - original", cn);
+        if (this.checkpointCollector != null) {
+            this.checkpointCollector.startInstrument();
+        }
+        try {
+            for (Clazz clazz : clazzMap.values()) {
+                byte[] bytes;
+                InputStream is = clazz.classfile.openStream();
+                try {
+                    ClassReader cr2 = new ClassReader(is);
+                    ClassNode cn = new ClassNode();
+                    cr2.accept(cn, flags);
+                    traceClassNode(clazz.classname + " - original", cn);
 
-                // Now content of ClassNode can be modified and then serialized back into bytecode:
-                new TryCatchBlockHandler().instrument(cn);
+                    // Now content of ClassNode can be modified and then serialized back into bytecode:
+                    new TryCatchBlockHandler().instrument(cn);
 
-                ClassWriter cw2 = new ClassWriter(0);
-                cn.accept(cw2);
-                bytes = cw2.toByteArray();
-                traceBytes(clazz.classname + " - after TryCatchBlockHandler", bytes);
+                    ClassWriter cw2 = new ClassWriter(0);
+                    cn.accept(cw2);
+                    bytes = cw2.toByteArray();
+                    traceBytes(clazz.classname + " - after TryCatchBlockHandler", bytes);
 
-                ClassReader cr = new ClassReader(bytes);
-                ClassWriter cw = new ClassWriter(0);
+                    ClassReader cr = new ClassReader(bytes);
+                    ClassWriter cw = new ClassWriter(0);
 
-                ScottyClassAdapter cv = new ScottyClassAdapter(cw, clazz.aggregatedInterruptableMethods);
-                cr.accept(cv, flags);
-                classInfos.put(clazz.classname, cv.getClassInfo());
-                bytes = cw.toByteArray();
-                traceBytes(clazz.classname + " - after ScottyClassAdapter", bytes);
+                    ScottyClassAdapter cv = checkpointCollector != null
+                            ? new ScottyClassAdapter(cw, clazz.aggregatedInterruptableMethods, checkpointCollector)
+                            : new ScottyClassAdapter(cw, clazz.aggregatedInterruptableMethods);
+                    cr.accept(cv, flags);
+                    classInfos.put(clazz.classname, cv.getClassInfo());
+                    bytes = cw.toByteArray();
+                    traceBytes(clazz.classname + " - after ScottyClassAdapter", bytes);
 
-                // Recompute frames, etc.
-                ClassReader cr3 = new ClassReader(bytes);
-                ClassWriter cw3 = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-                cr3.accept(cw3, ClassReader.SKIP_FRAMES);
-                bytes = cw3.toByteArray();
-                traceBytes(clazz.classname + " - after COMPUTE_FRAMES", bytes);
+                    // Recompute frames, etc.
+                    ClassReader cr3 = new ClassReader(bytes);
+                    ClassWriter cw3 = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+                    cr3.accept(cw3, ClassReader.SKIP_FRAMES);
+                    bytes = cw3.toByteArray();
+                    traceBytes(clazz.classname + " - after COMPUTE_FRAMES", bytes);
 
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), tmpClassLoader, false, pw);
-                if (sw.toString().length() != 0) {
-                    logger.error("CheckClassAdapter.verify failed for class " + cn.name + ":\n" + sw.toString());
-                } else {
-                    logger.info("CheckClassAdapter.verify succeeded for class " + cn.name);
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), tmpClassLoader, false, pw);
+                    if (sw.toString().length() != 0) {
+                        logger.error("CheckClassAdapter.verify failed for class " + cn.name + ":\n" + sw.toString());
+                    } else {
+                        logger.info("CheckClassAdapter.verify succeeded for class " + cn.name);
+                    }
+
+                } finally {
+                    is.close();
                 }
 
-            } finally {
-                is.close();
+                File adaptedClassfileName = new File(adaptedTargetDir, clazz.classname + ".class");
+                adaptedClassfileName.getParentFile().mkdirs();
+                FileOutputStream fos = new FileOutputStream(adaptedClassfileName);
+                try {
+                    fos.write(bytes);
+                } finally {
+                    fos.close();
+                }
             }
-
-            File adaptedClassfileName = new File(adaptedTargetDir, clazz.classname + ".class");
-            adaptedClassfileName.getParentFile().mkdirs();
-            FileOutputStream fos = new FileOutputStream(adaptedClassfileName);
-            try {
-                fos.write(bytes);
-            } finally {
-                fos.close();
+        } finally {
+            logger.info("Instrumented classfiles");
+            if (this.checkpointCollector != null) {
+                this.checkpointCollector.endInstrument();
             }
         }
     }

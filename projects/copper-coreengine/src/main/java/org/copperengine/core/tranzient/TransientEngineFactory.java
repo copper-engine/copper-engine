@@ -34,6 +34,7 @@ import org.copperengine.core.monitoring.NullRuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.util.PojoDependencyInjector;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
+import org.copperengine.core.wfrepo.CheckpointCollector;
 
 /**
  * Convenience class for easy creation of a transient {@link ProcessingEngine}. Override the corresponding create
@@ -70,12 +71,7 @@ public abstract class TransientEngineFactory {
     protected abstract File getWorkflowSourceDirectory();
 
     protected WorkflowRepository createWorkflowRepository() {
-        FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
-        List<String> sourceDirs = new ArrayList<String>();
-        sourceDirs.add(getWorkflowSourceDirectory().getAbsolutePath());
-        repo.setSourceDirs(sourceDirs);
-        repo.setTargetDir(System.getProperty("java.io.tmpdir") + "/copper/");
-        return repo;
+        return createFileBasedWorkflowRepository();
     }
 
     protected DependencyInjector createDependencyInjector() {
@@ -90,6 +86,22 @@ public abstract class TransientEngineFactory {
     }
 
     public TransientScottyEngine create() {
+        TransientScottyEngine engine = createScottyEngine();
+        engine.setWfRepository(createWorkflowRepository());
+        engine.startup();
+        return engine;
+    }
+
+    public TransientScottyEngine create(CheckpointCollector checkpointCollector) {
+        TransientScottyEngine engine = createScottyEngine();
+        final FileBasedWorkflowRepository workflowRepository = createFileBasedWorkflowRepository();
+        workflowRepository.setWorkflowRepositoryCheckpointCollector(checkpointCollector);
+        engine.setWfRepository(workflowRepository);
+        engine.startup();
+        return engine;
+    }
+
+    private TransientScottyEngine createScottyEngine() {
         TransientScottyEngine engine = new TransientScottyEngine();
         engine.setDependencyInjector(createDependencyInjector());
         engine.setEarlyResponseContainer(createEarlyResponseContainer());
@@ -99,9 +111,16 @@ public abstract class TransientEngineFactory {
         engine.setStatisticsCollector(createRuntimeStatisticsCollector());
         engine.setTicketPoolManager(createTicketPoolManager());
         engine.setTimeoutManager(createTimeoutManager());
-        engine.setWfRepository(createWorkflowRepository());
-        engine.startup();
         return engine;
+
+    }
+    private FileBasedWorkflowRepository createFileBasedWorkflowRepository() {
+        FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
+        List<String> sourceDirs = new ArrayList<>();
+        sourceDirs.add(getWorkflowSourceDirectory().getAbsolutePath());
+        repo.setSourceDirs(sourceDirs);
+        repo.setTargetDir(System.getProperty("java.io.tmpdir") + "/copper/");
+        return repo;
     }
 
 }

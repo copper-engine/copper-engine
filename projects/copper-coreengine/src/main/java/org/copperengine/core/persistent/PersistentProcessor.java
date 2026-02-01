@@ -95,7 +95,7 @@ public class PersistentProcessor extends Processor {
             });
         } catch (Exception e) {
             if (wf instanceof Auditor auditor) {
-                auditor.exception(jumpNos(wf.get__stack()));
+                auditor.error(jumpNos(wf.get__stack()));
             }
             logger.error("execution of workflow instance failed", e);
             handleError(pw, e);
