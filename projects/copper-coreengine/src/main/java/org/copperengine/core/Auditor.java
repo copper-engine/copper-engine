@@ -21,7 +21,7 @@ import java.util.List;
 import org.slf4j.LoggerFactory;
 
 /**
- * COPPER Auditor, that is called in workflow processing at several situations.
+ * The COPPER Auditor is called in workflow processing in several situations.
  * <p>
  * If you want to use an Auditor in a Workflow, then you have to implement this
  * interface.
@@ -35,7 +35,7 @@ public interface Auditor extends Serializable {
      * Is called before first continuation of Workflow.
      */
     default void start() {
-        LoggerFactory.getLogger(this.getClass()).trace("start");
+        LoggerFactory.getLogger(this.getClass()).trace("START");
     }
 
     /**
@@ -44,7 +44,7 @@ public interface Auditor extends Serializable {
      * @param jumpNos list of jumps to the next continuation of Workflow
      */
     default void interrupt(final List<Integer> jumpNos) {
-        LoggerFactory.getLogger(this.getClass()).trace("interrupt {}", jumpNos);
+        LoggerFactory.getLogger(this.getClass()).trace("INTERRUPT {}", jumpNos);
     }
 
     /**
@@ -53,14 +53,14 @@ public interface Auditor extends Serializable {
      * @param jumpNos list of jumps to the next continuation of Workflow
      */
     default void resume(final List<Integer> jumpNos) {
-        LoggerFactory.getLogger(this.getClass()).trace("resume {}", jumpNos);
+        LoggerFactory.getLogger(this.getClass()).trace("RESUME {}", jumpNos);
     }
 
     /**
      * Is called after last continuation of Workflow.
      */
     default void end() {
-        LoggerFactory.getLogger(this.getClass()).trace("end");
+        LoggerFactory.getLogger(this.getClass()).trace("END");
     }
 
     /**
@@ -69,7 +69,7 @@ public interface Auditor extends Serializable {
      *
      * @param jumpNos list of jumps to the next continuation of Workflow
      */
-    default void exception(final List<Integer> jumpNos) {
-        LoggerFactory.getLogger(this.getClass()).warn("exception {}", jumpNos);
+    default void error(final List<Integer> jumpNos) {
+        LoggerFactory.getLogger(this.getClass()).warn("ERROR {}", jumpNos);
     }
 }

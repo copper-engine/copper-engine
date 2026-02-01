@@ -22,14 +22,16 @@ import java.util.List;
 import org.copperengine.core.Auditor;
 import org.copperengine.core.AutoWire;
 import org.copperengine.core.Interrupt;
-import org.copperengine.core.StackEntry;
 import org.copperengine.core.WaitMode;
 import org.copperengine.core.Workflow;
 import org.copperengine.regtest.test.backchannel.BackChannelQueue;
 import org.copperengine.regtest.test.backchannel.WorkflowResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AnalyseWorkflow2 extends Workflow<Integer> implements Auditor {
 
+    private static final Logger log = LoggerFactory.getLogger(AnalyseWorkflow2.class);
     @AutoWire
     public void setBackChannelQueue(BackChannelQueue backChannelQueue) {
         this.backChannelQueue = backChannelQueue;
@@ -42,27 +44,32 @@ public class AnalyseWorkflow2 extends Workflow<Integer> implements Auditor {
 
     @Override
     public void start() {
+        log.info("START");
         appendInfo("start: ", __stack, __stackPosition, analyseString);
     }
 
     @Override
     public void interrupt(List<Integer> jumpNos) {
+        log.info("INTERRUPT {}", jumpNos);
         appendInfo("interrupt %s: ".formatted(jumpNos), __stack, __stackPosition, analyseString);
     }
 
     @Override
     public void resume(List<Integer> jumpNos) {
+        log.info("RESUME {}", jumpNos);
         appendInfo("resume %s: ".formatted(jumpNos), __stack, __stackPosition, analyseString);
     }
 
     @Override
     public void end() {
+        log.info("END");
         appendInfo("end: ", __stack, __stackPosition, analyseString); // after reply
     }
 
     @Override
-    public void exception(List<Integer> jumpNos) {
-        appendInfo("exception %s: ".formatted(jumpNos), __stack, __stackPosition, analyseString);
+    public void error(List<Integer> jumpNos) {
+        log.info("ERROR");
+        appendInfo("error %s: ".formatted(jumpNos), __stack, __stackPosition, analyseString);
     }
 
     private void localWait(int delay, int depth) throws Interrupt {
