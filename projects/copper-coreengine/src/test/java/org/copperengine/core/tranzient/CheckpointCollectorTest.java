@@ -24,27 +24,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class TransientScottyEngineTest {
+class CheckpointCollectorTest {
+
+    public static final String TEST_AUDITOR_WORKFLOW = "test/AuditorWorkflow";
 
     @Test
-    void testStartup() throws Exception {
-        TransientEngineFactory factory = new TransientEngineFactory() {
-            @Override
-            protected File getWorkflowSourceDirectory() {
-                return new File("./src/test/workflow");
-            }
-        };
-        TransientScottyEngine engine = factory.create();
-        try {
-            Assertions.assertEquals("STARTED", engine.getState());
-            engine.run("test.HelloWorldWorkflow", null);
-        } finally {
-            engine.shutdown();
-        }
-    }
-
-    @Test
-    void testAuditor() throws Exception {
+    void execute() throws Exception {
+        
+        // Action with Assumption, but I use Assertions tp be sure
+        // that test fails if something goes wrong
         TransientEngineFactory factory = new TransientEngineFactory() {
             @Override
             protected File getWorkflowSourceDirectory() {
@@ -62,16 +50,31 @@ class TransientScottyEngineTest {
             engine.shutdown();
         }
 
+
+        verifyCheckpointCollectorCalls(workflowRepositoryCheckpointCollectorMock);
+    }
+
+    private static void verifyCheckpointCollectorCalls(final CheckpointCollector workflowRepositoryCheckpointCollectorMock) {
         Mockito.verify(workflowRepositoryCheckpointCollectorMock).startInstrument();
-        Mockito.verify(workflowRepositoryCheckpointCollectorMock).workflowStart("test/AuditorWorkflow");
-        Mockito.verify(workflowRepositoryCheckpointCollectorMock).workflowEnd("test/AuditorWorkflow");
-        Mockito.verify(workflowRepositoryCheckpointCollectorMock, Mockito.times(11)).add(Mockito.any());
+        Mockito.verify(workflowRepositoryCheckpointCollectorMock).workflowStart(TEST_AUDITOR_WORKFLOW);
+        Mockito.verify(workflowRepositoryCheckpointCollectorMock).workflowEnd(TEST_AUDITOR_WORKFLOW);
+        Mockito.verify(
+                        workflowRepositoryCheckpointCollectorMock,
+                        Mockito
+                                .times(11)
+                )
+                .add(
+                        Mockito.argThat(
+                                checkPoint ->
+                                        TEST_AUDITOR_WORKFLOW.equals(checkPoint.workflowClassName())
+                        )
+                );
         Mockito.verify(workflowRepositoryCheckpointCollectorMock).endInstrument();
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
                                 0,
@@ -83,7 +86,7 @@ class TransientScottyEngineTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
                                 1,
@@ -95,7 +98,7 @@ class TransientScottyEngineTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
                                 2,
@@ -107,7 +110,7 @@ class TransientScottyEngineTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
                                 3,
@@ -119,7 +122,7 @@ class TransientScottyEngineTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
                                 4,
@@ -131,7 +134,7 @@ class TransientScottyEngineTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
                                 5,
@@ -143,7 +146,7 @@ class TransientScottyEngineTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
                                 6,
@@ -155,7 +158,7 @@ class TransientScottyEngineTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
                                 7,
@@ -167,7 +170,7 @@ class TransientScottyEngineTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
                                 8,
@@ -179,7 +182,7 @@ class TransientScottyEngineTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "subWorkflow",
                                 "(IJ)V",
                                 0,
@@ -191,7 +194,7 @@ class TransientScottyEngineTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .add(
                         new CheckpointCollector.CheckPoint(
-                                "test/AuditorWorkflow",
+                                TEST_AUDITOR_WORKFLOW,
                                 "subWorkflow",
                                 "(IJ)V",
                                 1,
