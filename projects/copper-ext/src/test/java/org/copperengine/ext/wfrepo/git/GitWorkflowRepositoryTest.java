@@ -27,7 +27,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -239,9 +238,9 @@ public class GitWorkflowRepositoryTest {
         FileUtils.deleteDirectory(new File(WF_WORK));
     }
 
-    private static void waitForWorkflowRefresh() {
+    private static void waitForWorkflowRefresh() throws InterruptedException {
         log.info("Waiting for workflow refresh ...");
-        LockSupport.parkNanos(2 * CHECK_INTERVAL_M_SEC * 1_000_000);
+        Thread.sleep(2 * CHECK_INTERVAL_M_SEC);
         log.info("Workflow refresh done.");
     }
 
