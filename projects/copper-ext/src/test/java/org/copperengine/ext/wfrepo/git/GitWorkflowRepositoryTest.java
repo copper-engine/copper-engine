@@ -54,7 +54,7 @@ public class GitWorkflowRepositoryTest {
 
     public static final String WF_WORK = "wf-work";
     public static final String WORK_DIR = "./" + WF_WORK;
-    public static final int CHECK_INTERVAL_M_SEC = 1000;
+    public static final int CHECK_INTERVAL_M_SEC = 300;
 
     private static final Logger log = LoggerFactory.getLogger(GitWorkflowRepositoryTest.class);
 

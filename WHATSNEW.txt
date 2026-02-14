@@ -1,5 +1,7 @@
 COPPER 6.2.0
 ============
+- Maintenance: Faster tests (less sleep time)
+- New feature: Add CheckpointCollector
 - New feature: Add Auditor to TransientProcessor
 - New feature: Add Auditor to PersistentProcessor
 
