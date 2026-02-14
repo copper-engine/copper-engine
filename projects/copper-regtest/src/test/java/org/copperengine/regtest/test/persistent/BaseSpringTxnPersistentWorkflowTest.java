@@ -56,8 +56,8 @@ public class BaseSpringTxnPersistentWorkflowTest extends BasePersistentWorkflowT
             engine.run("org.copperengine.regtest.test.persistent.springtxn.SpringTxnUnitTestWorkflow", "TestData");
             WorkflowResult x = backChannelQueue.dequeue(60, TimeUnit.SECONDS);
             assertNotNull(x);
+            Commons.assertNullException(x.getException());
             assertNotNull(x.getResult());
-            assertNull(x.getException());
 
             // check
             new RetryingTransaction<Void>(context.getBean(DataSource.class)) {

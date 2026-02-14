@@ -258,7 +258,7 @@ public class BasePersistentWorkflowTest {
             for (int i = 0; i < NUMB; i++) {
                 WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
                 assertNotNull(x);
-                assertNull(x.getException());
+                Commons.assertNullException(x.getException());
                 assertNull(x.getResult());
             }
         } finally {
@@ -300,7 +300,7 @@ public class BasePersistentWorkflowTest {
             for (int i = 0; i < NUMB; i++) {
                 WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
                 assertNotNull(x);
-                assertNull(x.getException());
+                Commons.assertNullException(x.getException());
                 assertNull(x.getResult());
             }
         } finally {
@@ -330,7 +330,7 @@ public class BasePersistentWorkflowTest {
             for (int i = 0; i < NUMB; i++) {
                 WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
                 assertNotNull(x);
-                assertNull(x.getException());
+                Commons.assertNullException(x.getException());
                 assertNull(x.getResult());
             }
         } finally {
@@ -464,7 +464,7 @@ public class BasePersistentWorkflowTest {
             for (int i = 0; i < NUMB; i++) {
                 WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
                 assertNotNull(x);
-                assertNull(x.getException());
+                Commons.assertNullException(x.getException());
                 assertNull(x.getResult());
             }
         } finally {

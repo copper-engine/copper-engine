@@ -14,13 +14,16 @@ public class Commons {
 
     static void assertWorkflowResult(WorkflowResult x, String data) {
         assertNotNull(x);
-        Exception unexpectedException = x.getException();
+        assertNullException(x.getException());
+        assertNotNull(x.getResult());
+        assertEquals(data.length(), x.getResult().toString().length());
+    }
+
+    static void assertNullException(Exception unexpectedException) {
         if (unexpectedException != null) {
             logger.warn("Unexpected exception", unexpectedException);
         }
         assertNull(unexpectedException);
-        assertNotNull(x.getResult());
-        assertEquals(data.length(), x.getResult().toString().length());
     }
 
     private Commons() {
