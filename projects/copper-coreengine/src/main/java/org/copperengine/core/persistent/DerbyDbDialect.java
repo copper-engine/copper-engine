@@ -170,8 +170,10 @@ public class DerbyDbDialect extends AbstractSqlDialect {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT);
         try {
             stmt.execute("SELECT count(*) FROM COP_WORKFLOW_INSTANCE");
+            logger.debug("COP_WORKFLOW_INSTANCE exists");
             return true;
         } catch (SQLException e) {
+            logger.debug("COP_WORKFLOW_INSTANCE does not exist");
             return false;
         } finally {
             stmt.close();
