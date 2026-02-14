@@ -229,7 +229,7 @@ public class SpringlessBasePersistentWorkflowTest {
 
     public void testAsynchResponseLargeData(DataSourceType dsType, int dataSize) throws Exception {
         assumeFalse(skipTests());
-        logger.info("running testAsynchResponse");
+        logger.info("running testAsynchResponseLargeData");
         final int NUMB = 20;
         final String DATA = createTestData(dataSize);
         final PersistentEngineTestContext context = createContext(dsType);
