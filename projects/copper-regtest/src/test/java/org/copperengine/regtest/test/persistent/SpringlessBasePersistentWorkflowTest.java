@@ -71,6 +71,8 @@ public class SpringlessBasePersistentWorkflowTest {
 
     private static final long DEQUEUE_TIMEOUT = 120;
 
+    private static final long EXPERIMENTAL_SPEED_FACTOR = 100;
+
     static final String PersistentUnitTestWorkflow_NAME = "org.copperengine.regtest.test.persistent.PersistentUnitTestWorkflow";
     static final String WaitForEverTestWF_NAME = "org.copperengine.regtest.test.WaitForEverTestWF";
     static final String JmxTestWF_NAME = "org.copperengine.regtest.test.persistent.jmx.JmxTestWorkflow";
@@ -190,11 +192,7 @@ public class SpringlessBasePersistentWorkflowTest {
             }
 
             for (int i = 0; i < NUMB; i++) {
-                WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
-                assertNotNull(x);
-                assertNotNull(x.getResult());
-                assertNotNull(x.getResult().toString().length() == DATA.length());
-                assertNull(x.getException());
+                Commons.assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
             }
             checkNumbOfResponsesInDB(context, 0);
 
@@ -245,11 +243,7 @@ public class SpringlessBasePersistentWorkflowTest {
             }
 
             for (int i = 0; i < NUMB; i++) {
-                WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
-                assertNotNull(x);
-                assertNotNull(x.getResult());
-                assertNotNull(x.getResult().toString().length() == DATA.length());
-                assertNull(x.getException());
+                Commons.assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
             }
 
             checkNumbOfResponsesInDB(context, 0);
@@ -568,11 +562,7 @@ public class SpringlessBasePersistentWorkflowTest {
             }
 
             for (int i = 0; i < NUMB; i++) {
-                WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
-                assertNotNull(x);
-                assertNotNull(x.getResult());
-                assertEquals(x.getResult().toString().length(), DATA.length());
-                assertNull(x.getException());
+                Commons.assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
             }
             Thread.sleep(1000);
 
@@ -1469,17 +1459,17 @@ public class SpringlessBasePersistentWorkflowTest {
             waitingWorkflow.setId(engine.createUUID());
             engine.run(waitingWorkflow);
             long thisExactMoment = new Date().getTime();
-            Date inbetweenFirstWFs = new Date(thisExactMoment + 120000);
+            Date inbetweenFirstWFs = new Date(thisExactMoment + 120000 / EXPERIMENTAL_SPEED_FACTOR);
 
-            Thread.sleep(280000); // the next workflow to be created will have a later Timestamp
+            Thread.sleep(280000 / EXPERIMENTAL_SPEED_FACTOR); // the next workflow to be created will have a later Timestamp
 
             WorkflowInstanceDescr<Integer> brokenWorkflow = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
             brokenWorkflow.setId(engine.createUUID());
             engine.run(brokenWorkflow);
             thisExactMoment = new Date().getTime();
-            Date inbetweenSecondWFs = new Date(thisExactMoment + 120000);
+            Date inbetweenSecondWFs = new Date(thisExactMoment + 120000 / EXPERIMENTAL_SPEED_FACTOR);
 
-            Thread.sleep(280000); // wait for it to start up / bring workflows to error state
+            Thread.sleep(280000 / EXPERIMENTAL_SPEED_FACTOR); // wait for it to start up / bring workflows to error state
 
             WorkflowInstanceDescr<Integer> brokenWorkflow2 = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
             brokenWorkflow2.setId(engine.createUUID());
@@ -1557,16 +1547,16 @@ public class SpringlessBasePersistentWorkflowTest {
             engine.run(brokenWorkflow);
 
             long thisExactMoment = new Date().getTime();
-            Date inbetweenWFs = new Date(thisExactMoment + 120000);
+            Date inbetweenWFs = new Date(thisExactMoment + 120000 / EXPERIMENTAL_SPEED_FACTOR);
 
-            Thread.sleep(280000); // the next workflow to be created will have a later Timestamp
+            Thread.sleep(280000 / EXPERIMENTAL_SPEED_FACTOR); // the next workflow to be created will have a later Timestamp
 
             WorkflowInstanceDescr<Integer> brokenWorkflow2 = new WorkflowInstanceDescr<>(DeleteBrokenTestWF_NAME, 1);
             brokenWorkflow2.setId(engine.createUUID());
             engine.run(brokenWorkflow2);
 
             thisExactMoment = new Date().getTime();
-            Date afterWFs = new Date(thisExactMoment + 120000);
+            Date afterWFs = new Date(thisExactMoment + 120000 / EXPERIMENTAL_SPEED_FACTOR);
 
             Thread.sleep(200); // wait for it to start up / bring workflows to error state
 
@@ -1579,7 +1569,7 @@ public class SpringlessBasePersistentWorkflowTest {
 
             // wait long enough so that when WF is restarted, it is past the point of the previously created
             // afterWFs time
-            Thread.sleep(180000);
+            Thread.sleep(180000 / EXPERIMENTAL_SPEED_FACTOR);
 
             // restarting the first workflow based on it being created before the first timestamp
             time = new HalfOpenTimeInterval();
@@ -1618,5 +1608,4 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(EngineState.STOPPED, engine.getEngineState());
         assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
-
 }

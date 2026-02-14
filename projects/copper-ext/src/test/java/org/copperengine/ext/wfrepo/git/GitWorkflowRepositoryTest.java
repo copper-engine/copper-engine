@@ -27,7 +27,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -55,7 +54,7 @@ public class GitWorkflowRepositoryTest {
 
     public static final String WF_WORK = "wf-work";
     public static final String WORK_DIR = "./" + WF_WORK;
-    public static final int CHECK_INTERVAL_M_SEC = 1000;
+    public static final int CHECK_INTERVAL_M_SEC = 300;
 
     private static final Logger log = LoggerFactory.getLogger(GitWorkflowRepositoryTest.class);
 
@@ -64,10 +63,18 @@ public class GitWorkflowRepositoryTest {
     private Backchannel channel;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         FileUtils.deleteDirectory(new File(WORK_DIR));
-        final boolean ignored = new File(WORK_DIR).mkdirs();
-        unzip(this.getClass().getClassLoader().getResource("git-wf.zip").openStream(), WORK_DIR);
+        if (!new File(WORK_DIR).mkdirs()) {
+            log.warn("Could not create directory " + WORK_DIR);
+        }
+        unzip(
+                this
+                        .getClass()
+                        .getClassLoader()
+                        .getResource("git-wf.zip")
+                        .openStream()
+        );
 
         wfRepo = new GitWorkflowRepository();
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source");
@@ -93,6 +100,7 @@ public class GitWorkflowRepositoryTest {
                 return null;
             }
 
+            @Override
             protected DependencyInjector createDependencyInjector() {
                 return injector;
             }
@@ -105,7 +113,7 @@ public class GitWorkflowRepositoryTest {
 
 
     @Test
-    public void defaultBranchTest() throws Exception {
+    void defaultBranchTest() throws Exception {
         engine.run("Workflow1", "foo");
         String result = (String) channel.wait("correlationId", 3000, TimeUnit.MILLISECONDS);
         assertEquals("Vmaster", result);
@@ -113,7 +121,7 @@ public class GitWorkflowRepositoryTest {
     }
 
     @Test
-    public void change2BranchesTest() throws CopperException, InterruptedException, IOException, GitAPIException {
+    void change2BranchesTest() throws CopperException, InterruptedException, IOException, GitAPIException {
         wfRepo.setBranch("1.0");
         waitForWorkflowRefresh();
         engine.run("Workflow1", "foo");
@@ -128,14 +136,14 @@ public class GitWorkflowRepositoryTest {
     }
 
     @Test
-    public void shutdownTest() {
+    void shutdownTest() {
         assertTrue(wfRepo.isUp(), "wfRepos should be up.");
         wfRepo.shutdown();
         assertFalse(wfRepo.isUp(), "wfRepos should be down.");
     }
 
     @Test
-    public void shutdownStartTest() {
+    void shutdownStartTest() {
         assertTrue(wfRepo.isUp(), "wfRepos should be up.");
         wfRepo.shutdown();
         assertFalse(wfRepo.isUp(), "wfRepos should be down.");
@@ -143,26 +151,26 @@ public class GitWorkflowRepositoryTest {
     }
 
     @Test
-    public void shutdownDoubleStartTest() {
+    void shutdownDoubleStartTest() {
         assertTrue(wfRepo.isUp(), "wfRepos should be up.");
         assertThrows(IllegalStateException.class, () -> wfRepo.start());
     }
 
     @Test
-    public void changeToTagTest() {
+    void changeToTagTest() {
         assertThrows(RefNotAdvertisedException.class, () -> wfRepo.setBranch("2.0.0"));
     }
 
 
     @Test
-    public void sameGitRepositoryDirTest() throws Exception {
+    void sameGitRepositoryDirTest() throws Exception {
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source");
         defaultBranchTest();
     }
 
 
     @Test
-    public void changeGitRepositoryRobustDirTest() throws Exception {
+    void changeGitRepositoryRobustDirTest() throws Exception {
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
         waitForWorkflowRefresh();
         waitForWorkflowRefresh();
@@ -170,16 +178,16 @@ public class GitWorkflowRepositoryTest {
     }
 
     @Test
-    public void sameGitRepositoryFakeCredentialTest() throws Exception {
+    void sameGitRepositoryFakeCredentialTest() throws Exception {
         wfRepo.setCredentials("test", "s3cret".toCharArray()); // will be ignored, credential feature to be verified is system test
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source");
         defaultBranchTest();
     }
 
     @Test
-    public void changeGitRepositoryDirTest() throws Exception {
+    void changeGitRepositoryDirTest() throws Exception {
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
-        List<String> sourceDirs = new ArrayList<String>(1);
+        List<String> sourceDirs = new ArrayList<>(1);
         sourceDirs.add(0, WORK_DIR + "/wf-source2");
         wfRepo.setSourceDirs(sourceDirs);
         waitForWorkflowRefresh();
@@ -187,7 +195,7 @@ public class GitWorkflowRepositoryTest {
     }
 
     @Test
-    public void changeGitRepositoryFailureDirTest() throws Exception {
+    void changeGitRepositoryFailureDirTest() throws Exception {
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
         waitForWorkflowRefresh();
         defaultBranchTest();
@@ -199,48 +207,48 @@ public class GitWorkflowRepositoryTest {
     }
 
     @Test
-    public void sameURITest() throws Exception {
+    void sameURITest() throws Exception {
         wfRepo.setOriginURI(wfRepo.getOriginUri());
         defaultBranchTest();
     }
 
 
     @Test
-    public void changeURITest() throws Exception {
+    void changeURITest() {
         assertThrows(InvalidRemoteException.class, () -> wfRepo.setOriginURI(wfRepo.getOriginUri() + "ERROR_TEST"));
     }
 
     @Test
-    public void startFailureEmptyRepoTest() throws Exception {
+    void startFailureEmptyRepoTest() {
         GitWorkflowRepository wfRepo2 = new GitWorkflowRepository();
         assertThrows(GitWorkflowRepository.GitWorkflowRepositoryException.class, wfRepo2::start);
 
     }
 
     @Test
-    public void startFailureTargetDirTest() throws Exception {
+    void startFailureTargetDirTest() {
         GitWorkflowRepository wfRepo2 = new GitWorkflowRepository();
         wfRepo2.setTargetDir(WORK_DIR + "/wf-target2");
         assertThrows(GitWorkflowRepository.GitWorkflowRepositoryException.class, wfRepo2::start);
     }
 
     @AfterEach
-    public void setDown() throws IOException {
+    void setDown() throws IOException {
         engine.shutdown();
         FileUtils.deleteDirectory(new File(WF_WORK));
     }
 
-    private static void waitForWorkflowRefresh() {
+    private static void waitForWorkflowRefresh() throws InterruptedException {
         log.info("Waiting for workflow refresh ...");
-        LockSupport.parkNanos(2 * CHECK_INTERVAL_M_SEC * 1_000_000);
+        Thread.sleep(2 * CHECK_INTERVAL_M_SEC);
         log.info("Workflow refresh done.");
     }
 
-    private static void unzip(InputStream inputStream, String out) throws Exception {
+    private static void unzip(InputStream inputStream) throws Exception {
 
         byte[] buffer = new byte[2048];
 
-        Path outDir = Paths.get(out);
+        Path outDir = Paths.get(WORK_DIR);
 
         try (
                 BufferedInputStream bis = new BufferedInputStream(inputStream);
@@ -249,7 +257,9 @@ public class GitWorkflowRepositoryTest {
             while ((entry = stream.getNextEntry()) != null) {
                 Path filePath = outDir.resolve(entry.getName());
                 if (entry.isDirectory()) {
-                    filePath.toFile().mkdirs();
+                    if (!filePath.toFile().mkdirs()) {
+                        throw new IOException("Could not create directory " + filePath);
+                    }
                 } else {
                     try (FileOutputStream fos = new FileOutputStream(filePath.toFile());
                          BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length)) {
