@@ -161,7 +161,7 @@ public class BasePersistentWorkflowTest {
             }
 
             for (int i = 0; i < NUMB; i++) {
-                assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
+                Commons.assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
             }
         } finally {
             closeContext(context);
@@ -217,7 +217,7 @@ public class BasePersistentWorkflowTest {
             }
 
             for (int i = 0; i < NUMB; i++) {
-                assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
+                Commons.assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
             }
         } finally {
             closeContext(context);
@@ -494,7 +494,7 @@ public class BasePersistentWorkflowTest {
             }
 
             for (int i = 0; i < NUMB; i++) {
-                assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
+                Commons.assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
             }
 
             new RetryingTransaction<Void>(context.getBean(DataSource.class)) {
@@ -537,7 +537,7 @@ public class BasePersistentWorkflowTest {
             }
 
             for (int i = 0; i < NUMB; i++) {
-                assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
+                Commons.assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
             }
             Thread.sleep(1000);
 
@@ -786,14 +786,4 @@ public class BasePersistentWorkflowTest {
         assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
 
-    private void assertWorkflowResult(WorkflowResult x, String data) {
-        assertNotNull(x);
-        Exception unexpectedException = x.getException();
-        if (unexpectedException != null) {
-            logger.warn("Unexpected exception", unexpectedException);
-        }
-        assertNull(unexpectedException);
-        assertNotNull(x.getResult());
-        assertEquals(data.length(), x.getResult().toString().length());
-    }
 }

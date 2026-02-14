@@ -192,11 +192,7 @@ public class SpringlessBasePersistentWorkflowTest {
             }
 
             for (int i = 0; i < NUMB; i++) {
-                WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
-                assertNotNull(x);
-                assertNotNull(x.getResult());
-                assertNotNull(x.getResult().toString().length() == DATA.length());
-                assertNull(x.getException());
+                Commons.assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
             }
             checkNumbOfResponsesInDB(context, 0);
 
@@ -247,11 +243,7 @@ public class SpringlessBasePersistentWorkflowTest {
             }
 
             for (int i = 0; i < NUMB; i++) {
-                WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
-                assertNotNull(x);
-                assertNotNull(x.getResult());
-                assertNotNull(x.getResult().toString().length() == DATA.length());
-                assertNull(x.getException());
+                Commons.assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
             }
 
             checkNumbOfResponsesInDB(context, 0);
@@ -570,11 +562,7 @@ public class SpringlessBasePersistentWorkflowTest {
             }
 
             for (int i = 0; i < NUMB; i++) {
-                WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
-                assertNotNull(x);
-                assertNotNull(x.getResult());
-                assertEquals(x.getResult().toString().length(), DATA.length());
-                assertNull(x.getException());
+                Commons.assertWorkflowResult(backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS), DATA);
             }
             Thread.sleep(1000);
 
@@ -1620,5 +1608,4 @@ public class SpringlessBasePersistentWorkflowTest {
         assertEquals(EngineState.STOPPED, engine.getEngineState());
         assertEquals(0, engine.getNumberOfWorkflowInstances());
     }
-
 }
