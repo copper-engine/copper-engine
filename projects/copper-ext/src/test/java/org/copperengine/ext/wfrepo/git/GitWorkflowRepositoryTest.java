@@ -46,6 +46,8 @@ import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -54,6 +56,8 @@ public class GitWorkflowRepositoryTest {
     public static final String WF_WORK = "wf-work";
     public static final String WORK_DIR = "./" + WF_WORK;
     public static final int CHECK_INTERVAL_M_SEC = 1000;
+
+    private static final Logger log = LoggerFactory.getLogger(GitWorkflowRepositoryTest.class);
 
     private GitWorkflowRepository wfRepo;
     private TransientScottyEngine engine;
@@ -111,13 +115,13 @@ public class GitWorkflowRepositoryTest {
     @Test
     public void change2BranchesTest() throws CopperException, InterruptedException, IOException, GitAPIException {
         wfRepo.setBranch("1.0");
-        LockSupport.parkNanos(6_000_000_000L + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
+        waitForWorkflowRefresh();
         engine.run("Workflow1", "foo");
         String result1 = (String) channel.wait("correlationId", 6000, TimeUnit.MILLISECONDS);
         assertEquals("V1.0", result1);
 
         wfRepo.setBranch("2.0");
-        LockSupport.parkNanos(6_000_000_000L + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
+        waitForWorkflowRefresh();
         engine.run("Workflow1", "foo");
         String result2 = (String) channel.wait("correlationId", 6000, TimeUnit.MILLISECONDS);
         assertEquals("V2.0", result2);
@@ -160,7 +164,8 @@ public class GitWorkflowRepositoryTest {
     @Test
     public void changeGitRepositoryRobustDirTest() throws Exception {
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
-        LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
+        waitForWorkflowRefresh();
+        waitForWorkflowRefresh();
         defaultBranchTest(); // should run, because working classes are not overwritten (with empty configuration) by copper
     }
 
@@ -177,17 +182,17 @@ public class GitWorkflowRepositoryTest {
         List<String> sourceDirs = new ArrayList<String>(1);
         sourceDirs.add(0, WORK_DIR + "/wf-source2");
         wfRepo.setSourceDirs(sourceDirs);
-        LockSupport.parkNanos(6_000_000_000L + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
+        waitForWorkflowRefresh();
         change2BranchesTest(); // should run, because working classes are not overwritten (with empty configuration) by copper
     }
 
     @Test
     public void changeGitRepositoryFailureDirTest() throws Exception {
         wfRepo.setGitRepositoryDir(WORK_DIR + "/wf-source2");
-        LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
+        waitForWorkflowRefresh();
         defaultBranchTest();
         wfRepo.setBranch("1.0");
-        LockSupport.parkNanos(1_000_000_000 + CHECK_INTERVAL_M_SEC * 1_000_000); // wait for workflow refresh
+        waitForWorkflowRefresh();
         engine.run("Workflow1", "foo");
         String result1 = (String) channel.wait("correlationId", 1000, TimeUnit.MILLISECONDS);
         assertEquals("Vmaster", result1, "new branch not loaded, so expect Vmaster");
@@ -202,7 +207,7 @@ public class GitWorkflowRepositoryTest {
 
     @Test
     public void changeURITest() throws Exception {
-        assertThrows(InvalidRemoteException.class, ()-> wfRepo.setOriginURI(wfRepo.getOriginUri() + "ERROR_TEST"));
+        assertThrows(InvalidRemoteException.class, () -> wfRepo.setOriginURI(wfRepo.getOriginUri() + "ERROR_TEST"));
     }
 
     @Test
@@ -223,6 +228,12 @@ public class GitWorkflowRepositoryTest {
     public void setDown() throws IOException {
         engine.shutdown();
         FileUtils.deleteDirectory(new File(WF_WORK));
+    }
+
+    private static void waitForWorkflowRefresh() {
+        log.info("Waiting for workflow refresh ...");
+        LockSupport.parkNanos(2 * CHECK_INTERVAL_M_SEC * 1_000_000);
+        log.info("Workflow refresh done.");
     }
 
     private static void unzip(InputStream inputStream, String out) throws Exception {
