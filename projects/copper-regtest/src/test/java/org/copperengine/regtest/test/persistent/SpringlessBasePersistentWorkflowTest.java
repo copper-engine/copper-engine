@@ -285,8 +285,8 @@ public class SpringlessBasePersistentWorkflowTest {
             for (int i = 0; i < NUMB; i++) {
                 WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
                 assertNotNull(x);
+                Commons.assertNullException(x.getException());
                 assertNull(x.getResult());
-                assertNull(x.getException());
             }
 
             checkNumbOfResponsesInDB(context, 0);
@@ -327,8 +327,8 @@ public class SpringlessBasePersistentWorkflowTest {
             for (int i = 0; i < NUMB; i++) {
                 WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
                 assertNotNull(x);
+                Commons.assertNullException(x.getException());
                 assertNull(x.getResult());
-                assertNull(x.getException());
             }
 
             checkNumbOfResponsesInDB(context, 0);
@@ -358,8 +358,8 @@ public class SpringlessBasePersistentWorkflowTest {
             for (int i = 0; i < NUMB; i++) {
                 WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
                 assertNotNull(x);
+                Commons.assertNullException(x.getException());
                 assertNull(x.getResult());
-                assertNull(x.getException());
             }
 
             checkNumbOfResponsesInDB(context, 0);
@@ -489,8 +489,8 @@ public class SpringlessBasePersistentWorkflowTest {
             for (int i = 0; i < NUMB; i++) {
                 WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
                 assertNotNull(x);
+                Commons.assertNullException(x.getException());
                 assertNull(x.getResult());
-                assertNull(x.getException());
             }
         } finally {
             closeContext(context);
@@ -518,9 +518,9 @@ public class SpringlessBasePersistentWorkflowTest {
             for (int i = 0; i < NUMB; i++) {
                 WorkflowResult x = backChannelQueue.dequeue(DEQUEUE_TIMEOUT, TimeUnit.SECONDS);
                 assertNotNull(x);
+                Commons.assertNullException(x.getException());
                 assertNotNull(x.getResult());
                 assertNotNull(x.getResult().toString().length() == DATA.length());
-                assertNull(x.getException());
             }
 
             new RetryingTransaction<Void>(context.getDataSource()) {
@@ -842,8 +842,8 @@ public class SpringlessBasePersistentWorkflowTest {
                 WorkflowResult wfr = backChannelQueue.poll();
 
                 if (wfr != null) {
+                    Commons.assertNullException(wfr.getException());
                     assertNull(wfr.getResult());
-                    assertNull(wfr.getException());
                     x++;
                 } else {
                     Thread.sleep(50);
