@@ -57,7 +57,7 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
         currentClassName = name;
         logger.info("Transforming " + currentClassName);
         if (checkpointCollector != null) {
-            checkpointCollector.workflowStart(name);
+            checkpointCollector.workflowStart(name, superName);
         }
         super.visit(version, access, name, signature, superName, interfaces);
         super.visitAnnotation("Lorg/copperengine/core/instrument/Transformed;", true);

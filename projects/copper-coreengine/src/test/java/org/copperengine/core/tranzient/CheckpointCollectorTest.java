@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 class CheckpointCollectorTest {
 
     public static final String TEST_AUDITOR_WORKFLOW = "test/AuditorWorkflow";
+    public static final String BASE_WORKFLOW = "org/copperengine/core/Workflow";
 
     @Test
     void execute() throws Exception {
@@ -56,12 +57,12 @@ class CheckpointCollectorTest {
 
     private static void verifyCheckpointCollectorCalls(final CheckpointCollector workflowRepositoryCheckpointCollectorMock) {
         Mockito.verify(workflowRepositoryCheckpointCollectorMock).startInstrument();
-        Mockito.verify(workflowRepositoryCheckpointCollectorMock).workflowStart(TEST_AUDITOR_WORKFLOW);
+        Mockito.verify(workflowRepositoryCheckpointCollectorMock).workflowStart(TEST_AUDITOR_WORKFLOW, BASE_WORKFLOW);
         Mockito.verify(workflowRepositoryCheckpointCollectorMock).workflowEnd(TEST_AUDITOR_WORKFLOW);
         Mockito.verify(
                         workflowRepositoryCheckpointCollectorMock,
                         Mockito
-                                .times(11)
+                                .times(12)
                 )
                 .add(
                         Mockito.argThat(
@@ -78,6 +79,7 @@ class CheckpointCollectorTest {
                                 "main",
                                 "()V",
                                 0,
+                                TEST_AUDITOR_WORKFLOW,
                                 "wait",
                                 "(Lorg/copperengine/core/WaitMode;I[Ljava/lang/String;)V"
                         )
@@ -90,6 +92,7 @@ class CheckpointCollectorTest {
                                 "main",
                                 "()V",
                                 1,
+                                TEST_AUDITOR_WORKFLOW,
                                 "wait",
                                 "(Lorg/copperengine/core/WaitMode;I[Lorg/copperengine/core/Callback;)V"
                         )
@@ -102,6 +105,7 @@ class CheckpointCollectorTest {
                                 "main",
                                 "()V",
                                 2,
+                                TEST_AUDITOR_WORKFLOW,
                                 "wait",
                                 "(Lorg/copperengine/core/WaitMode;JLjava/util/concurrent/TimeUnit;[Ljava/lang/String;)V"
                         )
@@ -114,6 +118,7 @@ class CheckpointCollectorTest {
                                 "main",
                                 "()V",
                                 3,
+                                TEST_AUDITOR_WORKFLOW,
                                 "wait",
                                 "(Lorg/copperengine/core/WaitMode;JLjava/util/concurrent/TimeUnit;[Lorg/copperengine/core/Callback;)V"
                         )
@@ -126,6 +131,7 @@ class CheckpointCollectorTest {
                                 "main",
                                 "()V",
                                 4,
+                                TEST_AUDITOR_WORKFLOW,
                                 "waitForAll",
                                 "([Ljava/lang/String;)V"
                         )
@@ -138,6 +144,7 @@ class CheckpointCollectorTest {
                                 "main",
                                 "()V",
                                 5,
+                                TEST_AUDITOR_WORKFLOW,
                                 "waitForAll",
                                 "([Lorg/copperengine/core/Callback;)V"
                         )
@@ -150,6 +157,7 @@ class CheckpointCollectorTest {
                                 "main",
                                 "()V",
                                 6,
+                                TEST_AUDITOR_WORKFLOW,
                                 "subWorkflow",
                                 "(IJ)V"
                         )
@@ -162,6 +170,7 @@ class CheckpointCollectorTest {
                                 "main",
                                 "()V",
                                 7,
+                                TEST_AUDITOR_WORKFLOW,
                                 "subWorkflow",
                                 "(IJ)V"
                         )
@@ -174,6 +183,7 @@ class CheckpointCollectorTest {
                                 "main",
                                 "()V",
                                 8,
+                                TEST_AUDITOR_WORKFLOW,
                                 "interruptableMethod",
                                 "()V"
                         )
@@ -186,6 +196,7 @@ class CheckpointCollectorTest {
                                 "subWorkflow",
                                 "(IJ)V",
                                 0,
+                                TEST_AUDITOR_WORKFLOW,
                                 "resubmit",
                                 "()V"
                         )
@@ -198,6 +209,20 @@ class CheckpointCollectorTest {
                                 "subWorkflow",
                                 "(IJ)V",
                                 1,
+                                TEST_AUDITOR_WORKFLOW,
+                                "savepoint",
+                                "()V"
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .add(
+                        new CheckpointCollector.CheckPoint(
+                                TEST_AUDITOR_WORKFLOW,
+                                "subWorkflow",
+                                "(IJ)V",
+                                2,
+                                BASE_WORKFLOW,
                                 "savepoint",
                                 "()V"
                         )
