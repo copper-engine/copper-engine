@@ -34,7 +34,7 @@ import org.copperengine.core.monitoring.NullRuntimeStatisticsCollector;
 import org.copperengine.core.monitoring.RuntimeStatisticsCollector;
 import org.copperengine.core.util.PojoDependencyInjector;
 import org.copperengine.core.wfrepo.FileBasedWorkflowRepository;
-import org.copperengine.core.wfrepo.CheckpointCollector;
+import org.copperengine.core.wfrepo.checkpoint.CheckpointCollector;
 
 /**
  * Convenience class for easy creation of a transient {@link ProcessingEngine}. Override the corresponding create

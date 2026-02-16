@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.copperengine.core.wfrepo.CheckpointCollector;
+import org.copperengine.core.wfrepo.checkpoint.CheckpointCollector;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

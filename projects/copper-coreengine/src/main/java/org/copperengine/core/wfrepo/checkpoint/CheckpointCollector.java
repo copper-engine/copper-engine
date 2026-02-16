@@ -1,4 +1,4 @@
-package org.copperengine.core.wfrepo;
+package org.copperengine.core.wfrepo.checkpoint;
 
 import org.slf4j.LoggerFactory;
 

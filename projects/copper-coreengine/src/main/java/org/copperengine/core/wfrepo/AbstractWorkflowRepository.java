@@ -39,6 +39,7 @@ import org.copperengine.core.instrument.ClassInfo;
 import org.copperengine.core.instrument.ScottyClassAdapter;
 import org.copperengine.core.instrument.Transformed;
 import org.copperengine.core.instrument.TryCatchBlockHandler;
+import org.copperengine.core.wfrepo.checkpoint.CheckpointCollector;
 import org.copperengine.management.FileBasedWorkflowRepositoryMXBean;
 import org.copperengine.management.model.WorkflowClassInfo;
 import org.objectweb.asm.ClassReader;

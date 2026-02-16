@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.copperengine.core.StackEntry;
-import org.copperengine.core.wfrepo.CheckpointCollector;
+import org.copperengine.core.wfrepo.checkpoint.CheckpointCollector;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;

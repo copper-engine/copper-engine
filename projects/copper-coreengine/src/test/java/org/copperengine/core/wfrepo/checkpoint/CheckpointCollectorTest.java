@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.tranzient;
+package org.copperengine.core.wfrepo.checkpoint;
 
 import java.io.File;
 import java.time.Duration;
 import java.util.concurrent.locks.LockSupport;
 
-import org.copperengine.core.wfrepo.CheckpointCollector;
+import org.copperengine.core.tranzient.TransientEngineFactory;
+import org.copperengine.core.tranzient.TransientScottyEngine;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
