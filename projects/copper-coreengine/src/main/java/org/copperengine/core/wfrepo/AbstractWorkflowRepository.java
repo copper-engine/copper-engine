@@ -277,11 +277,12 @@ public abstract class AbstractWorkflowRepository implements WorkflowRepository, 
                     fos.close();
                 }
             }
-        } finally {
-            logger.info("Instrumented classfiles");
             if (this.checkpointCollector != null) {
+                // do not call in case of exceptions
                 this.checkpointCollector.endInstrument();
             }
+        } finally {
+            logger.info("Instrumented classfiles");
         }
     }
 

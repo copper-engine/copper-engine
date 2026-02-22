@@ -20,50 +20,73 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A `CheckpointCollector` collects workflows and their associated checkpoints
+ * and provides them with {@link #getWorkflowMap()}.
+ *
+ * This class tracks workflows, methods, and calls, enabling organization and immutability of workflow structures.
+ * It operates as a finite state machine with distinct states to enforce specific actions during the checkpoint collection process.
+ *
+ * The jumpNo start with 0 for each method and is incremented for each call.
+ *
+ * States:
+ * - `InitialState`: The starting state where only `startInstrument` is allowed.
+ * - `BeforeWorkflowState`: Transition state where workflows are registered and ready for checkpoint addition.
+ * - `InWorkflowState`: Active state during which checkpoints are added to workflows.
+ * - `FinalState`: Terminal state after the collection process, where no modifications are allowed.
+ */
 public class WorkflowMapCheckpointCollector implements CheckpointCollector {
 
     private final Map<String, Workflow> workflowMap = new HashMap<>();
+    private int expectedJumpNo = 0;
+
+    private final CheckpointCollector initialState = new InitialState();
+    private final CheckpointCollector beforeWorkflowState = new BeforeWorkflowState();
+    private final CheckpointCollector inWorkflowState = new InWorkflowState();
+    private final CheckpointCollector finalState = new FinalState();
+
+    private CheckpointCollector state = initialState;
+
+    private final Object lock = new Object();
+
+    @Override
+    public void startInstrument() {
+        CheckpointCollector.super.startInstrument();
+        synchronized (lock) {
+            state.startInstrument();
+        }
+    }
 
     @Override
     public void workflowStart(String workflowClassName, String superWorkflowClassName) {
         CheckpointCollector.super.workflowStart(workflowClassName, superWorkflowClassName);
-        workflowMap.put(
-                workflowClassName,
-                new Workflow(
-                        workflowClassName,
-                        superWorkflowClassName,
-                        new HashMap<>()
-                )
-        );
+        synchronized (lock) {
+            state.workflowStart(workflowClassName, superWorkflowClassName);
+        }
     }
 
     @Override
     public void add(CheckPoint checkpoint) {
         CheckpointCollector.super.add(checkpoint);
-        final Workflow workflow = workflowMap.get(checkpoint.workflowClassName());
-        if (checkpoint.jumpNo() == 0) {
-            ArrayList<Call> calls = new ArrayList<>();
-            calls.add(Call.ofCheckPoint(checkpoint));
-            workflow
-                    .methodMap()
-                    .put(Method.ofCheckPoint(checkpoint),
-                            calls
-                    );
-        } else {
-            List<Call> calls = workflow
-                    .methodMap()
-                    .get(Method.ofCheckPoint(checkpoint));
-            calls.add(Call.ofCheckPoint(checkpoint));
+        synchronized (lock) {
+            state.add(checkpoint);
         }
     }
 
     @Override
     public void workflowEnd(String workflowClassName) {
-        workflowMap
-                .put(
-                        workflowClassName,
-                        immutableWorkflow(workflowMap.get(workflowClassName))
-                );
+        CheckpointCollector.super.workflowEnd(workflowClassName);
+        synchronized (lock) {
+            state.workflowEnd(workflowClassName);
+        }
+    }
+
+    @Override
+    public void endInstrument() {
+        CheckpointCollector.super.endInstrument();
+        synchronized (lock) {
+            state.endInstrument();
+        }
     }
 
     public Map<String, Workflow> getWorkflowMap() {
@@ -120,5 +143,101 @@ public class WorkflowMapCheckpointCollector implements CheckpointCollector {
                                 .put(method, List.copyOf(calls))
                 );
         return workflow.withMethodMap(Map.copyOf(workflow.methodMap()));
+    }
+
+    private abstract class IllegalState implements CheckpointCollector {
+        @Override
+        public void startInstrument() {
+            throw new IllegalStateException("startInstrument not allowed");
+        }
+
+        @Override
+        public void workflowStart(final String workflowClassName, final String superWorkflowClassName) {
+            throw new IllegalStateException("workflowStart not allowed");
+        }
+
+        @Override
+        public void add(final CheckPoint checkpoint) {
+            throw new IllegalStateException("add not allowed");
+        }
+
+        @Override
+        public void workflowEnd(final String workflowClassName) {
+            throw new IllegalStateException("workflowEnd not allowed");
+        }
+
+        @Override
+        public void endInstrument() {
+            throw new IllegalStateException("endInstrument not allowed");
+        }
+    }
+
+    private class InitialState extends IllegalState implements CheckpointCollector {
+        @Override
+        public void startInstrument() {
+            state = beforeWorkflowState;
+        }
+    }
+
+    private class InWorkflowState extends IllegalState implements CheckpointCollector {
+        @Override
+        public void add(final CheckPoint checkpoint) {
+            final Workflow workflow = workflowMap.get(checkpoint.workflowClassName());
+            final int jumpNo = checkpoint.jumpNo();
+            if (jumpNo == 0) {
+                ArrayList<Call> calls = new ArrayList<>();
+                calls.add(Call.ofCheckPoint(checkpoint));
+                workflow
+                        .methodMap()
+                        .put(Method.ofCheckPoint(checkpoint),
+                                calls
+                        );
+                expectedJumpNo = 1;
+            } else {
+                if (jumpNo != expectedJumpNo) {
+                    throw new IllegalStateException("expected entry no " + expectedJumpNo + " but got " + jumpNo);
+                }
+                List<Call> calls = workflow
+                        .methodMap()
+                        .get(Method.ofCheckPoint(checkpoint));
+                calls.add(Call.ofCheckPoint(checkpoint));
+                expectedJumpNo++;
+            }
+        }
+
+        @Override
+        public void workflowEnd(final String workflowClassName) {
+            workflowMap
+                    .put(
+                            workflowClassName,
+                            immutableWorkflow(workflowMap.get(workflowClassName))
+                    );
+            state = beforeWorkflowState;
+        }
+    }
+
+
+    private class BeforeWorkflowState extends IllegalState implements CheckpointCollector {
+        @Override
+        public void workflowStart(final String workflowClassName, final String superWorkflowClassName) {
+            workflowMap.put(
+                    workflowClassName,
+                    new Workflow(
+                            workflowClassName,
+                            superWorkflowClassName,
+                            new HashMap<>()
+                    )
+            );
+            state = inWorkflowState;
+        }
+
+        @Override
+        public void endInstrument() {
+            state = finalState;
+        }
+    }
+
+
+    private class FinalState extends IllegalState implements CheckpointCollector {
     }
 }
