@@ -129,8 +129,8 @@ public class WorkflowMapCheckpointCollector implements CheckpointCollector {
     ) {
         static Method ofCheckPoint(final CheckpointInfo checkPointInfo) {
             return new Method(
-                    checkPointInfo.methodName(),
-                    checkPointInfo.methodDescriptor()
+                    checkPointInfo.methodDefinition().methodName(),
+                    checkPointInfo.methodDefinition().methodDescriptor()
             );
         }
     }
@@ -143,10 +143,10 @@ public class WorkflowMapCheckpointCollector implements CheckpointCollector {
         static Call ofCheckPoint(final CheckpointInfo checkPointInfo) {
             return new Call(
                     checkPointInfo.jumpNo(),
-                    checkPointInfo.ownerWorkflowClassName(),
+                    checkPointInfo.interruptable().workflowClassName(),
                     new Method(
-                            checkPointInfo.interruptableMethodName(),
-                            checkPointInfo.interruptableMethodDescriptor()
+                            checkPointInfo.interruptable().methodName(),
+                            checkPointInfo.interruptable().methodDescriptor()
                     )
             );
         }
@@ -165,7 +165,7 @@ public class WorkflowMapCheckpointCollector implements CheckpointCollector {
         return workflow.withImmutableMethodInfoMap();
     }
 
-    private abstract class IllegalState implements CheckpointCollector {
+    private abstract static class IllegalState implements CheckpointCollector {
         @Override
         public void startInstrument() {
             throw new IllegalStateException("startInstrument not allowed");
@@ -207,7 +207,7 @@ public class WorkflowMapCheckpointCollector implements CheckpointCollector {
     private class InWorkflowState extends IllegalState implements CheckpointCollector {
         @Override
         public void addCheckpointInfo(final CheckpointInfo checkpointInfo) {
-            final Workflow workflow = workflowMap.get(checkpointInfo.workflowClassName());
+            final Workflow workflow = workflowMap.get(checkpointInfo.methodDefinition().workflowClassName());
             final Method method = Method.ofCheckPoint(checkpointInfo);
             final Map<Method, Info> methodInfoMap = workflow.methodInfoMap();
             assureMethodInfo(methodInfoMap, method)

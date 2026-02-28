@@ -79,7 +79,8 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
                 name,
                 access,
                 descriptor,
-                new CheckpointCollector() {}
+                new CheckpointCollector() {
+                }
         );
     }
 
@@ -405,13 +406,17 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
     private void addCheckpoint(final String owner, final String name, final String desc) {
         checkpointCollector.addCheckpointInfo(
                 new CheckpointCollector.CheckpointInfo(
-                        info.definingClass,
-                        info.methodName,
-                        info.descriptor,
+                        new CheckpointCollector.MethodInfo(
+                                info.definingClass,
+                                info.methodName,
+                                info.descriptor
+                        ),
                         interuptibleCalls.size(),
-                        owner,
-                        name,
-                        desc
+                        new CheckpointCollector.MethodInfo(
+                                owner,
+                                name,
+                                desc
+                        )
                 )
         );
     }

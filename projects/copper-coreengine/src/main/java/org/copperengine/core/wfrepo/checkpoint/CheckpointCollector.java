@@ -94,27 +94,14 @@ public interface CheckpointCollector {
      * metadata about the method and the specific point within the method where the
      * CheckPoint is recorded.
      *
-     * @param workflowClassName             The fully qualified name of the workflow class where the CheckPoint exists.
-     *                                      No .class suffix and using '/' as path separator.
-     * @param methodName                    The name of the method where the CheckPoint exists.
-     * @param methodDescriptor              The descriptor of the method where the CheckPoint exists.
-     * @param jumpNo                        The jump number within the method indicating the
-     *                                      specific point of execution.
-     * @param ownerWorkflowClassName        The fully qualified name of the workflow class owning the interruptable method.
-     *                                      No .class suffix and using '/' as path separator.
-     * @param interruptableMethodName       The name of the interruptable method associated
-     *                                      with this CheckPoint.
-     * @param interruptableMethodDescriptor The descriptor of the interruptable method
-     *                                      associated with this CheckPoint.
+     * @param methodDefinition The method definition where the CheckPoint exists.
+     * @param jumpNo           The jump number within the method indicating the
+     * @param interruptable    Call to the interruptable method.
      */
     record CheckpointInfo(
-            String workflowClassName,
-            String methodName,
-            String methodDescriptor,
+            MethodInfo methodDefinition,
             int jumpNo,
-            String ownerWorkflowClassName,
-            String interruptableMethodName,
-            String interruptableMethodDescriptor
+            MethodInfo interruptable
     ) {
     }
 

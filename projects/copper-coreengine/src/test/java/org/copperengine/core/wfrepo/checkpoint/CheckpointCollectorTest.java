@@ -68,7 +68,8 @@ class CheckpointCollectorTest {
                 .addCheckpointInfo(
                         Mockito.argThat(
                                 checkpointInfo ->
-                                        TEST_AUDITOR_WORKFLOW.equals(checkpointInfo.workflowClassName())
+                                        TEST_AUDITOR_WORKFLOW
+                                                .equals(checkpointInfo.methodDefinition().workflowClassName())
                         )
                 );
         Mockito.verify(workflowRepositoryCheckpointCollectorMock).endInstrument();
@@ -76,13 +77,17 @@ class CheckpointCollectorTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "main",
-                                "()V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "main",
+                                        "()V"
+                                ),
                                 0,
-                                TEST_AUDITOR_WORKFLOW,
-                                "wait",
-                                "(Lorg/copperengine/core/WaitMode;I[Ljava/lang/String;)V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "wait",
+                                        "(Lorg/copperengine/core/WaitMode;I[Ljava/lang/String;)V"
+                                )
                         )
                 );
         Mockito
@@ -128,143 +133,188 @@ class CheckpointCollectorTest {
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "main",
-                                "()V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "main",
+                                        "()V"
+                                ),
                                 1,
-                                TEST_AUDITOR_WORKFLOW,
-                                "wait",
-                                "(Lorg/copperengine/core/WaitMode;I[Lorg/copperengine/core/Callback;)V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "wait",
+                                        "(Lorg/copperengine/core/WaitMode;I[Lorg/copperengine/core/Callback;)V"
+                                )
                         )
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "main",
-                                "()V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "main",
+                                        "()V"
+                                ),
                                 2,
-                                TEST_AUDITOR_WORKFLOW,
-                                "wait",
-                                "(Lorg/copperengine/core/WaitMode;JLjava/util/concurrent/TimeUnit;[Ljava/lang/String;)V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "wait",
+                                        "(Lorg/copperengine/core/WaitMode;JLjava/util/concurrent/TimeUnit;[Ljava/lang/String;)V"
+                                )
                         )
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "main",
-                                "()V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "main",
+                                        "()V"
+                                ),
                                 3,
-                                TEST_AUDITOR_WORKFLOW,
-                                "wait",
-                                "(Lorg/copperengine/core/WaitMode;JLjava/util/concurrent/TimeUnit;[Lorg/copperengine/core/Callback;)V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "wait",
+                                        "(Lorg/copperengine/core/WaitMode;JLjava/util/concurrent/TimeUnit;[Lorg/copperengine/core/Callback;)V"
+                                )
                         )
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "main",
-                                "()V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "main",
+                                        "()V"
+                                ),
                                 4,
-                                TEST_AUDITOR_WORKFLOW,
-                                "waitForAll",
-                                "([Ljava/lang/String;)V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "waitForAll",
+                                        "([Ljava/lang/String;)V"
+                                )
                         )
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "main",
-                                "()V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "main",
+                                        "()V")
+                                ,
                                 5,
-                                TEST_AUDITOR_WORKFLOW,
-                                "waitForAll",
-                                "([Lorg/copperengine/core/Callback;)V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "waitForAll",
+                                        "([Lorg/copperengine/core/Callback;)V"
+                                )
                         )
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "main",
-                                "()V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "main",
+                                        "()V"
+                                ),
                                 6,
-                                TEST_AUDITOR_WORKFLOW,
-                                "subWorkflow",
-                                "(IJ)V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "subWorkflow",
+                                        "(IJ)V"
+                                )
                         )
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "main",
-                                "()V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "main",
+                                        "()V")
+                                ,
                                 7,
-                                TEST_AUDITOR_WORKFLOW,
-                                "subWorkflow",
-                                "(IJ)V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "subWorkflow",
+                                        "(IJ)V"
+                                )
                         )
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "main",
-                                "()V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "main",
+                                        "()V"
+                                ),
                                 8,
-                                TEST_AUDITOR_WORKFLOW,
-                                "interruptableMethod",
-                                "()V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "interruptableMethod",
+                                        "()V"
+
+                                )
                         )
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "subWorkflow",
-                                "(IJ)V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "subWorkflow",
+                                        "(IJ)V"
+                                ),
                                 0,
-                                TEST_AUDITOR_WORKFLOW,
-                                "resubmit",
-                                "()V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "resubmit",
+                                        "()V"
+                                )
                         )
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "subWorkflow",
-                                "(IJ)V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "subWorkflow",
+                                        "(IJ)V"
+                                ),
                                 1,
-                                TEST_AUDITOR_WORKFLOW,
-                                "savepoint",
-                                "()V"
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "savepoint",
+                                        "()V"
+                                )
                         )
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
                 .addCheckpointInfo(
                         new CheckpointCollector.CheckpointInfo(
-                                TEST_AUDITOR_WORKFLOW,
-                                "subWorkflow",
-                                "(IJ)V",
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "subWorkflow",
+                                        "(IJ)V"
+                                ),
                                 2,
-                                BASE_WORKFLOW,
-                                "savepoint",
-                                "()V"
+                                new CheckpointCollector.MethodInfo(
+                                        BASE_WORKFLOW,
+                                        "savepoint",
+                                        "()V"
+                                )
                         )
                 );
     }
