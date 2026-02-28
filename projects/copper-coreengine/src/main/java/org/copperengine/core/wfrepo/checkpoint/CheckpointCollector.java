@@ -118,6 +118,15 @@ public interface CheckpointCollector {
     ) {
     }
 
+    /**
+     * Represents metadata about a method within a workflow.
+     * This can be a method definition or a method call.
+     *
+     * @param workflowClassName The fully qualified name of the class containing the method.
+     *                          The name does not have a .class suffix and uses '/' as a path separator.
+     * @param methodName        The name of the method being described.
+     * @param methodDescriptor  A descriptor specifying the method's parameters and return type.
+     */
     record MethodInfo(
             String workflowClassName,
             String methodName,
@@ -125,6 +134,16 @@ public interface CheckpointCollector {
     ) {
     }
 
+    /**
+     * Represents metadata about a variable used in a workflow.
+     * This record is used to store information about variables detected in a method,
+     * including the variable's name, its index within the method, and the context of the
+     * method it belongs to.
+     *
+     * @param name       The name of the variable as it appears in the method.
+     * @param index      The index of the variable in the method's local variable table.
+     * @param methodInfo Metadata about the method where the variable is defined or accessed.
+     */
     record VariableInfo(
             String name,
             int index,
