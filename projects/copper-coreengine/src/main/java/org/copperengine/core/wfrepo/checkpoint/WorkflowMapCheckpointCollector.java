@@ -23,12 +23,12 @@ import java.util.Map;
 /**
  * A `CheckpointCollector` collects workflows and their associated checkpoints
  * and provides them with {@link #getWorkflowMap()}.
- *
+ * <p>
  * This class tracks workflows, methods, and calls, enabling organization and immutability of workflow structures.
  * It operates as a finite state machine with distinct states to enforce specific actions during the checkpoint collection process.
- *
+ * <p>
  * The jumpNo start with 0 for each method and is incremented for each call.
- *
+ * <p>
  * States:
  * - `InitialState`: The starting state where only `startInstrument` is allowed.
  * - `BeforeWorkflowState`: Transition state where workflows are registered and ready for checkpoint addition.
@@ -66,10 +66,18 @@ public class WorkflowMapCheckpointCollector implements CheckpointCollector {
     }
 
     @Override
-    public void add(CheckPoint checkpoint) {
-        CheckpointCollector.super.add(checkpoint);
+    public void addCheckpointInfo(CheckpointInfo checkpointInfo) {
+        CheckpointCollector.super.addCheckpointInfo(checkpointInfo);
         synchronized (lock) {
-            state.add(checkpoint);
+            state.addCheckpointInfo(checkpointInfo);
+        }
+    }
+
+    @Override
+    public void addVariableInfo(VariableInfo variableInfo) {
+        CheckpointCollector.super.addVariableInfo(variableInfo);
+        synchronized (lock) {
+            state.addVariableInfo(variableInfo);
         }
     }
 
@@ -96,23 +104,33 @@ public class WorkflowMapCheckpointCollector implements CheckpointCollector {
     public record Workflow(
             String name,
             String superWorkflowName,
-            Map<Method, List<Call>> methodMap
+            Map<Method, Info> methodInfoMap
     ) {
-        Workflow withMethodMap(
-                final Map<Method, List<Call>> methodMap
-        ) {
-            return new Workflow(name, superWorkflowName, methodMap);
+        public Workflow withImmutableMethodInfoMap() {
+            return new Workflow(name, superWorkflowName, Map.copyOf(methodInfoMap));
         }
+    }
+
+    public record Info(
+            List<Call> calls,
+            List<Variable> variables
+    ) {
+    }
+
+    public record Variable(
+            String name,
+            int index
+    ) {
     }
 
     public record Method(
             String methodName,
             String methodDescriptor
     ) {
-        static Method ofCheckPoint(final CheckPoint checkPoint) {
+        static Method ofCheckPoint(final CheckpointInfo checkPointInfo) {
             return new Method(
-                    checkPoint.methodName(),
-                    checkPoint.methodDescriptor()
+                    checkPointInfo.methodName(),
+                    checkPointInfo.methodDescriptor()
             );
         }
     }
@@ -122,27 +140,29 @@ public class WorkflowMapCheckpointCollector implements CheckpointCollector {
             String ownerWorkflowClassName,
             Method interruptable
     ) {
-        static Call ofCheckPoint(final CheckPoint checkPoint) {
+        static Call ofCheckPoint(final CheckpointInfo checkPointInfo) {
             return new Call(
-                    checkPoint.jumpNo(),
-                    checkPoint.ownerWorkflowClassName(),
+                    checkPointInfo.jumpNo(),
+                    checkPointInfo.ownerWorkflowClassName(),
                     new Method(
-                            checkPoint.interruptableMethodName(),
-                            checkPoint.interruptableMethodDescriptor()
+                            checkPointInfo.interruptableMethodName(),
+                            checkPointInfo.interruptableMethodDescriptor()
                     )
             );
         }
     }
 
     private static Workflow immutableWorkflow(final Workflow workflow) {
-        workflow
-                .methodMap()
-                .forEach((method, calls) ->
-                        workflow
-                                .methodMap()
-                                .put(method, List.copyOf(calls))
+        final Map<Method, Info> methodInfoMap = workflow.methodInfoMap();
+        methodInfoMap
+                .forEach((method, info) ->
+                        methodInfoMap
+                                .put(method, new Info(
+                                        List.copyOf(info.calls()),
+                                        List.copyOf(info.variables())
+                                ))
                 );
-        return workflow.withMethodMap(Map.copyOf(workflow.methodMap()));
+        return workflow.withImmutableMethodInfoMap();
     }
 
     private abstract class IllegalState implements CheckpointCollector {
@@ -157,8 +177,13 @@ public class WorkflowMapCheckpointCollector implements CheckpointCollector {
         }
 
         @Override
-        public void add(final CheckPoint checkpoint) {
+        public void addCheckpointInfo(final CheckpointInfo checkpointInfo) {
             throw new IllegalStateException("add not allowed");
+        }
+
+        @Override
+        public void addVariableInfo(final VariableInfo variableInfo) {
+            throw new IllegalStateException("addVariableInfo not allowed");
         }
 
         @Override
@@ -181,27 +206,53 @@ public class WorkflowMapCheckpointCollector implements CheckpointCollector {
 
     private class InWorkflowState extends IllegalState implements CheckpointCollector {
         @Override
-        public void add(final CheckPoint checkpoint) {
-            final Workflow workflow = workflowMap.get(checkpoint.workflowClassName());
-            final int jumpNo = checkpoint.jumpNo();
+        public void addCheckpointInfo(final CheckpointInfo checkpointInfo) {
+            final Workflow workflow = workflowMap.get(checkpointInfo.workflowClassName());
+            final Method method = Method.ofCheckPoint(checkpointInfo);
+            final Map<Method, Info> methodInfoMap = workflow.methodInfoMap();
+            assureMethodInfo(methodInfoMap, method)
+                    .calls()
+                    .add(Call.ofCheckPoint(checkpointInfo));
+
+            final int jumpNo = checkpointInfo.jumpNo();
             if (jumpNo == 0) {
-                ArrayList<Call> calls = new ArrayList<>();
-                calls.add(Call.ofCheckPoint(checkpoint));
-                workflow
-                        .methodMap()
-                        .put(Method.ofCheckPoint(checkpoint),
-                                calls
-                        );
                 expectedJumpNo = 1;
             } else {
                 if (jumpNo != expectedJumpNo) {
                     throw new IllegalStateException("expected entry no " + expectedJumpNo + " but got " + jumpNo);
                 }
-                List<Call> calls = workflow
-                        .methodMap()
-                        .get(Method.ofCheckPoint(checkpoint));
-                calls.add(Call.ofCheckPoint(checkpoint));
                 expectedJumpNo++;
+            }
+        }
+
+        @Override
+        public void addVariableInfo(final VariableInfo variableInfo) {
+            final Workflow workflow = workflowMap.get(variableInfo.methodInfo().workflowClassName());
+            final Method method = new Method(
+                    variableInfo.methodInfo().methodName(),
+                    variableInfo.methodInfo().methodDescriptor()
+            );
+            final Map<Method, Info> methodInfoMap = workflow.methodInfoMap();
+
+            assureMethodInfo(methodInfoMap, method)
+                    .variables()
+                    .add(new Variable(variableInfo.name(), variableInfo.index()));
+        }
+
+        private Info assureMethodInfo(final Map<Method, Info> methodInfoMap, final Method method) {
+            if (!methodInfoMap.containsKey(method)) {
+                final Info newInfo = new Info(
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                );
+                methodInfoMap
+                        .put(
+                                method,
+                                newInfo
+                        );
+                return newInfo;
+            } else {
+                return methodInfoMap.get(method);
             }
         }
 

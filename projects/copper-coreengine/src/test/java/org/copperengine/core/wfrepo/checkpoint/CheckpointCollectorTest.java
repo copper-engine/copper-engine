@@ -32,7 +32,7 @@ class CheckpointCollectorTest {
 
     @Test
     void execute() throws Exception {
-        
+
         // Action with Assumption, but I use Assertions tp be sure
         // that test fails if something goes wrong
         TransientEngineFactory factory = new TransientEngineFactory() {
@@ -65,17 +65,17 @@ class CheckpointCollectorTest {
                         Mockito
                                 .times(12)
                 )
-                .add(
+                .addCheckpointInfo(
                         Mockito.argThat(
-                                checkPoint ->
-                                        TEST_AUDITOR_WORKFLOW.equals(checkPoint.workflowClassName())
+                                checkpointInfo ->
+                                        TEST_AUDITOR_WORKFLOW.equals(checkpointInfo.workflowClassName())
                         )
                 );
         Mockito.verify(workflowRepositoryCheckpointCollectorMock).endInstrument();
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
@@ -87,8 +87,47 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addVariableInfo(
+                        new CheckpointCollector.VariableInfo(
+                                "this",
+                                0,
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "subWorkflow",
+                                        "(IJ)V"
+                                )
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .addVariableInfo(
+                        new CheckpointCollector.VariableInfo(
+                                "i1",
+                                1,
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "subWorkflow",
+                                        "(IJ)V"
+                                )
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .addVariableInfo(
+                        new CheckpointCollector.VariableInfo(
+                                "l",
+                                2,
+                                new CheckpointCollector.MethodInfo(
+                                        TEST_AUDITOR_WORKFLOW,
+                                        "subWorkflow",
+                                        "(IJ)V"
+                                )
+                        )
+                );
+        Mockito
+                .verify(workflowRepositoryCheckpointCollectorMock)
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
@@ -100,8 +139,8 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
@@ -113,8 +152,8 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
@@ -126,8 +165,8 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
@@ -139,8 +178,8 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
@@ -152,8 +191,8 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
@@ -165,8 +204,8 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
@@ -178,8 +217,8 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "main",
                                 "()V",
@@ -191,8 +230,8 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "subWorkflow",
                                 "(IJ)V",
@@ -204,8 +243,8 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "subWorkflow",
                                 "(IJ)V",
@@ -217,8 +256,8 @@ class CheckpointCollectorTest {
                 );
         Mockito
                 .verify(workflowRepositoryCheckpointCollectorMock)
-                .add(
-                        new CheckpointCollector.CheckPoint(
+                .addCheckpointInfo(
+                        new CheckpointCollector.CheckpointInfo(
                                 TEST_AUDITOR_WORKFLOW,
                                 "subWorkflow",
                                 "(IJ)V",

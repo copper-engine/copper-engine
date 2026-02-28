@@ -24,10 +24,11 @@ public class AnalyzerWorkflow extends AnalyzerBaseWorkflow {
 
     @Override
     public void main() throws Interrupt {
+        final var correlationId = "correlationId";
         super.main();
         super.callService("checkCustomerCredit");
         callService("checkOrder");
-        wait(WaitMode.FIRST, 100, "correlationId");
+        wait(WaitMode.FIRST, 100, correlationId);
     }
 
 }

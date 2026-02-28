@@ -57,6 +57,28 @@ class WorkflowMapCheckpointCollectorTest {
         assertImmutable(workflowMap);
         assertCheckpointsMin(workflowMap);
         assertCheckpointsMax(workflowMap);
+        final var variables = workflowMap
+                .get(ANALYSER_WORKFLOW)
+                .methodInfoMap()
+                .get(MAIN_METHOD)
+                .variables();
+
+
+        Assertions.assertEquals(2, variables.size());
+        final var thisVariableInfo = variables.get(0);
+        Assertions.assertEquals(
+                new WorkflowMapCheckpointCollector.Variable(
+                        "this",
+                        0
+                ),
+                thisVariableInfo);
+        final var correlationIdVariableInfo = variables.get(1);
+        Assertions.assertEquals(
+                new WorkflowMapCheckpointCollector.Variable(
+                        "correlationId",
+                        1
+                ),
+                correlationIdVariableInfo);
     }
 
     private static void assertCheckpointsMin(final Map<String, WorkflowMapCheckpointCollector.Workflow> workflowMap) {
@@ -125,18 +147,39 @@ class WorkflowMapCheckpointCollectorTest {
                 "methodName",
                 "methodDescriptor"
         );
-        final Map<WorkflowMapCheckpointCollector.Method, List<WorkflowMapCheckpointCollector.Call>> methodMap = workflowMap
+        final var methodInfoMap = workflowMap
                 .get(ANALYSER_WORKFLOW)
-                .methodMap();
-        final var calls = methodMap.get(MAIN_METHOD);
+                .methodInfoMap();
+        final WorkflowMapCheckpointCollector.Info info = methodInfoMap.get(MAIN_METHOD);
+
+
         Assertions
                 .assertThrows(
                         UnsupportedOperationException.class,
-                        () -> methodMap
+                        () -> methodInfoMap
                                 .put(
                                         newMethod,
-                                        calls
+                                        info
                                 )
+                );
+
+
+        final List<WorkflowMapCheckpointCollector.Variable> variables = workflowMap
+                .get(ANALYSER_WORKFLOW)
+                .methodInfoMap()
+                .get(MAIN_METHOD)
+                .variables();
+        final var variableInfo =
+                new WorkflowMapCheckpointCollector.Variable(
+                        "name",
+                        7
+                );
+
+
+        Assertions
+                .assertThrows(
+                        UnsupportedOperationException.class,
+                        () -> variables.add(variableInfo)
                 );
 
 
@@ -145,6 +188,8 @@ class WorkflowMapCheckpointCollectorTest {
                 "ownerWorkflowClassName",
                 newMethod
         );
+
+        final List<WorkflowMapCheckpointCollector.Call> calls = info.calls();
         Assertions
                 .assertThrows(
                         UnsupportedOperationException.class,

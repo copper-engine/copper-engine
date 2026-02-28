@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * </p><p>
  * For each workflow the first and last call
  * are {@link #workflowStart(String, String)} and {@link #workflowEnd(String)}.
- * For every call of an interruptable methods {@link #add(CheckPoint)} is called.
+ * For every call of an interruptable methods {@link #addCheckpointInfo(CheckpointInfo)} is called.
  * </p><p>
  * Implementations of the CheckpointCollector get this information of workflows
  * so that they can create meaningful documentation as BPMN, Activity Diagrams, etc.
@@ -52,14 +52,23 @@ public interface CheckpointCollector {
     }
 
     /**
-     * Called once for each checkpoint.
+     * Called once for each checkpointInfo.
      *
-     * @param checkpoint Description of the checkpoint.
+     * @param checkpointInfo Description of the checkpointInfo.
      */
-    default void add(
-            final CheckPoint checkpoint
+    default void addCheckpointInfo(
+            final CheckpointInfo checkpointInfo
     ) {
-        LoggerFactory.getLogger(this.getClass()).info("addCheckpoint {}", checkpoint);
+        LoggerFactory.getLogger(this.getClass()).info("addCheckpoint {}", checkpointInfo);
+    }
+
+    /**
+     * Called once for each variable in instrumented methods.
+     *
+     * @param variableInfo Information where the variable is used.
+     */
+    default void addVariableInfo(VariableInfo variableInfo) {
+        LoggerFactory.getLogger(this.getClass()).info("addVariableInfo {}", variableInfo);
     }
 
     /**
@@ -98,7 +107,7 @@ public interface CheckpointCollector {
      * @param interruptableMethodDescriptor The descriptor of the interruptable method
      *                                      associated with this CheckPoint.
      */
-    record CheckPoint(
+    record CheckpointInfo(
             String workflowClassName,
             String methodName,
             String methodDescriptor,
@@ -106,6 +115,20 @@ public interface CheckpointCollector {
             String ownerWorkflowClassName,
             String interruptableMethodName,
             String interruptableMethodDescriptor
+    ) {
+    }
+
+    record MethodInfo(
+            String workflowClassName,
+            String methodName,
+            String methodDescriptor
+    ) {
+    }
+
+    record VariableInfo(
+            String name,
+            int index,
+            MethodInfo methodInfo
     ) {
     }
 }

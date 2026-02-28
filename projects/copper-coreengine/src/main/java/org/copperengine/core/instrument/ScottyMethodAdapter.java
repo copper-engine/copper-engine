@@ -69,6 +69,7 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
         this.stackInfo = stackInfo;
         this.checkpointCollector = checkpointCollector;
     }
+
     public ScottyMethodAdapter(MethodVisitor mv, String currentClassName, Set<String> interruptableMethods, ByteCodeStackInfo stackInfo, String name, int access, String descriptor) {
         this(
                 mv,
@@ -100,6 +101,24 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
             logger.warn("Illegal code: Interrupt class is for COPPER internal use only!!!");
         }
         super.visitTypeInsn(opcode, type);
+    }
+
+    @Override
+    public void visitLocalVariable(
+            final String name,
+            final String descriptor,
+            final String signature,
+            final Label start,
+            final Label end,
+            final int index) {
+        super.visitLocalVariable(name, descriptor, signature, start, end, index);
+        checkpointCollector.addVariableInfo(
+                new CheckpointCollector.VariableInfo(
+                        name,
+                        index,
+                        new CheckpointCollector.MethodInfo(currentClassName, info.methodName, info.descriptor)
+                )
+        );
     }
 
     void pushLocals(StackInfo info) {
@@ -384,8 +403,8 @@ class ScottyMethodAdapter extends MethodVisitor implements Opcodes {
     }
 
     private void addCheckpoint(final String owner, final String name, final String desc) {
-        checkpointCollector.add(
-                new CheckpointCollector.CheckPoint(
+        checkpointCollector.addCheckpointInfo(
+                new CheckpointCollector.CheckpointInfo(
                         info.definingClass,
                         info.methodName,
                         info.descriptor,

@@ -82,10 +82,15 @@ public class WorkflowMapAnalyzer {
             final WorkflowMapCheckpointCollector.Method method
     ) {
         final WorkflowMapCheckpointCollector.Workflow workflow = workflowMap.get(workflowClassName);
-        if (workflow == null) {
+        if (workflow == null ) {
             return List.of();
         }
-        final List<WorkflowMapCheckpointCollector.Call> calls = workflow.methodMap().get(method);
+
+        if ( workflow.methodInfoMap().get(method) == null) {
+            return getCalls(workflow.superWorkflowName(), method);
+        }
+
+        final List<WorkflowMapCheckpointCollector.Call> calls = workflow.methodInfoMap().get(method).calls();
         if (calls != null) {
             return calls;
         }
