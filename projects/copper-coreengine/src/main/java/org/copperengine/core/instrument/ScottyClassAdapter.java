@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.copperengine.core.wfrepo.CheckpointCollector;
+import org.copperengine.core.wfrepo.checkpoint.CheckpointCollector;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -57,7 +57,7 @@ public class ScottyClassAdapter extends ClassVisitor implements Opcodes {
         currentClassName = name;
         logger.info("Transforming " + currentClassName);
         if (checkpointCollector != null) {
-            checkpointCollector.workflowStart(name);
+            checkpointCollector.workflowStart(name, superName);
         }
         super.visit(version, access, name, signature, superName, interfaces);
         super.visitAnnotation("Lorg/copperengine/core/instrument/Transformed;", true);

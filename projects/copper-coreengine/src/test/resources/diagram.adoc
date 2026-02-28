@@ -1,0 +1,69 @@
+[plantuml, diagramm-name, png]
+----
+
+@startuml
+start
+:START;
+partition main {
+switch (entryNo?)
+case ( none )
+  :Prolog;
+case ( 0 )
+  :RESUME;
+  :process segment;
+case ( 1 )
+  :RESUME;
+  :process segment;
+partition callService {
+switch (entryNo?)
+case ( none )
+  :Prolog;
+case ( 0 )
+  :RESUME;
+  :process segment;
+endswitch
+switch(interrupt?)
+  case(yes)
+    :INTERRUPT;
+      stop
+  case(no)
+    :Epilog;
+endswitch
+:END;
+stop
+}
+case ( 2 )
+  :RESUME;
+  :process segment;
+partition callService {
+switch (entryNo?)
+case ( none )
+  :Prolog;
+case ( 0 )
+  :RESUME;
+  :process segment;
+endswitch
+switch(interrupt?)
+  case(yes)
+    :INTERRUPT;
+      stop
+  case(no)
+    :Epilog;
+endswitch
+:END;
+stop
+}
+case ( 3 )
+  :RESUME;
+  :process segment;
+endswitch
+switch(interrupt?)
+  case(yes)
+    :INTERRUPT;
+      stop
+  case(no)
+    :Epilog;
+endswitch
+:END;
+stop
+}

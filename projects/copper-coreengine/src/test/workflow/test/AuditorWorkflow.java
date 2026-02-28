@@ -65,7 +65,7 @@ public class AuditorWorkflow extends Workflow<Void> implements Auditor {
         System.out.println("lastCall " + jumpNos);
         return jumpNos.size() == 2
                 && jumpNos.get(0) == 7
-                && jumpNos.get(1) == 1;
+                && jumpNos.get(1) == 2;
     }
 
     @Override
@@ -128,6 +128,9 @@ public class AuditorWorkflow extends Workflow<Void> implements Auditor {
 
         savepoint();
         System.out.println("jumpNo=1");
+
+        super.savepoint();
+        System.out.println("jumpNo=2");
 
         System.out.println("subWorkflow end");
     }

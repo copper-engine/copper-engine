@@ -1,5 +1,6 @@
 COPPER 6.2.0
 ============
+- New feature: Add WorkflowMapAnalyter
 - Maintenance: Faster tests (less sleep time)
 - New feature: Add CheckpointCollector
 - New feature: Add Auditor to TransientProcessor
