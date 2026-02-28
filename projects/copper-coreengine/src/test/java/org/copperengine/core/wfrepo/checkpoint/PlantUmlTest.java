@@ -77,7 +77,7 @@ class PlantUmlTest {
     }
 
     private static String getDiagram() throws IOException {
-        try (InputStream is = PlantUmlTest.class.getResourceAsStream("/diagram.adoc")) {
+        try (final InputStream is = PlantUmlTest.class.getResourceAsStream("/diagram.adoc")) {
             return new String(is.readAllBytes(), StandardCharsets.UTF_8).replace("\r\n", "\n");
         }
 
@@ -86,13 +86,12 @@ class PlantUmlTest {
     private static Consumer<WorkflowMapAnalyzer.Consumable> getPlantUmlConsumer(final StringBuilder stringBuilder) {
         final AtomicInteger lastDepth = new AtomicInteger(0);
         return consumeable -> {
-            final WorkflowMapCheckpointCollector.Call call = consumeable.call();
 
             for (; lastDepth.get() > consumeable.depth(); lastDepth.getAndDecrement()) {
                 appendPartionEnd(stringBuilder);
             }
 
-            if (call.jumpNo() == 0) {
+            if (consumeable.call().jumpNo() == 0) {
                 appendPartitionStart(stringBuilder, consumeable);
                 lastDepth.set(consumeable.depth());
             }
