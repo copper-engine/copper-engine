@@ -44,9 +44,16 @@ public class OrderWorkflow extends Workflow<Void> implements Auditor {
             final List<Integer> jumpNos,
             final Map<String, WorkflowMapCheckpointCollector.Workflow> workflowMap
     ) {
-        final WorkflowMapCheckpointCollector.Workflow workflow =
-                workflowMap.get(OrderWorkflow.class.getName().replace('.', '/'));
-        WorkflowMapCheckpointCollector.Info info = workflow
+        WorkflowMapCheckpointCollector.Info info = null;
+
+        getStackInfo(jumpNos, workflowMap, null, -1);
+    }
+
+    private static WorkflowMapCheckpointCollector.Info getMainInfo(
+            final Map<String, WorkflowMapCheckpointCollector.Workflow> workflowMap
+    ) {
+        return workflowMap
+                .get(OrderWorkflow.class.getName().replace('.', '/'))
                 .methodInfoMap()
                 .get(
                         new WorkflowMapCheckpointCollector.Method(
@@ -54,36 +61,48 @@ public class OrderWorkflow extends Workflow<Void> implements Auditor {
                                 "()V"
                         )
                 );
-        int depth = 0;
-        if (jumpNos.size() > depth) {
-            logJump(depth, info);
+    }
 
-        }
-        while (jumpNos.size() > depth + 1) {
-            info = getInfo(jumpNos, workflowMap, info, depth);
-            logJump(++depth, info);
+    private void getStackInfo(
+            final List<Integer> jumpNos,
+            final Map<String, WorkflowMapCheckpointCollector.Workflow> workflowMap,
+            final WorkflowMapCheckpointCollector.Info info,
+            final int depthIndex
+    ) {
+        final WorkflowMapCheckpointCollector.Info
+                currentInfo = (info == null
+                ? getMainInfo(workflowMap)
+                : getNextInfo(jumpNos, workflowMap, info, depthIndex));
+        logJump(depthIndex + 1, currentInfo);
+        if (jumpNos.size() > depthIndex + 2) {
+            getStackInfo(jumpNos, workflowMap, currentInfo, depthIndex + 1);
         }
     }
 
-    private static WorkflowMapCheckpointCollector.Info getInfo(final List<Integer> jumpNos, final Map<String, WorkflowMapCheckpointCollector.Workflow> workflowMap, final WorkflowMapCheckpointCollector.Info info, final int depth) {
+    private static WorkflowMapCheckpointCollector.Info getNextInfo(final List<Integer> jumpNos, final Map<String, WorkflowMapCheckpointCollector.Workflow> workflowMap, final WorkflowMapCheckpointCollector.Info info, final int depthIndex) {
+        WorkflowMapCheckpointCollector.Info currentInfo;
         final WorkflowMapCheckpointCollector.Call call = info
                 .calls()
-                .get(jumpNos.get(depth));
-        final WorkflowMapCheckpointCollector.Workflow workflow2 =
+                .get(jumpNos.get(depthIndex));
+        final WorkflowMapCheckpointCollector.Workflow workflow =
                 workflowMap.get(
                         call.ownerWorkflowClassName()
                 );
-        return workflow2
+        currentInfo = workflow
                 .methodInfoMap()
                 .get(call.interruptable());
+        return currentInfo;
     }
 
-    private void logJump(final int depth, final WorkflowMapCheckpointCollector.Info info) {
+    private void logJump(
+            final int depthIndex,
+            final WorkflowMapCheckpointCollector.Info info
+    ) {
         info
                 .variables()
                 .forEach(variable -> {
-                    if (__stack.get(depth).locals.length > variable.index()) {
-                        log.info("{}={}", variable.name(), __stack.get(depth).locals[variable.index()]);
+                    if (__stack.get(depthIndex).locals.length > variable.index()) {
+                        log.info("{}={}", variable.name(), __stack.get(depthIndex).locals[variable.index()]);
                     }
                 });
     }
