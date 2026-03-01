@@ -17,6 +17,7 @@ package test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.copperengine.core.Auditor;
 import org.copperengine.core.AutoWire;
@@ -46,7 +47,24 @@ public class OrderWorkflow extends Workflow<Void> implements Auditor {
     ) {
         WorkflowMapCheckpointCollector.Info info = null;
 
-        getStackInfo(jumpNos, workflowMap, null, -1);
+        final var infoBuilder = new StringBuilder().append("\n");
+
+        getStackInfo(jumpNos, workflowMap, null, -1, new Consumer<Variable>() {
+            @Override
+            public void accept(final Variable variable) {
+                if (!"this".equals(variable.name())) {
+                    infoBuilder
+                            .append("  ".repeat(variable.depthIndex()))
+                            .append(variable.name())
+                            .append("=").append(variable.value())
+                            .append("\n");
+                }
+            }
+        });
+        log.info(infoBuilder.toString());
+    }
+
+    record Variable(int depthIndex, String name, String value) {
     }
 
     private static WorkflowMapCheckpointCollector.Info getMainInfo(
@@ -67,15 +85,15 @@ public class OrderWorkflow extends Workflow<Void> implements Auditor {
             final List<Integer> jumpNos,
             final Map<String, WorkflowMapCheckpointCollector.Workflow> workflowMap,
             final WorkflowMapCheckpointCollector.Info info,
-            final int depthIndex
-    ) {
+            final int depthIndex,
+            final Consumer<Variable> consumer) {
         final WorkflowMapCheckpointCollector.Info
                 currentInfo = (info == null
                 ? getMainInfo(workflowMap)
                 : getNextInfo(jumpNos, workflowMap, info, depthIndex));
-        logJump(depthIndex + 1, currentInfo);
+        logJump(depthIndex + 1, currentInfo, consumer);
         if (jumpNos.size() > depthIndex + 2) {
-            getStackInfo(jumpNos, workflowMap, currentInfo, depthIndex + 1);
+            getStackInfo(jumpNos, workflowMap, currentInfo, depthIndex + 1, consumer);
         }
     }
 
@@ -96,13 +114,13 @@ public class OrderWorkflow extends Workflow<Void> implements Auditor {
 
     private void logJump(
             final int depthIndex,
-            final WorkflowMapCheckpointCollector.Info info
-    ) {
+            final WorkflowMapCheckpointCollector.Info info,
+            final Consumer<Variable> consumer) {
         info
                 .variables()
                 .forEach(variable -> {
                     if (__stack.get(depthIndex).locals.length > variable.index()) {
-                        log.info("{}={}", variable.name(), __stack.get(depthIndex).locals[variable.index()]);
+                        consumer.accept(new Variable(depthIndex, variable.name(), __stack.get(depthIndex).locals[variable.index()] + ""));
                     }
                 });
     }
