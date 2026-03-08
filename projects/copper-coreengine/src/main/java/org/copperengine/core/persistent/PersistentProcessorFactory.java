@@ -38,7 +38,22 @@ public class PersistentProcessorFactory implements ProcessorFactory {
         this.transactionController = transactionController;
     }
 
-    public Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine) {
+    public Processor newProcessor(
+            final String id,
+            final Queue<Workflow<?>> queue,
+            final int threadPrioriry,
+            final ProcessingEngine engine,
+            final int maxNumberOfDelegates
+    ) {
+        return new PersistentProcessor(id, queue, threadPrioriry, engine, transactionController, maxNumberOfDelegates);
+    }
+
+    public Processor newProcessor(
+            final String id,
+            final Queue<Workflow<?>> queue,
+            final int threadPrioriry,
+            final ProcessingEngine engine
+    ) {
         return new PersistentProcessor(id, queue, threadPrioriry, engine, transactionController);
     }
 }

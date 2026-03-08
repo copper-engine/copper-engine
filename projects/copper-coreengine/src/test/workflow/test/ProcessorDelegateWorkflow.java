@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.copperengine.core.common;
+package test;
 
-import java.util.Queue;
-
-import org.copperengine.core.ProcessingEngine;
+import org.copperengine.core.Interrupt;
 import org.copperengine.core.Workflow;
+import org.junit.jupiter.api.Assertions;
 
-public interface ProcessorFactory {
-    Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine);
-    Processor newProcessor(String id, Queue<Workflow<?>> queue, int threadPrioriry, ProcessingEngine engine, int maxNumberOfDelegates);
+public class ProcessorDelegateWorkflow extends Workflow<Boolean> {
+
+    private static final long serialVersionUID = 1L;
+
+
+    @Override
+    public void main() throws Interrupt {
+        Assertions
+                .assertEquals(getData(), Thread.currentThread().isVirtual());
+    }
 }
