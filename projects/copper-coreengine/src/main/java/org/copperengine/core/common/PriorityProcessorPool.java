@@ -37,6 +37,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
 
     protected final SuspendableQueue<Workflow<?>> queue = new SuspendableQueue<Workflow<?>>(createQueue());
     private final List<Processor> workerThreads = new ArrayList<Processor>();
+    private int maxNumberOfDelegates = 0;
 
     private ProcessingEngine engine = null;
     private String id = null;
@@ -70,9 +71,13 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
     }
 
     public PriorityProcessorPool(String id, int numberOfThreads) {
-        super();
-        this.id = id;
+        this(id);
         this.numberOfThreads = numberOfThreads;
+    }
+
+    public PriorityProcessorPool(String id, int numberOfThreads, int maxNumberOfDelegates) {
+        this(id, numberOfThreads);
+        this.maxNumberOfDelegates = maxNumberOfDelegates;
     }
 
     /**
@@ -135,7 +140,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
             }
         }
         while (numberOfThreads > workerThreads.size()) {
-            Processor p = processorFactory.newProcessor(id + "#" + workerThreads.size(), queue, threadPriority, engine);
+            Processor p = processorFactory.newProcessor(id + "#" + workerThreads.size(), queue, threadPriority, engine, maxNumberOfDelegates);
             p.start();
             workerThreads.add(p);
         }
@@ -258,7 +263,7 @@ public abstract class PriorityProcessorPool implements ProcessorPool, ProcessorP
     public synchronized int getNumberOfActiveThreads() {
         int rv = 0;
         for (Processor p : workerThreads) {
-            rv += p.isIdle() ? 0 : 1;
+            rv += p.isIdle() ? 0 : p.getNumberOfDelegantes();
         }
         return rv;
     }

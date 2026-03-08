@@ -16,6 +16,10 @@
 package org.copperengine.core.common;
 
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import org.copperengine.core.ProcessingEngine;
 import org.copperengine.core.Workflow;
@@ -24,7 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A COPPER Processor is a thread executing {@link Workflow} instances.
+ * A COPPER Processor is a thread executing {@link Workflow} instances
+ * or delegates execution to virtual threads.
  *
  * @author austermann
  */
@@ -35,13 +40,36 @@ public abstract class Processor extends Thread {
     protected volatile boolean shutdown = false;
     protected final ProcessingEngine engine;
     protected ProcessingHook processingHook = new MDCProcessingHook();
-    private boolean idle = false; 
+    private final int maxNumberOfDelegates;
 
-    public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
+    private boolean idle = false;
+
+    private final ExecutorService executorService;
+    private final Semaphore semaphore;
+
+    public Processor(
+            final String name,
+            final Queue<Workflow<?>> queue,
+            final int prio,
+            final ProcessingEngine engine,
+            final int maxNumberOfDelegates
+    ) {
         super(name);
         this.queue = queue;
         this.setPriority(prio);
         this.engine = engine;
+        this.maxNumberOfDelegates = maxNumberOfDelegates;
+        if (isDelegating()) {
+            semaphore = new Semaphore(maxNumberOfDelegates);
+            executorService = Executors.newVirtualThreadPerTaskExecutor();
+        } else {
+            semaphore = null;
+            executorService = null;
+        }
+    }
+
+    public Processor(String name, Queue<Workflow<?>> queue, int prio, final ProcessingEngine engine) {
+        this(name, queue, prio, engine, 0);
     }
 
     public void setProcessingHook(ProcessingHook processingHook) {
@@ -52,6 +80,17 @@ public abstract class Processor extends Thread {
         if (shutdown)
             return;
         logger.info("Stopping processor '" + getName() + "'...");
+        if (isDelegating()) {
+            logger.info("Stopping executor service ...");
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(3, TimeUnit.SECONDS)){
+                    logger.warn("executor service not terminated");
+                };
+            } catch (InterruptedException e) {
+                logger.debug("Ignore exception", e);
+            }
+        }
         shutdown = true;
         interrupt();
     }
@@ -77,10 +116,21 @@ public abstract class Processor extends Thread {
                     if (wf.getClass().getAnnotation(Transformed.class) == null) {
                         throw new RuntimeException(wf.getClass().getName() + " has not been transformed");
                     }
+                    if (isDelegating()) {
+                        semaphore.acquire();
+                    }
                     preProcess(wf);
                     try {
-                        process(wf);
+                        if (isDelegating()) {
+                            final var delegatedWorkflow = wf;
+                            executorService.submit(() -> process(delegatedWorkflow));
+                        } else {
+                            process(wf);
+                        }
                     } finally {
+                        if (isDelegating()) {
+                            semaphore.release();
+                        }
                         postProcess(wf);
                     }
                 }
@@ -107,10 +157,18 @@ public abstract class Processor extends Thread {
     }
 
     protected abstract void process(Workflow<?> wf);
-    
+
+    private boolean isDelegating() {
+        return maxNumberOfDelegates > 0;
+    }
+
     public boolean isIdle() {
         synchronized (queue) {
-            return idle;
+            return idle && semaphore.availablePermits() == maxNumberOfDelegates;
         }
+    }
+
+    public int getNumberOfDelegantes() {
+        return maxNumberOfDelegates - semaphore.availablePermits();
     }
 }

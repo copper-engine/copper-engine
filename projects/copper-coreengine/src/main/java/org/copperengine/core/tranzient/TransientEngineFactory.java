@@ -78,22 +78,33 @@ public abstract class TransientEngineFactory {
         return new PojoDependencyInjector();
     }
 
-    protected ProcessorPoolManager<TransientProcessorPool> createProcessorPoolManager() {
-        TransientPriorityProcessorPool defaultPP = new TransientPriorityProcessorPool(TransientProcessorPool.DEFAULT_POOL_ID);
+    protected ProcessorPoolManager<TransientProcessorPool> createProcessorPoolManager(CreateParam createParam) {
+        TransientPriorityProcessorPool defaultPP;
+        if (createParam.maxNumberOfDelegates > 0) {
+            defaultPP =
+                    new TransientPriorityProcessorPool(
+                            TransientProcessorPool.DEFAULT_POOL_ID,
+                            1, 100
+                    );
+        } else {
+            defaultPP = new TransientPriorityProcessorPool(
+                    TransientProcessorPool.DEFAULT_POOL_ID
+            );
+        }
         DefaultProcessorPoolManager<TransientProcessorPool> ppm = new DefaultProcessorPoolManager<TransientProcessorPool>();
         ppm.addProcessorPool(defaultPP);
         return ppm;
     }
 
     public TransientScottyEngine create() {
-        TransientScottyEngine engine = createScottyEngine();
+        TransientScottyEngine engine = createScottyEngine(new CreateParam(0));
         engine.setWfRepository(createWorkflowRepository());
         engine.startup();
         return engine;
     }
 
     public TransientScottyEngine create(CheckpointCollector checkpointCollector) {
-        TransientScottyEngine engine = createScottyEngine();
+        TransientScottyEngine engine = createScottyEngine(new CreateParam(0));
         final FileBasedWorkflowRepository workflowRepository = createFileBasedWorkflowRepository();
         workflowRepository.setWorkflowRepositoryCheckpointCollector(checkpointCollector);
         engine.setWfRepository(workflowRepository);
@@ -101,19 +112,20 @@ public abstract class TransientEngineFactory {
         return engine;
     }
 
-    private TransientScottyEngine createScottyEngine() {
+    private TransientScottyEngine createScottyEngine(final CreateParam createParam) {
         TransientScottyEngine engine = new TransientScottyEngine();
         engine.setDependencyInjector(createDependencyInjector());
         engine.setEarlyResponseContainer(createEarlyResponseContainer());
         engine.setEngineIdProvider(createEngineIdProvider());
         engine.setIdFactory(createIdFactory());
-        engine.setPoolManager(createProcessorPoolManager());
+        engine.setPoolManager(createProcessorPoolManager(createParam));
         engine.setStatisticsCollector(createRuntimeStatisticsCollector());
         engine.setTicketPoolManager(createTicketPoolManager());
         engine.setTimeoutManager(createTimeoutManager());
         return engine;
 
     }
+
     private FileBasedWorkflowRepository createFileBasedWorkflowRepository() {
         FileBasedWorkflowRepository repo = new FileBasedWorkflowRepository();
         List<String> sourceDirs = new ArrayList<>();
@@ -123,4 +135,15 @@ public abstract class TransientEngineFactory {
         return repo;
     }
 
+    public TransientScottyEngine create(final CreateParam createParam) {
+        TransientScottyEngine engine = createScottyEngine(createParam);
+        engine.setWfRepository(createWorkflowRepository());
+        engine.startup();
+        return engine;
+    }
+
+    public record CreateParam(int maxNumberOfDelegates) {
+    }
+
+    ;
 }

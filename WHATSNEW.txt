@@ -1,3 +1,9 @@
+COPPER 7.0.0
+============
+- BREAKING: COPPER will require jdk>=21
+- New feature: Processors now can delegate work to virtual threads (see new parameter maxNumberOfDelegates)
+- getNumberOfActiveThreads also delivers count of delegates
+
 COPPER 6.2.0
 ============
 - New experimental feature: Add WorkflowMapAnalyzer

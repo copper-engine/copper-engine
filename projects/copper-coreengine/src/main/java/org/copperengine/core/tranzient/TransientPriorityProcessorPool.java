@@ -54,6 +54,11 @@ public class TransientPriorityProcessorPool extends PriorityProcessorPool implem
         setProcessorFactory(new TransientProcessorFactory());
     }
 
+    public TransientPriorityProcessorPool(String id, int numberOfThreads, int maxNumberOfDelegates) {
+        super(id, numberOfThreads, maxNumberOfDelegates);
+        setProcessorFactory(new TransientProcessorFactory());
+    }
+
     @Override
     public void enqueue(Workflow<?> wf) {
         if (wf == null)
