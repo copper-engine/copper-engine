@@ -56,7 +56,7 @@ class TransientProcessor extends Processor {
                     if (stackEntries.isEmpty()) {
                         auditor.start();
                     } else {
-                        auditor.resume(jumpNos(stackEntries));
+                        auditor.resume();
                     }
                 }
                 wf.main();
@@ -70,7 +70,7 @@ class TransientProcessor extends Processor {
                 if (wf instanceof Auditor auditor) {
                     List<StackEntry> stackEntries = wf.get__stack();
                     if (!stackEntries.isEmpty()) {
-                        auditor.interrupt(jumpNos(stackEntries));
+                        auditor.interrupt();
                     }
                 }
                 logger.trace("interrupt - stack={}", wf.get__stack());
@@ -78,7 +78,7 @@ class TransientProcessor extends Processor {
                 assert wf.get__stack().size() > 0;
             } catch (Exception e) {
                 if (wf instanceof Auditor auditor) {
-                    auditor.error(jumpNos(wf.get__stack()));
+                    auditor.error();
                 }
                 engine.removeWorkflow(wf.getId());
                 logger.error("Execution of wf " + wf.getId() + " failed", e);
@@ -87,12 +87,5 @@ class TransientProcessor extends Processor {
                 assert wf.get__stack().isEmpty() : "Stack must be empty \n" + wf.get__stack();
             }
         }
-    }
-
-    private static List<Integer> jumpNos(final List<StackEntry> stackEntries) {
-        return stackEntries
-                .stream()
-                .map(e -> e.jumpNo)
-                .toList();
     }
 }

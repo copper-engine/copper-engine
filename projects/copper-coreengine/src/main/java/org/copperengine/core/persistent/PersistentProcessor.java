@@ -64,7 +64,7 @@ public class PersistentProcessor extends Processor {
                                 if (stackEntries.isEmpty()) {
                                     auditor.start();
                                 } else {
-                                    auditor.resume(jumpNos(stackEntries));
+                                    auditor.resume();
                                 }
                             }
                             pw.main();
@@ -78,7 +78,7 @@ public class PersistentProcessor extends Processor {
                             if (wf instanceof Auditor auditor) {
                                 List<StackEntry> stackEntries = wf.get__stack();
                                 if (!stackEntries.isEmpty()) {
-                                    auditor.interrupt(jumpNos(stackEntries));
+                                    auditor.interrupt();
                                 }
                             }
                             assert pw.get__stack().size() > 0;
@@ -95,7 +95,7 @@ public class PersistentProcessor extends Processor {
             });
         } catch (Exception e) {
             if (wf instanceof Auditor auditor) {
-                auditor.error(jumpNos(wf.get__stack()));
+                auditor.error();
             }
             logger.error("execution of workflow instance failed", e);
             handleError(pw, e);
@@ -109,12 +109,5 @@ public class PersistentProcessor extends Processor {
         } catch (Exception e) {
             logger.error("FATAL ERROR: Unable to store error information", e);
         }
-    }
-
-    private static List<Integer> jumpNos(final List<StackEntry> stackEntries) {
-        return stackEntries
-                .stream()
-                .map(e -> e.jumpNo)
-                .toList();
     }
 }

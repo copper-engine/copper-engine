@@ -33,7 +33,7 @@ class CheckpointCollectorTest {
     @Test
     void execute() throws Exception {
 
-        // Action with Assumption, but I use Assertions tp be sure
+        // Action with Assumption, but I use Assertions to be sure
         // that test fails if something goes wrong
         TransientEngineFactory factory = new TransientEngineFactory() {
             @Override
@@ -47,7 +47,7 @@ class CheckpointCollectorTest {
             Assertions.assertEquals("STARTED", engine.getState());
             engine.run("test.AuditorWorkflow", null);
         } finally {
-            LockSupport.parkNanos(Duration.ofMillis(500).toNanos());
+            LockSupport.parkNanos(Duration.ofMillis(1000).toNanos());
             Assertions.assertEquals(0, engine.getNumberOfWorkflowInstances());
             engine.shutdown();
         }
