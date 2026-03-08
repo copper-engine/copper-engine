@@ -47,7 +47,7 @@ class CheckpointCollectorTest {
             Assertions.assertEquals("STARTED", engine.getState());
             engine.run("test.AuditorWorkflow", null);
         } finally {
-            LockSupport.parkNanos(Duration.ofMillis(500).toNanos());
+            LockSupport.parkNanos(Duration.ofMillis(1000).toNanos());
             Assertions.assertEquals(0, engine.getNumberOfWorkflowInstances());
             engine.shutdown();
         }

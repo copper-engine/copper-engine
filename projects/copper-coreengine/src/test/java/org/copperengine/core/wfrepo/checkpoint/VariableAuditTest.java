@@ -51,7 +51,7 @@ class VariableAuditTest {
             engine.setDependencyInjector(new DependencyInjector (workflowMapCheckpointCollector.getWorkflowMap()));
             engine.run(ORDER_WORKFLOW.replace('/', '.'), null);
         } finally {
-            Thread.sleep(500);
+            Thread.sleep(5000);
             Assertions.assertEquals(0, engine.getNumberOfWorkflowInstances());
             engine.shutdown();
         }

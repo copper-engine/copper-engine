@@ -49,15 +49,15 @@ public class AnalyseWorkflow2 extends Workflow<Integer> implements Auditor {
     }
 
     @Override
-    public void interrupt(List<Integer> jumpNos) {
-        log.info("INTERRUPT {}", jumpNos);
-        appendInfo("interrupt %s: ".formatted(jumpNos), __stack, __stackPosition, analyseString);
+    public void interrupt() {
+        log.info("INTERRUPT {}", jumpNos());
+        appendInfo("interrupt %s: ".formatted(jumpNos()), __stack, __stackPosition, analyseString);
     }
 
     @Override
-    public void resume(List<Integer> jumpNos) {
-        log.info("RESUME {}", jumpNos);
-        appendInfo("resume %s: ".formatted(jumpNos), __stack, __stackPosition, analyseString);
+    public void resume() {
+        log.info("RESUME {}", jumpNos());
+        appendInfo("resume %s: ".formatted(jumpNos()), __stack, __stackPosition, analyseString);
     }
 
     @Override
@@ -67,9 +67,9 @@ public class AnalyseWorkflow2 extends Workflow<Integer> implements Auditor {
     }
 
     @Override
-    public void error(List<Integer> jumpNos) {
+    public void error() {
         log.info("ERROR");
-        appendInfo("error %s: ".formatted(jumpNos), __stack, __stackPosition, analyseString);
+        appendInfo("error %s: ".formatted(jumpNos()), __stack, __stackPosition, analyseString);
     }
 
     private void localWait(int delay, int depth) throws Interrupt {
@@ -77,6 +77,13 @@ public class AnalyseWorkflow2 extends Workflow<Integer> implements Auditor {
         if (depth > 1) {
             localWait(100, --depth);
         }
+    }
+
+    private List<Integer> jumpNos() {
+        return get__stack()
+                .stream()
+                .map(e -> e.jumpNo)
+                .toList();
     }
 
     public void main() throws Interrupt {
