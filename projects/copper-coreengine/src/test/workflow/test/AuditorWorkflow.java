@@ -44,16 +44,16 @@ public class AuditorWorkflow extends Workflow<Void> implements Auditor {
     }
 
     @Override
-    public void interrupt(final List<Integer> jumpNos) {
-        LoggerFactory.getLogger(this.getClass()).trace("interrupt {}", jumpNos);
-        this.lastInterruptCalled = lastCall(jumpNos);
+    public void interrupt() {
+        LoggerFactory.getLogger(this.getClass()).trace("interrupt {}", jumpNos());
+        this.lastInterruptCalled = lastCall(jumpNos());
 
     }
 
     @Override
-    public void resume(final List<Integer> jumpNos) {
-        LoggerFactory.getLogger(this.getClass()).trace("resume {}", jumpNos);
-        this.lastResumeCalled = lastCall(jumpNos);
+    public void resume() {
+        LoggerFactory.getLogger(this.getClass()).trace("resume {}", jumpNos());
+        this.lastResumeCalled = lastCall(jumpNos());
 
     }
 
@@ -158,5 +158,12 @@ public class AuditorWorkflow extends Workflow<Void> implements Auditor {
                 return null;
             }
         };
+    }
+
+    private List<Integer> jumpNos() {
+        return get__stack()
+                .stream()
+                .map(e -> e.jumpNo)
+                .toList();
     }
 }

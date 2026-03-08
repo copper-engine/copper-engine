@@ -16,7 +16,6 @@
 package org.copperengine.core;
 
 import java.io.Serializable;
-import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
@@ -40,20 +39,16 @@ public interface Auditor extends Serializable {
 
     /**
      * Is called before continuation of Workflow is interrupted.
-     *
-     * @param jumpNos list of jumps to the next continuation of Workflow
      */
-    default void interrupt(final List<Integer> jumpNos) {
-        LoggerFactory.getLogger(this.getClass()).trace("INTERRUPT {}", jumpNos);
+    default void interrupt() {
+        LoggerFactory.getLogger(this.getClass()).trace("INTERRUPT");
     }
 
     /**
      * Is called before continuation of Workflow is resumed.
-     *
-     * @param jumpNos list of jumps to the next continuation of Workflow
      */
-    default void resume(final List<Integer> jumpNos) {
-        LoggerFactory.getLogger(this.getClass()).trace("RESUME {}", jumpNos);
+    default void resume() {
+        LoggerFactory.getLogger(this.getClass()).trace("RESUME");
     }
 
     /**
@@ -66,10 +61,8 @@ public interface Auditor extends Serializable {
     /**
      * Is called before an exception in Workflow
      * that leads to Workflow instance state "ERROR".
-     *
-     * @param jumpNos list of jumps to the next continuation of Workflow
      */
-    default void error(final List<Integer> jumpNos) {
-        LoggerFactory.getLogger(this.getClass()).warn("ERROR {}", jumpNos);
+    default void error() {
+        LoggerFactory.getLogger(this.getClass()).warn("ERROR");
     }
 }
