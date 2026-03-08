@@ -1,3 +1,7 @@
+COPPER 8.0.0
+============
+- BREAKING: COPPER will require jdk>=25
+
 COPPER 7.0.0
 ============
 - BREAKING: COPPER will require jdk>=21
