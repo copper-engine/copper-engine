@@ -8,10 +8,10 @@ buildscript {
 plugins {
     // the license plugin, see https://github.com/hierynomus/license-gradle-plugin
     id "com.github.hierynomus.license" version "0.16.1"
-    id "com.github.spotbugs" version "6.4.3"
+    id "com.github.spotbugs" version "6.4.8"
     id "com.github.ben-manes.versions" version "0.53.0"
-    id "com.gradleup.nmcp" version "1.2.0"
-    id "com.gradleup.nmcp.aggregation" version "1.2.0"
+    id "com.gradleup.nmcp" version "1.4.4"
+    id "com.gradleup.nmcp.aggregation" version "1.4.4"
 }
 
 wrapper {

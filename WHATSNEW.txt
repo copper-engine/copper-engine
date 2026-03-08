@@ -3,6 +3,9 @@ COPPER 7.0.0
 - BREAKING: COPPER will require jdk>=21
 - New feature: Processors now can delegate work to virtual threads (see new parameter maxNumberOfDelegates)
 - getNumberOfActiveThreads also delivers count of delegates
+- Maintenance: spotbugs => 6.4.8
+- Maintenance: nmcp => 1.4.4
+- Maintenance: gradle => 9.4.0
 
 COPPER 6.2.0
 ============
