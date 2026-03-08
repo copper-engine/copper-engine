@@ -34,7 +34,7 @@ class WorkflowMapCheckpointCollectorTest {
     @Test
     void execute() throws Exception {
 
-        // Action with Assumption, but I use Assertions tp be sure
+        // Action with Assumption, but I use Assertions to be sure
         // that test fails if something goes wrong
         TransientEngineFactory factory = new TransientEngineFactory() {
             @Override
