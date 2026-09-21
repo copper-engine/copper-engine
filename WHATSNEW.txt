@@ -1,3 +1,22 @@
+COPPER 8.1.0
+============
+- New feature: compatible with Java 27
+- Maintenance: asmVersion = 9.9 => 9.10.1 (adds Opcodes.V27)
+- Maintenance: guavaVersion = 33.5.0-jre => 33.7.1-jre
+- Maintenance: jacksonVersion = 2.20.0 => 2.22.2
+- Maintenance: commonsIoVersion = 2.20.0 => 2.22.0
+- Maintenance: commonsLangVersion = 3.19.0 => 3.20.0
+- Maintenance: javaparserVersion = 3.27.1 => 3.28.2
+- Maintenance: jgitVersion = 7.4.0 => 7.8.0
+- Maintenance: junitVersion = 6.0.0 => 6.1.3
+- Maintenance: mockitoVersion = 5.20.0 => 5.23.0
+- Maintenance: byteBuddyVersion = 1.17.8 => 1.18.14
+- Maintenance: derbyVersion = 10.16.1.1 => 10.17.1.0
+- Maintenance: h2Version = 2.4.240 => 2.5.250
+- Maintenance: spotbugs plugin = 6.4.8 => 6.5.11
+- Maintenance: versions plugin = 0.53.0 => 0.64.0
+- Maintenance: nmcp = 1.4.4 => 1.6.2
+
 COPPER 8.0.0
 ============
 - BREAKING: COPPER will require jdk>=25
